@@ -1,0 +1,79 @@
+/**
+ * Textarea component
+ */
+
+.miaixz-textarea {
+  display: block;
+  width: 100%;
+  min-height: var(--miaixz-control-textarea-min-height);
+  padding: var(--miaixz-control-padding-block-textarea) var(--miaixz-density-control-padding-inline);
+  font-family: var(--miaixz-font-family-sans);
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-control-radius);
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: color, background-color, border-color, box-shadow;
+}
+
+.miaixz-textarea::placeholder {
+  color: var(--miaixz-color-text-muted);
+  opacity: 1;
+}
+
+.miaixz-textarea:where(:hover:not(:disabled, [readonly])) {
+  border-color: var(--miaixz-color-border-strong);
+}
+
+.miaixz-textarea:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+  border-color: var(--miaixz-color-focus);
+}
+
+.miaixz-textarea-small {
+  padding-inline: var(--miaixz-control-padding-inline-small);
+}
+
+.miaixz-textarea-medium {
+  padding-inline: var(--miaixz-control-padding-inline-medium);
+}
+
+.miaixz-textarea-large {
+  padding-inline: var(--miaixz-control-padding-inline-large);
+}
+
+.miaixz-textarea-invalid,
+.miaixz-textarea-invalid:focus-visible {
+  outline-color: var(--miaixz-color-danger);
+  border-color: var(--miaixz-color-danger);
+}
+
+.miaixz-textarea:disabled {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+  background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-textarea[readonly] {
+  background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-textarea[data-resize="none"] {
+  resize: none;
+}
+
+.miaixz-textarea[data-resize="vertical"] {
+  resize: vertical;
+}
+
+.miaixz-textarea[data-resize="horizontal"] {
+  resize: horizontal;
+}
+
+.miaixz-textarea[data-resize="both"] {
+  resize: both;
+}

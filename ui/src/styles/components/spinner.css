@@ -1,0 +1,27 @@
+/**
+ * Miaixz spinner component
+ */
+
+.miaixz-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-spinner > .miaixz-icon {
+  animation: miaixz-spinner-rotate var(--miaixz-motion-overlay-duration) linear infinite;
+}
+
+@keyframes miaixz-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-spinner > .miaixz-icon {
+    animation: none;
+  }
+}

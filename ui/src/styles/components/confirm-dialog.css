@@ -1,0 +1,50 @@
+/**
+ * Miaixz confirmation dialog component
+ */
+
+.miaixz-confirm-dialog-content {
+  display: grid;
+  grid-template-areas:
+    "input input input"
+    "error error error"
+    ". cancel confirm";
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+}
+
+.miaixz-confirm-dialog-input {
+  grid-area: input;
+}
+
+.miaixz-confirm-dialog-input > .miaixz-input {
+  width: 100%;
+}
+
+.miaixz-confirm-dialog-error {
+  grid-area: error;
+}
+
+.miaixz-confirm-dialog-cancel {
+  grid-area: cancel;
+}
+
+.miaixz-confirm-dialog-confirm {
+  grid-area: confirm;
+}
+
+@media (width <= 767px) {
+  .miaixz-confirm-dialog-content {
+    grid-template-areas:
+      "input"
+      "error"
+      "confirm"
+      "cancel";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .miaixz-confirm-dialog-cancel,
+  .miaixz-confirm-dialog-confirm {
+    width: 100%;
+  }
+}

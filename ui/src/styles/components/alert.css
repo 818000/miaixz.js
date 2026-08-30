@@ -1,0 +1,99 @@
+/**
+ * Miaixz alert component
+ */
+
+:root {
+  --miaixz-alert-padding: var(--miaixz-space-16);
+  --miaixz-alert-gap: var(--miaixz-space-12);
+  --miaixz-alert-status-size: var(--miaixz-border-width-strong);
+}
+
+.miaixz-alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--miaixz-alert-gap);
+  align-items: start;
+  padding: var(--miaixz-alert-padding);
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface-secondary);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-inline-start-width: var(--miaixz-alert-status-size);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-alert-neutral {
+  border-inline-start-color: var(--miaixz-color-border-strong);
+}
+
+.miaixz-alert-info {
+  background: var(--miaixz-color-info-soft);
+  border-inline-start-color: var(--miaixz-color-info);
+}
+
+.miaixz-alert-success {
+  background: var(--miaixz-color-success-soft);
+  border-inline-start-color: var(--miaixz-color-success);
+}
+
+.miaixz-alert-warning {
+  background: var(--miaixz-color-warning-soft);
+  border-inline-start-color: var(--miaixz-color-warning);
+}
+
+.miaixz-alert-danger {
+  background: var(--miaixz-color-danger-soft);
+  border-inline-start-color: var(--miaixz-color-danger);
+}
+
+.miaixz-alert-icon {
+  margin-block-start: var(--miaixz-space-2);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-alert-info > .miaixz-alert-icon {
+  color: var(--miaixz-color-info);
+}
+
+.miaixz-alert-success > .miaixz-alert-icon {
+  color: var(--miaixz-color-success);
+}
+
+.miaixz-alert-warning > .miaixz-alert-icon {
+  color: var(--miaixz-color-warning);
+}
+
+.miaixz-alert-danger > .miaixz-alert-icon {
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-alert-content {
+  min-width: 0;
+}
+
+.miaixz-alert-title {
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-body-line-height);
+}
+
+.miaixz-alert-message {
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-alert-title + .miaixz-alert-message {
+  margin-block-start: var(--miaixz-space-2);
+}
+
+.miaixz-alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  margin-block-start: var(--miaixz-space-12);
+}
+
+.miaixz-alert-dismiss {
+  align-self: start;
+}

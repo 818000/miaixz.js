@@ -1,0 +1,91 @@
+/**
+ * Miaixz control system
+ *
+ * Buttons, fields and selectors share one size, shape, focus and interaction
+ * contract. Product components extend these primitives instead of redefining
+ * control geometry.
+ */
+
+:root {
+  /* Control geometry */
+  --miaixz-control-height-small: 32px;
+  --miaixz-control-height-medium: 40px;
+  --miaixz-control-height-large: 48px;
+  --miaixz-control-min-target-size: 44px;
+  --miaixz-control-textarea-min-height: 96px;
+  --miaixz-control-padding-inline-small: var(--miaixz-space-12);
+  --miaixz-control-padding-inline-medium: var(--miaixz-space-16);
+  --miaixz-control-padding-inline-large: var(--miaixz-space-20);
+  --miaixz-control-padding-block-textarea: var(--miaixz-space-8);
+  --miaixz-control-gap: var(--miaixz-space-8);
+  --miaixz-control-border-width: var(--miaixz-border-width-default);
+  --miaixz-control-radius: var(--miaixz-radius-control);
+  --miaixz-control-focus-width: var(--miaixz-border-width-2);
+  --miaixz-control-focus-offset: var(--miaixz-space-2);
+}
+
+.miaixz-control {
+  display: inline-flex;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  min-height: var(--miaixz-density-control-height);
+  padding-block: 0;
+  padding-inline: var(--miaixz-density-control-padding-inline);
+  font-family: var(--miaixz-font-family-sans);
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: var(--miaixz-text-body-line-height);
+  vertical-align: middle;
+  color: var(--miaixz-color-text-primary);
+  text-decoration: none;
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-control-radius);
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+}
+
+.miaixz-control:where(:hover:not(:disabled, [aria-disabled="true"])) {
+  border-color: var(--miaixz-color-border-strong);
+}
+
+.miaixz-control:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+}
+
+.miaixz-control:disabled,
+.miaixz-control[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.miaixz-control-small {
+  min-height: var(--miaixz-control-height-small);
+  padding-inline: var(--miaixz-control-padding-inline-small);
+}
+
+.miaixz-control-medium {
+  min-height: var(--miaixz-control-height-medium);
+  padding-inline: var(--miaixz-control-padding-inline-medium);
+}
+
+.miaixz-control-large {
+  min-height: var(--miaixz-control-height-large);
+  padding-inline: var(--miaixz-control-padding-inline-large);
+}
+
+.miaixz-control-block {
+  width: 100%;
+}
+
+@media (pointer: coarse) {
+  .miaixz-control,
+  .miaixz-control-small,
+  .miaixz-control-medium {
+    min-height: var(--miaixz-control-min-target-size);
+  }
+}

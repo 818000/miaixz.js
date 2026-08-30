@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+*.tgz
+
+# Test and analysis output
+coverage/
+**/tests/.artifacts/
+test-results/
+playwright-report/
+blob-report/
+.nyc_output/
+
+# Tool caches
+.cache/
+.eslintcache
+.parcel-cache/
+.turbo/
+.vite/
+.vitest/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+
+# Logs and runtime files
+*.log
+*.pid
+*.pid.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# This repository intentionally does not use lockfiles
+package-lock.json
+npm-shrinkwrap.json
+pnpm-lock.yaml
+yarn.lock
+
+# Editors
+.idea/
+.vscode/
+*.iml
+*.suo
+*.swp
+*.swo
+*~
+
+# Operating systems
+.DS_Store
+Thumbs.db
+
+# Temporary files
+.tmp/
+tmp/
+temp/

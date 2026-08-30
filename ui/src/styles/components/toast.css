@@ -1,0 +1,134 @@
+/**
+ * Miaixz toast component
+ * The containing region should use aria-live="polite".
+ */
+
+:root {
+  --miaixz-toast-max-width: 420px;
+  --miaixz-toast-padding: var(--miaixz-space-16);
+  --miaixz-toast-gap: var(--miaixz-space-12);
+  --miaixz-toast-offset: var(--miaixz-space-8);
+  --miaixz-toast-status-size: var(--miaixz-border-width-strong);
+}
+
+.miaixz-toast-region {
+  position: fixed;
+  inset-inline-end: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-end));
+  top: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-top));
+  z-index: var(--miaixz-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-space-8);
+  width: min(calc(100vw - (var(--miaixz-page-gutter) * 2)), var(--miaixz-toast-max-width));
+  max-width: none;
+  max-height: calc(100dvh - (var(--miaixz-page-gutter) * 2));
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  color: inherit;
+  pointer-events: none;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-toast {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--miaixz-toast-gap);
+  align-items: start;
+  padding: var(--miaixz-toast-padding);
+  color: var(--miaixz-color-text-primary);
+  pointer-events: auto;
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-inline-start-width: var(--miaixz-toast-status-size);
+  border-radius: var(--miaixz-radius-panel);
+  box-shadow: var(--miaixz-shadow-high);
+  transition-timing-function: var(--miaixz-motion-enter-easing);
+  transition-duration: var(--miaixz-motion-state-duration);
+  transition-property: opacity, transform;
+}
+
+.miaixz-toast[data-miaixz-state="entering"],
+.miaixz-toast[data-miaixz-state="leaving"] {
+  opacity: 0;
+  transform: translateY(calc(var(--miaixz-toast-offset) * -1));
+}
+
+.miaixz-toast-success {
+  border-inline-start-color: var(--miaixz-color-success);
+}
+
+.miaixz-toast-warning {
+  border-inline-start-color: var(--miaixz-color-warning);
+}
+
+.miaixz-toast-danger {
+  border-inline-start-color: var(--miaixz-color-danger);
+}
+
+.miaixz-toast-info {
+  border-inline-start-color: var(--miaixz-color-info);
+}
+
+.miaixz-toast-icon {
+  width: var(--miaixz-icon-size-control);
+  height: var(--miaixz-icon-size-control);
+  margin-block-start: var(--miaixz-space-2);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-toast-success > .miaixz-toast-icon {
+  color: var(--miaixz-color-success);
+}
+
+.miaixz-toast-warning > .miaixz-toast-icon {
+  color: var(--miaixz-color-warning);
+}
+
+.miaixz-toast-danger > .miaixz-toast-icon {
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-toast-info > .miaixz-toast-icon {
+  color: var(--miaixz-color-info);
+}
+
+.miaixz-toast-content {
+  min-width: 0;
+}
+
+.miaixz-toast-title {
+  margin: 0;
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-body-line-height);
+}
+
+.miaixz-toast-message {
+  margin: var(--miaixz-space-2) 0 0;
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-toast-actions {
+  display: flex;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  margin-block-start: var(--miaixz-space-8);
+}
+
+.miaixz-toast-dismiss {
+  align-self: start;
+}
+
+@media (width <= 767px) {
+  .miaixz-toast-region {
+    inset-inline: max(var(--miaixz-space-16), var(--miaixz-safe-area-inline-start))
+      max(var(--miaixz-space-16), var(--miaixz-safe-area-inline-end));
+    top: max(var(--miaixz-space-16), var(--miaixz-safe-area-top));
+    width: auto;
+  }
+}
