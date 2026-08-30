@@ -1,0 +1,93 @@
+/**
+ * Miaixz skeleton loading component
+ * Skeleton containers should be hidden from assistive technology.
+ */
+
+:root {
+  --miaixz-skeleton-text-height: var(--miaixz-font-size-12);
+  --miaixz-skeleton-heading-height: var(--miaixz-font-size-20);
+  --miaixz-skeleton-avatar-size: var(--miaixz-icon-size-40);
+  --miaixz-skeleton-button-width: 96px;
+  --miaixz-skeleton-last-line-width: 64%;
+  --miaixz-skeleton-duration: 1200ms;
+}
+
+.miaixz-skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+  background: var(--miaixz-color-surface-secondary);
+  border-radius: var(--miaixz-radius-4);
+}
+
+.miaixz-skeleton::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(
+      in oklch,
+      var(--miaixz-color-surface-secondary) 92%,
+      var(--miaixz-color-text-primary) 8%
+    ),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: miaixz-skeleton-shimmer var(--miaixz-skeleton-duration) infinite
+    var(--miaixz-easing-standard);
+}
+
+.miaixz-skeleton-text {
+  width: 100%;
+  height: var(--miaixz-skeleton-text-height);
+}
+
+.miaixz-skeleton-text + .miaixz-skeleton-text {
+  margin-block-start: var(--miaixz-space-8);
+}
+
+.miaixz-skeleton-text:last-child {
+  width: var(--miaixz-skeleton-last-line-width);
+}
+
+.miaixz-skeleton-heading {
+  width: 48%;
+  height: var(--miaixz-skeleton-heading-height);
+}
+
+.miaixz-skeleton-avatar {
+  flex: none;
+  width: var(--miaixz-skeleton-avatar-size);
+  height: var(--miaixz-skeleton-avatar-size);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-skeleton-button {
+  width: var(--miaixz-skeleton-button-width);
+  height: var(--miaixz-density-control-height);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-skeleton-row {
+  width: 100%;
+  height: var(--miaixz-density-table-row-height);
+  border-radius: 0;
+}
+
+@keyframes miaixz-skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-skeleton::after {
+    opacity: 0;
+    animation: none;
+  }
+}

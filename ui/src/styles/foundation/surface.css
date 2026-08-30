@@ -1,0 +1,60 @@
+/**
+ * Miaixz surface system
+ *
+ * Shape, border and elevation values are defined here. Color values come from
+ * theme.css so every surface follows the active user theme.
+ */
+
+:root {
+  /* Corner radius */
+  --miaixz-radius-0: 0;
+  --miaixz-radius-4: 4px;
+  --miaixz-radius-8: 8px;
+  --miaixz-radius-12: 12px;
+  --miaixz-radius-16: 16px;
+  --miaixz-radius-round: 9999px;
+
+  /* Semantic radius */
+  --miaixz-radius-control: var(--miaixz-radius-8);
+  --miaixz-radius-panel: var(--miaixz-radius-12);
+  --miaixz-radius-dialog: var(--miaixz-radius-16);
+
+  /* Border width */
+  --miaixz-border-width-0: 0;
+  --miaixz-border-width-1: 1px;
+  --miaixz-border-width-2: 2px;
+  --miaixz-border-width-default: var(--miaixz-border-width-1);
+  --miaixz-border-width-strong: var(--miaixz-border-width-2);
+
+  /* Elevation */
+  --miaixz-shadow-none: none;
+  --miaixz-shadow-low: 0 1px 2px var(--miaixz-color-shadow);
+  --miaixz-shadow-medium: 0 6px 18px var(--miaixz-color-shadow);
+  --miaixz-shadow-high: 0 16px 36px var(--miaixz-color-shadow-strong);
+  --miaixz-shadow-overlay: 0 24px 64px var(--miaixz-color-shadow-strong);
+}
+
+.miaixz-surface {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+  box-shadow: var(--miaixz-shadow-none);
+}
+
+.miaixz-surface-raised {
+  box-shadow: var(--miaixz-shadow-medium);
+}
+
+.miaixz-surface-padded {
+  padding: var(--miaixz-density-panel-padding);
+}
+
+.miaixz-surface-overlay {
+  border-radius: var(--miaixz-radius-dialog);
+  box-shadow: var(--miaixz-shadow-overlay);
+}
+
+.miaixz-surface-round {
+  border-radius: var(--miaixz-radius-round);
+}

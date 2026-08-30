@@ -1,0 +1,65 @@
+/**
+ * Miaixz progress component
+ */
+
+:root {
+  --miaixz-progress-track-height: var(--miaixz-space-8);
+  --miaixz-progress-indeterminate-size: 40%;
+}
+
+.miaixz-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.miaixz-progress-track {
+  display: block;
+  height: var(--miaixz-progress-track-height);
+  overflow: hidden;
+  background: var(--miaixz-color-surface-secondary);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-progress-indicator {
+  display: block;
+  width: var(--miaixz-progress-value, 0%);
+  height: 100%;
+  background: var(--miaixz-color-brand);
+  border-radius: inherit;
+}
+
+.miaixz-progress-indeterminate .miaixz-progress-indicator {
+  width: var(--miaixz-progress-indeterminate-size);
+  animation: miaixz-progress-indeterminate var(--miaixz-duration-slower) ease-in-out infinite
+    alternate;
+}
+
+.miaixz-progress-value {
+  min-width: 4ch;
+  font-size: var(--miaixz-text-caption-size);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+  text-align: end;
+}
+
+@keyframes miaixz-progress-indeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-progress-indeterminate .miaixz-progress-indicator {
+    transform: none;
+    animation: none;
+  }
+}

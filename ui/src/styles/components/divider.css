@@ -1,0 +1,27 @@
+/**
+ * Miaixz divider component
+ */
+
+.miaixz-divider {
+  flex: none;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.miaixz-divider-horizontal {
+  width: 100%;
+  border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-divider-vertical {
+  align-self: stretch;
+  min-height: var(--miaixz-space-20);
+  border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+@media (forced-colors: active) {
+  .miaixz-divider {
+    border-color: CanvasText;
+  }
+}

@@ -1,0 +1,99 @@
+/**
+ * Miaixz pagination component
+ * Use a nav element with an accessible label and aria-current="page".
+ */
+
+:root {
+  --miaixz-pagination-item-size: var(--miaixz-control-height-small);
+  --miaixz-pagination-gap: var(--miaixz-space-4);
+}
+
+.miaixz-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--miaixz-density-component-gap);
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.miaixz-pagination-list {
+  display: flex;
+  gap: var(--miaixz-pagination-gap);
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.miaixz-pagination-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--miaixz-pagination-item-size);
+  min-height: var(--miaixz-pagination-item-size);
+  padding-inline: var(--miaixz-space-8);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--miaixz-color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  border: var(--miaixz-border-width-default) solid transparent;
+  border-radius: var(--miaixz-radius-control);
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: color, background-color, border-color;
+}
+
+.miaixz-pagination-item:where(:hover:not(:disabled, [aria-disabled="true"])) {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-pagination-item[aria-current="page"] {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface-selected);
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-pagination-item:disabled,
+.miaixz-pagination-item[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: var(--miaixz-opacity-disabled);
+}
+
+.miaixz-pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--miaixz-pagination-item-size);
+  min-height: var(--miaixz-pagination-item-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-pagination-summary {
+  font-size: var(--miaixz-text-caption-size);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
+@media (width <= 767px) {
+  .miaixz-pagination {
+    justify-content: center;
+  }
+
+  .miaixz-pagination-summary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (pointer: coarse) {
+  .miaixz-pagination-item,
+  .miaixz-pagination-ellipsis {
+    min-width: var(--miaixz-control-min-target-size);
+    min-height: var(--miaixz-control-min-target-size);
+  }
+}

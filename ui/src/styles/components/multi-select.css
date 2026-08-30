@@ -1,0 +1,68 @@
+.miaixz-multi-select-control {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: var(--miaixz-density-control-height);
+  padding-block: var(--miaixz-space-4);
+}
+
+.miaixz-multi-select-tags {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  gap: var(--miaixz-space-4);
+  min-width: 0;
+}
+
+.miaixz-multi-select-tag {
+  display: inline-flex;
+  gap: var(--miaixz-space-2);
+  align-items: center;
+  max-width: 180px;
+  min-height: 28px;
+  padding-inline-start: var(--miaixz-space-8);
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface-secondary);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-multi-select-tag-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miaixz-multi-select-tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--miaixz-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-multi-select-tag-remove:hover,
+.miaixz-multi-select-tag-remove:focus-visible {
+  color: var(--miaixz-color-text-primary);
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: calc(-1 * var(--miaixz-control-focus-width));
+}
+
+.miaixz-multi-select-count {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding-inline: var(--miaixz-space-4);
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+  background: var(--miaixz-color-surface-secondary);
+  border-radius: var(--miaixz-radius-pill);
+}

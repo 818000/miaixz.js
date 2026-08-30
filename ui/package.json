@@ -1,0 +1,304 @@
+{
+  "name": "@miaixz/ui",
+  "version": "0.5.0",
+  "description": "Miaixz design tokens, themes, icons, styles, and UI components.",
+  "type": "module",
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "license": "Apache-2.0",
+  "author": "The Miaixz Team",
+  "homepage": "https://github.com/818000/miaixz.js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/818000/miaixz.js.git",
+    "directory": "ui"
+  },
+  "bugs": {
+    "url": "https://github.com/818000/miaixz.js/issues"
+  },
+  "keywords": [
+    "miaixz",
+    "design-system",
+    "ui",
+    "theme",
+    "css"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "CHANGELOG.md",
+    "MIGRATION.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles/miaixz.css",
+    "./foundation.css": "./dist/styles/foundation.css",
+    "./components.css": "./dist/styles/components.css",
+    "./appearance": {
+      "types": "./dist/runtime/appearance.d.ts",
+      "import": "./dist/runtime/appearance.js"
+    },
+    "./icons": {
+      "types": "./dist/icons/index.d.ts",
+      "import": "./dist/icons/index.js"
+    },
+    "./i18n": {
+      "types": "./dist/i18n/index.d.ts",
+      "import": "./dist/i18n/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js"
+    },
+    "./alert": {
+      "types": "./dist/components/alert/index.d.ts",
+      "import": "./dist/components/alert/index.js"
+    },
+    "./avatar": {
+      "types": "./dist/components/avatar/index.d.ts",
+      "import": "./dist/components/avatar/index.js"
+    },
+    "./button": {
+      "types": "./dist/components/button/index.d.ts",
+      "import": "./dist/components/button/index.js"
+    },
+    "./combobox": {
+      "types": "./dist/components/combobox/index.d.ts",
+      "import": "./dist/components/combobox/index.js"
+    },
+    "./confirm-dialog": {
+      "types": "./dist/components/confirm-dialog/index.d.ts",
+      "import": "./dist/components/confirm-dialog/index.js"
+    },
+    "./breadcrumb": {
+      "types": "./dist/components/breadcrumb/index.d.ts",
+      "import": "./dist/components/breadcrumb/index.js"
+    },
+    "./input": {
+      "types": "./dist/components/input/index.d.ts",
+      "import": "./dist/components/input/index.js"
+    },
+    "./inline-message": {
+      "types": "./dist/components/inline-message/index.d.ts",
+      "import": "./dist/components/inline-message/index.js"
+    },
+    "./form-field": {
+      "types": "./dist/components/form-field/index.d.ts",
+      "import": "./dist/components/form-field/index.js"
+    },
+    "./textarea": {
+      "types": "./dist/components/textarea/index.d.ts",
+      "import": "./dist/components/textarea/index.js"
+    },
+    "./select": {
+      "types": "./dist/components/select/index.d.ts",
+      "import": "./dist/components/select/index.js"
+    },
+    "./search-input": {
+      "types": "./dist/components/search-input/index.d.ts",
+      "import": "./dist/components/search-input/index.js"
+    },
+    "./checkbox": {
+      "types": "./dist/components/checkbox/index.d.ts",
+      "import": "./dist/components/checkbox/index.js"
+    },
+    "./radio": {
+      "types": "./dist/components/radio/index.d.ts",
+      "import": "./dist/components/radio/index.js"
+    },
+    "./switch": {
+      "types": "./dist/components/switch/index.d.ts",
+      "import": "./dist/components/switch/index.js"
+    },
+    "./navigation": {
+      "types": "./dist/components/navigation/index.d.ts",
+      "import": "./dist/components/navigation/index.js"
+    },
+    "./panel": {
+      "types": "./dist/components/panel/index.d.ts",
+      "import": "./dist/components/panel/index.js"
+    },
+    "./badge": {
+      "types": "./dist/components/badge/index.d.ts",
+      "import": "./dist/components/badge/index.js"
+    },
+    "./list": {
+      "types": "./dist/components/list/index.d.ts",
+      "import": "./dist/components/list/index.js"
+    },
+    "./loading-overlay": {
+      "types": "./dist/components/loading-overlay/index.d.ts",
+      "import": "./dist/components/loading-overlay/index.js"
+    },
+    "./multi-select": {
+      "types": "./dist/components/multi-select/index.d.ts",
+      "import": "./dist/components/multi-select/index.js"
+    },
+    "./data-table": {
+      "types": "./dist/components/data-table/index.d.ts",
+      "import": "./dist/components/data-table/index.js"
+    },
+    "./table": {
+      "types": "./dist/components/table/index.d.ts",
+      "import": "./dist/components/table/index.js"
+    },
+    "./tabs": {
+      "types": "./dist/components/tabs/index.d.ts",
+      "import": "./dist/components/tabs/index.js"
+    },
+    "./pagination": {
+      "types": "./dist/components/pagination/index.d.ts",
+      "import": "./dist/components/pagination/index.js"
+    },
+    "./page-layout": {
+      "types": "./dist/components/page-layout/index.d.ts",
+      "import": "./dist/components/page-layout/index.js"
+    },
+    "./popover": {
+      "types": "./dist/components/popover/index.d.ts",
+      "import": "./dist/components/popover/index.js"
+    },
+    "./progress": {
+      "types": "./dist/components/progress/index.d.ts",
+      "import": "./dist/components/progress/index.js"
+    },
+    "./dialog": {
+      "types": "./dist/components/dialog/index.d.ts",
+      "import": "./dist/components/dialog/index.js"
+    },
+    "./divider": {
+      "types": "./dist/components/divider/index.d.ts",
+      "import": "./dist/components/divider/index.js"
+    },
+    "./drawer": {
+      "types": "./dist/components/drawer/index.d.ts",
+      "import": "./dist/components/drawer/index.js"
+    },
+    "./dropdown": {
+      "types": "./dist/components/dropdown/index.d.ts",
+      "import": "./dist/components/dropdown/index.js"
+    },
+    "./dropzone": {
+      "types": "./dist/components/dropzone/index.d.ts",
+      "import": "./dist/components/dropzone/index.js"
+    },
+    "./file-upload": {
+      "types": "./dist/components/file-upload/index.d.ts",
+      "import": "./dist/components/file-upload/index.js"
+    },
+    "./toast": {
+      "types": "./dist/components/toast/index.d.ts",
+      "import": "./dist/components/toast/index.js"
+    },
+    "./toolbar": {
+      "types": "./dist/components/toolbar/index.d.ts",
+      "import": "./dist/components/toolbar/index.js"
+    },
+    "./tree-view": {
+      "types": "./dist/components/tree-view/index.d.ts",
+      "import": "./dist/components/tree-view/index.js"
+    },
+    "./tooltip": {
+      "types": "./dist/components/tooltip/index.d.ts",
+      "import": "./dist/components/tooltip/index.js"
+    },
+    "./skeleton": {
+      "types": "./dist/components/skeleton/index.d.ts",
+      "import": "./dist/components/skeleton/index.js"
+    },
+    "./spinner": {
+      "types": "./dist/components/spinner/index.d.ts",
+      "import": "./dist/components/spinner/index.js"
+    },
+    "./status-indicator": {
+      "types": "./dist/components/status-indicator/index.d.ts",
+      "import": "./dist/components/status-indicator/index.js"
+    },
+    "./empty-state": {
+      "types": "./dist/components/empty-state/index.d.ts",
+      "import": "./dist/components/empty-state/index.js"
+    },
+    "./visually-hidden": {
+      "types": "./dist/components/visually-hidden/index.d.ts",
+      "import": "./dist/components/visually-hidden/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true });\"",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "lint": "eslint src *.config.js",
+    "lint:fix": "eslint src *.config.js --fix",
+    "lint:css": "stylelint \"src/styles/**/*.css\"",
+    "lint:css:fix": "stylelint \"src/styles/**/*.css\" --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "check": "npm run typecheck && npm run lint && npm run lint:css && npm run format:check",
+    "pack:check": "npm run build && publint && attw --pack . && npm pack --dry-run"
+  },
+  "peerDependencies": {
+    "@miaixz/sdk": ">=0.5.0 <1.0.0",
+    "lucide-react": ">=1.35.0 <2",
+    "react": ">=18.3 <20",
+    "react-dom": ">=18.3 <20"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "@axe-core/playwright": "4.13.0",
+    "@babel/core": "8.0.1",
+    "@babel/eslint-parser": "8.0.1",
+    "@eslint/js": "10.0.1",
+    "@miaixz/sdk": "0.5.0",
+    "@microsoft/api-extractor": "7.59.0",
+    "@playwright/test": "1.62.1",
+    "@size-limit/esbuild": "12.1.0",
+    "@size-limit/esbuild-why": "12.1.0",
+    "@size-limit/file": "12.1.0",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.6",
+    "@types/node": "26.4.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@vitejs/plugin-react": "6.1.1",
+    "@vitest/coverage-v8": "4.1.11",
+    "axe-core": "4.13.0",
+    "eslint": "10.9.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsdoc": "62.7.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.11.0",
+    "jsdom": "29.1.1",
+    "lucide-react": "1.35.0",
+    "prettier": "3.9.6",
+    "publint": "0.3.24",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "size-limit": "12.1.0",
+    "stylelint": "17.14.1",
+    "stylelint-config-recess-order": "7.8.0",
+    "stylelint-config-standard": "40.0.0",
+    "stylelint-order": "8.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.2.2",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

@@ -1,0 +1,56 @@
+/**
+ * Select component
+ */
+
+.miaixz-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+}
+
+.miaixz-select:where(:hover:not(.miaixz-select-disabled)) {
+  border-color: var(--miaixz-color-border-strong);
+}
+
+.miaixz-select:focus-within {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+  border-color: var(--miaixz-color-focus);
+}
+
+.miaixz-select-element {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 calc(var(--miaixz-density-control-padding-inline) + var(--miaixz-icon-size-control)) 0
+    var(--miaixz-density-control-padding-inline);
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+  appearance: none;
+  cursor: inherit;
+  outline: 0;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-select-indicator {
+  position: absolute;
+  inset-inline-end: var(--miaixz-density-control-padding-inline);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-select-invalid,
+.miaixz-select-invalid:focus-within {
+  outline-color: var(--miaixz-color-danger);
+  border-color: var(--miaixz-color-danger);
+}
+
+.miaixz-select-disabled {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+  background: var(--miaixz-color-surface-secondary);
+}

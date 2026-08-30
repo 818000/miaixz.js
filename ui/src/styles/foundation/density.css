@@ -1,0 +1,76 @@
+/**
+ * Miaixz interface density system
+ *
+ * Density changes component geometry without changing typography, page scale
+ * or explicit small, medium and large component variants.
+ */
+
+:root {
+  /* Density primitives */
+  --miaixz-density-control-height-compact: 32px;
+  --miaixz-density-control-height-standard: 40px;
+  --miaixz-density-control-height-comfortable: 48px;
+  --miaixz-density-control-padding-inline-compact: var(--miaixz-space-12);
+  --miaixz-density-control-padding-inline-standard: var(--miaixz-space-16);
+  --miaixz-density-control-padding-inline-comfortable: var(--miaixz-space-20);
+  --miaixz-density-component-gap-compact: var(--miaixz-space-8);
+  --miaixz-density-component-gap-standard: var(--miaixz-space-12);
+  --miaixz-density-component-gap-comfortable: var(--miaixz-space-16);
+  --miaixz-density-panel-padding-compact: var(--miaixz-space-16);
+  --miaixz-density-panel-padding-standard: var(--miaixz-space-24);
+  --miaixz-density-panel-padding-comfortable: var(--miaixz-space-32);
+  --miaixz-density-list-item-height-compact: 36px;
+  --miaixz-density-list-item-height-standard: 44px;
+  --miaixz-density-list-item-height-comfortable: 52px;
+  --miaixz-density-table-row-height-compact: 40px;
+  --miaixz-density-table-row-height-standard: 48px;
+  --miaixz-density-table-row-height-comfortable: 56px;
+  --miaixz-density-table-cell-padding-inline-compact: var(--miaixz-space-12);
+  --miaixz-density-table-cell-padding-inline-standard: var(--miaixz-space-16);
+  --miaixz-density-table-cell-padding-inline-comfortable: var(--miaixz-space-20);
+  --miaixz-density-table-cell-padding-block-compact: var(--miaixz-space-8);
+  --miaixz-density-table-cell-padding-block-standard: var(--miaixz-space-12);
+  --miaixz-density-table-cell-padding-block-comfortable: var(--miaixz-space-16);
+
+  /* Active density defaults to standard. */
+  --miaixz-density-control-height: var(--miaixz-density-control-height-standard);
+  --miaixz-density-control-padding-inline: var(--miaixz-density-control-padding-inline-standard);
+  --miaixz-density-component-gap: var(--miaixz-density-component-gap-standard);
+  --miaixz-density-panel-padding: var(--miaixz-density-panel-padding-standard);
+  --miaixz-density-list-item-height: var(--miaixz-density-list-item-height-standard);
+  --miaixz-density-table-row-height: var(--miaixz-density-table-row-height-standard);
+  --miaixz-density-table-cell-padding-inline: var(
+    --miaixz-density-table-cell-padding-inline-standard
+  );
+  --miaixz-density-table-cell-padding-block: var(
+    --miaixz-density-table-cell-padding-block-standard
+  );
+}
+
+:root[data-miaixz-density="compact"] {
+  --miaixz-density-control-height: var(--miaixz-density-control-height-compact);
+  --miaixz-density-control-padding-inline: var(--miaixz-density-control-padding-inline-compact);
+  --miaixz-density-component-gap: var(--miaixz-density-component-gap-compact);
+  --miaixz-density-panel-padding: var(--miaixz-density-panel-padding-compact);
+  --miaixz-density-list-item-height: var(--miaixz-density-list-item-height-compact);
+  --miaixz-density-table-row-height: var(--miaixz-density-table-row-height-compact);
+  --miaixz-density-table-cell-padding-inline: var(
+    --miaixz-density-table-cell-padding-inline-compact
+  );
+  --miaixz-density-table-cell-padding-block: var(--miaixz-density-table-cell-padding-block-compact);
+}
+
+:root[data-miaixz-density="comfortable"] {
+  --miaixz-density-control-height: var(--miaixz-density-control-height-comfortable);
+  --miaixz-density-control-padding-inline: var(--miaixz-density-control-padding-inline-comfortable);
+  --miaixz-density-component-gap: var(--miaixz-density-component-gap-comfortable);
+  --miaixz-density-panel-padding: var(--miaixz-density-panel-padding-comfortable);
+  --miaixz-density-list-item-height: var(--miaixz-density-list-item-height-comfortable);
+  --miaixz-density-table-row-height: var(--miaixz-density-table-row-height-comfortable);
+  --miaixz-density-table-cell-padding-inline: var(
+    --miaixz-density-table-cell-padding-inline-comfortable
+  );
+  --miaixz-density-table-cell-padding-block: var(
+    --miaixz-density-table-cell-padding-block-comfortable
+  );
+}

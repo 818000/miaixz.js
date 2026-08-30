@@ -1,0 +1,150 @@
+/**
+ * Miaixz global layout system
+ *
+ * This is the single source of truth for spacing, application shell,
+ * page geometry, responsive grids and scroll regions.
+ * Page-level styles must consume these tokens instead of redefining them.
+ */
+
+:root {
+  /* Spacing scale */
+  --miaixz-space-0: 0;
+  --miaixz-space-2: 2px;
+  --miaixz-space-4: 4px;
+  --miaixz-space-8: 8px;
+  --miaixz-space-12: 12px;
+  --miaixz-space-16: 16px;
+  --miaixz-space-20: 20px;
+  --miaixz-space-24: 24px;
+  --miaixz-space-32: 32px;
+  --miaixz-space-40: 40px;
+  --miaixz-space-48: 48px;
+  --miaixz-space-64: 64px;
+
+  /* Responsive reference values; media queries below mirror these values. */
+  --miaixz-breakpoint-mobile: 767px;
+  --miaixz-breakpoint-tablet: 1023px;
+  --miaixz-breakpoint-desktop: 1279px;
+  --miaixz-breakpoint-wide: 1440px;
+
+  /* Application shell */
+  --miaixz-shell-header-height: 72px;
+  --miaixz-shell-sidebar-width: 72px;
+  --miaixz-shell-sidebar-compact-width: 64px;
+  --miaixz-shell-mobile-navigation-height: 64px;
+  --miaixz-page-max-width: 1680px;
+  --miaixz-page-gutter: clamp(var(--miaixz-space-16), 2.2vw, var(--miaixz-space-32));
+  --miaixz-page-block-padding: var(--miaixz-space-32);
+  --miaixz-layout-section-gap: var(--miaixz-space-24);
+  --miaixz-layout-grid-gap: var(--miaixz-space-20);
+  --miaixz-layout-panel-min-width: 280px;
+  --miaixz-layout-panel-wide-min-width: 360px;
+  --miaixz-layout-split-primary-size: 1fr;
+  --miaixz-layout-split-secondary-size: 1fr;
+  --miaixz-layout-local-sidebar-width: 280px;
+  --miaixz-layout-sticky-offset: var(--miaixz-space-16);
+
+  /* Safe areas */
+  --miaixz-safe-area-top: env(safe-area-inset-top, 0px);
+  --miaixz-safe-area-right: env(safe-area-inset-right, 0px);
+  --miaixz-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --miaixz-safe-area-left: env(safe-area-inset-left, 0px);
+  --miaixz-safe-area-inline-start: var(--miaixz-safe-area-left);
+  --miaixz-safe-area-inline-end: var(--miaixz-safe-area-right);
+
+  /* Layer order */
+  --miaixz-z-base: 0;
+  --miaixz-z-sticky: 20;
+  --miaixz-z-navigation: 40;
+  --miaixz-z-overlay: 60;
+  --miaixz-z-modal: 80;
+  --miaixz-z-toast: 100;
+}
+
+:root[dir="rtl"] {
+  --miaixz-safe-area-inline-start: var(--miaixz-safe-area-right);
+  --miaixz-safe-area-inline-end: var(--miaixz-safe-area-left);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.miaixz-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  clip-path: inset(50%) !important;
+}
+
+/* Compact desktop: 1024–1279 */
+@media (width <= 1279px) {
+  :root {
+    --miaixz-page-block-padding: var(--miaixz-space-24);
+    --miaixz-layout-section-gap: var(--miaixz-space-20);
+    --miaixz-layout-grid-gap: var(--miaixz-space-16);
+  }
+}
+
+/* Tablet: 768–1023 */
+@media (width <= 1023px) {
+  :root {
+    --miaixz-shell-header-height: 64px;
+    --miaixz-shell-sidebar-width: var(--miaixz-shell-sidebar-compact-width);
+    --miaixz-page-block-padding: var(--miaixz-space-20);
+  }
+}
+
+/* Mobile: 320–767 */
+@media (width <= 767px) {
+  :root {
+    --miaixz-page-block-padding: var(--miaixz-space-16);
+    --miaixz-layout-section-gap: var(--miaixz-space-16);
+    --miaixz-layout-grid-gap: var(--miaixz-space-12);
+  }
+}
+
+/* Wide screens */
+@media (width >= 1440px) {
+  :root {
+    --miaixz-page-gutter: var(--miaixz-space-32);
+  }
+}

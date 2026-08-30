@@ -1,0 +1,101 @@
+/**
+ * Miaixz badge and status component
+ */
+
+:root {
+  --miaixz-badge-height: var(--miaixz-space-24);
+  --miaixz-badge-padding-inline: var(--miaixz-space-8);
+  --miaixz-badge-gap: var(--miaixz-space-4);
+  --miaixz-badge-dot-size: var(--miaixz-space-8);
+}
+
+.miaixz-badge {
+  display: inline-flex;
+  gap: var(--miaixz-badge-gap);
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: var(--miaixz-badge-height);
+  padding-inline: var(--miaixz-badge-padding-inline);
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+  white-space: nowrap;
+  background: var(--miaixz-color-surface-secondary);
+  border: var(--miaixz-border-width-default) solid transparent;
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-badge-brand {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-brand-soft);
+}
+
+.miaixz-badge-success {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-success-soft);
+}
+
+.miaixz-badge-warning {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-warning-soft);
+}
+
+.miaixz-badge-danger {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-danger-soft);
+}
+
+.miaixz-badge-info {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-info-soft);
+}
+
+.miaixz-badge-outline {
+  color: var(--miaixz-color-text-secondary);
+  background: transparent;
+  border-color: var(--miaixz-color-border);
+}
+
+.miaixz-badge-dot {
+  flex: none;
+  width: var(--miaixz-badge-dot-size);
+  height: var(--miaixz-badge-dot-size);
+  background: currentcolor;
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-badge-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.miaixz-badge-icon > svg {
+  width: var(--miaixz-icon-size-inline);
+  height: var(--miaixz-icon-size-inline);
+}
+
+.miaixz-badge-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.miaixz-badge-success .miaixz-badge-dot {
+  background: var(--miaixz-color-success);
+}
+
+.miaixz-badge-warning .miaixz-badge-dot {
+  background: var(--miaixz-color-warning);
+}
+
+.miaixz-badge-danger .miaixz-badge-dot {
+  background: var(--miaixz-color-danger);
+}
+
+.miaixz-badge-info .miaixz-badge-dot {
+  background: var(--miaixz-color-info);
+}
