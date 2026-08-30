@@ -1,0 +1,41 @@
+.miaixz-popover {
+  display: inline-block;
+}
+
+.miaixz-popover-trigger {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-popover-trigger:disabled {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.miaixz-popover-trigger:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-popover-content {
+  position: fixed;
+  inset: auto;
+  z-index: var(--miaixz-z-overlay);
+  min-width: 220px;
+  max-width: min(420px, calc(100vw - var(--miaixz-space-16)));
+  max-height: calc(100dvh - var(--miaixz-space-16));
+  padding: var(--miaixz-space-12);
+  margin: 0;
+  overflow: auto;
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+  box-shadow: var(--miaixz-shadow-overlay);
+}

@@ -1,0 +1,156 @@
+{
+  "name": "@miaixz/sdk",
+  "version": "0.5.0",
+  "description": "Miaixz API client, public types, models, validators, formatters, and utilities.",
+  "type": "module",
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "license": "Apache-2.0",
+  "author": "The Miaixz Team",
+  "homepage": "https://github.com/818000/miaixz.js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/818000/miaixz.js.git",
+    "directory": "sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/818000/miaixz.js/issues"
+  },
+  "keywords": [
+    "miaixz",
+    "sdk",
+    "api",
+    "typescript"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "import": "./dist/api/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js"
+    },
+    "./context": {
+      "types": "./dist/context/index.d.ts",
+      "import": "./dist/context/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js"
+    },
+    "./permissions": {
+      "types": "./dist/permissions/index.d.ts",
+      "import": "./dist/permissions/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
+    },
+    "./events": {
+      "types": "./dist/events/index.d.ts",
+      "import": "./dist/events/index.js"
+    },
+    "./storage": {
+      "types": "./dist/storage/index.d.ts",
+      "import": "./dist/storage/index.js"
+    },
+    "./appearance": {
+      "types": "./dist/appearance/index.d.ts",
+      "import": "./dist/appearance/index.js"
+    },
+    "./files": {
+      "types": "./dist/files/index.d.ts",
+      "import": "./dist/files/index.js"
+    },
+    "./i18n": {
+      "types": "./dist/i18n/index.d.ts",
+      "import": "./dist/i18n/index.js"
+    },
+    "./sdk": {
+      "types": "./dist/sdk.d.ts",
+      "import": "./dist/sdk.js"
+    },
+    "./consts": {
+      "types": "./dist/consts/index.d.ts",
+      "import": "./dist/consts/index.js"
+    },
+    "./contracts": {
+      "types": "./dist/contracts/index.d.ts",
+      "import": "./dist/contracts/index.js"
+    },
+    "./errors": {
+      "types": "./dist/api/errors.d.ts",
+      "import": "./dist/api/errors.js"
+    },
+    "./formatters": {
+      "types": "./dist/formatters/index.d.ts",
+      "import": "./dist/formatters/index.js"
+    },
+    "./models": {
+      "types": "./dist/models/index.d.ts",
+      "import": "./dist/models/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.js"
+    },
+    "./validators": {
+      "types": "./dist/validators/index.d.ts",
+      "import": "./dist/validators/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "lint": "eslint src *.config.js",
+    "lint:fix": "eslint src *.config.js --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "check": "npm run typecheck && npm run lint && npm run format:check",
+    "pack:check": "npm run build && publint && attw --pack . && npm pack --dry-run"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "@babel/core": "8.0.1",
+    "@babel/eslint-parser": "8.0.1",
+    "@eslint/js": "10.0.1",
+    "@microsoft/api-extractor": "7.59.0",
+    "@playwright/test": "1.62.1",
+    "@size-limit/esbuild": "12.1.0",
+    "@size-limit/esbuild-why": "12.1.0",
+    "@size-limit/file": "12.1.0",
+    "eslint": "10.9.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsdoc": "62.7.0",
+    "globals": "17.11.0",
+    "prettier": "3.9.6",
+    "publint": "0.3.24",
+    "size-limit": "12.1.0",
+    "typescript": "7.0.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

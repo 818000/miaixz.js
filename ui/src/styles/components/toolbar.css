@@ -1,0 +1,27 @@
+.miaixz-toolbar,
+.miaixz-toolbar-group {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  min-width: 0;
+}
+
+.miaixz-toolbar {
+  width: 100%;
+}
+
+.miaixz-toolbar[data-orientation="vertical"] {
+  flex-direction: column;
+  align-items: stretch;
+  width: auto;
+}
+
+.miaixz-toolbar[data-orientation="vertical"] .miaixz-toolbar-group {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.miaixz-toolbar-spacer {
+  flex: 1 1 auto;
+  min-width: var(--miaixz-space-8);
+}

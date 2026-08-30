@@ -1,0 +1,38 @@
+{
+  "name": "miaixz.js",
+  "version": "0.5.0",
+  "private": true,
+  "description": "Build with intelligence. Create without limits.",
+  "type": "module",
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "workspaces": [
+    "sdk",
+    "ui"
+  ],
+  "scripts": {
+    "version:set": "bash .github/scripts/version.sh",
+    "prepare": "npm run build:sdk",
+    "build:sdk": "npm run build --workspace @miaixz/sdk",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run build:sdk && npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present",
+    "format:check": "npm run format:check --workspaces --if-present",
+    "check": "npm run build:sdk && npm run check --workspaces --if-present",
+    "pack:check": "npm run build:sdk && npm run pack:check --workspaces --if-present"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/818000/miaixz.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/818000/miaixz.js/issues"
+  },
+  "homepage": "https://github.com/818000/miaixz.js#readme",
+  "license": "Apache-2.0",
+  "author": "The Miaixz Team"
+}

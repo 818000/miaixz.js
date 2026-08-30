@@ -1,0 +1,160 @@
+/**
+ * Miaixz drawer component
+ * Use a native dialog element when the drawer blocks the page.
+ */
+
+:root {
+  --miaixz-drawer-width-small: 360px;
+  --miaixz-drawer-width-medium: 480px;
+  --miaixz-drawer-width-large: 720px;
+  --miaixz-drawer-width: var(--miaixz-drawer-width-medium);
+  --miaixz-drawer-offset: var(--miaixz-space-16);
+}
+
+dialog.miaixz-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(100vw, var(--miaixz-drawer-width));
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface);
+  border: 0;
+  border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: 0;
+  box-shadow: var(--miaixz-shadow-overlay);
+  opacity: 0;
+  transform: translateX(var(--miaixz-drawer-offset));
+  transition-timing-function: var(--miaixz-motion-enter-easing);
+  transition-duration: var(--miaixz-motion-overlay-duration);
+  transition-property: opacity, transform, display, overlay;
+  transition-behavior: allow-discrete;
+}
+
+dialog.miaixz-drawer:not([open]) {
+  display: none;
+}
+
+dialog.miaixz-drawer[open] {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: translate(0);
+}
+
+dialog.miaixz-drawer::backdrop {
+  background: var(--miaixz-color-backdrop);
+  opacity: 0;
+  transition-timing-function: var(--miaixz-motion-enter-easing);
+  transition-duration: var(--miaixz-motion-overlay-duration);
+  transition-property: opacity, display, overlay;
+  transition-behavior: allow-discrete;
+}
+
+dialog.miaixz-drawer[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.miaixz-drawer[open] {
+    opacity: 0;
+    transform: translateX(var(--miaixz-drawer-offset));
+  }
+
+  dialog.miaixz-drawer-left[open] {
+    transform: translateX(calc(var(--miaixz-drawer-offset) * -1));
+  }
+
+  dialog.miaixz-drawer-bottom[open] {
+    transform: translateY(var(--miaixz-drawer-offset));
+  }
+
+  dialog.miaixz-drawer[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.miaixz-drawer-small {
+  --miaixz-drawer-width: var(--miaixz-drawer-width-small);
+}
+
+.miaixz-drawer-large {
+  --miaixz-drawer-width: var(--miaixz-drawer-width-large);
+}
+
+dialog.miaixz-drawer-left {
+  inset: 0 auto 0 0;
+  border-inline-start: 0;
+  border-inline-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  transform: translateX(calc(var(--miaixz-drawer-offset) * -1));
+}
+
+dialog.miaixz-drawer-bottom {
+  inset: auto 0 0;
+  width: 100%;
+  height: auto;
+  max-height: calc(100dvh - var(--miaixz-shell-header-height));
+  border-inline-start: 0;
+  border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-dialog) var(--miaixz-radius-dialog) 0 0;
+  transform: translateY(var(--miaixz-drawer-offset));
+}
+
+.miaixz-drawer-header,
+.miaixz-drawer-body,
+.miaixz-drawer-footer {
+  min-width: 0;
+  padding-block: var(--miaixz-density-panel-padding);
+  padding-inline: calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-inline-start))
+    calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-inline-end));
+}
+
+.miaixz-drawer-header {
+  display: flex;
+  flex: none;
+  gap: var(--miaixz-space-16);
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-top: calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-top));
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-drawer-title {
+  margin: 0;
+  font-size: var(--miaixz-text-page-title-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-page-title-line-height);
+}
+
+.miaixz-drawer-description {
+  margin: var(--miaixz-space-4) 0 0;
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.miaixz-drawer-footer {
+  display: flex;
+  flex: none;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-bottom));
+  border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+@media (width <= 767px) {
+  dialog.miaixz-drawer:not(.miaixz-drawer-bottom) {
+    width: 100%;
+  }
+}

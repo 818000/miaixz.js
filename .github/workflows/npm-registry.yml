@@ -1,0 +1,110 @@
+name: NPM Registry
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish. Leave empty to read VERSION.'
+        required: false
+        default: ''
+        type: string
+  push:
+    tags:
+      - '*.*.*'
+
+env:
+  NODE_VERSION: '24'
+  NPM_REGISTRY: 'https://registry.npmjs.org/'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and Publish Both Packages
+    if: ${{ github.repository == '818000/miaixz.js' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: https://www.npmjs.com/search?q=%40miaixz
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      is-prerelease: ${{ steps.build.outputs.is-prerelease }}
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Resolve Release Version
+        id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version || '' }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -f VERSION ]; then
+            echo "::error file=VERSION::VERSION file is required"
+            exit 1
+          fi
+
+          VERSION_FILE="$(tr -d '[:space:]' < VERSION)"
+          if [ "$EVENT_NAME" = "push" ] && [ "$REF_TYPE" = "tag" ]; then
+            VERSION="$REF_NAME"
+            if [ "$REF_NAME" != "$VERSION_FILE" ]; then
+              echo "::error::Tag '$REF_NAME' must exactly match VERSION '$VERSION_FILE'"
+              exit 1
+            fi
+          else
+            VERSION="${INPUT_VERSION:-$VERSION_FILE}"
+          fi
+
+          if [ "$VERSION" != "$VERSION_FILE" ]; then
+            echo "::error file=VERSION::VERSION '$VERSION_FILE' does not match release version '$VERSION'"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set Up Node.js and npm
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.NPM_REGISTRY }}
+          package-manager-cache: false
+
+      - name: Build Project
+        id: build
+        uses: ./.github/actions/build-project
+        with:
+          version: ${{ steps.release.outputs.version }}
+
+      - name: Publish Both Packages to npm
+        uses: ./.github/actions/npm-registry
+        with:
+          version: ${{ steps.release.outputs.version }}
+          registry: ${{ env.NPM_REGISTRY }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  create-release:
+    name: Create Release After npm Publication
+    needs: publish
+    if: ${{ always() && github.ref_type == 'tag' && needs.publish.result == 'success' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      version: ${{ needs.publish.outputs.version }}
+      prerelease: ${{ needs.publish.outputs.is-prerelease == 'true' }}
+    secrets: inherit

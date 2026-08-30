@@ -1,0 +1,77 @@
+/**
+ * Input component
+ */
+
+.miaixz-input {
+  display: inline-flex;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding-block: 0;
+  cursor: text;
+}
+
+.miaixz-input:where(:hover:not(.miaixz-input-disabled)) {
+  border-color: var(--miaixz-color-border-strong);
+}
+
+.miaixz-input:focus-within {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+  border-color: var(--miaixz-color-focus);
+}
+
+.miaixz-input-element {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+  outline: 0;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-input-element::placeholder {
+  color: var(--miaixz-color-text-muted);
+  opacity: 1;
+}
+
+.miaixz-input-adornment {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-input-adornment > svg {
+  width: var(--miaixz-icon-size-control);
+  height: var(--miaixz-icon-size-control);
+}
+
+.miaixz-input-invalid {
+  border-color: var(--miaixz-color-danger);
+}
+
+.miaixz-input-invalid:focus-within {
+  outline-color: var(--miaixz-color-danger);
+  border-color: var(--miaixz-color-danger);
+}
+
+.miaixz-input-disabled {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+  background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-input-disabled .miaixz-input-element {
+  cursor: not-allowed;
+}
+
+.miaixz-input-readonly {
+  background: var(--miaixz-color-surface-secondary);
+}

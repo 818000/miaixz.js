@@ -1,0 +1,53 @@
+/**
+ * Icon component
+ */
+
+.miaixz-icon {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  overflow: visible;
+  vertical-align: -0.125em;
+  color: inherit;
+  pointer-events: none;
+  stroke-width: var(--miaixz-icon-stroke-regular);
+}
+
+.miaixz-icon[role="img"] {
+  pointer-events: auto;
+}
+
+.miaixz-icon-indicator {
+  width: var(--miaixz-icon-size-indicator);
+  height: var(--miaixz-icon-size-indicator);
+}
+
+.miaixz-icon-inline {
+  width: var(--miaixz-icon-size-inline);
+  height: var(--miaixz-icon-size-inline);
+}
+
+.miaixz-icon-control {
+  width: var(--miaixz-icon-size-control);
+  height: var(--miaixz-icon-size-control);
+}
+
+.miaixz-icon-navigation {
+  width: var(--miaixz-icon-size-navigation);
+  height: var(--miaixz-icon-size-navigation);
+}
+
+.miaixz-icon-feature {
+  width: var(--miaixz-icon-size-feature);
+  height: var(--miaixz-icon-size-feature);
+}
+
+.miaixz-icon-display {
+  width: var(--miaixz-icon-size-display);
+  height: var(--miaixz-icon-size-display);
+}
+
+.miaixz-icon-strong {
+  stroke-width: var(--miaixz-icon-stroke-strong);
+}

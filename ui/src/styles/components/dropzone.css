@@ -1,0 +1,94 @@
+/**
+ * Miaixz file selection dropzone
+ */
+
+:root {
+  --miaixz-dropzone-min-height: 152px;
+  --miaixz-dropzone-padding: var(--miaixz-space-24);
+}
+
+.miaixz-dropzone {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--miaixz-color-text-secondary);
+  background: var(--miaixz-color-surface-secondary);
+  border: var(--miaixz-border-width-2) dashed var(--miaixz-color-border-strong);
+  border-radius: var(--miaixz-radius-panel);
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: color, background-color, border-color, box-shadow;
+}
+
+.miaixz-dropzone[data-state="active"] {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-brand-soft);
+  border-color: var(--miaixz-color-focus);
+}
+
+.miaixz-dropzone[data-disabled="true"] {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+  background: var(--miaixz-color-surface-secondary);
+  border-color: var(--miaixz-color-border);
+  opacity: var(--miaixz-opacity-disabled);
+}
+
+.miaixz-dropzone-input {
+  display: none;
+}
+
+.miaixz-dropzone-trigger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--miaixz-dropzone-min-height);
+  padding: var(--miaixz-dropzone-padding);
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-dropzone-trigger:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: calc(-1 * var(--miaixz-control-focus-width));
+}
+
+.miaixz-dropzone-trigger:disabled {
+  cursor: not-allowed;
+}
+
+.miaixz-dropzone-icon {
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-dropzone[data-state="active"] .miaixz-dropzone-icon {
+  color: var(--miaixz-color-focus);
+}
+
+.miaixz-dropzone[data-disabled="true"] .miaixz-dropzone-icon {
+  color: var(--miaixz-color-text-disabled);
+}
+
+.miaixz-dropzone-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+@media (width <= 639px) {
+  :root {
+    --miaixz-dropzone-min-height: 132px;
+    --miaixz-dropzone-padding: var(--miaixz-space-20);
+  }
+}

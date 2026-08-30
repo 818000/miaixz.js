@@ -1,0 +1,144 @@
+name: Build Project
+description: 'Validates, builds, and packages both npm workspaces'
+
+inputs:
+  version:
+    description: 'Version to validate. Leave empty to read VERSION.'
+    required: false
+    default: ''
+
+outputs:
+  version:
+    description: 'Resolved project version.'
+    value: ${{ steps.metadata.outputs.version }}
+  is-prerelease:
+    description: 'Whether the resolved version is a prerelease.'
+    value: ${{ steps.metadata.outputs.is-prerelease }}
+  packages:
+    description: 'Packages validated and built by this action.'
+    value: ${{ steps.metadata.outputs.packages }}
+
+runs:
+  using: composite
+  steps:
+    - name: Print Logo
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        if [ -x ".github/scripts/logo.sh" ]; then
+          .github/scripts/logo.sh
+        fi
+
+    - name: Validate Release Metadata
+      id: metadata
+      shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+
+        if [ ! -f VERSION ]; then
+          echo "::error file=VERSION::VERSION file is required"
+          exit 1
+        fi
+
+        VERSION_FILE="$(tr -d '[:space:]' < VERSION)"
+        VERSION="${INPUT_VERSION:-$VERSION_FILE}"
+
+        if [ -z "$VERSION" ]; then
+          echo "::error file=VERSION::Unable to resolve the project version"
+          exit 1
+        fi
+
+        if [ "$VERSION_FILE" != "$VERSION" ]; then
+          echo "::error file=VERSION::VERSION '$VERSION_FILE' does not match requested version '$VERSION'"
+          exit 1
+        fi
+
+        export RELEASE_VERSION="$VERSION"
+        node <<'NODE'
+        const { readFileSync } = require("node:fs");
+
+        const version = process.env.RELEASE_VERSION;
+        const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$/;
+        const readPackage = (path) => JSON.parse(readFileSync(path, "utf8"));
+        const fail = (path, message) => {
+          console.error(`::error file=${path}::${message}`);
+          process.exitCode = 1;
+        };
+
+        if (!semver.test(version)) {
+          fail("VERSION", `Invalid semantic version '${version}'`);
+        }
+
+        const root = readPackage("package.json");
+        const sdk = readPackage("sdk/package.json");
+        const ui = readPackage("ui/package.json");
+        const manifests = [
+          ["package.json", root, "miaixz.js"],
+          ["sdk/package.json", sdk, "@miaixz/sdk"],
+          ["ui/package.json", ui, "@miaixz/ui"],
+        ];
+
+        for (const [path, manifest, expectedName] of manifests) {
+          if (manifest.name !== expectedName) {
+            fail(path, `Expected package name '${expectedName}', found '${manifest.name ?? ""}'`);
+          }
+          if (manifest.version !== version) {
+            fail(path, `Package version '${manifest.version ?? ""}' does not match '${version}'`);
+          }
+        }
+
+        if (root.private !== true) {
+          fail("package.json", "The workspace root must remain private");
+        }
+
+        const workspaces = Array.isArray(root.workspaces) ? root.workspaces : [];
+        for (const workspace of ["sdk", "ui"]) {
+          if (!workspaces.includes(workspace)) {
+            fail("package.json", `Missing required workspace '${workspace}'`);
+          }
+        }
+
+        const expectedPeerRange = `>=${version} <${Number(version.split(".")[0]) + 1}.0.0`;
+        if (ui.peerDependencies?.["@miaixz/sdk"] !== expectedPeerRange) {
+          fail("ui/package.json", `@miaixz/sdk peer range must be '${expectedPeerRange}'`);
+        }
+        if (ui.devDependencies?.["@miaixz/sdk"] !== version) {
+          fail("ui/package.json", `@miaixz/sdk development version must be '${version}'`);
+        }
+
+        for (const [path, manifest] of [
+          ["sdk/package.json", sdk],
+          ["ui/package.json", ui],
+        ]) {
+          if (manifest.private === true) {
+            fail(path, "Published packages must not be private");
+          }
+          if (manifest.publishConfig?.access !== "public") {
+            fail(path, "publishConfig.access must be 'public'");
+          }
+          if (manifest.publishConfig?.registry !== "https://registry.npmjs.org/") {
+            fail(path, "publishConfig.registry must use the public npm registry");
+          }
+        }
+        NODE
+
+        if [[ "$VERSION" == *-* ]]; then
+          IS_PRERELEASE=true
+        else
+          IS_PRERELEASE=false
+        fi
+
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "is-prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+        echo 'packages=["@miaixz/sdk","@miaixz/ui"]' >> "$GITHUB_OUTPUT"
+
+    - name: Install Dependencies
+      shell: bash
+      run: npm install --no-package-lock
+
+    - name: Build and Validate Both Packages
+      shell: bash
+      run: npm run pack:check
