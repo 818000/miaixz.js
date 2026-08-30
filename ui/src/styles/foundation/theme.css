@@ -1,0 +1,166 @@
+/**
+ * Miaixz color and theme system
+ *
+ * Components consume semantic color tokens only. User-defined themes override
+ * the editable tokens at runtime through Miaixz.theme instead of editing CSS.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --miaixz-color-brand: #58b832;
+  --miaixz-color-on-brand: #10160d;
+  --miaixz-color-brand-hover: #4ba02a;
+  --miaixz-color-brand-active: #428c24;
+  --miaixz-color-brand-soft: #ecf7e8;
+  --miaixz-color-brand-soft-hover: #e2f3dd;
+
+  /* Backgrounds and surfaces */
+  --miaixz-color-background: #f8faf7;
+  /* stylelint-disable-next-line color-hex-length -- SDK theme contract freezes six digits. */
+  --miaixz-color-surface: #ffffff;
+  --miaixz-color-surface-secondary: #f3f6f1;
+  --miaixz-color-surface-hover: #eef3eb;
+  --miaixz-color-surface-active: #e6ede2;
+  --miaixz-color-surface-selected: #ebf8e7;
+
+  /* Text */
+  --miaixz-color-text-primary: #1d211b;
+  --miaixz-color-text-secondary: #667061;
+  --miaixz-color-text-muted: #6b7567;
+  --miaixz-color-text-disabled: #9da69a;
+  --miaixz-color-text-inverse: #f8faf7;
+
+  /* Borders and focus */
+  --miaixz-color-border: #dce4d8;
+  --miaixz-color-border-strong: #74806f;
+  --miaixz-color-focus: #3f8f22;
+
+  /* Semantic status */
+  --miaixz-color-success: #267a39;
+  --miaixz-color-success-soft: #eef8f0;
+  --miaixz-color-warning: #8a5500;
+  --miaixz-color-warning-soft: #fff6e5;
+  --miaixz-color-danger: #b03030;
+  --miaixz-color-danger-soft: #fceeee;
+  --miaixz-color-info: #2568b5;
+  --miaixz-color-info-soft: #edf5fd;
+
+  /* Overlays and native controls */
+  --miaixz-color-backdrop: #11180f7a;
+  --miaixz-color-shadow: #1d211b1a;
+  --miaixz-color-shadow-strong: #1d211b2e;
+  --miaixz-color-selection: #e1f2da;
+  --miaixz-opacity-disabled: 0.48;
+  --miaixz-opacity-muted: 0.72;
+}
+
+:root[data-miaixz-color-mode="dark"] {
+  color-scheme: dark;
+
+  --miaixz-color-brand: #6bc548;
+  --miaixz-color-on-brand: #10160d;
+  --miaixz-color-brand-hover: #5cab3d;
+  --miaixz-color-brand-active: #509735;
+  --miaixz-color-brand-soft: #0b1d05;
+  --miaixz-color-brand-soft-hover: #142d0a;
+  --miaixz-color-background: #121510;
+  --miaixz-color-surface: #191d17;
+  --miaixz-color-surface-secondary: #20251e;
+  --miaixz-color-surface-hover: #272d24;
+  --miaixz-color-surface-active: #30372c;
+  --miaixz-color-surface-selected: #233a1c;
+  --miaixz-color-text-primary: #edf1eb;
+  --miaixz-color-text-secondary: #b6c0b2;
+  --miaixz-color-text-muted: #929d8e;
+  --miaixz-color-text-disabled: #6f796c;
+  --miaixz-color-text-inverse: #161a14;
+  --miaixz-color-border: #343c31;
+  --miaixz-color-border-strong: #697a64;
+  --miaixz-color-focus: #8adb69;
+  --miaixz-color-success: #7ad18c;
+  --miaixz-color-success-soft: #18321f;
+  --miaixz-color-warning: #e5b45f;
+  --miaixz-color-warning-soft: #382a16;
+  --miaixz-color-danger: #f08a8a;
+  --miaixz-color-danger-soft: #3a1f1f;
+  --miaixz-color-info: #8abcf2;
+  --miaixz-color-info-soft: #192c40;
+  --miaixz-color-backdrop: #000000a3;
+  --miaixz-color-shadow: #00000047;
+  --miaixz-color-shadow-strong: #00000070;
+  --miaixz-color-selection: #294a20;
+}
+
+html {
+  background: var(--miaixz-color-background);
+}
+
+body {
+  color: var(--miaixz-color-text-primary);
+  accent-color: var(--miaixz-color-brand);
+  caret-color: var(--miaixz-color-brand);
+  background: var(--miaixz-color-background);
+}
+
+::selection {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-selection);
+}
+
+::placeholder {
+  color: var(--miaixz-color-text-muted);
+  opacity: 1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--miaixz-color-focus);
+  outline-offset: 2px;
+}
+
+[aria-disabled="true"],
+:disabled {
+  opacity: var(--miaixz-opacity-disabled);
+}
+
+@media (forced-colors: active) {
+  :root {
+    color-scheme: light dark;
+
+    --miaixz-color-brand: ButtonText !important;
+    --miaixz-color-on-brand: ButtonFace !important;
+    --miaixz-color-brand-hover: ButtonText !important;
+    --miaixz-color-brand-active: ButtonText !important;
+    --miaixz-color-brand-soft: Canvas !important;
+    --miaixz-color-brand-soft-hover: Canvas !important;
+    --miaixz-color-background: Canvas !important;
+    --miaixz-color-surface: Canvas !important;
+    --miaixz-color-surface-secondary: Canvas !important;
+    --miaixz-color-surface-hover: Canvas !important;
+    --miaixz-color-surface-active: Canvas !important;
+    --miaixz-color-surface-selected: Canvas !important;
+    --miaixz-color-text-primary: CanvasText !important;
+    --miaixz-color-text-secondary: CanvasText !important;
+    --miaixz-color-text-muted: CanvasText !important;
+    --miaixz-color-text-disabled: GrayText !important;
+    --miaixz-color-text-inverse: CanvasText !important;
+    --miaixz-color-border: GrayText !important;
+    --miaixz-color-border-strong: CanvasText !important;
+    --miaixz-color-focus: Highlight !important;
+    --miaixz-color-success: CanvasText !important;
+    --miaixz-color-success-soft: Canvas !important;
+    --miaixz-color-warning: CanvasText !important;
+    --miaixz-color-warning-soft: Canvas !important;
+    --miaixz-color-danger: CanvasText !important;
+    --miaixz-color-danger-soft: Canvas !important;
+    --miaixz-color-info: CanvasText !important;
+    --miaixz-color-info-soft: Canvas !important;
+    --miaixz-color-backdrop: CanvasText !important;
+    --miaixz-color-shadow: transparent !important;
+    --miaixz-color-shadow-strong: transparent !important;
+    --miaixz-color-selection: Highlight !important;
+    --miaixz-opacity-disabled: 1 !important;
+    --miaixz-opacity-muted: 1 !important;
+  }
+}

@@ -1,0 +1,135 @@
+/**
+ * Miaixz dialog component
+ * Prefer the native dialog element and showModal() for focus containment.
+ */
+
+:root {
+  --miaixz-dialog-width-small: 400px;
+  --miaixz-dialog-width-medium: 640px;
+  --miaixz-dialog-width-large: 960px;
+  --miaixz-dialog-width: var(--miaixz-dialog-width-medium);
+  --miaixz-dialog-max-height: calc(100dvh - (var(--miaixz-page-gutter) * 2));
+  --miaixz-dialog-offset: var(--miaixz-space-8);
+}
+
+dialog.miaixz-dialog {
+  width: min(calc(100vw - (var(--miaixz-page-gutter) * 2)), var(--miaixz-dialog-width));
+  max-width: none;
+  max-height: var(--miaixz-dialog-max-height);
+  padding: 0;
+  margin: auto;
+  overflow: hidden;
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-dialog);
+  box-shadow: var(--miaixz-shadow-overlay);
+  opacity: 0;
+  transform: translateY(var(--miaixz-dialog-offset));
+  transition-timing-function: var(--miaixz-motion-enter-easing);
+  transition-duration: var(--miaixz-motion-overlay-duration);
+  transition-property: opacity, transform, display, overlay;
+  transition-behavior: allow-discrete;
+}
+
+dialog.miaixz-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+dialog.miaixz-dialog::backdrop {
+  background: var(--miaixz-color-backdrop);
+  opacity: 0;
+  transition-timing-function: var(--miaixz-motion-enter-easing);
+  transition-duration: var(--miaixz-motion-overlay-duration);
+  transition-property: opacity, display, overlay;
+  transition-behavior: allow-discrete;
+}
+
+dialog.miaixz-dialog[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.miaixz-dialog[open] {
+    opacity: 0;
+    transform: translateY(var(--miaixz-dialog-offset));
+  }
+
+  dialog.miaixz-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.miaixz-dialog-small {
+  --miaixz-dialog-width: var(--miaixz-dialog-width-small);
+}
+
+.miaixz-dialog-large {
+  --miaixz-dialog-width: var(--miaixz-dialog-width-large);
+}
+
+.miaixz-dialog-header,
+.miaixz-dialog-body,
+.miaixz-dialog-footer {
+  min-width: 0;
+  padding: var(--miaixz-density-panel-padding);
+}
+
+.miaixz-dialog-header {
+  display: flex;
+  flex: none;
+  gap: var(--miaixz-space-16);
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-dialog-title {
+  margin: 0;
+  font-size: var(--miaixz-text-page-title-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-page-title-line-height);
+}
+
+.miaixz-dialog-description {
+  margin: var(--miaixz-space-4) 0 0;
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-dialog-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.miaixz-dialog-footer {
+  display: flex;
+  flex: none;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  justify-content: flex-end;
+  border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+@media (width <= 767px) {
+  :root {
+    --miaixz-dialog-max-height: calc(100dvh - (var(--miaixz-space-16) * 2));
+  }
+
+  dialog.miaixz-dialog {
+    width: calc(100vw - (var(--miaixz-space-16) * 2));
+  }
+
+  .miaixz-dialog-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .miaixz-dialog-footer > .miaixz-control {
+    width: 100%;
+  }
+}

@@ -1,0 +1,58 @@
+/**
+ * Miaixz motion system
+ *
+ * Motion communicates interaction and state changes. Components must select a
+ * semantic duration and must not use transition: all.
+ */
+
+:root {
+  /* Duration scale */
+  --miaixz-duration-instant: 0ms;
+  --miaixz-duration-fast: 120ms;
+  --miaixz-duration-normal: 180ms;
+  --miaixz-duration-slow: 240ms;
+  --miaixz-duration-slower: 320ms;
+
+  /* Easing scale */
+  --miaixz-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --miaixz-easing-enter: cubic-bezier(0, 0, 0, 1);
+  --miaixz-easing-exit: cubic-bezier(0.3, 0, 1, 1);
+  --miaixz-easing-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
+
+  /* Semantic motion */
+  --miaixz-motion-interaction-duration: var(--miaixz-duration-fast);
+  --miaixz-motion-state-duration: var(--miaixz-duration-normal);
+  --miaixz-motion-overlay-duration: var(--miaixz-duration-slow);
+  --miaixz-motion-interaction-easing: var(--miaixz-easing-standard);
+  --miaixz-motion-enter-easing: var(--miaixz-easing-enter);
+  --miaixz-motion-exit-easing: var(--miaixz-easing-exit);
+}
+
+.miaixz-motion-colors {
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: color, background-color, border-color, outline-color, box-shadow, opacity;
+}
+
+.miaixz-motion-transform {
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-state-duration);
+  transition-property: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --miaixz-motion-interaction-duration: 0.01ms;
+    --miaixz-motion-state-duration: 0.01ms;
+    --miaixz-motion-overlay-duration: 0.01ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

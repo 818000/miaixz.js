@@ -1,0 +1,136 @@
+/**
+ * Button component
+ */
+
+.miaixz-button {
+  position: relative;
+  font-weight: var(--miaixz-font-weight-regular);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  isolation: isolate;
+}
+
+.miaixz-button:where(:active:not(:disabled, [aria-disabled="true"])) {
+  transform: translateY(1px);
+}
+
+.miaixz-button-primary {
+  color: var(--miaixz-color-on-brand);
+  background: var(--miaixz-color-brand);
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-button-primary:hover:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-brand-hover);
+  border-color: var(--miaixz-color-brand-hover);
+}
+
+.miaixz-button-primary:active:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-brand-active);
+  border-color: var(--miaixz-color-brand-active);
+}
+
+.miaixz-button-secondary:hover:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-button-ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.miaixz-button-ghost:hover:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-surface-hover);
+  border-color: transparent;
+}
+
+.miaixz-button-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miaixz-button-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.miaixz-button-icon > svg {
+  width: var(--miaixz-icon-size-control);
+  height: var(--miaixz-icon-size-control);
+}
+
+.miaixz-button-icon-only {
+  width: var(--miaixz-density-control-height);
+  padding-inline: 0;
+}
+
+.miaixz-button-icon-only.miaixz-control-small {
+  width: var(--miaixz-control-height-small);
+}
+
+.miaixz-button-icon-only.miaixz-control-medium {
+  width: var(--miaixz-control-height-medium);
+}
+
+.miaixz-button-icon-only.miaixz-control-large {
+  width: var(--miaixz-control-height-large);
+}
+
+.miaixz-button-outline {
+  color: var(--miaixz-color-text-primary);
+  background: transparent;
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-button-outline:hover:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-brand-soft);
+}
+
+.miaixz-button-outline:active:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-brand-soft-hover);
+}
+
+.miaixz-button-danger {
+  color: var(--miaixz-color-text-inverse);
+  background: var(--miaixz-color-danger);
+  border-color: var(--miaixz-color-danger);
+}
+
+.miaixz-button-danger:hover:not(:disabled, [aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--miaixz-color-danger) 88%, black);
+  border-color: color-mix(in srgb, var(--miaixz-color-danger) 88%, black);
+}
+
+.miaixz-button-danger:active:not(:disabled, [aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--miaixz-color-danger) 78%, black);
+  border-color: color-mix(in srgb, var(--miaixz-color-danger) 78%, black);
+}
+
+.miaixz-button:disabled,
+.miaixz-button[aria-disabled="true"] {
+  color: var(--miaixz-color-text-disabled);
+  background: var(--miaixz-color-surface-secondary);
+  border-color: var(--miaixz-color-border);
+  opacity: 1;
+}
+
+.miaixz-button-spinner {
+  animation: miaixz-button-spin var(--miaixz-motion-overlay-duration) linear infinite;
+}
+
+@keyframes miaixz-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-button-spinner {
+    animation: none;
+  }
+}

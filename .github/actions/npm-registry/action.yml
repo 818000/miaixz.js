@@ -1,0 +1,95 @@
+name: Publish to npm
+description: 'Publishes @miaixz/sdk and @miaixz/ui at one shared version'
+
+inputs:
+  version:
+    description: 'Exact version shared by both packages.'
+    required: true
+  registry:
+    description: 'npm registry URL.'
+    required: false
+    default: 'https://registry.npmjs.org/'
+
+runs:
+  using: composite
+  steps:
+    - name: Publish Both Packages
+      shell: bash
+      env:
+        RELEASE_VERSION: ${{ inputs.version }}
+        NPM_REGISTRY: ${{ inputs.registry }}
+      run: |
+        set -euo pipefail
+
+        PACKAGES=("@miaixz/sdk" "@miaixz/ui")
+        if [[ "$RELEASE_VERSION" == *-* ]]; then
+          DIST_TAG=next
+        else
+          DIST_TAG=latest
+        fi
+
+        is_published() {
+          local package_name="$1"
+          local published_version
+
+          if ! published_version="$(
+            npm view "${package_name}@${RELEASE_VERSION}" version \
+              --json \
+              --prefer-online \
+              --registry "$NPM_REGISTRY" \
+              2>/dev/null
+          )"; then
+            return 1
+          fi
+
+          published_version="$(printf '%s' "$published_version" | tr -d '"[:space:]')"
+          [ "$published_version" = "$RELEASE_VERSION" ]
+        }
+
+        sdk_published=false
+        ui_published=false
+        is_published "${PACKAGES[0]}" && sdk_published=true
+        is_published "${PACKAGES[1]}" && ui_published=true
+
+        if [ "$sdk_published" != "$ui_published" ]; then
+          echo "::warning::Only one package currently has version $RELEASE_VERSION; publishing the missing package to restore parity"
+        fi
+
+        for package_name in "${PACKAGES[@]}"; do
+          if is_published "$package_name"; then
+            echo "$package_name@$RELEASE_VERSION is already present on npm"
+            continue
+          fi
+
+          echo "::group::Publish $package_name@$RELEASE_VERSION"
+          npm publish \
+            --workspace "$package_name" \
+            --access public \
+            --tag "$DIST_TAG" \
+            --provenance \
+            --registry "$NPM_REGISTRY"
+          echo "::endgroup::"
+        done
+
+        published=false
+        max_attempts=18
+        retry_delay=10
+
+        for ((attempt = 1; attempt <= max_attempts; attempt++)); do
+          if is_published "${PACKAGES[0]}" && is_published "${PACKAGES[1]}"; then
+            published=true
+            break
+          fi
+
+          if ((attempt < max_attempts)); then
+            echo "Waiting for npm registry propagation ($attempt/$max_attempts)"
+            sleep "$retry_delay"
+          fi
+        done
+
+        if [ "$published" != true ]; then
+          echo "::error::npm does not report both packages at version $RELEASE_VERSION after $(((max_attempts - 1) * retry_delay)) seconds"
+          exit 1
+        fi
+
+        echo "Published both packages with version $RELEASE_VERSION and dist-tag $DIST_TAG"

@@ -1,0 +1,48 @@
+name: Build Project
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to validate. Leave empty to read VERSION.'
+        required: false
+        default: ''
+        type: string
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - '*'
+
+env:
+  NODE_VERSION: '24'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build npm Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@v7
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org/'
+          package-manager-cache: false
+
+      - name: Build Project
+        uses: ./.github/actions/build-project
+        with:
+          version: ${{ inputs.version || '' }}

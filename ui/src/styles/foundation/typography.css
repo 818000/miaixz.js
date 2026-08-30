@@ -1,0 +1,84 @@
+/**
+ * Miaixz typography tokens
+ *
+ * This file is loaded globally and is the only source of typography tokens.
+ *
+ * Migration rules:
+ * 1. Font-size values are defined only in the primitive scale below.
+ * 2. Components should consume semantic tokens, not primitive tokens.
+ * 3. Component styles must not introduce literal font-size values.
+ * 4. Icon dimensions do not belong to the typography scale.
+ */
+
+:root {
+  /* Font families */
+  --miaixz-font-family-sans:
+    -apple-system, blinkmacsystemfont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", system-ui,
+    sans-serif;
+  --miaixz-font-family-mono: "SFMono-Regular", consolas, "Liberation Mono", menlo, monospace;
+
+  /*
+     * Primitive font-size scale
+     * These are the only literal font-size values allowed in the system.
+     */
+  --miaixz-font-size-12: 12px;
+  --miaixz-font-size-14: 14px;
+  --miaixz-font-size-16: 16px;
+  --miaixz-font-size-20: 20px;
+  --miaixz-font-size-24: 24px;
+  --miaixz-font-size-32: 32px;
+
+  /* Primitive line-height scale */
+  --miaixz-line-height-18: 18px;
+  --miaixz-line-height-22: 22px;
+  --miaixz-line-height-24: 24px;
+  --miaixz-line-height-28: 28px;
+  --miaixz-line-height-32: 32px;
+  --miaixz-line-height-40: 40px;
+
+  /* Primitive font weights */
+  --miaixz-font-weight-regular: 400;
+  --miaixz-font-weight-medium: 600;
+  --miaixz-font-weight-bold: 700;
+
+  /*
+     * Semantic typography scale
+     * caption: helper text, table headers, status, time and pagination
+     * body: navigation, tabs, controls, form fields, tables and body copy
+     * section: cards, panels, drawer groups and section headings
+     * page: page titles, space names and drawer titles
+     * metric: dashboard values and prominent statistics
+     * display: login and other exceptional display headings
+     */
+  --miaixz-text-caption-size: var(--miaixz-font-size-12);
+  --miaixz-text-body-size: var(--miaixz-font-size-14);
+  --miaixz-text-section-title-size: var(--miaixz-font-size-16);
+  --miaixz-text-page-title-size: var(--miaixz-font-size-20);
+  --miaixz-text-metric-size: var(--miaixz-font-size-24);
+  --miaixz-text-display-size: var(--miaixz-font-size-32);
+  --miaixz-text-caption-line-height: var(--miaixz-line-height-18);
+  --miaixz-text-body-line-height: var(--miaixz-line-height-22);
+  --miaixz-text-section-title-line-height: var(--miaixz-line-height-24);
+  --miaixz-text-page-title-line-height: var(--miaixz-line-height-28);
+  --miaixz-text-metric-line-height: var(--miaixz-line-height-32);
+  --miaixz-text-display-line-height: var(--miaixz-line-height-40);
+
+  /* Letter spacing */
+  --miaixz-letter-spacing-tight: -0.02em;
+  --miaixz-letter-spacing-normal: 0;
+}
+
+html {
+  font-family: var(--miaixz-font-family-sans);
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: var(--miaixz-text-body-line-height);
+  letter-spacing: var(--miaixz-letter-spacing-normal);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--miaixz-font-family-mono);
+}

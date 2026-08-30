@@ -1,0 +1,29 @@
+/**
+ * Miaixz icon system
+ * Source: Lucide Icons 1.35.0 (ISC License)
+ *
+ * Lucide is the only general-purpose icon library used by the interface.
+ * Brand marks and product-specific illustrations are managed separately.
+ */
+
+:root {
+  /* Primitive icon-size scale */
+  --miaixz-icon-size-12: 12px;
+  --miaixz-icon-size-16: 16px;
+  --miaixz-icon-size-20: 20px;
+  --miaixz-icon-size-24: 24px;
+  --miaixz-icon-size-32: 32px;
+  --miaixz-icon-size-40: 40px;
+
+  /* Semantic icon sizes */
+  --miaixz-icon-size-indicator: var(--miaixz-icon-size-12);
+  --miaixz-icon-size-inline: var(--miaixz-icon-size-16);
+  --miaixz-icon-size-control: var(--miaixz-icon-size-16);
+  --miaixz-icon-size-navigation: var(--miaixz-icon-size-20);
+  --miaixz-icon-size-feature: var(--miaixz-icon-size-24);
+  --miaixz-icon-size-display: var(--miaixz-icon-size-32);
+
+  /* Stroke scale */
+  --miaixz-icon-stroke-regular: 1.75;
+  --miaixz-icon-stroke-strong: 2;
+}

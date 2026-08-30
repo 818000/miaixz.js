@@ -1,0 +1,201 @@
+name: Create Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Git tag to release."
+        required: true
+        type: string
+      version:
+        description: "Release version."
+        required: false
+        default: ""
+        type: string
+      prerelease:
+        description: "Mark the GitHub Release as a pre-release."
+        required: false
+        default: false
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to release."
+        required: true
+        type: string
+      version:
+        description: "Release version. Leave empty to derive from tag."
+        required: false
+        default: ""
+        type: string
+      prerelease:
+        description: "Mark the GitHub Release as a pre-release."
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Resolve Release Metadata
+        id: release
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_VERSION: ${{ inputs.version || '' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$INPUT_TAG" ]; then
+            echo "::error::Release tag is required"
+            exit 1
+          fi
+
+          VERSION="$INPUT_VERSION"
+          if [ -z "$VERSION" ]; then
+            VERSION="$INPUT_TAG"
+          fi
+
+          if [ "$INPUT_TAG" != "$VERSION" ]; then
+            echo "::error::Release tag '$INPUT_TAG' must exactly match version '$VERSION'"
+            exit 1
+          fi
+
+          echo "tag=$INPUT_TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve Release Notes
+        id: notes
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          git fetch --force --tags
+
+          if git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" >/dev/null; then
+            target_ref="$RELEASE_TAG"
+          else
+            target_ref="HEAD"
+          fi
+
+          previous_tag="$(
+            git tag --sort=-creatordate --merged "$target_ref" \
+              | grep -v "^${RELEASE_TAG}$" \
+              | head -n 1 || true
+          )"
+
+          if [ -n "$previous_tag" ]; then
+            commit_range="${previous_tag}..${target_ref}"
+            range_title="Changes since ${previous_tag}"
+          else
+            commit_range="$target_ref"
+            range_title="Initial release changes"
+          fi
+
+          body_path="$RUNNER_TEMP/release-notes-${RELEASE_VERSION}.md"
+          commits_path="$RUNNER_TEMP/release-commits-${RELEASE_VERSION}.txt"
+          git log --no-merges --pretty=format:'%s (%h)' "$commit_range" > "$commits_path"
+
+          export BODY_PATH="$body_path"
+          export COMMITS_PATH="$commits_path"
+          export RANGE_TITLE="$range_title"
+
+          ruby <<'RUBY'
+          section_titles = [
+            '🐣 New Features',
+            '🐛 Bug Fixes',
+            '🔄 Refactoring',
+            '📚 Documentation',
+            '🧰 Build and Release'
+          ]
+
+          sections = section_titles.to_h { |title| [title, []] }
+          other = []
+
+          def normalize_commit(commit)
+            commit.sub(/\s+`{3,}(?=\s+\([0-9a-f]+\)\z)/i, '')
+          end
+
+          def classify(commit)
+            subject = commit.sub(/\A:\w+:\s+/, '')
+
+            return '🐛 Bug Fixes' if commit.match?(/:bug:/i) ||
+              subject.match?(/\Afix(\(.+\))?(:|\b)|\b(bugfix|bug)\b/i)
+            return '📚 Documentation' if commit.match?(/:memo:|:speech_balloon:/i) ||
+              subject.match?(/\Adocs?(\(.+\))?(:|\b)|\b(readme|docs?|document|documentation|javadoc)\b/i)
+            return '🔄 Refactoring' if commit.match?(/:recycle:/i) ||
+              subject.match?(/\Arefactor(\(.+\))?(:|\b)|\b(refactor|cleanup|standardize|simplify|remove|reorganize)\b/i)
+            return '🧰 Build and Release' if commit.match?(/:boom:|:hammer:|:construction_worker:/i) ||
+              subject.match?(/\A(build|ci)(\(.+\))?(:|\b)|\b(release|workflow|npm|package|version|tag|dependency|dependencies|configuration|index)\b/i)
+            return '🐣 New Features' if commit.match?(/:sparkles:/i) ||
+              subject.match?(/\A(feat|feature)(\(.+\))?(:|\b)|\A(add(ed)?|enhance(d)?|support(s|ed)?)\b/i)
+
+            nil
+          end
+
+          File.readlines(ENV.fetch('COMMITS_PATH'), chomp: true).reject(&:empty?).each do |raw_commit|
+            commit = normalize_commit(raw_commit)
+            category = classify(commit)
+
+            if category
+              sections[category] << commit
+            else
+              other << commit
+            end
+          end
+
+          File.open(ENV.fetch('BODY_PATH'), 'w') do |file|
+            file.puts '---'
+            file.puts "🚀 Miaixz.js #{ENV.fetch('RELEASE_VERSION')} Release Notes"
+            file.puts
+            file.puts '---'
+            file.puts
+            file.puts ENV.fetch('RANGE_TITLE')
+            file.puts
+            file.puts "- Version: #{ENV.fetch('RELEASE_VERSION')}"
+            file.puts "- Tag: #{ENV.fetch('RELEASE_TAG')}"
+            file.puts
+
+            sections.each do |title, commits|
+              next if commits.empty?
+
+              file.puts '---'
+              file.puts title
+              file.puts
+              commits.each { |commit| file.puts "- #{commit}" }
+              file.puts
+            end
+
+            unless other.empty?
+              file.puts '---'
+              file.puts '📝 Other Changes'
+              file.puts
+              other.each { |commit| file.puts "- #{commit}" }
+              file.puts
+            end
+          end
+          RUBY
+
+          echo "body_path=$body_path" >> "$GITHUB_OUTPUT"
+          echo "Release notes: $body_path"
+
+      - name: Create Release
+        uses: ./.github/actions/create-release
+        with:
+          tag: ${{ steps.release.outputs.tag }}
+          version: ${{ steps.release.outputs.version }}
+          prerelease: ${{ inputs.prerelease }}
+          body_path: ${{ steps.notes.outputs.body_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
