@@ -3,7 +3,7 @@
  * Skeleton containers should be hidden from assistive technology.
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-skeleton-text-height: var(--miaixz-font-size-12);
   --miaixz-skeleton-heading-height: var(--miaixz-font-size-20);
   --miaixz-skeleton-avatar-size: var(--miaixz-icon-size-40);
@@ -25,17 +25,14 @@
 
 .miaixz-skeleton::after {
   position: absolute;
-  inset: 0;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 40%;
   content: "";
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(
-      in oklch,
-      var(--miaixz-color-surface-secondary) 92%,
-      var(--miaixz-color-text-primary) 8%
-    ),
-    transparent
+  background: color-mix(
+    in oklch,
+    var(--miaixz-color-surface-secondary) 88%,
+    var(--miaixz-color-text-primary) 12%
   );
   transform: translateX(-100%);
   animation: miaixz-skeleton-shimmer var(--miaixz-skeleton-duration) infinite

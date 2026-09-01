@@ -3,18 +3,22 @@
  * Use a nav element with an accessible label and aria-current="page".
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-pagination-item-size: var(--miaixz-control-height-small);
   --miaixz-pagination-gap: var(--miaixz-space-4);
 }
 
 .miaixz-pagination {
+  --miaixz-pagination-collapse-width: 480px;
+
   display: flex;
   flex-wrap: wrap;
   gap: var(--miaixz-density-component-gap);
   align-items: center;
   justify-content: space-between;
   min-width: 0;
+  container-name: miaixz-pagination;
+  container-type: inline-size;
 }
 
 .miaixz-pagination-list {
@@ -52,8 +56,8 @@
 }
 
 .miaixz-pagination-item[aria-current="page"] {
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface-selected);
+  color: var(--miaixz-surface-role-selected-foreground);
+  background: var(--miaixz-surface-role-selected-background);
   border-color: var(--miaixz-color-brand);
 }
 
@@ -79,7 +83,7 @@
   color: var(--miaixz-color-text-secondary);
 }
 
-@media (width <= 767px) {
+@container miaixz-pagination (width < 480px) {
   .miaixz-pagination {
     justify-content: center;
   }

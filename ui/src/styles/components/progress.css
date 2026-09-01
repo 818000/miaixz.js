@@ -2,7 +2,7 @@
  * Miaixz progress component
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-progress-track-height: var(--miaixz-space-8);
   --miaixz-progress-indeterminate-size: 40%;
 }
@@ -25,8 +25,10 @@
 }
 
 .miaixz-progress-indicator {
+  --miaixz-progress-value: 0%;
+
   display: block;
-  width: var(--miaixz-progress-value, 0%);
+  width: var(--miaixz-progress-value);
   height: 100%;
   background: var(--miaixz-color-brand);
   border-radius: inherit;
@@ -39,7 +41,7 @@
 }
 
 .miaixz-progress-value {
-  min-width: 4ch;
+  min-inline-size: calc(var(--miaixz-text-caption-size) * 4);
   font-size: var(--miaixz-text-caption-size);
   font-variant-numeric: tabular-nums;
   line-height: var(--miaixz-text-caption-line-height);

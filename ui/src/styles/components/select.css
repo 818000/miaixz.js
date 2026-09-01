@@ -1,56 +1,151 @@
 /**
  * Select component
+ *
+ * The native control remains in the form tree for submission and change-event
+ * compatibility. Miaixz owns the visible trigger and listbox so option states
+ * no longer inherit platform-specific colors or geometry.
  */
 
 .miaixz-select {
   position: relative;
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
   padding: 0;
-  cursor: pointer;
 }
 
-.miaixz-select:where(:hover:not(.miaixz-select-disabled)) {
+.miaixz-select[data-state="open"] {
+  outline: 0;
   border-color: var(--miaixz-color-border-strong);
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+  box-shadow: var(--miaixz-control-focus-shadow);
 }
 
-.miaixz-select:focus-within {
-  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
-  outline-offset: var(--miaixz-control-focus-offset);
-  border-color: var(--miaixz-color-focus);
+.miaixz-select[data-state="open"][data-invalid="true"] {
+  border-color: var(--miaixz-color-danger);
+  box-shadow: var(--miaixz-control-invalid-shadow);
 }
 
-.miaixz-select-element {
+.miaixz-select-native {
+  position: absolute;
+  inline-size: var(--miaixz-border-width-1);
+  block-size: var(--miaixz-border-width-1);
+  padding: 0;
+  margin: calc(var(--miaixz-border-width-1) * -1);
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+.miaixz-select-trigger {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   min-width: 0;
-  height: 100%;
-  padding: 0 calc(var(--miaixz-density-control-padding-inline) + var(--miaixz-icon-size-control)) 0
-    var(--miaixz-density-control-padding-inline);
+  min-height: 100%;
+  padding: 0 var(--miaixz-density-control-padding-inline);
   font: inherit;
   line-height: inherit;
   color: inherit;
-  appearance: none;
-  cursor: inherit;
+  text-align: start;
+  cursor: pointer;
   outline: 0;
   background: transparent;
   border: 0;
 }
 
-.miaixz-select-indicator {
-  position: absolute;
-  inset-inline-end: var(--miaixz-density-control-padding-inline);
-  color: var(--miaixz-color-text-secondary);
+.miaixz-select-trigger:focus-visible {
+  outline: 0;
 }
 
-.miaixz-select-invalid,
-.miaixz-select-invalid:focus-within {
-  outline-color: var(--miaixz-color-danger);
-  border-color: var(--miaixz-color-danger);
+.miaixz-select-value,
+.miaixz-select-option-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miaixz-select-indicator {
+  flex: none;
+  color: var(--miaixz-color-text-secondary);
+  transition: transform var(--miaixz-motion-interaction-duration)
+    var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-select[data-state="open"] .miaixz-select-indicator {
+  transform: rotate(180deg);
+}
+
+.miaixz-select-surface {
+  position: fixed;
+  inset: auto;
+  z-index: var(--miaixz-z-overlay);
+  box-sizing: border-box;
+  max-inline-size: var(--miaixz-responsive-popover-inline-size);
+  min-width: 0;
+  max-block-size: var(--miaixz-responsive-overlay-block-size);
+  padding: var(--miaixz-space-4) var(--miaixz-space-8) var(--miaixz-space-8);
+  margin: 0;
+  overflow: auto;
+  color: var(--miaixz-surface-role-overlay-foreground);
+  background: var(--miaixz-surface-role-overlay-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-overlay-border);
+  border-radius: 0 0 var(--miaixz-control-radius) var(--miaixz-control-radius);
+  box-shadow: var(--miaixz-shadow-medium);
+}
+
+.miaixz-select-surface[data-placement^="bottom"] {
+  border-top: 0;
+  transform: translateY(calc(var(--miaixz-space-8) * -1));
+}
+
+.miaixz-select-surface[data-placement^="top"] {
+  border-bottom: 0;
+  border-radius: var(--miaixz-control-radius) var(--miaixz-control-radius) 0 0;
+  transform: translateY(var(--miaixz-space-8));
+}
+
+.miaixz-select-option {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--miaixz-density-control-height);
+  padding: var(--miaixz-space-8) var(--miaixz-space-12);
+  cursor: pointer;
+  border-bottom: var(--miaixz-border-width-default) dashed transparent;
+}
+
+.miaixz-select-option[data-state="active"] {
+  background: var(--miaixz-color-surface-hover);
+  border-bottom-color: var(--miaixz-color-border);
+}
+
+.miaixz-select-option[aria-selected="true"] {
+  color: var(--miaixz-color-brand-strong);
+}
+
+.miaixz-select-option[data-disabled="true"] {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.miaixz-select-disabled .miaixz-select-trigger {
+  cursor: not-allowed;
+}
+
+@media (forced-colors: active) {
+  .miaixz-select-option[data-state="active"] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
 }
 
 .miaixz-select-disabled {
-  color: var(--miaixz-color-text-disabled);
-  cursor: not-allowed;
   background: var(--miaixz-color-surface-secondary);
 }

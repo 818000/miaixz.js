@@ -11,6 +11,7 @@ import {
   Info,
   LoaderCircle,
   Minus,
+  Palette,
   Plus,
   RotateCcw,
   Search,
@@ -27,7 +28,7 @@ import type { MiaixzIconName } from "./icon-names.js";
  * Maps the frozen Miaixz icon names to statically imported Lucide components.
  *
  * The frozen object prevents project code from mutating the shared registry. Project-specific
- * icons must be rendered with `CustomIcon` instead of extending this map at runtime.
+ * icons must be passed to `Icon` instead of extending this map at runtime.
  *
  * @internal
  */
@@ -44,6 +45,7 @@ export const miaixzIconRegistry = Object.freeze({
   Info,
   LoaderCircle,
   Minus,
+  Palette,
   Plus,
   RotateCcw,
   Search,

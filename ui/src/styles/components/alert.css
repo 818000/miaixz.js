@@ -2,7 +2,7 @@
  * Miaixz alert component
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-alert-padding: var(--miaixz-space-16);
   --miaixz-alert-gap: var(--miaixz-space-12);
   --miaixz-alert-status-size: var(--miaixz-border-width-strong);

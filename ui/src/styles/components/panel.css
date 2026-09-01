@@ -2,17 +2,21 @@
  * Miaixz panel component
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-panel-padding: var(--miaixz-density-panel-padding);
   --miaixz-panel-gap: var(--miaixz-density-component-gap);
   --miaixz-panel-header-gap: var(--miaixz-space-16);
 }
 
 .miaixz-panel {
+  --miaixz-panel-collapse-width: 480px;
+
   min-width: 0;
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface);
-  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  container-name: miaixz-panel;
+  container-type: inline-size;
+  color: var(--miaixz-surface-role-panel-foreground);
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
   border-radius: var(--miaixz-radius-panel);
   box-shadow: var(--miaixz-shadow-none);
 }
@@ -22,7 +26,7 @@
 }
 
 .miaixz-panel-selected {
-  border-color: var(--miaixz-color-brand);
+  border-color: var(--miaixz-surface-role-selected-border);
   box-shadow: 0 0 0 var(--miaixz-border-width-default) var(--miaixz-color-brand);
 }
 
@@ -110,7 +114,7 @@
   padding-inline: 0;
 }
 
-@media (width <= 767px) {
+@container miaixz-panel (width < 480px) {
   .miaixz-panel-header {
     flex-direction: column;
     align-items: stretch;

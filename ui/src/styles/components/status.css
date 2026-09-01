@@ -1,0 +1,54 @@
+/**
+ * Miaixz status indicator component
+ */
+
+[data-miaixz-theme] {
+  --miaixz-status-marker-size: var(--miaixz-space-8);
+}
+
+.miaixz-status {
+  display: inline-flex;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  min-width: 0;
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-status-marker {
+  flex: none;
+  width: var(--miaixz-status-marker-size);
+  height: var(--miaixz-status-marker-size);
+  background: var(--miaixz-color-text-muted);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-status-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miaixz-status-info .miaixz-status-marker {
+  background: var(--miaixz-color-info);
+}
+
+.miaixz-status-success .miaixz-status-marker {
+  background: var(--miaixz-color-success);
+}
+
+.miaixz-status-warning .miaixz-status-marker {
+  background: var(--miaixz-color-warning);
+}
+
+.miaixz-status-danger .miaixz-status-marker {
+  background: var(--miaixz-color-danger);
+}
+
+@media (forced-colors: active) {
+  .miaixz-status-marker {
+    background: CanvasText;
+  }
+}

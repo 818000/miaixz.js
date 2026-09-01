@@ -1,5 +1,7 @@
 import type { TextareaHTMLAttributes } from "react";
 
+import type { MiaixzFormPreviewProps } from "../shared.types.js";
+
 /**
  * Defines the supported multiline control sizes.
  *
@@ -19,7 +21,8 @@ export type TextareaResize = "none" | "vertical" | "horizontal" | "both";
  *
  * @public
  */
-export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement>, MiaixzFormPreviewProps {
   /**
    * Selects the control size.
    *

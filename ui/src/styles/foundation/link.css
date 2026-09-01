@@ -1,0 +1,21 @@
+/**
+ * Miaixz semantic link system
+ *
+ * Text links use the brand color. Underlines are reserved for hover and
+ * keyboard focus so dense application surfaces stay calm at rest.
+ * Component-level navigation may intentionally override these defaults.
+ */
+
+[data-miaixz-theme] :where(a[href]) {
+  color: var(--miaixz-color-brand);
+  text-decoration-line: none;
+  text-decoration-thickness: var(--miaixz-border-width-default);
+  text-decoration-color: currentcolor;
+  text-underline-offset: 0.18em;
+}
+
+[data-miaixz-theme] :where(a[href]:hover, a[href]:focus-visible) {
+  color: var(--miaixz-color-brand-hover);
+  text-decoration-line: underline;
+  text-decoration-color: currentcolor;
+}

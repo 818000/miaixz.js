@@ -5,7 +5,7 @@
  * semantic duration and must not use transition: all.
  */
 
-:root {
+[data-miaixz-theme] {
   /* Duration scale */
   --miaixz-duration-instant: 0ms;
   --miaixz-duration-fast: 120ms;
@@ -38,21 +38,4 @@
   transition-timing-function: var(--miaixz-motion-interaction-easing);
   transition-duration: var(--miaixz-motion-state-duration);
   transition-property: transform, opacity;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --miaixz-motion-interaction-duration: 0.01ms;
-    --miaixz-motion-state-duration: 0.01ms;
-    --miaixz-motion-overlay-duration: 0.01ms;
-  }
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
 }

@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 
 import { classNames } from "../../internal/class-names.js";
-import type { PanelProps, PanelSectionProps } from "./panel.types.js";
+import type { PanelProps } from "./panel.types.js";
 
 /**
  * Renders a framed content surface with optional header, actions, and footer.
@@ -11,6 +11,7 @@ import type { PanelProps, PanelSectionProps } from "./panel.types.js";
 export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
   {
     title,
+    sections,
     description,
     actions,
     footer,
@@ -51,20 +52,16 @@ export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
           {actions !== undefined && <div className="miaixz-panel-actions">{actions}</div>}
         </header>
       )}
-      {children !== undefined && <div className="miaixz-panel-body">{children}</div>}
+      {(sections !== undefined || children !== undefined) && (
+        <div className="miaixz-panel-body">
+          {sections?.map((section, index) => (
+            <div key={index} className="miaixz-panel-section">
+              {section}
+            </div>
+          )) ?? children}
+        </div>
+      )}
       {footer !== undefined && <footer className="miaixz-panel-footer">{footer}</footer>}
     </section>
   );
-});
-
-/**
- * Divides a panel into consistently spaced semantic sections.
- *
- * @public
- */
-export const PanelSection = forwardRef<HTMLDivElement, PanelSectionProps>(function PanelSection(
-  { className, ...props },
-  ref,
-) {
-  return <div {...props} ref={ref} className={classNames("miaixz-panel-section", className)} />;
 });

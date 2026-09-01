@@ -3,15 +3,19 @@
  * Use tablist, tab and tabpanel roles with aria-selected and aria-controls.
  */
 
-:root {
-  --miaixz-tabs-height: var(--miaixz-density-control-height);
+[data-miaixz-theme] {
+  --miaixz-tabs-height: var(--miaixz-control-height-large);
   --miaixz-tabs-gap: var(--miaixz-space-24);
   --miaixz-tabs-padding-inline: var(--miaixz-space-4);
   --miaixz-tabs-indicator-size: var(--miaixz-border-width-strong);
 }
 
 .miaixz-tabs {
+  --miaixz-tabs-collapse-width: 480px;
+
   min-width: 0;
+  container-name: miaixz-tabs;
+  container-type: inline-size;
 }
 
 .miaixz-tabs-list {
@@ -54,7 +58,7 @@
 }
 
 .miaixz-tab[aria-selected="true"] {
-  color: var(--miaixz-color-text-primary);
+  color: var(--miaixz-surface-role-selected-foreground);
   box-shadow: inset 0 calc(var(--miaixz-tabs-indicator-size) * -1) 0 var(--miaixz-color-brand);
 }
 
@@ -99,7 +103,8 @@
 }
 
 .miaixz-tabs-vertical > .miaixz-tabs-list .miaixz-tab[aria-selected="true"] {
-  background: var(--miaixz-color-surface-selected);
+  color: var(--miaixz-surface-role-selected-foreground);
+  background: var(--miaixz-surface-role-selected-background);
   box-shadow: inset var(--miaixz-tabs-indicator-size) 0 0 var(--miaixz-color-brand);
 }
 
@@ -107,7 +112,7 @@
   padding-block-start: 0;
 }
 
-@media (width <= 767px) {
+@container miaixz-tabs (width < 480px) {
   .miaixz-tabs-vertical {
     display: block;
   }

@@ -1,0 +1,89 @@
+/**
+ * Miaixz empty state component
+ */
+
+[data-miaixz-theme] {
+  --miaixz-empty-max-width: 480px;
+  --miaixz-empty-icon-container-size: 48px;
+  --miaixz-empty-padding-block: var(--miaixz-space-48);
+  --miaixz-empty-gap: var(--miaixz-space-12);
+}
+
+.miaixz-empty {
+  --miaixz-empty-collapse-width: 360px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  padding: var(--miaixz-empty-padding-block) var(--miaixz-density-panel-padding);
+  container-name: miaixz-empty;
+  container-type: inline-size;
+  color: var(--miaixz-color-text-primary);
+  text-align: center;
+}
+
+.miaixz-empty-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-empty-gap);
+  align-items: center;
+  width: min(100%, var(--miaixz-empty-max-width));
+}
+
+.miaixz-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--miaixz-empty-icon-container-size);
+  height: var(--miaixz-empty-icon-container-size);
+  color: var(--miaixz-color-text-secondary);
+  background: var(--miaixz-color-surface-secondary);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-empty-icon > .miaixz-icon {
+  width: var(--miaixz-icon-size-feature);
+  height: var(--miaixz-icon-size-feature);
+}
+
+.miaixz-empty-title {
+  margin: 0;
+  font-size: var(--miaixz-text-section-title-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-section-title-line-height);
+}
+
+.miaixz-empty-description {
+  margin: 0;
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  justify-content: center;
+  margin-block-start: var(--miaixz-space-4);
+}
+
+.miaixz-empty-compact {
+  --miaixz-empty-padding-block: var(--miaixz-space-24);
+  --miaixz-empty-icon-container-size: var(--miaixz-icon-size-40);
+}
+
+@container miaixz-empty (width < 360px) {
+  .miaixz-empty-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .miaixz-empty-actions > .miaixz-control {
+    width: 100%;
+  }
+}

@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
 
 import { classNames } from "../../internal/class-names.js";
-import type { NavigationItemProps, NavigationProps } from "./navigation.types.js";
+import type { NavigationEntry, NavigationProps } from "./navigation.types.js";
 
 /**
  * Renders a labeled navigation container for application links and actions.
@@ -10,7 +10,7 @@ import type { NavigationItemProps, NavigationProps } from "./navigation.types.js
  * @public
  */
 export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navigation(
-  { orientation = "vertical", label, className, children, ...props },
+  { items, orientation = "vertical", label, className, children, ...props },
   ref,
 ) {
   return (
@@ -20,7 +20,9 @@ export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navi
       aria-label={label}
       className={classNames("miaixz-navigation", `miaixz-navigation-${orientation}`, className)}
     >
-      {children}
+      {items?.map((item, index) => (
+        <NavigationEntryView key={`${item.href ?? "action"}-${index}`} {...item} />
+      )) ?? children}
     </nav>
   );
 });
@@ -28,15 +30,12 @@ export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navi
 /**
  * Renders an active-aware navigation link or button.
  *
- * @public
+ * @param entry - Declarative navigation entry.
+ * @returns The rendered navigation link or button.
+ * @internal
  */
-export const NavigationItem = forwardRef<
-  HTMLAnchorElement | HTMLButtonElement,
-  NavigationItemProps
->(function NavigationItem(
-  { href, active = false, disabled = false, icon, label, meta, className, ...props },
-  ref,
-) {
+function NavigationEntryView(entry: NavigationEntry) {
+  const { href, active = false, disabled = false, icon, label, meta, className, ...props } = entry;
   const content = (
     <>
       {icon && <span className="miaixz-navigation-icon">{icon}</span>}
@@ -55,7 +54,6 @@ export const NavigationItem = forwardRef<
       <a
         {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}
         {...sharedProps}
-        ref={ref as React.ForwardedRef<HTMLAnchorElement>}
         href={disabled ? undefined : href}
         tabIndex={disabled ? -1 : props.tabIndex}
       >
@@ -68,11 +66,10 @@ export const NavigationItem = forwardRef<
     <button
       {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}
       {...sharedProps}
-      ref={ref as React.ForwardedRef<HTMLButtonElement>}
       type={(props as ButtonHTMLAttributes<HTMLButtonElement>).type ?? "button"}
       disabled={disabled}
     >
       {content}
     </button>
   );
-});
+}

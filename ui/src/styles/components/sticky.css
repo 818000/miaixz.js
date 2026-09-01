@@ -1,0 +1,5 @@
+.miaixz-sticky {
+  position: sticky;
+  top: var(--miaixz-layout-sticky-offset);
+  z-index: var(--miaixz-z-sticky);
+}

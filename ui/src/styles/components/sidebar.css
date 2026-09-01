@@ -1,0 +1,10 @@
+.miaixz-sidebar {
+  display: grid;
+  grid-template-columns: minmax(220px, var(--miaixz-layout-local-sidebar-width)) minmax(0, 1fr);
+  gap: var(--miaixz-layout-grid-gap);
+  min-width: 0;
+}
+
+.miaixz-sidebar-main {
+  min-width: 0;
+}

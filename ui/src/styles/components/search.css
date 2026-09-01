@@ -1,0 +1,12 @@
+.miaixz-search-clear {
+  width: var(--miaixz-icon-size-control);
+  min-width: var(--miaixz-icon-size-control);
+  height: var(--miaixz-icon-size-control);
+  min-height: var(--miaixz-icon-size-control);
+  padding: 0;
+  border: 0;
+}
+
+input[type="search"].miaixz-input-element::-webkit-search-cancel-button {
+  display: none;
+}

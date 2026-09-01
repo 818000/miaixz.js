@@ -1,0 +1,24 @@
+/**
+ * Miaixz loading overlay component
+ */
+
+.miaixz-overlay {
+  position: relative;
+  min-width: 0;
+}
+
+.miaixz-overlay[data-loading="true"] > .miaixz-overlay-content {
+  pointer-events: none;
+  user-select: none;
+}
+
+.miaixz-overlay-surface {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--miaixz-color-text-primary);
+  pointer-events: auto;
+  background: color-mix(in srgb, var(--miaixz-color-surface) 86%, transparent);
+  border-radius: inherit;
+}

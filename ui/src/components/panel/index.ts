@@ -1,2 +1,2 @@
-export { Panel, PanelSection } from "./panel.js";
-export type { PanelProps, PanelSectionProps } from "./panel.types.js";
+export { Panel } from "./panel.js";
+export type { PanelProps } from "./panel.types.js";

@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { miaixzIconRegistry } from "../../icons/icon-registry.js";
 import { classNames } from "../../internal/class-names.js";
-import type { CustomIconProps, IconProps, IconSize } from "./icon.types.js";
+import type { IconProps, IconSize } from "./icon.types.js";
 
 const semanticSizes = new Set<IconSize>([
   "indicator",
@@ -32,7 +32,7 @@ function renderMiaixzIcon(
   stroke: "regular" | "strong",
   label: string | undefined,
   className: string | undefined,
-  props: Omit<CustomIconProps, "className" | "icon" | "label" | "size" | "stroke">,
+  props: Omit<IconProps, "className" | "icon" | "label" | "name" | "size" | "stroke">,
   ref: ForwardedRef<SVGSVGElement>,
 ): ReactElement {
   const semanticSize =
@@ -64,20 +64,9 @@ function renderMiaixzIcon(
  * @public
  */
 export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
-  { name, size = "inline", stroke = "regular", label, className, ...props },
+  { name, icon, size = "inline", stroke = "regular", label, className, ...props },
   ref,
 ) {
-  return renderMiaixzIcon(miaixzIconRegistry[name], size, stroke, label, className, props, ref);
-});
-
-/**
- * Renders a project-supplied Lucide icon without mutating the global Miaixz registry.
- *
- * @public
- */
-export const CustomIcon = forwardRef<SVGSVGElement, CustomIconProps>(function CustomIcon(
-  { icon, size = "inline", stroke = "regular", label, className, ...props },
-  ref,
-) {
-  return renderMiaixzIcon(icon, size, stroke, label, className, props, ref);
+  const Source = icon ?? miaixzIconRegistry[name!];
+  return renderMiaixzIcon(Source, size, stroke, label, className, props, ref);
 });

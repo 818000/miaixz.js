@@ -6,9 +6,9 @@
   position: fixed;
   inset: auto;
   z-index: var(--miaixz-z-overlay);
-  width: max-content;
-  max-width: min(280px, calc(100vw - var(--miaixz-space-16)));
-  max-height: calc(100dvh - var(--miaixz-space-16));
+  inline-size: max-content;
+  max-inline-size: var(--miaixz-responsive-popover-inline-size);
+  max-block-size: var(--miaixz-responsive-overlay-block-size);
   padding: var(--miaixz-space-4) var(--miaixz-space-8);
   margin: 0;
   overflow: auto;

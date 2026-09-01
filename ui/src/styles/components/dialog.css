@@ -3,25 +3,28 @@
  * Prefer the native dialog element and showModal() for focus containment.
  */
 
-:root {
-  --miaixz-dialog-width-small: 400px;
-  --miaixz-dialog-width-medium: 640px;
-  --miaixz-dialog-width-large: 960px;
+[data-miaixz-theme] {
+  --miaixz-dialog-width-small: calc(var(--miaixz-layout-dialog-width) * 0.75);
+  --miaixz-dialog-width-medium: var(--miaixz-layout-dialog-width);
+  --miaixz-dialog-width-large: min(
+    calc(var(--miaixz-layout-dialog-width) * 1.5),
+    var(--miaixz-layout-page-max-width)
+  );
   --miaixz-dialog-width: var(--miaixz-dialog-width-medium);
-  --miaixz-dialog-max-height: calc(100dvh - (var(--miaixz-page-gutter) * 2));
+  --miaixz-dialog-max-height: var(--miaixz-responsive-overlay-block-size);
   --miaixz-dialog-offset: var(--miaixz-space-8);
 }
 
 dialog.miaixz-dialog {
-  width: min(calc(100vw - (var(--miaixz-page-gutter) * 2)), var(--miaixz-dialog-width));
+  inline-size: min(var(--miaixz-responsive-dialog-inline-size), var(--miaixz-dialog-width));
   max-width: none;
   max-height: var(--miaixz-dialog-max-height);
   padding: 0;
   margin: auto;
   overflow: hidden;
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface);
-  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  color: var(--miaixz-surface-role-overlay-foreground);
+  background: var(--miaixz-surface-role-overlay-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-overlay-border);
   border-radius: var(--miaixz-radius-dialog);
   box-shadow: var(--miaixz-shadow-overlay);
   opacity: 0;
@@ -113,23 +116,4 @@ dialog.miaixz-dialog[open]::backdrop {
   align-items: center;
   justify-content: flex-end;
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
-}
-
-@media (width <= 767px) {
-  :root {
-    --miaixz-dialog-max-height: calc(100dvh - (var(--miaixz-space-16) * 2));
-  }
-
-  dialog.miaixz-dialog {
-    width: calc(100vw - (var(--miaixz-space-16) * 2));
-  }
-
-  .miaixz-dialog-footer {
-    flex-direction: column-reverse;
-    align-items: stretch;
-  }
-
-  .miaixz-dialog-footer > .miaixz-control {
-    width: 100%;
-  }
 }

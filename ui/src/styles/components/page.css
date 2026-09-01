@@ -1,0 +1,18 @@
+.miaixz-page {
+  width: min(100%, var(--miaixz-page-max-width));
+  padding: var(--miaixz-page-block-padding) var(--miaixz-page-gutter);
+  margin-inline: auto;
+}
+
+.miaixz-page-fullwidth {
+  width: 100%;
+  max-width: none;
+}
+
+@media print {
+  .miaixz-page {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+  }
+}

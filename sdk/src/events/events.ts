@@ -311,13 +311,13 @@ function isMiaixzContextEvent(payload: unknown): payload is MiaixzRuntimeContext
  * Validates the built-in appearance payload and its nested settings.
  *
  * @param payload - Untrusted event payload.
- * @returns Whether the payload uses schema version one and valid appearance settings.
+ * @returns Whether the payload uses schema version two and valid appearance settings.
  */
 function isMiaixzAppearanceEvent(payload: unknown): payload is MiaixzAppearancePayload {
   return (
     isPlainEventObject(payload) &&
     hasExactEventKeys(payload, new Set(["schemaVersion", "value"])) &&
-    payload.schemaVersion === 1 &&
+    payload.schemaVersion === 2 &&
     isMiaixzAppearanceSettings(payload.value)
   );
 }
@@ -634,7 +634,13 @@ export class MiaixzEventBus<Events extends object = MiaixzSdkEventMap> {
    * @param payload - Event payload to deliver.
    */
   #dispatch(type: string, payload: unknown): void {
-    for (const listener of this.#listeners.get(type) ?? []) listener(payload);
+    for (const listener of this.#listeners.get(type) ?? []) {
+      try {
+        listener(payload);
+      } catch {
+        // One event observer cannot prevent delivery to later observers.
+      }
+    }
   }
 
   /**

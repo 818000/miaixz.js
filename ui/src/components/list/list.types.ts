@@ -7,6 +7,10 @@ import type { HTMLAttributes, ReactNode } from "react";
  */
 export interface ListProps extends HTMLAttributes<HTMLUListElement> {
   /**
+   * Supplies structured list entries.
+   */
+  items?: readonly ListEntry[];
+  /**
    * Displays a surrounding border and row dividers.
    *
    * @defaultValue `false`
@@ -31,7 +35,10 @@ export interface ListProps extends HTMLAttributes<HTMLUListElement> {
  *
  * @public
  */
-export interface ListItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "title"> {
+export interface ListEntry extends Omit<
+  HTMLAttributes<HTMLLIElement>,
+  "children" | "content" | "title"
+> {
   /**
    * Displays optional leading icon content.
    */
@@ -70,4 +77,8 @@ export interface ListItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "titl
    * @defaultValue `false`
    */
   disabled?: boolean;
+  /**
+   * Supplies unstructured row content when no title is provided.
+   */
+  content?: ReactNode;
 }

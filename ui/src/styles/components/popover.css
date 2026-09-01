@@ -28,14 +28,15 @@
   position: fixed;
   inset: auto;
   z-index: var(--miaixz-z-overlay);
-  min-width: 220px;
-  max-width: min(420px, calc(100vw - var(--miaixz-space-16)));
-  max-height: calc(100dvh - var(--miaixz-space-16));
+  min-inline-size: min(100%, var(--miaixz-layout-card-min-width));
+  max-inline-size: var(--miaixz-responsive-popover-inline-size);
+  max-block-size: var(--miaixz-responsive-overlay-block-size);
   padding: var(--miaixz-space-12);
   margin: 0;
   overflow: auto;
-  background: var(--miaixz-color-surface);
-  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  color: var(--miaixz-surface-role-overlay-foreground);
+  background: var(--miaixz-surface-role-overlay-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-overlay-border);
   border-radius: var(--miaixz-radius-panel);
   box-shadow: var(--miaixz-shadow-overlay);
 }

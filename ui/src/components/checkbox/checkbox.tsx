@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 
 import { classNames } from "../../internal/class-names.js";
 import type { CheckboxProps } from "./checkbox.types.js";
@@ -9,10 +9,26 @@ import type { CheckboxProps } from "./checkbox.types.js";
  * @public
  */
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
-  { label, description, indeterminate = false, className, disabled, ...props },
+  {
+    label,
+    description,
+    indeterminate = false,
+    invalid = false,
+    previewState,
+    className,
+    disabled,
+    checked,
+    defaultChecked,
+    onChange,
+    "aria-invalid": ariaInvalid,
+    ...props
+  },
   forwardedRef,
 ) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [uncontrolledChecked, setUncontrolledChecked] = useState(defaultChecked ?? false);
+  const isChecked = checked === undefined ? uncontrolledChecked : checked;
+  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
 
   useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement, []);
   useEffect(() => {
@@ -25,16 +41,28 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
         "miaixz-choice",
         "miaixz-checkbox",
         disabled && "miaixz-choice-disabled",
+        isInvalid && "miaixz-choice-invalid",
         className,
       )}
+      data-disabled={disabled || undefined}
+      data-filled={isChecked || indeterminate || undefined}
+      data-invalid={isInvalid || undefined}
+      data-preview-state={previewState}
     >
       <input
         {...props}
         ref={inputRef}
         type="checkbox"
         disabled={disabled}
-        aria-checked={indeterminate ? "mixed" : props.checked}
+        checked={checked}
+        defaultChecked={defaultChecked}
+        aria-checked={indeterminate ? "mixed" : checked}
+        aria-invalid={isInvalid || undefined}
         className="miaixz-choice-input"
+        onChange={(event) => {
+          if (checked === undefined) setUncontrolledChecked(event.currentTarget.checked);
+          onChange?.(event);
+        }}
       />
       <span className="miaixz-choice-mark" aria-hidden="true" />
       {(label || description) && (

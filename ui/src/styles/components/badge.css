@@ -2,7 +2,7 @@
  * Miaixz badge and status component
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-badge-height: var(--miaixz-space-24);
   --miaixz-badge-padding-inline: var(--miaixz-space-8);
   --miaixz-badge-gap: var(--miaixz-space-4);

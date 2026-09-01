@@ -1,5 +1,7 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 
+import type { MiaixzFormPreviewProps } from "../shared.types.js";
+
 /**
  * Defines the supported single-line input sizes.
  *
@@ -12,7 +14,8 @@ export type InputSize = "small" | "medium" | "large";
  *
  * @public
  */
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface InputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size">, MiaixzFormPreviewProps {
   /**
    * Selects the control size.
    *

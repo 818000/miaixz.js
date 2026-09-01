@@ -2,7 +2,7 @@
  * Miaixz file selection dropzone
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-dropzone-min-height: 152px;
   --miaixz-dropzone-padding: var(--miaixz-space-24);
 }
@@ -87,7 +87,7 @@
 }
 
 @media (width <= 639px) {
-  :root {
+  [data-miaixz-theme] {
     --miaixz-dropzone-min-height: 132px;
     --miaixz-dropzone-padding: var(--miaixz-space-20);
   }

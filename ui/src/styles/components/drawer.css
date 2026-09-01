@@ -3,10 +3,13 @@
  * Use a native dialog element when the drawer blocks the page.
  */
 
-:root {
-  --miaixz-drawer-width-small: 360px;
-  --miaixz-drawer-width-medium: 480px;
-  --miaixz-drawer-width-large: 720px;
+[data-miaixz-theme] {
+  --miaixz-drawer-width-small: calc(var(--miaixz-layout-drawer-width) * 0.75);
+  --miaixz-drawer-width-medium: var(--miaixz-layout-drawer-width);
+  --miaixz-drawer-width-large: min(
+    calc(var(--miaixz-layout-drawer-width) * 1.5),
+    var(--miaixz-layout-page-max-width)
+  );
   --miaixz-drawer-width: var(--miaixz-drawer-width-medium);
   --miaixz-drawer-offset: var(--miaixz-space-16);
 }
@@ -14,16 +17,15 @@
 dialog.miaixz-drawer {
   position: fixed;
   inset: 0 0 0 auto;
-  width: min(100vw, var(--miaixz-drawer-width));
+  inline-size: min(100vi, var(--miaixz-drawer-width));
   max-width: none;
-  height: 100vh;
-  height: 100dvh;
+  block-size: var(--miaixz-viewport-block);
   max-height: none;
   padding: 0;
   margin: 0;
   overflow: hidden;
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface);
+  color: var(--miaixz-surface-role-overlay-foreground);
+  background: var(--miaixz-surface-role-overlay-background);
   border: 0;
   border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: 0;
@@ -97,8 +99,8 @@ dialog.miaixz-drawer-left {
 dialog.miaixz-drawer-bottom {
   inset: auto 0 0;
   width: 100%;
+  max-block-size: calc(var(--miaixz-viewport-block) - var(--miaixz-shell-header-height));
   height: auto;
-  max-height: calc(100dvh - var(--miaixz-shell-header-height));
   border-inline-start: 0;
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: var(--miaixz-radius-dialog) var(--miaixz-radius-dialog) 0 0;
@@ -151,10 +153,4 @@ dialog.miaixz-drawer-bottom {
   justify-content: flex-end;
   padding-bottom: calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-bottom));
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
-}
-
-@media (width <= 767px) {
-  dialog.miaixz-drawer:not(.miaixz-drawer-bottom) {
-    width: 100%;
-  }
 }

@@ -1,4 +1,3 @@
-@layer miaixz-foundation, miaixz-components, miaixz-modules, miaixz-pages, miaixz-utilities;
-
 @import url("./foundation.css");
+@import url("./themes/miaixz.tokens.css") layer(miaixz-themes);
 @import url("./components.css");

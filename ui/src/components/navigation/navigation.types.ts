@@ -14,6 +14,10 @@ export type NavigationOrientation = "horizontal" | "vertical";
  */
 export interface NavigationProps extends HTMLAttributes<HTMLElement> {
   /**
+   * Supplies navigation destinations and actions.
+   */
+  items?: readonly NavigationEntry[];
+  /**
    * Selects the navigation flow direction.
    *
    * @defaultValue `"vertical"`
@@ -92,5 +96,5 @@ export interface MiaixzNavigationButtonItemProps extends Omit<
  *
  * @public
  */
-export type NavigationItemProps = MiaixzNavigationItemBaseProps &
+export type NavigationEntry = MiaixzNavigationItemBaseProps &
   (MiaixzNavigationLinkItemProps | MiaixzNavigationButtonItemProps);

@@ -3,7 +3,7 @@
  * Use aria-current="page" for the active destination.
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-navigation-item-height: var(--miaixz-density-list-item-height);
   --miaixz-navigation-item-padding-inline: var(--miaixz-density-control-padding-inline);
   --miaixz-navigation-item-gap: var(--miaixz-control-gap);
@@ -58,8 +58,8 @@
 }
 
 .miaixz-navigation-item[aria-current="page"] {
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface-selected);
+  color: var(--miaixz-surface-role-selected-foreground);
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-navigation-vertical > .miaixz-navigation-item[aria-current="page"]::before {
@@ -78,6 +78,7 @@
 }
 
 .miaixz-navigation-horizontal > .miaixz-navigation-item[aria-current="page"] {
+  color: var(--miaixz-color-brand);
   background: transparent;
   box-shadow: inset 0 calc(var(--miaixz-navigation-indicator-size) * -1) 0 var(--miaixz-color-brand);
 }
