@@ -7,6 +7,10 @@ import type { HTMLAttributes, ReactNode } from "react";
  */
 export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   /**
+   * Supplies consistently spaced panel sections.
+   */
+  sections?: readonly ReactNode[];
+  /**
    * Supplies the optional panel heading.
    */
   title?: ReactNode;
@@ -53,10 +57,3 @@ export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
    */
   headingLevel?: 2 | 3 | 4 | 5 | 6;
 }
-
-/**
- * Configures a consistently spaced panel section.
- *
- * @public
- */
-export interface PanelSectionProps extends HTMLAttributes<HTMLDivElement> {}

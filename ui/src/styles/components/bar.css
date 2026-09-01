@@ -1,0 +1,75 @@
+.miaixz-bar {
+  --miaixz-bar-progress: 0;
+
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--miaixz-z-progress);
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.miaixz-bar[data-active="true"] {
+  opacity: 1;
+}
+
+.miaixz-bar-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--miaixz-color-brand);
+  transform: scaleX(var(--miaixz-bar-progress));
+  transform-origin: left center;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.miaixz-bar[data-complete="true"] .miaixz-bar-fill {
+  transition-duration: 140ms;
+}
+
+.miaixz-bar[data-indeterminate="true"] .miaixz-bar-fill {
+  animation: miaixz-bar-progress 3.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes miaixz-bar-progress {
+  0% {
+    transform: scaleX(0.02);
+  }
+
+  22% {
+    transform: scaleX(0.2);
+  }
+
+  58% {
+    transform: scaleX(0.58);
+  }
+
+  82% {
+    transform: scaleX(0.8);
+  }
+
+  100% {
+    transform: scaleX(0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-bar,
+  .miaixz-bar-fill {
+    transition: none;
+  }
+
+  .miaixz-bar[data-indeterminate="true"] .miaixz-bar-fill {
+    transform: scaleX(0.72);
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .miaixz-bar-fill {
+    background: Highlight;
+  }
+}

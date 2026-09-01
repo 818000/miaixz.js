@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../internal/class-names.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
-import type { BreadcrumbItemProps, BreadcrumbProps } from "./breadcrumb.types.js";
+import type { BreadcrumbEntry, BreadcrumbProps } from "./breadcrumb.types.js";
 
 /**
  * Renders localized hierarchical navigation with semantic list markup.
@@ -10,7 +10,7 @@ import type { BreadcrumbItemProps, BreadcrumbProps } from "./breadcrumb.types.js
  * @public
  */
 export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Breadcrumb(
-  { label, className, children, ...props },
+  { label, items, className, children, ...props },
   ref,
 ) {
   const { t } = useMiaixzLocale();
@@ -21,7 +21,11 @@ export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Brea
       aria-label={label ?? t("ui.breadcrumb.label")}
       className={classNames("miaixz-breadcrumb", className)}
     >
-      <ol className="miaixz-breadcrumb-list">{children}</ol>
+      <ol className="miaixz-breadcrumb-list">
+        {items?.map((item, index) => (
+          <BreadcrumbEntryView key={`${item.href ?? "current"}-${index}`} {...item} />
+        )) ?? children}
+      </ol>
     </nav>
   );
 });
@@ -29,29 +33,25 @@ export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Brea
 /**
  * Renders one breadcrumb link and its optional separator.
  *
- * @public
+ * @param entry - Declarative breadcrumb entry.
+ * @returns The rendered breadcrumb row.
+ * @internal
  */
-export const BreadcrumbItem = forwardRef<HTMLAnchorElement, BreadcrumbItemProps>(
-  function BreadcrumbItem({ current = false, icon, className, children, href, ...props }, ref) {
-    return (
-      <li className="miaixz-breadcrumb-item">
-        {current ? (
-          <span aria-current="page" className={classNames("miaixz-breadcrumb-current", className)}>
-            {icon !== undefined && <span className="miaixz-breadcrumb-icon">{icon}</span>}
-            <span className="miaixz-breadcrumb-label">{children}</span>
-          </span>
-        ) : (
-          <a
-            {...props}
-            ref={ref}
-            href={href}
-            className={classNames("miaixz-breadcrumb-link", className)}
-          >
-            {icon !== undefined && <span className="miaixz-breadcrumb-icon">{icon}</span>}
-            <span className="miaixz-breadcrumb-label">{children}</span>
-          </a>
-        )}
-      </li>
-    );
-  },
-);
+function BreadcrumbEntryView(entry: BreadcrumbEntry) {
+  const { current = false, icon, label, className, href, ...props } = entry;
+  return (
+    <li className="miaixz-breadcrumb-item">
+      {current ? (
+        <span aria-current="page" className={classNames("miaixz-breadcrumb-current", className)}>
+          {icon !== undefined && <span className="miaixz-breadcrumb-icon">{icon}</span>}
+          <span className="miaixz-breadcrumb-label">{label}</span>
+        </span>
+      ) : (
+        <a {...props} href={href} className={classNames("miaixz-breadcrumb-link", className)}>
+          {icon !== undefined && <span className="miaixz-breadcrumb-icon">{icon}</span>}
+          <span className="miaixz-breadcrumb-label">{label}</span>
+        </a>
+      )}
+    </li>
+  );
+}

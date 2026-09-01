@@ -2,7 +2,7 @@
  * Miaixz avatar component
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-avatar-size-small: var(--miaixz-space-24);
   --miaixz-avatar-size-medium: var(--miaixz-space-32);
   --miaixz-avatar-size-large: var(--miaixz-space-40);

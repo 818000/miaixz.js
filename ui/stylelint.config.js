@@ -21,6 +21,22 @@ const configuration = {
     ],
     "selector-class-pattern": "^miaixz-[a-z0-9-]+$",
   },
+  overrides: [
+    {
+      files: ["src/styles/themes/*.tokens.css"],
+      rules: {
+        "color-hex-length": "long",
+        "custom-property-empty-line-before": null,
+        "value-keyword-case": null,
+      },
+    },
+    {
+      files: ["src/styles/foundation/responsive.css"],
+      rules: {
+        "declaration-block-no-redundant-longhand-properties": null,
+      },
+    },
+  ],
 };
 
 export default configuration;

@@ -1,2 +1,2 @@
-export * from "./breadcrumb.js";
-export type * from "./breadcrumb.types.js";
+export { Breadcrumb } from "./breadcrumb.js";
+export type { BreadcrumbEntry, BreadcrumbProps } from "./breadcrumb.types.js";

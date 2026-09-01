@@ -1,0 +1,16 @@
+.miaixz-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--miaixz-layout-panel-min-width)), 1fr)
+  );
+  gap: var(--miaixz-layout-grid-gap);
+  min-width: 0;
+}
+
+.miaixz-grid-wide {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--miaixz-layout-panel-wide-min-width)), 1fr)
+  );
+}

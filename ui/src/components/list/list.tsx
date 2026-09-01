@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 
 import { classNames } from "../../internal/class-names.js";
-import type { ListItemProps, ListProps } from "./list.types.js";
+import type { ListEntry, ListProps } from "./list.types.js";
 
 /**
  * Renders a semantic collection with shared spacing and divider options.
@@ -9,7 +9,7 @@ import type { ListItemProps, ListProps } from "./list.types.js";
  * @public
  */
 export const List = forwardRef<HTMLUListElement, ListProps>(function List(
-  { bordered = false, plain = false, nested = false, className, ...props },
+  { items, bordered = false, plain = false, nested = false, className, children, ...props },
   ref,
 ) {
   return (
@@ -23,17 +23,23 @@ export const List = forwardRef<HTMLUListElement, ListProps>(function List(
         nested && "miaixz-list-nested",
         className,
       )}
-    />
+    >
+      {items?.map((item, index) => (
+        <ListEntryView key={`${item.id ?? "item"}-${index}`} {...item} />
+      )) ?? children}
+    </ul>
   );
 });
 
 /**
  * Renders one list row with optional leading, description, and trailing content.
  *
- * @public
+ * @param entry - Declarative list entry.
+ * @returns The rendered list row.
+ * @internal
  */
-export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(function ListItem(
-  {
+function ListEntryView(entry: ListEntry) {
+  const {
     icon,
     title,
     description,
@@ -43,17 +49,14 @@ export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(function ListIt
     selected = false,
     disabled = false,
     className,
-    children,
+    content,
     ...props
-  },
-  ref,
-) {
+  } = entry;
   const hasStructuredContent = title !== undefined || description !== undefined;
 
   return (
     <li
       {...props}
-      ref={ref}
       data-selected={selected || undefined}
       aria-disabled={disabled || undefined}
       className={classNames(
@@ -69,10 +72,10 @@ export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(function ListIt
           {description !== undefined && <p className="miaixz-list-description">{description}</p>}
         </div>
       ) : (
-        children
+        content
       )}
       {meta !== undefined && <span className="miaixz-list-meta">{meta}</span>}
       {actions !== undefined && <span className="miaixz-list-actions">{actions}</span>}
     </li>
   );
-});
+}

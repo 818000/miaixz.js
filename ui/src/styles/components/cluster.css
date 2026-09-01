@@ -1,0 +1,15 @@
+.miaixz-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+  min-width: 0;
+}
+
+.miaixz-cluster[data-justify="between"] {
+  justify-content: space-between;
+}
+
+.miaixz-cluster[data-justify="end"] {
+  justify-content: flex-end;
+}

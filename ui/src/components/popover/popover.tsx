@@ -1,4 +1,13 @@
-import { forwardRef, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 
 import { classNames } from "../../internal/class-names.js";
@@ -8,8 +17,10 @@ import {
   useMiaixzManualPopover,
   useMiaixzPortalTarget,
 } from "../../internal/overlay/index.js";
+import { calculateMiaixzFloatingPosition } from "../../internal/overlay/floating-position.js";
 import { useMergedRef } from "../../internal/use-merged-ref.js";
-import { MiaixzPopoverContext } from "./popover-context.js";
+import { useTheme } from "../../theme/context.js";
+import { MiaixzPopoverContext } from "./context.js";
 import type { PopoverProps } from "./popover.types.js";
 
 /**
@@ -45,6 +56,7 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
   const restoreFocusRef = useRef(false);
   const previousOpenRef = useRef(isOpen);
   const portalTarget = useMiaixzPortalTarget(rootElement);
+  const themeRevision = useOptionalThemeRevision();
 
   const requestOpenChange = useCallback(
     (nextOpen: boolean, restoreFocus: boolean) => {
@@ -61,6 +73,24 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
 
   useMiaixzManualPopover(contentRef, isOpen, portalTarget);
   useMiaixzFloatingPosition(triggerRef, contentRef, isOpen, placement, portalTarget);
+  useLayoutEffect(() => {
+    const trigger = triggerRef.current;
+    const content = contentRef.current;
+    const viewport = trigger?.ownerDocument.defaultView;
+    if (!isOpen || trigger === null || content === null || viewport == null) return;
+    const position = calculateMiaixzFloatingPosition(
+      trigger.getBoundingClientRect(),
+      content.getBoundingClientRect(),
+      placement,
+      viewport.innerWidth,
+      viewport.innerHeight,
+      viewport.getComputedStyle(trigger).direction === "rtl",
+    );
+    content.style.left = `${position.x}px`;
+    content.style.top = `${position.y}px`;
+    content.dataset.placement = position.placement;
+    content.dataset.miaixzPositioned = "true";
+  }, [isOpen, placement, portalTarget, themeRevision]);
   useMiaixzDismissibleLayer({
     active: isOpen,
     triggerRef,
@@ -127,3 +157,16 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     </div>
   );
 });
+
+/**
+ * Reads Theme geometry revision while preserving standalone Popover use.
+ *
+ * @returns The active Theme revision, or zero outside a Theme provider.
+ */
+function useOptionalThemeRevision(): number {
+  try {
+    return useTheme().revision;
+  } catch {
+    return 0;
+  }
+}

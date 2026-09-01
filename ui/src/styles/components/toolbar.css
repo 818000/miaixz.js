@@ -1,13 +1,13 @@
-.miaixz-toolbar,
-.miaixz-toolbar-group {
+.miaixz-toolbar {
+  --miaixz-toolbar-collapse-width: 480px;
+
   display: flex;
   gap: var(--miaixz-space-8);
   align-items: center;
-  min-width: 0;
-}
-
-.miaixz-toolbar {
   width: 100%;
+  min-width: 0;
+  container-name: miaixz-toolbar;
+  container-type: inline-size;
 }
 
 .miaixz-toolbar[data-orientation="vertical"] {
@@ -16,12 +16,38 @@
   width: auto;
 }
 
-.miaixz-toolbar[data-orientation="vertical"] .miaixz-toolbar-group {
-  flex-direction: column;
-  align-items: stretch;
+.miaixz-toolbar-leading {
+  min-width: 0;
 }
 
-.miaixz-toolbar-spacer {
-  flex: 1 1 auto;
-  min-width: var(--miaixz-space-8);
+.miaixz-toolbar-actions {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.miaixz-toolbar-sticky {
+  position: sticky;
+  top: var(--miaixz-layout-sticky-offset);
+  z-index: var(--miaixz-z-sticky);
+  padding: var(--miaixz-space-12);
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+  box-shadow: var(--miaixz-shadow-low);
+}
+
+@container miaixz-toolbar (width < 480px) {
+  .miaixz-toolbar {
+    flex-direction: column;
+    gap: var(--miaixz-space-16);
+    align-items: stretch;
+  }
+
+  .miaixz-toolbar-actions {
+    justify-content: flex-start;
+  }
 }

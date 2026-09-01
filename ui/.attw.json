@@ -1,4 +1,14 @@
 {
   "profile": "esm-only",
-  "excludeEntrypoints": ["styles.css", "foundation.css", "components.css"]
+  "excludeEntrypoints": [
+    "styles.css",
+    "core.css",
+    "themes.css",
+    "miaixz.css",
+    "neutral.css",
+    "contrast.css",
+    "reset.css",
+    "foundation.css",
+    "components.css"
+  ]
 }

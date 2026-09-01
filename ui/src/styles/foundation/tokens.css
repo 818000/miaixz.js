@@ -1,0 +1,37 @@
+/**
+ * Non-theme foundation primitives.
+ *
+ * Theme-owned color, font, radius, shadow, geometry, layout, and surface values
+ * are generated from the Theme Definition and are intentionally absent here.
+ */
+
+[data-miaixz-theme] {
+  --miaixz-space-0: 0;
+  --miaixz-space-2: 2px;
+  --miaixz-space-4: 4px;
+  --miaixz-space-8: 8px;
+  --miaixz-space-12: 12px;
+  --miaixz-space-16: 16px;
+  --miaixz-space-20: 20px;
+  --miaixz-space-24: 24px;
+  --miaixz-space-32: 32px;
+  --miaixz-space-40: 40px;
+  --miaixz-space-48: 48px;
+  --miaixz-space-64: 64px;
+  --miaixz-border-width-0: 0;
+  --miaixz-border-width-1: 1px;
+  --miaixz-border-width-2: 2px;
+  --miaixz-border-width-default: var(--miaixz-border-width-1);
+  --miaixz-border-width-strong: var(--miaixz-border-width-2);
+  --miaixz-opacity-disabled: 0.48;
+  --miaixz-opacity-muted: 0.72;
+  --miaixz-radius-round: 9999px;
+  --miaixz-shadow-none: none;
+  --miaixz-z-base: 0;
+  --miaixz-z-sticky: 20;
+  --miaixz-z-navigation: 40;
+  --miaixz-z-overlay: 60;
+  --miaixz-z-modal: 80;
+  --miaixz-z-toast: 100;
+  --miaixz-z-progress: 120;
+}

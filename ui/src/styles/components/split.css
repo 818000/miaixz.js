@@ -1,0 +1,28 @@
+.miaixz-split {
+  --miaixz-split-collapse-width: 640px;
+
+  display: grid;
+  grid-template-columns: minmax(0, var(--miaixz-layout-split-primary-size)) minmax(
+      0,
+      var(--miaixz-layout-split-secondary-size)
+    );
+  gap: var(--miaixz-layout-grid-gap);
+  min-width: 0;
+  container-name: miaixz-split;
+  container-type: inline-size;
+}
+
+.miaixz-split[data-ratio="primary"] {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
+.miaixz-split[data-ratio="secondary"] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+
+@container miaixz-split (width < 640px) {
+  .miaixz-split,
+  .miaixz-split[data-ratio] {
+    grid-template-columns: 1fr;
+  }
+}

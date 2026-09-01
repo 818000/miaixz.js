@@ -1,6 +1,6 @@
 .miaixz-popover-content.miaixz-dropdown-content {
-  width: max-content;
-  min-width: 220px;
+  inline-size: max-content;
+  min-inline-size: min(100%, var(--miaixz-layout-card-min-width));
   padding: var(--miaixz-space-4);
 }
 
@@ -25,6 +25,10 @@
 .miaixz-dropdown-item:focus-visible,
 .miaixz-dropdown-item-selected {
   outline: 0;
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-dropdown-item:hover {
   background: var(--miaixz-color-surface-hover);
 }
 

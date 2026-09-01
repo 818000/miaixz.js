@@ -1,0 +1,33 @@
+/**
+ * Miaixz inline message component
+ */
+
+.miaixz-notice {
+  display: inline-flex;
+  gap: var(--miaixz-space-8);
+  align-items: flex-start;
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-notice-icon {
+  flex: none;
+  margin-block-start: var(--miaixz-space-2);
+}
+
+.miaixz-notice-info {
+  color: var(--miaixz-color-info);
+}
+
+.miaixz-notice-success {
+  color: var(--miaixz-color-success);
+}
+
+.miaixz-notice-warning {
+  color: var(--miaixz-color-warning);
+}
+
+.miaixz-notice-danger {
+  color: var(--miaixz-color-danger);
+}

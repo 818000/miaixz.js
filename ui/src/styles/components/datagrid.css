@@ -1,0 +1,151 @@
+/**
+ * Miaixz controlled server-side data table
+ */
+
+[data-miaixz-theme] {
+  --miaixz-datagrid-selection-width: var(--miaixz-control-height-medium);
+}
+
+.miaixz-datagrid {
+  --miaixz-datagrid-collapse-width: 640px;
+
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  container-name: miaixz-datagrid;
+  container-type: inline-size;
+}
+
+@container miaixz-datagrid (width < 640px) {
+  .miaixz-datagrid-pagination {
+    justify-content: center;
+  }
+}
+
+.miaixz-datagrid-container,
+.miaixz-datagrid-container .miaixz-table {
+  border-radius: 0;
+}
+
+.miaixz-datagrid-container {
+  border: 0;
+}
+
+.miaixz-datagrid .miaixz-table-head {
+  position: sticky;
+  top: 0;
+  z-index: var(--miaixz-z-sticky);
+}
+
+.miaixz-datagrid .miaixz-table-row:hover {
+  background: color-mix(in srgb, var(--miaixz-color-brand) 5%, var(--miaixz-color-surface));
+}
+
+.miaixz-datagrid .miaixz-table-cell {
+  border-bottom-style: dashed;
+}
+
+.miaixz-datagrid-container:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+}
+
+.miaixz-datagrid-selection-cell {
+  width: var(--miaixz-datagrid-selection-width);
+  text-align: center;
+}
+
+.miaixz-datagrid-selection-control {
+  display: inline-grid;
+  vertical-align: middle;
+}
+
+.miaixz-datagrid-sort {
+  display: inline-flex;
+  gap: var(--miaixz-space-4);
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-datagrid-sort:disabled {
+  cursor: default;
+}
+
+.miaixz-datagrid-sort-icon {
+  flex: 0 0 auto;
+  color: var(--miaixz-color-text-muted);
+  opacity: 0;
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: color, opacity, transform;
+}
+
+.miaixz-datagrid-sort:where(:hover, :focus-visible) .miaixz-datagrid-sort-icon,
+.miaixz-datagrid-sort[data-state="ascending"] .miaixz-datagrid-sort-icon,
+.miaixz-datagrid-sort[data-state="descending"] .miaixz-datagrid-sort-icon {
+  opacity: 1;
+}
+
+.miaixz-datagrid-sort[data-state="ascending"] .miaixz-datagrid-sort-icon {
+  color: var(--miaixz-color-brand);
+  transform: rotate(180deg);
+}
+
+.miaixz-datagrid-sort[data-state="descending"] .miaixz-datagrid-sort-icon {
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-datagrid-align-center,
+.miaixz-datagrid-align-center .miaixz-datagrid-sort {
+  justify-content: center;
+  text-align: center;
+}
+
+.miaixz-datagrid-align-end,
+.miaixz-datagrid-align-end .miaixz-datagrid-sort {
+  justify-content: flex-end;
+  text-align: end;
+}
+
+.miaixz-datagrid-state-cell {
+  padding: 0;
+  border-block-end: 0;
+}
+
+.miaixz-datagrid-empty,
+.miaixz-datagrid-error {
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--miaixz-table-row-height) * 2);
+  padding: var(--miaixz-space-24) var(--miaixz-table-cell-padding-inline);
+  text-align: center;
+}
+
+.miaixz-datagrid-empty {
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-datagrid-error {
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-datagrid-pagination {
+  min-width: 0;
+  min-height: var(--miaixz-control-height-large);
+  padding-block: var(--miaixz-space-8);
+  border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+@media (forced-colors: active) {
+  .miaixz-datagrid-sort[data-state="ascending"] .miaixz-datagrid-sort-icon,
+  .miaixz-datagrid-sort[data-state="descending"] .miaixz-datagrid-sort-icon {
+    color: Highlight;
+  }
+}

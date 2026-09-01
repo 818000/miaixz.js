@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 /**
  * Configures an accessible group of related controls.
@@ -16,23 +16,16 @@ export interface ToolbarProps extends HTMLAttributes<HTMLDivElement> {
    * @defaultValue `"horizontal"`
    */
   orientation?: "horizontal" | "vertical";
-}
-
-/**
- * Configures a labeled subgroup within a toolbar.
- *
- * @public
- */
-export interface ToolbarGroupProps extends HTMLAttributes<HTMLDivElement> {
   /**
-   * Provides an accessible group label when needed.
+   * Supplies leading filters, search, or contextual content.
    */
-  label?: string;
+  leading?: ReactNode;
+  /**
+   * Supplies trailing toolbar actions.
+   */
+  actions?: ReactNode;
+  /**
+   * Keeps the toolbar visible within its scrolling container.
+   */
+  sticky?: boolean;
 }
-
-/**
- * Configures a flexible spacer between toolbar groups.
- *
- * @public
- */
-export interface ToolbarSpacerProps extends HTMLAttributes<HTMLSpanElement> {}

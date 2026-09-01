@@ -26,6 +26,7 @@ import {
 import { useMergedRef } from "../../internal/use-merged-ref.js";
 import { Icon } from "../icon/index.js";
 import type { ComboboxProps, MiaixzOption, MiaixzOptionLoader } from "./combobox.types.js";
+import type { MiaixzFormPreviewState } from "../shared.types.js";
 
 /**
  * Defines the frozen asynchronous query debounce interval in milliseconds.
@@ -56,7 +57,7 @@ export interface MiaixzOptionPickerProps<Value extends string> {
   /**
    * Selects the public component identity and class namespace.
    */
-  readonly component: "combobox" | "multi-select";
+  readonly component: "combobox" | "picker";
 
   /**
    * Supplies native root div attributes.
@@ -109,7 +110,7 @@ export interface MiaixzOptionPickerProps<Value extends string> {
   readonly inputValue: string;
 
   /**
-   * Receives requested search-input changes.
+   * Receives requested search changes.
    */
   readonly onInputValueChange: (value: string) => void;
 
@@ -142,6 +143,21 @@ export interface MiaixzOptionPickerProps<Value extends string> {
    * Disables the complete composite control.
    */
   readonly disabled: boolean;
+
+  /**
+   * Prevents search and selection changes while preserving focus.
+   */
+  readonly readOnly: boolean;
+
+  /**
+   * Applies the invalid visual and accessibility state.
+   */
+  readonly invalid: boolean;
+
+  /**
+   * Overrides the visual state for previews and visual regression tests.
+   */
+  readonly previewState: MiaixzFormPreviewState | undefined;
 }
 
 /**
@@ -171,8 +187,13 @@ function ComboboxImplementation<Value extends string = string>(
     loadingMessage,
     errorMessage,
     disabled = false,
+    readOnly = false,
+    invalid = false,
+    previewState,
+    "aria-invalid": ariaInvalid,
     ...rootProps
   } = props;
+  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
   const { t } = useMiaixzLocale();
   const valueControlled = value !== undefined;
   const inputControlled = inputValue !== undefined;
@@ -235,6 +256,9 @@ function ComboboxImplementation<Value extends string = string>(
       loadingMessage={loadingMessage}
       errorMessage={errorMessage}
       disabled={disabled}
+      readOnly={readOnly}
+      invalid={isInvalid}
+      previewState={previewState}
     />
   );
 }
@@ -275,6 +299,9 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
     loadingMessage,
     errorMessage,
     disabled,
+    readOnly,
+    invalid,
+    previewState,
   } = props;
   const { t } = useMiaixzLocale();
   validateMiaixzComboboxOptionSource(t, options, loadOptions);
@@ -286,6 +313,7 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
   const inputRef = useRef<HTMLInputElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [surfaceWidth, setSurfaceWidth] = useState<number>();
   const [activeIndex, setActiveIndex] = useState(-1);
   const [loadedOptions, setLoadedOptions] = useState<readonly MiaixzOption<Value>[]>([]);
   const [knownOptions, setKnownOptions] = useState<ReadonlyMap<Value, MiaixzOption<Value>>>(
@@ -321,10 +349,10 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
     setLoadedOptions([]);
   }, [asynchronous]);
   const openListbox = useCallback(() => {
-    if (disabled) return;
+    if (disabled || readOnly) return;
     if (!open) prepareAsynchronousQuery();
     setOpen(true);
-  }, [disabled, open, prepareAsynchronousQuery]);
+  }, [disabled, open, prepareAsynchronousQuery, readOnly]);
 
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
   useMiaixzFloatingPosition(controlRef, surfaceRef, open, "bottom-start", portalTarget);
@@ -337,9 +365,19 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
   });
 
   useEffect(() => {
-    if (!disabled || !open) return;
+    if ((!disabled && !readOnly) || !open) return;
     queueMicrotask(() => close(false));
-  }, [close, disabled, open]);
+  }, [close, disabled, open, readOnly]);
+
+  useEffect(() => {
+    if (!open || controlRef.current === null) return undefined;
+    const control = controlRef.current;
+    const synchronizeWidth = () => setSurfaceWidth(control.getBoundingClientRect().width);
+    synchronizeWidth();
+    const observer = new ResizeObserver(synchronizeWidth);
+    observer.observe(control);
+    return () => observer.disconnect();
+  }, [open]);
 
   useEffect(() => {
     if (!open || loadOptions === undefined) return undefined;
@@ -381,11 +419,12 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
 
   const activateOption = useCallback(
     (option: MiaixzOption<Value>) => {
+      if (readOnly) return;
       if (!isMiaixzComboboxOptionEnabled(option, isOptionSelectionDisabled)) return;
       onOptionSelect(option);
       if (component === "combobox") close(false);
     },
-    [close, component, isOptionSelectionDisabled, onOptionSelect],
+    [close, component, isOptionSelectionDisabled, onOptionSelect, readOnly],
   );
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
@@ -455,7 +494,8 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
       ? `${optionIdPrefix}-option-${resolvedActiveIndex}`
       : undefined;
   const status = loadFailed ? "error" : loading ? "loading" : "ready";
-  const state = disabled ? "disabled" : open ? "open" : "closed";
+  const state = disabled ? "disabled" : readOnly ? "readonly" : open ? "open" : "closed";
+  const filled = selectedValues.length > 0 || inputValue.length > 0;
 
   return (
     <div
@@ -464,6 +504,11 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
       className={classNames(`miaixz-${component}`, className)}
       data-state={state}
       data-disabled={disabled || undefined}
+      data-readonly={readOnly || undefined}
+      data-invalid={invalid || undefined}
+      data-filled={filled || undefined}
+      data-preview-state={previewState}
+      aria-invalid={invalid || undefined}
     >
       <label id={labelId} className={`miaixz-${component}-label`}>
         {label}
@@ -473,21 +518,25 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
         className={classNames("miaixz-control", `miaixz-${component}-control`)}
         data-state={state}
         data-disabled={disabled || undefined}
+        data-readonly={readOnly || undefined}
+        data-invalid={invalid || undefined}
+        data-filled={filled || undefined}
+        data-preview-state={previewState}
       >
-        {component === "multi-select" && selectedValues.length > 0 && (
-          <div className="miaixz-multi-select-tags">
+        {component === "picker" && selectedValues.length > 0 && (
+          <div className="miaixz-picker-tags">
             {selectedValues.map((selectedValue) => {
               const selectedOption = selectedOptionMap.get(selectedValue);
               return (
-                <span key={selectedValue} className="miaixz-multi-select-tag">
-                  <span className="miaixz-multi-select-tag-label">
+                <span key={selectedValue} className="miaixz-picker-tag">
+                  <span className="miaixz-picker-tag-label">
                     {selectedOption?.label ?? selectedValue}
                   </span>
                   <button
                     type="button"
-                    className="miaixz-multi-select-tag-remove"
+                    className="miaixz-picker-tag-remove"
                     aria-label={`${t("ui.action.remove")} ${selectedOption?.label ?? selectedValue}`}
-                    disabled={disabled}
+                    disabled={disabled || readOnly}
                     onClick={() => onOptionRemove?.(selectedValue)}
                   >
                     <Icon name="X" size="indicator" />
@@ -511,6 +560,9 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
           value={inputValue}
           placeholder={placeholder}
           disabled={disabled}
+          readOnly={readOnly}
+          aria-invalid={invalid || undefined}
+          aria-readonly={readOnly || undefined}
           onFocus={openListbox}
           onClick={openListbox}
           onChange={(event) => {
@@ -520,8 +572,8 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
           }}
           onKeyDown={handleKeyDown}
         />
-        {component === "multi-select" && (
-          <output className="miaixz-multi-select-count" aria-live="polite">
+        {component === "picker" && (
+          <output className="miaixz-picker-count" aria-live="polite">
             {selectedValues.length}
           </output>
         )}
@@ -531,7 +583,7 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
           aria-label={label}
           aria-controls={listboxId}
           aria-expanded={open}
-          disabled={disabled}
+          disabled={disabled || readOnly}
           tabIndex={-1}
           onClick={() => {
             if (open) close(false);
@@ -552,6 +604,7 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
             aria-labelledby={labelId}
             className={`miaixz-${component}-surface`}
             data-state={status}
+            style={{ width: surfaceWidth }}
           >
             {loading ? (
               <div id={listboxId} className={`miaixz-${component}-message`} role="status">
@@ -571,7 +624,7 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
                 id={listboxId}
                 role="listbox"
                 aria-labelledby={labelId}
-                aria-multiselectable={component === "multi-select" || undefined}
+                aria-multiselectable={component === "picker" || undefined}
                 className={`miaixz-${component}-listbox`}
               >
                 {visibleOptions.map((option, index) => {
@@ -660,7 +713,7 @@ export function validateMiaixzComboboxValueControl(
 }
 
 /**
- * Validates the search-input controlled and uncontrolled contract.
+ * Validates the search controlled and uncontrolled contract.
  *
  * @param translate - Active localized message resolver.
  * @param controlled - Whether a controlled input value was supplied.
@@ -686,7 +739,7 @@ export function validateMiaixzComboboxInputControl(
  *
  * @param translate - Active localized message resolver.
  * @param valueControlled - Current selected-value control mode.
- * @param inputControlled - Current search-input control mode.
+ * @param inputControlled - Current search control mode.
  */
 export function useStableMiaixzComboboxControlModes(
   translate: MiaixzTranslator,

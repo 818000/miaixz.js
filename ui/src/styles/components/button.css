@@ -45,6 +45,38 @@
   border-color: transparent;
 }
 
+.miaixz-button-link {
+  min-height: auto;
+  padding: 0;
+  color: var(--miaixz-color-brand);
+  background: transparent;
+  border-color: transparent;
+}
+
+.miaixz-button-link:disabled,
+.miaixz-button-link[aria-disabled="true"] {
+  text-decoration: none;
+  border-color: transparent;
+}
+
+.miaixz-button-link:focus-visible:not(:disabled, [aria-disabled="true"]) {
+  color: var(--miaixz-color-brand-hover);
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 0.18em;
+  outline: 0;
+  border-color: transparent;
+}
+
+.miaixz-button-link:hover:not(:disabled, [aria-disabled="true"]) {
+  color: var(--miaixz-color-brand-hover);
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 0.18em;
+  background: transparent;
+  border-color: transparent;
+}
+
 .miaixz-button-label {
   min-width: 0;
   overflow: hidden;
@@ -91,10 +123,6 @@
   background: var(--miaixz-color-brand-soft);
 }
 
-.miaixz-button-outline:active:not(:disabled, [aria-disabled="true"]) {
-  background: var(--miaixz-color-brand-soft-hover);
-}
-
 .miaixz-button-danger {
   color: var(--miaixz-color-text-inverse);
   background: var(--miaixz-color-danger);
@@ -102,13 +130,21 @@
 }
 
 .miaixz-button-danger:hover:not(:disabled, [aria-disabled="true"]) {
-  background: color-mix(in srgb, var(--miaixz-color-danger) 88%, black);
-  border-color: color-mix(in srgb, var(--miaixz-color-danger) 88%, black);
+  background: color-mix(in srgb, var(--miaixz-color-danger) 88%, var(--miaixz-color-text-primary));
+  border-color: color-mix(
+    in srgb,
+    var(--miaixz-color-danger) 88%,
+    var(--miaixz-color-text-primary)
+  );
 }
 
 .miaixz-button-danger:active:not(:disabled, [aria-disabled="true"]) {
-  background: color-mix(in srgb, var(--miaixz-color-danger) 78%, black);
-  border-color: color-mix(in srgb, var(--miaixz-color-danger) 78%, black);
+  background: color-mix(in srgb, var(--miaixz-color-danger) 78%, var(--miaixz-color-text-primary));
+  border-color: color-mix(
+    in srgb,
+    var(--miaixz-color-danger) 78%,
+    var(--miaixz-color-text-primary)
+  );
 }
 
 .miaixz-button:disabled,
@@ -133,4 +169,8 @@
   .miaixz-button-spinner {
     animation: none;
   }
+}
+
+.miaixz-button-outline:active:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-brand-soft-hover);
 }

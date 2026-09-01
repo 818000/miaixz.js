@@ -1,9 +1,6 @@
-export { Navigation, NavigationItem } from "./navigation.js";
+export { Navigation } from "./navigation.js";
 export type {
-  MiaixzNavigationButtonItemProps,
-  MiaixzNavigationItemBaseProps,
-  MiaixzNavigationLinkItemProps,
-  NavigationItemProps,
+  NavigationEntry,
   NavigationOrientation,
   NavigationProps,
 } from "./navigation.types.js";

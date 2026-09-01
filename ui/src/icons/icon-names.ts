@@ -16,6 +16,7 @@ export type MiaixzIconName =
   | "Info"
   | "LoaderCircle"
   | "Minus"
+  | "Palette"
   | "Plus"
   | "RotateCcw"
   | "Search"

@@ -10,6 +10,10 @@ export interface BreadcrumbProps extends HTMLAttributes<HTMLElement> {
    * Provides the accessible navigation label.
    */
   label?: string;
+  /**
+   * Supplies the ordered breadcrumb destinations.
+   */
+  items?: readonly BreadcrumbEntry[];
 }
 
 /**
@@ -17,7 +21,11 @@ export interface BreadcrumbProps extends HTMLAttributes<HTMLElement> {
  *
  * @public
  */
-export interface BreadcrumbItemProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface BreadcrumbEntry extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children"> {
+  /**
+   * Supplies the visible destination label.
+   */
+  label: ReactNode;
   /**
    * Marks the item as the current page instead of a link.
    *

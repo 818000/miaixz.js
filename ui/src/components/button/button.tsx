@@ -53,9 +53,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {loading ? (
         <>
           <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
-          <span className={iconOnly ? "miaixz-visually-hidden" : undefined}>
-            {resolvedLoadingLabel}
-          </span>
+          <span className={iconOnly ? "miaixz-hidden" : undefined}>{resolvedLoadingLabel}</span>
         </>
       ) : (
         <>

@@ -4,7 +4,7 @@ import { classNames } from "../../internal/class-names.js";
 import { Icon } from "../icon/index.js";
 import type { IconSize } from "../icon/index.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
-import { VisuallyHidden } from "../visually-hidden/index.js";
+import { Hidden } from "../hidden/index.js";
 import type { SpinnerProps } from "./spinner.types.js";
 
 const miaixzSpinnerIconSizes: Record<MiaixzComponentSize, IconSize> = {
@@ -31,7 +31,7 @@ export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(function Spinne
       className={classNames("miaixz-spinner", `miaixz-spinner-${size}`, className)}
     >
       <Icon name="LoaderCircle" size={miaixzSpinnerIconSizes[size]} />
-      <VisuallyHidden>{label}</VisuallyHidden>
+      <Hidden>{label}</Hidden>
     </span>
   );
 });

@@ -1,8 +1,2 @@
-export { Tab, TabList, TabPanel, Tabs } from "./tabs.js";
-export type {
-  TabListProps,
-  TabPanelProps,
-  TabProps,
-  TabsOrientation,
-  TabsProps,
-} from "./tabs.types.js";
+export { Tabs } from "./tabs.js";
+export type { TabsEntry, TabsOrientation, TabsProps } from "./tabs.types.js";

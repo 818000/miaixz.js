@@ -1,57 +1,78 @@
 import {
+  isMiaixzAppearanceSettings,
+  isMiaixzColorMode,
+  isMiaixzDensity,
+  miaixzColorModes,
+  miaixzDefaultAppearance,
+  miaixzDensities,
   miaixzThemeColorTokens,
   parseMiaixzAppearanceSettings,
+  type MiaixzAppearancePayload,
   type MiaixzAppearanceSettings,
   type MiaixzColorMode,
+  type MiaixzDensity,
   type MiaixzResolvedColorMode,
+  type MiaixzThemeColorOverrides,
+  type MiaixzThemeColors,
+  type MiaixzThemeColorToken,
+  type MiaixzThemeOverrides,
 } from "@miaixz/sdk/appearance";
+import { applyTheme } from "../theme/apply.js";
+import { ThemeCatalog } from "../theme/catalog.js";
+import { mergeThemeColors } from "../theme/resolve.js";
+import { serializeThemeApplication } from "../theme/serialize.js";
+import { resolveMiaixzColorMode } from "../theme/theme.js";
+import { validateResolvedTheme } from "../theme/validate.js";
+import { miaixzTheme } from "../themes/index.js";
 
 export {
   isMiaixzAppearanceSettings,
   isMiaixzColorMode,
   isMiaixzDensity,
   miaixzColorModes,
-  miaixzDarkThemeColors,
   miaixzDefaultAppearance,
   miaixzDensities,
-  miaixzLightThemeColors,
   miaixzThemeColorTokens,
   parseMiaixzAppearanceSettings,
-  validateMiaixzThemeContrast,
-} from "@miaixz/sdk/appearance";
+};
 export type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
   MiaixzColorMode,
   MiaixzDensity,
   MiaixzResolvedColorMode,
+  MiaixzThemeColorOverrides,
   MiaixzThemeColors,
   MiaixzThemeColorToken,
-} from "@miaixz/sdk/appearance";
+  MiaixzThemeOverrides,
+};
 
 /**
- * Resolves a color preference to a concrete light or dark mode.
+ * Defines the deprecated default Miaixz light color map.
  *
- * @param colorMode - Configured light, dark, or system preference.
- * @param prefersDark - Optional explicit system dark-mode result.
- * @returns Concrete light or dark mode.
+ * @deprecated Read colors from `miaixzTheme.modes.light.colors`.
  * @public
  */
-export function resolveMiaixzColorMode(
-  colorMode: MiaixzColorMode,
-  prefersDark = readSystemDarkPreference(),
-): MiaixzResolvedColorMode {
-  return colorMode === "system" ? (prefersDark ? "dark" : "light") : colorMode;
-}
+export const miaixzLightThemeColors = miaixzTheme.modes.light.colors as MiaixzThemeColors;
 
 /**
- * Validates and atomically applies appearance attributes and custom colors to a DOM target.
+ * Defines the deprecated default Miaixz dark color map.
  *
- * @param appearance - Appearance settings to validate and apply.
- * @param target - Optional target element, null for resolution without DOM writes.
- * @param prefersDark - Optional explicit system dark-mode result.
- * @returns Concrete light or dark mode applied or resolved.
- * @throws MiaixzSdkError When the appearance syntax, colors, or contrast are invalid.
+ * @deprecated Read colors from `miaixzTheme.modes.dark.colors`.
+ * @public
+ */
+export const miaixzDarkThemeColors = miaixzTheme.modes.dark.colors as MiaixzThemeColors;
+
+const legacyApplications = new WeakMap<HTMLElement, HTMLStyleElement>();
+
+/**
+ * Applies Appearance v2 through the shared theme catalog, serializer, and atomic DOM transaction.
+ *
+ * @deprecated Render `Theme` and use `useTheme()` instead. This forwarding API is removed in 0.7.0.
+ * @param appearance - Complete Appearance v2 settings.
+ * @param target - Optional theme target, or null for color-mode resolution only.
+ * @param prefersDark - Optional explicit system preference.
+ * @returns Concrete light or dark mode.
  * @public
  */
 export function applyMiaixzAppearance(
@@ -60,48 +81,60 @@ export function applyMiaixzAppearance(
   prefersDark?: boolean,
 ): MiaixzResolvedColorMode {
   const parsed = parseMiaixzAppearanceSettings(appearance);
-  const resolvedMode = resolveMiaixzColorMode(
-    parsed.colorMode,
-    prefersDark ?? readSystemDarkPreference(),
-  );
-  if (target === null) return resolvedMode;
-
-  const attributes = [
-    ["data-miaixz-color-mode", resolvedMode],
-    ["data-miaixz-color-preference", parsed.colorMode],
-    ["data-miaixz-density", parsed.density],
-  ] as const;
-  const previousAttributes = attributes.map(([name]) => [name, target.getAttribute(name)] as const);
-  const previousColors = miaixzThemeColorTokens.map((token) => {
-    const property = `--miaixz-color-${token}`;
-    return [
-      property,
-      target.style.getPropertyValue(property),
-      target.style.getPropertyPriority(property),
-    ] as const;
-  });
-
-  try {
-    for (const [name, value] of attributes) target.setAttribute(name, value);
-    for (const token of miaixzThemeColorTokens) {
-      const property = `--miaixz-color-${token}`;
-      const color = parsed.colors?.[token];
-      if (color === undefined) target.style.removeProperty(property);
-      else target.style.setProperty(property, color);
-    }
-  } catch (error) {
-    restoreAppearanceTarget(target, previousAttributes, previousColors);
-    throw error;
+  const mode = resolveMiaixzColorMode(parsed.colorMode, prefersDark);
+  if (target === null) return mode;
+  const catalog = new ThemeCatalog();
+  const theme = catalog.get(parsed.theme);
+  let style = legacyApplications.get(target);
+  if (style === undefined) {
+    style = target.ownerDocument.createElement("style");
+    style.setAttribute("data-miaixz-theme-runtime", "legacy");
+    target.ownerDocument.head.append(style);
+    legacyApplications.set(target, style);
   }
+  applyTheme(
+    target,
+    style,
+    serializeThemeApplication(
+      theme,
+      mode,
+      parsed.colorMode,
+      parsed.density,
+      parsed.overrides?.[mode],
+      "legacy",
+    ),
+  );
+  return mode;
+}
 
-  return resolvedMode;
+/**
+ * Validates merged user overrides against the selected built-in theme.
+ *
+ * @deprecated Theme performs this validation during its transaction.
+ * @param appearance - Complete Appearance v2 settings.
+ * @public
+ */
+export function validateMiaixzThemeContrast(appearance: Readonly<MiaixzAppearanceSettings>): void {
+  const parsed = parseMiaixzAppearanceSettings(appearance);
+  const theme = new ThemeCatalog().get(parsed.theme);
+  validateResolvedTheme({
+    ...theme,
+    modes: {
+      light: {
+        colors: mergeThemeColors(theme.modes.light.colors, parsed.overrides?.light),
+      },
+      dark: {
+        colors: mergeThemeColors(theme.modes.dark.colors, parsed.overrides?.dark),
+      },
+    },
+  });
 }
 
 /**
  * Watches operating-system color preference changes in supported browsers.
  *
  * @param listener - Callback invoked with each changed concrete color mode.
- * @returns An idempotent function that removes the system listener.
+ * @returns Idempotent function that removes the listener.
  * @public
  */
 export function watchMiaixzSystemColorMode(
@@ -111,12 +144,6 @@ export function watchMiaixzSystemColorMode(
     return () => undefined;
   }
   const query = window.matchMedia("(prefers-color-scheme: dark)");
-  if (
-    typeof query.addEventListener !== "function" ||
-    typeof query.removeEventListener !== "function"
-  ) {
-    return () => undefined;
-  }
   const handleChange = (event: MediaQueryListEvent) => listener(event.matches ? "dark" : "light");
   query.addEventListener("change", handleChange);
   let listening = true;
@@ -125,43 +152,4 @@ export function watchMiaixzSystemColorMode(
     listening = false;
     query.removeEventListener("change", handleChange);
   };
-}
-
-/**
- * Reads the current system dark-mode preference with an SSR-safe fallback.
- *
- * @returns Whether the current browser reports a dark preference.
- */
-function readSystemDarkPreference(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
-}
-
-/**
- * Restores attributes and custom properties after a failed DOM mutation.
- *
- * @param target - Partially modified DOM element.
- * @param attributes - Attribute names and their original values.
- * @param colors - CSS custom properties with original values and priorities.
- */
-function restoreAppearanceTarget(
-  target: HTMLElement,
-  attributes: readonly (readonly [string, string | null])[],
-  colors: readonly (readonly [string, string, string])[],
-): void {
-  try {
-    for (const [name, value] of attributes) {
-      if (value === null) target.removeAttribute(name);
-      else target.setAttribute(name, value);
-    }
-    for (const [property, value, priority] of colors) {
-      if (value.length === 0) target.style.removeProperty(property);
-      else target.style.setProperty(property, value, priority);
-    }
-  } catch {
-    // The original DOM mutation error remains the only observable failure.
-  }
 }

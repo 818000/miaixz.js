@@ -1,7 +1,9 @@
 import type { HTMLAttributes } from "react";
 
+import type { MiaixzFormPreviewProps } from "../shared.types.js";
+
 /**
- * Describes one selectable option shared by Combobox and MultiSelect.
+ * Describes one selectable option shared by Combobox and Picker.
  *
  * @typeParam Value - Stable string value type used by the owning product.
  * @public
@@ -48,7 +50,9 @@ export type MiaixzOptionLoader<Value extends string = string> = (
  * @typeParam Value - Stable string value type selected by the control.
  * @public
  */
-export interface MiaixzComboboxOwnProps<Value extends string = string> {
+export interface MiaixzComboboxOwnProps<
+  Value extends string = string,
+> extends MiaixzFormPreviewProps {
   /**
    * Supplies the complete static option collection.
    */
@@ -85,7 +89,7 @@ export interface MiaixzComboboxOwnProps<Value extends string = string> {
   defaultInputValue?: string;
 
   /**
-   * Receives requested search-input changes.
+   * Receives requested search changes.
    */
   onInputValueChange?: (value: string) => void;
 
@@ -118,6 +122,16 @@ export interface MiaixzComboboxOwnProps<Value extends string = string> {
    * Disables the complete composite control.
    */
   disabled?: boolean;
+
+  /**
+   * Prevents search and selection changes while preserving focus and content.
+   */
+  readOnly?: boolean;
+
+  /**
+   * Applies the invalid visual and accessibility state.
+   */
+  invalid?: boolean;
 }
 
 /**

@@ -3,9 +3,13 @@
  */
 
 .miaixz-switch {
-  --miaixz-switch-width: 36px;
-  --miaixz-switch-height: 20px;
-  --miaixz-switch-thumb-size: 16px;
+  --miaixz-switch-width: calc(
+    (var(--miaixz-icon-size-control) * 2) + (var(--miaixz-border-width-2) * 2)
+  );
+  --miaixz-switch-height: calc(
+    var(--miaixz-icon-size-control) + (var(--miaixz-border-width-2) * 2)
+  );
+  --miaixz-switch-thumb-size: var(--miaixz-icon-size-control);
 
   position: relative;
   display: inline-grid;
@@ -22,8 +26,8 @@
 
 .miaixz-switch-input {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  inline-size: var(--miaixz-border-width-1);
+  block-size: var(--miaixz-border-width-1);
   pointer-events: none;
   opacity: 0;
 }
@@ -34,7 +38,7 @@
   align-items: center;
   width: var(--miaixz-switch-width);
   height: var(--miaixz-switch-height);
-  padding: 2px;
+  padding: var(--miaixz-border-width-2);
   margin-block-start: calc((var(--miaixz-text-body-line-height) - var(--miaixz-switch-height)) / 2);
   background: var(--miaixz-color-border-strong);
   border-radius: var(--miaixz-switch-height);
@@ -46,7 +50,7 @@
   display: block;
   width: var(--miaixz-switch-thumb-size);
   height: var(--miaixz-switch-thumb-size);
-  background: var(--miaixz-color-surface);
+  background: var(--miaixz-surface-role-control-background);
   border-radius: 50%;
   box-shadow: 0 1px 2px var(--miaixz-color-shadow);
   transform: translateX(0);
@@ -54,23 +58,51 @@
     var(--miaixz-motion-interaction-easing);
 }
 
-.miaixz-switch-input:where(:checked) + .miaixz-switch-track {
-  background: var(--miaixz-color-brand);
-}
-
 .miaixz-switch-input:where(:checked) + .miaixz-switch-track .miaixz-switch-thumb {
-  transform: translateX(calc(var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) - 4px));
+  transform: translateX(
+    calc(
+      var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+        (var(--miaixz-border-width-2) * 2)
+    )
+  );
 }
 
 [dir="rtl"] .miaixz-switch-input:where(:checked) + .miaixz-switch-track .miaixz-switch-thumb {
   transform: translateX(
-    calc((var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) - 4px) * -1)
+    calc(
+      (
+          var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+            (var(--miaixz-border-width-2) * 2)
+        ) *
+        -1
+    )
   );
 }
 
-.miaixz-switch-input:where(:focus-visible) + .miaixz-switch-track {
-  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
-  outline-offset: var(--miaixz-control-focus-offset);
+/* State order is intentional so semantic invalid and disabled states always win. */
+/* stylelint-disable no-descending-specificity */
+.miaixz-switch-input:where(:checked) + .miaixz-switch-track {
+  background: var(--miaixz-color-brand);
+}
+
+.miaixz-switch:where(:hover:not(.miaixz-switch-disabled)) .miaixz-switch-track {
+  background: color-mix(in srgb, var(--miaixz-color-border-strong) 82%, var(--miaixz-color-brand));
+}
+
+.miaixz-switch:where(:hover:not(.miaixz-switch-disabled))
+  .miaixz-switch-input:checked
+  + .miaixz-switch-track {
+  background: var(--miaixz-color-brand-strong);
+}
+
+.miaixz-switch-input:where(:focus-visible) + .miaixz-switch-track,
+.miaixz-switch[data-preview-state="focus"] .miaixz-switch-track {
+  outline: 0;
+  box-shadow: var(--miaixz-control-focus-shadow);
+}
+
+.miaixz-switch:where(.miaixz-switch-invalid, [data-preview-state="invalid"]) .miaixz-switch-track {
+  box-shadow: var(--miaixz-control-invalid-shadow);
 }
 
 .miaixz-switch-content {
@@ -94,9 +126,12 @@
   cursor: not-allowed;
 }
 
-.miaixz-switch-disabled .miaixz-switch-track {
+.miaixz-switch-disabled .miaixz-switch-track,
+.miaixz-switch[data-preview-state="disabled"] .miaixz-switch-track {
   background: var(--miaixz-color-border);
+  box-shadow: none;
 }
+/* stylelint-enable no-descending-specificity */
 
 .miaixz-switch-disabled .miaixz-switch-label,
 .miaixz-switch-disabled .miaixz-switch-description {

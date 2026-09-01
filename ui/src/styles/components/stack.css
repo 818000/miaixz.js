@@ -1,0 +1,6 @@
+.miaixz-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-layout-section-gap);
+  min-width: 0;
+}

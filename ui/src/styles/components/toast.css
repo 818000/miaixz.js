@@ -3,32 +3,12 @@
  * The containing region should use aria-live="polite".
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-toast-max-width: 420px;
   --miaixz-toast-padding: var(--miaixz-space-16);
   --miaixz-toast-gap: var(--miaixz-space-12);
   --miaixz-toast-offset: var(--miaixz-space-8);
   --miaixz-toast-status-size: var(--miaixz-border-width-strong);
-}
-
-.miaixz-toast-region {
-  position: fixed;
-  inset-inline-end: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-end));
-  top: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-top));
-  z-index: var(--miaixz-z-toast);
-  display: flex;
-  flex-direction: column;
-  gap: var(--miaixz-space-8);
-  width: min(calc(100vw - (var(--miaixz-page-gutter) * 2)), var(--miaixz-toast-max-width));
-  max-width: none;
-  max-height: calc(100dvh - (var(--miaixz-page-gutter) * 2));
-  padding: 0;
-  margin: 0;
-  overflow: visible;
-  color: inherit;
-  pointer-events: none;
-  background: transparent;
-  border: 0;
 }
 
 .miaixz-toast {
@@ -40,7 +20,7 @@
   padding: var(--miaixz-toast-padding);
   color: var(--miaixz-color-text-primary);
   pointer-events: auto;
-  background: var(--miaixz-color-surface);
+  background: var(--miaixz-surface-role-overlay-background);
   border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-inline-start-width: var(--miaixz-toast-status-size);
   border-radius: var(--miaixz-radius-panel);
@@ -122,13 +102,4 @@
 
 .miaixz-toast-dismiss {
   align-self: start;
-}
-
-@media (width <= 767px) {
-  .miaixz-toast-region {
-    inset-inline: max(var(--miaixz-space-16), var(--miaixz-safe-area-inline-start))
-      max(var(--miaixz-space-16), var(--miaixz-safe-area-inline-end));
-    top: max(var(--miaixz-space-16), var(--miaixz-safe-area-top));
-    width: auto;
-  }
 }

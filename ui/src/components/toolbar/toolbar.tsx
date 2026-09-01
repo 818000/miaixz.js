@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 
 import { classNames } from "../../internal/class-names.js";
-import type { ToolbarGroupProps, ToolbarProps, ToolbarSpacerProps } from "./toolbar.types.js";
+import type { ToolbarProps } from "./toolbar.types.js";
 
 /**
  * Renders a labeled toolbar for a related set of controls.
@@ -9,9 +9,19 @@ import type { ToolbarGroupProps, ToolbarProps, ToolbarSpacerProps } from "./tool
  * @public
  */
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar(
-  { label, orientation = "horizontal", className, ...props },
+  {
+    label,
+    orientation = "horizontal",
+    leading,
+    actions,
+    sticky = false,
+    className,
+    children,
+    ...props
+  },
   ref,
 ) {
+  const structured = leading !== undefined || actions !== undefined;
   return (
     <div
       {...props}
@@ -20,46 +30,16 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar
       aria-label={label}
       aria-orientation={orientation}
       data-orientation={orientation}
-      className={classNames("miaixz-toolbar", className)}
-    />
-  );
-});
-
-/**
- * Groups related toolbar controls with consistent spacing.
- *
- * @public
- */
-export const ToolbarGroup = forwardRef<HTMLDivElement, ToolbarGroupProps>(function ToolbarGroup(
-  { label, className, ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role="group"
-      aria-label={label}
-      className={classNames("miaixz-toolbar-group", className)}
-    />
-  );
-});
-
-/**
- * Consumes available toolbar space to separate control groups.
- *
- * @public
- */
-export const ToolbarSpacer = forwardRef<HTMLSpanElement, ToolbarSpacerProps>(function ToolbarSpacer(
-  { className, "aria-hidden": ariaHidden = true, ...props },
-  ref,
-) {
-  return (
-    <span
-      {...props}
-      ref={ref}
-      aria-hidden={ariaHidden}
-      className={classNames("miaixz-toolbar-spacer", className)}
-    />
+      className={classNames("miaixz-toolbar", sticky && "miaixz-toolbar-sticky", className)}
+    >
+      {structured ? (
+        <>
+          <div className="miaixz-toolbar-leading">{leading ?? children}</div>
+          {actions !== undefined && <div className="miaixz-toolbar-actions">{actions}</div>}
+        </>
+      ) : (
+        children
+      )}
+    </div>
   );
 });

@@ -113,8 +113,17 @@ export function defineMiaixzConfig(
       ? {
           appearance: Object.freeze({
             ...config.appearance,
-            ...(config.appearance.colors
-              ? { colors: Object.freeze({ ...config.appearance.colors }) }
+            ...(config.appearance.overrides
+              ? {
+                  overrides: Object.freeze({
+                    ...(config.appearance.overrides.light
+                      ? { light: Object.freeze({ ...config.appearance.overrides.light }) }
+                      : {}),
+                    ...(config.appearance.overrides.dark
+                      ? { dark: Object.freeze({ ...config.appearance.overrides.dark }) }
+                      : {}),
+                  }),
+                }
               : {}),
           }),
         }
