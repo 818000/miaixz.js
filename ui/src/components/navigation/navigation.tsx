@@ -22,6 +22,7 @@ export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navi
       className={classNames(
         "miaixz-navigation",
         `miaixz-navigation-${orientation}`,
+        variant === "icon" && "miaixz-navigation-icon-only",
         variant === "rail" && "miaixz-navigation-rail",
         className,
       )}

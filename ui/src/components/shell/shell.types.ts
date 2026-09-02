@@ -21,7 +21,13 @@ export interface ShellProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Overrides the shell navigation composition registered by the active theme.
    */
-  navigationVariant?: "rail" | "sidebar";
+  navigationVariant?: "collapsible" | "rail" | "sidebar";
+  /**
+   * Expands a collapsible navigation rail to the theme sidebar width.
+   *
+   * @defaultValue `false`
+   */
+  navigationExpanded?: boolean;
   /**
    * Supplies optional narrow-screen bottom navigation.
    */

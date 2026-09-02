@@ -9,6 +9,9 @@
   --miaixz-navigation-item-gap: var(--miaixz-control-gap);
   --miaixz-navigation-group-gap: var(--miaixz-space-4);
   --miaixz-navigation-indicator-size: var(--miaixz-border-width-strong);
+  --miaixz-navigation-icon-item-height: calc(
+    var(--miaixz-control-min-target-size) + var(--miaixz-space-4)
+  );
 }
 
 .miaixz-navigation {
@@ -136,6 +139,162 @@
 
 .miaixz-navigation-rail .miaixz-navigation-meta {
   margin-inline-start: 0;
+}
+
+.miaixz-navigation-icon-only {
+  gap: 0;
+  align-items: stretch;
+}
+
+.miaixz-navigation-icon-only > .miaixz-navigation-item {
+  justify-content: center;
+  min-block-size: var(--miaixz-navigation-icon-item-height);
+  padding: var(--miaixz-space-4);
+  border-radius: 0;
+}
+
+.miaixz-navigation-icon-only .miaixz-navigation-icon {
+  display: grid;
+  place-items: center;
+}
+
+.miaixz-navigation-icon-only .miaixz-navigation-label,
+.miaixz-navigation-icon-only .miaixz-navigation-meta {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+.miaixz-navigation-icon-only > .miaixz-navigation-item[aria-current="page"]::before {
+  position: absolute;
+  inset-block: var(--miaixz-space-12);
+  inset-inline-start: 0;
+  inline-size: var(--miaixz-navigation-indicator-size);
+  content: "";
+  background: var(--miaixz-color-brand);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-navigation-rail-frame {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+}
+
+.miaixz-navigation-rail-header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  block-size: var(--miaixz-layout-header-height);
+  min-block-size: var(--miaixz-layout-header-height);
+  overflow: hidden;
+}
+
+.miaixz-navigation-rail-toggle {
+  display: grid;
+  flex: 0 0 var(--miaixz-layout-sidebar-compact-width);
+  place-items: center;
+  block-size: 100%;
+}
+
+.miaixz-navigation-rail-brand {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  align-self: stretch;
+  min-inline-size: 0;
+  overflow: hidden;
+}
+
+.miaixz-navigation-rail-body {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.miaixz-navigation-rail-group {
+  display: block;
+  min-inline-size: 0;
+}
+
+.miaixz-navigation-rail-group-marker {
+  position: relative;
+  block-size: calc(var(--miaixz-space-16) + var(--miaixz-space-16));
+  overflow: hidden;
+}
+
+.miaixz-navigation-rail-group-marker-line,
+.miaixz-navigation-rail-group-marker-label {
+  position: absolute;
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: opacity, transform;
+}
+
+.miaixz-navigation-rail-group-marker-line {
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: calc(var(--miaixz-layout-sidebar-compact-width) - var(--miaixz-space-24));
+  border-block-start: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+  opacity: 1;
+  transform: translate(-50%, -50%) scaleX(1);
+  transform-origin: center;
+}
+
+.miaixz-navigation-rail-group-marker-label {
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-inline: var(--miaixz-space-16);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-semibold);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-muted);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(calc(var(--miaixz-space-8) * -1));
+}
+
+.miaixz-navigation-rail-frame[data-expanded] .miaixz-navigation-rail-group-marker-line {
+  opacity: 0;
+  transform: translate(-50%, -50%) scaleX(0);
+}
+
+.miaixz-navigation-rail-frame[data-expanded] .miaixz-navigation-rail-group-marker-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.miaixz-navigation-rail-utility {
+  display: grid;
+  flex: none;
+  min-block-size: var(--miaixz-layout-sidebar-compact-width);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-navigation-rail-group-marker-line,
+  .miaixz-navigation-rail-group-marker-label {
+    transition-duration: 0s;
+  }
+}
+
+@media (forced-colors: active) {
+  .miaixz-navigation-icon-only > .miaixz-navigation-item[aria-current="page"]::before {
+    background: Highlight;
+  }
 }
 
 .miaixz-shell-mobile-navigation .miaixz-navigation-rail {
