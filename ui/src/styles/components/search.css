@@ -1,8 +1,8 @@
 [data-miaixz-theme] {
-  --miaixz-search-header-padding-inline: 10px;
+  --miaixz-search-header-padding-inline: 6px;
   --miaixz-search-adornment-width: 20px;
   --miaixz-search-shortcut-padding-block: 3px;
-  --miaixz-search-shortcut-padding-inline: 6px;
+  --miaixz-search-shortcut-padding-inline: 3px;
   --miaixz-search-shortcut-radius: 5px;
 }
 
@@ -27,6 +27,10 @@
 
 .miaixz-search-header .miaixz-input-adornment {
   inline-size: var(--miaixz-search-adornment-width);
+}
+
+.miaixz-search-header .miaixz-input-adornment:last-child {
+  inline-size: auto;
 }
 
 .miaixz-search-end {

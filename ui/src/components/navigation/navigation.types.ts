@@ -22,7 +22,7 @@ export interface NavigationProps extends HTMLAttributes<HTMLElement> {
    *
    * @defaultValue `"default"`
    */
-  variant?: "default" | "rail";
+  variant?: "default" | "icon" | "rail";
   /**
    * Selects the navigation flow direction.
    *

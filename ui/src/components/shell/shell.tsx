@@ -12,6 +12,7 @@ export const Shell = forwardRef<HTMLDivElement, ShellProps>(function Shell(
     sidebar,
     headerBehavior = "fixed",
     navigationVariant,
+    navigationExpanded = false,
     mobileNavigation,
     headerClassName,
     sidebarClassName,
@@ -29,6 +30,7 @@ export const Shell = forwardRef<HTMLDivElement, ShellProps>(function Shell(
       ref={ref}
       data-header-behavior={headerBehavior}
       data-navigation-variant={navigationVariant}
+      data-navigation-expanded={navigationExpanded || undefined}
       className={classNames("miaixz-shell", className)}
     >
       <header className={classNames("miaixz-shell-header", headerClassName)}>{header}</header>
