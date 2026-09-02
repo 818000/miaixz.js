@@ -1,0 +1,254 @@
+/**
+ * Miaixz columns component
+ */
+
+[data-miaixz-theme] {
+  --miaixz-columns-plot-height: calc(var(--miaixz-space-32) * 4);
+  --miaixz-columns-bar-gap: var(--miaixz-space-4);
+  --miaixz-columns-group-gap: var(--miaixz-space-8);
+}
+
+.miaixz-columns {
+  --miaixz-columns-tone: var(--miaixz-color-brand);
+
+  min-width: 0;
+}
+
+.miaixz-columns-plot {
+  display: var(--miaixz-slot-columns-plot-display-dafaf3, flex);
+  gap: var(--miaixz-slot-columns-plot-gap-dde96f, var(--miaixz-columns-group-gap));
+  align-items: var(--miaixz-slot-columns-plot-align-items-d6f9c6, stretch);
+  justify-content: var(--miaixz-slot-columns-plot-justify-content-e9b599, revert);
+  min-width: 0;
+  height: var(--miaixz-slot-columns-plot-height-daede8, revert);
+  min-height: var(--miaixz-slot-columns-plot-min-height-d06644, var(--miaixz-columns-plot-height));
+  border-bottom: var(
+    --miaixz-slot-columns-plot-border-bottom-3b13cd,
+    var(--miaixz-border-width-default) solid var(--miaixz-color-border)
+  );
+}
+
+.miaixz-columns-group {
+  position: var(--miaixz-slot-columns-group-position-37853b, revert);
+  display: var(--miaixz-slot-columns-group-display-8eb0a9, grid);
+  flex: var(--miaixz-slot-columns-group-flex-154dc9, 1 1 0);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--miaixz-space-4);
+  align-items: var(--miaixz-slot-columns-group-align-items-967367, revert);
+  justify-content: var(--miaixz-slot-columns-group-justify-content-d90768, revert);
+  width: var(--miaixz-slot-columns-group-width-e287a5, revert);
+  min-width: var(--miaixz-slot-columns-group-min-width-29ec0b, 0);
+  height: var(--miaixz-slot-columns-group-height-1abf94, revert);
+}
+
+.miaixz-columns-bars {
+  display: var(--miaixz-slot-columns-bars-display-b0aba2, flex);
+  gap: var(--miaixz-slot-columns-bars-gap-63ee61, var(--miaixz-columns-bar-gap));
+  align-items: var(--miaixz-slot-columns-bars-align-items-0c5ac5, end);
+  justify-content: var(--miaixz-slot-columns-bars-justify-content-125a53, center);
+  width: var(--miaixz-slot-columns-bars-width-c517b7, revert);
+  height: var(--miaixz-slot-columns-bars-height-0ebdd8, revert);
+  min-height: var(--miaixz-slot-columns-bars-min-height-6ddd27, 0);
+}
+
+.miaixz-columns-bar {
+  --miaixz-columns-value: 0%;
+
+  width: var(--miaixz-slot-columns-bar-width-be31b4, min(var(--miaixz-space-16), 44%));
+  min-width: var(--miaixz-slot-columns-bar-min-width-f9adf6, revert);
+  height: var(--miaixz-columns-value);
+  min-height: var(--miaixz-slot-columns-bar-min-height-7221bc, var(--miaixz-border-width-2));
+  background: var(--miaixz-columns-tone);
+  border-radius: var(
+    --miaixz-slot-columns-bar-border-radius-cc2693,
+    var(--miaixz-radius-control) var(--miaixz-radius-control) 0 0
+  );
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: background-color;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-columns[data-motion-state="enter"] .miaixz-columns-bar {
+    transform-origin: center bottom;
+    animation: miaixz-columns-enter calc(var(--miaixz-duration-slower) * 3.5)
+      var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-columns[data-motion-replay="true"] .miaixz-columns-bar {
+    animation-name: miaixz-columns-replay;
+    animation-duration: calc(var(--miaixz-duration-slower) * 3.25);
+    animation-timing-function: var(--miaixz-motion-enter-easing);
+    animation-delay: 0ms;
+  }
+
+  .miaixz-columns[data-motion-state="enter"] .miaixz-columns-group:nth-child(2) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 0.55);
+  }
+
+  .miaixz-columns[data-motion-state="enter"] .miaixz-columns-group:nth-child(3) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 1.1);
+  }
+
+  .miaixz-columns[data-motion-state="enter"] .miaixz-columns-group:nth-child(4) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 1.65);
+  }
+
+  .miaixz-columns[data-motion-state="enter"] .miaixz-columns-group:nth-child(5) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 2.2);
+  }
+
+  .miaixz-columns[data-motion-state="enter"] .miaixz-columns-group:nth-child(6) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 2.75);
+  }
+
+  .miaixz-columns[data-motion-state="enter"] .miaixz-columns-group:nth-child(7) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 3.3);
+  }
+
+  .miaixz-columns[data-motion-replay="true"] .miaixz-columns-group:nth-child(2) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 0.45);
+  }
+
+  .miaixz-columns[data-motion-replay="true"] .miaixz-columns-group:nth-child(3) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 0.9);
+  }
+
+  .miaixz-columns[data-motion-replay="true"] .miaixz-columns-group:nth-child(4) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 1.35);
+  }
+
+  .miaixz-columns[data-motion-replay="true"] .miaixz-columns-group:nth-child(5) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 1.8);
+  }
+
+  .miaixz-columns[data-motion-replay="true"] .miaixz-columns-group:nth-child(6) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 2.25);
+  }
+
+  .miaixz-columns[data-motion-replay="true"] .miaixz-columns-group:nth-child(7) .miaixz-columns-bar {
+    animation-delay: calc(var(--miaixz-duration-fast) * 2.7);
+  }
+}
+
+.miaixz-columns-bar-secondary {
+  background: color-mix(
+    in srgb,
+    var(--miaixz-columns-tone) 36%,
+    var(--miaixz-surface-role-panel-background)
+  );
+}
+
+.miaixz-columns-bar:hover {
+  background: color-mix(in srgb, var(--miaixz-columns-tone) 82%, var(--miaixz-color-text-primary));
+}
+
+.miaixz-columns-bar-secondary:hover {
+  background: color-mix(
+    in srgb,
+    var(--miaixz-columns-tone) 52%,
+    var(--miaixz-surface-role-panel-background)
+  );
+}
+
+.miaixz-columns-label {
+  position: var(--miaixz-slot-columns-label-position-15dc94, revert);
+  inset-block-end: var(--miaixz-slot-columns-label-inset-block-end-c17cc6, revert);
+  display: var(--miaixz-slot-columns-label-display-8bdcce, revert);
+  width: var(--miaixz-slot-columns-label-width-a22152, revert);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-slot-columns-label-font-size-f012c1, var(--miaixz-text-caption-size));
+  line-height: var(
+    --miaixz-slot-columns-label-line-height-a84082,
+    var(--miaixz-text-caption-line-height)
+  );
+  color: var(--miaixz-color-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.miaixz-columns[data-state="empty"] .miaixz-columns-plot {
+  border-bottom-style: dashed;
+}
+
+@keyframes miaixz-columns-enter {
+  from {
+    opacity: 0.36;
+    transform: scaleY(0.04);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes miaixz-columns-replay {
+  0% {
+    opacity: 0.48;
+    transform: scaleY(0.08);
+  }
+
+  72% {
+    opacity: 1;
+    transform: scaleY(1.06);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.miaixz-columns-tone-neutral {
+  --miaixz-columns-tone: var(--miaixz-color-data-neutral);
+}
+
+.miaixz-columns-tone-info {
+  --miaixz-columns-tone: var(--miaixz-color-info);
+}
+
+.miaixz-columns-tone-success {
+  --miaixz-columns-tone: var(--miaixz-color-success);
+}
+
+.miaixz-columns-tone-warning {
+  --miaixz-columns-tone: var(--miaixz-color-warning);
+}
+
+.miaixz-columns-tone-danger {
+  --miaixz-columns-tone: var(--miaixz-color-danger);
+}
+
+.miaixz-columns-tone-data-1 {
+  --miaixz-columns-tone: var(--miaixz-color-data-1);
+}
+
+.miaixz-columns-tone-data-2 {
+  --miaixz-columns-tone: var(--miaixz-color-data-2);
+}
+
+.miaixz-columns-tone-data-3 {
+  --miaixz-columns-tone: var(--miaixz-color-data-3);
+}
+
+.miaixz-columns-tone-data-4 {
+  --miaixz-columns-tone: var(--miaixz-color-data-4);
+}
+
+.miaixz-columns-tone-data-5 {
+  --miaixz-columns-tone: var(--miaixz-color-data-5);
+}
+
+.miaixz-columns-tone-data-6 {
+  --miaixz-columns-tone: var(--miaixz-color-data-6);
+}
+
+.miaixz-columns-tone-data-7 {
+  --miaixz-columns-tone: var(--miaixz-color-data-7);
+}
+
+.miaixz-columns-tone-data-8 {
+  --miaixz-columns-tone: var(--miaixz-color-data-8);
+}
