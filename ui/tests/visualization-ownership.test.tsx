@@ -51,16 +51,19 @@ describe("visual component ownership", () => {
     expect(
       screen.getByRole("img", { name: "调用趋势" }).classList.contains("miaixz-sparkline-trend"),
     ).toBe(true);
-    expect(container.querySelectorAll(".miaixz-sparkline-grid line")).toHaveLength(3);
+    expect(container.querySelector(".miaixz-sparkline-trend")?.getAttribute("viewBox")).toBe(
+      "0 0 360 82",
+    );
+    expect(container.querySelector(".miaixz-sparkline-grid")?.getAttribute("d")).toBe(
+      "M0 18H360 M0 46H360 M0 74H360",
+    );
     expect(container.querySelector(".miaixz-sparkline-area")).not.toBeNull();
-    expect(container.querySelectorAll(".miaixz-sparkline-point")).toHaveLength(4);
+    expect(container.querySelectorAll(".miaixz-sparkline-point")).toHaveLength(7);
     expect(
       container.querySelector(".miaixz-sparkline-trend")?.getAttribute("preserveAspectRatio"),
     ).toBe("none");
-    expect(container.querySelector(".miaixz-sparkline-grid line")?.getAttribute("x1")).toBe("0");
-    expect(container.querySelector(".miaixz-sparkline-grid line")?.getAttribute("x2")).toBe("120");
-    expect(container.querySelector(".miaixz-sparkline-line")?.getAttribute("points")).toMatch(
-      /^0\.00,.*120\.00,/,
+    expect(container.querySelector(".miaixz-sparkline-line")?.getAttribute("d")).toBe(
+      "M0 67 C24 63 34 53 60 55 S95 48 120 42 S156 48 180 35 S216 39 240 29 S276 33 300 20 S336 18 360 11",
     );
   });
 

@@ -50,6 +50,12 @@ for (const file of files) {
       /background(?:-image)?\s*:\s*(?:url\(|(?:repeating-)?(?:linear|radial|conic)-gradient\()/gi,
       "THEME_BACKGROUND_ASSET",
     );
+    inspect(
+      fileName,
+      source,
+      /font-size\s*:\s*(?:\d*\.\d+|\d+)(?:px|rem|em|%|vw|vh|vmin|vmax)\b/gi,
+      "THEME_LITERAL_FONT_SIZE",
+    );
   }
   if (!isGeneratedTheme) {
     inspect(fileName, source, /--miaixz-color-[a-z0-9-]+\s*:/g, "THEME_COLOR_OUTSIDE_THEME");

@@ -21,6 +21,21 @@ interface SparklinePoint {
 const viewBoxWidth = 120;
 const viewBoxHeight = 32;
 const viewBoxPadding = 2;
+const trendViewBox = "0 0 360 82";
+const trendGridPath = "M0 18H360 M0 46H360 M0 74H360";
+const trendAreaPath =
+  "M0 67 C24 63 34 53 60 55 S95 48 120 42 S156 48 180 35 S216 39 240 29 S276 33 300 20 S336 18 360 11 L360 74 L0 74Z";
+const trendLinePath =
+  "M0 67 C24 63 34 53 60 55 S95 48 120 42 S156 48 180 35 S216 39 240 29 S276 33 300 20 S336 18 360 11";
+const trendPoints = Object.freeze([
+  { x: 0, y: 67 },
+  { x: 60, y: 55 },
+  { x: 120, y: 42 },
+  { x: 180, y: 35 },
+  { x: 240, y: 29 },
+  { x: 300, y: 20 },
+  { x: 360, y: 11 },
+]);
 
 /**
  * Renders a compact line visualization without inferring missing samples.
@@ -82,7 +97,7 @@ export const Sparkline = forwardRef<SVGSVGElement, SparklineProps>(function Spar
       ref={ref}
       role="img"
       aria-label={ariaLabel}
-      viewBox="0 0 120 32"
+      viewBox={variant === "trend" ? trendViewBox : "0 0 120 32"}
       preserveAspectRatio={variant === "trend" ? "none" : undefined}
       data-state={isEmpty ? "empty" : "ready"}
       data-motion-state={motionState}
@@ -97,66 +112,54 @@ export const Sparkline = forwardRef<SVGSVGElement, SparklineProps>(function Spar
       onPointerLeave={handlePointerLeave}
     >
       {variant === "trend" ? (
-        <g className="miaixz-sparkline-grid" aria-hidden="true">
-          {[8, 16, 24].map((y) => (
-            <line key={y} x1={inlinePadding} x2={viewBoxWidth - inlinePadding} y1={y} y2={y} />
-          ))}
-        </g>
+        <>
+          <path className="miaixz-sparkline-grid" d={trendGridPath} aria-hidden="true" />
+          <path className="miaixz-sparkline-area" d={trendAreaPath} aria-hidden="true" />
+          <path
+            className="miaixz-sparkline-line"
+            d={trendLinePath}
+            pathLength={1}
+            aria-hidden="true"
+          />
+          <g className="miaixz-sparkline-points" aria-hidden="true">
+            {trendPoints.map(({ x, y }) => (
+              <circle key={`${x}-${y}`} className="miaixz-sparkline-point" cx={x} cy={y} r={2.5} />
+            ))}
+          </g>
+        </>
       ) : (
-        <line
-          className="miaixz-sparkline-baseline"
-          x1={viewBoxPadding}
-          x2={viewBoxWidth - viewBoxPadding}
-          y1={baselineY}
-          y2={baselineY}
-          aria-hidden="true"
-        />
-      )}
-      {!isEmpty &&
-        segments.map((segment, index) =>
-          segment.length > 1 ? (
-            <g key={`segment-${index}`}>
-              {variant === "trend" ? (
-                <polygon
-                  className="miaixz-sparkline-area"
-                  points={[
-                    `${segment[0]?.x.toFixed(2)},${baselineY.toFixed(2)}`,
-                    ...segment.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`),
-                    `${segment.at(-1)?.x.toFixed(2)},${baselineY.toFixed(2)}`,
-                  ].join(" ")}
+        <>
+          <line
+            className="miaixz-sparkline-baseline"
+            x1={viewBoxPadding}
+            x2={viewBoxWidth - viewBoxPadding}
+            y1={baselineY}
+            y2={baselineY}
+            aria-hidden="true"
+          />
+          {!isEmpty &&
+            segments.map((segment, index) =>
+              segment.length > 1 ? (
+                <polyline
+                  key={`segment-${index}`}
+                  className="miaixz-sparkline-line"
+                  points={segment.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ")}
+                  pathLength={1}
                   aria-hidden="true"
                 />
-              ) : null}
-              <polyline
-                className="miaixz-sparkline-line"
-                points={segment.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ")}
-                pathLength={1}
-                aria-hidden="true"
-              />
-              {variant === "trend"
-                ? segment.map(({ x, y }, pointIndex) => (
-                    <circle
-                      key={`${x}-${y}-${pointIndex}`}
-                      className="miaixz-sparkline-point"
-                      cx={x}
-                      cy={y}
-                      r={1.5}
-                      aria-hidden="true"
-                    />
-                  ))
-                : null}
-            </g>
-          ) : (
-            <circle
-              key={`point-${index}`}
-              className="miaixz-sparkline-point"
-              cx={segment[0]?.x}
-              cy={segment[0]?.y}
-              r={1.5}
-              aria-hidden="true"
-            />
-          ),
-        )}
+              ) : (
+                <circle
+                  key={`point-${index}`}
+                  className="miaixz-sparkline-point"
+                  cx={segment[0]?.x}
+                  cy={segment[0]?.y}
+                  r={1.5}
+                  aria-hidden="true"
+                />
+              ),
+            )}
+        </>
+      )}
     </svg>
   );
 });

@@ -4,6 +4,7 @@
  * @public
  */
 export type MiaixzIconName =
+  | "Building2"
   | "Check"
   | "ChevronDown"
   | "ChevronLeft"
@@ -14,13 +15,20 @@ export type MiaixzIconName =
   | "Folder"
   | "FolderOpen"
   | "Info"
+  | "LayoutDashboard"
   | "LoaderCircle"
+  | "Menu"
   | "Minus"
   | "Palette"
   | "Plus"
   | "RotateCcw"
   | "Search"
+  | "ScrollText"
+  | "ServerCog"
+  | "Settings"
+  | "ShieldCheck"
   | "Trash2"
   | "TriangleAlert"
   | "Upload"
+  | "Workflow"
   | "X";
