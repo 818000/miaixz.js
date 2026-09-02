@@ -6,6 +6,27 @@
 export type MiaixzFeedbackTone = "neutral" | "info" | "success" | "warning" | "danger";
 
 /**
+ * Defines semantic and categorical visual tones shared by data components.
+ *
+ * @public
+ */
+export type MiaixzVisualTone =
+  | "brand"
+  | "neutral"
+  | "info"
+  | "success"
+  | "warning"
+  | "danger"
+  | "data-1"
+  | "data-2"
+  | "data-3"
+  | "data-4"
+  | "data-5"
+  | "data-6"
+  | "data-7"
+  | "data-8";
+
+/**
  * Defines semantic component sizes shared by Miaixz components.
  *
  * @public

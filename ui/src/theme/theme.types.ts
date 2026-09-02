@@ -9,6 +9,7 @@ import type {
 import type { ReactNode } from "react";
 import type { MiaixzThemeError } from "./errors.js";
 import type { MiaixzThemeColorToken, MiaixzThemeColors } from "../tokens/colors.js";
+import type { MiaixzThemeComposition } from "../tokens/composition.js";
 import type { MiaixzThemeGeometry } from "../tokens/geometry.js";
 import type { MiaixzThemeRadius } from "../tokens/radius.js";
 import type { MiaixzThemeShadow } from "../tokens/shadow.js";
@@ -49,6 +50,10 @@ export type MiaixzThemeErrorCode =
  * @public
  */
 export interface MiaixzThemeTokens {
+  /**
+   * Registered component composition variants.
+   */
+  readonly composition?: MiaixzThemeComposition;
   /**
    * Theme font families.
    */
@@ -213,6 +218,10 @@ export interface MiaixzResolvedThemeGeometry extends Readonly<
  */
 export interface MiaixzResolvedThemeTokens {
   /**
+   * Complete registered component composition variants.
+   */
+  readonly composition: Required<MiaixzThemeComposition>;
+  /**
    * Complete typography values.
    */
   readonly typography: Required<MiaixzThemeTypography>;
@@ -318,6 +327,26 @@ export type ThemeProps = ThemeBaseProps &
   );
 
 /**
+ * Defines the resolved color subset used to preview one theme mode.
+ *
+ * @public
+ */
+export interface MiaixzThemePreviewColors {
+  /**
+   * Resolved brand color.
+   */
+  readonly brand: string;
+  /**
+   * Resolved surface color.
+   */
+  readonly surface: string;
+  /**
+   * Resolved primary text color.
+   */
+  readonly textPrimary: string;
+}
+
+/**
  * Describes one theme available in the active catalog.
  *
  * @public
@@ -339,6 +368,10 @@ export interface MiaixzThemeDescriptor {
    * Catalog source category.
    */
   readonly source: "builtin" | "registered" | "loaded";
+  /**
+   * Resolved light and dark preview colors.
+   */
+  readonly preview: Readonly<Record<"light" | "dark", Readonly<MiaixzThemePreviewColors>>>;
 }
 
 /**

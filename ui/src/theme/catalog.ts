@@ -100,18 +100,42 @@ export class ThemeCatalog {
     }
     const resolved = resolveThemeDefinitions(definitions);
     const descriptors = Object.freeze(
-      [...definitions.values()].map((theme) =>
-        Object.freeze({
+      [...definitions.values()].map((theme) => {
+        const complete = resolved.get(theme.name);
+        if (complete === undefined) {
+          throw new MiaixzThemeError("UI_THEME_NOT_FOUND", { theme: theme.name });
+        }
+        return Object.freeze({
           name: theme.name,
           label: theme.label,
           version: theme.version,
           source: sources.get(theme.name) ?? "registered",
-        }),
-      ),
+          preview: Object.freeze({
+            light: themePreview(complete, "light"),
+            dark: themePreview(complete, "dark"),
+          }),
+        });
+      }),
     );
     this.#definitions = definitions;
     this.#resolved = new Map(resolved);
     this.#sources = sources;
     this.#descriptors = descriptors;
   }
+}
+
+/**
+ * Selects and freezes the three resolved colors exposed by a descriptor.
+ *
+ * @param theme - Complete resolved theme.
+ * @param mode - Resolved light or dark mode.
+ * @returns Frozen preview color subset.
+ */
+function themePreview(theme: Readonly<MiaixzResolvedThemeDefinition>, mode: "light" | "dark") {
+  const colors = theme.modes[mode].colors;
+  return Object.freeze({
+    brand: colors.brand,
+    surface: colors.surface,
+    textPrimary: colors["text-primary"],
+  });
 }

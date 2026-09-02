@@ -2,6 +2,7 @@
   inline-size: max-content;
   min-inline-size: min(100%, var(--miaixz-layout-card-min-width));
   padding: var(--miaixz-space-4);
+  border-color: var(--miaixz-color-brand);
 }
 
 .miaixz-dropdown-item {
@@ -33,7 +34,8 @@
 }
 
 .miaixz-dropdown-item:focus-visible {
-  box-shadow: inset 0 0 0 var(--miaixz-control-focus-width) var(--miaixz-color-focus);
+  background: var(--miaixz-color-brand-soft);
+  box-shadow: none;
 }
 
 .miaixz-dropdown-item-danger {

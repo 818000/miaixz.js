@@ -13,7 +13,7 @@ import type { DropdownEntry, DropdownProps } from "./dropdown.types.js";
  * Renders a localized Portal menu with package-owned keyboard behavior. @public
  */
 export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropdown(
-  { label, items, children, triggerProps, ...props },
+  { label, items, children, contentClassName, triggerProps, ...props },
   ref,
 ) {
   const { t } = useMiaixzLocale();
@@ -22,7 +22,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropd
       {...props}
       ref={ref}
       triggerProps={{ ...triggerProps, "aria-haspopup": "menu" }}
-      contentClassName="miaixz-dropdown-content"
+      contentClassName={classNames("miaixz-dropdown-content", contentClassName)}
     >
       <DropdownMenu label={label ?? t("ui.menu.label")}>
         {items?.map((entry, index) => <DropdownEntryView key={index} entry={entry} />) ?? children}

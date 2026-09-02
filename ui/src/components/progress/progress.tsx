@@ -2,6 +2,7 @@ import { forwardRef, type CSSProperties } from "react";
 
 import { createMiaixzUiError } from "../../errors/index.js";
 import { classNames } from "../../internal/class-names.js";
+import { useVisualizationMotion } from "../../internal/use-visualization-motion.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
 import type { ProgressProps } from "./progress.types.js";
 
@@ -21,9 +22,13 @@ interface MiaixzProgressStyle extends CSSProperties {
  * @public
  */
 export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progress(
-  { value, max = 100, label, showValue = false, className, ...props },
-  ref,
+  { value, max = 100, label, showValue = false, tone = "brand", size = "default", className, onPointerEnter, ...props },
+  forwardedRef,
 ) {
+  const { ref, motionState, handlePointerEnter } = useVisualizationMotion<HTMLDivElement>({
+    forwardedRef,
+    onPointerEnter,
+  });
   const { t } = useMiaixzLocale();
   if (!Number.isFinite(max) || max <= 0) {
     throw createMiaixzUiError(t, {
@@ -56,11 +61,17 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
       aria-valuemax={max}
       aria-valuenow={clampedValue}
       data-state={clampedValue === undefined ? "indeterminate" : "determinate"}
+      data-motion-state={motionState}
+      data-tone={tone}
       className={classNames(
         "miaixz-progress",
+        `miaixz-progress-${size}`,
+        `miaixz-progress-tone-${tone}`,
+        tone.startsWith("data-") && "miaixz-progress-tone-data",
         clampedValue === undefined && "miaixz-progress-indeterminate",
         className,
       )}
+      onPointerEnter={handlePointerEnter}
     >
       <span className="miaixz-progress-track" aria-hidden="true">
         <span className="miaixz-progress-indicator" style={progressStyle} />

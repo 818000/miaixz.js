@@ -1,17 +1,15 @@
-import { defineTheme } from "../theme/define.js";
-import { miaixzSharedThemeTokens } from "./shared.js";
+import { defineBuiltInTheme } from "./shared.js";
 
 /**
  * Defines the complete built-in green Miaixz theme.
  *
  * @public
  */
-export const miaixzTheme = defineTheme({
+export const miaixzTheme = defineBuiltInTheme({
   schemaVersion: 1,
   name: "miaixz",
   label: "Miaixz",
   version: "1.0.0",
-  tokens: miaixzSharedThemeTokens,
   modes: {
     light: {
       colors: {

@@ -1,5 +1,8 @@
 import type { MiaixzThemeColorOverrides } from "@miaixz/sdk/appearance";
 import type { MiaixzThemeColors } from "../tokens/colors.js";
+import { miaixzThemeCompositionDefaults } from "../tokens/composition.js";
+import { miaixzThemeLayoutGeometryDefaults } from "../tokens/geometry.js";
+import { miaixzThemeTypographyDefaults } from "../tokens/typography.js";
 import { MiaixzThemeError } from "./errors.js";
 import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./theme.types.js";
 import { validateResolvedTheme } from "./validate.js";
@@ -30,7 +33,7 @@ export function resolveThemeDefinitions(
     try {
       const merged =
         definition.extends === undefined
-          ? definition
+          ? applyThemeTokenDefaults(definition)
           : mergeTheme(resolveOne(definition.extends), definition);
       const candidate = {
         schemaVersion: 1,
@@ -50,6 +53,44 @@ export function resolveThemeDefinitions(
 
   for (const name of definitions.keys()) resolveOne(name);
   return resolved;
+}
+
+/**
+ * Completes geometry fields added to schema version one after its initial release.
+ *
+ * @param definition - Validated root theme definition.
+ * @returns Theme definition with new layout defaults merged before validation.
+ */
+function applyThemeTokenDefaults(
+  definition: Readonly<MiaixzThemeDefinition>,
+): Readonly<MiaixzThemeDefinition> {
+  const geometry = definition.tokens?.geometry;
+  const typography = definition.tokens?.typography;
+  const composition = definition.tokens?.composition;
+  if (geometry === undefined && typography === undefined && composition === undefined) {
+    return definition;
+  }
+  return {
+    ...definition,
+    tokens: {
+      ...definition.tokens,
+      composition: { ...miaixzThemeCompositionDefaults, ...composition },
+      ...(typography === undefined
+        ? {}
+        : { typography: { ...miaixzThemeTypographyDefaults, ...typography } }),
+      ...(geometry === undefined
+        ? {}
+        : {
+            geometry: {
+              ...geometry,
+              layout: {
+                ...miaixzThemeLayoutGeometryDefaults,
+                ...geometry.layout,
+              },
+            },
+          }),
+    },
+  };
 }
 
 /**

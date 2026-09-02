@@ -8,6 +8,9 @@
 }
 
 .miaixz-progress {
+  --miaixz-progress-tone-fill: var(--miaixz-color-brand);
+  --miaixz-progress-tone-track: var(--miaixz-color-brand-soft);
+
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--miaixz-space-12);
@@ -20,7 +23,7 @@
   display: block;
   height: var(--miaixz-progress-track-height);
   overflow: hidden;
-  background: var(--miaixz-color-surface-secondary);
+  background: var(--miaixz-progress-tone-track);
   border-radius: var(--miaixz-radius-round);
 }
 
@@ -30,8 +33,88 @@
   display: block;
   width: var(--miaixz-progress-value);
   height: 100%;
-  background: var(--miaixz-color-brand);
+  background: var(--miaixz-progress-tone-fill);
   border-radius: inherit;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-progress[data-state="determinate"][data-motion-state="enter"]
+    .miaixz-progress-indicator {
+    transform-origin: left center;
+    animation: miaixz-progress-enter calc(var(--miaixz-duration-slower) * 3.5)
+      var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-progress[data-state="determinate"][data-motion-replay="true"]
+    .miaixz-progress-indicator {
+    animation: miaixz-progress-replay calc(var(--miaixz-duration-slower) * 3.25)
+      var(--miaixz-motion-enter-easing) both;
+  }
+}
+
+.miaixz-progress-tone-neutral {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-neutral);
+  --miaixz-progress-tone-track: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-progress-tone-info {
+  --miaixz-progress-tone-fill: var(--miaixz-color-info);
+  --miaixz-progress-tone-track: var(--miaixz-color-info-soft);
+}
+
+.miaixz-progress-tone-success {
+  --miaixz-progress-tone-fill: var(--miaixz-color-success);
+  --miaixz-progress-tone-track: var(--miaixz-color-success-soft);
+}
+
+.miaixz-progress-tone-warning {
+  --miaixz-progress-tone-fill: var(--miaixz-color-warning);
+  --miaixz-progress-tone-track: var(--miaixz-color-warning-soft);
+}
+
+.miaixz-progress-tone-danger {
+  --miaixz-progress-tone-fill: var(--miaixz-color-danger);
+  --miaixz-progress-tone-track: var(--miaixz-color-danger-soft);
+}
+
+.miaixz-progress-tone-data {
+  --miaixz-progress-tone-track: color-mix(
+    in srgb,
+    var(--miaixz-progress-tone-fill) 16%,
+    var(--miaixz-color-surface)
+  );
+}
+
+.miaixz-progress-tone-data-1 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-1);
+}
+
+.miaixz-progress-tone-data-2 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-2);
+}
+
+.miaixz-progress-tone-data-3 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-3);
+}
+
+.miaixz-progress-tone-data-4 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-4);
+}
+
+.miaixz-progress-tone-data-5 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-5);
+}
+
+.miaixz-progress-tone-data-6 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-6);
+}
+
+.miaixz-progress-tone-data-7 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-7);
+}
+
+.miaixz-progress-tone-data-8 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-8);
 }
 
 .miaixz-progress-indeterminate .miaixz-progress-indicator {
@@ -59,8 +142,37 @@
   }
 }
 
+@keyframes miaixz-progress-enter {
+  from {
+    opacity: 0.48;
+    transform: scaleX(0.02);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes miaixz-progress-replay {
+  0% {
+    opacity: 0.52;
+    transform: scaleX(0.04);
+  }
+
+  76% {
+    opacity: 1;
+    transform: scaleX(1.03);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .miaixz-progress-indeterminate .miaixz-progress-indicator {
+  .miaixz-progress .miaixz-progress-indicator {
     transform: none;
     animation: none;
   }

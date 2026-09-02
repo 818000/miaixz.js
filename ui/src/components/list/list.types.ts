@@ -6,6 +6,8 @@ import type { HTMLAttributes, ReactNode } from "react";
  * @public
  */
 export interface ListProps extends HTMLAttributes<HTMLUListElement> {
+  /** Selects the standard or compact row density. */
+  density?: "default" | "compact";
   /**
    * Supplies structured list entries.
    */
@@ -35,7 +37,7 @@ export interface ListProps extends HTMLAttributes<HTMLUListElement> {
  *
  * @public
  */
-export interface ListEntry extends Omit<
+interface ListEntryBase extends Omit<
   HTMLAttributes<HTMLLIElement>,
   "children" | "content" | "title"
 > {
@@ -60,12 +62,6 @@ export interface ListEntry extends Omit<
    */
   actions?: ReactNode;
   /**
-   * Enables hover and pointer interaction treatment.
-   *
-   * @defaultValue `false`
-   */
-  interactive?: boolean;
-  /**
    * Displays the selected-item treatment.
    *
    * @defaultValue `false`
@@ -82,3 +78,55 @@ export interface ListEntry extends Omit<
    */
   content?: ReactNode;
 }
+
+/**
+ * Configures a list item that navigates to another location.
+ */
+interface ListLinkEntry extends ListEntryBase {
+  /**
+   * Navigates to the supplied location when the row is activated.
+   */
+  href: string;
+  /**
+   * Prevents action semantics from being combined with navigation.
+   */
+  onAction?: never;
+}
+
+/**
+ * Configures a list item that runs an application action.
+ */
+interface ListActionEntry extends ListEntryBase {
+  /**
+   * Prevents navigation semantics from being combined with an action.
+   */
+  href?: never;
+  /**
+   * Runs the supplied action when the row is activated.
+   */
+  onAction: () => void;
+}
+
+/**
+ * Configures a list item that only displays information.
+ */
+interface ListStaticEntry extends ListEntryBase {
+  /**
+   * Prevents static rows from receiving navigation semantics.
+   */
+  href?: never;
+  /**
+   * Prevents static rows from receiving action semantics.
+   */
+  onAction?: never;
+}
+
+/**
+ * Configures one structured list item as a link, an action, or static content.
+ *
+ * Link and action semantics are mutually exclusive. Omitting both preserves a
+ * non-interactive list row.
+ *
+ * @public
+ */
+export type ListEntry = ListLinkEntry | ListActionEntry | ListStaticEntry;

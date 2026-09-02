@@ -18,7 +18,11 @@ for (const file of files) {
   for (const match of source.matchAll(/(--miaixz-[a-z0-9-]+)\s*:/g)) definitions.add(match[1]);
   for (const match of source.matchAll(/var\((--miaixz-[a-z0-9-]+)(?:\s*,[^)]*)?\)/g)) {
     uses.push({ fileName, source, index: match.index, property: match[1] });
-    if (match[0].includes(","))
+    if (
+      match[0].includes(",") &&
+      !isAllowedTypographyFallback(fileName, match[0]) &&
+      !isAllowedComponentSlotFallback(match[0])
+    )
       addFinding(fileName, source, match.index, "THEME_VAR_FALLBACK", match[0]);
   }
   if (!isReset) {
@@ -53,8 +57,16 @@ for (const file of files) {
   }
 }
 
+for (const directory of [stylesDirectory, resolve(packageDirectory, "dist/styles")]) {
+  const scopedFiles = await collectFilesIfPresent(directory, ".css");
+  for (const file of scopedFiles) {
+    const source = await readFile(file, "utf8");
+    inspectGlobalBackground(relative(packageDirectory, file), source);
+  }
+}
+
 for (const use of uses) {
-  if (!definitions.has(use.property)) {
+  if (!definitions.has(use.property) && !use.property.startsWith("--miaixz-slot-")) {
     addFinding(use.fileName, use.source, use.index, "THEME_VARIABLE_UNKNOWN", use.property);
   }
 }
@@ -79,9 +91,33 @@ for (const entry of [
 for (const finding of findings) console.error(finding);
 if (findings.length > 0) process.exitCode = 1;
 
+function isAllowedTypographyFallback(fileName, value) {
+  return (
+    fileName === "src/styles/foundation/typography.css" &&
+    /var\(--miaixz-(?:text|console)-[a-z0-9-]+,\s*var\(--miaixz-(?:font-size|line-height)-\d+/.test(
+      value,
+    )
+  );
+}
+
+function isAllowedComponentSlotFallback(value) {
+  return /^var\(--miaixz-slot-[a-z0-9-]+,\s*.+\)$/s.test(value);
+}
+
 function inspect(fileName, source, pattern, code) {
   for (const match of source.matchAll(pattern))
     addFinding(fileName, source, match.index, code, match[0]);
+}
+
+function inspectGlobalBackground(fileName, source) {
+  for (const rule of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selector = rule[1].trim();
+    if (!/(?:^|[\s>+~,(])(?:html|body|:root)(?=$|[\s>+~.#:[(])/i.test(selector)) continue;
+    for (const declaration of rule[2].matchAll(/(?:^|;)\s*(background(?:-color|-image)?)\s*:/gi)) {
+      const index = (rule.index ?? 0) + rule[0].indexOf(rule[2]) + (declaration.index ?? 0);
+      addFinding(fileName, source, index, "THEME_GLOBAL_BACKGROUND", declaration[1]);
+    }
+  }
 }
 
 function addFinding(fileName, source, index, code, value) {
@@ -100,4 +136,11 @@ async function collectFiles(directory, extension) {
     }),
   );
   return nested.flat().sort();
+}
+
+async function collectFilesIfPresent(directory, extension) {
+  return collectFiles(directory, extension).catch((error) => {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  });
 }

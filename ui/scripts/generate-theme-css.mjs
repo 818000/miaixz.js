@@ -8,12 +8,25 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const packageDirectory = resolve(scriptDirectory, "..");
 const checkOnly = process.argv.slice(2).includes("--check");
 const builtThemesPath = resolve(packageDirectory, "dist/themes/index.js");
+const builtTypographyPath = resolve(packageDirectory, "dist/tokens/typography.js");
+const builtGeometryPath = resolve(packageDirectory, "dist/tokens/geometry.js");
 
 const themeModule = await import(pathToFileURL(builtThemesPath).href);
+const typographyModule = await import(pathToFileURL(builtTypographyPath).href);
+const geometryModule = await import(pathToFileURL(builtGeometryPath).href);
 const themes = themeModule.miaixzBuiltInThemes;
 const contract = themeModule.miaixzThemeSerializationContract;
+const typographyFields = typographyModule.miaixzThemeTypographyFields;
+const fontFamilyFields = new Set(typographyModule.miaixzThemeFontFamilyFields);
+const layoutGeometryRanges = geometryModule.miaixzThemeLayoutGeometryRanges;
 
-if (!Array.isArray(themes) || themes.length !== 3 || contract === undefined) {
+if (
+  !Array.isArray(themes) ||
+  themes.length !== 3 ||
+  contract === undefined ||
+  !Array.isArray(typographyFields) ||
+  layoutGeometryRanges === undefined
+) {
   throw new Error("Built theme module does not expose the frozen generator contract.");
 }
 
@@ -21,7 +34,7 @@ const outputs = new Map();
 for (const theme of themes) {
   outputs.set(
     resolve(packageDirectory, `src/styles/themes/${theme.name}.tokens.css`),
-    serializeTheme(theme, contract),
+    serializeTheme(theme, contract, typographyFields, fontFamilyFields, layoutGeometryRanges),
   );
 }
 
@@ -71,7 +84,7 @@ for (const [outputPath, source] of outputs) {
 
 if (checkOnly && different) process.exitCode = 1;
 
-function serializeTheme(theme, order) {
+function serializeTheme(theme, order, typographyOrder, familyFields, geometryRanges) {
   const blocks = ["/* Generated from ui/src/themes; do not edit. */", ""];
   for (const modeName of ["light", "dark"]) {
     const mode = theme.modes[modeName];
@@ -79,10 +92,13 @@ function serializeTheme(theme, order) {
     for (const token of order.colors) {
       declarations.push(`--miaixz-color-${token}: ${mode.colors[token]};`);
     }
-    declarations.push(
-      `--miaixz-font-family-sans: ${theme.tokens.typography.familySans};`,
-      `--miaixz-font-family-mono: ${theme.tokens.typography.familyMono};`,
-    );
+    for (const field of typographyOrder) {
+      const prefix = familyFields.has(field) ? "font-" : "text-";
+      const value = theme.tokens.typography[field];
+      declarations.push(
+        `--miaixz-${prefix}${toKebab(field)}: ${value}${typeof value === "number" ? "px" : ""};`,
+      );
+    }
     for (const field of order.radius) {
       declarations.push(`--miaixz-radius-${toKebab(field)}: ${theme.tokens.radius[field]}px;`);
     }
@@ -101,7 +117,7 @@ function serializeTheme(theme, order) {
       }
     }
     for (const field of order.layoutGeometry) {
-      const unit = field === "readingWidthCh" ? "ch" : "px";
+      const unit = geometryRanges[field].unit;
       declarations.push(
         `--miaixz-layout-${toKebab(field)}: ${theme.tokens.geometry.layout[field]}${unit};`,
       );

@@ -9,7 +9,7 @@ import type { ListEntry, ListProps } from "./list.types.js";
  * @public
  */
 export const List = forwardRef<HTMLUListElement, ListProps>(function List(
-  { items, bordered = false, plain = false, nested = false, className, children, ...props },
+  { items, bordered = false, plain = false, nested = false, density = "default", className, children, ...props },
   ref,
 ) {
   return (
@@ -18,6 +18,7 @@ export const List = forwardRef<HTMLUListElement, ListProps>(function List(
       ref={ref}
       className={classNames(
         "miaixz-list",
+        `miaixz-list-${density}`,
         bordered && "miaixz-list-bordered",
         plain && "miaixz-list-plain",
         nested && "miaixz-list-nested",
@@ -45,7 +46,8 @@ function ListEntryView(entry: ListEntry) {
     description,
     meta,
     actions,
-    interactive = false,
+    href,
+    onAction,
     selected = false,
     disabled = false,
     className,
@@ -53,6 +55,22 @@ function ListEntryView(entry: ListEntry) {
     ...props
   } = entry;
   const hasStructuredContent = title !== undefined || description !== undefined;
+  const interactive = href !== undefined || onAction !== undefined;
+  const rowContent = (
+    <>
+      {icon && <span className="miaixz-list-icon">{icon}</span>}
+      {hasStructuredContent ? (
+        <div className="miaixz-list-content">
+          {title !== undefined && <p className="miaixz-list-title">{title}</p>}
+          {description !== undefined && <p className="miaixz-list-description">{description}</p>}
+        </div>
+      ) : (
+        content
+      )}
+      {meta !== undefined && <span className="miaixz-list-meta">{meta}</span>}
+      {actions !== undefined && <span className="miaixz-list-actions">{actions}</span>}
+    </>
+  );
 
   return (
     <li
@@ -65,17 +83,27 @@ function ListEntryView(entry: ListEntry) {
         className,
       )}
     >
-      {icon && <span className="miaixz-list-icon">{icon}</span>}
-      {hasStructuredContent ? (
-        <div className="miaixz-list-content">
-          {title !== undefined && <p className="miaixz-list-title">{title}</p>}
-          {description !== undefined && <p className="miaixz-list-description">{description}</p>}
-        </div>
+      {href !== undefined ? (
+        <a
+          className="miaixz-list-item-control"
+          href={href}
+          aria-disabled={disabled || undefined}
+          tabIndex={disabled ? -1 : undefined}
+        >
+          {rowContent}
+        </a>
+      ) : onAction !== undefined ? (
+        <button
+          className="miaixz-list-item-control"
+          type="button"
+          disabled={disabled}
+          onClick={onAction}
+        >
+          {rowContent}
+        </button>
       ) : (
-        content
+        rowContent
       )}
-      {meta !== undefined && <span className="miaixz-list-meta">{meta}</span>}
-      {actions !== undefined && <span className="miaixz-list-actions">{actions}</span>}
     </li>
   );
 }

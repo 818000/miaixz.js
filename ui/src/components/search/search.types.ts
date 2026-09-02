@@ -1,4 +1,4 @@
-import type { ChangeEventHandler } from "react";
+import type { ChangeEventHandler, ReactNode } from "react";
 
 import type { InputProps } from "../input/index.js";
 
@@ -11,6 +11,16 @@ export interface SearchProps extends Omit<
   InputProps,
   "type" | "startAdornment" | "endAdornment" | "value" | "defaultValue" | "onChange"
 > {
+  /**
+   * Selects the standard field or header-only presentation.
+   *
+   * @defaultValue `"default"`
+   */
+  variant?: "default" | "header";
+  /**
+   * Displays a keyboard shortcut after the editable input area.
+   */
+  shortcut?: ReactNode;
   /**
    * Controls the current search value.
    */

@@ -1,17 +1,15 @@
-import { defineTheme } from "../theme/define.js";
-import { miaixzSharedThemeTokens } from "./shared.js";
+import { defineBuiltInTheme } from "./shared.js";
 
 /**
  * Defines the complete built-in neutral theme.
  *
  * @public
  */
-export const neutralTheme = defineTheme({
+export const neutralTheme = defineBuiltInTheme({
   schemaVersion: 1,
   name: "neutral",
   label: "Neutral",
   version: "1.0.0",
-  tokens: miaixzSharedThemeTokens,
   modes: {
     light: {
       colors: {

@@ -1,17 +1,15 @@
-import { defineTheme } from "../theme/define.js";
-import { miaixzSharedThemeTokens } from "./shared.js";
+import { defineBuiltInTheme } from "./shared.js";
 
 /**
  * Defines the complete built-in high-contrast theme.
  *
  * @public
  */
-export const contrastTheme = defineTheme({
+export const contrastTheme = defineBuiltInTheme({
   schemaVersion: 1,
   name: "contrast",
   label: "Contrast",
   version: "1.0.0",
-  tokens: miaixzSharedThemeTokens,
   modes: {
     light: {
       colors: {

@@ -15,6 +15,8 @@ export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
     description,
     actions,
     footer,
+    surface = "default",
+    bodyLayout = "content",
     raised = false,
     selected = false,
     interactive = false,
@@ -36,10 +38,12 @@ export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
       data-selected={selected || undefined}
       className={classNames(
         "miaixz-panel",
+        `miaixz-panel-body-${bodyLayout}`,
         raised && "miaixz-panel-raised",
         selected && "miaixz-panel-selected",
         interactive && "miaixz-panel-interactive",
         flush && "miaixz-panel-flush",
+        surface === "transparent" && "miaixz-panel-transparent",
         className,
       )}
     >
