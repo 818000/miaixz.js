@@ -12,6 +12,7 @@ import {
 import { miaixzThemeRadiusFields } from "../tokens/radius.js";
 import { miaixzThemeShadowLevels } from "../tokens/shadow.js";
 import { miaixzThemeSurfaceFields, miaixzThemeSurfaceRoles } from "../tokens/surfaces.js";
+import { miaixzThemeFontFamilyFields, miaixzThemeTypographyFields } from "../tokens/typography.js";
 import type { MiaixzResolvedThemeDefinition } from "./theme.types.js";
 import { mergeThemeColors } from "./resolve.js";
 
@@ -39,6 +40,12 @@ export interface MiaixzSerializedThemeApplication {
    * Applied density branch.
    */
   readonly density: MiaixzDensity;
+  /**
+   * Registered composition variants applied as target attributes.
+   */
+  readonly composition: Readonly<
+    Required<import("../tokens/composition.js").MiaixzThemeComposition>
+  >;
   /**
    * Complete scoped runtime CSS text.
    */
@@ -70,10 +77,14 @@ export function serializeThemeApplication(
   for (const token of miaixzThemeColorTokens) {
     declarations.push(`--miaixz-color-${token}: ${colors[token]};`);
   }
-  declarations.push(
-    `--miaixz-font-family-sans: ${theme.tokens.typography.familySans};`,
-    `--miaixz-font-family-mono: ${theme.tokens.typography.familyMono};`,
-  );
+  const familyFields = new Set<string>(miaixzThemeFontFamilyFields);
+  for (const field of miaixzThemeTypographyFields) {
+    const prefix = familyFields.has(field) ? "font-" : "text-";
+    const value = theme.tokens.typography[field];
+    declarations.push(
+      `--miaixz-${prefix}${toKebab(field)}: ${value}${typeof value === "number" ? "px" : ""};`,
+    );
+  }
   for (const field of miaixzThemeRadiusFields) {
     declarations.push(`--miaixz-radius-${toKebab(field)}: ${theme.tokens.radius[field]}px;`);
   }
@@ -92,7 +103,7 @@ export function serializeThemeApplication(
     }
   }
   for (const field of miaixzThemeLayoutGeometryFields) {
-    const unit = field === "readingWidthCh" ? "ch" : "px";
+    const unit = layoutGeometryUnit(field);
     declarations.push(
       `--miaixz-layout-${toKebab(field)}: ${theme.tokens.geometry.layout[field]}${unit};`,
     );
@@ -124,8 +135,21 @@ export function serializeThemeApplication(
     colorMode,
     colorPreference,
     density,
+    composition: theme.tokens.composition,
     cssText,
   });
+}
+
+/**
+ * Resolves the documented CSS unit for one layout geometry field.
+ *
+ * @param field - Layout geometry field.
+ * @returns CSS unit suffix.
+ */
+function layoutGeometryUnit(field: (typeof miaixzThemeLayoutGeometryFields)[number]): string {
+  if (field === "readingWidthCh") return "ch";
+  if (field === "entryAsidePercent" || field === "appearanceBlockPositionPercent") return "%";
+  return "px";
 }
 
 /**

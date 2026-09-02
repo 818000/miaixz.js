@@ -18,6 +18,12 @@ export interface NavigationProps extends HTMLAttributes<HTMLElement> {
    */
   items?: readonly NavigationEntry[];
   /**
+   * Selects the standard navigation or compact rail presentation.
+   *
+   * @defaultValue `"default"`
+   */
+  variant?: "default" | "rail";
+  /**
    * Selects the navigation flow direction.
    *
    * @defaultValue `"vertical"`

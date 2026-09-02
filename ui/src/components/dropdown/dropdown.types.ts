@@ -81,6 +81,10 @@ export type DropdownEntry =
  */
 export interface DropdownProps extends Omit<PopoverProps, "contentClassName"> {
   /**
+   * Adds a class to the rendered dropdown surface.
+   */
+  contentClassName?: string;
+  /**
    * Provides the menu's accessible name.
    */
   label?: string;

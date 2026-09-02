@@ -86,6 +86,26 @@ export interface MiaixzThemeLayoutGeometry {
    * Reading width measured in characters.
    */
   readonly readingWidthCh?: number;
+  /**
+   * Mobile navigation block size in pixels.
+   */
+  readonly mobileNavigationHeight?: number;
+  /**
+   * Entry aside inline proportion in percent.
+   */
+  readonly entryAsidePercent?: number;
+  /**
+   * Appearance trigger size in pixels.
+   */
+  readonly appearanceTriggerSize?: number;
+  /**
+   * Compact appearance trigger size in pixels.
+   */
+  readonly appearanceTriggerCompactSize?: number;
+  /**
+   * Default appearance trigger block position in percent.
+   */
+  readonly appearanceBlockPositionPercent?: number;
 }
 
 /**
@@ -151,7 +171,27 @@ export const miaixzThemeLayoutGeometryFields = [
   "popoverMaxWidth",
   "cardMinWidth",
   "readingWidthCh",
+  "mobileNavigationHeight",
+  "entryAsidePercent",
+  "appearanceTriggerSize",
+  "appearanceTriggerCompactSize",
+  "appearanceBlockPositionPercent",
 ] as const;
+
+/**
+ * Defines defaults for layout fields introduced after the initial theme schema.
+ *
+ * Existing schema-version-one themes receive these values during resolution.
+ *
+ * @public
+ */
+export const miaixzThemeLayoutGeometryDefaults = Object.freeze({
+  mobileNavigationHeight: 58,
+  entryAsidePercent: 55,
+  appearanceTriggerSize: 52,
+  appearanceTriggerCompactSize: 48,
+  appearanceBlockPositionPercent: 33.3333,
+});
 
 /**
  * Defines density geometry value ranges in pixels.
@@ -185,4 +225,9 @@ export const miaixzThemeLayoutGeometryRanges = Object.freeze({
   popoverMaxWidth: Object.freeze({ min: 240, max: 600, unit: "px" }),
   cardMinWidth: Object.freeze({ min: 200, max: 480, unit: "px" }),
   readingWidthCh: Object.freeze({ min: 40, max: 100, unit: "ch" }),
+  mobileNavigationHeight: Object.freeze({ min: 48, max: 96, unit: "px" }),
+  entryAsidePercent: Object.freeze({ min: 35, max: 70, unit: "%" }),
+  appearanceTriggerSize: Object.freeze({ min: 40, max: 72, unit: "px" }),
+  appearanceTriggerCompactSize: Object.freeze({ min: 40, max: 64, unit: "px" }),
+  appearanceBlockPositionPercent: Object.freeze({ min: 10, max: 90, unit: "%" }),
 });

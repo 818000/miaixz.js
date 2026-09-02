@@ -1,4 +1,6 @@
 import type { MiaixzThemeTokens } from "../theme/theme.types.js";
+import { defineTheme } from "../theme/define.js";
+import type { MiaixzThemeDefinition } from "../theme/theme.types.js";
 
 /**
  * Defines the non-color baseline shared by the three built-in themes.
@@ -9,10 +11,27 @@ import type { MiaixzThemeTokens } from "../theme/theme.types.js";
  * @internal
  */
 export const miaixzSharedThemeTokens = {
+  composition: {
+    entry: "split",
+    shell: "rail",
+    panel: "outlined",
+  },
   typography: {
     familySans:
       '"Avenir Next", "PingFang SC", "Noto Sans CJK SC", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", system-ui, sans-serif',
     familyMono: '"SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace',
+    captionSize: 12,
+    captionLineHeight: 18,
+    bodySize: 14,
+    bodyLineHeight: 22,
+    sectionTitleSize: 16,
+    sectionTitleLineHeight: 24,
+    pageTitleSize: 20,
+    pageTitleLineHeight: 28,
+    metricSize: 24,
+    metricLineHeight: 32,
+    displaySize: 32,
+    displayLineHeight: 40,
   },
   radius: { control: 4, panel: 4, dialog: 8 },
   shadow: {
@@ -50,9 +69,9 @@ export const miaixzSharedThemeTokens = {
       sectionGap: 32,
     },
     layout: {
-      headerHeight: 56,
+      headerHeight: 65,
       sidebarWidth: 240,
-      sidebarCompactWidth: 64,
+      sidebarCompactWidth: 65,
       pageMaxWidth: 1440,
       pageGutterMin: 16,
       pageGutterMax: 32,
@@ -61,6 +80,11 @@ export const miaixzSharedThemeTokens = {
       popoverMaxWidth: 360,
       cardMinWidth: 280,
       readingWidthCh: 72,
+      mobileNavigationHeight: 58,
+      entryAsidePercent: 55,
+      appearanceTriggerSize: 52,
+      appearanceTriggerCompactSize: 48,
+      appearanceBlockPositionPercent: 33.3333,
     },
   },
   surfaces: {
@@ -85,3 +109,16 @@ export const miaixzSharedThemeTokens = {
     },
   },
 } as const satisfies MiaixzThemeTokens;
+
+/**
+ * Defines one built-in theme while keeping non-color tokens in this shared module.
+ *
+ * @param definition - Built-in identity and light/dark color layers.
+ * @returns Validated immutable built-in theme.
+ * @internal
+ */
+export function defineBuiltInTheme(
+  definition: Omit<MiaixzThemeDefinition, "tokens">,
+): Readonly<MiaixzThemeDefinition> {
+  return defineTheme({ ...definition, tokens: miaixzSharedThemeTokens });
+}

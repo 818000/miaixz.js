@@ -9,7 +9,7 @@ import type { StatusProps } from "./status.types.js";
  * @public
  */
 export const Status = forwardRef<HTMLSpanElement, StatusProps>(function Status(
-  { tone, label, className, ...props },
+  { tone, label, size = "medium", className, ...props },
   ref,
 ) {
   return (
@@ -17,7 +17,12 @@ export const Status = forwardRef<HTMLSpanElement, StatusProps>(function Status(
       {...props}
       ref={ref}
       data-tone={tone}
-      className={classNames("miaixz-status", `miaixz-status-${tone}`, className)}
+      className={classNames(
+        "miaixz-status",
+        `miaixz-status-${tone}`,
+        `miaixz-status-size-${size}`,
+        className,
+      )}
     >
       <span className="miaixz-status-marker" aria-hidden="true" />
       <span className="miaixz-status-label">{label}</span>

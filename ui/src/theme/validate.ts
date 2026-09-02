@@ -1,5 +1,10 @@
 import { miaixzThemeColorTokens, type MiaixzThemeColorToken } from "../tokens/colors.js";
 import {
+  miaixzThemeCompositionFields,
+  miaixzThemeCompositionValues,
+  type MiaixzThemeComposition,
+} from "../tokens/composition.js";
+import {
   miaixzDensities,
   miaixzThemeDensityGeometryFields,
   miaixzThemeDensityGeometryRanges,
@@ -13,7 +18,11 @@ import {
   miaixzThemeShadowRanges,
 } from "../tokens/shadow.js";
 import { miaixzThemeSurfaceFields, miaixzThemeSurfaceRoles } from "../tokens/surfaces.js";
-import { miaixzThemeFontFamilyLength, miaixzThemeTypographyFields } from "../tokens/typography.js";
+import {
+  miaixzThemeFontFamilyFields,
+  miaixzThemeFontFamilyLength,
+  miaixzThemeTypographyFields,
+} from "../tokens/typography.js";
 import { MiaixzThemeError } from "./errors.js";
 import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./theme.types.js";
 
@@ -26,7 +35,14 @@ const themeKeys = new Set([
   "tokens",
   "modes",
 ]);
-const tokenGroupKeys = new Set(["typography", "radius", "shadow", "geometry", "surfaces"]);
+const tokenGroupKeys = new Set([
+  "composition",
+  "typography",
+  "radius",
+  "shadow",
+  "geometry",
+  "surfaces",
+]);
 const modeKeys = new Set(["light", "dark"]);
 const themeModeKeys = new Set(["colors"]);
 const geometryKeys = new Set([...miaixzDensities, "layout"]);
@@ -127,6 +143,12 @@ export function validateResolvedTheme(
     }
   }
   assertCompleteObject(
+    theme.tokens.composition,
+    miaixzThemeCompositionFields,
+    "tokens.composition",
+    theme.name,
+  );
+  assertCompleteObject(
     theme.tokens.typography,
     miaixzThemeTypographyFields,
     "tokens.typography",
@@ -201,6 +223,9 @@ function parseTokens(value: unknown, theme: string) {
   const record = readRecord(value, "tokens", theme);
   assertOnlyKeys(record, tokenGroupKeys, "tokens", theme);
   return {
+    ...(record.composition === undefined
+      ? {}
+      : { composition: parseComposition(record.composition, theme) }),
     ...(record.typography === undefined
       ? {}
       : { typography: parseTypography(record.typography, theme) }),
@@ -209,6 +234,29 @@ function parseTokens(value: unknown, theme: string) {
     ...(record.geometry === undefined ? {} : { geometry: parseGeometry(record.geometry, theme) }),
     ...(record.surfaces === undefined ? {} : { surfaces: parseSurfaces(record.surfaces, theme) }),
   };
+}
+
+/**
+ * Parses registered component composition variants.
+ *
+ * @param value - Untrusted composition value.
+ * @param theme - Related theme identifier.
+ * @returns Frozen normalized composition overrides.
+ */
+function parseComposition(value: unknown, theme: string): MiaixzThemeComposition {
+  const record = readRecord(value, "tokens.composition", theme);
+  assertOnlyKeys(record, new Set(miaixzThemeCompositionFields), "tokens.composition", theme);
+  const result: Partial<Record<(typeof miaixzThemeCompositionFields)[number], string>> = {};
+  for (const field of miaixzThemeCompositionFields) {
+    const token = record[field];
+    if (token === undefined) continue;
+    const values = miaixzThemeCompositionValues[field] as readonly unknown[];
+    if (typeof token !== "string" || !values.includes(token)) {
+      invalid(`tokens.composition.${field}`, theme);
+    }
+    result[field] = token;
+  }
+  return result as MiaixzThemeComposition;
 }
 
 /**
@@ -261,19 +309,27 @@ function parseColors(value: unknown, path: string, theme: string) {
 function parseTypography(value: unknown, theme: string) {
   const record = readRecord(value, "tokens.typography", theme);
   assertOnlyKeys(record, new Set(miaixzThemeTypographyFields), "tokens.typography", theme);
-  const result: Record<string, string> = {};
+  const familyFields = new Set<string>(miaixzThemeFontFamilyFields);
+  const result: Record<string, string | number> = {};
   for (const field of miaixzThemeTypographyFields) {
-    const font = record[field];
-    if (font === undefined) continue;
-    if (
-      typeof font !== "string" ||
-      [...font].length < miaixzThemeFontFamilyLength.min ||
-      [...font].length > miaixzThemeFontFamilyLength.max ||
-      forbiddenFontPattern.test(font)
-    ) {
+    const token = record[field];
+    if (token === undefined) continue;
+    if (familyFields.has(field)) {
+      if (
+        typeof token !== "string" ||
+        [...token].length < miaixzThemeFontFamilyLength.min ||
+        [...token].length > miaixzThemeFontFamilyLength.max ||
+        forbiddenFontPattern.test(token)
+      ) {
+        invalid(`tokens.typography.${field}`, theme);
+      }
+      result[field] = token;
+      continue;
+    }
+    if (typeof token !== "number" || !Number.isFinite(token) || token <= 0) {
       invalid(`tokens.typography.${field}`, theme);
     }
-    result[field] = font;
+    result[field] = token;
   }
   return result;
 }

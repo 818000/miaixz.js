@@ -78,17 +78,23 @@
 }
 
 .miaixz-button-label {
+  flex: var(--miaixz-slot-button-label-flex-b0588e, revert);
+  width: var(--miaixz-slot-button-label-width-9982c4, revert);
   min-width: 0;
-  overflow: hidden;
+  overflow: var(--miaixz-slot-button-label-overflow-79447a, hidden);
   text-overflow: ellipsis;
+  text-align: var(--miaixz-slot-button-label-text-align-9d5c42, revert);
   white-space: nowrap;
 }
 
 .miaixz-button-icon {
-  display: inline-flex;
-  flex: none;
+  display: var(--miaixz-slot-button-icon-display-945c29, inline-flex);
+  flex: var(--miaixz-slot-button-icon-flex-3c993f, none);
+  place-items: var(--miaixz-slot-button-icon-place-items-667f87, revert);
   align-items: center;
   justify-content: center;
+  width: var(--miaixz-slot-button-icon-width-d6e392, revert);
+  height: var(--miaixz-slot-button-icon-height-912a4d, revert);
 }
 
 .miaixz-button-icon > svg {

@@ -7,10 +7,13 @@ const themeAttributes = [
   "data-miaixz-color-mode",
   "data-miaixz-color-preference",
   "data-miaixz-density",
+  "data-miaixz-entry",
+  "data-miaixz-shell",
+  "data-miaixz-panel",
 ] as const;
 
 /**
- * Atomically replaces one runtime style snapshot and its five target attributes.
+ * Atomically replaces one runtime style snapshot and its eight target attributes.
  *
  * @param target - Document root or local theme wrapper.
  * @param style - React-owned runtime style element.
@@ -33,6 +36,9 @@ export function applyTheme(
     ["data-miaixz-color-mode", application.colorMode],
     ["data-miaixz-color-preference", application.colorPreference],
     ["data-miaixz-density", application.density],
+    ["data-miaixz-entry", application.composition.entry],
+    ["data-miaixz-shell", application.composition.shell],
+    ["data-miaixz-panel", application.composition.panel],
   ]);
   try {
     style.textContent = application.cssText;

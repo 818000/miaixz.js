@@ -18,6 +18,7 @@
   height: 100%;
   padding: 0;
   font: inherit;
+  font-size: inherit;
   line-height: inherit;
   color: inherit;
   outline: 0;
@@ -46,6 +47,10 @@
   align-items: center;
   justify-content: center;
   color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-input-adornment:first-child {
+  width: auto;
 }
 
 .miaixz-input-adornment > svg {

@@ -1,11 +1,15 @@
 import type { HTMLAttributes } from "react";
 
+import type { MiaixzVisualTone } from "../shared.types.js";
+
 /**
  * Defines properties owned by the Miaixz Progress contract.
  *
  * @public
  */
 export interface MiaixzProgressOwnProps {
+  /** Selects the default or thin track geometry. */
+  readonly size?: "default" | "thin";
   /**
    * Supplies the current value, or leaves progress indeterminate when omitted.
    */
@@ -29,6 +33,13 @@ export interface MiaixzProgressOwnProps {
    * @defaultValue `false`
    */
   readonly showValue?: boolean;
+
+  /**
+   * Selects a theme-resolved semantic or categorical visual tone.
+   *
+   * @defaultValue `"brand"`
+   */
+  readonly tone?: MiaixzVisualTone;
 }
 
 /**
@@ -38,5 +49,5 @@ export interface MiaixzProgressOwnProps {
  */
 export interface ProgressProps
   extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzProgressOwnProps>,
+    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzProgressOwnProps | "color">,
     MiaixzProgressOwnProps {}

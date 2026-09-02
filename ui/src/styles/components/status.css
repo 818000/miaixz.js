@@ -16,6 +16,19 @@
   color: var(--miaixz-color-text-secondary);
 }
 
+.miaixz-metric-trend > .miaixz-status {
+  position: var(--miaixz-slot-status-position-d67dc5, revert);
+  inset-block-end: var(--miaixz-slot-status-inset-block-end-20dc51, revert);
+  inset-inline-end: var(--miaixz-slot-status-inset-inline-end-a47202, revert);
+  z-index: var(--miaixz-slot-status-z-index-bf4f24, revert);
+  padding: var(--miaixz-slot-status-padding-0dbe54, revert);
+  font-size: var(--miaixz-slot-status-font-size-5e56a2, var(--miaixz-text-body-size));
+  font-weight: var(--miaixz-slot-status-font-weight-c979cb, inherit);
+  line-height: var(--miaixz-slot-status-line-height-d0ea39, var(--miaixz-text-body-line-height));
+  background: var(--miaixz-slot-status-background-6cccc2, revert);
+  border-radius: var(--miaixz-slot-status-border-radius-6ff9e4, revert);
+}
+
 .miaixz-status-marker {
   flex: none;
   width: var(--miaixz-status-marker-size);
@@ -29,6 +42,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.miaixz-panel-body .miaixz-status-label {
+  font-size: var(--miaixz-slot-status-label-font-size-8e3d1c, inherit);
 }
 
 .miaixz-status-info .miaixz-status-marker {

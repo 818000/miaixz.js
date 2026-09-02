@@ -8,6 +8,8 @@ import type { MiaixzFeedbackTone } from "../shared.types.js";
  * @public
  */
 export interface MiaixzStatusOwnProps {
+  /** Selects the semantic text and marker size. */
+  readonly size?: "small" | "medium";
   /**
    * Selects the required semantic status tone.
    */

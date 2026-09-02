@@ -6,6 +6,14 @@ import type { HTMLAttributes, ReactNode } from "react";
  * @public
  */
 export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+  /** Selects whether the body grows to fill the panel. */
+  bodyLayout?: "content" | "fill";
+  /**
+   * Selects the filled panel surface or a transparent background.
+   *
+   * @defaultValue `"default"`
+   */
+  surface?: "default" | "transparent";
   /**
    * Supplies consistently spaced panel sections.
    */

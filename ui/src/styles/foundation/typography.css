@@ -50,30 +50,24 @@
      * metric: dashboard values and prominent statistics
      * display: login and other exceptional display headings
      */
-  --miaixz-text-caption-size: var(--miaixz-font-size-12);
-  --miaixz-text-body-size: var(--miaixz-font-size-14);
-  --miaixz-text-section-title-size: var(--miaixz-font-size-16);
-  --miaixz-text-page-title-size: var(--miaixz-font-size-20);
-  --miaixz-text-metric-size: var(--miaixz-font-size-24);
-  --miaixz-text-display-size: var(--miaixz-font-size-32);
-  --miaixz-text-label-size: var(--miaixz-font-size-14);
-  --miaixz-text-table-header-size: var(--miaixz-font-size-12);
-  --miaixz-text-caption-line-height: var(--miaixz-line-height-18);
-  --miaixz-text-body-line-height: var(--miaixz-line-height-22);
-  --miaixz-text-section-title-line-height: var(--miaixz-line-height-24);
-  --miaixz-text-page-title-line-height: var(--miaixz-line-height-28);
-  --miaixz-text-metric-line-height: var(--miaixz-line-height-32);
-  --miaixz-text-display-line-height: var(--miaixz-line-height-40);
-  --miaixz-text-label-line-height: var(--miaixz-line-height-22);
-  --miaixz-text-table-header-line-height: var(--miaixz-line-height-18);
+  --miaixz-text-label-size: var(--miaixz-text-body-size, var(--miaixz-font-size-14));
+  --miaixz-text-table-header-size: var(--miaixz-text-caption-size, var(--miaixz-font-size-12));
+  --miaixz-text-label-line-height: var(
+    --miaixz-text-body-line-height,
+    var(--miaixz-line-height-22)
+  );
+  --miaixz-text-table-header-line-height: var(
+    --miaixz-text-caption-line-height,
+    var(--miaixz-line-height-18)
+  );
 
   /* Console/application roles. Feature modules consume these aliases instead
    * of maintaining private type scales. */
-  --miaixz-console-title-size: var(--miaixz-text-page-title-size);
-  --miaixz-console-section-size: var(--miaixz-text-section-title-size);
-  --miaixz-console-body-size: var(--miaixz-text-body-size);
-  --miaixz-console-meta-size: var(--miaixz-text-caption-size);
-  --miaixz-console-metric-size: var(--miaixz-text-metric-size);
+  --miaixz-console-title-size: var(--miaixz-text-page-title-size, var(--miaixz-font-size-20));
+  --miaixz-console-section-size: var(--miaixz-text-section-title-size, var(--miaixz-font-size-16));
+  --miaixz-console-body-size: var(--miaixz-text-body-size, var(--miaixz-font-size-14));
+  --miaixz-console-meta-size: var(--miaixz-text-caption-size, var(--miaixz-font-size-12));
+  --miaixz-console-metric-size: var(--miaixz-text-metric-size, var(--miaixz-font-size-24));
 
   /* Compatibility aliases for modules authored before the console roles
    * were promoted into the component library. */
@@ -89,9 +83,9 @@
   --miaixz-letter-spacing-normal: 0;
 
   font-family: var(--miaixz-font-family-sans);
-  font-size: var(--miaixz-text-body-size);
+  font-size: var(--miaixz-text-body-size, var(--miaixz-font-size-14));
   font-weight: var(--miaixz-font-weight-regular);
-  line-height: var(--miaixz-text-body-line-height);
+  line-height: var(--miaixz-text-body-line-height, var(--miaixz-line-height-22));
   letter-spacing: var(--miaixz-letter-spacing-normal);
 }
 

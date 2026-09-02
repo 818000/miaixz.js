@@ -25,6 +25,11 @@
   box-shadow: var(--miaixz-shadow-medium);
 }
 
+.miaixz-panel-transparent {
+  background-color: transparent;
+  background-image: none;
+}
+
 .miaixz-panel-selected {
   border-color: var(--miaixz-surface-role-selected-border);
   box-shadow: 0 0 0 var(--miaixz-border-width-default) var(--miaixz-color-brand);
@@ -81,8 +86,10 @@
 
 .miaixz-panel-body {
   display: flex;
+  flex: var(--miaixz-slot-panel-body-flex-305de8, revert);
   flex-direction: column;
   gap: var(--miaixz-panel-gap);
+  min-height: var(--miaixz-slot-panel-body-min-height-321379, revert);
 }
 
 .miaixz-panel-footer {

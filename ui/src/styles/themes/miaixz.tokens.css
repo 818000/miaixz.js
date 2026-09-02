@@ -48,6 +48,18 @@
     "Avenir Next", "PingFang SC", "Noto Sans CJK SC", -apple-system, BlinkMacSystemFont,
     "Microsoft YaHei", system-ui, sans-serif;
   --miaixz-font-family-mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --miaixz-text-caption-size: 12px;
+  --miaixz-text-caption-line-height: 18px;
+  --miaixz-text-body-size: 14px;
+  --miaixz-text-body-line-height: 22px;
+  --miaixz-text-section-title-size: 16px;
+  --miaixz-text-section-title-line-height: 24px;
+  --miaixz-text-page-title-size: 20px;
+  --miaixz-text-page-title-line-height: 28px;
+  --miaixz-text-metric-size: 24px;
+  --miaixz-text-metric-line-height: 32px;
+  --miaixz-text-display-size: 32px;
+  --miaixz-text-display-line-height: 40px;
   --miaixz-radius-control: 4px;
   --miaixz-radius-panel: 4px;
   --miaixz-radius-dialog: 8px;
@@ -76,9 +88,9 @@
   --miaixz-geometry-comfortable-table-row-height: 52px;
   --miaixz-geometry-comfortable-item-height: 48px;
   --miaixz-geometry-comfortable-section-gap: 32px;
-  --miaixz-layout-header-height: 56px;
+  --miaixz-layout-header-height: 65px;
   --miaixz-layout-sidebar-width: 240px;
-  --miaixz-layout-sidebar-compact-width: 64px;
+  --miaixz-layout-sidebar-compact-width: 65px;
   --miaixz-layout-page-max-width: 1440px;
   --miaixz-layout-page-gutter-min: 16px;
   --miaixz-layout-page-gutter-max: 32px;
@@ -87,6 +99,11 @@
   --miaixz-layout-popover-max-width: 360px;
   --miaixz-layout-card-min-width: 280px;
   --miaixz-layout-reading-width-ch: 72ch;
+  --miaixz-layout-mobile-navigation-height: 58px;
+  --miaixz-layout-entry-aside-percent: 55%;
+  --miaixz-layout-appearance-trigger-size: 52px;
+  --miaixz-layout-appearance-trigger-compact-size: 48px;
+  --miaixz-layout-appearance-block-position-percent: 33.3333%;
   --miaixz-surface-role-page-background: var(--miaixz-color-background);
   --miaixz-surface-role-page-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-page-border: var(--miaixz-color-border);
@@ -158,6 +175,18 @@
     "Avenir Next", "PingFang SC", "Noto Sans CJK SC", -apple-system, BlinkMacSystemFont,
     "Microsoft YaHei", system-ui, sans-serif;
   --miaixz-font-family-mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --miaixz-text-caption-size: 12px;
+  --miaixz-text-caption-line-height: 18px;
+  --miaixz-text-body-size: 14px;
+  --miaixz-text-body-line-height: 22px;
+  --miaixz-text-section-title-size: 16px;
+  --miaixz-text-section-title-line-height: 24px;
+  --miaixz-text-page-title-size: 20px;
+  --miaixz-text-page-title-line-height: 28px;
+  --miaixz-text-metric-size: 24px;
+  --miaixz-text-metric-line-height: 32px;
+  --miaixz-text-display-size: 32px;
+  --miaixz-text-display-line-height: 40px;
   --miaixz-radius-control: 4px;
   --miaixz-radius-panel: 4px;
   --miaixz-radius-dialog: 8px;
@@ -186,9 +215,9 @@
   --miaixz-geometry-comfortable-table-row-height: 52px;
   --miaixz-geometry-comfortable-item-height: 48px;
   --miaixz-geometry-comfortable-section-gap: 32px;
-  --miaixz-layout-header-height: 56px;
+  --miaixz-layout-header-height: 65px;
   --miaixz-layout-sidebar-width: 240px;
-  --miaixz-layout-sidebar-compact-width: 64px;
+  --miaixz-layout-sidebar-compact-width: 65px;
   --miaixz-layout-page-max-width: 1440px;
   --miaixz-layout-page-gutter-min: 16px;
   --miaixz-layout-page-gutter-max: 32px;
@@ -197,6 +226,11 @@
   --miaixz-layout-popover-max-width: 360px;
   --miaixz-layout-card-min-width: 280px;
   --miaixz-layout-reading-width-ch: 72ch;
+  --miaixz-layout-mobile-navigation-height: 58px;
+  --miaixz-layout-entry-aside-percent: 55%;
+  --miaixz-layout-appearance-trigger-size: 52px;
+  --miaixz-layout-appearance-trigger-compact-size: 48px;
+  --miaixz-layout-appearance-block-position-percent: 33.3333%;
   --miaixz-surface-role-page-background: var(--miaixz-color-background);
   --miaixz-surface-role-page-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-page-border: var(--miaixz-color-border);

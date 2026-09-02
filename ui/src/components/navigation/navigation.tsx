@@ -10,7 +10,7 @@ import type { NavigationEntry, NavigationProps } from "./navigation.types.js";
  * @public
  */
 export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navigation(
-  { items, orientation = "vertical", label, className, children, ...props },
+  { items, variant = "default", orientation = "vertical", label, className, children, ...props },
   ref,
 ) {
   return (
@@ -18,7 +18,13 @@ export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navi
       {...props}
       ref={ref}
       aria-label={label}
-      className={classNames("miaixz-navigation", `miaixz-navigation-${orientation}`, className)}
+      data-variant={variant}
+      className={classNames(
+        "miaixz-navigation",
+        `miaixz-navigation-${orientation}`,
+        variant === "rail" && "miaixz-navigation-rail",
+        className,
+      )}
     >
       {items?.map((item, index) => (
         <NavigationEntryView key={`${item.href ?? "action"}-${index}`} {...item} />
