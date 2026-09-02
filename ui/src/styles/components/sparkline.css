@@ -1,0 +1,176 @@
+/**
+ * Miaixz sparkline component
+ */
+
+[data-miaixz-theme] {
+  --miaixz-sparkline-height: var(--miaixz-space-32);
+}
+
+.miaixz-sparkline {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-brand)
+  );
+
+  display: block;
+  width: var(--miaixz-slot-sparkline-width-cb8fec, 100%);
+  height: var(--miaixz-slot-sparkline-height-c8b62b, var(--miaixz-sparkline-height));
+  overflow: visible;
+  transform: var(--miaixz-slot-sparkline-transform-bf8030, revert);
+}
+
+.miaixz-sparkline-baseline {
+  stroke: var(--miaixz-color-border);
+  stroke-width: var(--miaixz-border-width-default);
+  vector-effect: non-scaling-stroke;
+  transform: var(--miaixz-slot-sparkline-baseline-transform-9393e7, revert);
+}
+
+.miaixz-sparkline-line {
+  fill: none;
+  stroke: var(--miaixz-sparkline-tone);
+  stroke-width: var(--miaixz-slot-sparkline-line-stroke-width-9bea8f, var(--miaixz-border-width-2));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transform: var(--miaixz-slot-sparkline-line-transform-2c7b8a, revert);
+  transform-origin: var(--miaixz-slot-sparkline-line-transform-origin-963627, revert);
+  animation: none;
+  vector-effect: var(--miaixz-slot-sparkline-line-vector-effect-56a74d, non-scaling-stroke);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .miaixz-sparkline[data-motion-state="enter"] .miaixz-sparkline-line {
+    animation: miaixz-sparkline-draw calc(var(--miaixz-duration-slower) * 3)
+      var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-sparkline[data-motion-replay="true"] .miaixz-sparkline-line {
+    animation: miaixz-sparkline-replay calc(var(--miaixz-duration-slower) * 3)
+      var(--miaixz-motion-enter-easing) both;
+  }
+}
+
+.miaixz-sparkline-point {
+  fill: var(--miaixz-sparkline-tone);
+}
+
+.miaixz-sparkline[data-state="empty"] .miaixz-sparkline-baseline {
+  stroke-dasharray: var(--miaixz-space-2) var(--miaixz-space-4);
+}
+
+.miaixz-sparkline-tone-neutral {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-neutral)
+  );
+}
+
+.miaixz-sparkline-tone-info {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-info)
+  );
+}
+
+.miaixz-sparkline-tone-success {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-success)
+  );
+}
+
+.miaixz-sparkline-tone-warning {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-warning)
+  );
+}
+
+.miaixz-sparkline-tone-danger {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-danger)
+  );
+}
+
+.miaixz-sparkline-tone-data-1 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-1)
+  );
+}
+
+.miaixz-sparkline-tone-data-2 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-2)
+  );
+}
+
+.miaixz-sparkline-tone-data-3 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-3)
+  );
+}
+
+.miaixz-sparkline-tone-data-4 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-4)
+  );
+}
+
+.miaixz-sparkline-tone-data-5 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-5)
+  );
+}
+
+.miaixz-sparkline-tone-data-6 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-6)
+  );
+}
+
+.miaixz-sparkline-tone-data-7 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-7)
+  );
+}
+
+.miaixz-sparkline-tone-data-8 {
+  --miaixz-sparkline-tone: var(
+    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
+    var(--miaixz-color-data-8)
+  );
+}
+
+@keyframes miaixz-sparkline-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes miaixz-sparkline-replay {
+  from {
+    opacity: 0.32;
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-sparkline-line {
+    animation: none;
+  }
+}
