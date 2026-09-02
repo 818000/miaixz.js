@@ -21,6 +21,7 @@
      * Primitive font-size scale
      * These are the only literal font-size values allowed in the system.
      */
+  --miaixz-font-size-10: 10px;
   --miaixz-font-size-12: 12px;
   --miaixz-font-size-14: 14px;
   --miaixz-font-size-16: 16px;
@@ -51,6 +52,7 @@
      * display: login and other exceptional display headings
      */
   --miaixz-text-label-size: var(--miaixz-text-body-size, var(--miaixz-font-size-14));
+  --miaixz-text-chart-label-size: var(--miaixz-font-size-10);
   --miaixz-text-table-header-size: var(--miaixz-text-caption-size, var(--miaixz-font-size-12));
   --miaixz-text-label-line-height: var(
     --miaixz-text-body-line-height,

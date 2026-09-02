@@ -39,6 +39,7 @@
   height: 100%;
   background: var(--miaixz-progress-tone-fill);
   border-radius: inherit;
+  transform-origin: left center;
 }
 
 @media (prefers-reduced-motion: no-preference) {

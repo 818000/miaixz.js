@@ -69,6 +69,7 @@
   min-height: var(--miaixz-border-width-2);
   background: var(--miaixz-columns-tone);
   border-radius: var(--miaixz-radius-control) var(--miaixz-radius-control) 0 0;
+  transform-origin: center bottom;
   transition-timing-function: var(--miaixz-motion-interaction-easing);
   transition-duration: var(--miaixz-motion-interaction-duration);
   transition-property: background-color;
@@ -248,9 +249,11 @@
 }
 
 .miaixz-columns-timeline::before {
+  inset-block-start: 10px;
   box-shadow:
-    0 34px 0 var(--miaixz-color-border),
-    0 68px 0 var(--miaixz-color-border);
+    0 28px 0 var(--miaixz-color-border),
+    0 56px 0 var(--miaixz-color-border),
+    0 84px 0 var(--miaixz-color-border);
 }
 
 .miaixz-columns-timeline .miaixz-columns-plot {
@@ -273,7 +276,9 @@
 .miaixz-columns-timeline .miaixz-columns-label {
   inset-block-end: -17px;
   width: var(--miaixz-columns-timeline-label-width);
+  font-size: var(--miaixz-text-chart-label-size);
   line-height: 1.5;
+  color: var(--miaixz-color-text-muted);
 }
 
 .miaixz-columns-cost {

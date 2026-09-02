@@ -51,7 +51,8 @@
   height: var(--miaixz-sparkline-trend-height);
 }
 
-.miaixz-sparkline-grid line {
+.miaixz-sparkline-grid {
+  fill: none;
   stroke: var(--miaixz-color-border);
   stroke-width: var(--miaixz-border-width-default);
   vector-effect: non-scaling-stroke;
