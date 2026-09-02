@@ -307,7 +307,7 @@ export function Theme(props: ThemeProps) {
       try {
         appearance.setTheme(fallback);
       } catch {
-        // The fallback remains visually applied even if persistence is unavailable.
+        /* The fallback remains visually applied even if persistence is unavailable. */
       }
       return;
     }

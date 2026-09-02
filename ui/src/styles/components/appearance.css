@@ -138,6 +138,77 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+.miaixz-appearance-language-view {
+  display: grid;
+  gap: var(--miaixz-space-20);
+}
+
+.miaixz-appearance-language-view > .miaixz-button {
+  justify-self: start;
+}
+
+.miaixz-appearance-locale-summary {
+  display: grid;
+  grid-template-columns: var(--miaixz-density-control-height) minmax(0, 1fr) auto;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--miaixz-density-item-height);
+  padding: var(--miaixz-space-12);
+  font: inherit;
+  color: var(--miaixz-color-text-primary);
+  text-align: start;
+  cursor: pointer;
+  background: transparent;
+  border: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+  transition:
+    background-color var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing),
+    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-appearance-locale-summary:hover {
+  background: var(--miaixz-color-surface-hover);
+  border-color: var(--miaixz-color-border-strong);
+}
+
+.miaixz-appearance-locale-summary:focus-visible {
+  outline: 0;
+  border-color: var(--miaixz-color-focus);
+  box-shadow: var(--miaixz-control-focus-shadow);
+}
+
+.miaixz-appearance-locale-summary-short {
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--miaixz-density-control-height);
+  block-size: var(--miaixz-density-control-height);
+  color: var(--miaixz-color-text-secondary);
+  background: var(--miaixz-surface-role-control-background);
+  border: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-appearance-locale-summary-copy {
+  display: grid;
+  gap: var(--miaixz-space-2);
+  min-inline-size: 0;
+}
+
+.miaixz-appearance-locale-summary-copy > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miaixz-appearance-locale-summary-copy > span:last-child {
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
 .miaixz-choice.miaixz-appearance-option {
   position: relative;
   display: grid;
@@ -374,6 +445,10 @@
   .miaixz-appearance-trigger,
   .miaixz-appearance-trigger > svg,
   .miaixz-appearance-option {
+    transition-duration: var(--miaixz-duration-instant);
+  }
+
+  .miaixz-appearance-locale-summary {
     transition-duration: var(--miaixz-duration-instant);
   }
 }

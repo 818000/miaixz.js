@@ -6,6 +6,7 @@
   --miaixz-avatar-size-small: var(--miaixz-space-24);
   --miaixz-avatar-size-medium: var(--miaixz-space-32);
   --miaixz-avatar-size-large: var(--miaixz-space-40);
+  --miaixz-avatar-size-account: 35px;
 }
 
 .miaixz-avatar {
@@ -14,15 +15,32 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: var(--miaixz-slot-avatar-width-5e9e8e, revert);
-  height: var(--miaixz-slot-avatar-height-1b5701, revert);
   overflow: hidden;
-  font-size: var(--miaixz-slot-avatar-font-size-eddf7a, inherit);
   vertical-align: middle;
   color: var(--miaixz-color-brand-strong);
   background: var(--miaixz-color-brand-soft);
-  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-brand);
   border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-avatar-account {
+  width: var(--miaixz-avatar-size-account);
+  height: var(--miaixz-avatar-size-account);
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-inverse);
+  background: var(--miaixz-color-brand);
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: color, background-color, border-color;
+}
+
+.miaixz-avatar-account:hover,
+.miaixz-popover-trigger-avatar:hover .miaixz-avatar-account,
+.miaixz-popover-trigger-avatar[aria-expanded="true"] .miaixz-avatar-account {
+  color: var(--miaixz-color-text-inverse);
+  background: var(--miaixz-color-brand-hover);
+  border-color: var(--miaixz-color-brand-hover);
 }
 
 .miaixz-avatar-small {

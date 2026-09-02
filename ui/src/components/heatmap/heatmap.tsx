@@ -10,13 +10,26 @@ import type { HeatmapProps } from "./heatmap.types.js";
  * @public
  */
 export const Heatmap = forwardRef<HTMLDivElement, HeatmapProps>(function Heatmap(
-  { rowLabels, columnLabels, levels, tone, density = "default", className, onPointerEnter, "aria-label": ariaLabel, ...props },
+  {
+    rowLabels,
+    columnLabels,
+    levels,
+    tone,
+    density = "default",
+    className,
+    onPointerEnter,
+    onPointerLeave,
+    "aria-label": ariaLabel,
+    ...props
+  },
   forwardedRef,
 ) {
-  const { ref, motionState, handlePointerEnter } = useVisualizationMotion<HTMLDivElement>({
-    forwardedRef,
-    onPointerEnter,
-  });
+  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
+    useVisualizationMotion<HTMLDivElement>({
+      forwardedRef,
+      onPointerEnter,
+      onPointerLeave,
+    });
   if (levels.length !== rowLabels.length) {
     throw new TypeError("Heatmap levels must contain one row for every row label");
   }
@@ -43,6 +56,7 @@ export const Heatmap = forwardRef<HTMLDivElement, HeatmapProps>(function Heatmap
         className,
       )}
       onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       <div className="miaixz-heatmap-viewport" role="region" aria-label={ariaLabel} tabIndex={0}>
         <table className="miaixz-heatmap-table">

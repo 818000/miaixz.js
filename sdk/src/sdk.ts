@@ -26,6 +26,7 @@ import {
   type MiaixzI18n,
   type MiaixzI18nLoadError,
   type MiaixzLocale,
+  type MiaixzLocaleDefinition,
   type MiaixzMessageCatalog,
   type MiaixzMessageLoader,
 } from "./i18n/index.js";
@@ -101,6 +102,11 @@ export interface MiaixzSdkOptions {
    * Optional locale used when a message is unavailable in the active locale.
    */
   readonly fallbackLocale?: MiaixzLocale;
+
+  /**
+   * Optional trusted locale definitions exposed to global language selectors.
+   */
+  readonly locales?: readonly MiaixzLocaleDefinition[];
 
   /**
    * Optional initial project message catalogs.
@@ -292,6 +298,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   const i18n = createMiaixzI18n({
     ...(options.locale === undefined ? {} : { locale: options.locale }),
     ...(options.fallbackLocale === undefined ? {} : { fallbackLocale: options.fallbackLocale }),
+    ...(options.locales === undefined ? {} : { locales: options.locales }),
     ...(options.messages === undefined ? {} : { messages: options.messages }),
     ...(options.loadMessages === undefined ? {} : { loadMessages: options.loadMessages }),
     ...(options.onI18nLoadError === undefined ? {} : { onLoadError: options.onI18nLoadError }),

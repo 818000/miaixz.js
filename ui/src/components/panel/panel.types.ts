@@ -6,8 +6,30 @@ import type { HTMLAttributes, ReactNode } from "react";
  * @public
  */
 export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
-  /** Selects whether the body grows to fill the panel. */
+  /**
+   * Selects whether the body grows to fill the panel.
+   */
   bodyLayout?: "content" | "fill";
+  /**
+   * Selects the body spacing preset.
+   */
+  bodyGap?: "default" | "none";
+  /**
+   * Selects the dashboard body height preset.
+   */
+  bodySize?: "default" | "medium" | "tall";
+  /**
+   * Selects the panel header height preset.
+   */
+  headerSize?: "default" | "compact";
+  /**
+   * Enables narrow-screen horizontal body scrolling.
+   */
+  responsiveBodyScroll?: boolean;
+  /**
+   * Selects a reusable panel composition.
+   */
+  variant?: "dashboard" | "default";
   /**
    * Selects the filled panel surface or a transparent background.
    *

@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to validate. Leave empty to read VERSION.'
+        description: "Version to validate. Leave empty to read VERSION."
         required: false
-        default: ''
+        default: ""
         type: string
   pull_request:
     branches:
@@ -15,10 +15,10 @@ on:
     branches:
       - main
     tags-ignore:
-      - '*'
+      - "*"
 
 env:
-  NODE_VERSION: '24'
+  NODE_VERSION: "24"
 
 permissions:
   contents: read
@@ -39,7 +39,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://registry.npmjs.org/'
+          registry-url: "https://registry.npmjs.org/"
           package-manager-cache: false
 
       - name: Build Project

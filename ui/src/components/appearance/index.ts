@@ -1,2 +1,2 @@
 export { Appearance } from "./appearance.js";
-export type { AppearanceLocaleOption, AppearanceProps } from "./appearance.types.js";
+export type { AppearanceProps } from "./appearance.types.js";

@@ -29,6 +29,10 @@ export interface TabsEntry {
    * Prevents selection of this tab.
    */
   disabled?: boolean;
+  /**
+   * Adds the associated panel to the sequential keyboard focus order.
+   */
+  panelTabIndex?: 0 | -1;
 }
 
 /**

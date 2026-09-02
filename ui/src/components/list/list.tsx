@@ -9,7 +9,17 @@ import type { ListEntry, ListProps } from "./list.types.js";
  * @public
  */
 export const List = forwardRef<HTMLUListElement, ListProps>(function List(
-  { items, bordered = false, plain = false, nested = false, density = "default", className, children, ...props },
+  {
+    items,
+    bordered = false,
+    plain = false,
+    nested = false,
+    density = "default",
+    variant = "default",
+    className,
+    children,
+    ...props
+  },
   ref,
 ) {
   return (
@@ -19,6 +29,7 @@ export const List = forwardRef<HTMLUListElement, ListProps>(function List(
       className={classNames(
         "miaixz-list",
         `miaixz-list-${density}`,
+        `miaixz-list-${variant}`,
         bordered && "miaixz-list-bordered",
         plain && "miaixz-list-plain",
         nested && "miaixz-list-nested",
@@ -52,6 +63,7 @@ function ListEntryView(entry: ListEntry) {
     disabled = false,
     className,
     content,
+    tone,
     ...props
   } = entry;
   const hasStructuredContent = title !== undefined || description !== undefined;
@@ -76,6 +88,7 @@ function ListEntryView(entry: ListEntry) {
     <li
       {...props}
       data-selected={selected || undefined}
+      data-tone={tone}
       aria-disabled={disabled || undefined}
       className={classNames(
         "miaixz-list-item",

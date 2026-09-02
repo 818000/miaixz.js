@@ -116,6 +116,6 @@ function restore(
       else target.setAttribute(attribute, previous);
     }
   } catch {
-    // The originating error or external ownership remains authoritative.
+    /* The originating error or external ownership remains authoritative. */
   }
 }

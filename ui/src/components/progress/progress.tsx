@@ -22,13 +22,26 @@ interface MiaixzProgressStyle extends CSSProperties {
  * @public
  */
 export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progress(
-  { value, max = 100, label, showValue = false, tone = "brand", size = "default", className, onPointerEnter, ...props },
+  {
+    value,
+    max = 100,
+    label,
+    showValue = false,
+    tone = "brand",
+    size = "default",
+    className,
+    onPointerEnter,
+    onPointerLeave,
+    ...props
+  },
   forwardedRef,
 ) {
-  const { ref, motionState, handlePointerEnter } = useVisualizationMotion<HTMLDivElement>({
-    forwardedRef,
-    onPointerEnter,
-  });
+  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
+    useVisualizationMotion<HTMLDivElement>({
+      forwardedRef,
+      onPointerEnter,
+      onPointerLeave,
+    });
   const { t } = useMiaixzLocale();
   if (!Number.isFinite(max) || max <= 0) {
     throw createMiaixzUiError(t, {
@@ -72,6 +85,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
         className,
       )}
       onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       <span className="miaixz-progress-track" aria-hidden="true">
         <span className="miaixz-progress-indicator" style={progressStyle} />

@@ -18,11 +18,7 @@ for (const file of files) {
   for (const match of source.matchAll(/(--miaixz-[a-z0-9-]+)\s*:/g)) definitions.add(match[1]);
   for (const match of source.matchAll(/var\((--miaixz-[a-z0-9-]+)(?:\s*,[^)]*)?\)/g)) {
     uses.push({ fileName, source, index: match.index, property: match[1] });
-    if (
-      match[0].includes(",") &&
-      !isAllowedTypographyFallback(fileName, match[0]) &&
-      !isAllowedComponentSlotFallback(match[0])
-    )
+    if (match[0].includes(",") && !isAllowedTypographyFallback(fileName, match[0]))
       addFinding(fileName, source, match.index, "THEME_VAR_FALLBACK", match[0]);
   }
   if (!isReset) {
@@ -36,7 +32,12 @@ for (const file of files) {
       /(?:^|[;{]\s*)[a-z-]+\s*:\s*(?:white|black)(?=\s*[;}])/gim,
       "THEME_NAMED_COLOR",
     );
-    inspect(fileName, source, /(?:miaixz|neutral|contrast)(?=["'\]])/g, "THEME_COMPONENT_BRANCH");
+    inspect(
+      fileName,
+      source,
+      /data-miaixz-theme\s*=\s*["'](?:miaixz|neutral|contrast)["']/g,
+      "THEME_COMPONENT_BRANCH",
+    );
     inspect(
       fileName,
       source,
@@ -66,7 +67,7 @@ for (const directory of [stylesDirectory, resolve(packageDirectory, "dist/styles
 }
 
 for (const use of uses) {
-  if (!definitions.has(use.property) && !use.property.startsWith("--miaixz-slot-")) {
+  if (!definitions.has(use.property)) {
     addFinding(use.fileName, use.source, use.index, "THEME_VARIABLE_UNKNOWN", use.property);
   }
 }
@@ -98,10 +99,6 @@ function isAllowedTypographyFallback(fileName, value) {
       value,
     )
   );
-}
-
-function isAllowedComponentSlotFallback(value) {
-  return /^var\(--miaixz-slot-[a-z0-9-]+,\s*.+\)$/s.test(value);
 }
 
 function inspect(fileName, source, pattern, code) {

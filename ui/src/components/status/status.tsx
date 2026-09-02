@@ -9,7 +9,7 @@ import type { StatusProps } from "./status.types.js";
  * @public
  */
 export const Status = forwardRef<HTMLSpanElement, StatusProps>(function Status(
-  { tone, label, size = "medium", className, ...props },
+  { tone, label, size = "medium", variant = "default", className, ...props },
   ref,
 ) {
   return (
@@ -21,6 +21,7 @@ export const Status = forwardRef<HTMLSpanElement, StatusProps>(function Status(
         "miaixz-status",
         `miaixz-status-${tone}`,
         `miaixz-status-size-${size}`,
+        `miaixz-status-${variant}`,
         className,
       )}
     >

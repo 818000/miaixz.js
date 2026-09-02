@@ -24,13 +24,26 @@ interface MiaixzDonutSegmentStyle extends CSSProperties {
  * @public
  */
 export const Donut = forwardRef<HTMLDivElement, DonutProps>(function Donut(
-  { segments, center, size = "large", legend = "inline", className, onPointerEnter, "aria-label": ariaLabel, ...props },
+  {
+    segments,
+    center,
+    size = "large",
+    variant = "default",
+    legend = "inline",
+    className,
+    onPointerEnter,
+    onPointerLeave,
+    "aria-label": ariaLabel,
+    ...props
+  },
   forwardedRef,
 ) {
-  const { ref, motionState, handlePointerEnter } = useVisualizationMotion<HTMLDivElement>({
-    forwardedRef,
-    onPointerEnter,
-  });
+  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
+    useVisualizationMotion<HTMLDivElement>({
+      forwardedRef,
+      onPointerEnter,
+      onPointerLeave,
+    });
   if (segments.some(({ value }) => !Number.isFinite(value) || value < 0)) {
     throw new TypeError("Donut segment values must be finite non-negative numbers");
   }
@@ -54,10 +67,12 @@ export const Donut = forwardRef<HTMLDivElement, DonutProps>(function Donut(
       className={classNames(
         "miaixz-donut",
         `miaixz-donut-${size}`,
+        `miaixz-donut-${variant}`,
         legend === "hidden" && "miaixz-donut-legend-hidden",
         className,
       )}
       onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       <span className="miaixz-donut-visual" aria-hidden="true">
         <svg className="miaixz-donut-svg" viewBox="0 0 100 100">

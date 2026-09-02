@@ -9,7 +9,9 @@ interface MetricBaseProps extends Omit<
   HTMLAttributes<HTMLElement>,
   "children" | "color" | "onClick"
 > {
-  /** Selects the standard or compact summary-card composition. */
+  /**
+   * Selects the standard or compact summary-card composition.
+   */
   readonly variant?: "default" | "summary";
   /**
    * Supplies the metric label.

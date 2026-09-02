@@ -190,6 +190,8 @@ const errorMessageKeys: Readonly<Record<string, string>> = Object.freeze({
   EVENT_VALIDATOR_MISSING: "sdk.error.event.validatorMissing",
   FILE_DOWNLOAD_FAILED: "sdk.error.file.downloadFailed",
   I18N_LOAD_FAILED: "sdk.error.i18n.loadFailed",
+  I18N_LOCALE_DEFINITION_INVALID: "sdk.error.i18n.localeDefinitionInvalid",
+  I18N_LOCALE_DUPLICATE: "sdk.error.i18n.localeDuplicate",
   I18N_LOCALE_INVALID: "sdk.error.i18n.localeInvalid",
   I18N_MESSAGES_INVALID: "sdk.error.i18n.messagesInvalid",
   I18N_NAMESPACE_INVALID: "sdk.error.i18n.namespaceInvalid",

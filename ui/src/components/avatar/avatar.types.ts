@@ -28,7 +28,7 @@ export interface MiaixzAvatarOwnProps {
    *
    * @defaultValue `"medium"`
    */
-  readonly size?: MiaixzComponentSize | "fill";
+  readonly size?: MiaixzComponentSize | "account" | "fill";
 }
 
 /**

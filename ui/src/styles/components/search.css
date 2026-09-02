@@ -1,3 +1,11 @@
+[data-miaixz-theme] {
+  --miaixz-search-header-padding-inline: 10px;
+  --miaixz-search-adornment-width: 20px;
+  --miaixz-search-shortcut-padding-block: 3px;
+  --miaixz-search-shortcut-padding-inline: 6px;
+  --miaixz-search-shortcut-radius: 5px;
+}
+
 .miaixz-search-header {
   --miaixz-search-header-height: max(
     var(--miaixz-control-height-small),
@@ -8,32 +16,8 @@
   gap: var(--miaixz-space-8);
   block-size: var(--miaixz-search-header-height);
   min-block-size: var(--miaixz-search-header-height);
-  padding-inline: 10px;
+  padding-inline: var(--miaixz-search-header-padding-inline);
   overflow: hidden;
-}
-
-.miaixz-search-header::after {
-  position: absolute;
-  inset-block-end: 0;
-  inset-inline: 0;
-  block-size: 2px;
-  pointer-events: none;
-  content: "";
-  background: var(--miaixz-color-brand);
-  opacity: 0;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition:
-    transform 520ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 100ms ease 420ms;
-}
-
-.miaixz-search-header:focus-within::after {
-  opacity: 1;
-  transform: scaleX(1);
-  transition:
-    transform 420ms cubic-bezier(0.2, 0.72, 0.2, 1),
-    opacity 100ms ease;
 }
 
 .miaixz-search-header .miaixz-input-element {
@@ -42,7 +26,7 @@
 }
 
 .miaixz-search-header .miaixz-input-adornment {
-  inline-size: 20px;
+  inline-size: var(--miaixz-search-adornment-width);
 }
 
 .miaixz-search-end {
@@ -59,26 +43,23 @@
   justify-content: center;
   min-block-size: var(--miaixz-icon-size-control);
   min-height: auto;
-  padding: 3px 6px;
+  padding: var(--miaixz-search-shortcut-padding-block) var(--miaixz-search-shortcut-padding-inline);
   font-size: var(--miaixz-text-caption-size);
   font-weight: var(--miaixz-font-weight-regular);
   line-height: normal;
   color: var(--miaixz-color-text-secondary);
   background: var(--miaixz-color-surface);
   border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
-  border-radius: 5px;
+  border-radius: var(--miaixz-search-shortcut-radius);
 }
 
-@media (width <= 767px) {
+@media (width <= 47.9375rem) {
   .miaixz-search-header .miaixz-search-shortcut {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-search-header::after {
-    transition-delay: 0ms;
-    transition-duration: var(--miaixz-duration-instant);
+    position: absolute;
+    visibility: hidden;
+    inline-size: 0;
+    block-size: 0;
+    overflow: hidden;
   }
 }
 
@@ -92,5 +73,5 @@
 }
 
 input[type="search"].miaixz-input-element::-webkit-search-cancel-button {
-  display: none;
+  appearance: none;
 }

@@ -24,6 +24,23 @@
   border-radius: var(--miaixz-radius-control);
 }
 
+.miaixz-popover-trigger-avatar {
+  display: grid;
+  place-items: center;
+  inline-size: var(--miaixz-avatar-size-account);
+  block-size: var(--miaixz-avatar-size-account);
+  overflow: hidden;
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-popover-trigger-avatar:focus-visible {
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-popover-trigger-avatar > :not(.miaixz-avatar) {
+  display: none;
+}
+
 .miaixz-popover-content {
   position: fixed;
   inset: auto;
