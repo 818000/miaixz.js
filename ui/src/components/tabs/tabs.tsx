@@ -122,7 +122,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
             role="tabpanel"
             aria-labelledby={`${baseId}-tab-${idValue}`}
             hidden={!selected}
-            tabIndex={0}
+            tabIndex={item.panelTabIndex}
             className="miaixz-tab-panel"
           >
             {item.content}

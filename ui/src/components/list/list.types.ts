@@ -1,13 +1,21 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
+import type { MiaixzVisualTone } from "../shared.types.js";
+
 /**
  * Configures a semantic list container.
  *
  * @public
  */
 export interface ListProps extends HTMLAttributes<HTMLUListElement> {
-  /** Selects the standard or compact row density. */
+  /**
+   * Selects the standard or compact row density.
+   */
   density?: "default" | "compact";
+  /**
+   * Selects a reusable row composition.
+   */
+  variant?: "alert" | "default" | "overview";
   /**
    * Supplies structured list entries.
    */
@@ -41,6 +49,10 @@ interface ListEntryBase extends Omit<
   HTMLAttributes<HTMLLIElement>,
   "children" | "content" | "title"
 > {
+  /**
+   * Selects the theme-resolved interaction tone.
+   */
+  tone?: MiaixzVisualTone;
   /**
    * Displays optional leading icon content.
    */

@@ -6,6 +6,17 @@ import { useMergedRef } from "./use-merged-ref.js";
 type VisualizationElement = HTMLElement | SVGSVGElement;
 type VisualizationMotionState = "complete" | "enter" | "pending";
 
+interface VisualizationReplayListeners {
+  /**
+   * Starts replay when the pointer enters the visualization.
+   */
+  readonly enter: EventListener;
+  /**
+   * Stops replay when the pointer leaves the visualization.
+   */
+  readonly leave: EventListener;
+}
+
 interface VisualizationMotionOptions<T extends VisualizationElement> {
   /**
    * Receives the visualization root element.
@@ -15,6 +26,10 @@ interface VisualizationMotionOptions<T extends VisualizationElement> {
    * Preserves a consumer pointer-enter callback.
    */
   readonly onPointerEnter?: PointerEventHandler<T> | undefined;
+  /**
+   * Preserves a consumer pointer-leave callback.
+   */
+  readonly onPointerLeave?: PointerEventHandler<T> | undefined;
   /**
    * Keeps the replay marker alive long enough for the longest owned animation.
    */
@@ -57,24 +72,30 @@ function prefersReducedMotion(): boolean {
 }
 
 /**
- * Keeps one visualization's entry and replay motion alive after a quick pointer pass.
+ * Configures one visualization's entry and hover replay motion.
  *
  * @typeParam T - Visualization root element type.
  * @param options - Ref, pointer callback, and replay lifetime.
  * @param options.forwardedRef - Consumer ref receiving the visualization root.
  * @param options.onPointerEnter - Consumer pointer-enter callback.
+ * @param options.onPointerLeave - Consumer pointer-leave callback.
  * @param options.replayDuration - Replay marker lifetime in milliseconds.
  * @returns Ref and motion bindings for the visualization root.
  */
 export function useVisualizationMotion<T extends VisualizationElement>({
   forwardedRef,
   onPointerEnter,
+  onPointerLeave,
   replayDuration = 2400,
 }: VisualizationMotionOptions<T>): {
   /**
-   * Handles pointer entry and starts a persistent replay.
+   * Handles pointer entry and starts a hover replay.
    */
   readonly handlePointerEnter: PointerEventHandler<T>;
+  /**
+   * Handles pointer exit and stops an active hover replay.
+   */
+  readonly handlePointerLeave: PointerEventHandler<T>;
   /**
    * Reports the current entry lifecycle state.
    */
@@ -158,7 +179,13 @@ export function useVisualizationMotion<T extends VisualizationElement>({
     const element = localRef.current;
     if (!element || prefersReducedMotion()) return;
 
+    if (completionTimerRef.current !== undefined) {
+      window.clearTimeout(completionTimerRef.current);
+      completionTimerRef.current = undefined;
+    }
     if (replayTimerRef.current !== undefined) window.clearTimeout(replayTimerRef.current);
+    element.dataset.motionState = "complete";
+    setMotionState("complete");
     element.removeAttribute("data-motion-replay");
     void element.getBoundingClientRect().width;
     element.setAttribute("data-motion-replay", "true");
@@ -168,6 +195,22 @@ export function useVisualizationMotion<T extends VisualizationElement>({
     }, replayDuration);
   }, [replayDuration]);
 
+  const stopReplay = useCallback(() => {
+    const element = localRef.current;
+    if (!element) return;
+
+    if (completionTimerRef.current !== undefined) {
+      window.clearTimeout(completionTimerRef.current);
+      completionTimerRef.current = undefined;
+    }
+    if (replayTimerRef.current !== undefined) {
+      window.clearTimeout(replayTimerRef.current);
+      replayTimerRef.current = undefined;
+    }
+    element.removeAttribute("data-motion-replay");
+    setMotionState("complete");
+  }, []);
+
   const handlePointerEnter = useCallback<PointerEventHandler<T>>(
     (event) => {
       onPointerEnter?.(event);
@@ -176,14 +219,22 @@ export function useVisualizationMotion<T extends VisualizationElement>({
     [onPointerEnter, replay],
   );
 
-  return { handlePointerEnter, motionState, ref, replay };
+  const handlePointerLeave = useCallback<PointerEventHandler<T>>(
+    (event) => {
+      onPointerLeave?.(event);
+      stopReplay();
+    },
+    [onPointerLeave, stopReplay],
+  );
+
+  return { handlePointerEnter, handlePointerLeave, motionState, ref, replay };
 }
 
 /**
  * Applies the shared entry and replay lifecycle to matching visualization roots.
  *
- * The replay marker survives pointer exit, so a quick pass still completes the
- * entire animation. Consumers own only the selector and visualization styles.
+ * Replay remains active only while the pointer is inside a visualization.
+ * Consumers own only the selector and visualization styles.
  *
  * @typeParam T - Group root element type.
  * @param options - Group selector, optional ref, and replay lifetime.
@@ -209,7 +260,7 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
     const reduced = prefersReducedMotion();
     const completionTimers = new Map<HTMLElement, number>();
     const replayTimers = new Map<HTMLElement, number>();
-    const replayListeners = new Map<HTMLElement, EventListener>();
+    const replayListeners = new Map<HTMLElement, VisualizationReplayListeners>();
 
     const complete = (visualization: HTMLElement) => {
       visualization.dataset.motionState = "complete";
@@ -225,7 +276,12 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
     };
     const replay = (visualization: HTMLElement) => {
       if (reduced) return;
-      if (visualization.dataset.motionState === "pending") enter(visualization);
+      const completionTimer = completionTimers.get(visualization);
+      if (completionTimer !== undefined) {
+        window.clearTimeout(completionTimer);
+        completionTimers.delete(visualization);
+      }
+      visualization.dataset.motionState = "complete";
       const previousTimer = replayTimers.get(visualization);
       if (previousTimer !== undefined) window.clearTimeout(previousTimer);
       visualization.removeAttribute("data-motion-replay");
@@ -239,13 +295,28 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
         }, replayDuration),
       );
     };
-
+    const stopReplay = (visualization: HTMLElement) => {
+      const completionTimer = completionTimers.get(visualization);
+      if (completionTimer !== undefined) {
+        window.clearTimeout(completionTimer);
+        completionTimers.delete(visualization);
+      }
+      const previousTimer = replayTimers.get(visualization);
+      if (previousTimer !== undefined) {
+        window.clearTimeout(previousTimer);
+        replayTimers.delete(visualization);
+      }
+      visualization.removeAttribute("data-motion-replay");
+      visualization.dataset.motionState = "complete";
+    };
     visualizations.forEach((visualization) => {
       visualization.dataset.motionState = reduced ? "complete" : "pending";
       if (reduced) return;
-      const listener: EventListener = () => replay(visualization);
-      visualization.addEventListener("pointerenter", listener);
-      replayListeners.set(visualization, listener);
+      const enterListener: EventListener = () => replay(visualization);
+      const leaveListener: EventListener = () => stopReplay(visualization);
+      visualization.addEventListener("pointerenter", enterListener);
+      visualization.addEventListener("pointerleave", leaveListener);
+      replayListeners.set(visualization, { enter: enterListener, leave: leaveListener });
     });
 
     let observer: IntersectionObserver | undefined;
@@ -283,9 +354,10 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
       window.removeEventListener("resize", activateVisibleVisualizations);
       window.removeEventListener("scroll", activateVisibleVisualizations, true);
       completionTimers.forEach((timer) => window.clearTimeout(timer));
-      replayListeners.forEach((listener, visualization) =>
-        visualization.removeEventListener("pointerenter", listener),
-      );
+      replayListeners.forEach(({ enter: enterListener, leave: leaveListener }, visualization) => {
+        visualization.removeEventListener("pointerenter", enterListener);
+        visualization.removeEventListener("pointerleave", leaveListener);
+      });
       replayTimers.forEach((timer) => window.clearTimeout(timer));
     };
   }, [replayDuration, selector]);

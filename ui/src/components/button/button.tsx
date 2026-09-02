@@ -51,10 +51,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       )}
     >
       {loading ? (
-        <>
-          <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
-          <span className={iconOnly ? "miaixz-hidden" : undefined}>{resolvedLoadingLabel}</span>
-        </>
+        variant === "refresh" ? (
+          <>
+            <span className="miaixz-button-label">{resolvedLoadingLabel}</span>
+            <span className="miaixz-button-icon">
+              <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
+            </span>
+          </>
+        ) : (
+          <>
+            <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
+            <span className={iconOnly ? "miaixz-hidden" : undefined}>{resolvedLoadingLabel}</span>
+          </>
+        )
       ) : (
         <>
           {startIcon && <span className="miaixz-button-icon">{startIcon}</span>}

@@ -1,9 +1,12 @@
 import type { MiaixzColorMode, MiaixzDensity } from "@miaixz/sdk/appearance";
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
+import { useMiaixzLocale } from "../../i18n/index.js";
 import { useTheme } from "../../theme/index.js";
+import { Button } from "../button/index.js";
 import { Drawer } from "../drawer/index.js";
 import { Icon } from "../icon/index.js";
+import { LocalePicker } from "../locale-picker/index.js";
 import { Radio } from "../radio/index.js";
 import type { AppearanceProps } from "./appearance.types.js";
 
@@ -34,59 +37,15 @@ interface DragState {
   currentTop: number;
 }
 
-const labels = Object.freeze({
-  en: Object.freeze({
-    title: "Appearance",
-    description: "Adjust language and interface appearance",
-    open: "Open appearance settings",
-    close: "Close appearance settings",
-    theme: "Theme",
-    language: "Language",
-    mode: "Display mode",
-    density: "Density",
-    header: "Header behavior",
-    light: "Light",
-    dark: "Dark",
-    system: "Follow system",
-    compact: "Compact",
-    standard: "Standard",
-    comfortable: "Comfortable",
-    fixed: "Fixed",
-    scroll: "Scroll with content",
-  }),
-  zh: Object.freeze({
-    title: "主题与风格",
-    description: "调整界面语言与显示方式",
-    open: "打开外观设置",
-    close: "关闭外观设置",
-    theme: "界面主题",
-    language: "界面语言",
-    mode: "显示模式",
-    density: "界面密度",
-    header: "顶部功能区域",
-    light: "浅色",
-    dark: "深色",
-    system: "跟随系统",
-    compact: "紧凑",
-    standard: "标准",
-    comfortable: "宽松",
-    fixed: "锁定",
-    scroll: "随内容滚动",
-  }),
-});
-
 /**
  * Renders the shared draggable Appearance trigger and scope-controlled drawer. @public
  *
- * @param props - Scope, locale, header, position, and drag configuration.
+ * @param props - Scope, header, position, and drag configuration.
  * @returns Shared Appearance trigger and drawer.
  */
 export function Appearance(props: AppearanceProps) {
   const {
     scope,
-    locales,
-    locale,
-    onLocaleChange,
     headerBehavior,
     onHeaderBehaviorChange,
     positionBlockPx,
@@ -94,8 +53,9 @@ export function Appearance(props: AppearanceProps) {
     draggable = true,
   } = props;
   const theme = useTheme();
-  const text = locale.toLowerCase().startsWith("zh") ? labels.zh : labels.en;
+  const localeRuntime = useMiaixzLocale();
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState<"settings" | "language">("settings");
   const [dragging, setDragging] = useState(false);
   const [uncontrolledPosition, setUncontrolledPosition] = useState<number>();
   const [uncontrolledHeaderBehavior, setUncontrolledHeaderBehavior] = useState<"fixed" | "scroll">(
@@ -110,7 +70,10 @@ export function Appearance(props: AppearanceProps) {
   const drawerId = `miaixz-appearance-${useId()}`;
   const namePrefix = `miaixz-appearance-choice-${useId()}`;
   const authenticated = scope === "authenticated";
-  const isLoading = theme.status === "loading";
+  const isLoading = theme.status === "loading" || localeRuntime.loadStatus === "loading";
+  const activeLocale =
+    localeRuntime.locales.find((descriptor) => descriptor.id === localeRuntime.locale) ??
+    localeRuntime.locales[0];
 
   useEffect(() => {
     if (!draggable) return undefined;
@@ -165,7 +128,7 @@ export function Appearance(props: AppearanceProps) {
         } satisfies CSSProperties);
 
   const preview = (
-    kind: "theme" | "mode" | "density" | "header" | "language",
+    kind: "theme" | "mode" | "density" | "header",
     value: string,
     label: ReactNode,
     style?: CSSProperties,
@@ -193,7 +156,7 @@ export function Appearance(props: AppearanceProps) {
   );
 
   const themeGroup = group(
-    text.theme,
+    localeRuntime.t("ui.appearance.theme"),
     theme.themes.map((descriptor) => {
       const colors = descriptor.preview[theme.resolvedColorMode];
       const style = {
@@ -220,32 +183,34 @@ export function Appearance(props: AppearanceProps) {
   );
 
   const localeGroup = group(
-    text.language,
-    locales.map((option) => (
-      <Radio
-        key={option.id}
-        checked={locale === option.id}
-        className="miaixz-appearance-option"
-        label={preview("language", option.shortLabel, option.label, undefined)}
-        name={`${namePrefix}-locale`}
-        onChange={() => {
-          if (locale !== option.id) onLocaleChange(option.id);
-        }}
-        value={option.id}
-      />
-    )),
-    "miaixz-appearance-options-locales",
+    localeRuntime.t("ui.appearance.language"),
+    <button
+      aria-label={localeRuntime.t("ui.appearance.language.open")}
+      className="miaixz-appearance-locale-summary"
+      onClick={() => setView("language")}
+      type="button"
+    >
+      <span aria-hidden="true" className="miaixz-appearance-locale-summary-short">
+        {activeLocale?.shortLabel ?? localeRuntime.locale.slice(0, 2).toLocaleUpperCase()}
+      </span>
+      <span className="miaixz-appearance-locale-summary-copy">
+        <span>{activeLocale?.label ?? localeRuntime.locale}</span>
+        <span>{localeRuntime.t("ui.appearance.language.current")}</span>
+      </span>
+      <Icon aria-hidden="true" name="ChevronRight" size="control" />
+    </button>,
+    "miaixz-appearance-options-rows",
   );
 
   const modeGroup = group(
-    text.mode,
+    localeRuntime.t("ui.appearance.mode"),
     colorModes.map((mode) => (
       <Radio
         key={mode}
         checked={theme.colorMode === mode}
         className="miaixz-appearance-option"
         disabled={isLoading}
-        label={preview("mode", mode, text[mode])}
+        label={preview("mode", mode, localeRuntime.t(`ui.appearance.${mode}`))}
         name={`${namePrefix}-mode`}
         onChange={() => {
           if (theme.colorMode !== mode) void theme.setColorMode(mode);
@@ -257,14 +222,14 @@ export function Appearance(props: AppearanceProps) {
   );
 
   const densityGroup = group(
-    text.density,
+    localeRuntime.t("ui.appearance.density"),
     densities.map((density) => (
       <Radio
         key={density}
         checked={theme.density === density}
         className="miaixz-appearance-option"
         disabled={isLoading}
-        label={preview("density", density, text[density])}
+        label={preview("density", density, localeRuntime.t(`ui.appearance.${density}`))}
         name={`${namePrefix}-density`}
         onChange={() => {
           if (theme.density !== density) void theme.setDensity(density);
@@ -276,13 +241,13 @@ export function Appearance(props: AppearanceProps) {
   );
 
   const headerGroup = group(
-    text.header,
+    localeRuntime.t("ui.appearance.header"),
     (["fixed", "scroll"] as const).map((value) => (
       <Radio
         key={value}
         checked={currentHeaderBehavior === value}
         className="miaixz-appearance-option"
-        label={preview("header", value, text[value])}
+        label={preview("header", value, localeRuntime.t(`ui.appearance.${value}`))}
         name={`${namePrefix}-header`}
         onChange={() => {
           setUncontrolledHeaderBehavior(value);
@@ -307,7 +272,7 @@ export function Appearance(props: AppearanceProps) {
           aria-expanded={open}
           aria-haspopup="dialog"
           aria-keyshortcuts={draggable ? "ArrowUp ArrowDown" : undefined}
-          aria-label={text.open}
+          aria-label={localeRuntime.t("ui.appearance.open")}
           className="miaixz-appearance-trigger"
           onClick={(event) => {
             if (suppressClickRef.current) {
@@ -381,7 +346,7 @@ export function Appearance(props: AppearanceProps) {
                 }
               : undefined
           }
-          title={text.open}
+          title={localeRuntime.t("ui.appearance.open")}
           type="button"
         >
           <Icon aria-hidden="true" name="Palette" size="navigation" />
@@ -390,22 +355,56 @@ export function Appearance(props: AppearanceProps) {
 
       <Drawer
         className="miaixz-appearance-drawer"
-        closeLabel={text.close}
-        description={text.description}
+        closeLabel={localeRuntime.t("ui.appearance.close")}
+        description={
+          view === "language"
+            ? localeRuntime.t("ui.appearance.language.description")
+            : localeRuntime.t("ui.appearance.description")
+        }
         id={drawerId}
-        onOpenChange={setOpen}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (!nextOpen) setView("settings");
+        }}
         open={open}
         placement="right"
-        title={text.title}
+        title={
+          view === "language"
+            ? localeRuntime.t("ui.appearance.language")
+            : localeRuntime.t("ui.appearance.title")
+        }
       >
-        <div aria-busy={isLoading} className="miaixz-appearance-body">
-          {authenticated && themeGroup}
-          {localeGroup}
-          {modeGroup}
-          {authenticated && densityGroup}
-          {authenticated && headerGroup}
-          {theme.error ? <p role="alert">{theme.error.message}</p> : null}
-        </div>
+        {view === "language" ? (
+          <div className="miaixz-appearance-language-view">
+            <Button
+              startIcon={<Icon aria-hidden="true" name="ChevronLeft" size="control" />}
+              onClick={() => setView("settings")}
+              size="small"
+              variant="ghost"
+            >
+              {localeRuntime.t("ui.appearance.language.back")}
+            </Button>
+            <LocalePicker
+              disabled={isLoading}
+              locale={localeRuntime.locale}
+              locales={localeRuntime.locales}
+              onLocaleChange={async (nextLocale) => {
+                await localeRuntime.setLocale(nextLocale);
+                setView("settings");
+              }}
+            />
+            {localeRuntime.loadError ? <p role="alert">{localeRuntime.loadError.message}</p> : null}
+          </div>
+        ) : (
+          <div aria-busy={isLoading} className="miaixz-appearance-body">
+            {authenticated && themeGroup}
+            {localeGroup}
+            {modeGroup}
+            {authenticated && densityGroup}
+            {authenticated && headerGroup}
+            {theme.error ? <p role="alert">{theme.error.message}</p> : null}
+          </div>
+        )}
       </Drawer>
     </>
   );

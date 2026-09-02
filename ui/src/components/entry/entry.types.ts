@@ -1,7 +1,9 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
 /**
- * Configures a full-viewport application entry layout. @public
+ * Configures a full-viewport application entry layout.
+ *
+ * @public
  */
 export interface EntryProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   /**

@@ -12,6 +12,10 @@ export interface SparklineProps extends Omit<
   "children" | "color" | "values"
 > {
   /**
+   * Selects the standard chart or the compact metric-card geometry.
+   */
+  readonly variant?: "default" | "metric" | "trend";
+  /**
    * Supplies ordered numeric samples. Non-finite samples produce visible gaps.
    */
   readonly values: readonly number[];

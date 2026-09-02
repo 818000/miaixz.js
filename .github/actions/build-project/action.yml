@@ -1,21 +1,21 @@
 name: Build Project
-description: 'Validates, builds, and packages both npm workspaces'
+description: "Validates, builds, and packages both npm workspaces"
 
 inputs:
   version:
-    description: 'Version to validate. Leave empty to read VERSION.'
+    description: "Version to validate. Leave empty to read VERSION."
     required: false
-    default: ''
+    default: ""
 
 outputs:
   version:
-    description: 'Resolved project version.'
+    description: "Resolved project version."
     value: ${{ steps.metadata.outputs.version }}
   is-prerelease:
-    description: 'Whether the resolved version is a prerelease.'
+    description: "Whether the resolved version is a prerelease."
     value: ${{ steps.metadata.outputs.is-prerelease }}
   packages:
-    description: 'Packages validated and built by this action.'
+    description: "Packages validated and built by this action."
     value: ${{ steps.metadata.outputs.packages }}
 
 runs:

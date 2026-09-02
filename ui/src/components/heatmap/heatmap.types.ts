@@ -15,7 +15,9 @@ export type HeatmapLevel = 0 | 1 | 2 | 3 | 4 | 5;
  * @public
  */
 export interface HeatmapProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "color"> {
-  /** Selects the default or dense dashboard geometry. */
+  /**
+   * Selects the default or dense dashboard geometry.
+   */
   readonly density?: "default" | "compact";
   /**
    * Supplies one visible label for every data row.

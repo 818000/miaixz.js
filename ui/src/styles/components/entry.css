@@ -3,6 +3,13 @@
  */
 
 .miaixz-entry {
+  --miaixz-entry-padding: var(--miaixz-density-panel-padding);
+  --miaixz-entry-split-padding: clamp(
+    var(--miaixz-space-24),
+    7vw,
+    calc(var(--miaixz-space-64) * 2)
+  );
+
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   inline-size: 100%;
@@ -24,10 +31,10 @@
 .miaixz-entry-aside,
 .miaixz-entry-main {
   min-inline-size: 0;
-  padding-block: max(var(--miaixz-density-panel-padding), var(--miaixz-safe-area-block-start))
-    max(var(--miaixz-density-panel-padding), var(--miaixz-safe-area-block-end));
-  padding-inline: max(var(--miaixz-density-panel-padding), var(--miaixz-safe-area-inline-start))
-    max(var(--miaixz-density-panel-padding), var(--miaixz-safe-area-inline-end));
+  padding-block: max(var(--miaixz-entry-padding), var(--miaixz-safe-area-block-start))
+    max(var(--miaixz-entry-padding), var(--miaixz-safe-area-block-end));
+  padding-inline: max(var(--miaixz-entry-padding), var(--miaixz-safe-area-inline-start))
+    max(var(--miaixz-entry-padding), var(--miaixz-safe-area-inline-end));
 }
 
 .miaixz-entry-aside {
@@ -52,8 +59,40 @@
   }
 
   .miaixz-entry-main {
+    --miaixz-entry-split-padding: clamp(
+      var(--miaixz-space-24),
+      12vw,
+      calc(var(--miaixz-space-64) * 2)
+    );
+
     grid-column: 1 / -1;
   }
+}
+
+@container miaixz-entry (width < 768px) {
+  .miaixz-entry-main {
+    --miaixz-entry-split-padding: var(--miaixz-space-16);
+  }
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside,
+.miaixz-entry[data-variant="split"] > .miaixz-entry-main {
+  --miaixz-entry-padding: var(--miaixz-entry-split-padding);
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside {
+  background: transparent;
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content {
+  inline-size: calc(100% + (var(--miaixz-entry-padding) * 2));
+  block-size: calc(100% + (var(--miaixz-entry-padding) * 2));
+  margin: calc(var(--miaixz-entry-padding) * -1);
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content > * {
+  inline-size: 100%;
+  block-size: 100%;
 }
 
 .miaixz-entry[data-variant="centered"],

@@ -1,19 +1,19 @@
 name: Create GitHub Release
-description: 'Creates a GitHub Release'
+description: "Creates a GitHub Release"
 
 inputs:
   tag:
-    description: 'Git tag to release.'
+    description: "Git tag to release."
     required: true
   version:
-    description: 'Release version.'
+    description: "Release version."
     required: true
   prerelease:
-    description: 'Mark the GitHub Release as a pre-release.'
+    description: "Mark the GitHub Release as a pre-release."
     required: false
-    default: 'false'
+    default: "false"
   body_path:
-    description: 'Path to the release notes markdown file.'
+    description: "Path to the release notes markdown file."
     required: true
 
 runs:

@@ -1,6 +1,7 @@
 import { forwardRef, type Ref } from "react";
 
 import { classNames } from "../../internal/class-names.js";
+import { useVisualizationMotion } from "../../internal/use-visualization-motion.js";
 import type { MetricProps } from "./metric.types.js";
 
 /**
@@ -22,10 +23,18 @@ export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
     href,
     onAction,
     className,
+    onPointerEnter,
+    onPointerLeave,
     ...props
   },
-  ref,
+  forwardedRef,
 ) {
+  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
+    useVisualizationMotion<HTMLElement>({
+      forwardedRef,
+      onPointerEnter,
+      onPointerLeave,
+    });
   const interactive = href !== undefined || onAction !== undefined;
   const metricClassName = classNames(
     "miaixz-metric",
@@ -57,7 +66,10 @@ export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
         ref={ref as Ref<HTMLAnchorElement>}
         className={metricClassName}
         href={href}
+        data-motion-state={motionState}
         data-tone={tone}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
       >
         {content}
       </a>
@@ -70,15 +82,26 @@ export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
         ref={ref as Ref<HTMLButtonElement>}
         className={metricClassName}
         type="button"
+        data-motion-state={motionState}
         data-tone={tone}
         onClick={onAction}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
       >
         {content}
       </button>
     );
   }
   return (
-    <article {...props} ref={ref} className={metricClassName} data-tone={tone}>
+    <article
+      {...props}
+      ref={ref}
+      className={metricClassName}
+      data-motion-state={motionState}
+      data-tone={tone}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+    >
       {content}
     </article>
   );

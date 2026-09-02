@@ -8,7 +8,9 @@ import type { MiaixzVisualTone } from "../shared.types.js";
  * @public
  */
 export interface MiaixzProgressOwnProps {
-  /** Selects the default or thin track geometry. */
+  /**
+   * Selects the default or thin track geometry.
+   */
   readonly size?: "default" | "thin";
   /**
    * Supplies the current value, or leaves progress indeterminate when omitted.

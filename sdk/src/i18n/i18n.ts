@@ -75,6 +75,124 @@ export type MiaixzMessageLoaderMap = Readonly<
 >;
 
 /**
+ * Defines the writing direction used by one locale.
+ *
+ * @public
+ */
+export type MiaixzLocaleDirection = "ltr" | "rtl";
+
+/**
+ * Defines one trusted developer-authored locale extension.
+ *
+ * @public
+ */
+export interface MiaixzLocaleDefinition {
+  /**
+   * Locale definition schema version.
+   */
+  readonly schemaVersion: 1;
+
+  /**
+   * Stable canonical BCP 47 locale identifier.
+   */
+  readonly id: MiaixzLocale;
+
+  /**
+   * Native human-readable language label.
+   */
+  readonly label: string;
+
+  /**
+   * Compact language label used by constrained controls.
+   */
+  readonly shortLabel: string;
+
+  /**
+   * Semantic version of the locale metadata and resources.
+   */
+  readonly version: string;
+
+  /**
+   * Writing direction applied while this locale is active.
+   *
+   * @defaultValue `"ltr"`
+   */
+  readonly direction?: MiaixzLocaleDirection;
+
+  /**
+   * Additional canonical locale identifiers that resolve to this definition.
+   */
+  readonly aliases?: readonly MiaixzLocale[];
+
+  /**
+   * Additional native or translated search terms.
+   */
+  readonly keywords?: readonly string[];
+
+  /**
+   * Locale consulted before the runtime-wide fallback locale.
+   */
+  readonly fallback?: MiaixzLocale;
+
+  /**
+   * Optional namespace loader owned by this locale extension.
+   */
+  readonly loadMessages?: MiaixzMessageLoader;
+}
+
+/**
+ * Describes one locale exposed by the active runtime catalog.
+ *
+ * @public
+ */
+export interface MiaixzLocaleDescriptor {
+  /**
+   * Stable canonical BCP 47 locale identifier.
+   */
+  readonly id: MiaixzLocale;
+
+  /**
+   * Native human-readable language label.
+   */
+  readonly label: string;
+
+  /**
+   * Compact language label used by constrained controls.
+   */
+  readonly shortLabel: string;
+
+  /**
+   * Semantic version of the locale metadata and resources.
+   */
+  readonly version: string;
+
+  /**
+   * Writing direction applied while this locale is active.
+   */
+  readonly direction: MiaixzLocaleDirection;
+
+  /**
+   * Canonical locale aliases resolved by the catalog.
+   */
+  readonly aliases: readonly MiaixzLocale[];
+
+  /**
+   * Additional native or translated search terms.
+   */
+  readonly keywords: readonly string[];
+
+  /**
+   * Optional locale-specific resource fallback.
+   */
+  readonly fallback?: MiaixzLocale;
+
+  /**
+   * Catalog source category.
+   */
+  readonly source: "builtin" | "registered";
+}
+
+/**
  * Translates a message key with optional interpolation and fallback text.
  *
  * @public
@@ -122,6 +240,11 @@ export interface MiaixzI18nOptions {
    * Selects the locale used after active-locale resources are exhausted.
    */
   readonly fallbackLocale?: MiaixzLocale;
+
+  /**
+   * Registers trusted locale extensions after the built-in locale definitions.
+   */
+  readonly locales?: readonly MiaixzLocaleDefinition[];
 
   /**
    * Registers static project resources during construction.
@@ -199,6 +322,8 @@ export const miaixzSdkMessages: MiaixzMessageCatalog = Object.freeze({
     "sdk.error.i18n.localeInvalid": "The locale is invalid",
     "sdk.error.i18n.namespaceInvalid": "The message namespace is invalid",
     "sdk.error.i18n.messagesInvalid": "The language file is invalid",
+    "sdk.error.i18n.localeDefinitionInvalid": "The locale definition is invalid",
+    "sdk.error.i18n.localeDuplicate": "The locale is already registered",
     "sdk.error.i18n.loadFailed": "The {namespace} messages for {locale} could not be loaded",
   }),
   "zh-CN": Object.freeze({
@@ -253,9 +378,192 @@ export const miaixzSdkMessages: MiaixzMessageCatalog = Object.freeze({
     "sdk.error.i18n.localeInvalid": "语言区域标识无效",
     "sdk.error.i18n.namespaceInvalid": "消息命名空间无效",
     "sdk.error.i18n.messagesInvalid": "语言文件无效",
+    "sdk.error.i18n.localeDefinitionInvalid": "语言定义无效",
+    "sdk.error.i18n.localeDuplicate": "语言已经注册",
     "sdk.error.i18n.loadFailed": "无法加载 {locale} 的 {namespace} 消息",
   }),
 });
+
+/**
+ * Validates and deeply freezes one trusted developer-authored locale definition.
+ *
+ * @param value - Locale definition to validate.
+ * @returns Detached immutable locale definition.
+ * @public
+ */
+export function defineLocale(value: MiaixzLocaleDefinition): Readonly<MiaixzLocaleDefinition> {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    value.schemaVersion !== 1 ||
+    typeof value.label !== "string" ||
+    value.label.trim().length === 0 ||
+    typeof value.shortLabel !== "string" ||
+    value.shortLabel.trim().length === 0 ||
+    typeof value.version !== "string" ||
+    value.version.trim().length === 0 ||
+    (value.direction !== undefined && value.direction !== "ltr" && value.direction !== "rtl") ||
+    (value.loadMessages !== undefined && typeof value.loadMessages !== "function")
+  ) {
+    throw createI18nContractError(
+      "I18N_LOCALE_DEFINITION_INVALID",
+      "sdk.error.i18n.localeDefinitionInvalid",
+    );
+  }
+
+  const id = canonicalizeLocale(value.id);
+  const aliases = normalizeLocaleAliases(value.aliases ?? [], id);
+  const keywords = normalizeLocaleKeywords(value.keywords ?? []);
+  const fallback = value.fallback === undefined ? undefined : canonicalizeLocale(value.fallback);
+
+  return Object.freeze({
+    schemaVersion: 1,
+    id,
+    label: value.label.trim(),
+    shortLabel: value.shortLabel.trim(),
+    version: value.version.trim(),
+    direction: value.direction ?? "ltr",
+    aliases,
+    keywords,
+    ...(fallback === undefined ? {} : { fallback }),
+    ...(value.loadMessages === undefined ? {} : { loadMessages: value.loadMessages }),
+  });
+}
+
+/**
+ * Provides the built-in selectable locale definitions.
+ *
+ * @public
+ */
+export const miaixzBuiltInLocales: readonly Readonly<MiaixzLocaleDefinition>[] = Object.freeze([
+  defineLocale({
+    schemaVersion: 1,
+    id: "zh-CN",
+    label: "简体中文",
+    shortLabel: "中",
+    version: "1.0.0",
+    direction: "ltr",
+    aliases: ["zh", "zh-Hans"],
+    keywords: ["中文", "简体", "Chinese", "Simplified Chinese"],
+    fallback: "en-US",
+  }),
+  defineLocale({
+    schemaVersion: 1,
+    id: "en-US",
+    label: "English",
+    shortLabel: "EN",
+    version: "1.0.0",
+    direction: "ltr",
+    aliases: ["en"],
+    keywords: ["English", "英语", "英文"],
+  }),
+]);
+
+/**
+ * Maintains one atomic, ordered, instance-local locale catalog.
+ *
+ * @public
+ */
+export class MiaixzLocaleCatalog {
+  readonly #definitions = new Map<MiaixzLocale, Readonly<MiaixzLocaleDefinition>>();
+  readonly #aliases = new Map<MiaixzLocale, MiaixzLocale>();
+  #descriptors: readonly MiaixzLocaleDescriptor[] = Object.freeze([]);
+
+  /**
+   * Creates a catalog containing built-ins followed by trusted registered locales.
+   *
+   * @param locales - Optional application-registered locale definitions.
+   */
+  constructor(locales: readonly MiaixzLocaleDefinition[] = []) {
+    this.#registerBatch(miaixzBuiltInLocales, "builtin");
+    if (locales.length > 0) this.#registerBatch(locales, "registered");
+  }
+
+  /**
+   * Reports whether a locale or alias exists.
+   *
+   * @param locale - Locale identifier or alias.
+   * @returns Whether the locale can be resolved.
+   */
+  has(locale: MiaixzLocale): boolean {
+    return this.resolve(locale) !== undefined;
+  }
+
+  /**
+   * Resolves a locale identifier, alias, or base language.
+   *
+   * @param locale - Locale identifier to resolve.
+   * @returns Matching frozen definition when available.
+   */
+  resolve(locale: MiaixzLocale): Readonly<MiaixzLocaleDefinition> | undefined {
+    const canonical = canonicalizeLocale(locale);
+    const direct = this.#definitions.get(canonical);
+    if (direct !== undefined) return direct;
+    const alias = this.#aliases.get(canonical);
+    if (alias !== undefined) return this.#definitions.get(alias);
+    const language = getBaseLanguage(canonical);
+    return [...this.#definitions.values()].find(
+      (definition) => getBaseLanguage(definition.id) === language,
+    );
+  }
+
+  /**
+   * Returns immutable descriptors in stable registration order.
+   *
+   * @returns Ordered frozen descriptors.
+   */
+  descriptors(): readonly MiaixzLocaleDescriptor[] {
+    return this.#descriptors;
+  }
+
+  /**
+   * Validates and atomically commits one definition batch.
+   *
+   * @param locales - Candidate locale definitions.
+   * @param source - Descriptor source category.
+   */
+  #registerBatch(
+    locales: readonly MiaixzLocaleDefinition[],
+    source: MiaixzLocaleDescriptor["source"],
+  ): void {
+    const definitions = new Map(this.#definitions);
+    const aliases = new Map(this.#aliases);
+    const descriptors = [...this.#descriptors];
+
+    for (const candidate of locales) {
+      const locale = defineLocale(candidate);
+      if (definitions.has(locale.id) || aliases.has(locale.id)) {
+        throw createI18nContractError("I18N_LOCALE_DUPLICATE", "sdk.error.i18n.localeDuplicate");
+      }
+      for (const alias of locale.aliases ?? []) {
+        if (definitions.has(alias) || aliases.has(alias)) {
+          throw createI18nContractError("I18N_LOCALE_DUPLICATE", "sdk.error.i18n.localeDuplicate");
+        }
+      }
+      definitions.set(locale.id, locale);
+      for (const alias of locale.aliases ?? []) aliases.set(alias, locale.id);
+      descriptors.push(
+        Object.freeze({
+          id: locale.id,
+          label: locale.label,
+          shortLabel: locale.shortLabel,
+          version: locale.version,
+          direction: locale.direction ?? "ltr",
+          aliases: locale.aliases ?? Object.freeze([]),
+          keywords: locale.keywords ?? Object.freeze([]),
+          ...(locale.fallback === undefined ? {} : { fallback: locale.fallback }),
+          source,
+        }),
+      );
+    }
+
+    this.#definitions.clear();
+    this.#aliases.clear();
+    for (const [id, definition] of definitions) this.#definitions.set(id, definition);
+    for (const [alias, id] of aliases) this.#aliases.set(alias, id);
+    this.#descriptors = Object.freeze(descriptors);
+  }
+}
 
 const namespacePattern = /^[a-z][a-z0-9-]{1,63}$/;
 type MutableCatalog = Map<string, Map<MiaixzLocale, Record<string, string>>>;
@@ -300,11 +608,18 @@ function resolveBuiltinMessage(
  * @returns Localized SDK error without the rejected value.
  */
 function createI18nContractError(
-  code: "I18N_LOCALE_INVALID" | "I18N_NAMESPACE_INVALID" | "I18N_MESSAGES_INVALID",
+  code:
+    | "I18N_LOCALE_INVALID"
+    | "I18N_NAMESPACE_INVALID"
+    | "I18N_MESSAGES_INVALID"
+    | "I18N_LOCALE_DEFINITION_INVALID"
+    | "I18N_LOCALE_DUPLICATE",
   messageKey:
     | "sdk.error.i18n.localeInvalid"
     | "sdk.error.i18n.namespaceInvalid"
-    | "sdk.error.i18n.messagesInvalid",
+    | "sdk.error.i18n.messagesInvalid"
+    | "sdk.error.i18n.localeDefinitionInvalid"
+    | "sdk.error.i18n.localeDuplicate",
   locale = "en-US",
 ): MiaixzSdkError {
   return new MiaixzSdkError(resolveBuiltinMessage(locale, messageKey), { code });
@@ -331,6 +646,50 @@ function canonicalizeLocale(locale: MiaixzLocale): MiaixzLocale {
     if (error instanceof MiaixzSdkError) throw error;
     throw createI18nContractError("I18N_LOCALE_INVALID", "sdk.error.i18n.localeInvalid");
   }
+}
+
+/**
+ * Canonicalizes, deduplicates, and freezes locale aliases.
+ *
+ * @param aliases - Alias candidates supplied by a locale definition.
+ * @param id - Canonical locale identifier that aliases must not repeat.
+ * @returns Frozen canonical alias collection.
+ */
+function normalizeLocaleAliases(
+  aliases: readonly MiaixzLocale[],
+  id: MiaixzLocale,
+): readonly MiaixzLocale[] {
+  if (!Array.isArray(aliases)) {
+    throw createI18nContractError(
+      "I18N_LOCALE_DEFINITION_INVALID",
+      "sdk.error.i18n.localeDefinitionInvalid",
+    );
+  }
+  const normalized = [...new Set(aliases.map(canonicalizeLocale))];
+  if (normalized.includes(id)) {
+    throw createI18nContractError(
+      "I18N_LOCALE_DEFINITION_INVALID",
+      "sdk.error.i18n.localeDefinitionInvalid",
+    );
+  }
+  return Object.freeze(normalized);
+}
+
+/**
+ * Trims, deduplicates, and freezes locale search keywords.
+ *
+ * @param keywords - Search keyword candidates.
+ * @returns Frozen non-empty keyword collection.
+ */
+function normalizeLocaleKeywords(keywords: readonly string[]): readonly string[] {
+  if (!Array.isArray(keywords) || keywords.some((keyword) => typeof keyword !== "string")) {
+    throw createI18nContractError(
+      "I18N_LOCALE_DEFINITION_INVALID",
+      "sdk.error.i18n.localeDefinitionInvalid",
+    );
+  }
+  const normalized = [...new Set(keywords.map((keyword) => keyword.trim()).filter(Boolean))];
+  return Object.freeze(normalized);
 }
 
 /**
@@ -537,6 +896,7 @@ export class MiaixzI18nLoadError extends MiaixzSdkError {
 export class MiaixzI18n {
   #locale: MiaixzLocale;
   readonly #fallbackLocale: MiaixzLocale;
+  readonly #localeCatalog: MiaixzLocaleCatalog;
   readonly #builtin: MutableCatalog = new Map();
   readonly #project: MutableCatalog = new Map();
   readonly #loadMessages: MiaixzMessageLoader | undefined;
@@ -555,8 +915,9 @@ export class MiaixzI18n {
    * @param options - Initial locale, fallback, static project messages, and loader.
    */
   constructor(options: MiaixzI18nOptions = {}) {
-    this.#locale = canonicalizeLocale(options.locale ?? getMiaixzBrowserLocale());
-    this.#fallbackLocale = canonicalizeLocale(options.fallbackLocale ?? "en-US");
+    this.#localeCatalog = new MiaixzLocaleCatalog(options.locales);
+    this.#locale = this.#resolveRuntimeLocale(options.locale ?? getMiaixzBrowserLocale());
+    this.#fallbackLocale = this.#resolveRuntimeLocale(options.fallbackLocale ?? "en-US");
     this.#loadMessages = options.loadMessages;
     this.#onLoadError = options.onLoadError;
     this.#snapshot = Object.freeze({ locale: this.#locale, loadStatus: "ready" });
@@ -573,6 +934,25 @@ export class MiaixzI18n {
    */
   get locale(): MiaixzLocale {
     return this.#locale;
+  }
+
+  /**
+   * Returns the ordered immutable locale descriptors available to selectors.
+   *
+   * @returns Built-in and registered locale descriptors.
+   */
+  get locales(): readonly MiaixzLocaleDescriptor[] {
+    return this.#localeCatalog.descriptors();
+  }
+
+  /**
+   * Resolves one registered locale definition.
+   *
+   * @param locale - Locale identifier or alias.
+   * @returns Matching frozen definition when available.
+   */
+  getLocale(locale: MiaixzLocale): Readonly<MiaixzLocaleDefinition> | undefined {
+    return this.#localeCatalog.resolve(locale);
   }
 
   /**
@@ -636,19 +1016,25 @@ export class MiaixzI18n {
    */
   loadNamespace(namespace: string, locale: MiaixzLocale): Promise<void> {
     const validNamespace = validateNamespace(namespace);
-    const canonicalLocale = canonicalizeLocale(locale);
+    const canonicalLocale = this.#resolveRuntimeLocale(locale);
     this.#namespaces.add(validNamespace);
     const loadKey = `${canonicalLocale}\u0000${validNamespace}`;
-    if (this.#loaded.has(loadKey) || !this.#loadMessages) return Promise.resolve();
+    const localeLoader = this.#localeCatalog.resolve(canonicalLocale)?.loadMessages;
+    const loaders = [localeLoader, this.#loadMessages].filter(
+      (loader): loader is MiaixzMessageLoader => loader !== undefined,
+    );
+    if (this.#loaded.has(loadKey) || loaders.length === 0) return Promise.resolve();
     const activeLoad = this.#loading.get(loadKey);
     if (activeLoad) return activeLoad;
     this.#lastLoadError = undefined;
     this.#publish("loading");
     const operation = Promise.resolve()
-      .then(() => this.#loadMessages?.(validNamespace, canonicalLocale) ?? {})
-      .then((result) => {
-        const messages = unwrapMessages(result);
-        this.registerMessages(validNamespace, canonicalLocale, messages, "project");
+      .then(() => Promise.all(loaders.map((loader) => loader(validNamespace, canonicalLocale))))
+      .then((results) => {
+        for (const result of results) {
+          const messages = unwrapMessages(result);
+          this.registerMessages(validNamespace, canonicalLocale, messages, "project");
+        }
         this.#loaded.add(loadKey);
       })
       .catch((cause: unknown) => {
@@ -687,7 +1073,7 @@ export class MiaixzI18n {
    * @throws MiaixzI18nLoadError When the target locale cannot be loaded.
    */
   async changeLocale(locale: MiaixzLocale): Promise<void> {
-    const targetLocale = canonicalizeLocale(locale);
+    const targetLocale = this.#resolveRuntimeLocale(locale);
     const sequence = ++this.#changeSequence;
     const namespaces = [...this.#namespaces].sort();
     await Promise.all(namespaces.map((namespace) => this.loadNamespace(namespace, targetLocale)));
@@ -717,7 +1103,14 @@ export class MiaixzI18n {
    */
   readonly t: MiaixzTranslator = (key, params, fallback) => {
     const namespace = key.split(".")[0] ?? "";
-    const locales = [...new Set([this.#locale, this.#fallbackLocale])];
+    const definitionFallback = this.#localeCatalog.resolve(this.#locale)?.fallback;
+    const locales = [
+      ...new Set(
+        [this.#locale, definitionFallback, this.#fallbackLocale].filter(
+          (locale): locale is MiaixzLocale => locale !== undefined,
+        ),
+      ),
+    ];
     for (const locale of locales) {
       const message =
         resolveSourceMessage(this.#project, namespace, locale, key) ??
@@ -772,6 +1165,17 @@ export class MiaixzI18n {
     const normalized = [...new Set(namespaces.map(validateNamespace))].sort();
     for (const namespace of normalized) this.#namespaces.add(namespace);
     return normalized;
+  }
+
+  /**
+   * Canonicalizes a runtime locale and resolves registered aliases.
+   *
+   * @param locale - Requested locale identifier.
+   * @returns Registered canonical identifier or the canonical unregistered value.
+   */
+  #resolveRuntimeLocale(locale: MiaixzLocale): MiaixzLocale {
+    const canonical = canonicalizeLocale(locale);
+    return this.#localeCatalog.resolve(canonical)?.id ?? canonical;
   }
 
   /**

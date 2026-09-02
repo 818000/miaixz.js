@@ -37,6 +37,7 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     placement = "bottom-start",
     contentClassName,
     triggerProps,
+    triggerVariant = "default",
     disabled = false,
     className,
     children,
@@ -127,7 +128,11 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
         aria-controls={contentId}
         aria-expanded={isOpen}
         disabled={disabled || triggerProps?.disabled}
-        className={classNames("miaixz-popover-trigger", triggerProps?.className)}
+        className={classNames(
+          "miaixz-popover-trigger",
+          triggerVariant === "avatar" && "miaixz-popover-trigger-avatar",
+          triggerProps?.className,
+        )}
         onClick={(event) => {
           triggerProps?.onClick?.(event);
           if (!event.defaultPrevented && !disabled && !triggerProps?.disabled) {

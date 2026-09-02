@@ -4,56 +4,154 @@
 
 [data-miaixz-theme] {
   --miaixz-sparkline-height: var(--miaixz-space-32);
+  --miaixz-sparkline-metric-height: 34px;
+  --miaixz-sparkline-trend-height: 82px;
 }
 
 .miaixz-sparkline {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-brand)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-brand);
 
   display: block;
-  width: var(--miaixz-slot-sparkline-width-cb8fec, 100%);
-  height: var(--miaixz-slot-sparkline-height-c8b62b, var(--miaixz-sparkline-height));
+  width: 100%;
+  height: var(--miaixz-sparkline-height);
   overflow: visible;
-  transform: var(--miaixz-slot-sparkline-transform-bf8030, revert);
 }
 
 .miaixz-sparkline-baseline {
   stroke: var(--miaixz-color-border);
   stroke-width: var(--miaixz-border-width-default);
   vector-effect: non-scaling-stroke;
-  transform: var(--miaixz-slot-sparkline-baseline-transform-9393e7, revert);
 }
 
 .miaixz-sparkline-line {
   fill: none;
   stroke: var(--miaixz-sparkline-tone);
-  stroke-width: var(--miaixz-slot-sparkline-line-stroke-width-9bea8f, var(--miaixz-border-width-2));
+  stroke-width: var(--miaixz-border-width-2);
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 1;
+  stroke-dasharray: none;
   stroke-dashoffset: 0;
-  transform: var(--miaixz-slot-sparkline-line-transform-2c7b8a, revert);
-  transform-origin: var(--miaixz-slot-sparkline-line-transform-origin-963627, revert);
   animation: none;
-  vector-effect: var(--miaixz-slot-sparkline-line-vector-effect-56a74d, non-scaling-stroke);
+  vector-effect: non-scaling-stroke;
 }
 
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .miaixz-sparkline[data-motion-state="enter"] .miaixz-sparkline-line {
+.miaixz-sparkline-metric {
+  width: 99.4695%;
+  height: var(--miaixz-sparkline-metric-height);
+}
+
+.miaixz-sparkline-metric .miaixz-sparkline-line {
+  stroke-width: 1.8;
+  transform: translateY(2.7px) scaleY(-0.55);
+  transform-origin: center;
+  vector-effect: non-scaling-stroke;
+}
+
+.miaixz-sparkline-trend {
+  height: var(--miaixz-sparkline-trend-height);
+}
+
+.miaixz-sparkline-grid line {
+  stroke: var(--miaixz-color-border);
+  stroke-width: var(--miaixz-border-width-default);
+  vector-effect: non-scaling-stroke;
+}
+
+.miaixz-sparkline-area {
+  fill: color-mix(in srgb, var(--miaixz-sparkline-tone) 8%, transparent);
+  stroke: none;
+  transform-origin: center bottom;
+}
+
+.miaixz-sparkline-trend .miaixz-sparkline-line {
+  stroke-width: 1.8;
+}
+
+.miaixz-sparkline-point {
+  fill: var(--miaixz-sparkline-tone);
+}
+
+.miaixz-sparkline-trend .miaixz-sparkline-point {
+  fill: var(--miaixz-surface-role-panel-background);
+  stroke: var(--miaixz-sparkline-tone);
+  stroke-width: 1.5;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-line {
+    stroke-dasharray: 1;
+    animation: miaixz-sparkline-trend-line-enter 1.8s cubic-bezier(0.2, 0.72, 0.2, 1) 0.12s forwards;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-area {
+    animation: miaixz-sparkline-trend-area-enter 1.45s cubic-bezier(0.16, 0.82, 0.25, 1) 0.2s both;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point {
+    animation: miaixz-sparkline-trend-point-enter 0.52s cubic-bezier(0.16, 0.82, 0.25, 1.22) both;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point:nth-of-type(1) {
+    animation-delay: 0.3s;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point:nth-of-type(2) {
+    animation-delay: 0.48s;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point:nth-of-type(3) {
+    animation-delay: 0.66s;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point:nth-of-type(4) {
+    animation-delay: 0.84s;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point:nth-of-type(5) {
+    animation-delay: 1.02s;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point:nth-of-type(6) {
+    animation-delay: 1.2s;
+  }
+
+  .miaixz-sparkline-trend[data-motion-state="enter"] .miaixz-sparkline-point:nth-of-type(7) {
+    animation-delay: 1.38s;
+  }
+
+  .miaixz-sparkline-metric[data-motion-state="enter"] .miaixz-sparkline-line {
+    stroke-dasharray: 1;
     animation: miaixz-sparkline-draw calc(var(--miaixz-duration-slower) * 3)
       var(--miaixz-motion-enter-easing) both;
   }
 
-  .miaixz-sparkline[data-motion-replay="true"] .miaixz-sparkline-line {
+  .miaixz-sparkline-metric[data-motion-replay="true"] .miaixz-sparkline-line {
+    stroke-dasharray: 1;
     animation: miaixz-sparkline-replay calc(var(--miaixz-duration-slower) * 3)
       var(--miaixz-motion-enter-easing) both;
   }
 }
 
-.miaixz-sparkline-point {
-  fill: var(--miaixz-sparkline-tone);
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .miaixz-sparkline-trend {
+    cursor: pointer;
+  }
+
+  .miaixz-sparkline-trend:hover .miaixz-sparkline-line {
+    stroke-dasharray: 1;
+    animation: miaixz-sparkline-trend-line-replay 1.55s cubic-bezier(0.2, 0.72, 0.2, 1) forwards;
+  }
+
+  .miaixz-sparkline-trend:hover .miaixz-sparkline-area {
+    animation: miaixz-sparkline-trend-area-replay 1.3s cubic-bezier(0.16, 0.82, 0.25, 1) 0.08s both;
+  }
+
+  .miaixz-sparkline-trend:hover .miaixz-sparkline-point {
+    animation: miaixz-sparkline-trend-point-replay 0.5s cubic-bezier(0.16, 0.82, 0.25, 1.22) 0.78s
+      both;
+  }
 }
 
 .miaixz-sparkline[data-state="empty"] .miaixz-sparkline-baseline {
@@ -61,94 +159,55 @@
 }
 
 .miaixz-sparkline-tone-neutral {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-neutral)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-neutral);
 }
 
 .miaixz-sparkline-tone-info {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-info)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-info);
 }
 
 .miaixz-sparkline-tone-success {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-success)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-success);
 }
 
 .miaixz-sparkline-tone-warning {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-warning)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-warning);
 }
 
 .miaixz-sparkline-tone-danger {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-danger)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-danger);
 }
 
 .miaixz-sparkline-tone-data-1 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-1)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-1);
 }
 
 .miaixz-sparkline-tone-data-2 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-2)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-2);
 }
 
 .miaixz-sparkline-tone-data-3 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-3)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-3);
 }
 
 .miaixz-sparkline-tone-data-4 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-4)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-4);
 }
 
 .miaixz-sparkline-tone-data-5 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-5)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-5);
 }
 
 .miaixz-sparkline-tone-data-6 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-6)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-6);
 }
 
 .miaixz-sparkline-tone-data-7 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-7)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-7);
 }
 
 .miaixz-sparkline-tone-data-8 {
-  --miaixz-sparkline-tone: var(
-    --miaixz-slot-sparkline-sparkline-tone-2c68e6,
-    var(--miaixz-color-data-8)
-  );
+  --miaixz-sparkline-tone: var(--miaixz-color-data-8);
 }
 
 @keyframes miaixz-sparkline-draw {
@@ -169,8 +228,82 @@
   }
 }
 
+@keyframes miaixz-sparkline-trend-line-enter {
+  from {
+    opacity: 0.2;
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes miaixz-sparkline-trend-line-replay {
+  from {
+    opacity: 0.2;
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes miaixz-sparkline-trend-area-enter {
+  from {
+    opacity: 0;
+    transform: scaleY(0.12);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes miaixz-sparkline-trend-point-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes miaixz-sparkline-trend-area-replay {
+  from {
+    opacity: 0;
+    transform: scaleY(0.12);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes miaixz-sparkline-trend-point-replay {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .miaixz-sparkline-line {
+  .miaixz-sparkline-line,
+  .miaixz-sparkline-area,
+  .miaixz-sparkline-point {
     animation: none;
   }
 }

@@ -28,9 +28,17 @@ export interface DonutSegment {
  * @public
  */
 export interface DonutProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "color"> {
-  /** Selects the semantic visualization diameter. */
+  /**
+   * Selects the semantic visualization diameter.
+   */
   readonly size?: "small" | "medium" | "large";
-  /** Selects whether the shared legend is rendered. */
+  /**
+   * Selects a reusable dashboard composition.
+   */
+  readonly variant?: "completion" | "default" | "token";
+  /**
+   * Selects whether the shared legend is rendered.
+   */
   readonly legend?: "hidden" | "inline";
   /**
    * Supplies source segments without requiring pre-normalization.

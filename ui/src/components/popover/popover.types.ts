@@ -39,6 +39,12 @@ export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
    */
   triggerProps?: ButtonHTMLAttributes<HTMLButtonElement>;
   /**
+   * Selects a formal visual treatment for the disclosure trigger.
+   *
+   * @defaultValue `"default"`
+   */
+  triggerVariant?: "default" | "avatar";
+  /**
    * Prevents disclosure interaction.
    *
    * @defaultValue `false`

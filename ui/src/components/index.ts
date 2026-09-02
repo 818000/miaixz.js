@@ -29,6 +29,7 @@ export * from "./icon/index.js";
 export * from "./notice/index.js";
 export * from "./input/index.js";
 export * from "./list/index.js";
+export * from "./locale-picker/index.js";
 export * from "./metric/index.js";
 export * from "./overlay/index.js";
 export * from "./picker/index.js";

@@ -71,7 +71,7 @@ export function Confirm(props: ConfirmProps) {
       await onConfirm();
       onOpenChange(false);
     } catch {
-      // Consumers own localized error presentation through the explicit error property.
+      /* Consumers own localized error presentation through the explicit error property. */
     } finally {
       internalPendingRef.current = false;
       setInternalPending(false);
