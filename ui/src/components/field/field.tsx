@@ -1,6 +1,7 @@
 import { cloneElement, useId } from "react";
 
 import { classNames } from "../../internal/class-names.js";
+import { MiaixzFieldContext } from "../../internal/field-context.js";
 import type { FieldProps } from "./field.types.js";
 
 /**
@@ -36,6 +37,7 @@ export function Field({
 }: FieldProps) {
   const generatedId = useId();
   const id = controlId ?? children.props.id ?? `miaixz-field-${generatedId}`;
+  const labelId = `${id}-label`;
   const helperId = helperText ? `${id}-helper` : undefined;
   const errorId = errorText ? `${id}-error` : undefined;
   const describedBy = mergeIds(children.props["aria-describedby"], helperId, errorId);
@@ -62,7 +64,7 @@ export function Field({
       data-invalid={Boolean(errorText) || undefined}
     >
       <div className="miaixz-field-label-row">
-        <label className="miaixz-field-label" htmlFor={id}>
+        <label id={labelId} className="miaixz-field-label" htmlFor={id}>
           {label}
           {required && (
             <span className="miaixz-field-required" aria-hidden="true">
@@ -72,7 +74,11 @@ export function Field({
         </label>
         {!required && optionalText && <span className="miaixz-field-optional">{optionalText}</span>}
       </div>
-      {control}
+      <MiaixzFieldContext.Provider
+        value={{ controlId: id, labelId, describedBy, required: isRequired }}
+      >
+        {control}
+      </MiaixzFieldContext.Provider>
       {helperText && (
         <div id={helperId} className="miaixz-field-helper">
           {helperText}

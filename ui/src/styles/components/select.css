@@ -86,12 +86,13 @@
   inset: auto;
   z-index: var(--miaixz-z-overlay);
   box-sizing: border-box;
-  max-inline-size: var(--miaixz-responsive-popover-inline-size);
+  max-inline-size: calc(100vi - 2 * var(--miaixz-space-8));
   min-width: 0;
   max-block-size: var(--miaixz-responsive-overlay-block-size);
   padding: var(--miaixz-space-4) var(--miaixz-space-8) var(--miaixz-space-8);
   margin: 0;
-  overflow: auto;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
   color: var(--miaixz-surface-role-overlay-foreground);
   background: var(--miaixz-surface-role-overlay-background);
   border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-overlay-border);
