@@ -5,16 +5,8 @@
   accent-color: var(--miaixz-color-brand);
   caret-color: var(--miaixz-color-brand);
 
-  --miaixz-console-border: color-mix(
-    in srgb,
-    var(--miaixz-surface-role-panel-border) 68%,
-    transparent
-  );
-  --miaixz-console-divider: color-mix(
-    in srgb,
-    var(--miaixz-surface-role-panel-border) 58%,
-    transparent
-  );
+  --miaixz-console-border: var(--miaixz-surface-role-panel-border);
+  --miaixz-console-divider: var(--miaixz-surface-role-panel-border);
   --miaixz-console-selected: var(--miaixz-surface-role-selected-background);
   --miaixz-module-border: var(--miaixz-console-border);
   --miaixz-module-divider: var(--miaixz-console-divider);

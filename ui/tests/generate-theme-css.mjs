@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { format } from "prettier";
 import prettierConfiguration from "../prettier.config.js";
@@ -10,10 +11,12 @@ const checkOnly = process.argv.slice(2).includes("--check");
 const builtThemesPath = resolve(packageDirectory, "dist/themes/index.js");
 const builtTypographyPath = resolve(packageDirectory, "dist/tokens/typography.js");
 const builtGeometryPath = resolve(packageDirectory, "dist/tokens/geometry.js");
+const builtOpacityPath = resolve(packageDirectory, "dist/tokens/opacity.js");
 
 const themeModule = await import(pathToFileURL(builtThemesPath).href);
 const typographyModule = await import(pathToFileURL(builtTypographyPath).href);
 const geometryModule = await import(pathToFileURL(builtGeometryPath).href);
+const { serializeThemeOpacity } = await import(pathToFileURL(builtOpacityPath).href);
 const themes = themeModule.miaixzBuiltInThemes;
 const contract = themeModule.miaixzThemeSerializationContract;
 const typographyFields = typographyModule.miaixzThemeTypographyFields;
@@ -92,6 +95,7 @@ function serializeTheme(theme, order, typographyOrder, familyFields, geometryRan
     for (const token of order.colors) {
       declarations.push(`--miaixz-color-${token}: ${mode.colors[token]};`);
     }
+    declarations.push(...serializeThemeOpacity(theme.tokens.opacity));
     for (const field of typographyOrder) {
       const prefix = familyFields.has(field) ? "font-" : "text-";
       const value = theme.tokens.typography[field];

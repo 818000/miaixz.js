@@ -12,6 +12,7 @@ import {
   miaixzThemeLayoutGeometryRanges,
 } from "../tokens/geometry.js";
 import { miaixzThemeRadiusFields, miaixzThemeRadiusRange } from "../tokens/radius.js";
+import { miaixzThemeOpacityFields, miaixzThemeOpacityRange } from "../tokens/opacity.js";
 import {
   miaixzThemeShadowFields,
   miaixzThemeShadowLevels,
@@ -36,6 +37,7 @@ const themeKeys = new Set([
   "modes",
 ]);
 const tokenGroupKeys = new Set([
+  "opacity",
   "composition",
   "typography",
   "radius",
@@ -56,7 +58,6 @@ const normalContrastPairs = [
   ["text-primary", "background"],
   ["text-secondary", "background"],
   ["text-muted", "background"],
-  ["on-brand", "brand"],
   ["success", "success-soft"],
   ["warning", "warning-soft"],
   ["danger", "danger-soft"],
@@ -120,7 +121,12 @@ export function validateThemeDefinition(value: unknown): Readonly<MiaixzThemeDef
 }
 
 /**
- * Validates completeness, cross-field geometry, surface references, and contrast.
+ * Validates completeness, cross-field geometry, surface references, and content contrast.
+ *
+ * Brand-fill foregrounds are theme-authored presentation choices. Their contrast
+ * remains checked by the strict brand contrast and accessibility audits, rather
+ * than rejecting the entire application at runtime. Content and status contrast
+ * requirements remain blocking.
  *
  * @param theme - Fully inherited theme candidate.
  * @returns The same deeply frozen resolved theme.
@@ -129,6 +135,12 @@ export function validateThemeDefinition(value: unknown): Readonly<MiaixzThemeDef
 export function validateResolvedTheme(
   theme: Readonly<MiaixzResolvedThemeDefinition>,
 ): Readonly<MiaixzResolvedThemeDefinition> {
+  assertCompleteObject(
+    theme.tokens.opacity,
+    miaixzThemeOpacityFields,
+    "tokens.opacity",
+    theme.name,
+  );
   for (const mode of ["light", "dark"] as const) {
     const colors = theme.modes[mode].colors;
     assertCompleteObject(colors, miaixzThemeColorTokens, `modes.${mode}.colors`, theme.name);
@@ -223,6 +235,18 @@ function parseTokens(value: unknown, theme: string) {
   const record = readRecord(value, "tokens", theme);
   assertOnlyKeys(record, tokenGroupKeys, "tokens", theme);
   return {
+    ...(record.opacity === undefined
+      ? {}
+      : {
+          opacity: parseRangedRecord(
+            record.opacity,
+            miaixzThemeOpacityFields,
+            () => miaixzThemeOpacityRange,
+            "tokens.opacity",
+            theme,
+            "UI_THEME_INVALID",
+          ),
+        }),
     ...(record.composition === undefined
       ? {}
       : { composition: parseComposition(record.composition, theme) }),

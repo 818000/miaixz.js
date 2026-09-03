@@ -99,6 +99,14 @@
   gap: var(--miaixz-panel-gap);
 }
 
+.miaixz-panel-body-flush > .miaixz-panel-body {
+  padding-inline: 0;
+}
+
+.miaixz-panel.miaixz-panel-header-inline > .miaixz-panel-header {
+  flex-direction: row;
+}
+
 .miaixz-panel-body-fill > .miaixz-panel-body {
   flex: 1;
   min-height: 0;

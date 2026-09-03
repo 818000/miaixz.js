@@ -27,18 +27,81 @@
   border-radius: 0;
 }
 
-.miaixz-datagrid-container {
+.miaixz-datagrid .miaixz-datagrid-container {
   border: 0;
 }
 
-.miaixz-datagrid .miaixz-table-head {
+.miaixz-datagrid-inset {
+  padding-inline: var(--miaixz-space-20);
+}
+
+@media (width <= 720px) {
+  .miaixz-datagrid-inset .miaixz-table {
+    min-inline-size: calc(var(--miaixz-layout-card-min-width) * 3 + var(--miaixz-space-40) * 3);
+  }
+}
+
+.miaixz-datagrid-body-fill {
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.miaixz-datagrid-body-content .miaixz-datagrid-container {
+  overscroll-behavior-y: auto;
+}
+
+.miaixz-datagrid-body-fill > .miaixz-overlay,
+.miaixz-datagrid-body-fill > .miaixz-overlay > .miaixz-overlay-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.miaixz-datagrid-body-fill .miaixz-datagrid-container {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.miaixz-datagrid-body-fill .miaixz-table-head {
   position: sticky;
   top: 0;
   z-index: var(--miaixz-z-sticky);
+  background: var(--miaixz-surface-role-panel-background);
+}
+
+.miaixz-datagrid-layout-fixed .miaixz-table {
+  table-layout: fixed;
+}
+
+.miaixz-datagrid-caption-hidden .miaixz-table-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.miaixz-datagrid-rows-comfortable .miaixz-table-cell {
+  height: calc(var(--miaixz-space-32) * 2);
+  padding: var(--miaixz-space-12) var(--miaixz-space-16);
+}
+
+.miaixz-datagrid-rows-comfortable .miaixz-table-header {
+  height: calc(var(--miaixz-space-24) * 2);
+  padding-inline: var(--miaixz-space-16);
+}
+
+.miaixz-datagrid-inset .miaixz-datagrid-pagination {
+  min-height: calc(var(--miaixz-space-32) * 2);
+  padding-block: var(--miaixz-space-12) var(--miaixz-space-16);
 }
 
 .miaixz-datagrid .miaixz-table-row:hover {
-  background: color-mix(in srgb, var(--miaixz-color-brand) 5%, var(--miaixz-color-surface));
+  background: var(--miaixz-color-surface-hover);
 }
 
 .miaixz-datagrid .miaixz-table-cell {

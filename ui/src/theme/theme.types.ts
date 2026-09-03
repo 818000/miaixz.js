@@ -11,6 +11,7 @@ import type { MiaixzThemeError } from "./errors.js";
 import type { MiaixzThemeColorToken, MiaixzThemeColors } from "../tokens/colors.js";
 import type { MiaixzThemeComposition } from "../tokens/composition.js";
 import type { MiaixzThemeGeometry } from "../tokens/geometry.js";
+import type { MiaixzThemeOpacity } from "../tokens/opacity.js";
 import type { MiaixzThemeRadius } from "../tokens/radius.js";
 import type { MiaixzThemeShadow } from "../tokens/shadow.js";
 import type { MiaixzThemeSurfaces } from "../tokens/surfaces.js";
@@ -50,6 +51,10 @@ export type MiaixzThemeErrorCode =
  * @public
  */
 export interface MiaixzThemeTokens {
+  /**
+   * Theme-controlled semantic opacity values.
+   */
+  readonly opacity?: MiaixzThemeOpacity;
   /**
    * Registered component composition variants.
    */
@@ -217,6 +222,10 @@ export interface MiaixzResolvedThemeGeometry extends Readonly<
  * @public
  */
 export interface MiaixzResolvedThemeTokens {
+  /**
+   * Complete semantic opacity values.
+   */
+  readonly opacity: Required<MiaixzThemeOpacity>;
   /**
    * Complete registered component composition variants.
    */

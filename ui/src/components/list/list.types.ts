@@ -14,6 +14,9 @@ export interface ListProps extends HTMLAttributes<HTMLUListElement> {
   density?: "default" | "compact";
   /**
    * Selects a reusable row composition.
+   * Overview and alert rows retain their hover and descendant keyboard-focus treatment
+   * when a single content root contains independently interactive titles.
+   * This visual treatment does not make the row itself a link or button.
    */
   variant?: "alert" | "default" | "overview";
   /**

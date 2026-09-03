@@ -11,8 +11,12 @@ interface MetricBaseProps extends Omit<
 > {
   /**
    * Selects the standard or compact summary-card composition.
+   * Strip entries require an outer framed group: they own internal dividers only,
+   * inline above 720px and stacked at 720px and below.
    */
-  readonly variant?: "default" | "summary";
+  readonly variant?: "default" | "summary" | "strip" | "compact" | "card";
+  /** Emphasizes a primary metric without changing its semantic tone. */
+  readonly emphasized?: boolean;
   /**
    * Supplies the metric label.
    */
@@ -27,6 +31,8 @@ interface MetricBaseProps extends Omit<
   readonly hint?: ReactNode;
   /**
    * Supplies an optional leading icon.
+   * Strip icons appear in a circular holder with theme tone fill on hover or keyboard focus.
+   * Supplying an icon does not make a static metric interactive.
    */
   readonly icon?: ReactNode;
   /**

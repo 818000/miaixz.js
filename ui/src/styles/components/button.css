@@ -64,13 +64,14 @@
 
 .miaixz-button-link:disabled,
 .miaixz-button-link[aria-disabled="true"] {
+  color: var(--miaixz-color-text-disabled);
   text-decoration: none;
   background: transparent;
   border-color: transparent;
 }
 
 .miaixz-button-link:focus-visible:not(:disabled, [aria-disabled="true"]) {
-  color: var(--miaixz-color-brand-hover);
+  color: var(--miaixz-color-brand);
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-underline-offset: 0.18em;
@@ -79,7 +80,7 @@
 }
 
 .miaixz-button-link:hover:not(:disabled, [aria-disabled="true"]) {
-  color: var(--miaixz-color-brand-hover);
+  color: var(--miaixz-color-brand);
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-underline-offset: 0.18em;
@@ -148,7 +149,7 @@
 }
 
 .miaixz-button-refresh:hover:not(:disabled, [aria-disabled="true"]) {
-  color: var(--miaixz-color-brand-hover);
+  color: var(--miaixz-color-text-primary);
   background: transparent;
 }
 
@@ -181,7 +182,7 @@
 }
 
 .miaixz-button-outline:hover:not(:disabled, [aria-disabled="true"]) {
-  background: var(--miaixz-color-brand-soft);
+  background: var(--miaixz-color-surface-hover);
 }
 
 .miaixz-button-danger {
@@ -191,21 +192,13 @@
 }
 
 .miaixz-button-danger:hover:not(:disabled, [aria-disabled="true"]) {
-  background: color-mix(in srgb, var(--miaixz-color-danger) 88%, var(--miaixz-color-text-primary));
-  border-color: color-mix(
-    in srgb,
-    var(--miaixz-color-danger) 88%,
-    var(--miaixz-color-text-primary)
-  );
+  background: var(--miaixz-color-danger);
+  border-color: var(--miaixz-color-danger);
 }
 
 .miaixz-button-danger:active:not(:disabled, [aria-disabled="true"]) {
-  background: color-mix(in srgb, var(--miaixz-color-danger) 78%, var(--miaixz-color-text-primary));
-  border-color: color-mix(
-    in srgb,
-    var(--miaixz-color-danger) 78%,
-    var(--miaixz-color-text-primary)
-  );
+  background: var(--miaixz-color-danger);
+  border-color: var(--miaixz-color-danger);
 }
 
 .miaixz-button:disabled:not(.miaixz-button-link),
@@ -233,5 +226,46 @@
 }
 
 .miaixz-button-outline:active:not(:disabled, [aria-disabled="true"]) {
-  background: var(--miaixz-color-brand-soft-hover);
+  background: var(--miaixz-color-surface-active);
+}
+
+/* Icon actions keep their hit area and native button semantics, without a frame.
+ * These shared states also cover close/clear controls composed by other UI. */
+.miaixz-button.miaixz-button-icon-only,
+.miaixz-button.miaixz-button-icon-only:is(:hover, :active, :focus-within) {
+  color: var(--miaixz-color-text-primary);
+  text-decoration: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.miaixz-button.miaixz-button-icon-only:is(:disabled, [aria-disabled="true"]) {
+  color: var(--miaixz-color-text-disabled);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.miaixz-button.miaixz-button-icon-only:is(:hover, :focus-visible):not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-button.miaixz-button-icon-only.miaixz-button-danger:not(:disabled, [aria-disabled="true"]) {
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-button.miaixz-button-icon-only:focus-visible:not(:disabled, [aria-disabled="true"]) {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-space-2);
+}
+
+@media (forced-colors: active) {
+  .miaixz-button.miaixz-button-icon-only:focus-visible:not(:disabled, [aria-disabled="true"]) {
+    outline-color: Highlight;
+  }
 }

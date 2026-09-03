@@ -16,6 +16,7 @@ export const NavigationRail = forwardRef<HTMLDivElement, NavigationRailProps>(
       navigation,
       utility,
       expanded = false,
+      variant = "default",
       className,
       classNames: slotClassNames = {},
       ...props
@@ -27,6 +28,7 @@ export const NavigationRail = forwardRef<HTMLDivElement, NavigationRailProps>(
         {...props}
         ref={ref}
         data-expanded={expanded || undefined}
+        data-variant={variant}
         className={classNames("miaixz-navigation-rail-frame", className, slotClassNames.root)}
       >
         <div className={classNames("miaixz-navigation-rail-header", slotClassNames.header)}>

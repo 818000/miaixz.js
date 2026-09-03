@@ -9,7 +9,7 @@
 
 .miaixz-progress {
   --miaixz-progress-tone-fill: var(--miaixz-color-brand);
-  --miaixz-progress-tone-track: var(--miaixz-color-brand-soft);
+  --miaixz-progress-tone-track: var(--miaixz-color-surface-active);
 
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -125,11 +125,7 @@
 }
 
 .miaixz-progress-tone-data {
-  --miaixz-progress-tone-track: color-mix(
-    in srgb,
-    var(--miaixz-progress-tone-fill) 16%,
-    var(--miaixz-color-surface)
-  );
+  --miaixz-progress-tone-track: var(--miaixz-color-surface-active);
 }
 
 .miaixz-progress-tone-data-1 {

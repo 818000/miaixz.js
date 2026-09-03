@@ -1,6 +1,13 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
 /**
+ * Selects the narrow-screen navigation presentation.
+ *
+ * @public
+ */
+export type ShellMobileNavigationMode = "bottom" | "drawer";
+
+/**
  * Configures the root application shell. @public
  */
 export interface ShellProps extends HTMLAttributes<HTMLDivElement> {
@@ -13,7 +20,10 @@ export interface ShellProps extends HTMLAttributes<HTMLDivElement> {
    */
   sidebar: ReactNode;
   /**
-   * Selects whether the header remains pinned or scrolls with content.
+   * Selects viewport-contained main scrolling (`fixed`) or document scrolling (`scroll`).
+   * Fixed mode keeps the header and navigation outside the main scroll region.
+   * Both modes suppress vertical boundary bounce while preserving normal scrolling.
+   * Nested sticky content can consume `--miaixz-shell-content-sticky-offset`.
    *
    * @defaultValue `"fixed"`
    */
@@ -28,6 +38,20 @@ export interface ShellProps extends HTMLAttributes<HTMLDivElement> {
    * @defaultValue `false`
    */
   navigationExpanded?: boolean;
+  /**
+   * Selects bottom navigation or a sidebar drawer on narrow screens.
+   *
+   * @defaultValue `"bottom"`
+   */
+  mobileNavigationMode?: ShellMobileNavigationMode;
+  /**
+   * Labels the drawer backdrop control for assistive technology.
+   */
+  navigationDismissLabel?: string;
+  /**
+   * Closes the narrow-screen navigation drawer.
+   */
+  onNavigationDismiss?: () => void;
   /**
    * Supplies optional narrow-screen bottom navigation.
    */

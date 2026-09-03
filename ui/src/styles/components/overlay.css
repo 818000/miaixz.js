@@ -19,6 +19,6 @@
   place-items: center;
   color: var(--miaixz-color-text-primary);
   pointer-events: auto;
-  background: color-mix(in srgb, var(--miaixz-color-surface) 86%, transparent);
+  background: var(--miaixz-color-surface);
   border-radius: inherit;
 }

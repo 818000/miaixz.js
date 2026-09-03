@@ -8,4 +8,18 @@ import type { ButtonHTMLAttributes } from "react";
  *
  * @public
  */
-export interface PressableProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface PressableProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /**
+   * Selects a reusable interaction surface; business content remains a child.
+   * The link variant shares anchor colors and underlines while retaining button semantics.
+   */
+  variant?: "default" | "row" | "pill" | "card" | "link";
+  /**
+   * Selects a shared row density.
+   */
+  density?: "compact" | "standard" | "comfortable";
+  /**
+   * Selects a row separator without business-owned control CSS.
+   */
+  separator?: "solid" | "dashed" | "none";
+}

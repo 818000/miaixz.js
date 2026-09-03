@@ -1,4 +1,5 @@
-import { forwardRef, type CSSProperties } from "react";
+import { forwardRef, useId, type CSSProperties } from "react";
+import { Hidden } from "../hidden/index.js";
 
 import { classNames } from "../../internal/class-names.js";
 import { useVisualizationMotion } from "../../internal/use-visualization-motion.js";
@@ -24,6 +25,8 @@ export const Columns = forwardRef<HTMLDivElement, ColumnsProps>(function Columns
     labels,
     series,
     maximum: suppliedMaximum,
+    showLegend = false,
+    size = "default",
     tone,
     variant = "default",
     className,
@@ -34,6 +37,7 @@ export const Columns = forwardRef<HTMLDivElement, ColumnsProps>(function Columns
   },
   forwardedRef,
 ) {
+  const descriptionId = useId();
   const { ref, motionState, handlePointerEnter, handlePointerLeave } =
     useVisualizationMotion<HTMLDivElement>({
       forwardedRef,
@@ -66,6 +70,7 @@ export const Columns = forwardRef<HTMLDivElement, ColumnsProps>(function Columns
       ref={ref}
       role="img"
       aria-label={ariaLabel}
+      aria-describedby={[props["aria-describedby"], descriptionId].filter(Boolean).join(" ")}
       data-state={isEmpty ? "empty" : "ready"}
       data-motion-state={motionState}
       data-tone={tone}
@@ -73,11 +78,31 @@ export const Columns = forwardRef<HTMLDivElement, ColumnsProps>(function Columns
         "miaixz-columns",
         `miaixz-columns-${variant}`,
         `miaixz-columns-tone-${tone}`,
+        size === "large" && "miaixz-columns-large",
+        showLegend && "miaixz-columns-with-legend",
         className,
       )}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
     >
+      <Hidden id={descriptionId}>
+        {labels
+          .map(
+            (label, index) =>
+              `${label}：${series.map((item) => `${item.label} ${item.values[index]}`).join("、")}`,
+          )
+          .join("；")}
+      </Hidden>
+      {showLegend && (
+        <span className="miaixz-columns-legend" aria-hidden="true">
+          {series.map((item, index) => (
+            <span key={item.label}>
+              <i className={index === 1 ? "miaixz-columns-key-secondary" : undefined} />
+              {item.label}
+            </span>
+          ))}
+        </span>
+      )}
       <span className="miaixz-columns-plot" aria-hidden="true">
         {!isEmpty &&
           labels.map((label, labelIndex) => (

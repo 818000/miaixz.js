@@ -2,6 +2,7 @@
   --miaixz-toolbar-collapse-width: 480px;
 
   display: flex;
+  flex-wrap: wrap;
   gap: var(--miaixz-space-24);
   align-items: flex-start;
   justify-content: space-between;
@@ -12,7 +13,26 @@
 }
 
 .miaixz-header-content {
+  flex: 1 1 12rem;
   min-width: 0;
+}
+
+.miaixz-header-unspaced {
+  margin-block-end: 0;
+}
+
+.miaixz-header-compact {
+  min-height: calc(var(--miaixz-space-24) * 3);
+  align-items: center;
+}
+
+.miaixz-header-compact .miaixz-header-title {
+  font-weight: var(--miaixz-font-weight-bold);
+}
+
+.miaixz-header-compact .miaixz-header-description {
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
 }
 
 .miaixz-header-eyebrow {
@@ -42,10 +62,29 @@
 .miaixz-header-actions {
   display: flex;
   flex: none;
+  max-inline-size: 100%;
   flex-wrap: wrap;
   gap: var(--miaixz-space-8);
   align-items: center;
   justify-content: flex-end;
+}
+
+@media (max-width: 980px) {
+  .miaixz-header-compact {
+    min-height: calc(var(--miaixz-space-16) * 4);
+  }
+}
+
+@media (max-width: 720px) {
+  .miaixz-header-compact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--miaixz-space-20);
+    padding-block: var(--miaixz-space-12);
+  }
+  .miaixz-header-compact .miaixz-header-content {
+    flex: none;
+  }
 }
 
 @container miaixz-toolbar (width < 480px) {

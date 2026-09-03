@@ -1,12 +1,15 @@
 /**
  * Miaixz semantic link system
  *
- * Text links use the brand color. Underlines are reserved for hover and
- * keyboard focus so dense application surfaces stay calm at rest.
- * Component-level navigation may intentionally override these defaults.
+ * Text links use the theme brand primary. Underlines are reserved for hover and
+ * keyboard focus by default. Public decoration classes opt into always-on or
+ * always-off underlines without changing text color or interaction semantics.
+ * The shared override layer keeps navigation and product styles from replacing
+ * the link contract. Filled primary buttons retain their on-brand foreground.
  */
 
-[data-miaixz-theme] :where(a[href]) {
+[data-miaixz-theme]
+  :where(a:not(.miaixz-button-primary), .miaixz-button-link, .miaixz-pressable-link) {
   color: var(--miaixz-color-brand);
   text-decoration-line: none;
   text-decoration-thickness: var(--miaixz-border-width-default);
@@ -14,8 +17,52 @@
   text-underline-offset: 0.18em;
 }
 
-[data-miaixz-theme] :where(a[href]:hover, a[href]:focus-visible) {
-  color: var(--miaixz-color-brand-hover);
+[data-miaixz-theme]
+  :where(a:not(.miaixz-button-primary), .miaixz-button-link, .miaixz-pressable-link):is(
+    :hover,
+    :focus-visible
+  ) {
+  color: var(--miaixz-color-brand);
   text-decoration-line: underline;
   text-decoration-color: currentcolor;
+}
+
+/* Regions can opt into inherited anchor text without changing link interactions,
+ * semantic children, filled primary buttons or links elsewhere in the app. */
+[data-miaixz-theme] :where([data-miaixz-link-tone="inherit"] a:not(.miaixz-button-primary)),
+[data-miaixz-theme]
+  :where([data-miaixz-link-tone="inherit"] a:not(.miaixz-button-primary)):is(
+    :hover,
+    :focus-visible
+  ) {
+  color: inherit;
+}
+
+/* Apply these mutually exclusive classes directly to the link/action, not its
+ * wrapper: ancestor text decorations cannot be cancelled by a child. */
+[data-miaixz-theme] :where(.miaixz-link-underline),
+[data-miaixz-theme] :where(.miaixz-link-underline):is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--miaixz-border-width-default);
+  text-decoration-color: currentcolor;
+  text-underline-offset: 0.18em;
+}
+
+/* If both classes are supplied accidentally, the no-underline variant wins. */
+[data-miaixz-theme] :where(.miaixz-link-no-underline),
+[data-miaixz-theme] :where(.miaixz-link-no-underline):is(:hover, :focus-visible) {
+  text-decoration-line: none;
+  text-decoration-color: currentcolor;
+}
+
+[data-miaixz-theme]
+  :where(
+    a,
+    .miaixz-button-link,
+    .miaixz-pressable-link,
+    .miaixz-link-underline,
+    .miaixz-link-no-underline
+  ):is(:disabled, [aria-disabled="true"], [data-disabled="true"]) {
+  color: var(--miaixz-color-text-disabled);
+  text-decoration-line: none;
 }

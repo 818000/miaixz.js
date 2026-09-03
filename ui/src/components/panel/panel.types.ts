@@ -6,6 +6,10 @@ import type { HTMLAttributes, ReactNode } from "react";
  * @public
  */
 export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+  /** Removes body inline padding while preserving header and footer spacing. */
+  bodyFlush?: boolean;
+  /** Keeps short titles and actions side by side in a narrow panel. */
+  headerLayout?: "responsive" | "inline";
   /**
    * Selects whether the body grows to fill the panel.
    */

@@ -23,9 +23,9 @@
   --miaixz-control-focus-width: var(--miaixz-border-width-2);
   --miaixz-control-focus-offset: 0;
   --miaixz-control-focus-shadow: inset 0 calc(-1 * var(--miaixz-control-focus-width)) 0
-    color-mix(in srgb, var(--miaixz-color-brand) 72%, transparent);
+    var(--miaixz-color-brand);
   --miaixz-control-invalid-shadow: inset 0 calc(-1 * var(--miaixz-control-focus-width)) 0
-    color-mix(in srgb, var(--miaixz-color-danger) 72%, transparent);
+    var(--miaixz-color-danger);
 }
 
 .miaixz-control {
@@ -98,6 +98,46 @@
 }
 /* stylelint-enable no-descending-specificity */
 
+/* Field shells own the focus indicator; internal editors must not add a second ring.
+ * Match the theme fallback's specificity without raising border/shadow state priority.
+ * Independent buttons and links are intentionally outside this contract.
+ */
+[data-miaixz-theme]
+  :where(
+    .miaixz-input,
+    .miaixz-textarea,
+    .miaixz-select,
+    .miaixz-combobox-control,
+    .miaixz-picker-control
+  ):focus-within,
+[data-miaixz-theme]
+  :where(
+    .miaixz-input-element,
+    .miaixz-select-trigger,
+    .miaixz-combobox-input,
+    .miaixz-combobox-toggle,
+    .miaixz-picker-input,
+    .miaixz-picker-toggle
+  ):focus-visible {
+  outline: 0;
+  outline-offset: 0;
+}
+
+/* Readonly fields have no editable bottom line, but remain keyboard discoverable. */
+[data-miaixz-theme]
+  :where(
+    .miaixz-input,
+    .miaixz-textarea,
+    .miaixz-select,
+    .miaixz-combobox-control,
+    .miaixz-picker-control
+  ):where([readonly], [data-readonly="true"]):not(
+    :where([aria-invalid="true"], [data-invalid="true"])
+  ):focus-within {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-space-2);
+}
+
 .miaixz-control-small {
   min-height: var(--miaixz-control-height-small);
   padding-inline: var(--miaixz-control-padding-inline-small);
@@ -122,5 +162,20 @@
   .miaixz-control-small,
   .miaixz-control-medium {
     min-height: var(--miaixz-control-min-target-size);
+  }
+}
+
+/* Forced colors suppress shadows/backgrounds, so expose one system focus ring. */
+@media (forced-colors: active) {
+  [data-miaixz-theme]
+    :where(
+      .miaixz-input,
+      .miaixz-textarea,
+      .miaixz-select,
+      .miaixz-combobox-control,
+      .miaixz-picker-control
+    ):focus-within {
+    outline: var(--miaixz-control-focus-width) solid Highlight;
+    outline-offset: var(--miaixz-space-2);
   }
 }

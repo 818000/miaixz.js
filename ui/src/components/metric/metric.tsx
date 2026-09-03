@@ -12,6 +12,7 @@ import type { MetricProps } from "./metric.types.js";
 export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
   {
     label,
+    emphasized = false,
     value,
     hint,
     icon,
@@ -39,6 +40,7 @@ export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
   const metricClassName = classNames(
     "miaixz-metric",
     `miaixz-metric-${variant}`,
+    variant === "strip" && icon != null && "miaixz-metric-strip-with-icon",
     `miaixz-metric-tone-${tone}`,
     interactive && "miaixz-metric-interactive",
     className,
@@ -65,6 +67,7 @@ export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
         {...props}
         ref={ref as Ref<HTMLAnchorElement>}
         className={metricClassName}
+        data-emphasized={emphasized || undefined}
         href={href}
         data-motion-state={motionState}
         data-tone={tone}
@@ -81,6 +84,7 @@ export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
         {...props}
         ref={ref as Ref<HTMLButtonElement>}
         className={metricClassName}
+        data-emphasized={emphasized || undefined}
         type="button"
         data-motion-state={motionState}
         data-tone={tone}
@@ -97,6 +101,7 @@ export const Metric = forwardRef<HTMLElement, MetricProps>(function Metric(
       {...props}
       ref={ref}
       className={metricClassName}
+      data-emphasized={emphasized || undefined}
       data-motion-state={motionState}
       data-tone={tone}
       onPointerEnter={handlePointerEnter}

@@ -35,6 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {...props}
       ref={ref}
       type={type}
+      title={props.title ?? (iconOnly ? props["aria-label"] : undefined)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       data-loading={loading || undefined}
@@ -47,6 +48,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         `miaixz-button-${variant}`,
         block && "miaixz-control-block",
         iconOnly && "miaixz-button-icon-only",
+        iconOnly && "miaixz-link-no-underline",
         className,
       )}
     >

@@ -150,12 +150,11 @@
 
 .miaixz-donut-completion:hover,
 .miaixz-donut-token:hover {
-  filter: saturate(1.12);
   transform: scale(1.035);
 }
 
 .miaixz-donut-completion .miaixz-donut-track {
-  stroke: color-mix(in srgb, var(--miaixz-color-border) 48%, transparent);
+  stroke: var(--miaixz-color-border);
 }
 
 .miaixz-donut-token .miaixz-donut-track {

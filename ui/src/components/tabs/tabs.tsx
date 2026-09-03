@@ -22,6 +22,10 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
   {
     items,
     label,
+    actions,
+    actionsPlacement = "end",
+    headerInset = false,
+    variant = "default",
     value: controlledValue,
     defaultValue,
     onValueChange,
@@ -72,6 +76,38 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
     }
   }
 
+  const tabList = (
+    <div
+      role="tablist"
+      aria-label={label}
+      aria-orientation={orientation}
+      className="miaixz-tabs-list"
+    >
+      {items.map((item) => {
+        const selected = selectedValue === item.value;
+        const idValue = valueId(item.value);
+        return (
+          <button
+            key={item.value}
+            id={`${baseId}-tab-${idValue}`}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            aria-controls={`${baseId}-panel-${idValue}`}
+            tabIndex={selected ? 0 : -1}
+            disabled={item.disabled}
+            className="miaixz-tab"
+            onClick={() => select(item.value)}
+            onKeyDown={handleKeyDown}
+          >
+            <span>{item.label}</span>
+            {item.count !== undefined && <span className="miaixz-tab-count">{item.count}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div
       {...props}
@@ -79,39 +115,23 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
       data-orientation={orientation}
       className={classNames(
         "miaixz-tabs",
+        variant === "navigation" && "miaixz-tabs-navigation",
         orientation === "vertical" && "miaixz-tabs-vertical",
         className,
       )}
     >
-      <div
-        role="tablist"
-        aria-label={label}
-        aria-orientation={orientation}
-        className="miaixz-tabs-list"
-      >
-        {items.map((item) => {
-          const selected = selectedValue === item.value;
-          const idValue = valueId(item.value);
-          return (
-            <button
-              key={item.value}
-              id={`${baseId}-tab-${idValue}`}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              aria-controls={`${baseId}-panel-${idValue}`}
-              tabIndex={selected ? 0 : -1}
-              disabled={item.disabled}
-              className="miaixz-tab"
-              onClick={() => select(item.value)}
-              onKeyDown={handleKeyDown}
-            >
-              <span>{item.label}</span>
-              {item.count !== undefined && <span className="miaixz-tab-count">{item.count}</span>}
-            </button>
-          );
-        })}
-      </div>
+      {actions !== undefined ? (
+        <div
+          className="miaixz-tabs-header"
+          data-actions-placement={actionsPlacement}
+          data-inset={headerInset || undefined}
+        >
+          {tabList}
+          <div className="miaixz-tabs-actions">{actions}</div>
+        </div>
+      ) : (
+        tabList
+      )}
       {items.map((item) => {
         const selected = selectedValue === item.value;
         const idValue = valueId(item.value);
