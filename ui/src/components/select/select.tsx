@@ -15,9 +15,9 @@ import {
 import { createPortal } from "react-dom";
 
 import { classNames } from "../../internal/class-names.js";
+import { useMiaixzOptionSurface } from "../../internal/option-surface.js";
 import {
   useMiaixzDismissibleLayer,
-  useMiaixzFloatingPosition,
   useMiaixzManualPopover,
   useMiaixzPortalTarget,
 } from "../../internal/overlay/index.js";
@@ -113,7 +113,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   }, [disabled, options, readOnly, selectedIndex]);
 
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
-  useMiaixzFloatingPosition(rootRef, surfaceRef, open, "bottom-start", portalTarget);
+  const activeOptionId = open && activeIndex >= 0 ? `${optionIdPrefix}-${activeIndex}` : undefined;
+  useMiaixzOptionSurface(rootRef, surfaceRef, open, portalTarget, activeOptionId);
   useMiaixzDismissibleLayer({
     active: open,
     triggerRef,
@@ -218,9 +219,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         aria-controls={listboxId}
         aria-expanded={open}
         aria-haspopup="listbox"
-        aria-activedescendant={
-          open && activeIndex >= 0 ? `${optionIdPrefix}-${activeIndex}` : undefined
-        }
+        aria-activedescendant={activeOptionId}
         aria-invalid={isInvalid || undefined}
         aria-readonly={readOnly || undefined}
         disabled={disabled}
@@ -240,7 +239,6 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
             role="listbox"
             className="miaixz-select-surface"
             aria-label={ariaLabel}
-            style={{ width: rootRef.current?.getBoundingClientRect().width }}
           >
             {options.map((option, index) => {
               const selected = option.value === selectedValue;

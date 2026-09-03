@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useCallback,
+  useContext,
   useEffect,
   useId,
   useMemo,
@@ -17,9 +18,10 @@ import { createPortal } from "react-dom";
 import { createMiaixzUiError } from "../../errors/index.js";
 import { useMiaixzLocale, type MiaixzTranslator } from "../../i18n/index.js";
 import { classNames } from "../../internal/class-names.js";
+import { MiaixzFieldContext } from "../../internal/field-context.js";
+import { useMiaixzOptionSurface } from "../../internal/option-surface.js";
 import {
   useMiaixzDismissibleLayer,
-  useMiaixzFloatingPosition,
   useMiaixzManualPopover,
   useMiaixzPortalTarget,
 } from "../../internal/overlay/index.js";
@@ -306,14 +308,15 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
   const { t } = useMiaixzLocale();
   validateMiaixzComboboxOptionSource(t, options, loadOptions);
 
-  const { className, ...nativeRootProps } = rootProps;
+  const { className, id: rootId, ...nativeRootProps } = rootProps;
+  const fieldContext = useContext(MiaixzFieldContext);
+  const field = fieldContext?.controlId === rootId ? fieldContext : null;
   const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
   const rootRef = useMergedRef(forwardedRef, setRootElement);
   const controlRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [surfaceWidth, setSurfaceWidth] = useState<number>();
   const [activeIndex, setActiveIndex] = useState(-1);
   const [loadedOptions, setLoadedOptions] = useState<readonly MiaixzOption<Value>[]>([]);
   const [knownOptions, setKnownOptions] = useState<ReadonlyMap<Value, MiaixzOption<Value>>>(
@@ -323,7 +326,8 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
   const [loadFailed, setLoadFailed] = useState(false);
   const requestSequenceRef = useRef(0);
   const listboxId = useId();
-  const labelId = useId();
+  const generatedLabelId = useId();
+  const labelId = field?.labelId ?? generatedLabelId;
   const optionIdPrefix = useId();
   const portalTarget = useMiaixzPortalTarget(rootElement);
   const asynchronous = loadOptions !== undefined;
@@ -355,7 +359,6 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
   }, [disabled, open, prepareAsynchronousQuery, readOnly]);
 
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
-  useMiaixzFloatingPosition(controlRef, surfaceRef, open, "bottom-start", portalTarget);
   useMiaixzDismissibleLayer({
     active: open,
     triggerRef: controlRef,
@@ -368,16 +371,6 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
     if ((!disabled && !readOnly) || !open) return;
     queueMicrotask(() => close(false));
   }, [close, disabled, open, readOnly]);
-
-  useEffect(() => {
-    if (!open || controlRef.current === null) return undefined;
-    const control = controlRef.current;
-    const synchronizeWidth = () => setSurfaceWidth(control.getBoundingClientRect().width);
-    synchronizeWidth();
-    const observer = new ResizeObserver(synchronizeWidth);
-    observer.observe(control);
-    return () => observer.disconnect();
-  }, [open]);
 
   useEffect(() => {
     if (!open || loadOptions === undefined) return undefined;
@@ -493,6 +486,7 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
     open && resolvedActiveIndex >= 0
       ? `${optionIdPrefix}-option-${resolvedActiveIndex}`
       : undefined;
+  useMiaixzOptionSurface(controlRef, surfaceRef, open, portalTarget, activeOptionId);
   const status = loadFailed ? "error" : loading ? "loading" : "ready";
   const state = disabled ? "disabled" : readOnly ? "readonly" : open ? "open" : "closed";
   const filled = selectedValues.length > 0 || inputValue.length > 0;
@@ -500,6 +494,7 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
   return (
     <div
       {...nativeRootProps}
+      id={field ? undefined : rootId}
       ref={rootRef}
       className={classNames(`miaixz-${component}`, className)}
       data-state={state}
@@ -510,9 +505,11 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
       data-preview-state={previewState}
       aria-invalid={invalid || undefined}
     >
-      <label id={labelId} className={`miaixz-${component}-label`}>
-        {label}
-      </label>
+      {!field && (
+        <label id={labelId} className={`miaixz-${component}-label`}>
+          {label}
+        </label>
+      )}
       <div
         ref={controlRef}
         className={classNames("miaixz-control", `miaixz-${component}-control`)}
@@ -548,6 +545,7 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
         )}
         <input
           ref={inputRef}
+          id={field?.controlId}
           type="text"
           role="combobox"
           className={`miaixz-${component}-input`}
@@ -555,6 +553,8 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
           aria-controls={listboxId}
           aria-expanded={open}
           aria-labelledby={labelId}
+          aria-describedby={field?.describedBy ?? nativeRootProps["aria-describedby"]}
+          aria-required={field?.required || nativeRootProps["aria-required"] || undefined}
           aria-activedescendant={activeOptionId}
           autoComplete="off"
           value={inputValue}
@@ -604,7 +604,6 @@ export function MiaixzOptionPicker<Value extends string>(props: MiaixzOptionPick
             aria-labelledby={labelId}
             className={`miaixz-${component}-surface`}
             data-state={status}
-            style={{ width: surfaceWidth }}
           >
             {loading ? (
               <div id={listboxId} className={`miaixz-${component}-message`} role="status">
