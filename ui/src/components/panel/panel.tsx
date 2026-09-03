@@ -26,6 +26,8 @@ export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
     selected = false,
     interactive = false,
     flush = false,
+    bodyFlush = false,
+    headerLayout = "responsive",
     headingLevel = 3,
     className,
     children,
@@ -53,6 +55,8 @@ export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
         selected && "miaixz-panel-selected",
         interactive && "miaixz-panel-interactive",
         flush && "miaixz-panel-flush",
+        bodyFlush && "miaixz-panel-body-flush",
+        headerLayout === "inline" && "miaixz-panel-header-inline",
         surface === "transparent" && "miaixz-panel-transparent",
         className,
       )}

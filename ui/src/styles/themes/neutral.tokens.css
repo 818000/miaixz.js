@@ -9,9 +9,10 @@
   --miaixz-color-brand-strong: #111827;
   --miaixz-color-brand-soft: #e5e7eb;
   --miaixz-color-brand-soft-hover: #d1d5db;
-  --miaixz-color-background: #f5f5f5;
+  --miaixz-color-background: #ffffff;
   --miaixz-color-surface: #ffffff;
-  --miaixz-color-surface-secondary: #f3f4f6;
+  --miaixz-color-surface-secondary: #ffffff;
+  --miaixz-color-surface-chrome: #ffffff;
   --miaixz-color-surface-hover: #eceef1;
   --miaixz-color-surface-active: #e2e5e9;
   --miaixz-color-surface-selected: #e5e7eb;
@@ -44,6 +45,12 @@
   --miaixz-color-data-7: #3f5f78;
   --miaixz-color-data-8: #62531e;
   --miaixz-color-data-neutral: #59616c;
+  --miaixz-opacity-navigation-selected: 0.35;
+  --miaixz-color-navigation-selected: color-mix(
+    in srgb,
+    var(--miaixz-color-brand) calc(var(--miaixz-opacity-navigation-selected) * 100%),
+    transparent
+  );
   --miaixz-font-family-sans:
     "Avenir Next", "PingFang SC", "Noto Sans CJK SC", -apple-system, BlinkMacSystemFont,
     "Microsoft YaHei", system-ui, sans-serif;
@@ -103,14 +110,15 @@
   --miaixz-layout-entry-aside-percent: 55%;
   --miaixz-layout-appearance-trigger-size: 52px;
   --miaixz-layout-appearance-trigger-compact-size: 48px;
+  --miaixz-layout-appearance-trigger-visual-size: 44px;
   --miaixz-layout-appearance-block-position-percent: 33.3333%;
   --miaixz-surface-role-page-background: var(--miaixz-color-background);
   --miaixz-surface-role-page-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-page-border: var(--miaixz-color-border);
-  --miaixz-surface-role-header-background: var(--miaixz-color-surface);
+  --miaixz-surface-role-header-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-header-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-header-border: var(--miaixz-color-border);
-  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-secondary);
+  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-sidebar-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-sidebar-border: var(--miaixz-color-border);
   --miaixz-surface-role-panel-background: var(--miaixz-color-surface);
@@ -139,6 +147,7 @@
   --miaixz-color-background: #111214;
   --miaixz-color-surface: #1a1c1f;
   --miaixz-color-surface-secondary: #23262a;
+  --miaixz-color-surface-chrome: #1a1c1f;
   --miaixz-color-surface-hover: #2c3035;
   --miaixz-color-surface-active: #363b41;
   --miaixz-color-surface-selected: #30343a;
@@ -171,6 +180,12 @@
   --miaixz-color-data-7: #98bed7;
   --miaixz-color-data-8: #cec184;
   --miaixz-color-data-neutral: #b7bdc6;
+  --miaixz-opacity-navigation-selected: 0.35;
+  --miaixz-color-navigation-selected: color-mix(
+    in srgb,
+    var(--miaixz-color-brand) calc(var(--miaixz-opacity-navigation-selected) * 100%),
+    transparent
+  );
   --miaixz-font-family-sans:
     "Avenir Next", "PingFang SC", "Noto Sans CJK SC", -apple-system, BlinkMacSystemFont,
     "Microsoft YaHei", system-ui, sans-serif;
@@ -230,14 +245,15 @@
   --miaixz-layout-entry-aside-percent: 55%;
   --miaixz-layout-appearance-trigger-size: 52px;
   --miaixz-layout-appearance-trigger-compact-size: 48px;
+  --miaixz-layout-appearance-trigger-visual-size: 44px;
   --miaixz-layout-appearance-block-position-percent: 33.3333%;
   --miaixz-surface-role-page-background: var(--miaixz-color-background);
   --miaixz-surface-role-page-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-page-border: var(--miaixz-color-border);
-  --miaixz-surface-role-header-background: var(--miaixz-color-surface);
+  --miaixz-surface-role-header-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-header-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-header-border: var(--miaixz-color-border);
-  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-secondary);
+  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-sidebar-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-sidebar-border: var(--miaixz-color-border);
   --miaixz-surface-role-panel-background: var(--miaixz-color-surface);

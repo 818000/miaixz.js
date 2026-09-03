@@ -1,5 +1,6 @@
 @layer miaixz-foundation, miaixz-themes, miaixz-components, miaixz-modules, miaixz-pages, miaixz-utilities, miaixz-overrides;
 
+@import url("./foundation/layers.css");
 @import url("./foundation/tokens.css") layer(miaixz-foundation);
 @import url("./foundation/typography.css") layer(miaixz-foundation);
 @import url("./foundation/icons.css") layer(miaixz-foundation);
@@ -10,4 +11,4 @@
 @import url("./foundation/motion.css") layer(miaixz-foundation);
 @import url("./foundation/density.css") layer(miaixz-foundation);
 @import url("./foundation/controls.css") layer(miaixz-foundation);
-@import url("./foundation/link.css") layer(miaixz-foundation);
+@import url("./foundation/link.css") layer(miaixz-overrides);

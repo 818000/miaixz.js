@@ -54,6 +54,8 @@ interface MiaixzModalInteractionRecord {
    * Handles pointer activity captured before application click handlers run.
    */
   readonly handlePointerDown: (event: PointerEvent) => void;
+  /** Clears pointer history when keyboard interaction takes over. */
+  readonly handleKeyDown: () => void;
 }
 
 /**
@@ -122,9 +124,16 @@ function observeMiaixzModalInteractions(ownerDocument: Document): () => void {
         activeRecord.target = findMiaixzModalInteractionTarget(event.target);
         activeRecord.recordedAt = Date.now();
       },
+      handleKeyDown: () => {
+        const activeRecord = miaixzModalInteractionRecords.get(ownerDocument);
+        if (activeRecord === undefined) return;
+        activeRecord.target = null;
+        activeRecord.recordedAt = 0;
+      },
     };
     miaixzModalInteractionRecords.set(ownerDocument, record);
     ownerDocument.addEventListener("pointerdown", record.handlePointerDown, true);
+    ownerDocument.addEventListener("keydown", record.handleKeyDown, true);
   }
   record.references += 1;
 
@@ -137,6 +146,7 @@ function observeMiaixzModalInteractions(ownerDocument: Document): () => void {
     activeRecord.references -= 1;
     if (activeRecord.references > 0) return;
     ownerDocument.removeEventListener("pointerdown", activeRecord.handlePointerDown, true);
+    ownerDocument.removeEventListener("keydown", activeRecord.handleKeyDown, true);
     miaixzModalInteractionRecords.delete(ownerDocument);
   };
 }

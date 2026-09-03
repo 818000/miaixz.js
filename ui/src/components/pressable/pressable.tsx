@@ -9,13 +9,27 @@ import type { PressableProps } from "./pressable.types.js";
  * @public
  */
 export const Pressable = forwardRef<HTMLButtonElement, PressableProps>(function Pressable(
-  { className, disabled, type = "button", ...props },
+  {
+    className,
+    disabled,
+    type = "button",
+    variant = "default",
+    density = "standard",
+    separator = "solid",
+    ...props
+  },
   ref,
 ) {
   return (
     <button
       {...props}
-      className={classNames("miaixz-pressable", className)}
+      className={classNames(
+        "miaixz-pressable",
+        `miaixz-pressable-${variant}`,
+        `miaixz-pressable-density-${density}`,
+        `miaixz-pressable-separator-${separator}`,
+        className,
+      )}
       data-disabled={disabled || undefined}
       disabled={disabled}
       ref={ref}

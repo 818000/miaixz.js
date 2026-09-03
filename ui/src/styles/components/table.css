@@ -77,7 +77,7 @@
 
 .miaixz-table-body .miaixz-table-row:hover,
 .miaixz-table > tbody > tr:hover {
-  background: color-mix(in srgb, var(--miaixz-color-brand) 5%, var(--miaixz-color-surface));
+  background: var(--miaixz-color-surface-hover);
 }
 
 .miaixz-table-numeric {

@@ -49,6 +49,7 @@ export const miaixzThemeColorTokens = [
   "background",
   "surface",
   "surface-secondary",
+  "surface-chrome",
   "surface-hover",
   "surface-active",
   "surface-selected",

@@ -86,13 +86,13 @@
 }
 
 .miaixz-switch:where(:hover:not(.miaixz-switch-disabled)) .miaixz-switch-track {
-  background: color-mix(in srgb, var(--miaixz-color-border-strong) 82%, var(--miaixz-color-brand));
+  background: var(--miaixz-color-border-strong);
 }
 
 .miaixz-switch:where(:hover:not(.miaixz-switch-disabled))
   .miaixz-switch-input:checked
   + .miaixz-switch-track {
-  background: var(--miaixz-color-brand-strong);
+  background: var(--miaixz-color-brand-hover);
 }
 
 .miaixz-switch-input:where(:focus-visible) + .miaixz-switch-track,

@@ -15,7 +15,7 @@ export interface MiaixzStatusOwnProps {
   /**
    * Selects a reusable status composition.
    */
-  readonly variant?: "default" | "badge" | "compact" | "metric";
+  readonly variant?: "default" | "badge" | "compact" | "metric" | "split";
   /**
    * Selects the required semantic status tone.
    */

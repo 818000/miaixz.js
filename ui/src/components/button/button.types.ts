@@ -87,7 +87,10 @@ export interface MiaixzButtonWithContentProps extends MiaixzButtonBaseProps {
  */
 export interface MiaixzIconOnlyButtonProps extends MiaixzButtonBaseProps {
   /**
-   * Enables the icon-only presentation.
+   * Enables a frameless icon action with no surface, border or bottom focus line.
+   * Keeps the control hit area and keyboard-only focus outline. Text variants do
+   * not add a frame; danger and disabled actions retain their semantic colors.
+   * The accessible name is also used as the title unless a title is supplied.
    */
   iconOnly: true;
   /**

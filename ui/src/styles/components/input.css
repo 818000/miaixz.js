@@ -91,13 +91,11 @@
 }
 
 .miaixz-input-adornment .miaixz-button-link {
-  color: var(--miaixz-color-text-primary);
   text-decoration: none;
 }
 
 .miaixz-input-adornment .miaixz-button-link:hover:not(:disabled, [aria-disabled="true"]),
 .miaixz-input-adornment .miaixz-button-link:focus-visible:not(:disabled, [aria-disabled="true"]) {
-  color: var(--miaixz-color-brand-hover);
   text-decoration: none;
 }
 

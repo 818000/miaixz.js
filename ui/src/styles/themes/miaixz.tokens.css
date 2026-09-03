@@ -3,26 +3,27 @@
 [data-miaixz-theme="miaixz"][data-miaixz-color-mode="light"] {
   color-scheme: light;
   --miaixz-color-brand: #62b52f;
-  --miaixz-color-on-brand: #10150d;
+  --miaixz-color-on-brand: #ffffff;
   --miaixz-color-brand-hover: #58a62a;
   --miaixz-color-brand-active: #4e9724;
-  --miaixz-color-brand-strong: #4a9022;
+  --miaixz-color-brand-strong: #266b1b;
   --miaixz-color-brand-soft: #e8f4e1;
-  --miaixz-color-brand-soft-hover: #dceed1;
-  --miaixz-color-background: #f4f6f1;
-  --miaixz-color-surface: #fbfcf9;
-  --miaixz-color-surface-secondary: #f2f4ef;
-  --miaixz-color-surface-hover: #edf1e9;
-  --miaixz-color-surface-active: #e5eae1;
-  --miaixz-color-surface-selected: #eff7ea;
-  --miaixz-color-text-primary: #1f231e;
-  --miaixz-color-text-secondary: #566052;
-  --miaixz-color-text-muted: #5e695a;
-  --miaixz-color-text-disabled: #9da69a;
+  --miaixz-color-brand-soft-hover: #ebebeb;
+  --miaixz-color-background: #ffffff;
+  --miaixz-color-surface: #ffffff;
+  --miaixz-color-surface-secondary: #ffffff;
+  --miaixz-color-surface-chrome: #ffffff;
+  --miaixz-color-surface-hover: #f5f5f5;
+  --miaixz-color-surface-active: #ebebeb;
+  --miaixz-color-surface-selected: #f0f0f0;
+  --miaixz-color-text-primary: #1f1f1f;
+  --miaixz-color-text-secondary: #565656;
+  --miaixz-color-text-muted: #5e5e5e;
+  --miaixz-color-text-disabled: #9d9d9d;
   --miaixz-color-text-inverse: #ffffff;
-  --miaixz-color-border: #cdd5c8;
-  --miaixz-color-border-strong: #667064;
-  --miaixz-color-focus: #3e7f20;
+  --miaixz-color-border: #cdcdcd;
+  --miaixz-color-border-strong: #666666;
+  --miaixz-color-focus: #266b1b;
   --miaixz-color-success: #267a39;
   --miaixz-color-success-soft: #eef8f0;
   --miaixz-color-warning: #7a4900;
@@ -32,9 +33,9 @@
   --miaixz-color-info: #205fa7;
   --miaixz-color-info-soft: #edf5fd;
   --miaixz-color-backdrop: #181b187a;
-  --miaixz-color-shadow: #1f231e14;
-  --miaixz-color-shadow-strong: #1f231e29;
-  --miaixz-color-selection: #dceed1;
+  --miaixz-color-shadow: #1f1f1f14;
+  --miaixz-color-shadow-strong: #1f1f1f29;
+  --miaixz-color-selection: #ebebeb;
   --miaixz-color-data-1: #266b1b;
   --miaixz-color-data-2: #005f73;
   --miaixz-color-data-3: #7a4900;
@@ -44,6 +45,12 @@
   --miaixz-color-data-7: #375a7f;
   --miaixz-color-data-8: #6b4f00;
   --miaixz-color-data-neutral: #596355;
+  --miaixz-opacity-navigation-selected: 0.35;
+  --miaixz-color-navigation-selected: color-mix(
+    in srgb,
+    var(--miaixz-color-brand) calc(var(--miaixz-opacity-navigation-selected) * 100%),
+    transparent
+  );
   --miaixz-font-family-sans:
     "Avenir Next", "PingFang SC", "Noto Sans CJK SC", -apple-system, BlinkMacSystemFont,
     "Microsoft YaHei", system-ui, sans-serif;
@@ -103,14 +110,15 @@
   --miaixz-layout-entry-aside-percent: 55%;
   --miaixz-layout-appearance-trigger-size: 52px;
   --miaixz-layout-appearance-trigger-compact-size: 48px;
+  --miaixz-layout-appearance-trigger-visual-size: 44px;
   --miaixz-layout-appearance-block-position-percent: 33.3333%;
   --miaixz-surface-role-page-background: var(--miaixz-color-background);
   --miaixz-surface-role-page-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-page-border: var(--miaixz-color-border);
-  --miaixz-surface-role-header-background: var(--miaixz-color-surface);
+  --miaixz-surface-role-header-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-header-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-header-border: var(--miaixz-color-border);
-  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-secondary);
+  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-sidebar-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-sidebar-border: var(--miaixz-color-border);
   --miaixz-surface-role-panel-background: var(--miaixz-color-surface);
@@ -130,7 +138,7 @@
 [data-miaixz-theme="miaixz"][data-miaixz-color-mode="dark"] {
   color-scheme: dark;
   --miaixz-color-brand: #7bcb52;
-  --miaixz-color-on-brand: #10150d;
+  --miaixz-color-on-brand: #ffffff;
   --miaixz-color-brand-hover: #8bd965;
   --miaixz-color-brand-active: #70bf48;
   --miaixz-color-brand-strong: #a3e37f;
@@ -139,6 +147,7 @@
   --miaixz-color-background: #181b18;
   --miaixz-color-surface: #20241f;
   --miaixz-color-surface-secondary: #282d27;
+  --miaixz-color-surface-chrome: #20241f;
   --miaixz-color-surface-hover: #30362e;
   --miaixz-color-surface-active: #394137;
   --miaixz-color-surface-selected: #263b20;
@@ -171,6 +180,12 @@
   --miaixz-color-data-7: #8ec5ff;
   --miaixz-color-data-8: #d7be69;
   --miaixz-color-data-neutral: #aeb7aa;
+  --miaixz-opacity-navigation-selected: 0.35;
+  --miaixz-color-navigation-selected: color-mix(
+    in srgb,
+    var(--miaixz-color-brand) calc(var(--miaixz-opacity-navigation-selected) * 100%),
+    transparent
+  );
   --miaixz-font-family-sans:
     "Avenir Next", "PingFang SC", "Noto Sans CJK SC", -apple-system, BlinkMacSystemFont,
     "Microsoft YaHei", system-ui, sans-serif;
@@ -230,14 +245,15 @@
   --miaixz-layout-entry-aside-percent: 55%;
   --miaixz-layout-appearance-trigger-size: 52px;
   --miaixz-layout-appearance-trigger-compact-size: 48px;
+  --miaixz-layout-appearance-trigger-visual-size: 44px;
   --miaixz-layout-appearance-block-position-percent: 33.3333%;
   --miaixz-surface-role-page-background: var(--miaixz-color-background);
   --miaixz-surface-role-page-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-page-border: var(--miaixz-color-border);
-  --miaixz-surface-role-header-background: var(--miaixz-color-surface);
+  --miaixz-surface-role-header-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-header-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-header-border: var(--miaixz-color-border);
-  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-secondary);
+  --miaixz-surface-role-sidebar-background: var(--miaixz-color-surface-chrome);
   --miaixz-surface-role-sidebar-foreground: var(--miaixz-color-text-primary);
   --miaixz-surface-role-sidebar-border: var(--miaixz-color-border);
   --miaixz-surface-role-panel-background: var(--miaixz-color-surface);

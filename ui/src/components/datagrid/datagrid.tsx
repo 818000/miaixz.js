@@ -200,11 +200,17 @@ function DatagridImplementation<Row>(
     selectedRowIds,
     onSelectedRowIdsChange,
     selectionMode = "none",
+    selectionWidthPercent,
     loading = false,
     error,
     emptyState,
     pagination,
     caption,
+    variant = "default",
+    captionVisibility = "visible",
+    layout = "auto",
+    rowSize = "default",
+    bodyLayout = "content",
     className,
     ...props
   } = properties;
@@ -271,7 +277,15 @@ function DatagridImplementation<Row>(
       ref={reference}
       aria-busy={loading || undefined}
       data-state={state}
-      className={classNames("miaixz-datagrid", className)}
+      className={classNames(
+        "miaixz-datagrid",
+        `miaixz-datagrid-body-${bodyLayout}`,
+        `miaixz-datagrid-${variant}`,
+        `miaixz-datagrid-layout-${layout}`,
+        `miaixz-datagrid-rows-${rowSize}`,
+        captionVisibility === "hidden" && "miaixz-datagrid-caption-hidden",
+        className,
+      )}
     >
       <Overlay active={loading} label={t("ui.loading")}>
         <TableContainer
@@ -285,7 +299,15 @@ function DatagridImplementation<Row>(
             <TableHeader>
               <TableRow>
                 {selectionMode === "multiple" && (
-                  <TableHead className="miaixz-datagrid-selection-cell" scope="col">
+                  <TableHead
+                    className="miaixz-datagrid-selection-cell"
+                    scope="col"
+                    style={
+                      selectionWidthPercent === undefined
+                        ? undefined
+                        : { width: `${selectionWidthPercent}%` }
+                    }
+                  >
                     <Checkbox
                       aria-label={t("ui.table.selectPage")}
                       checked={allCurrentSelected}
@@ -297,13 +319,26 @@ function DatagridImplementation<Row>(
                   </TableHead>
                 )}
                 {selectionMode === "single" && (
-                  <TableHead className="miaixz-datagrid-selection-cell" scope="col" />
+                  <TableHead
+                    className="miaixz-datagrid-selection-cell"
+                    scope="col"
+                    style={
+                      selectionWidthPercent === undefined
+                        ? undefined
+                        : { width: `${selectionWidthPercent}%` }
+                    }
+                  />
                 )}
                 {columns.map((column) => {
                   const direction = getMiaixzDatagridColumnSort(column.id, sort);
                   return (
                     <TableHead
                       key={column.id}
+                      style={
+                        column.widthPercent === undefined
+                          ? undefined
+                          : { width: `${column.widthPercent}%` }
+                      }
                       scope="col"
                       aria-sort={direction}
                       className={classNames(

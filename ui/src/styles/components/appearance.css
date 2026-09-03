@@ -10,6 +10,10 @@
   inset-block-start: var(--miaixz-layout-appearance-block-position-percent);
   inset-inline: auto 0;
   z-index: var(--miaixz-z-overlay);
+  display: grid;
+  place-items: center;
+  inline-size: var(--miaixz-appearance-trigger-size);
+  block-size: var(--miaixz-appearance-trigger-size);
   transform: translate(50%, -50%);
   transition: transform var(--miaixz-appearance-motion-duration) var(--miaixz-motion-exit-easing);
 }
@@ -26,30 +30,28 @@
   box-sizing: border-box;
   display: grid;
   place-items: center;
-  inline-size: var(--miaixz-appearance-trigger-size);
-  block-size: var(--miaixz-appearance-trigger-size);
+  inline-size: var(--miaixz-layout-appearance-trigger-visual-size);
+  block-size: var(--miaixz-layout-appearance-trigger-visual-size);
   padding: 0;
-  color: var(--miaixz-color-text-inverse);
+  color: var(--miaixz-color-on-brand);
   touch-action: none;
   cursor: ns-resize;
   user-select: none;
   background: var(--miaixz-color-brand);
-  border: var(--miaixz-border-width-2) solid var(--miaixz-surface-role-page-background);
+  border: 0;
   border-radius: var(--miaixz-radius-round);
   box-shadow: var(--miaixz-shadow-high);
   transition:
     color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
     background-color var(--miaixz-motion-interaction-duration)
       var(--miaixz-motion-interaction-easing),
-    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
     box-shadow var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
 }
 
 .miaixz-appearance-trigger:hover,
 .miaixz-appearance-trigger[aria-expanded="true"] {
-  color: var(--miaixz-color-text-inverse);
+  color: var(--miaixz-color-on-brand);
   background: var(--miaixz-color-brand-hover);
-  border-color: var(--miaixz-surface-role-page-background);
   box-shadow: var(--miaixz-shadow-overlay);
 }
 

@@ -7,12 +7,32 @@ import type { HeaderProps } from "./header.types.js";
  * Renders a page title area with description, metadata, and actions. @public
  */
 export const Header = forwardRef<HTMLElement, HeaderProps>(function Header(
-  { title, eyebrow, description, actions, headingLevel = 1, className, children, ...props },
+  {
+    title,
+    eyebrow,
+    description,
+    actions,
+    headingLevel = 1,
+    className,
+    children,
+    variant = "default",
+    spacing = "default",
+    ...props
+  },
   ref,
 ) {
   const Heading = `h${headingLevel}` as "h1" | "h2" | "h3";
   return (
-    <header {...props} ref={ref} className={classNames("miaixz-header", className)}>
+    <header
+      {...props}
+      ref={ref}
+      className={classNames(
+        "miaixz-header",
+        variant === "compact" && "miaixz-header-compact",
+        spacing === "none" && "miaixz-header-unspaced",
+        className,
+      )}
+    >
       <div className="miaixz-header-content">
         {eyebrow !== undefined && <div className="miaixz-header-eyebrow">{eyebrow}</div>}
         <Heading className="miaixz-header-title">{title}</Heading>

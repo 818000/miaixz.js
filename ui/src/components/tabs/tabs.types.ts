@@ -40,6 +40,23 @@ export interface TabsEntry {
  */
 export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   /**
+   * Displays actions alongside the tab list without making them tabs.
+   */
+  actions?: ReactNode;
+  /**
+   * Places actions immediately after the tabs or at the end of the header.
+   * Defaults to end to preserve existing header layouts.
+   */
+  actionsPlacement?: "adjacent" | "end";
+  /**
+   * Insets the header with actions while keeping associated panel widths unchanged.
+   */
+  headerInset?: boolean;
+  /**
+   * Uses page-navigation geometry with unpadded associated panels.
+   */
+  variant?: "default" | "navigation";
+  /**
    * Supplies tabs and their panel content.
    */
   items: readonly TabsEntry[];

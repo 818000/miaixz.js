@@ -56,11 +56,11 @@
 }
 
 .miaixz-range:hover:not(:disabled)::-webkit-slider-thumb {
-  background: var(--miaixz-color-brand-soft);
+  background: var(--miaixz-color-surface-active);
 }
 
 .miaixz-range:hover:not(:disabled)::-moz-range-thumb {
-  background: var(--miaixz-color-brand-soft);
+  background: var(--miaixz-color-surface-active);
 }
 
 .miaixz-range:disabled,

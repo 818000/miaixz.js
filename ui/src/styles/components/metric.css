@@ -5,6 +5,7 @@
 [data-miaixz-theme] {
   --miaixz-metric-gap: var(--miaixz-space-8);
   --miaixz-metric-padding: var(--miaixz-density-panel-padding);
+  --miaixz-metric-strip-icon-size: 30px;
   --miaixz-metric-summary-icon-size: 30px;
   --miaixz-metric-summary-column-gap: 12px;
   --miaixz-metric-summary-min-height-offset: 84px;
@@ -38,6 +39,93 @@
 
 button.miaixz-metric {
   width: 100%;
+}
+
+/* Strip containers own the outer frame; entries draw only neutral internal dividers. */
+.miaixz-metric-strip {
+  position: relative;
+  gap: calc(var(--miaixz-space-4) + var(--miaixz-space-2));
+  align-content: center;
+  padding: calc(var(--miaixz-space-16) + var(--miaixz-space-2)) var(--miaixz-space-20);
+  background: transparent;
+  border: 0;
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-panel-border);
+  border-radius: 0;
+}
+
+.miaixz-metric-strip:last-child {
+  border-inline-end: 0;
+}
+
+@media (width <= 720px) {
+  .miaixz-metric-strip {
+    border-block-end: var(--miaixz-border-width-default) solid
+      var(--miaixz-surface-role-panel-border);
+    border-inline-end: 0;
+  }
+
+  .miaixz-metric-strip:last-child {
+    border-block-end: 0;
+  }
+}
+
+.miaixz-metric-strip .miaixz-metric-label {
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-metric-compact {
+  gap: calc(var(--miaixz-space-4) + var(--miaixz-border-width-default));
+  align-content: center;
+  min-height: calc(var(--miaixz-space-24) * 3 + var(--miaixz-space-4));
+  padding: var(--miaixz-space-12);
+  border: 0;
+  border-inline-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: 0;
+}
+
+.miaixz-metric-compact:last-child {
+  border-inline-end: 0;
+}
+
+.miaixz-metric-compact .miaixz-metric-value {
+  color: var(--miaixz-metric-tone);
+}
+
+.miaixz-metric-card {
+  position: relative;
+  gap: calc(var(--miaixz-space-8) - var(--miaixz-border-width-default));
+  align-content: start;
+  min-height: calc(var(--miaixz-space-40) * 3 - var(--miaixz-space-2));
+  padding: calc(var(--miaixz-space-16) + var(--miaixz-space-2)) var(--miaixz-space-20)
+    var(--miaixz-space-16);
+  overflow: hidden;
+}
+
+.miaixz-metric-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: calc(var(--miaixz-border-width-2) + var(--miaixz-border-width-default));
+  content: "";
+  background: var(--miaixz-metric-tone);
+}
+
+.miaixz-metric-card[data-emphasized="true"] {
+  background: var(--miaixz-surface-role-selected-background);
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-metric-card .miaixz-metric-label::before {
+  display: inline-block;
+  width: calc(var(--miaixz-space-8) - var(--miaixz-border-width-default));
+  height: calc(var(--miaixz-space-8) - var(--miaixz-border-width-default));
+  margin-inline-end: var(--miaixz-space-8);
+  content: "";
+  background: var(--miaixz-metric-tone);
+  border-radius: 50%;
 }
 
 .miaixz-metric-interactive {
@@ -124,6 +212,30 @@ button.miaixz-metric {
   color: var(--miaixz-metric-tone);
 }
 
+/* Optional strip icons do not add a row or change the existing metric height. */
+.miaixz-metric-strip-with-icon {
+  padding-inline-start: calc(
+    var(--miaixz-space-20) + var(--miaixz-metric-strip-icon-size) + var(--miaixz-space-12)
+  );
+}
+
+.miaixz-metric-strip-with-icon .miaixz-metric-icon {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: var(--miaixz-space-20);
+  width: var(--miaixz-metric-strip-icon-size);
+  height: var(--miaixz-metric-strip-icon-size);
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition:
+    color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    background-color var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing),
+    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
 .miaixz-metric-summary {
   position: relative;
   display: grid;
@@ -168,8 +280,8 @@ button.miaixz-metric {
   height: var(--miaixz-metric-summary-icon-size);
   font-size: var(--miaixz-text-caption-size);
   color: var(--miaixz-metric-tone);
-  background: color-mix(in srgb, var(--miaixz-metric-tone) 8%, var(--miaixz-color-surface));
-  border: 1px solid color-mix(in srgb, var(--miaixz-metric-tone) 22%, var(--miaixz-color-border));
+  background: var(--miaixz-color-surface);
+  border: 1px solid var(--miaixz-color-border);
   border-radius: 50%;
   transition:
     color 180ms ease,
@@ -207,7 +319,7 @@ button.miaixz-metric {
   font-size: var(--miaixz-text-caption-size);
   line-height: 1;
   color: var(--miaixz-metric-tone);
-  border: 1px solid color-mix(in srgb, var(--miaixz-metric-tone) 42%, var(--miaixz-color-border));
+  border: 1px solid var(--miaixz-color-border);
   border-radius: 50%;
   opacity: 0;
   transform: translateX(-5px);
@@ -264,6 +376,7 @@ button.miaixz-metric {
   width: 42%;
   pointer-events: none;
   content: "";
+  background: linear-gradient(90deg, transparent, var(--miaixz-metric-tone), transparent);
   opacity: 0;
   transform: translateX(-140%) skewX(-18deg);
 }
@@ -272,17 +385,24 @@ button.miaixz-metric {
 .miaixz-metric-summary:focus-visible {
   z-index: 2;
   outline: 0;
-  background: color-mix(in srgb, var(--miaixz-metric-tone) 10%, transparent);
+  background: var(--miaixz-color-surface-hover);
   border-color: var(--miaixz-metric-tone);
   box-shadow: var(--miaixz-shadow-low);
   transform: translateY(-2px);
 }
 
+.miaixz-metric-strip-with-icon:hover .miaixz-metric-icon,
+.miaixz-metric-strip-with-icon:focus-visible .miaixz-metric-icon {
+  color: var(--miaixz-color-on-brand);
+  background: var(--miaixz-metric-tone);
+  border-color: var(--miaixz-metric-tone);
+}
+
 .miaixz-metric-summary:hover .miaixz-metric-icon,
 .miaixz-metric-summary:focus-visible .miaixz-metric-icon {
-  color: var(--miaixz-color-text-inverse);
-  background: color-mix(in srgb, var(--miaixz-metric-tone) 78%, var(--miaixz-color-text-primary));
-  border-color: color-mix(in srgb, var(--miaixz-metric-tone) 78%, var(--miaixz-color-text-primary));
+  color: var(--miaixz-color-on-brand);
+  background: var(--miaixz-metric-tone);
+  border-color: var(--miaixz-metric-tone);
   transform: scale(1.06);
 }
 
@@ -302,6 +422,12 @@ button.miaixz-metric {
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
     animation-name: none;
+  }
+
+  .miaixz-metric-summary[data-motion-state="enter"]
+    .miaixz-sparkline-metric[data-state="ready"]
+    .miaixz-sparkline-line {
+    animation: miaixz-sparkline-draw 2s cubic-bezier(0.2, 0.7, 0.2, 1) 180ms both;
   }
 
   .miaixz-metric-summary[data-motion-replay="true"]::after,
@@ -420,11 +546,11 @@ button.miaixz-metric {
   }
 
   16% {
-    opacity: 1;
+    opacity: 0.08;
   }
 
   82% {
-    opacity: 0.8;
+    opacity: 0.064;
   }
 
   100% {
@@ -434,13 +560,17 @@ button.miaixz-metric {
 }
 
 @keyframes miaixz-metric-sparkline-replay {
-  from {
-    opacity: 1;
+  0% {
+    opacity: 0.28;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
   }
 
-  to {
+  30% {
+    opacity: 1;
+  }
+
+  100% {
     opacity: 1;
     stroke-dasharray: 1;
     stroke-dashoffset: 0;

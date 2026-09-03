@@ -95,13 +95,17 @@ export interface MiaixzThemeLayoutGeometry {
    */
   readonly entryAsidePercent?: number;
   /**
-   * Appearance trigger size in pixels.
+   * Appearance trigger positioning frame size in pixels.
    */
   readonly appearanceTriggerSize?: number;
   /**
-   * Compact appearance trigger size in pixels.
+   * Compact appearance trigger positioning frame size in pixels.
    */
   readonly appearanceTriggerCompactSize?: number;
+  /**
+   * Visible appearance trigger diameter in pixels, centered within its frame.
+   */
+  readonly appearanceTriggerVisualSize?: number;
   /**
    * Default appearance trigger block position in percent.
    */
@@ -175,6 +179,7 @@ export const miaixzThemeLayoutGeometryFields = [
   "entryAsidePercent",
   "appearanceTriggerSize",
   "appearanceTriggerCompactSize",
+  "appearanceTriggerVisualSize",
   "appearanceBlockPositionPercent",
 ] as const;
 
@@ -190,6 +195,7 @@ export const miaixzThemeLayoutGeometryDefaults = Object.freeze({
   entryAsidePercent: 55,
   appearanceTriggerSize: 52,
   appearanceTriggerCompactSize: 48,
+  appearanceTriggerVisualSize: 44,
   appearanceBlockPositionPercent: 33.3333,
 });
 
@@ -229,5 +235,6 @@ export const miaixzThemeLayoutGeometryRanges = Object.freeze({
   entryAsidePercent: Object.freeze({ min: 35, max: 70, unit: "%" }),
   appearanceTriggerSize: Object.freeze({ min: 40, max: 72, unit: "px" }),
   appearanceTriggerCompactSize: Object.freeze({ min: 40, max: 64, unit: "px" }),
+  appearanceTriggerVisualSize: Object.freeze({ min: 44, max: 72, unit: "px" }),
   appearanceBlockPositionPercent: Object.freeze({ min: 10, max: 90, unit: "%" }),
 });

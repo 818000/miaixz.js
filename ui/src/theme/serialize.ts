@@ -5,6 +5,7 @@ import type {
   MiaixzThemeColorOverrides,
 } from "@miaixz/sdk/appearance";
 import { miaixzThemeColorTokens } from "../tokens/colors.js";
+import { serializeThemeOpacity } from "../tokens/opacity.js";
 import {
   miaixzThemeDensityGeometryFields,
   miaixzThemeLayoutGeometryFields,
@@ -77,6 +78,7 @@ export function serializeThemeApplication(
   for (const token of miaixzThemeColorTokens) {
     declarations.push(`--miaixz-color-${token}: ${colors[token]};`);
   }
+  declarations.push(...serializeThemeOpacity(theme.tokens.opacity));
   const familyFields = new Set<string>(miaixzThemeFontFamilyFields);
   for (const field of miaixzThemeTypographyFields) {
     const prefix = familyFields.has(field) ? "font-" : "text-";

@@ -6,6 +6,7 @@ export type {
   NavigationRailClassNames,
   NavigationRailProps,
   NavigationRailSlot,
+  NavigationRailVariant,
 } from "./navigation-rail.types.js";
 export type {
   NavigationEntry,

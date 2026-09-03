@@ -59,6 +59,8 @@ export interface DatagridColumn<Row> {
    * @defaultValue `"start"`
    */
   readonly align?: "start" | "center" | "end";
+  /** Supplies the column's percentage share when fixed layout is selected. */
+  readonly widthPercent?: number;
 }
 
 /**
@@ -68,6 +70,21 @@ export interface DatagridColumn<Row> {
  * @public
  */
 export interface MiaixzDatagridOwnProps<Row> {
+  /** Selects an inset list presentation without affecting the default table. */
+  variant?: "default" | "inset";
+  /** Keeps a descriptive caption accessible when it need not be displayed. */
+  captionVisibility?: "visible" | "hidden";
+  /** Selects automatic or consumer-weighted fixed column layout. */
+  layout?: "auto" | "fixed";
+  /** Selects standard or spacious multi-line rows. */
+  rowSize?: "default" | "comfortable";
+  /**
+   * Sizes the body to its records in content mode, allowing page scrolling without a sticky head.
+   * Fill mode scrolls within a consumer-sized region with a sticky head and external pagination.
+   *
+   * @defaultValue `"content"`
+   */
+  bodyLayout?: "content" | "fill";
   /**
    * Supplies the current server-provided page of rows.
    */
@@ -109,6 +126,9 @@ export interface MiaixzDatagridOwnProps<Row> {
    * @defaultValue `"none"`
    */
   selectionMode?: "none" | "single" | "multiple";
+
+  /** Sets the selection column's percentage width when composing a fixed table. */
+  selectionWidthPercent?: number;
 
   /**
    * Indicates that the consumer is loading server data.

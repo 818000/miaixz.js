@@ -15,6 +15,75 @@
   outline-offset: var(--miaixz-space-2);
 }
 
+.miaixz-pressable-row,
+.miaixz-pressable-card {
+  display: grid;
+  gap: calc(var(--miaixz-space-4) + var(--miaixz-space-2));
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: calc(var(--miaixz-space-24) * 2 + var(--miaixz-space-4) + var(--miaixz-space-2));
+  padding: calc(var(--miaixz-space-8) + var(--miaixz-space-2));
+  text-align: start;
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-pressable-row.miaixz-pressable-density-compact {
+  min-height: var(--miaixz-space-40);
+  padding: 0 var(--miaixz-space-12);
+  color: var(--miaixz-color-text-muted);
+  border-radius: var(--miaixz-space-8);
+}
+
+.miaixz-pressable-row.miaixz-pressable-density-comfortable {
+  min-height: calc(var(--miaixz-space-24) * 3);
+  padding-block: var(--miaixz-space-12);
+}
+
+.miaixz-pressable-row.miaixz-pressable-separator-dashed {
+  border-bottom-style: dashed;
+}
+
+.miaixz-pressable-row.miaixz-pressable-separator-none,
+.miaixz-pressable-row:last-child {
+  border-bottom: 0;
+}
+
+.miaixz-pressable-card {
+  padding-block: var(--miaixz-space-12);
+  background: var(--miaixz-color-surface-secondary);
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-pressable-pill {
+  min-height: calc(var(--miaixz-space-32) + var(--miaixz-space-2));
+  padding-inline: calc(var(--miaixz-space-12) - var(--miaixz-border-width-default));
+  color: var(--miaixz-color-text-muted);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-pressable-row[aria-pressed="true"],
+.miaixz-pressable-card[aria-pressed="true"],
+.miaixz-pressable-pill[aria-pressed="true"] {
+  color: var(--miaixz-surface-role-selected-foreground);
+  background: var(--miaixz-surface-role-selected-background);
+}
+
+.miaixz-pressable-pill[aria-pressed="true"] {
+  color: var(--miaixz-color-text-primary);
+  border-color: var(--miaixz-color-brand);
+}
+
+@media (hover: hover) {
+  .miaixz-pressable-row:hover:not(:disabled),
+  .miaixz-pressable-card:hover:not(:disabled),
+  .miaixz-pressable-pill:hover:not(:disabled) {
+    background: var(--miaixz-color-surface-hover);
+  }
+}
+
 .miaixz-pressable:disabled,
 .miaixz-pressable[data-disabled="true"] {
   cursor: not-allowed;

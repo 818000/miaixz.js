@@ -40,6 +40,10 @@ export interface ColumnsProps extends Omit<HTMLAttributes<HTMLDivElement>, "chil
    * Supplies an optional positive chart-domain maximum.
    */
   readonly maximum?: number;
+  /** Shows a theme-owned key for the named series. */
+  readonly showLegend?: boolean;
+  /** Selects standard or expanded chart geometry. */
+  readonly size?: "default" | "large";
   /**
    * Selects the shared theme-resolved visual tone.
    */

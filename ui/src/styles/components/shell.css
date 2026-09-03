@@ -1,5 +1,13 @@
+/* Document scrolling owns the boundary when the shell header scrolls.
+ * Scope this to shell pages so unrelated documents retain browser defaults. */
+html:has(.miaixz-shell),
+body:has(.miaixz-shell) {
+  overscroll-behavior-y: none;
+}
+
 .miaixz-shell {
   --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-width);
+  --miaixz-shell-content-sticky-offset: var(--miaixz-layout-header-height);
 
   display: grid;
   grid-template:
@@ -10,6 +18,19 @@
   padding-block-end: 0;
   container-name: miaixz-shell;
   container-type: inline-size;
+}
+
+.miaixz-shell[data-header-behavior="fixed"] {
+  --miaixz-shell-content-sticky-offset: 0px;
+
+  block-size: var(--miaixz-viewport-block);
+  overflow: clip;
+}
+
+.miaixz-shell[data-header-behavior="fixed"] > .miaixz-shell-main {
+  overflow: hidden auto;
+  overscroll-behavior-y: none;
+  scrollbar-gutter: stable;
 }
 
 .miaixz-shell[data-navigation-variant="rail"],
@@ -55,7 +76,7 @@
   block-size: var(--miaixz-viewport-block);
   min-height: 0;
   overflow: hidden auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: contain none;
   color: var(--miaixz-surface-role-sidebar-foreground);
   scrollbar-width: thin;
   background: var(--miaixz-surface-role-sidebar-background);
@@ -78,8 +99,8 @@
 }
 
 .miaixz-shell[data-navigation-variant="collapsible"] > .miaixz-shell-sidebar {
-  transition-timing-function: var(--miaixz-motion-interaction-easing);
-  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-timing-function: var(--miaixz-navigation-reveal-easing);
+  transition-duration: var(--miaixz-navigation-reveal-duration);
   transition-property: inline-size, box-shadow;
 }
 
@@ -115,6 +136,20 @@
     var(--miaixz-surface-role-sidebar-border);
 }
 
+.miaixz-shell-navigation-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--miaixz-z-overlay) - 1);
+  visibility: hidden;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: 0;
+  pointer-events: none;
+  cursor: default;
+  background: var(--miaixz-color-backdrop);
+  border: 0;
+}
+
 @container miaixz-shell (width < 768px) {
   .miaixz-shell-header,
   .miaixz-shell-main {
@@ -127,7 +162,7 @@
       max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-end));
   }
 
-  .miaixz-shell-sidebar {
+  .miaixz-shell:not([data-mobile-navigation-mode="drawer"]) > .miaixz-shell-sidebar {
     visibility: hidden;
     inline-size: 0;
     block-size: 0;
@@ -151,6 +186,55 @@
     padding-inline: var(--miaixz-safe-area-inline-start) var(--miaixz-safe-area-inline-end);
     overflow: hidden;
   }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"] > .miaixz-shell-header {
+    padding-inline-start: calc(
+      var(--miaixz-layout-sidebar-compact-width) +
+        max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-start))
+    );
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"] > .miaixz-shell-sidebar {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: var(--miaixz-z-overlay);
+    visibility: visible;
+    inline-size: var(--miaixz-layout-sidebar-compact-width);
+    block-size: var(--miaixz-layout-header-height);
+    overflow: hidden;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar {
+    block-size: calc(var(--miaixz-layout-header-height) - var(--miaixz-space-4));
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar
+    .miaixz-navigation-rail-body,
+  .miaixz-shell[data-mobile-navigation-mode="drawer"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar
+    .miaixz-navigation-rail-utility {
+    visibility: hidden;
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"][data-navigation-expanded]
+    > .miaixz-shell-sidebar {
+    inset-block-end: 0;
+    inline-size: min(var(--miaixz-layout-sidebar-width), calc(100vi - var(--miaixz-space-32)));
+    block-size: var(--miaixz-viewport-block);
+    border-inline-end: var(--miaixz-border-width-default) solid
+      var(--miaixz-surface-role-sidebar-border);
+    box-shadow: var(--miaixz-shadow-overlay);
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"][data-navigation-expanded]
+    > .miaixz-shell-navigation-backdrop {
+    visibility: visible;
+    pointer-events: auto;
+  }
 }
 
 @media print {
@@ -158,9 +242,21 @@
     display: block;
   }
 
+  .miaixz-shell[data-header-behavior="fixed"] {
+    block-size: auto;
+    min-block-size: 0;
+    overflow: visible;
+  }
+
+  .miaixz-shell[data-header-behavior="fixed"] > .miaixz-shell-main {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
   .miaixz-shell-header,
   .miaixz-shell-sidebar,
-  .miaixz-shell-mobile-navigation {
+  .miaixz-shell-mobile-navigation,
+  .miaixz-shell-navigation-backdrop {
     display: none !important;
   }
 }

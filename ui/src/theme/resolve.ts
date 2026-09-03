@@ -2,6 +2,7 @@ import type { MiaixzThemeColorOverrides } from "@miaixz/sdk/appearance";
 import type { MiaixzThemeColors } from "../tokens/colors.js";
 import { miaixzThemeCompositionDefaults } from "../tokens/composition.js";
 import { miaixzThemeLayoutGeometryDefaults } from "../tokens/geometry.js";
+import { miaixzThemeOpacityDefaults } from "../tokens/opacity.js";
 import { miaixzThemeTypographyDefaults } from "../tokens/typography.js";
 import { MiaixzThemeError } from "./errors.js";
 import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./theme.types.js";
@@ -67,13 +68,20 @@ function applyThemeTokenDefaults(
   const geometry = definition.tokens?.geometry;
   const typography = definition.tokens?.typography;
   const composition = definition.tokens?.composition;
-  if (geometry === undefined && typography === undefined && composition === undefined) {
+  const opacity = definition.tokens?.opacity;
+  if (
+    geometry === undefined &&
+    typography === undefined &&
+    composition === undefined &&
+    opacity === undefined
+  ) {
     return definition;
   }
   return {
     ...definition,
     tokens: {
       ...definition.tokens,
+      opacity: { ...miaixzThemeOpacityDefaults, ...opacity },
       composition: { ...miaixzThemeCompositionDefaults, ...composition },
       ...(typography === undefined
         ? {}

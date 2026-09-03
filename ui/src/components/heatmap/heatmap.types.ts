@@ -10,6 +10,28 @@ import type { MiaixzVisualTone } from "../shared.types.js";
 export type HeatmapLevel = 0 | 1 | 2 | 3 | 4 | 5;
 
 /**
+ * Configures a legend that shares the Heatmap activity scale.
+ * @public
+ */
+export interface HeatmapLegendProps extends Omit<
+  HTMLAttributes<HTMLSpanElement>,
+  "children" | "color"
+> {
+  /**
+   * Uses the same semantic data tone as the accompanying Heatmap.
+   */
+  readonly tone: MiaixzVisualTone;
+  /**
+   * Supplies the localized low-activity endpoint.
+   */
+  readonly lowLabel: string;
+  /**
+   * Supplies the localized high-activity endpoint.
+   */
+  readonly highLabel: string;
+}
+
+/**
  * Configures an accessible labeled heatmap.
  *
  * @public

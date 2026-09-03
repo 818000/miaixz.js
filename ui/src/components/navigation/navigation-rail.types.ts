@@ -15,6 +15,13 @@ export type NavigationRailSlot = "root" | "header" | "toggle" | "brand" | "body"
 export type NavigationRailClassNames = Partial<Readonly<Record<NavigationRailSlot, string>>>;
 
 /**
+ * Selects the visual treatment of an application navigation rail.
+ *
+ * @public
+ */
+export type NavigationRailVariant = "default" | "brand";
+
+/**
  * Configures a single-level application navigation rail.
  *
  * @public
@@ -43,7 +50,14 @@ export interface NavigationRailProps extends HTMLAttributes<HTMLDivElement> {
    */
   readonly expanded?: boolean;
   /**
+   * Selects the rail's visual treatment.
+   *
+   * @defaultValue `"default"`
+   */
+  readonly variant?: NavigationRailVariant;
+  /**
    * Supplies optional account or utility actions at the bottom of the rail.
+   * The utility stays in the compact icon column when the rail expands.
    */
   readonly utility?: ReactNode;
 }

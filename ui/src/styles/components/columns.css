@@ -84,15 +84,7 @@
 }
 
 .miaixz-columns-bar:hover {
-  background: color-mix(in srgb, var(--miaixz-columns-tone) 82%, var(--miaixz-color-text-primary));
-}
-
-.miaixz-columns-bar-secondary:hover {
-  background: color-mix(
-    in srgb,
-    var(--miaixz-columns-tone) 52%,
-    var(--miaixz-surface-role-panel-background)
-  );
+  outline: var(--miaixz-border-width-default) solid var(--miaixz-columns-tone);
 }
 
 .miaixz-columns-label {
@@ -200,6 +192,69 @@
 .miaixz-columns-paired {
   height: var(--miaixz-columns-paired-height);
   padding: var(--miaixz-columns-paired-padding);
+}
+
+.miaixz-columns-paired.miaixz-columns-large {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  padding: 0;
+}
+
+.miaixz-columns-paired.miaixz-columns-large::before {
+  content: none;
+}
+
+.miaixz-columns-paired.miaixz-columns-large .miaixz-columns-plot {
+  gap: var(--miaixz-space-12);
+  height: calc(var(--miaixz-space-32) * 6 + var(--miaixz-space-24) + var(--miaixz-space-4));
+  padding: var(--miaixz-space-24) calc(var(--miaixz-space-8) + var(--miaixz-space-2))
+    var(--miaixz-space-20);
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 43px,
+    var(--miaixz-color-border) 44px
+  );
+}
+
+.miaixz-columns-paired.miaixz-columns-large .miaixz-columns-bar {
+  width: min(calc(var(--miaixz-space-16) - var(--miaixz-border-width-default)), 36%);
+}
+
+.miaixz-columns-paired.miaixz-columns-large .miaixz-columns-bar-secondary,
+.miaixz-columns-paired.miaixz-columns-large .miaixz-columns-key-secondary {
+  background: color-mix(in srgb, var(--miaixz-columns-tone) 45%, var(--miaixz-color-surface));
+}
+
+.miaixz-columns-legend {
+  display: flex;
+  gap: calc(var(--miaixz-space-20) + var(--miaixz-space-2));
+  order: 1;
+  margin-block-start: var(--miaixz-space-12);
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-columns-legend > span {
+  display: inline-flex;
+  gap: calc(var(--miaixz-space-4) + var(--miaixz-space-2));
+  align-items: center;
+}
+
+.miaixz-columns-legend i {
+  inline-size: var(--miaixz-space-8);
+  block-size: var(--miaixz-space-8);
+  background: var(--miaixz-columns-tone);
+  border-radius: 50%;
+}
+
+.miaixz-columns-legend .miaixz-columns-key-secondary {
+  background: color-mix(
+    in srgb,
+    var(--miaixz-columns-tone) 36%,
+    var(--miaixz-surface-role-panel-background)
+  );
 }
 
 .miaixz-columns-paired::before,

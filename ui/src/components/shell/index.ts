@@ -1,2 +1,2 @@
 export { Shell } from "./shell.js";
-export type { ShellProps } from "./shell.types.js";
+export type { ShellMobileNavigationMode, ShellProps } from "./shell.types.js";

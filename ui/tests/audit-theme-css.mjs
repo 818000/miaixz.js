@@ -1,6 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { extname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inspectComponentColors } from "./color-policy.mjs";
 
 const packageDirectory = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const stylesDirectory = resolve(packageDirectory, "src/styles");
@@ -24,6 +25,11 @@ for (const file of files) {
   if (!isReset) {
     inspect(fileName, source, /(^|[},]\s*)(html|body|:root)(?=[\s,{])/gm, "THEME_HOST_SELECTOR");
   }
+  if (isComponent || fileName.includes("/foundation/")) {
+    for (const finding of inspectComponentColors(fileName.split("/").at(-1), source)) {
+      addFinding(fileName, source, 0, "THEME_COLOR_POLICY", finding);
+    }
+  }
   if (isComponent) {
     inspect(fileName, source, /#[0-9a-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(/gi, "THEME_DIRECT_COLOR");
     inspect(
@@ -44,12 +50,7 @@ for (const file of files) {
       /var\(--miaixz-geometry-(?:compact|standard|comfortable)-/g,
       "THEME_DENSITY_BYPASS",
     );
-    inspect(
-      fileName,
-      source,
-      /background(?:-image)?\s*:\s*(?:url\(|(?:repeating-)?(?:linear|radial|conic)-gradient\()/gi,
-      "THEME_BACKGROUND_ASSET",
-    );
+    inspectThemeBackgroundAssets(fileName, source);
     inspect(
       fileName,
       source,
@@ -119,6 +120,22 @@ function inspectGlobalBackground(fileName, source) {
     for (const declaration of rule[2].matchAll(/(?:^|;)\s*(background(?:-color|-image)?)\s*:/gi)) {
       const index = (rule.index ?? 0) + rule[0].indexOf(rule[2]) + (declaration.index ?? 0);
       addFinding(fileName, source, index, "THEME_GLOBAL_BACKGROUND", declaration[1]);
+    }
+  }
+}
+
+function inspectThemeBackgroundAssets(fileName, source) {
+  const pattern =
+    /background(?:-image)?\s*:\s*(?:url\(|(?:repeating-)?(?:linear|radial|conic)-gradient\()[^;}]*[;}]/gi;
+  for (const match of source.matchAll(pattern)) {
+    const declaration = match[0];
+    const isTokenizedGradient =
+      !/url\(/i.test(declaration) &&
+      /gradient\(/i.test(declaration) &&
+      /var\(--miaixz-/i.test(declaration) &&
+      !/#[0-9a-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(|\b(?:black|white)\b/i.test(declaration);
+    if (!isTokenizedGradient) {
+      addFinding(fileName, source, match.index, "THEME_BACKGROUND_ASSET", declaration);
     }
   }
 }

@@ -1,0 +1,2 @@
+/* Register layer order before import expansion can create individual layers. */
+@layer miaixz-foundation, miaixz-themes, miaixz-components, miaixz-modules, miaixz-pages, miaixz-utilities, miaixz-overrides;

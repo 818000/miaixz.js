@@ -1,4 +1,5 @@
 import type { MiaixzThemeTokens } from "../theme/theme.types.js";
+import { miaixzThemeOpacityDefaults } from "../tokens/opacity.js";
 import { defineTheme } from "../theme/define.js";
 import type { MiaixzThemeDefinition } from "../theme/theme.types.js";
 
@@ -11,6 +12,7 @@ import type { MiaixzThemeDefinition } from "../theme/theme.types.js";
  * @internal
  */
 export const miaixzSharedThemeTokens = {
+  opacity: miaixzThemeOpacityDefaults,
   composition: {
     entry: "split",
     shell: "rail",
@@ -84,14 +86,15 @@ export const miaixzSharedThemeTokens = {
       entryAsidePercent: 55,
       appearanceTriggerSize: 52,
       appearanceTriggerCompactSize: 48,
+      appearanceTriggerVisualSize: 44,
       appearanceBlockPositionPercent: 33.3333,
     },
   },
   surfaces: {
     page: { background: "background", foreground: "text-primary", border: "border" },
-    header: { background: "surface", foreground: "text-primary", border: "border" },
+    header: { background: "surface-chrome", foreground: "text-primary", border: "border" },
     sidebar: {
-      background: "surface-secondary",
+      background: "surface-chrome",
       foreground: "text-primary",
       border: "border",
     },
