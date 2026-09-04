@@ -14,36 +14,6 @@
   cursor: text;
 }
 
-.miaixz-input::after {
-  position: absolute;
-  inset-block-end: 0;
-  inset-inline: 0;
-  block-size: var(--miaixz-control-focus-width);
-  pointer-events: none;
-  content: "";
-  background: var(--miaixz-color-brand);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 560ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.miaixz-input:where(:focus-within, [data-preview-state="focus"]):not(
-    [data-invalid="true"],
-    [data-disabled="true"],
-    [data-readonly="true"]
-  ) {
-  box-shadow: none;
-}
-
-.miaixz-input:where(:focus-within, [data-preview-state="focus"]):not(
-    [data-invalid="true"],
-    [data-disabled="true"],
-    [data-readonly="true"]
-  )::after {
-  transform: scaleX(1);
-  transition: transform 420ms cubic-bezier(0.2, 0.72, 0.2, 1);
-}
-
 .miaixz-input-element {
   width: 100%;
   min-width: 0;
@@ -115,12 +85,5 @@
   .miaixz-input-adornment .miaixz-button {
     min-block-size: var(--miaixz-control-min-target-size);
     padding-inline: var(--miaixz-control-padding-inline-small);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-input::after {
-    transition-delay: 0ms;
-    transition-duration: var(--miaixz-duration-instant);
   }
 }
