@@ -33,34 +33,39 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
   const isFilled = value === undefined ? uncontrolledFilled : hasMiaixzControlValue(value);
 
   return (
-    <textarea
-      {...props}
-      ref={ref}
-      disabled={disabled}
-      readOnly={readOnly}
-      value={value}
-      defaultValue={defaultValue}
-      aria-invalid={isInvalid || undefined}
+    <span
       data-size={size}
       data-invalid={isInvalid || undefined}
       data-disabled={disabled || undefined}
       data-readonly={readOnly || undefined}
       data-filled={isFilled || undefined}
       data-preview-state={previewState}
-      data-resize={resize}
       className={classNames(
         "miaixz-control",
-        "miaixz-textarea",
+        "miaixz-textarea-frame",
         `miaixz-control-${size}`,
-        `miaixz-textarea-${size}`,
         isInvalid && "miaixz-textarea-invalid",
+        disabled && "miaixz-textarea-disabled",
+        readOnly && "miaixz-textarea-readonly",
         className,
       )}
-      onChange={(event) => {
-        if (value === undefined)
-          setUncontrolledFilled(hasMiaixzControlValue(event.currentTarget.value));
-        onChange?.(event);
-      }}
-    />
+    >
+      <textarea
+        {...props}
+        ref={ref}
+        disabled={disabled}
+        readOnly={readOnly}
+        value={value}
+        defaultValue={defaultValue}
+        aria-invalid={isInvalid || undefined}
+        data-resize={resize}
+        className={classNames("miaixz-textarea", `miaixz-textarea-${size}`)}
+        onChange={(event) => {
+          if (value === undefined)
+            setUncontrolledFilled(hasMiaixzControlValue(event.currentTarget.value));
+          onChange?.(event);
+        }}
+      />
+    </span>
   );
 });

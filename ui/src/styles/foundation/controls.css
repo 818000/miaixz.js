@@ -98,6 +98,69 @@
 }
 /* stylelint-enable no-descending-specificity */
 
+/* Editable field shells share one animated brand underline. Keeping this state
+ * on the shell makes native inputs, composite pickers and multiline editors
+ * visually identical without adding a second focus ring to their editors.
+ */
+:is(
+  .miaixz-input,
+  .miaixz-textarea-frame,
+  .miaixz-select,
+  .miaixz-combobox-control,
+  .miaixz-picker-control
+) {
+  position: relative;
+  overflow: hidden;
+}
+
+:is(
+  .miaixz-input,
+  .miaixz-textarea-frame,
+  .miaixz-select,
+  .miaixz-combobox-control,
+  .miaixz-picker-control
+)::after {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  block-size: var(--miaixz-control-focus-width);
+  pointer-events: none;
+  content: "";
+  background: var(--miaixz-color-brand);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 560ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:is(
+    .miaixz-input,
+    .miaixz-textarea-frame,
+    .miaixz-select,
+    .miaixz-combobox-control,
+    .miaixz-picker-control
+  ):where(:focus-within, [data-preview-state="focus"]):not(
+    [data-invalid="true"],
+    [data-disabled="true"],
+    [data-readonly="true"]
+  ) {
+  box-shadow: none;
+}
+
+:is(
+    .miaixz-input,
+    .miaixz-textarea-frame,
+    .miaixz-select,
+    .miaixz-combobox-control,
+    .miaixz-picker-control
+  ):where(:focus-within, [data-preview-state="focus"]):not(
+    [data-invalid="true"],
+    [data-disabled="true"],
+    [data-readonly="true"]
+  )::after {
+  transform: scaleX(1);
+  transition: transform 420ms cubic-bezier(0.2, 0.72, 0.2, 1);
+}
+
 /* Field shells own the focus indicator; internal editors must not add a second ring.
  * Match the theme fallback's specificity without raising border/shadow state priority.
  * Independent buttons and links are intentionally outside this contract.
@@ -105,7 +168,7 @@
 [data-miaixz-theme]
   :where(
     .miaixz-input,
-    .miaixz-textarea,
+    .miaixz-textarea-frame,
     .miaixz-select,
     .miaixz-combobox-control,
     .miaixz-picker-control
@@ -127,7 +190,7 @@
 [data-miaixz-theme]
   :where(
     .miaixz-input,
-    .miaixz-textarea,
+    .miaixz-textarea-frame,
     .miaixz-select,
     .miaixz-combobox-control,
     .miaixz-picker-control
@@ -170,12 +233,25 @@
   [data-miaixz-theme]
     :where(
       .miaixz-input,
-      .miaixz-textarea,
+      .miaixz-textarea-frame,
       .miaixz-select,
       .miaixz-combobox-control,
       .miaixz-picker-control
     ):focus-within {
     outline: var(--miaixz-control-focus-width) solid Highlight;
     outline-offset: var(--miaixz-space-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    .miaixz-input,
+    .miaixz-textarea-frame,
+    .miaixz-select,
+    .miaixz-combobox-control,
+    .miaixz-picker-control
+  )::after {
+    transition-delay: 0ms;
+    transition-duration: var(--miaixz-duration-instant);
   }
 }

@@ -2,12 +2,25 @@
  * Textarea component
  */
 
+.miaixz-textarea-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+}
+
 .miaixz-textarea {
   display: block;
   width: 100%;
   min-height: var(--miaixz-control-textarea-min-height);
   padding: var(--miaixz-control-padding-block-textarea) var(--miaixz-density-control-padding-inline);
-  background: var(--miaixz-surface-role-control-background);
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+  outline: 0;
+  background: transparent;
+  border: 0;
 }
 
 .miaixz-textarea::placeholder {
@@ -43,10 +56,10 @@
   resize: both;
 }
 
-.miaixz-textarea:disabled {
+.miaixz-textarea-disabled {
   background: var(--miaixz-color-surface-secondary);
 }
 
-.miaixz-textarea[readonly] {
+.miaixz-textarea-readonly {
   background: var(--miaixz-color-surface-secondary);
 }

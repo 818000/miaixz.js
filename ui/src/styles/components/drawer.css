@@ -11,7 +11,7 @@
     var(--miaixz-layout-page-max-width)
   );
   --miaixz-drawer-width: var(--miaixz-drawer-width-medium);
-  --miaixz-drawer-offset: var(--miaixz-space-16);
+  --miaixz-drawer-offset: 100%;
 }
 
 dialog.miaixz-drawer {

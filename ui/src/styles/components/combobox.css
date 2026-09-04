@@ -27,7 +27,7 @@
   border-color: var(--miaixz-color-border-strong);
   border-end-start-radius: 0;
   border-end-end-radius: 0;
-  box-shadow: var(--miaixz-control-focus-shadow);
+  box-shadow: none;
 }
 
 .miaixz-combobox-control[data-state="open"][data-invalid="true"],
