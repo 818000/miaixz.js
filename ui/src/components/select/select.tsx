@@ -62,6 +62,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
     className,
     disabled = false,
     readOnly = false,
+    widthPreset = "fill",
     previewState,
     children,
     value,
@@ -183,6 +184,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         isInvalid && "miaixz-select-invalid",
         disabled && "miaixz-select-disabled",
         readOnly && "miaixz-select-readonly",
+        widthPreset === "compact" && "miaixz-select-width-compact",
         className,
       )}
       data-size={size}

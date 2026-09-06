@@ -28,4 +28,6 @@ export interface ToolbarProps extends HTMLAttributes<HTMLDivElement> {
    * Keeps the toolbar visible within its scrolling container.
    */
   sticky?: boolean;
+  /** Selects a bare toolbar or a panel-edge directory toolbar. */
+  variant?: "default" | "panel";
 }

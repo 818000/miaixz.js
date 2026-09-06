@@ -90,6 +90,23 @@
   padding: var(--miaixz-space-12) var(--miaixz-space-16);
 }
 
+.miaixz-datagrid-rows-compact .miaixz-table {
+  font-size: 12px;
+  line-height: 14px;
+}
+
+.miaixz-datagrid-rows-compact .miaixz-table-cell {
+  height: 48px;
+  padding: 8px 10px;
+}
+
+.miaixz-datagrid-rows-compact .miaixz-table-header {
+  height: 40px;
+  padding-inline: 10px;
+  font-size: 10px;
+  line-height: 14px;
+}
+
 .miaixz-datagrid-rows-comfortable .miaixz-table-header {
   height: calc(var(--miaixz-space-24) * 2);
   padding-inline: var(--miaixz-space-16);

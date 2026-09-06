@@ -8,6 +8,8 @@ import type { HTMLAttributes, ReactNode } from "react";
 export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   /** Removes body inline padding while preserving header and footer spacing. */
   bodyFlush?: boolean;
+  /** Removes all body padding for edge-to-edge composed content. */
+  bodyPadding?: "default" | "none";
   /** Keeps short titles and actions side by side in a narrow panel. */
   headerLayout?: "responsive" | "inline";
   /**
@@ -25,7 +27,9 @@ export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   /**
    * Selects the panel header height preset.
    */
-  headerSize?: "default" | "compact";
+  headerSize?: "default" | "compact" | "entity" | "note";
+  /** Selects an optional minimum-height preset for tall local navigation panels. */
+  minHeight?: "default" | "tall";
   /**
    * Enables narrow-screen horizontal body scrolling.
    */
@@ -56,6 +60,8 @@ export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
    * Displays panel-level actions.
    */
   actions?: ReactNode;
+  /** Displays a compact leading visual beside the title and description. */
+  leading?: ReactNode;
   /**
    * Supplies the panel footer content.
    */

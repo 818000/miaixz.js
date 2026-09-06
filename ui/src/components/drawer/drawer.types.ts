@@ -5,7 +5,12 @@ import type { DialogHTMLAttributes, ReactNode } from "react";
  *
  * @public
  */
-export type DrawerSize = "small" | "medium" | "large";
+export type DrawerSize = "small" | "medium" | "large" | "xlarge" | "wide";
+
+/**
+ * Defines the supported drawer content densities. @public
+ */
+export type DrawerDensity = "default" | "compact";
 
 /**
  * Defines the viewport edge from which a drawer opens.
@@ -49,6 +54,10 @@ export interface DrawerProps extends Omit<
    * @defaultValue `"medium"`
    */
   size?: DrawerSize;
+  /**
+   * Selects standard or compact drawer chrome and content padding.
+   */
+  density?: DrawerDensity;
   /**
    * Selects the viewport edge used by the drawer.
    *

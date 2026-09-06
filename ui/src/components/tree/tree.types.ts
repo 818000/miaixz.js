@@ -17,6 +17,12 @@ export interface TreeNode<Value = unknown> {
    */
   readonly label: ReactNode;
 
+  /** Supplies supporting hierarchy context below the primary label. */
+  readonly description?: ReactNode;
+
+  /** Supplies optional metadata aligned to the far edge of the row. */
+  readonly trailing?: ReactNode;
+
   /**
    * Supplies optional consumer-owned node data.
    */
@@ -99,6 +105,15 @@ export interface MiaixzTreeOwnProps<Value = unknown> {
    * Supplies the accessible tree label.
    */
   label: string;
+
+  /** Selects a framed tree, an edge-to-edge directory, or a connected hierarchy outline. */
+  variant?: "default" | "directory" | "outline";
+
+  /** Controls the selected-row check mark while preserving selection semantics. */
+  showSelectionIndicator?: boolean;
+
+  /** Displays the computed hierarchy depth without increasing deep-level indentation. */
+  showLevelIndicator?: boolean;
 }
 
 /**

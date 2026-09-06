@@ -64,6 +64,15 @@
   line-height: var(--miaixz-text-section-title-line-height);
 }
 
+.miaixz-avatar-profile {
+  width: 96px;
+  height: 96px;
+  font-size: var(--miaixz-text-metric-size);
+  line-height: 1;
+  color: var(--miaixz-color-brand);
+  border: var(--miaixz-border-width-2) solid var(--miaixz-color-brand);
+}
+
 .miaixz-avatar-fill {
   width: 100%;
   height: 100%;

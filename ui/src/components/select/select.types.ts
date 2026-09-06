@@ -37,4 +37,6 @@ export interface SelectProps
    * @defaultValue `false`
    */
   readOnly?: boolean;
+  /** Selects fill-width or compact toolbar geometry. */
+  widthPreset?: "fill" | "compact";
 }

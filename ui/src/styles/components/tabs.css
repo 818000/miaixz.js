@@ -3,6 +3,8 @@
  * Use tablist, tab and tabpanel roles with aria-selected and aria-controls.
  */
 
+/* stylelint-disable no-descending-specificity */
+
 [data-miaixz-theme] {
   --miaixz-tabs-height: var(--miaixz-control-height-large);
   --miaixz-tabs-gap: var(--miaixz-space-24);
@@ -33,34 +35,68 @@
   display: none;
 }
 
-.miaixz-tabs-navigation > .miaixz-tabs-list {
-  gap: clamp(var(--miaixz-space-24), 2.5vw, var(--miaixz-space-32));
-  padding-inline: var(--miaixz-space-16) 0;
+.miaixz-tabs-navigation {
+  --miaixz-tabs-height: var(--miaixz-control-height-small);
+}
+
+.miaixz-tabs-navigation > .miaixz-tabs-list,
+.miaixz-tabs-navigation > .miaixz-tabs-header > .miaixz-tabs-list {
+  gap: var(--miaixz-space-8);
+  padding-inline: var(--miaixz-space-8) 0;
+}
+
+.miaixz-tabs-navigation > .miaixz-tabs-list > .miaixz-tab,
+.miaixz-tabs-navigation > .miaixz-tabs-header > .miaixz-tabs-list > .miaixz-tab {
+  padding-inline: var(--miaixz-space-8);
+  border-radius: var(--miaixz-radius-control) var(--miaixz-radius-control) 0 0;
+  transition-property: color, background-color, box-shadow, opacity;
+}
+
+.miaixz-tabs-navigation
+  > .miaixz-tabs-list
+  > .miaixz-tab:where(:hover:not(:disabled, [aria-disabled="true"])),
+.miaixz-tabs-navigation
+  > .miaixz-tabs-header
+  > .miaixz-tabs-list
+  > .miaixz-tab:where(:hover:not(:disabled, [aria-disabled="true"])) {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-tabs-navigation > .miaixz-tabs-list > .miaixz-tab[aria-selected="true"],
+.miaixz-tabs-navigation
+  > .miaixz-tabs-header
+  > .miaixz-tabs-list
+  > .miaixz-tab[aria-selected="true"] {
+  font-weight: var(--miaixz-font-weight-medium);
+  color: var(--miaixz-color-brand);
+  background: transparent;
 }
 
 .miaixz-tabs-navigation > .miaixz-tab-panel {
   padding: 0;
 }
 
-@media (max-width: 980px) {
-  .miaixz-tabs-navigation > .miaixz-tabs-list {
-    gap: var(--miaixz-space-32);
-    padding-inline-start: var(--miaixz-space-12);
+@media (width <= 980px) {
+  .miaixz-tabs-navigation > .miaixz-tabs-list,
+  .miaixz-tabs-navigation > .miaixz-tabs-header > .miaixz-tabs-list {
+    padding-inline-start: var(--miaixz-space-4);
   }
 }
 
-@media (max-width: 720px) {
-  .miaixz-tabs-navigation > .miaixz-tabs-list {
-    gap: var(--miaixz-space-24);
-    padding-inline-start: var(--miaixz-space-8);
+@media (width <= 720px) {
+  .miaixz-tabs-navigation > .miaixz-tabs-list,
+  .miaixz-tabs-navigation > .miaixz-tabs-header > .miaixz-tabs-list {
+    gap: var(--miaixz-space-4);
+    padding-inline-start: 0;
   }
 }
 
 .miaixz-tabs-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: var(--miaixz-space-16);
+  align-items: center;
   border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
@@ -132,6 +168,31 @@
   padding-block-start: var(--miaixz-density-panel-padding);
 }
 
+.miaixz-tabs-panel-padding-none > .miaixz-tab-panel {
+  padding-block-start: 0;
+}
+
+.miaixz-tabs-editor > .miaixz-tabs-list {
+  overflow-x: auto;
+}
+
+.miaixz-tabs-editor > .miaixz-tab-panel {
+  padding-block-start: 18px;
+}
+
+.miaixz-tabs-header-toolbar > .miaixz-tabs-header {
+  min-height: 60px;
+  padding-inline: var(--miaixz-space-16);
+}
+
+.miaixz-tabs-header-toolbar > .miaixz-tabs-header > .miaixz-tabs-list {
+  align-self: stretch;
+}
+
+.miaixz-tabs-header-toolbar > .miaixz-tabs-header > .miaixz-tabs-actions > .miaixz-cluster {
+  flex-wrap: nowrap;
+}
+
 .miaixz-tabs-vertical {
   display: grid;
   grid-template-columns: minmax(160px, var(--miaixz-layout-local-sidebar-width)) minmax(0, 1fr);
@@ -199,3 +260,5 @@
     min-height: max(var(--miaixz-tabs-height), var(--miaixz-control-min-target-size));
   }
 }
+
+/* stylelint-enable no-descending-specificity */

@@ -7,8 +7,14 @@ import type { StackProps } from "./stack.types.js";
  * Arranges children vertically using a design-token gap. @public
  */
 export const Stack = forwardRef<HTMLDivElement, StackProps>(function Stack(
-  { className, ...props },
+  { className, gap = "default", ...props },
   ref,
 ) {
-  return <div {...props} ref={ref} className={classNames("miaixz-stack", className)} />;
+  return (
+    <div
+      {...props}
+      ref={ref}
+      className={classNames("miaixz-stack", `miaixz-stack-gap-${gap}`, className)}
+    />
+  );
 });

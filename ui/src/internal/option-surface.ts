@@ -84,6 +84,7 @@ export function useMiaixzOptionSurface(
       const height = measureMiaixzOptionSurfaceHeight(surface);
       surface.style.maxBlockSize =
         height === undefined ? "" : `min(${height}px, var(--miaixz-responsive-overlay-block-size))`;
+      surface.toggleAttribute("data-scrollable", height !== undefined);
       // Theme/font/layout changes can apply the height cap after the panel first opens.
       revealMiaixzOption(surface, activeOptionRef.current);
     };

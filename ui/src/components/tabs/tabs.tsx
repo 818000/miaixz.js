@@ -25,6 +25,8 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
     actions,
     actionsPlacement = "end",
     headerInset = false,
+    panelPadding = "default",
+    headerVariant = "default",
     variant = "default",
     value: controlledValue,
     defaultValue,
@@ -116,6 +118,9 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
       className={classNames(
         "miaixz-tabs",
         variant === "navigation" && "miaixz-tabs-navigation",
+        variant === "editor" && "miaixz-tabs-editor",
+        panelPadding === "none" && "miaixz-tabs-panel-padding-none",
+        headerVariant === "toolbar" && "miaixz-tabs-header-toolbar",
         orientation === "vertical" && "miaixz-tabs-vertical",
         className,
       )}

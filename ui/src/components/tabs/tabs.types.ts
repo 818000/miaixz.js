@@ -53,9 +53,17 @@ export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "childre
    */
   headerInset?: boolean;
   /**
+   * Removes panel padding for edge-to-edge tables and composed surfaces.
+   */
+  panelPadding?: "default" | "none";
+  /**
+   * Uses compact directory-toolbar header geometry.
+   */
+  headerVariant?: "default" | "toolbar";
+  /**
    * Uses page-navigation geometry with unpadded associated panels.
    */
-  variant?: "default" | "navigation";
+  variant?: "default" | "navigation" | "editor";
   /**
    * Supplies tabs and their panel content.
    */

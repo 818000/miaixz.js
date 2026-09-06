@@ -7,7 +7,7 @@ import type { ClusterProps } from "./cluster.types.js";
  * Arranges wrapping inline content with controlled alignment and spacing. @public
  */
 export const Cluster = forwardRef<HTMLDivElement, ClusterProps>(function Cluster(
-  { justify = "start", className, ...props },
+  { justify = "start", gap = "default", className, ...props },
   ref,
 ) {
   return (
@@ -15,7 +15,7 @@ export const Cluster = forwardRef<HTMLDivElement, ClusterProps>(function Cluster
       {...props}
       ref={ref}
       data-justify={justify}
-      className={classNames("miaixz-cluster", className)}
+      className={classNames("miaixz-cluster", `miaixz-cluster-gap-${gap}`, className)}
     />
   );
 });

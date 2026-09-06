@@ -17,6 +17,8 @@ export interface SearchProps extends Omit<
    * @defaultValue `"default"`
    */
   variant?: "default" | "header";
+  /** Selects fill-width or fixed directory-toolbar geometry. */
+  width?: "fill" | "medium";
   /**
    * Displays a keyboard shortcut after the editable input area.
    */

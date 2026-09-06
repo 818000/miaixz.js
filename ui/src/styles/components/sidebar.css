@@ -8,3 +8,18 @@
 .miaixz-sidebar-main {
   min-width: 0;
 }
+
+.miaixz-sidebar-wide {
+  gap: var(--miaixz-space-12);
+  grid-template-columns: minmax(280px, 280px) minmax(0, 1fr);
+}
+
+@media (width < 80em) {
+  .miaixz-sidebar[data-collapse-at="compactDesktop"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .miaixz-sidebar[data-collapse-at="compactDesktop"] > .miaixz-sticky {
+    position: static;
+  }
+}

@@ -12,6 +12,7 @@ export const List = forwardRef<HTMLUListElement, ListProps>(function List(
   {
     items,
     bordered = false,
+    dividers = true,
     plain = false,
     nested = false,
     density = "default",
@@ -31,6 +32,7 @@ export const List = forwardRef<HTMLUListElement, ListProps>(function List(
         `miaixz-list-${density}`,
         `miaixz-list-${variant}`,
         bordered && "miaixz-list-bordered",
+        !dividers && "miaixz-list-no-dividers",
         plain && "miaixz-list-plain",
         nested && "miaixz-list-nested",
         className,

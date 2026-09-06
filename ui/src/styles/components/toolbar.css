@@ -16,6 +16,12 @@
   width: auto;
 }
 
+.miaixz-toolbar-panel {
+  min-height: 60px;
+  padding: var(--miaixz-space-12) var(--miaixz-space-16);
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
 .miaixz-toolbar-leading {
   min-width: 0;
 }
@@ -41,6 +47,18 @@
 }
 
 @container miaixz-toolbar (width < 480px) {
+  .miaixz-toolbar {
+    flex-direction: column;
+    gap: var(--miaixz-space-16);
+    align-items: stretch;
+  }
+
+  .miaixz-toolbar-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (width <= 48rem) {
   .miaixz-toolbar {
     flex-direction: column;
     gap: var(--miaixz-space-16);

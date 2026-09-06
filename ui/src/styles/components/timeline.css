@@ -1,0 +1,100 @@
+.miaixz-timeline {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.miaixz-timeline-item {
+  --miaixz-timeline-tone: var(--miaixz-color-text-muted);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--miaixz-space-20) minmax(0, 1fr);
+  gap: var(--miaixz-space-12);
+  min-inline-size: 0;
+  padding-block-end: var(--miaixz-space-20);
+}
+
+.miaixz-timeline-item:not(:last-child)::before {
+  position: absolute;
+  inset-block: var(--miaixz-space-12) 0;
+  inset-inline-start: calc(var(--miaixz-space-20) / 2 - var(--miaixz-border-width-default) / 2);
+  inline-size: var(--miaixz-border-width-default);
+  content: "";
+  background: var(--miaixz-color-border);
+}
+
+.miaixz-timeline-item[data-tone="info"] {
+  --miaixz-timeline-tone: var(--miaixz-color-info);
+}
+
+.miaixz-timeline-item[data-tone="success"] {
+  --miaixz-timeline-tone: var(--miaixz-color-success);
+}
+
+.miaixz-timeline-item[data-tone="warning"] {
+  --miaixz-timeline-tone: var(--miaixz-color-warning);
+}
+
+.miaixz-timeline-item[data-tone="danger"] {
+  --miaixz-timeline-tone: var(--miaixz-color-danger);
+}
+
+.miaixz-timeline-node {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--miaixz-space-12);
+  block-size: var(--miaixz-space-12);
+  margin-block-start: var(--miaixz-space-4);
+  margin-inline: auto;
+  background: var(--miaixz-timeline-tone);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-background);
+  border-radius: 50%;
+}
+
+.miaixz-timeline-body {
+  min-inline-size: 0;
+}
+
+.miaixz-timeline-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--miaixz-space-8);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.miaixz-timeline-title {
+  color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-timeline-status,
+.miaixz-timeline-meta {
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-timeline-description {
+  margin-block-start: var(--miaixz-space-4);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-timeline-meta {
+  margin-block-start: var(--miaixz-space-4);
+}
+
+@media (width <= 720px) {
+  .miaixz-timeline-heading {
+    display: grid;
+    justify-content: stretch;
+  }
+}
+
+@media (forced-colors: active) {
+  .miaixz-timeline-node {
+    background: CanvasText;
+  }
+}

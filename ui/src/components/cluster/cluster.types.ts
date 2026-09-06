@@ -8,4 +8,6 @@ export interface ClusterProps extends HTMLAttributes<HTMLDivElement> {
    * Aligns items along the inline axis.
    */
   justify?: "start" | "between" | "end";
+  /** Selects a token-backed inline gap. */
+  gap?: "default" | "compact" | "tight" | "none";
 }

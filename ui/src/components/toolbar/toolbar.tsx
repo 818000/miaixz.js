@@ -15,6 +15,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar
     leading,
     actions,
     sticky = false,
+    variant = "default",
     className,
     children,
     ...props
@@ -30,7 +31,12 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar
       aria-label={label}
       aria-orientation={orientation}
       data-orientation={orientation}
-      className={classNames("miaixz-toolbar", sticky && "miaixz-toolbar-sticky", className)}
+      className={classNames(
+        "miaixz-toolbar",
+        `miaixz-toolbar-${variant}`,
+        sticky && "miaixz-toolbar-sticky",
+        className,
+      )}
     >
       {structured ? (
         <>
