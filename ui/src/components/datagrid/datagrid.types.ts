@@ -77,7 +77,7 @@ export interface MiaixzDatagridOwnProps<Row> {
   /** Selects automatic or consumer-weighted fixed column layout. */
   layout?: "auto" | "fixed";
   /** Selects standard or spacious multi-line rows. */
-  rowSize?: "default" | "comfortable";
+  rowSize?: "default" | "compact" | "comfortable";
   /**
    * Sizes the body to its records in content mode, allowing page scrolling without a sticky head.
    * Fill mode scrolls within a consumer-sized region with a sticky head and external pagination.

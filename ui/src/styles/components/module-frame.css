@@ -1,0 +1,41 @@
+.miaixz-module-frame {
+  --miaixz-module-frame-gutter: clamp(
+    var(--miaixz-space-20),
+    2.4vw,
+    var(--miaixz-space-40)
+  );
+
+  min-block-size: calc(100dvh - var(--miaixz-shell-header-height));
+  padding: var(--miaixz-space-24) var(--miaixz-module-frame-gutter) var(--miaixz-space-40);
+}
+
+.miaixz-module-frame-masthead {
+  padding-inline: var(--miaixz-module-frame-gutter);
+  margin-inline: calc(var(--miaixz-module-frame-gutter) * -1);
+}
+
+.miaixz-module-frame-masthead > .miaixz-header {
+  padding-block-end: var(--miaixz-space-16);
+}
+
+.miaixz-module-frame-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-space-16);
+  min-inline-size: 0;
+  padding-block-start: var(--miaixz-space-20);
+}
+
+@media (width <= 980px) {
+  .miaixz-module-frame {
+    --miaixz-module-frame-gutter: var(--miaixz-space-20);
+  }
+}
+
+@media (width <= 720px) {
+  .miaixz-module-frame {
+    --miaixz-module-frame-gutter: var(--miaixz-space-16);
+
+    padding-block-end: var(--miaixz-space-32);
+  }
+}

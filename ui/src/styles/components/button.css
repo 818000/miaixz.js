@@ -88,6 +88,23 @@
   border-color: transparent;
 }
 
+.miaixz-button-danger-link {
+  min-height: auto;
+  padding: 0;
+  color: var(--miaixz-color-danger);
+  background: transparent;
+  border-color: transparent;
+}
+
+.miaixz-button-danger-link:hover:not(:disabled, [aria-disabled="true"]),
+.miaixz-button-danger-link:focus-visible:not(:disabled, [aria-disabled="true"]) {
+  color: var(--miaixz-color-danger);
+  text-decoration-line: underline;
+  text-underline-offset: 0.18em;
+  background: transparent;
+  border-color: transparent;
+}
+
 .miaixz-button-label {
   min-width: 0;
   overflow: hidden;

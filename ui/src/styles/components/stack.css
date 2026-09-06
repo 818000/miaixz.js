@@ -4,3 +4,15 @@
   gap: var(--miaixz-layout-section-gap);
   min-width: 0;
 }
+
+.miaixz-stack-gap-compact {
+  gap: var(--miaixz-space-12);
+}
+
+.miaixz-stack-gap-tight {
+  gap: var(--miaixz-space-4);
+}
+
+.miaixz-stack-gap-none {
+  gap: 0;
+}

@@ -69,6 +69,29 @@
   justify-content: space-between;
 }
 
+.miaixz-panel-header-copy {
+  display: flex;
+  min-width: 0;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+}
+
+.miaixz-panel-header-copy > div:last-child {
+  min-width: 0;
+}
+
+.miaixz-panel-leading {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  color: var(--miaixz-color-brand);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+}
+
 .miaixz-panel-title {
   margin: 0;
   font-size: var(--miaixz-text-section-title-size);
@@ -103,11 +126,58 @@
   padding-inline: 0;
 }
 
+.miaixz-panel-body-padding-none > .miaixz-panel-body {
+  padding: 0;
+}
+
+.miaixz-panel-header-entity > .miaixz-panel-header {
+  min-height: 82px;
+  padding: var(--miaixz-space-16) var(--miaixz-space-20);
+  align-items: center;
+}
+
+.miaixz-panel-header-note > .miaixz-panel-header {
+  min-height: 64px;
+  padding: var(--miaixz-space-12) var(--miaixz-space-16);
+  align-items: center;
+}
+
+.miaixz-panel-header-note .miaixz-panel-leading {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-panel-header-note .miaixz-panel-title {
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.miaixz-panel-header-note .miaixz-panel-description {
+  margin-top: 3px;
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.miaixz-panel-min-height-tall {
+  min-height: 650px;
+}
+
 .miaixz-panel.miaixz-panel-header-inline > .miaixz-panel-header {
   flex-direction: row;
 }
 
 .miaixz-panel-body-fill > .miaixz-panel-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.miaixz-panel-body-fill {
+  display: flex;
+  flex-direction: column;
+}
+
+.miaixz-panel-body-fill > .miaixz-panel-body > :only-child {
   flex: 1;
   min-height: 0;
 }
@@ -195,6 +265,11 @@
   align-items: center;
   justify-content: flex-end;
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-panel-footer > :is(.miaixz-field, .miaixz-stack) {
+  flex: 1;
+  min-width: 0;
 }
 
 .miaixz-panel-header + .miaixz-panel-body,

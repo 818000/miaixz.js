@@ -128,6 +128,9 @@ function TreeImplementation<Value = unknown>(
     onExpandedIdsChange,
     loadChildren,
     label,
+    variant = "default",
+    showSelectionIndicator = true,
+    showLevelIndicator = false,
     className,
     onBlurCapture,
     onFocusCapture,
@@ -533,8 +536,21 @@ function TreeImplementation<Value = unknown>(
                 <Icon name={expanded ? "ChevronDown" : "ChevronRight"} size="control" />
               ) : null}
             </span>
-            <span className="miaixz-tree-label">{node.label}</span>
-            {selected && selectionMode !== "none" && (
+            <span className="miaixz-tree-copy">
+              <span className="miaixz-tree-label">{node.label}</span>
+              {node.description !== undefined && (
+                <span className="miaixz-tree-description">{node.description}</span>
+              )}
+            </span>
+            {showLevelIndicator && (
+              <span aria-hidden="true" className="miaixz-tree-level">
+                L{entry.level}
+              </span>
+            )}
+            {node.trailing !== undefined && (
+              <span className="miaixz-tree-trailing">{node.trailing}</span>
+            )}
+            {showSelectionIndicator && selected && selectionMode !== "none" && (
               <Icon name="Check" size="control" className="miaixz-tree-selection" />
             )}
           </div>
@@ -572,7 +588,7 @@ function TreeImplementation<Value = unknown>(
       role="tree"
       aria-label={label}
       aria-multiselectable={selectionMode === "multiple" || undefined}
-      className={classNames("miaixz-tree", className)}
+      className={classNames("miaixz-tree", `miaixz-tree-${variant}`, className)}
       onFocusCapture={handleFocusCapture}
       onBlurCapture={handleBlurCapture}
     >

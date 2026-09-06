@@ -20,6 +20,16 @@
   overflow: hidden;
 }
 
+.miaixz-search-medium {
+  width: min(280px, 42vw);
+}
+
+@media (width <= 720px) {
+  .miaixz-search-medium {
+    width: 100%;
+  }
+}
+
 .miaixz-search-header .miaixz-input-element {
   font-size: var(--miaixz-text-caption-size);
   color: var(--miaixz-color-text-primary);

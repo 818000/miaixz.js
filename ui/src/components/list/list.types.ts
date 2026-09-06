@@ -30,6 +30,12 @@ export interface ListProps extends HTMLAttributes<HTMLUListElement> {
    */
   bordered?: boolean;
   /**
+   * Displays separators between list items.
+   *
+   * @defaultValue `true`
+   */
+  dividers?: boolean;
+  /**
    * Removes item padding and background treatment.
    *
    * @defaultValue `false`

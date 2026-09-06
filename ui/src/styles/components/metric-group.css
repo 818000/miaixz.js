@@ -1,0 +1,87 @@
+/**
+ * Miaixz metric group component
+ */
+
+.miaixz-metric-group {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
+  overflow: hidden;
+  color: var(--miaixz-surface-role-panel-foreground);
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-metric-group-transparent {
+  background: transparent;
+}
+
+.miaixz-metric-group-compact > .miaixz-metric-strip {
+  gap: 5px;
+  min-height: 92px;
+  padding: 15px 17px;
+}
+
+.miaixz-metric-group-compact .miaixz-metric-label,
+.miaixz-metric-group-compact .miaixz-metric-hint {
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.miaixz-metric-group-compact .miaixz-metric-value {
+  font-size: 22px;
+  line-height: 26px;
+}
+
+.miaixz-metric-group-spacing-compact {
+  margin-block-end: var(--miaixz-space-12);
+}
+
+.miaixz-metric-group > .miaixz-metric-strip {
+  border: 0;
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-panel-border);
+}
+
+.miaixz-metric-group > .miaixz-metric-strip:nth-child(4n) {
+  border-inline-end: 0;
+}
+
+@media (width < 80em) {
+  .miaixz-metric-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .miaixz-metric-group > .miaixz-metric-strip {
+    border-block-end: var(--miaixz-border-width-default) solid
+      var(--miaixz-surface-role-panel-border);
+    border-inline-end: 0;
+  }
+
+  .miaixz-metric-group > .miaixz-metric-strip:nth-child(odd) {
+    border-inline-end: var(--miaixz-border-width-default) solid
+      var(--miaixz-surface-role-panel-border);
+  }
+
+  .miaixz-metric-group > .miaixz-metric-strip:nth-last-child(-n + 2) {
+    border-block-end: 0;
+  }
+}
+
+@media (width < 48em) {
+  .miaixz-metric-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .miaixz-metric-group > .miaixz-metric-strip,
+  .miaixz-metric-group > .miaixz-metric-strip:nth-child(odd) {
+    border-block-end: var(--miaixz-border-width-default) solid
+      var(--miaixz-surface-role-panel-border);
+    border-inline-end: 0;
+  }
+
+  .miaixz-metric-group > .miaixz-metric-strip:last-child {
+    border-block-end: 0;
+  }
+}

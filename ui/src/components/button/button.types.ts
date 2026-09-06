@@ -6,7 +6,14 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  * @public
  */
 export type ButtonVariant =
-  "danger" | "ghost" | "link" | "outline" | "primary" | "refresh" | "secondary";
+  | "danger"
+  | "danger-link"
+  | "ghost"
+  | "link"
+  | "outline"
+  | "primary"
+  | "refresh"
+  | "secondary";
 
 /**
  * Defines the supported button control sizes.

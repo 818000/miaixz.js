@@ -6,6 +6,18 @@
   min-width: 0;
 }
 
+.miaixz-cluster-gap-compact {
+  gap: var(--miaixz-space-8);
+}
+
+.miaixz-cluster-gap-tight {
+  gap: var(--miaixz-space-4);
+}
+
+.miaixz-cluster-gap-none {
+  gap: 0;
+}
+
 .miaixz-cluster[data-justify="between"] {
   justify-content: space-between;
 }

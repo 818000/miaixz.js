@@ -17,6 +17,13 @@ export interface SidebarProps extends HTMLAttributes<HTMLDivElement> {
    */
   stickySidebar?: boolean;
   /**
+   * Collapses this sidebar when the viewport enters the selected range or a
+   * narrower range. Omitting the property preserves the default tablet collapse.
+   */
+  collapseAt?: "compactDesktop";
+  /** Selects the public local-sidebar width preset. */
+  size?: "default" | "wide";
+  /**
    * Adds a class to the main content region.
    */
   contentClassName?: string;

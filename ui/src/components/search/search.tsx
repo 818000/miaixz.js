@@ -22,6 +22,7 @@ export const Search = forwardRef<HTMLInputElement, SearchProps>(function Search(
     clearable = true,
     clearLabel,
     variant = "default",
+    width = "fill",
     shortcut,
     className,
     "aria-label": ariaLabel,
@@ -74,6 +75,7 @@ export const Search = forwardRef<HTMLInputElement, SearchProps>(function Search(
       className={classNames(
         "miaixz-search",
         variant === "header" && "miaixz-search-header",
+        width === "medium" && "miaixz-search-medium",
         className,
       )}
       startAdornment={<Icon name="Search" size="control" />}

@@ -89,6 +89,14 @@ dialog.miaixz-drawer[open]::backdrop {
   --miaixz-drawer-width: var(--miaixz-drawer-width-large);
 }
 
+.miaixz-drawer-xlarge {
+  --miaixz-drawer-width: 1000px;
+}
+
+.miaixz-drawer-wide {
+  --miaixz-drawer-width: calc(100vi - 24px);
+}
+
 dialog.miaixz-drawer-left {
   inset: 0 auto 0 0;
   border-inline-start: 0;
@@ -114,6 +122,12 @@ dialog.miaixz-drawer-bottom {
   padding-block: var(--miaixz-density-panel-padding);
   padding-inline: calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-inline-start))
     calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-inline-end));
+}
+
+@media (width <= 48rem) {
+  .miaixz-drawer-wide {
+    --miaixz-drawer-width: 100vi;
+  }
 }
 
 .miaixz-drawer-header {
@@ -153,4 +167,13 @@ dialog.miaixz-drawer-bottom {
   justify-content: flex-end;
   padding-bottom: calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-bottom));
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-drawer-compact > .miaixz-drawer-header,
+.miaixz-drawer-compact > .miaixz-drawer-footer {
+  padding: 18px 20px;
+}
+
+.miaixz-drawer-compact > .miaixz-drawer-body {
+  padding: 20px;
 }

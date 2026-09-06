@@ -103,6 +103,26 @@
   box-shadow: var(--miaixz-shadow-medium);
 }
 
+:is(.miaixz-combobox-surface, .miaixz-picker-surface)[data-scrollable] {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+:is(.miaixz-combobox-surface, .miaixz-picker-surface)[data-scrollable]::-webkit-scrollbar {
+  width: 10px;
+}
+
+:is(.miaixz-combobox-surface, .miaixz-picker-surface)[data-scrollable]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:is(.miaixz-combobox-surface, .miaixz-picker-surface)[data-scrollable]::-webkit-scrollbar-thumb {
+  background: var(--miaixz-color-border-strong);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: var(--miaixz-radius-round);
+}
+
 .miaixz-combobox-surface[data-placement^="bottom"],
 .miaixz-picker-surface[data-placement^="bottom"] {
   border-top: 0;

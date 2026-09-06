@@ -23,6 +23,7 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
     description,
     footer,
     size = "medium",
+    density = "default",
     placement = "right",
     closeLabel,
     showClose = true,
@@ -58,6 +59,7 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
         className={classNames(
           "miaixz-drawer",
           size !== "medium" && `miaixz-drawer-${size}`,
+          density === "compact" && "miaixz-drawer-compact",
           placement !== "right" && `miaixz-drawer-${placement}`,
           className,
         )}
