@@ -24,7 +24,7 @@ import { defineTheme } from "./define.js";
 import type { MiaixzThemeDefinition } from "./types.js";
 
 /**
- * Defines the non-color baseline shared by the three built-in themes.
+ * Defines the non-color baseline shared by the built-in themes.
  *
  * Built-in themes only vary their color maps. Custom themes may still override
  * any of these tokens through a complete Theme Definition.

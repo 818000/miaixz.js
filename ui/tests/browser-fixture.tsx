@@ -6,10 +6,12 @@ import { createRoot } from "react-dom/client";
 import { useState } from "react";
 
 import {
+  Appearance,
   Button,
   Descriptions,
   defineTheme,
   Drawer,
+  DRAWER_WIDTHS,
   EditorLayout,
   EditorSection,
   EditorSummary,
@@ -45,7 +47,7 @@ const density =
     : "standard";
 const appearance = createMiaixzAppearanceManager({
   appId: "miaixz-ui-browser-fixture",
-  initialAppearance: { theme, colorMode, density },
+  ...(parameters.size > 0 ? { initialAppearance: { theme, colorMode, density } } : {}),
   storage: {
     getItem: (key) => window.localStorage.getItem(key),
     removeItem: (key) => window.localStorage.removeItem(key),
@@ -71,6 +73,7 @@ const legacyTheme = defineTheme({
 function BrowserFixture() {
   const [boundary, setBoundary] = useState<HTMLDivElement | null>(null);
   const [drawer, setDrawer] = useState<"closed" | "outer" | "nested">("closed");
+  const [drawerWidth, setDrawerWidth] = useState(Number(parameters.get("drawerWidth") ?? 490));
   const [enabled, setEnabled] = useState(true);
   const metricItems = Array.from({ length: 5 }, (_, index) => (
     <Metric
@@ -85,6 +88,7 @@ function BrowserFixture() {
   return (
     <MiaixzLocaleProvider i18n={i18n}>
       <Theme appearance={appearance} fallback="miaixz" themes={[legacyTheme]}>
+        <Appearance scope="authenticated" />
         <main aria-label="Miaixz UI 浏览器契约夹具">
           <Panel
             actions={
@@ -123,7 +127,9 @@ function BrowserFixture() {
             />
           </Panel>
 
-          <MetricGroup aria-label="四项指标">{metricItems.slice(0, 4)}</MetricGroup>
+          <MetricGroup aria-label="四项指标" role="group">
+            {metricItems.slice(0, 4)}
+          </MetricGroup>
           <MetricGroup
             aria-label="五项紧凑指标"
             columns={5}
@@ -194,14 +200,28 @@ function BrowserFixture() {
           <div ref={setBoundary} data-testid="drawer-boundary">
             <Button onClick={() => setDrawer("outer")}>打开长内容抽屉</Button>
             <Drawer
-              boundary={boundary}
+              boundary={parameters.has("drawerWidth") ? undefined : boundary}
               description="边界、长内容与嵌套场景"
               footer={<Button onClick={() => setDrawer("closed")}>完成</Button>}
               onOpenChange={(open) => setDrawer(open ? "outer" : "closed")}
               open={drawer !== "closed"}
               title="外层抽屉"
-              width={490}
+              size={parameters.has("drawerWidth") ? "large" : "medium"}
+              width={drawerWidth}
             >
+              {parameters.has("drawerWidth") && (
+                <select
+                  aria-label="抽屉宽度"
+                  value={drawerWidth}
+                  onChange={(event) => setDrawerWidth(Number(event.currentTarget.value))}
+                >
+                  {[...DRAWER_WIDTHS, 435.5].map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              )}
               <Button onClick={() => setDrawer("nested")}>打开内层抽屉</Button>
               {Array.from({ length: 24 }, (_, index) => (
                 <p key={index}>长内容行 {index + 1}：用于固定抽屉滚动和容器几何。</p>

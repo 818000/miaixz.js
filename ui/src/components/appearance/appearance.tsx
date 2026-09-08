@@ -388,6 +388,7 @@ export function Appearance(props: AppearanceProps) {
         }}
         open={open}
         placement="right"
+        width={360}
         title={
           view === "language"
             ? localeRuntime.t("ui.appearance.language")

@@ -13,7 +13,7 @@ describe("navigation selected theme opacity", () => {
     const theme = resolveThemeDefinitions(new Map([[definition.name, definition]])).get(
       definition.name,
     )!;
-    it(`${theme.name} defaults to 35% without changing other colors`, () => {
+    it(`${theme.name} preserves its authored selection opacity without changing colors`, () => {
       expect(theme.tokens.opacity.navigationSelected).toBe(0.35);
       expect(theme.modes).toEqual(definition.modes);
       const { opacity: _opacity, ...tokens } = definition.tokens!;

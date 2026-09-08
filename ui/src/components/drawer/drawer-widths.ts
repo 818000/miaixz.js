@@ -18,13 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Drawer } from "./drawer.js";
-export { DRAWER_WIDTHS } from "./drawer-widths.js";
-export type { DrawerWidthPreset } from "./drawer-widths.js";
-export type {
-  DrawerDensity,
-  DrawerInset,
-  DrawerPlacement,
-  DrawerProps,
-  DrawerSize,
-} from "./drawer.types.js";
+/**
+ * Provides shared drawer width choices in CSS pixels for application configuration.
+ * Custom positive finite widths remain supported by Drawer.
+ *
+ * @public
+ */
+export const DRAWER_WIDTHS = Object.freeze([
+  350, 360, 380, 400, 450, 480, 500, 550, 580, 600, 800, 1000,
+] as const);
+
+/**
+ * Describes one of the shared drawer width choices. @public
+ */
+export type DrawerWidthPreset = (typeof DRAWER_WIDTHS)[number];

@@ -79,7 +79,7 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: "node node_modules/vite/bin/vite.js --config tests/vite.config.ts",
+    command: "npm exec -- vite --config tests/vite.config.ts",
     url: `${baseURL}/tests/`,
     env: {
       MIAIXZ_UI_BASE_URL: baseURL,

@@ -34,6 +34,56 @@ cannot be inferred from the previously missing legacy implementation directories
 
 The package is ESM-only and does not provide a CommonJS `require` entry point. JavaScript entry points do not load global CSS automatically; consumers must import the required stylesheet explicitly.
 
+## Platform identity
+
+Use the public `Brand` component for the configured platform name beside a logo.
+It aligns the text baseline with the logo bottom edge and shares spacing, theme typography
+and single-line ellipsis globally. Logo images and SVGs use a fixed 32px height;
+their width follows the intrinsic aspect ratio.
+The complete theme stylesheet or `@miaixz/ui/components.css` includes these styles.
+The application owns the name configuration and navigation; `Brand` also works inside
+framework links and accepts framework image components in its `logo` slot.
+
+```tsx
+import { Brand } from "@miaixz/ui";
+
+<a href="/workbench" aria-label={platformName}>
+  <Brand name={platformName} logo={<img src="/logo.png" alt="" />} />
+</a>;
+```
+
+## Drawer widths
+
+`DRAWER_WIDTHS` exports the frozen preset list: **350, 360, 380, 400, 450, 480,
+500, 550, 580, 600, 800, 1000** CSS pixels. `DrawerWidthPreset` is the corresponding
+numeric union for configuration fields and width pickers. Both are exported from
+`@miaixz/ui` and `@miaixz/ui/drawer`.
+
+```tsx
+import { Drawer, DRAWER_WIDTHS, type DrawerWidthPreset } from "@miaixz/ui";
+
+const width: DrawerWidthPreset = 480;
+const widthOptions = DRAWER_WIDTHS.map((value) => ({ label: `${value}px`, value }));
+
+<Drawer open={open} onOpenChange={setOpen} title="Settings" width={width}>
+  {children}
+</Drawer>;
+```
+
+`width` also accepts custom positive finite numbers such as `435`. It takes
+precedence over `size`; omitting it preserves the existing `small`, `medium`,
+`large`, `xlarge`, and `wide` behavior. Width does not change density, fonts,
+spacing or editor structure. Use `density` separately when needed.
+
+Left and right drawers clamp the requested width to the available viewport or
+explicit `boundary`, accounting for `inset`. Bottom drawers remain full width.
+For viewport drawers, width is applied through the shared CSS variable without
+requiring a JavaScript positioning observer. Responsive content should use the
+actual container width; sidebar editors need sufficient space for both columns.
+
+The Appearance panel uses **360px**, while the two-column user editor uses
+**1000px**. Other drawers retain their existing sizes until explicitly configured.
+
 ## Installation
 
 ```bash
@@ -213,3 +263,11 @@ Publishing is coordinated by the repository release workflow. `@miaixz/ui` and `
 ## License
 
 Apache-2.0
+
+### Application themes
+
+Brand themes live in the consuming application. Register definitions with `Theme themes={themes}`;
+use `createThemeStyles(themes)` from `@miaixz/ui/theme` to render their light/dark CSS in a
+nonce-bound `<style>` in the document head before `createThemeScript`. Include their identifiers
+in the script's `themes` option. Both first-paint and runtime styles use the UI serializer;
+the application does not implement color resolution or switching.

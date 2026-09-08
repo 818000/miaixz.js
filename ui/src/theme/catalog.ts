@@ -35,7 +35,7 @@ import { validateThemeDefinition } from "./validate.js";
  */
 export const miaixzBuiltInThemes = Object.freeze([miaixzTheme, neutralTheme, contrastTheme]);
 
-const reservedThemeIds = new Set(["miaixz", "neutral", "contrast"]);
+const reservedThemeIds = new Set(miaixzBuiltInThemes.map((theme) => theme.name));
 
 /**
  * Maintains one atomic, ordered, instance-local theme catalog.

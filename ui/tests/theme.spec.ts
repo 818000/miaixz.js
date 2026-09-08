@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { DRAWER_WIDTHS } from "../src/components/drawer/drawer-widths.js";
+
 import { miaixzTheme, MiaixzThemeError, parseTheme } from "../src/theme/index.js";
 import { resolveThemeDefinitions } from "../src/theme/resolve.js";
 import { serializeThemeApplication } from "../src/theme/serialize.js";
@@ -116,3 +118,34 @@ test("schema-one non-color roles parse, resolve and serialize through one contra
     }),
   ).toThrow(MiaixzThemeError);
 });
+
+for (const viewportWidth of [1440, 390]) {
+  test(`drawer width presets and custom widths clamp at ${viewportWidth}px`, async ({ page }) => {
+    await page.setViewportSize({ width: viewportWidth, height: 900 });
+    await page.goto("/tests/?drawerWidth=350");
+    await page.getByRole("button", { name: "打开长内容抽屉" }).click();
+    const drawer = page.getByRole("dialog", { name: "外层抽屉" });
+    const footer = drawer.locator(".miaixz-drawer-footer");
+    const fontSize = await drawer.evaluate((element) => getComputedStyle(element).fontSize);
+    const padding = await drawer
+      .locator(".miaixz-drawer-body")
+      .evaluate((element) => getComputedStyle(element).padding);
+    for (const width of [...DRAWER_WIDTHS, 435.5]) {
+      await drawer.getByLabel("抽屉宽度").selectOption(String(width));
+      const box = (await drawer.boundingBox())!;
+      expect(box.width).toBeCloseTo(Math.min(width, viewportWidth), 0);
+      expect(box.x + box.width).toBeCloseTo(viewportWidth, 0);
+      expect(box.y).toBe(0);
+      expect(box.height).toBe(900);
+      await expect(drawer).toHaveCSS("font-size", fontSize);
+      await expect(drawer.locator(".miaixz-drawer-body")).toHaveCSS("padding", padding);
+      const footerBox = (await footer.boundingBox())!;
+      expect(footerBox.y + footerBox.height).toBeCloseTo(900, 0);
+    }
+    await page.setViewportSize({ width: 320, height: 700 });
+    await expect.poll(async () => (await drawer.boundingBox())!.width).toBe(320);
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
+    await expect(page.getByRole("button", { name: "打开长内容抽屉" })).toBeFocused();
+  });
+}
