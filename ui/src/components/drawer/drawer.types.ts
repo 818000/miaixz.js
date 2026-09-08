@@ -67,7 +67,10 @@ export interface DrawerProps extends Omit<
   "open" | "title"
 > {
   /**
-   * Sets an explicit positive finite width clamped to the available boundary.
+   * Sets an explicit positive finite width in CSS pixels, overriding size.
+   * Choose from DRAWER_WIDTHS or supply a custom width. The rendered width is
+   * clamped to the viewport or boundary without changing density or typography.
+   * Bottom drawers remain full width.
    */
   width?: number;
   /**

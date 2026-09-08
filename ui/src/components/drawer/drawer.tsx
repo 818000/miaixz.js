@@ -121,7 +121,7 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
   validateDimension(width, "width", true);
   validateDimension(blockInset, "block inset");
   validateDimension(inlineInset, "inline inset");
-  const positioned = boundary !== undefined || width !== undefined || inset !== undefined;
+  const positioned = boundary !== undefined || inset !== undefined;
   const [frame, setFrame] = useState<DrawerFrame | null>(null);
   const requestOpenChange = useRef(onOpenChange);
   requestOpenChange.current = onOpenChange;
@@ -194,6 +194,9 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
   const restoreFocusRef = useMiaixzNativeModal(internalRef, active, portalTarget);
 
   const geometry: CSSProperties & Record<`--${string}`, string | number> = {};
+  if (width !== undefined && placement !== "bottom") {
+    geometry["--miaixz-drawer-width"] = `${width}px`;
+  }
   if (positioned && frame) {
     const availableWidth = Math.max(0, frame.right - frame.left - inlineInset * 2);
     const availableHeight = Math.max(0, frame.bottom - frame.top - blockInset * 2);

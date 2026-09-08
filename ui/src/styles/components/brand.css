@@ -18,13 +18,34 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Drawer } from "./drawer.js";
-export { DRAWER_WIDTHS } from "./drawer-widths.js";
-export type { DrawerWidthPreset } from "./drawer-widths.js";
-export type {
-  DrawerDensity,
-  DrawerInset,
-  DrawerPlacement,
-  DrawerProps,
-  DrawerSize,
-} from "./drawer.types.js";
+.miaixz-brand {
+  display: inline-flex;
+  gap: var(--miaixz-space-16);
+  align-items: baseline;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.miaixz-brand-logo {
+  display: inline-flex;
+  flex: none;
+  align-items: flex-end;
+}
+
+.miaixz-brand-logo > img,
+.miaixz-brand-logo > svg {
+  flex: none;
+  width: auto;
+  height: var(--miaixz-space-32);
+  object-fit: contain;
+}
+
+.miaixz-brand-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-section-title-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+}

@@ -23,6 +23,7 @@ export { useTheme } from "./context.js";
 export { defineTheme } from "./define.js";
 export { parseTheme } from "./parse.js";
 export { createThemeScript } from "./script.js";
+export { createThemeStyles } from "./styles.js";
 export { MiaixzThemeError } from "./errors.js";
 export { miaixzTheme } from "./miaixz.js";
 export { neutralTheme } from "./neutral.js";

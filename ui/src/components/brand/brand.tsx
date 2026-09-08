@@ -18,13 +18,22 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Drawer } from "./drawer.js";
-export { DRAWER_WIDTHS } from "./drawer-widths.js";
-export type { DrawerWidthPreset } from "./drawer-widths.js";
-export type {
-  DrawerDensity,
-  DrawerInset,
-  DrawerPlacement,
-  DrawerProps,
-  DrawerSize,
-} from "./drawer.types.js";
+import { forwardRef } from "react";
+
+import { classNames } from "../../shared/class-names.js";
+import type { BrandProps } from "./brand.types.js";
+
+/**
+ * Displays a configured platform name on the same baseline as its logo. @public
+ */
+export const Brand = forwardRef<HTMLSpanElement, BrandProps>(function Brand(
+  { name, logo, className, title = name, ...props },
+  ref,
+) {
+  return (
+    <span {...props} ref={ref} title={title} className={classNames("miaixz-brand", className)}>
+      {logo !== undefined && <span className="miaixz-brand-logo">{logo}</span>}
+      <span className="miaixz-brand-name">{name}</span>
+    </span>
+  );
+});

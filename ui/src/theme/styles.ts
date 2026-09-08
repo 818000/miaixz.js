@@ -18,13 +18,29 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Drawer } from "./drawer.js";
-export { DRAWER_WIDTHS } from "./drawer-widths.js";
-export type { DrawerWidthPreset } from "./drawer-widths.js";
-export type {
-  DrawerDensity,
-  DrawerInset,
-  DrawerPlacement,
-  DrawerProps,
-  DrawerSize,
-} from "./drawer.types.js";
+import { ThemeCatalog } from "./catalog.js";
+import { serializeThemeStyles } from "./serialize.js";
+import type { MiaixzThemeDefinition } from "./types.js";
+
+/**
+ * Creates first-paint CSS for trusted application themes using the UI theme pipeline.
+ * Render in a nonce-bound style element before the appearance bootstrap script.
+ * Pass the same definitions to Theme for runtime switching and persistence.
+ *
+ * @param themes - Application definitions, including any custom parents.
+ * @returns Validated light and dark CSS in the existing theme layer.
+ * @public
+ */
+export function createThemeStyles(themes: readonly MiaixzThemeDefinition[]): string {
+  const catalog = new ThemeCatalog(themes);
+  if (themes.length === 0) return "";
+  return [
+    "@layer miaixz-themes {",
+    ...themes.flatMap(({ name }) => {
+      const theme = catalog.get(name);
+      return [serializeThemeStyles(theme, "light"), serializeThemeStyles(theme, "dark")];
+    }),
+    "}",
+    "",
+  ].join("\n");
+}

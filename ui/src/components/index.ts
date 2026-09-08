@@ -25,6 +25,7 @@ export * from "./button/index.js";
 export * from "./badge/index.js";
 export * from "./bar/index.js";
 export * from "./body/index.js";
+export * from "./brand/index.js";
 export * from "./breadcrumb/index.js";
 export * from "./checkbox/index.js";
 export * from "./combobox/index.js";

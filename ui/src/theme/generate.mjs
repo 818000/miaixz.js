@@ -61,7 +61,7 @@ const layoutGeometryRanges = geometryModule.miaixzThemeLayoutGeometryRanges;
 
 if (
   !Array.isArray(themes) ||
-  themes.length !== 3 ||
+  themes.length === 0 ||
   contract === undefined ||
   !Array.isArray(typographyFields) ||
   layoutGeometryRanges === undefined

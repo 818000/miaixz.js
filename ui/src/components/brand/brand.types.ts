@@ -18,13 +18,18 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Drawer } from "./drawer.js";
-export { DRAWER_WIDTHS } from "./drawer-widths.js";
-export type { DrawerWidthPreset } from "./drawer-widths.js";
-export type {
-  DrawerDensity,
-  DrawerInset,
-  DrawerPlacement,
-  DrawerProps,
-  DrawerSize,
-} from "./drawer.types.js";
+import type { HTMLAttributes, ReactNode } from "react";
+
+/**
+ * Configures a shared platform identity without owning routing or settings. @public
+ */
+export interface BrandProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
+  /**
+   * Supplies the platform name from application configuration.
+   */
+  name: string;
+  /**
+   * Supplies a logo image or custom mark, including framework image components.
+   */
+  logo?: ReactNode;
+}
