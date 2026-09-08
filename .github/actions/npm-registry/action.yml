@@ -1,14 +1,14 @@
 name: Publish to npm
-description: 'Publishes @miaixz/sdk and @miaixz/ui at one shared version'
+description: "Publishes @miaixz/sdk and @miaixz/ui at one shared version"
 
 inputs:
   version:
-    description: 'Exact version shared by both packages.'
+    description: "Exact version shared by both packages."
     required: true
   registry:
-    description: 'npm registry URL.'
+    description: "npm registry URL."
     required: false
-    default: 'https://registry.npmjs.org/'
+    default: "https://registry.npmjs.org/"
 
 runs:
   using: composite

@@ -1,0 +1,39 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-toaster {
+  position: fixed;
+  inset-inline-end: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-end));
+  top: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-top));
+  z-index: var(--miaixz-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-space-8);
+  inline-size: min(calc(100vi - (var(--miaixz-page-gutter) * 2)), var(--miaixz-toast-max-width));
+  max-width: none;
+  max-block-size: calc(var(--miaixz-viewport-block) - (var(--miaixz-page-gutter) * 2));
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  color: inherit;
+  pointer-events: none;
+  background: transparent;
+  border: 0;
+}

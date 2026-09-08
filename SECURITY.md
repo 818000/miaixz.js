@@ -5,7 +5,7 @@
 Security fixes are provided only for the latest stable release of the `0.x` series. Earlier releases are not actively maintained.
 
 | Release                     | Status        |
-|-----------------------------| ------------- |
+| --------------------------- | ------------- |
 | Latest stable `0.x` release | Supported     |
 | Earlier releases            | Not supported |
 

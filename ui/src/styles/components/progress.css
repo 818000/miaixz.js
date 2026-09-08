@@ -1,13 +1,36 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz progress component
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-progress-track-height: var(--miaixz-space-8);
   --miaixz-progress-indeterminate-size: 40%;
 }
 
 .miaixz-progress {
+  --miaixz-progress-tone-fill: var(--miaixz-color-brand);
+  --miaixz-progress-tone-track: var(--miaixz-color-surface-active);
+
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--miaixz-space-12);
@@ -20,16 +43,141 @@
   display: block;
   height: var(--miaixz-progress-track-height);
   overflow: hidden;
-  background: var(--miaixz-color-surface-secondary);
+  background: var(--miaixz-progress-tone-track);
   border-radius: var(--miaixz-radius-round);
 }
 
+.miaixz-progress-thin {
+  --miaixz-progress-track-height: 2px;
+}
+
 .miaixz-progress-indicator {
+  --miaixz-progress-value: 0%;
+
   display: block;
-  width: var(--miaixz-progress-value, 0%);
+  width: var(--miaixz-progress-value);
   height: 100%;
-  background: var(--miaixz-color-brand);
+  background: var(--miaixz-progress-tone-fill);
   border-radius: inherit;
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-progress[data-state="determinate"][data-motion-state="enter"] .miaixz-progress-indicator {
+    transform-origin: left center;
+    animation: miaixz-progress-enter 1.35s cubic-bezier(0.16, 0.82, 0.25, 1) both;
+  }
+
+  [data-miaixz-progress-group]
+    > :nth-child(2)
+    .miaixz-progress[data-motion-state="enter"]
+    .miaixz-progress-indicator {
+    animation-delay: 0.1s;
+  }
+
+  [data-miaixz-progress-group]
+    > :nth-child(3)
+    .miaixz-progress[data-motion-state="enter"]
+    .miaixz-progress-indicator {
+    animation-delay: 0.2s;
+  }
+
+  [data-miaixz-progress-group]
+    > :nth-child(4)
+    .miaixz-progress[data-motion-state="enter"]
+    .miaixz-progress-indicator {
+    animation-delay: 0.3s;
+  }
+
+  [data-miaixz-progress-group]
+    > :nth-child(5)
+    .miaixz-progress[data-motion-state="enter"]
+    .miaixz-progress-indicator {
+    animation-delay: 0.4s;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  [data-miaixz-progress-group] {
+    cursor: pointer;
+  }
+
+  [data-miaixz-progress-group]:hover .miaixz-progress-indicator {
+    animation: miaixz-progress-replay 1.18s cubic-bezier(0.16, 0.82, 0.25, 1) both;
+  }
+
+  [data-miaixz-progress-group="staggered"]:hover > :nth-child(2) .miaixz-progress-indicator {
+    animation-delay: 0.1s;
+  }
+
+  [data-miaixz-progress-group="staggered"]:hover > :nth-child(3) .miaixz-progress-indicator {
+    animation-delay: 0.2s;
+  }
+
+  [data-miaixz-progress-group="staggered"]:hover > :nth-child(4) .miaixz-progress-indicator {
+    animation-delay: 0.3s;
+  }
+}
+
+.miaixz-progress-tone-neutral {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-neutral);
+  --miaixz-progress-tone-track: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-progress-tone-info {
+  --miaixz-progress-tone-fill: var(--miaixz-color-info);
+  --miaixz-progress-tone-track: var(--miaixz-color-info-soft);
+}
+
+.miaixz-progress-tone-success {
+  --miaixz-progress-tone-fill: var(--miaixz-color-success);
+  --miaixz-progress-tone-track: var(--miaixz-color-success-soft);
+}
+
+.miaixz-progress-tone-warning {
+  --miaixz-progress-tone-fill: var(--miaixz-color-warning);
+  --miaixz-progress-tone-track: var(--miaixz-color-warning-soft);
+}
+
+.miaixz-progress-tone-danger {
+  --miaixz-progress-tone-fill: var(--miaixz-color-danger);
+  --miaixz-progress-tone-track: var(--miaixz-color-danger-soft);
+}
+
+.miaixz-progress-tone-data {
+  --miaixz-progress-tone-track: var(--miaixz-color-surface-active);
+}
+
+.miaixz-progress-tone-data-1 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-1);
+}
+
+.miaixz-progress-tone-data-2 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-2);
+}
+
+.miaixz-progress-tone-data-3 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-3);
+}
+
+.miaixz-progress-tone-data-4 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-4);
+}
+
+.miaixz-progress-tone-data-5 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-5);
+}
+
+.miaixz-progress-tone-data-6 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-6);
+}
+
+.miaixz-progress-tone-data-7 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-7);
+}
+
+.miaixz-progress-tone-data-8 {
+  --miaixz-progress-tone-fill: var(--miaixz-color-data-8);
 }
 
 .miaixz-progress-indeterminate .miaixz-progress-indicator {
@@ -39,7 +187,7 @@
 }
 
 .miaixz-progress-value {
-  min-width: 4ch;
+  min-inline-size: calc(var(--miaixz-text-caption-size) * 4);
   font-size: var(--miaixz-text-caption-size);
   font-variant-numeric: tabular-nums;
   line-height: var(--miaixz-text-caption-line-height);
@@ -57,8 +205,37 @@
   }
 }
 
+@keyframes miaixz-progress-enter {
+  from {
+    opacity: 0.25;
+    transform: scaleX(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes miaixz-progress-replay {
+  0% {
+    opacity: 0.28;
+    transform: scaleX(0);
+  }
+
+  74% {
+    opacity: 1;
+    transform: scaleX(1.025);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .miaixz-progress-indeterminate .miaixz-progress-indicator {
+  .miaixz-progress .miaixz-progress-indicator {
     transform: none;
     animation: none;
   }

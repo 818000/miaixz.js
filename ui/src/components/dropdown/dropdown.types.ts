@@ -1,31 +1,40 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 
 import type { PopoverProps } from "../popover/index.js";
 
-/**
- * Configures a disclosure-based dropdown menu.
- *
- * @public
- */
-export interface DropdownProps extends Omit<PopoverProps, "contentClassName"> {
+interface DropdownBase {
   /**
-   * Provides the accessible menu label.
+   * Emphasizes an action without changing its semantic color.
+   *
+   * @defaultValue `false`
    */
-  label?: string;
-}
-
-/**
- * Defines properties shared by Miaixz dropdown item variants.
- *
- * @public
- */
-export interface MiaixzDropdownItemBaseProps {
+  emphasis?: boolean;
   /**
-   * Displays optional leading icon content.
+   * Displays leading icon content.
    */
   icon?: ReactNode;
   /**
-   * Displays supporting item description content.
+   * Displays supporting text below the label.
    */
   description?: ReactNode;
   /**
@@ -35,58 +44,88 @@ export interface MiaixzDropdownItemBaseProps {
    */
   danger?: boolean;
   /**
-   * Displays the selected-item indicator.
+   * Marks the item as selected.
    *
    * @defaultValue `false`
    */
   selected?: boolean;
 }
 
+type DropdownLink = DropdownBase &
+  Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children" | "href"> & {
+    /**
+     * Identifies a selectable item row.
+     */
+    kind?: "item";
+    /**
+     * Supplies the visible item label.
+     */
+    label: ReactNode;
+    /**
+     * Navigates to this location when selected.
+     */
+    href: string;
+  };
+
+type DropdownButton = DropdownBase &
+  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
+    /**
+     * Identifies a selectable item row.
+     */
+    kind?: "item";
+    /**
+     * Supplies the visible item label.
+     */
+    label: ReactNode;
+    /**
+     * Distinguishes button items from link items.
+     */
+    href?: undefined;
+  };
+
 /**
- * Configures a link-backed Miaixz dropdown item.
- *
- * @public
+ * Defines one declarative dropdown row. @public
  */
-export interface MiaixzDropdownAnchorItemProps extends Omit<
-  AnchorHTMLAttributes<HTMLAnchorElement>,
-  "href"
-> {
+export type DropdownEntry =
+  | DropdownLink
+  | DropdownButton
+  | {
+      /**
+       * Identifies a non-interactive group label.
+       */
+      kind: "label";
+      /**
+       * Supplies the group label content.
+       */
+      label: ReactNode;
+    }
+  | {
+      /**
+       * Identifies a visual separator.
+       */
+      kind: "divider";
+    };
+
+/**
+ * Configures a disclosure-based dropdown menu. @public
+ */
+export interface DropdownProps extends Omit<PopoverProps, "contentClassName"> {
   /**
-   * Supplies the required link destination.
+   * Selects the original disclosure menu or a neutral action-list density.
+   *
+   * @defaultValue `"default"`
    */
-  href: string;
-}
-
-/**
- * Configures a button-backed Miaixz dropdown item.
- *
- * @public
- */
-export interface MiaixzDropdownButtonItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "plain" | "compact";
   /**
-   * Keeps the item in button mode when no destination is supplied.
+   * Adds a class to the rendered dropdown surface.
    */
-  href?: undefined;
+  contentClassName?: string;
+  /**
+   * Provides the menu's accessible name.
+   */
+  label?: string;
+  /**
+   * Supplies declarative menu rows.
+   */
+  items?: readonly DropdownEntry[];
 }
-
-/**
- * Configures a dropdown item rendered as either a link or a button.
- *
- * @public
- */
-export type DropdownItemProps = MiaixzDropdownItemBaseProps &
-  (MiaixzDropdownAnchorItemProps | MiaixzDropdownButtonItemProps);
-
-/**
- * Configures a non-interactive label within a dropdown menu.
- *
- * @public
- */
-export interface DropdownLabelProps extends HTMLAttributes<HTMLDivElement> {}
-
-/**
- * Configures a semantic divider within a dropdown menu.
- *
- * @public
- */
-export interface DropdownDividerProps extends HTMLAttributes<HTMLHRElement> {}

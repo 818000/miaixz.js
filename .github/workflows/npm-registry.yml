@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish. Leave empty to read VERSION.'
+        description: "Version to publish. Leave empty to read VERSION."
         required: false
-        default: ''
+        default: ""
         type: string
   push:
     tags:
-      - '*.*.*'
+      - "*.*.*"
 
 env:
-  NODE_VERSION: '24'
-  NPM_REGISTRY: 'https://registry.npmjs.org/'
+  NODE_VERSION: "24"
+  NPM_REGISTRY: "https://registry.npmjs.org/"
 
 permissions:
   contents: read

@@ -1,0 +1,79 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+import type { HTMLAttributes } from "react";
+
+import type { MiaixzVisualTone } from "../shared.types.js";
+
+/**
+ * Defines one named column-chart series.
+ *
+ * @public
+ */
+export interface ColumnsSeries {
+  /**
+   * Supplies the accessible series name.
+   */
+  readonly label: string;
+  /**
+   * Supplies one value for every chart label.
+   */
+  readonly values: readonly number[];
+}
+
+/**
+ * Configures a compact one- or two-series column chart.
+ *
+ * @public
+ */
+export interface ColumnsProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "color"> {
+  /**
+   * Selects a reusable chart geometry without exposing internal slots.
+   */
+  readonly variant?: "cost" | "dataset" | "default" | "paired" | "resource" | "timeline";
+  /**
+   * Supplies ordered category labels.
+   */
+  readonly labels: readonly string[];
+  /**
+   * Supplies one or two named data series.
+   */
+  readonly series: readonly ColumnsSeries[];
+  /**
+   * Supplies an optional positive chart-domain maximum.
+   */
+  readonly maximum?: number;
+  /**
+   * Shows a theme-owned key for the named series.
+   */
+  readonly showLegend?: boolean;
+  /**
+   * Selects standard or expanded chart geometry.
+   */
+  readonly size?: "default" | "large";
+  /**
+   * Selects the shared theme-resolved visual tone.
+   */
+  readonly tone: MiaixzVisualTone;
+  /**
+   * Supplies the required accessible chart name.
+   */
+  readonly "aria-label": string;
+}

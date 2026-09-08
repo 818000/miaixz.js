@@ -1,12 +1,33 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz data table component
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-table-row-height: var(--miaixz-density-table-row-height);
   --miaixz-table-cell-padding-inline: var(--miaixz-density-table-cell-padding-inline);
   --miaixz-table-cell-padding-block: var(--miaixz-density-table-cell-padding-block);
   --miaixz-table-action-width: var(--miaixz-control-height-small);
+  --miaixz-table-min-inline-size: calc(var(--miaixz-layout-card-min-width) * 2);
 }
 
 .miaixz-table-container {
@@ -15,35 +36,44 @@
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  background: var(--miaixz-color-surface);
-  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
   border-radius: var(--miaixz-radius-panel);
 }
 
 .miaixz-table {
+  min-inline-size: var(--miaixz-table-min-inline-size);
   width: 100%;
-  min-width: 640px;
   font-size: var(--miaixz-text-body-size);
   line-height: var(--miaixz-text-body-line-height);
   color: var(--miaixz-color-text-primary);
   border-spacing: 0;
   border-collapse: separate;
-  background: var(--miaixz-color-surface);
+  background: transparent;
 }
 
-.miaixz-table-caption {
+.miaixz-table-container-plain {
+  border: 0;
+  border-radius: 0;
+}
+
+.miaixz-table-caption,
+.miaixz-table > caption {
   padding: var(--miaixz-table-cell-padding-block) var(--miaixz-table-cell-padding-inline);
   color: var(--miaixz-color-text-secondary);
   text-align: start;
 }
 
-.miaixz-table-head {
+.miaixz-table-head,
+.miaixz-table > thead {
   color: var(--miaixz-color-text-secondary);
-  background: var(--miaixz-color-surface-secondary);
+  background: transparent;
 }
 
 .miaixz-table-header,
-.miaixz-table-cell {
+.miaixz-table-cell,
+.miaixz-table th,
+.miaixz-table td {
   height: var(--miaixz-table-row-height);
   padding: var(--miaixz-table-cell-padding-block) var(--miaixz-table-cell-padding-inline);
   vertical-align: middle;
@@ -51,28 +81,28 @@
   border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
-.miaixz-table-header {
-  font-size: var(--miaixz-text-caption-size);
+.miaixz-table-header,
+.miaixz-table th {
+  font-size: var(--miaixz-text-table-header-size);
   font-weight: var(--miaixz-font-weight-regular);
-  line-height: var(--miaixz-text-caption-line-height);
+  line-height: var(--miaixz-text-table-header-line-height);
 }
 
-.miaixz-table-body .miaixz-table-row:last-child > .miaixz-table-cell {
+.miaixz-table-body .miaixz-table-row:last-child > .miaixz-table-cell,
+.miaixz-table > tbody > tr:last-child > td {
   border-bottom: 0;
 }
 
-.miaixz-table-body .miaixz-table-row {
+.miaixz-table-body .miaixz-table-row,
+.miaixz-table > tbody > tr {
   transition-timing-function: var(--miaixz-motion-interaction-easing);
   transition-duration: var(--miaixz-motion-interaction-duration);
   transition-property: background-color;
 }
 
-.miaixz-table-body .miaixz-table-row:hover {
+.miaixz-table-body .miaixz-table-row:hover,
+.miaixz-table > tbody > tr:hover {
   background: var(--miaixz-color-surface-hover);
-}
-
-.miaixz-table-row[data-selected="true"] {
-  background: var(--miaixz-color-surface-selected);
 }
 
 .miaixz-table-numeric {
@@ -109,7 +139,9 @@
   z-index: var(--miaixz-z-sticky);
 }
 
-.miaixz-table-empty {
+.miaixz-table-empty,
+.miaixz-table td[data-empty="true"] {
+  display: table-cell;
   padding: var(--miaixz-space-48) var(--miaixz-table-cell-padding-inline);
   color: var(--miaixz-color-text-secondary);
   text-align: center;
@@ -125,3 +157,86 @@
     min-width: 0;
   }
 }
+
+.miaixz-table-row[data-selected="true"] {
+  color: var(--miaixz-surface-role-selected-foreground);
+  background: var(--miaixz-surface-role-selected-background);
+}
+
+/* stylelint-disable no-descending-specificity
+
+ */
+.miaixz-table-container-transparent {
+  scrollbar-width: auto;
+  background: transparent;
+  border-color: var(--miaixz-color-border);
+}
+
+.miaixz-table-dashed {
+  inline-size: 100%;
+  font-size: var(--miaixz-text-caption-size);
+  border-collapse: collapse;
+}
+
+.miaixz-table-dashed :is(th, td) {
+  block-size: 48px;
+  padding-block: 1px;
+  padding-inline: 12px;
+  text-align: start;
+  white-space: nowrap;
+  border-block-end: 1px dashed var(--miaixz-color-border);
+}
+
+.miaixz-table-dashed th {
+  font-weight: 500;
+  color: var(--miaixz-color-text-muted);
+  background: transparent;
+}
+
+.miaixz-table-dashed tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.miaixz-table-dashed tr[data-selected="true"] {
+  color: inherit;
+  background: transparent;
+}
+
+.miaixz-table-dashed tr[data-selected="true"] td {
+  background: var(--miaixz-color-surface-selected);
+}
+
+.miaixz-table-dashed td[data-empty="true"] {
+  display: table-cell;
+  block-size: 110px;
+  color: var(--miaixz-color-text-muted);
+  text-align: center;
+}
+
+.miaixz-table-compact {
+  inline-size: 100%;
+  font-size: var(--miaixz-text-caption-size);
+  border-collapse: collapse;
+}
+
+.miaixz-table-compact :is(th, td) {
+  padding: var(--miaixz-space-12);
+  text-align: start;
+  white-space: nowrap;
+  border-block-end: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
+}
+
+.miaixz-table-compact th {
+  font-weight: 600;
+  color: var(--miaixz-color-text-muted);
+  background: transparent;
+}
+
+.miaixz-table-compact a {
+  color: var(--miaixz-color-brand);
+  text-decoration: none;
+}
+
+/* stylelint-enable no-descending-specificity
+
+ */
