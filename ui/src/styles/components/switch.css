@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Switch component
  */
@@ -79,8 +99,13 @@
   );
 }
 
-/* State order is intentional so semantic invalid and disabled states always win. */
-/* stylelint-disable no-descending-specificity */
+/*
+
+ * State order is intentional so semantic invalid and disabled states always win.
+
+ */
+/* stylelint-disable no-descending-specificity
+ */
 .miaixz-switch-input:where(:checked) + .miaixz-switch-track {
   background: var(--miaixz-color-brand);
 }
@@ -131,7 +156,6 @@
   background: var(--miaixz-color-border);
   box-shadow: none;
 }
-/* stylelint-enable no-descending-specificity */
 
 .miaixz-switch-disabled .miaixz-switch-label,
 .miaixz-switch-disabled .miaixz-switch-description {
@@ -144,3 +168,68 @@
     transition-duration: 0ms;
   }
 }
+
+.miaixz-switch.miaixz-switch-compact {
+  --miaixz-switch-width: 38px;
+  --miaixz-switch-height: 21px;
+  --miaixz-switch-thumb-size: 15px;
+  --miaixz-switch-thumb-inset: calc(
+    (var(--miaixz-switch-height) - var(--miaixz-switch-thumb-size)) / 2
+  );
+
+  flex: none;
+  grid-template-columns: var(--miaixz-switch-width);
+  gap: 0;
+}
+
+.miaixz-switch-compact:has(.miaixz-switch-content) {
+  grid-template-columns: var(--miaixz-switch-width) minmax(0, 1fr);
+  gap: var(--miaixz-space-8);
+}
+
+.miaixz-switch-compact .miaixz-switch-track {
+  padding: 0;
+  margin: 0;
+  border-radius: var(--miaixz-radius-round);
+  transition: none;
+}
+
+.miaixz-switch-compact .miaixz-switch-thumb {
+  position: absolute;
+  inset-block-start: var(--miaixz-switch-thumb-inset);
+  inset-inline-start: var(--miaixz-switch-thumb-inset);
+  background: var(--miaixz-color-surface);
+  border-radius: var(--miaixz-radius-round);
+  box-shadow: none;
+}
+
+.miaixz-switch-compact .miaixz-switch-input:checked + .miaixz-switch-track .miaixz-switch-thumb {
+  transform: translateX(
+    calc(
+      var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+        (var(--miaixz-switch-thumb-inset) * 2)
+    )
+  );
+}
+
+[dir="rtl"]
+  .miaixz-switch-compact
+  .miaixz-switch-input:checked
+  + .miaixz-switch-track
+  .miaixz-switch-thumb {
+  transform: translateX(
+    calc(
+      (
+          var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+            (var(--miaixz-switch-thumb-inset) * 2)
+        ) *
+        -1
+    )
+  );
+}
+
+.miaixz-switch.miaixz-switch-compact .miaixz-switch-input:checked + .miaixz-switch-track {
+  background: var(--miaixz-color-brand);
+}
+/* stylelint-enable no-descending-specificity
+ */

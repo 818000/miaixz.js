@@ -1,15 +1,49 @@
+import { readFileSync } from "node:fs";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Button } from "../src/components/button/index.js";
-import { Alert } from "../src/components/alert/index.js";
-import { Search } from "../src/components/search/index.js";
-import { MiaixzLocaleProvider } from "../src/i18n/index.js";
+import { Alert, Button, Hidden, MiaixzLocaleProvider, Search } from "../src/index.js";
 
 afterEach(cleanup);
 
 describe("shared frameless icon actions", () => {
+  it("keeps framed help and favorite actions distinct and accessibly named", () => {
+    const help = vi.fn();
+    const favorite = vi.fn();
+    render(
+      <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
+        <Button iconOnly aria-label="查看帮助" variant="framed-icon" onClick={help}>
+          <svg aria-hidden="true" />
+        </Button>
+        <Button aria-pressed="false" variant="favorite" onClick={favorite}>
+          <span aria-hidden="true">☆</span>
+          <Hidden>收藏当前空间</Hidden>
+        </Button>
+      </MiaixzLocaleProvider>,
+    );
+
+    const helpAction = screen.getByRole("button", { name: "查看帮助" });
+    const favoriteAction = screen.getByRole("button", { name: "收藏当前空间" });
+    expect(helpAction).toHaveClass("miaixz-button-framed-icon", "miaixz-button-icon-only");
+    expect(favoriteAction).toHaveClass("miaixz-button-favorite");
+    expect(favoriteAction).toHaveAttribute("aria-pressed", "false");
+    expect(favoriteAction.querySelector(".miaixz-hidden")).toHaveTextContent("收藏当前空间");
+    fireEvent.click(helpAction);
+    fireEvent.click(favoriteAction);
+    expect(help).toHaveBeenCalledOnce();
+    expect(favorite).toHaveBeenCalledOnce();
+
+    const css = readFileSync("src/styles/components/button.css", "utf8");
+    const framedRule = css.slice(
+      css.indexOf(".miaixz-button-framed-icon {"),
+      css.indexOf("}", css.indexOf(".miaixz-button-framed-icon {")),
+    );
+    expect(framedRule).toContain("border-color: var(--miaixz-color-border)");
+    expect(framedRule).toContain("border-radius: 50%");
+  });
+
   it("retains button semantics, accessible name, tooltip and callback without a wrapper", () => {
     const click = vi.fn();
     const { container, rerender } = render(

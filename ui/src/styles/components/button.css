@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Button component
  */
@@ -54,6 +74,36 @@
   border-color: transparent;
 }
 
+/* Framed icon actions intentionally remain distinct from iconOnly, whose
+ * public contract is frameless. This variant is also safe for semantic links. */
+.miaixz-button-framed-icon {
+  width: calc(
+    var(--miaixz-density-control-height) - var(--miaixz-control-border-width) -
+      var(--miaixz-control-border-width)
+  );
+  min-width: calc(
+    var(--miaixz-density-control-height) - var(--miaixz-control-border-width) -
+      var(--miaixz-control-border-width)
+  );
+  height: calc(
+    var(--miaixz-density-control-height) - var(--miaixz-control-border-width) -
+      var(--miaixz-control-border-width)
+  );
+  min-height: calc(
+    var(--miaixz-density-control-height) - var(--miaixz-control-border-width) -
+      var(--miaixz-control-border-width)
+  );
+  padding: 0;
+  color: var(--miaixz-color-text-primary);
+  background: transparent;
+  border-color: var(--miaixz-color-border);
+  border-radius: 50%;
+}
+
+.miaixz-button-framed-icon:hover:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-color-surface-hover);
+}
+
 .miaixz-button-link {
   min-height: auto;
   padding: 0;
@@ -92,6 +142,14 @@
   min-height: auto;
   padding: 0;
   color: var(--miaixz-color-danger);
+  background: transparent;
+  border-color: transparent;
+}
+
+.miaixz-button-danger-link:disabled,
+.miaixz-button-danger-link[aria-disabled="true"] {
+  color: var(--miaixz-color-text-disabled);
+  text-decoration: none;
   background: transparent;
   border-color: transparent;
 }
@@ -218,8 +276,8 @@
   border-color: var(--miaixz-color-danger);
 }
 
-.miaixz-button:disabled:not(.miaixz-button-link),
-.miaixz-button[aria-disabled="true"]:not(.miaixz-button-link) {
+.miaixz-button:disabled:not(.miaixz-button-link, .miaixz-button-danger-link),
+.miaixz-button[aria-disabled="true"]:not(.miaixz-button-link, .miaixz-button-danger-link) {
   color: var(--miaixz-color-text-disabled);
   background: var(--miaixz-color-surface-secondary);
   border-color: var(--miaixz-color-border);
@@ -285,4 +343,179 @@
   .miaixz-button.miaixz-button-icon-only:focus-visible:not(:disabled, [aria-disabled="true"]) {
     outline-color: Highlight;
   }
+}
+
+.miaixz-button-plain,
+.miaixz-button-plain-primary {
+  min-block-size: 36px;
+  padding-inline: 14px;
+  font: inherit;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 600;
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+  box-shadow: none;
+}
+
+.miaixz-button-plain-primary {
+  color: var(--miaixz-color-on-brand);
+  background: var(--miaixz-color-brand);
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-button-plain:disabled,
+.miaixz-button-plain-primary:disabled,
+.miaixz-button-plain[aria-disabled="true"],
+.miaixz-button-plain-primary[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.miaixz-button-navigation {
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-underline-offset: 0.2em;
+  transition:
+    color 420ms ease,
+    transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.miaixz-button-navigation:hover,
+.miaixz-button-navigation:focus-visible {
+  text-decoration: underline;
+  transform: translateX(3px);
+}
+
+.miaixz-button-navigation[aria-disabled="true"] {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+}
+
+button.miaixz-button-text {
+  padding: 0;
+  font: inherit;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-button-text,
+.miaixz-button-text-danger {
+  display: inline-flex;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 600;
+  color: var(--miaixz-color-brand);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.miaixz-button-text-danger {
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-button-action,
+.miaixz-button-action-primary,
+.miaixz-button-favorite {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  block-size: 36px;
+  min-block-size: 36px;
+  padding-inline: 14px;
+  font: inherit;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 600;
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+  box-shadow: none;
+}
+
+.miaixz-button-action-primary {
+  color: var(--miaixz-color-on-brand);
+  background: var(--miaixz-color-brand);
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-button-favorite {
+  inline-size: 36px;
+  min-inline-size: 36px;
+  padding-inline: 0;
+  font-size: var(--miaixz-text-section-title-size);
+  color: var(--miaixz-color-warning);
+  background: var(--miaixz-color-warning-soft);
+  border-color: var(--miaixz-color-warning);
+}
+
+.miaixz-button-action:disabled,
+.miaixz-button-action-primary:disabled,
+.miaixz-button-favorite:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.miaixz-button-choice {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-block-size: 52px;
+  padding: 8px;
+  color: var(--miaixz-color-text-primary);
+  text-align: start;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-button-choice:hover,
+.miaixz-button-choice[aria-current="true"] {
+  background: var(--miaixz-color-surface-selected);
+}
+
+.miaixz-button-choice > span {
+  display: grid;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 700;
+  color: var(--miaixz-color-brand);
+  background: var(--miaixz-color-surface-selected);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-button-choice > div {
+  display: grid;
+  gap: 3px;
+  min-inline-size: 0;
+}
+
+.miaixz-button-choice b {
+  font-size: var(--miaixz-text-caption-size);
+}
+
+.miaixz-button-choice small,
+.miaixz-button-choice em {
+  font-size: var(--miaixz-text-caption-size);
+  font-style: normal;
+  color: var(--miaixz-color-text-muted);
 }

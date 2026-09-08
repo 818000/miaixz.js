@@ -1,4 +1,6 @@
-/** Fixed data-encoding recipes; this is not a file-wide bypass for new colors. */
+/*
+ * Fixed data-encoding recipes; this is not a file-wide bypass for new colors.
+ */
 const recipes = {
   "heatmap.css": [16, 32, 48, 64, 80].map(
     (level) =>
@@ -32,7 +34,9 @@ export function inspectComponentColors(fileName, source) {
   );
   if (/#[\da-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\s*\(/iu.test(clean))
     findings.push("literal or relative color outside theme");
-  // Paint values may contain tokens and CSS geometry, but not named color values.
+  /*
+   * Paint values may contain tokens and CSS geometry, but not named color values.
+   */
   for (const match of clean.matchAll(
     /(?:^|[;{])\s*(?:color|background(?:-color|-image)?|border(?:-(?:top|right|bottom|left|block|inline|start|end|color))*(?:-color)?|outline(?:-color)?|fill|stroke|(?:box|text)-shadow|accent-color|caret-color)\s*:\s*([^;{}]+)/gu,
   )) {

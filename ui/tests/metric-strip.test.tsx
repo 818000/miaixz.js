@@ -1,12 +1,45 @@
 import { readFileSync } from "node:fs";
-import { cleanup, fireEvent, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Icon } from "../src/components/icon/index.js";
 import { Metric } from "../src/components/metric/index.js";
+import { MetricGroup } from "../src/components/metric-group/index.js";
 
 afterEach(cleanup);
 
 describe("optional strip icons", () => {
+  it("preserves the workbench five-item summary composition and geometry", () => {
+    render(
+      <MetricGroup aria-label="工作概览" columns={5} itemVariant="preserve" variant="summary">
+        {Array.from({ length: 5 }, (_, index) => (
+          <li key={index}>
+            <Metric label={`指标 ${index + 1}`} value={index + 1} variant="summary" />
+          </li>
+        ))}
+      </MetricGroup>,
+    );
+    const group = screen.getByLabelText("工作概览");
+    const list = group.querySelector(".miaixz-metric-group-summary-list") as HTMLElement;
+    expect(group.getAttribute("data-columns")).toBe("5");
+    expect(list.style.getPropertyValue("--miaixz-metric-group-columns")).toBe("5");
+    expect(list.children).toHaveLength(5);
+    expect(list.querySelectorAll(".miaixz-metric-summary")).toHaveLength(5);
+    expect(screen.getByText("指标 5")).toBeTruthy();
+    expect(screen.getByText("5")).toBeTruthy();
+
+    const css = readFileSync("src/styles/components/metric-group.css", "utf8");
+    const summaryRule = css.match(/\.miaixz-metric-group-summary-list\s*\{([^}]*)\}/)?.[1];
+    expect(summaryRule).toContain("height: 114.75px");
+    expect(summaryRule).toContain("min-height: calc(86px + var(--miaixz-density-item-height))");
+    expect(summaryRule).toContain(
+      "grid-template-columns: repeat(var(--miaixz-metric-group-columns), minmax(0, 1fr))",
+    );
+    expect(css).toMatch(/@container miaixz-metrics \(width <= 1200px\)[\s\S]*height: 150px/u);
+    expect(css).toMatch(/minmax\(220px, 1fr\)[\s\S]*overflow-x: auto/u);
+    expect(css).toContain(".miaixz-metric-group-summary-list > li:not(:last-child) .miaixz-metric");
+    expect(css).toMatch(/li:hover,[\s\S]*li:focus-within[\s\S]*z-index: 2/u);
+  });
+
   it("keeps metrics static and decorative icons out of the accessibility tree", () => {
     const { container } = render(
       <Metric icon={<Icon name="LayoutGrid" />} label="应用" value="17" variant="strip" />,

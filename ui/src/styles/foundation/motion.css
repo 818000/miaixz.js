@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz motion system
  *
@@ -6,20 +26,30 @@
  */
 
 [data-miaixz-theme] {
-  /* Duration scale */
+  /*
+   * Duration scale
+   */
   --miaixz-duration-instant: 0ms;
   --miaixz-duration-fast: 120ms;
   --miaixz-duration-normal: 180ms;
   --miaixz-duration-slow: 240ms;
   --miaixz-duration-slower: 320ms;
 
-  /* Easing scale */
+  /*
+
+   * Easing scale
+
+   */
   --miaixz-easing-standard: cubic-bezier(0.2, 0, 0, 1);
   --miaixz-easing-enter: cubic-bezier(0, 0, 0, 1);
   --miaixz-easing-exit: cubic-bezier(0.3, 0, 1, 1);
   --miaixz-easing-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
 
-  /* Semantic motion */
+  /*
+
+   * Semantic motion
+
+   */
   --miaixz-motion-interaction-duration: var(--miaixz-duration-fast);
   --miaixz-motion-state-duration: var(--miaixz-duration-normal);
   --miaixz-motion-overlay-duration: var(--miaixz-duration-slow);

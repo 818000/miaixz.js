@@ -1,10 +1,30 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef, useId, type ReactElement, type RefAttributes } from "react";
 
 import type { MiaixzTranslator } from "@miaixz/sdk/i18n";
 
 import { createMiaixzUiError } from "../../errors/index.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
-import { classNames } from "../../internal/class-names.js";
+import { classNames } from "../../shared/class-names.js";
 import { Checkbox } from "../checkbox/index.js";
 import { Icon } from "../icon/index.js";
 import { Overlay } from "../overlay/index.js";
@@ -289,6 +309,7 @@ function DatagridImplementation<Row>(
     >
       <Overlay active={loading} label={t("ui.loading")}>
         <TableContainer
+          frame="plain"
           aria-label={caption}
           role="region"
           tabIndex={0}

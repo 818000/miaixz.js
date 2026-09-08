@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { MiaixzSdkError } from "../api/errors.js";
 import {
   MIAIXZ_MODULE_PROTOCOL_VERSION,
@@ -1147,7 +1167,9 @@ class PostMessageChildBridge implements MiaixzHostBridge {
     try {
       this.#post(createEnvelope(this.#moduleId, "request", "bridge.dispose", createMessageId()));
     } catch {
-      // Best-effort remote disposal cannot delay deterministic local cleanup.
+      /*
+       * Best-effort remote disposal cannot delay deterministic local cleanup.
+       */
     }
     this.#disposed = true;
     for (const [pendingId, pending] of this.#pending) {
@@ -1212,7 +1234,9 @@ class PostMessageChildBridge implements MiaixzHostBridge {
     try {
       registered.listener(envelope.payload.payload);
     } catch {
-      // Consumer listener failures cannot corrupt the Bridge transport state.
+      /*
+       * Consumer listener failures cannot corrupt the Bridge transport state.
+       */
     }
   }
 
@@ -1264,7 +1288,9 @@ class PostMessageChildBridge implements MiaixzHostBridge {
     try {
       this.#post(createEnvelope(this.#moduleId, "cancel", pending.method, messageId));
     } catch {
-      // Cancellation is best-effort after the local result is already deterministic.
+      /*
+       * Cancellation is best-effort after the local result is already deterministic.
+       */
     }
   }
 

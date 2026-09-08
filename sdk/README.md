@@ -104,7 +104,9 @@ interface Space {
 
 const response = await sdk.api.get<Space>("/space/current");
 
-// The response already contains data; response.data.data is unnecessary.
+/*
+ * The response already contains data; response.data.data is unnecessary.
+ */
 console.log(response.data.name);
 ```
 
@@ -112,10 +114,30 @@ Exceptional endpoints can set `envelope: "optional"` to accept JSON with or with
 
 ## Project locale catalogs
 
-The SDK contains only foundational error messages. Each project or microservice can extend and override messages through its own locale catalogs, which may be loaded lazily per locale.
+The SDK contains only foundational error messages and the built-in `zh-CN` and `en-US` locale definitions. Applications can register additional languages with the same catalog model used by themes. Definitions are validated, immutable, searchable by alias and keyword, and may provide their own namespace loader and fallback locale.
 
 ```ts
-// src/locales/en-US.ts
+import { defineLocale } from "@miaixz/sdk/i18n";
+
+const japanese = defineLocale({
+  schemaVersion: 1,
+  id: "ja-JP",
+  label: "日本語",
+  shortLabel: "日",
+  version: "1.0.0",
+  aliases: ["ja"],
+  keywords: ["Japanese", "日语"],
+  fallback: "en-US",
+  loadMessages: async (namespace) => import(`./locales/${namespace}/ja-JP.js`),
+});
+```
+
+Pass locale definitions through `locales` when creating `MiaixzI18n` or `MiaixzSdk`. The runtime exposes immutable descriptors through `i18n.locales`, resolves aliases during `changeLocale()`, and loads both locale-owned and application-owned messages before publishing the new locale.
+
+```ts
+/*
+ * src/locales/en-US.ts
+ */
 import type { MiaixzMessages } from "@miaixz/sdk/i18n";
 
 export default {
@@ -137,11 +159,14 @@ const loadMessages = createMiaixzMessageLoader({
 const sdk = createMiaixzSdk({
   appId: "portal",
   config,
+  locales: [japanese],
   locale: "en-US",
   fallbackLocale: "en-US",
   loadMessages,
   onI18nLoadError(error) {
-    // Delegate reporting to the project logger or error interface.
+    /*
+     * Delegate reporting to the project logger or error interface.
+     */
     reportError(error);
   },
 });
@@ -149,7 +174,9 @@ const sdk = createMiaixzSdk({
 await sdk.ready;
 console.log(sdk.i18n.t("space.error.notFound"));
 
-// The target project catalog is loaded and cached before the locale changes.
+/*
+ * The target project catalog is loaded and cached before the locale changes.
+ */
 await sdk.i18n.changeLocale("fr-FR");
 ```
 
@@ -159,30 +186,57 @@ Backend business errors can use `api.error.<errcode>` as a project message key, 
 
 ## Appearance, themes, and density
 
-The SDK is the source of truth for appearance state across services. It validates settings, persists them per application and tenant, and publishes changes. `@miaixz/ui` is responsible for applying those settings to the DOM:
+The SDK is the source of truth for Appearance state across services. Schema v2 persists a theme ID,
+Light/Dark preference, Density, and optional mode-specific color overrides. It does not import CSS or
+write DOM attributes; `@miaixz/ui` owns validation against the theme catalog and atomic rendering.
 
-```ts
+```tsx
 import { createMiaixzSdk } from "@miaixz/sdk";
-import { applyMiaixzAppearance } from "@miaixz/ui/appearance";
+import { Theme, useTheme } from "@miaixz/ui/theme";
 
 const sdk = createMiaixzSdk({ appId: "portal", config });
 
-applyMiaixzAppearance(sdk.appearance.getSnapshot());
-const stopAppearance = sdk.appearance.subscribe((appearance) => {
-  applyMiaixzAppearance(appearance);
-});
+function AppearanceControls() {
+  const { theme, colorMode, density, setTheme, setColorMode, setDensity, setOverrides } =
+    useTheme();
 
-sdk.appearance.patch({
-  colorMode: "dark",
-  density: "compact",
-  colors: { brand: "#55b52d" },
-});
+  return (
+    <>
+      <button onClick={() => void setTheme("neutral")}>{theme}</button>
+      <button onClick={() => void setColorMode("dark")}>{colorMode}</button>
+      <button onClick={() => void setDensity("compact")}>{density}</button>
+      <button
+        onClick={() =>
+          void setOverrides({
+            light: { brand: "#62B52F" },
+            dark: { brand: "#7BCB52" },
+          })
+        }
+      >
+        Apply color overrides
+      </button>
+    </>
+  );
+}
 
-stopAppearance();
-sdk.destroy();
+export function Root() {
+  return (
+    <Theme appearance={sdk.appearance} fallback="miaixz">
+      <AppearanceControls />
+    </Theme>
+  );
+}
 ```
 
-Supported color preferences are `light`, `dark`, and `system`. Supported density levels are `compact`, `standard`, and `comfortable`. Every custom semantic color is validated for format and contrast before the update is committed; invalid settings are never written partially.
+Supported color preferences are `light`, `dark`, and `system`. Supported Density values are
+`compact`, `standard`, and `comfortable`. The SDK uses browser persistence by default and scopes the
+record by `appId` and optional tenant ID. For `appId="portal"` without a tenant, the physical key is
+`miaixz:v1:global:portal:appearance`. The stored payload has `schemaVersion: 2`; persisted v1 records
+are migrated to the built-in `miaixz` theme on read.
+
+Applications should switch Appearance through `useTheme()` because the UI runtime validates and
+applies the complete theme before persistence. Calling `sdk.appearance.patch()` is reserved for
+non-visual integration code that already has access to the same validated catalog transaction.
 
 ## Service-specific APIs
 

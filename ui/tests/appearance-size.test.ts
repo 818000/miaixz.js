@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveThemeDefinitions } from "../src/theme/resolve.js";
-import { miaixzBuiltInThemes } from "../src/themes/index.js";
+import { miaixzBuiltInThemes } from "../src/theme/catalog.js";
 
 describe("appearance trigger geometry", () => {
   for (const theme of miaixzBuiltInThemes) {

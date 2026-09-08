@@ -1,13 +1,144 @@
 import { readFileSync } from "node:fs";
-import { cleanup, render, screen } from "@testing-library/react";
+import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+import "@testing-library/jest-dom/vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { useCallback, useState } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { Drawer } from "../src/components/drawer/index.js";
 import { Shell } from "../src/components/shell/index.js";
+import { MiaixzLocaleProvider } from "../src/i18n/index.js";
 
-afterEach(cleanup);
+interface BoundedDrawerShellProps {
+  /**
+   * Reports the current shell main-content boundary.
+   */
+  readonly getRect: () => DOMRect;
+  /**
+   * Mirrors the current navigation expansion state.
+   */
+  readonly navigationExpanded: boolean;
+}
+
+/**
+ * Supplies deterministic observer behavior for boundary geometry tests.
+ */
+class ResizeObserverStub {
+  /**
+   * Accepts the native callback without scheduling observations.
+   *
+   * @param callback - Native resize callback.
+   */
+  constructor(callback: ResizeObserverCallback) {
+    void callback;
+  }
+
+  /**
+   * Releases the inert observer.
+   */
+  disconnect(): void {}
+
+  /**
+   * Records no observation in the deterministic fixture.
+   *
+   * @param target - Element that would be observed.
+   */
+  observe(target: Element): void {
+    void target;
+  }
+
+  /**
+   * Removes no observation from the deterministic fixture.
+   *
+   * @param target - Element that would stop being observed.
+   */
+  unobserve(target: Element): void {
+    void target;
+  }
+}
+
+/**
+ * Renders a Drawer constrained to the Shell main content.
+ *
+ * @param props - Boundary fixture properties.
+ * @param props.getRect - Reads the current main-content rectangle.
+ * @param props.navigationExpanded - Current shell navigation state.
+ * @returns A boundary-aware Drawer fixture.
+ */
+function BoundedDrawerShell({ getRect, navigationExpanded }: BoundedDrawerShellProps) {
+  const [boundary, setBoundary] = useState<HTMLElement | null>(null);
+  const mainRef = useCallback(
+    (element: HTMLElement | null) => {
+      if (element !== null) element.getBoundingClientRect = getRect;
+      setBoundary(element);
+    },
+    [getRect],
+  );
+  return (
+    <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
+      <Shell
+        header={<span>Header</span>}
+        mainRef={mainRef}
+        navigationExpanded={navigationExpanded}
+        sidebar={<span>Navigation</span>}
+      >
+        <span>Content</span>
+        <Drawer
+          boundary={boundary}
+          closeLabel="关闭详情"
+          inset={8}
+          open
+          placement="left"
+          title="边界详情"
+          width={360}
+          onOpenChange={() => undefined}
+        >
+          <p>{`完整抽屉内容-${"保持可达".repeat(80)}`}</p>
+        </Drawer>
+      </Shell>
+    </MiaixzLocaleProvider>
+  );
+}
+
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal ??= function () {
+    this.setAttribute("open", "");
+  };
+  HTMLDialogElement.prototype.close ??= function () {
+    this.removeAttribute("open");
+  };
+  vi.stubGlobal("ResizeObserver", ResizeObserverStub);
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 describe("Shell", () => {
+  it("updates a Drawer content boundary when shell navigation and dimensions change", async () => {
+    let rect = new DOMRect(240, 65, 760, 650);
+    const getRect = () => rect;
+    const { container, rerender } = render(
+      <BoundedDrawerShell getRect={getRect} navigationExpanded />,
+    );
+    const dialog = await screen.findByRole("dialog", { name: "边界详情" });
+    await waitFor(() => expect(dialog.style.left).toBe("248px"));
+    expect(dialog.style.inlineSize).toBe("calc(360px)");
+    expect(dialog.style.blockSize).toBe("634px");
+    expect(screen.getByText(/^完整抽屉内容-/)).toHaveTextContent("保持可达");
+
+    rect = new DOMRect(65, 65, 895, 590);
+    rerender(<BoundedDrawerShell getRect={getRect} navigationExpanded={false} />);
+    fireEvent(window, new Event("resize"));
+    await waitFor(() => expect(dialog.style.left).toBe("73px"));
+    expect(dialog.style.inlineSize).toBe("calc(360px)");
+    expect(dialog.style.blockSize).toBe("574px");
+    expect(container.firstElementChild).not.toHaveAttribute("data-navigation-expanded");
+    expect(screen.getByText(/^完整抽屉内容-/)).toBeVisible();
+  });
+
   it("insets only the collapsed drawer surface above the header divider", () => {
     const css = readFileSync("src/styles/components/shell.css", "utf8");
     const narrowStyles = css.split("@container miaixz-shell (width < 768px)")[1]!;

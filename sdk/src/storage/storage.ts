@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { MiaixzSdkError } from "../api/errors.js";
 import type { MiaixzResponseParser } from "../api/request.js";
 import { translateMiaixzDefaultMessage } from "../i18n/default-translator.js";
@@ -254,7 +274,9 @@ function safelyRemoveStorageValue(storage: MiaixzKeyValueStorage, key: string): 
   try {
     storage.removeItem(key);
   } catch {
-    // Persistence failures never change the caller's in-memory state.
+    /*
+     * Persistence failures never change the caller's in-memory state.
+     */
   }
 }
 
@@ -348,7 +370,9 @@ export function writeMiaixzVersionedValue<T>(
     };
     options.storage.setItem(key, JSON.stringify(envelope));
   } catch {
-    // Serialization and adapter failures intentionally degrade to non-persistence.
+    /*
+     * Serialization and adapter failures intentionally degrade to non-persistence.
+     */
   }
 }
 

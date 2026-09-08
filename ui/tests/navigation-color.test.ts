@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 import { defineTheme } from "../src/theme/define.js";
 import { resolveThemeDefinitions } from "../src/theme/resolve.js";
 import { serializeThemeApplication } from "../src/theme/serialize.js";
-import { miaixzBuiltInThemes } from "../src/themes/index.js";
-import { serializeThemeOpacity } from "../src/tokens/opacity.js";
+import { miaixzBuiltInThemes } from "../src/theme/catalog.js";
+import { serializeThemeOpacity } from "../src/design/opacity.js";
 
 describe("navigation selected theme opacity", () => {
   for (const definition of miaixzBuiltInThemes) {
@@ -24,10 +24,10 @@ describe("navigation selected theme opacity", () => {
     });
     for (const mode of ["light", "dark"] as const) {
       it(`${theme.name} ${mode} shares derived declarations between static and runtime CSS`, () => {
-        const staticCss = readFileSync(
-          resolve("src/styles/themes", `${theme.name}.tokens.css`),
-          "utf8",
-        ).replace(/\s+/g, " ");
+        const staticCss = readFileSync(resolve("src/theme", `${theme.name}.css`), "utf8").replace(
+          /\s+/g,
+          " ",
+        );
         const runtime = serializeThemeApplication(
           theme,
           mode,

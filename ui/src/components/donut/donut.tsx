@@ -1,7 +1,27 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef, type CSSProperties } from "react";
 
-import { classNames } from "../../internal/class-names.js";
-import { useVisualizationMotion } from "../../internal/use-visualization-motion.js";
+import { classNames } from "../../shared/class-names.js";
+import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
 import type { DonutProps } from "./donut.types.js";
 
 /**
@@ -34,6 +54,7 @@ export const Donut = forwardRef<HTMLDivElement, DonutProps>(function Donut(
     onPointerEnter,
     onPointerLeave,
     "aria-label": ariaLabel,
+    style,
     ...props
   },
   forwardedRef,
@@ -56,9 +77,33 @@ export const Donut = forwardRef<HTMLDivElement, DonutProps>(function Donut(
     return result;
   });
 
+  if (variant === "distribution") {
+    const stops = normalized.map(({ tone, offset: start, percentage }) => {
+      const token = tone === "neutral" ? "data-neutral" : tone;
+      return `var(--miaixz-color-${token}) ${start}% ${start + percentage}%`;
+    });
+    const fill = total === 0 ? "var(--miaixz-color-border)" : `conic-gradient(${stops.join(", ")})`;
+    return (
+      <div
+        {...props}
+        ref={ref}
+        role="img"
+        aria-label={ariaLabel}
+        data-state={total === 0 ? "empty" : "ready"}
+        className={classNames("miaixz-donut-distribution", className)}
+        style={{ ...style, "--miaixz-donut-fill": fill } as CSSProperties}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+      >
+        {center}
+      </div>
+    );
+  }
+
   return (
     <div
       {...props}
+      style={style}
       ref={ref}
       role="img"
       aria-label={ariaLabel}

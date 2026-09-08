@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import type { HTMLAttributes, ReactNode } from "react";
 
 /**
@@ -17,10 +37,14 @@ export interface TreeNode<Value = unknown> {
    */
   readonly label: ReactNode;
 
-  /** Supplies supporting hierarchy context below the primary label. */
+  /**
+   * Supplies supporting hierarchy context below the primary label.
+   */
   readonly description?: ReactNode;
 
-  /** Supplies optional metadata aligned to the far edge of the row. */
+  /**
+   * Supplies optional metadata aligned to the far edge of the row.
+   */
   readonly trailing?: ReactNode;
 
   /**
@@ -106,13 +130,19 @@ export interface MiaixzTreeOwnProps<Value = unknown> {
    */
   label: string;
 
-  /** Selects a framed tree, an edge-to-edge directory, or a connected hierarchy outline. */
+  /**
+   * Selects a framed tree, an edge-to-edge directory, or a connected hierarchy outline.
+   */
   variant?: "default" | "directory" | "outline";
 
-  /** Controls the selected-row check mark while preserving selection semantics. */
+  /**
+   * Controls the selected-row check mark while preserving selection semantics.
+   */
   showSelectionIndicator?: boolean;
 
-  /** Displays the computed hierarchy depth without increasing deep-level indentation. */
+  /**
+   * Displays the computed hierarchy depth without increasing deep-level indentation.
+   */
   showLevelIndicator?: boolean;
 }
 

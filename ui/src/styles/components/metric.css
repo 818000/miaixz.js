@@ -1,3 +1,219 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-metric-tile {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-block-size: 112px;
+  padding: 17px;
+  background: transparent;
+  border: 1px solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-metric-tile-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 40px;
+  block-size: 40px;
+  font-size: var(--miaixz-text-section-title-size);
+  color: var(--miaixz-color-brand);
+  background: var(--miaixz-color-surface-selected);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-metric-tile[data-tone="warning"] .miaixz-metric-tile-icon {
+  color: var(--miaixz-color-warning);
+  background: var(--miaixz-color-warning-soft);
+}
+
+.miaixz-metric-tile > div {
+  display: grid;
+  gap: 4px;
+}
+
+.miaixz-metric-tile small {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-metric-tile strong {
+  font-size: var(--miaixz-text-metric-size);
+  line-height: 1;
+}
+
+.miaixz-metric-tile p {
+  margin: 1px 0 0;
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-metric-tile > b {
+  position: absolute;
+  inset-block-end: 15px;
+  inset-inline-end: 14px;
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-metric-stat {
+  display: grid;
+  gap: 4px;
+  align-content: center;
+  min-block-size: 92px;
+  padding: 15px 17px;
+  border-inline-end: 1px solid var(--miaixz-color-border);
+}
+
+.miaixz-metric-stat:last-child {
+  border-inline-end: 0;
+}
+
+.miaixz-metric-stat span,
+.miaixz-metric-stat small {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-metric-stat strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-page-title-size);
+  white-space: nowrap;
+}
+
+.miaixz-metric-entity {
+  display: grid;
+  gap: var(--miaixz-space-4);
+  align-content: center;
+  min-block-size: 88px;
+  padding-inline: var(--miaixz-space-20);
+  border-inline-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-metric-entity:last-child {
+  border-inline-end: 0;
+}
+
+.miaixz-metric-entity :is(span, small) {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-metric-entity strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-metric-size);
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+}
+
+@media (width <= 720px) {
+  .miaixz-metric-stat {
+    border-block-end: 1px solid var(--miaixz-color-border);
+    border-inline-end: 0;
+  }
+
+  .miaixz-metric-stat:last-child {
+    border-block-end: 0;
+  }
+}
+
+:is(.miaixz-metric-native-pair) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+:is(.miaixz-metric-native-pair-muted) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+:is(.miaixz-metric-native-pair > span) {
+  padding: 13px;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--miaixz-color-text-secondary);
+}
+
+:is(.miaixz-metric-native-pair-muted > span) {
+  padding: 13px;
+  font-size: var(--miaixz-text-body-size);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--miaixz-color-text-muted);
+}
+
+:is(.miaixz-metric-native-pair > span + span) {
+  padding-inline-start: 24px;
+  text-align: start;
+  border-inline-start: 0;
+}
+
+:is(.miaixz-metric-native-pair-muted > span + span) {
+  padding-inline-start: 24px;
+  text-align: start;
+  border-inline-start: 0;
+}
+
+:is(.miaixz-metric-native-pair strong) {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--miaixz-text-section-title-size);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--miaixz-color-text-primary);
+}
+
+:is(.miaixz-metric-native-pair-muted strong) {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--miaixz-text-section-title-size);
+  line-height: 1.2;
+  color: var(--miaixz-color-text-primary);
+}
+
+:is(.miaixz-metric-native-pair > span:first-child) {
+  padding-inline-end: 24px;
+  text-align: end;
+  border-inline-end: 1px dashed var(--miaixz-surface-role-panel-border);
+}
+
+:is(.miaixz-metric-native-pair-muted > span:first-child) {
+  padding-inline-end: 24px;
+  text-align: end;
+  border-inline-end: 1px dashed var(--miaixz-surface-role-panel-border);
+}
+
 /**
  * Miaixz metric component
  */
@@ -41,7 +257,11 @@ button.miaixz-metric {
   width: 100%;
 }
 
-/* Strip containers own the outer frame; entries draw only neutral internal dividers. */
+/*
+
+ * Strip containers own the outer frame; entries draw only neutral internal dividers.
+
+ */
 .miaixz-metric-strip {
   position: relative;
   gap: calc(var(--miaixz-space-4) + var(--miaixz-space-2));
@@ -68,6 +288,80 @@ button.miaixz-metric {
   .miaixz-metric-strip:last-child {
     border-block-end: 0;
   }
+}
+
+:is(.miaixz-metric-native-total > *) {
+  display: block;
+}
+
+:is(.miaixz-metric-native-total > strong) {
+  font-size: var(--miaixz-text-metric-size);
+  line-height: 1;
+}
+
+:is(.miaixz-metric-native-total > span) {
+  margin-top: 3px;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--miaixz-color-text-muted);
+}
+
+:is(.miaixz-metric-native-total > small) {
+  margin-top: 3px;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--miaixz-color-text-muted);
+}
+
+:is(.miaixz-metric-native-reading > span:first-child) {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+:is(.miaixz-metric-native-reading > strong) {
+  margin-top: 3px;
+  font-size: var(--miaixz-text-metric-size);
+  line-height: 1.15;
+}
+
+:is(.miaixz-metric-native-reading > small) {
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-metric-native-reading > span:first-child {
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.miaixz-metric-native-reading > small {
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.miaixz-metric-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-body-line-height);
+  color: inherit;
+  white-space: nowrap;
+}
+
+.miaixz-metric-value {
+  min-width: 0;
+  font-size: var(--miaixz-text-metric-size);
+  font-weight: var(--miaixz-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--miaixz-text-metric-line-height);
 }
 
 .miaixz-metric-strip .miaixz-metric-label {
@@ -166,31 +460,12 @@ button.miaixz-metric {
   height: var(--miaixz-icon-size-navigation);
 }
 
-.miaixz-metric-label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: var(--miaixz-text-body-size);
-  font-weight: var(--miaixz-font-weight-medium);
-  line-height: var(--miaixz-text-body-line-height);
-  color: inherit;
-  white-space: nowrap;
-}
-
 .miaixz-metric-status {
   flex: none;
   margin-inline-start: auto;
   font-size: var(--miaixz-text-caption-size);
   line-height: var(--miaixz-text-caption-line-height);
   color: var(--miaixz-color-text-secondary);
-}
-
-.miaixz-metric-value {
-  min-width: 0;
-  font-size: var(--miaixz-text-metric-size);
-  font-weight: var(--miaixz-font-weight-bold);
-  font-variant-numeric: tabular-nums;
-  line-height: var(--miaixz-text-metric-line-height);
 }
 
 .miaixz-metric-trend {
@@ -212,7 +487,11 @@ button.miaixz-metric {
   color: var(--miaixz-metric-tone);
 }
 
-/* Optional strip icons do not add a row or change the existing metric height. */
+/*
+
+ * Optional strip icons do not add a row or change the existing metric height.
+
+ */
 .miaixz-metric-strip-with-icon {
   padding-inline-start: calc(
     var(--miaixz-space-20) + var(--miaixz-metric-strip-icon-size) + var(--miaixz-space-12)
@@ -611,4 +890,17 @@ button.miaixz-metric {
   .miaixz-metric-summary .miaixz-metric-status {
     transition-duration: var(--miaixz-duration-instant);
   }
+}
+
+:is(.miaixz-metric-native-progress) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-secondary);
+}
+
+:is(.miaixz-metric-native-progress > strong) {
+  font-size: var(--miaixz-text-body-size);
+  color: var(--miaixz-color-text-primary);
 }

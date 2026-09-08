@@ -1,21 +1,56 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import type {
   MiaixzColorMode,
   MiaixzDensity,
   MiaixzResolvedColorMode,
   MiaixzThemeColorOverrides,
 } from "@miaixz/sdk/appearance";
-import { miaixzThemeColorTokens } from "../tokens/colors.js";
-import { serializeThemeOpacity } from "../tokens/opacity.js";
+import { miaixzThemeColorTokens } from "../design/colors.js";
+import { serializeThemeOpacity } from "../design/opacity.js";
 import {
+  miaixzDensities,
   miaixzThemeDensityGeometryFields,
   miaixzThemeLayoutGeometryFields,
-} from "../tokens/geometry.js";
-import { miaixzThemeRadiusFields } from "../tokens/radius.js";
-import { miaixzThemeShadowLevels } from "../tokens/shadow.js";
-import { miaixzThemeSurfaceFields, miaixzThemeSurfaceRoles } from "../tokens/surfaces.js";
-import { miaixzThemeFontFamilyFields, miaixzThemeTypographyFields } from "../tokens/typography.js";
-import type { MiaixzResolvedThemeDefinition } from "./theme.types.js";
+} from "../design/geometry.js";
+import { miaixzThemeRadiusFields } from "../design/radius.js";
+import { miaixzThemeShadowLevels } from "../design/shadow.js";
+import { miaixzThemeSurfaceFields, miaixzThemeSurfaceRoles } from "../design/surfaces.js";
+import { miaixzThemeFontFamilyFields, miaixzThemeTypographyFields } from "../design/typography.js";
+import type { MiaixzResolvedThemeDefinition } from "./types.js";
 import { mergeThemeColors } from "./resolve.js";
+
+/**
+ * Exposes the frozen field order consumed by the build-time CSS generator.
+ */
+export const miaixzThemeSerializationContract = Object.freeze({
+  colors: miaixzThemeColorTokens,
+  radius: miaixzThemeRadiusFields,
+  shadowLevels: miaixzThemeShadowLevels,
+  densities: miaixzDensities,
+  densityGeometry: miaixzThemeDensityGeometryFields,
+  layoutGeometry: miaixzThemeLayoutGeometryFields,
+  surfaceRoles: miaixzThemeSurfaceRoles,
+  surfaceFields: miaixzThemeSurfaceFields,
+});
 
 /**
  * Describes one complete serialized theme application transaction.
@@ -45,7 +80,7 @@ export interface MiaixzSerializedThemeApplication {
    * Registered composition variants applied as target attributes.
    */
   readonly composition: Readonly<
-    Required<import("../tokens/composition.js").MiaixzThemeComposition>
+    Required<import("../design/composition.js").MiaixzThemeComposition>
   >;
   /**
    * Complete scoped runtime CSS text.

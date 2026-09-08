@@ -1,3 +1,26 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/* stylelint-disable no-descending-specificity -- Layout variants intentionally precede shared pagination styles.
+ */
+
 /**
  * Miaixz controlled server-side data table
  */
@@ -91,8 +114,8 @@
 }
 
 .miaixz-datagrid-rows-compact .miaixz-table {
-  font-size: 12px;
-  line-height: 14px;
+  font-size: var(--miaixz-text-compact-body-size);
+  line-height: var(--miaixz-text-compact-body-line-height);
 }
 
 .miaixz-datagrid-rows-compact .miaixz-table-cell {
@@ -103,8 +126,8 @@
 .miaixz-datagrid-rows-compact .miaixz-table-header {
   height: 40px;
   padding-inline: 10px;
-  font-size: 10px;
-  line-height: 14px;
+  font-size: var(--miaixz-text-compact-caption-size);
+  line-height: var(--miaixz-text-compact-caption-line-height);
 }
 
 .miaixz-datagrid-rows-comfortable .miaixz-table-header {

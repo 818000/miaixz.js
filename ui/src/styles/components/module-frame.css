@@ -1,9 +1,25 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 .miaixz-module-frame {
-  --miaixz-module-frame-gutter: clamp(
-    var(--miaixz-space-20),
-    2.4vw,
-    var(--miaixz-space-40)
-  );
+  --miaixz-module-frame-gutter: clamp(var(--miaixz-space-20), 2.4vw, var(--miaixz-space-40));
 
   min-block-size: calc(100dvh - var(--miaixz-shell-header-height));
   padding: var(--miaixz-space-24) var(--miaixz-module-frame-gutter) var(--miaixz-space-40);
@@ -14,7 +30,9 @@
   margin-inline: calc(var(--miaixz-module-frame-gutter) * -1);
 }
 
-.miaixz-module-frame-masthead > .miaixz-header {
+.miaixz-module-frame:not(.miaixz-module-frame-compact)
+  > .miaixz-module-frame-masthead
+  > .miaixz-header {
   padding-block-end: var(--miaixz-space-16);
 }
 
@@ -32,10 +50,48 @@
   }
 }
 
+.miaixz-module-frame-compact,
+.miaixz-module-frame-compact > .miaixz-module-frame-masthead {
+  min-inline-size: 0;
+}
+
+.miaixz-module-frame-compact > .miaixz-module-frame-content {
+  display: grid;
+  gap: 14px;
+  padding-block-start: 0;
+  margin-block-start: var(--miaixz-space-20);
+}
+
 @media (width <= 720px) {
+  .miaixz-module-frame-compact {
+    padding-block-start: var(--miaixz-space-16);
+  }
+
   .miaixz-module-frame {
     --miaixz-module-frame-gutter: var(--miaixz-space-16);
 
     padding-block-end: var(--miaixz-space-32);
+  }
+}
+
+.miaixz-module-frame-workspace {
+  display: grid;
+  grid-template-rows: max-content max-content auto;
+  min-inline-size: 0;
+  line-height: normal;
+
+  --miaixz-module-frame-gutter: clamp(var(--miaixz-space-20), 2.4vw, var(--miaixz-space-40));
+}
+
+.miaixz-module-frame-workspace > .miaixz-module-frame-content {
+  display: block;
+  gap: normal;
+}
+
+@media (width <= 720px) {
+  .miaixz-module-frame-workspace {
+    --miaixz-module-frame-gutter: var(--miaixz-space-16);
+
+    padding-block-start: var(--miaixz-space-16);
   }
 }

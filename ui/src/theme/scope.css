@@ -1,0 +1,55 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/*
+ * Scoped theme behavior and compatibility aliases.
+ */
+[data-miaixz-theme] {
+  color: var(--miaixz-surface-role-page-foreground);
+  accent-color: var(--miaixz-color-brand);
+  caret-color: var(--miaixz-color-brand);
+
+  --miaixz-console-border: var(--miaixz-surface-role-panel-border);
+  --miaixz-console-divider: var(--miaixz-surface-role-panel-border);
+  --miaixz-console-selected: var(--miaixz-surface-role-selected-background);
+  --miaixz-module-border: var(--miaixz-console-border);
+  --miaixz-module-divider: var(--miaixz-console-divider);
+  --miaixz-module-soft: var(--miaixz-console-selected);
+  --miaixz-module-soft-strong: var(--miaixz-surface-role-selected-background);
+}
+
+[data-miaixz-theme] ::selection {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-selection);
+}
+
+[data-miaixz-theme] ::placeholder {
+  color: var(--miaixz-color-text-muted);
+  opacity: 1;
+}
+
+[data-miaixz-theme] :focus-visible {
+  outline: var(--miaixz-border-width-2) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-space-2);
+}
+
+[data-miaixz-theme] :where([aria-disabled="true"], :disabled) {
+  opacity: var(--miaixz-opacity-disabled);
+}

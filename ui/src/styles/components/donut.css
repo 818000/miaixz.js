@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz donut component
  */
@@ -6,6 +26,28 @@
   --miaixz-donut-size: calc(var(--miaixz-space-32) * 4);
   --miaixz-donut-stroke-width: var(--miaixz-space-12);
   --miaixz-donut-center-gap: 2px;
+}
+
+.miaixz-donut-distribution {
+  display: grid;
+  place-content: center;
+  inline-size: 155px;
+  block-size: 155px;
+  text-align: center;
+  background:
+    radial-gradient(circle at center, var(--miaixz-color-surface) 0 43%, transparent 44%),
+    var(--miaixz-donut-fill);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-donut-distribution strong {
+  display: block;
+  font-size: var(--miaixz-text-page-title-size);
+}
+
+.miaixz-donut-distribution span {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
 }
 
 .miaixz-donut {
