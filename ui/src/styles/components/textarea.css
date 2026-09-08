@@ -1,37 +1,51 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Textarea component
  */
+
+.miaixz-textarea-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+}
 
 .miaixz-textarea {
   display: block;
   width: 100%;
   min-height: var(--miaixz-control-textarea-min-height);
   padding: var(--miaixz-control-padding-block-textarea) var(--miaixz-density-control-padding-inline);
-  font-family: var(--miaixz-font-family-sans);
-  font-size: var(--miaixz-text-body-size);
-  line-height: var(--miaixz-text-body-line-height);
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface);
-  border: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
-  border-radius: var(--miaixz-control-radius);
-  transition-timing-function: var(--miaixz-motion-interaction-easing);
-  transition-duration: var(--miaixz-motion-interaction-duration);
-  transition-property: color, background-color, border-color, box-shadow;
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+  outline: 0;
+  background: transparent;
+  border: 0;
 }
 
 .miaixz-textarea::placeholder {
   color: var(--miaixz-color-text-muted);
   opacity: 1;
-}
-
-.miaixz-textarea:where(:hover:not(:disabled, [readonly])) {
-  border-color: var(--miaixz-color-border-strong);
-}
-
-.miaixz-textarea:focus-visible {
-  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
-  outline-offset: var(--miaixz-control-focus-offset);
-  border-color: var(--miaixz-color-focus);
 }
 
 .miaixz-textarea-small {
@@ -44,22 +58,6 @@
 
 .miaixz-textarea-large {
   padding-inline: var(--miaixz-control-padding-inline-large);
-}
-
-.miaixz-textarea-invalid,
-.miaixz-textarea-invalid:focus-visible {
-  outline-color: var(--miaixz-color-danger);
-  border-color: var(--miaixz-color-danger);
-}
-
-.miaixz-textarea:disabled {
-  color: var(--miaixz-color-text-disabled);
-  cursor: not-allowed;
-  background: var(--miaixz-color-surface-secondary);
-}
-
-.miaixz-textarea[readonly] {
-  background: var(--miaixz-color-surface-secondary);
 }
 
 .miaixz-textarea[data-resize="none"] {
@@ -76,4 +74,12 @@
 
 .miaixz-textarea[data-resize="both"] {
   resize: both;
+}
+
+.miaixz-textarea-disabled {
+  background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-textarea-readonly {
+  background: var(--miaixz-color-surface-secondary);
 }

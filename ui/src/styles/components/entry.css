@@ -1,0 +1,126 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Miaixz full-viewport entry layout
+ */
+
+.miaixz-entry {
+  --miaixz-entry-padding: var(--miaixz-density-panel-padding);
+  --miaixz-entry-split-padding: clamp(
+    var(--miaixz-space-24),
+    7vw,
+    calc(var(--miaixz-space-64) * 2)
+  );
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  min-block-size: var(--miaixz-viewport-block);
+  container-name: miaixz-entry;
+  container-type: inline-size;
+  overflow-x: clip;
+  color: var(--miaixz-surface-role-page-foreground);
+}
+
+.miaixz-entry[data-has-aside] {
+  grid-template-columns:
+    minmax(0, var(--miaixz-layout-entry-aside-percent))
+    minmax(0, 1fr);
+}
+
+.miaixz-entry-aside,
+.miaixz-entry-main {
+  min-inline-size: 0;
+  padding-block: max(var(--miaixz-entry-padding), var(--miaixz-safe-area-block-start))
+    max(var(--miaixz-entry-padding), var(--miaixz-safe-area-block-end));
+  padding-inline: max(var(--miaixz-entry-padding), var(--miaixz-safe-area-inline-start))
+    max(var(--miaixz-entry-padding), var(--miaixz-safe-area-inline-end));
+}
+
+.miaixz-entry-aside {
+  background: var(--miaixz-surface-role-sidebar-background);
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-entry-main {
+  display: grid;
+  place-items: center;
+}
+
+.miaixz-entry-main > * {
+  inline-size: 100%;
+  max-inline-size: var(--miaixz-layout-dialog-width);
+}
+
+@container miaixz-entry (width < 1024px) {
+  .miaixz-entry-aside {
+    display: none;
+  }
+
+  .miaixz-entry-main {
+    --miaixz-entry-split-padding: clamp(
+      var(--miaixz-space-24),
+      12vw,
+      calc(var(--miaixz-space-64) * 2)
+    );
+
+    grid-column: 1 / -1;
+  }
+}
+
+@container miaixz-entry (width < 768px) {
+  .miaixz-entry-main {
+    --miaixz-entry-split-padding: var(--miaixz-space-16);
+  }
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside,
+.miaixz-entry[data-variant="split"] > .miaixz-entry-main {
+  --miaixz-entry-padding: var(--miaixz-entry-split-padding);
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside {
+  background: transparent;
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content {
+  inline-size: calc(100% + (var(--miaixz-entry-padding) * 2));
+  block-size: calc(100% + (var(--miaixz-entry-padding) * 2));
+  margin: calc(var(--miaixz-entry-padding) * -1);
+}
+
+.miaixz-entry[data-variant="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content > * {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.miaixz-entry[data-variant="centered"],
+[data-miaixz-entry="centered"] .miaixz-entry:not([data-variant]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.miaixz-entry[data-variant="centered"] > .miaixz-entry-aside,
+[data-miaixz-entry="centered"] .miaixz-entry:not([data-variant]) > .miaixz-entry-aside {
+  display: none;
+}

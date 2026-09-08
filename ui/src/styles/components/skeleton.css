@@ -1,9 +1,29 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz skeleton loading component
  * Skeleton containers should be hidden from assistive technology.
  */
 
-:root {
+[data-miaixz-theme] {
   --miaixz-skeleton-text-height: var(--miaixz-font-size-12);
   --miaixz-skeleton-heading-height: var(--miaixz-font-size-20);
   --miaixz-skeleton-avatar-size: var(--miaixz-icon-size-40);
@@ -25,18 +45,11 @@
 
 .miaixz-skeleton::after {
   position: absolute;
-  inset: 0;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 40%;
   content: "";
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(
-      in oklch,
-      var(--miaixz-color-surface-secondary) 92%,
-      var(--miaixz-color-text-primary) 8%
-    ),
-    transparent
-  );
+  background: var(--miaixz-color-surface-hover);
   transform: translateX(-100%);
   animation: miaixz-skeleton-shimmer var(--miaixz-skeleton-duration) infinite
     var(--miaixz-easing-standard);

@@ -1,29 +1,51 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz drawer component
  * Use a native dialog element when the drawer blocks the page.
  */
 
-:root {
-  --miaixz-drawer-width-small: 360px;
-  --miaixz-drawer-width-medium: 480px;
-  --miaixz-drawer-width-large: 720px;
+[data-miaixz-theme] {
+  --miaixz-drawer-width-small: calc(var(--miaixz-layout-drawer-width) * 0.75);
+  --miaixz-drawer-width-medium: var(--miaixz-layout-drawer-width);
+  --miaixz-drawer-width-large: min(
+    calc(var(--miaixz-layout-drawer-width) * 1.5),
+    var(--miaixz-layout-page-max-width)
+  );
   --miaixz-drawer-width: var(--miaixz-drawer-width-medium);
-  --miaixz-drawer-offset: var(--miaixz-space-16);
+  --miaixz-drawer-offset: 100%;
 }
 
 dialog.miaixz-drawer {
   position: fixed;
   inset: 0 0 0 auto;
-  width: min(100vw, var(--miaixz-drawer-width));
+  inline-size: min(100vi, var(--miaixz-drawer-width));
   max-width: none;
-  height: 100vh;
-  height: 100dvh;
+  block-size: var(--miaixz-viewport-block);
   max-height: none;
   padding: 0;
   margin: 0;
   overflow: hidden;
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface);
+  color: var(--miaixz-surface-role-overlay-foreground);
+  background: var(--miaixz-surface-role-overlay-background);
   border: 0;
   border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: 0;
@@ -87,6 +109,14 @@ dialog.miaixz-drawer[open]::backdrop {
   --miaixz-drawer-width: var(--miaixz-drawer-width-large);
 }
 
+.miaixz-drawer-xlarge {
+  --miaixz-drawer-width: 1000px;
+}
+
+.miaixz-drawer-wide {
+  --miaixz-drawer-width: calc(100vi - 24px);
+}
+
 dialog.miaixz-drawer-left {
   inset: 0 auto 0 0;
   border-inline-start: 0;
@@ -97,8 +127,8 @@ dialog.miaixz-drawer-left {
 dialog.miaixz-drawer-bottom {
   inset: auto 0 0;
   width: 100%;
+  max-block-size: calc(var(--miaixz-viewport-block) - var(--miaixz-shell-header-height));
   height: auto;
-  max-height: calc(100dvh - var(--miaixz-shell-header-height));
   border-inline-start: 0;
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: var(--miaixz-radius-dialog) var(--miaixz-radius-dialog) 0 0;
@@ -112,6 +142,12 @@ dialog.miaixz-drawer-bottom {
   padding-block: var(--miaixz-density-panel-padding);
   padding-inline: calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-inline-start))
     calc(var(--miaixz-density-panel-padding) + var(--miaixz-safe-area-inline-end));
+}
+
+@media (width <= 48rem) {
+  .miaixz-drawer-wide {
+    --miaixz-drawer-width: 100vi;
+  }
 }
 
 .miaixz-drawer-header {
@@ -153,8 +189,84 @@ dialog.miaixz-drawer-bottom {
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
-@media (width <= 767px) {
-  dialog.miaixz-drawer:not(.miaixz-drawer-bottom) {
-    width: 100%;
-  }
+.miaixz-drawer-compact > .miaixz-drawer-header,
+.miaixz-drawer-compact > .miaixz-drawer-footer {
+  padding: 18px 20px;
+}
+
+.miaixz-drawer-compact > .miaixz-drawer-body {
+  padding: 20px;
+}
+
+dialog.miaixz-drawer-positioned::backdrop {
+  clip-path: inset(
+    var(--miaixz-drawer-backdrop-top) var(--miaixz-drawer-backdrop-right)
+      var(--miaixz-drawer-backdrop-bottom) var(--miaixz-drawer-backdrop-left)
+  );
+}
+
+dialog.miaixz-drawer-content {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface);
+  border: 0;
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+dialog.miaixz-drawer-content[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+dialog.miaixz-drawer-content::backdrop {
+  transition: none;
+}
+
+dialog.miaixz-drawer-content.miaixz-drawer-floating {
+  border: 1px solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-drawer-content > .miaixz-drawer-header {
+  gap: 0;
+  padding: 24px 0 17px;
+  margin-inline: 24px;
+  border-block-end: 1px solid var(--miaixz-color-border);
+}
+
+.miaixz-drawer-content .miaixz-drawer-title {
+  font-size: var(--miaixz-text-page-title-size);
+  font-weight: bold;
+  line-height: inherit;
+}
+
+.miaixz-drawer-content .miaixz-drawer-description {
+  margin: 5px 0 0;
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-drawer-content-close {
+  padding: 0;
+  font-size: var(--miaixz-text-metric-size);
+  line-height: 1;
+  color: var(--miaixz-color-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-drawer-content > .miaixz-drawer-body {
+  position: relative;
+  min-block-size: 0;
+  padding: 0 24px 20px;
+  overflow: auto;
+}
+
+.miaixz-drawer-content > .miaixz-drawer-footer {
+  gap: 9px;
+  min-block-size: 72px;
+  padding: 0 24px;
+  border-block-start: 1px solid var(--miaixz-color-border);
 }

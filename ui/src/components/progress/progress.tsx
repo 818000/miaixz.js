@@ -1,7 +1,28 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef, type CSSProperties } from "react";
 
 import { createMiaixzUiError } from "../../errors/index.js";
-import { classNames } from "../../internal/class-names.js";
+import { classNames } from "../../shared/class-names.js";
+import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
 import type { ProgressProps } from "./progress.types.js";
 
@@ -21,9 +42,26 @@ interface MiaixzProgressStyle extends CSSProperties {
  * @public
  */
 export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progress(
-  { value, max = 100, label, showValue = false, className, ...props },
-  ref,
+  {
+    value,
+    max = 100,
+    label,
+    showValue = false,
+    tone = "brand",
+    size = "default",
+    className,
+    onPointerEnter,
+    onPointerLeave,
+    ...props
+  },
+  forwardedRef,
 ) {
+  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
+    useVisualizationMotion<HTMLDivElement>({
+      forwardedRef,
+      onPointerEnter,
+      onPointerLeave,
+    });
   const { t } = useMiaixzLocale();
   if (!Number.isFinite(max) || max <= 0) {
     throw createMiaixzUiError(t, {
@@ -56,11 +94,18 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
       aria-valuemax={max}
       aria-valuenow={clampedValue}
       data-state={clampedValue === undefined ? "indeterminate" : "determinate"}
+      data-motion-state={motionState}
+      data-tone={tone}
       className={classNames(
         "miaixz-progress",
+        `miaixz-progress-${size}`,
+        `miaixz-progress-tone-${tone}`,
+        tone.startsWith("data-") && "miaixz-progress-tone-data",
         clampedValue === undefined && "miaixz-progress-indeterminate",
         className,
       )}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       <span className="miaixz-progress-track" aria-hidden="true">
         <span className="miaixz-progress-indicator" style={progressStyle} />

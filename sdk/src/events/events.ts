@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { MiaixzSdkError } from "../api/errors.js";
 import { isMiaixzAppearanceSettings } from "../appearance/index.js";
 import { isMiaixzSdkConfig } from "../config/index.js";
@@ -311,13 +331,13 @@ function isMiaixzContextEvent(payload: unknown): payload is MiaixzRuntimeContext
  * Validates the built-in appearance payload and its nested settings.
  *
  * @param payload - Untrusted event payload.
- * @returns Whether the payload uses schema version one and valid appearance settings.
+ * @returns Whether the payload uses schema version two and valid appearance settings.
  */
 function isMiaixzAppearanceEvent(payload: unknown): payload is MiaixzAppearancePayload {
   return (
     isPlainEventObject(payload) &&
     hasExactEventKeys(payload, new Set(["schemaVersion", "value"])) &&
-    payload.schemaVersion === 1 &&
+    payload.schemaVersion === 2 &&
     isMiaixzAppearanceSettings(payload.value)
   );
 }
@@ -634,7 +654,15 @@ export class MiaixzEventBus<Events extends object = MiaixzSdkEventMap> {
    * @param payload - Event payload to deliver.
    */
   #dispatch(type: string, payload: unknown): void {
-    for (const listener of this.#listeners.get(type) ?? []) listener(payload);
+    for (const listener of this.#listeners.get(type) ?? []) {
+      try {
+        listener(payload);
+      } catch {
+        /*
+         * One event observer cannot prevent delivery to later observers.
+         */
+      }
+    }
   }
 
   /**

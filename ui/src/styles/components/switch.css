@@ -1,11 +1,35 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Switch component
  */
 
 .miaixz-switch {
-  --miaixz-switch-width: 36px;
-  --miaixz-switch-height: 20px;
-  --miaixz-switch-thumb-size: 16px;
+  --miaixz-switch-width: calc(
+    (var(--miaixz-icon-size-control) * 2) + (var(--miaixz-border-width-2) * 2)
+  );
+  --miaixz-switch-height: calc(
+    var(--miaixz-icon-size-control) + (var(--miaixz-border-width-2) * 2)
+  );
+  --miaixz-switch-thumb-size: var(--miaixz-icon-size-control);
 
   position: relative;
   display: inline-grid;
@@ -22,8 +46,8 @@
 
 .miaixz-switch-input {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  inline-size: var(--miaixz-border-width-1);
+  block-size: var(--miaixz-border-width-1);
   pointer-events: none;
   opacity: 0;
 }
@@ -34,7 +58,7 @@
   align-items: center;
   width: var(--miaixz-switch-width);
   height: var(--miaixz-switch-height);
-  padding: 2px;
+  padding: var(--miaixz-border-width-2);
   margin-block-start: calc((var(--miaixz-text-body-line-height) - var(--miaixz-switch-height)) / 2);
   background: var(--miaixz-color-border-strong);
   border-radius: var(--miaixz-switch-height);
@@ -46,7 +70,7 @@
   display: block;
   width: var(--miaixz-switch-thumb-size);
   height: var(--miaixz-switch-thumb-size);
-  background: var(--miaixz-color-surface);
+  background: var(--miaixz-surface-role-control-background);
   border-radius: 50%;
   box-shadow: 0 1px 2px var(--miaixz-color-shadow);
   transform: translateX(0);
@@ -54,23 +78,56 @@
     var(--miaixz-motion-interaction-easing);
 }
 
-.miaixz-switch-input:where(:checked) + .miaixz-switch-track {
-  background: var(--miaixz-color-brand);
-}
-
 .miaixz-switch-input:where(:checked) + .miaixz-switch-track .miaixz-switch-thumb {
-  transform: translateX(calc(var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) - 4px));
+  transform: translateX(
+    calc(
+      var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+        (var(--miaixz-border-width-2) * 2)
+    )
+  );
 }
 
 [dir="rtl"] .miaixz-switch-input:where(:checked) + .miaixz-switch-track .miaixz-switch-thumb {
   transform: translateX(
-    calc((var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) - 4px) * -1)
+    calc(
+      (
+          var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+            (var(--miaixz-border-width-2) * 2)
+        ) *
+        -1
+    )
   );
 }
 
-.miaixz-switch-input:where(:focus-visible) + .miaixz-switch-track {
-  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
-  outline-offset: var(--miaixz-control-focus-offset);
+/*
+
+ * State order is intentional so semantic invalid and disabled states always win.
+
+ */
+/* stylelint-disable no-descending-specificity
+ */
+.miaixz-switch-input:where(:checked) + .miaixz-switch-track {
+  background: var(--miaixz-color-brand);
+}
+
+.miaixz-switch:where(:hover:not(.miaixz-switch-disabled)) .miaixz-switch-track {
+  background: var(--miaixz-color-border-strong);
+}
+
+.miaixz-switch:where(:hover:not(.miaixz-switch-disabled))
+  .miaixz-switch-input:checked
+  + .miaixz-switch-track {
+  background: var(--miaixz-color-brand-hover);
+}
+
+.miaixz-switch-input:where(:focus-visible) + .miaixz-switch-track,
+.miaixz-switch[data-preview-state="focus"] .miaixz-switch-track {
+  outline: 0;
+  box-shadow: var(--miaixz-control-focus-shadow);
+}
+
+.miaixz-switch:where(.miaixz-switch-invalid, [data-preview-state="invalid"]) .miaixz-switch-track {
+  box-shadow: var(--miaixz-control-invalid-shadow);
 }
 
 .miaixz-switch-content {
@@ -94,8 +151,10 @@
   cursor: not-allowed;
 }
 
-.miaixz-switch-disabled .miaixz-switch-track {
+.miaixz-switch-disabled .miaixz-switch-track,
+.miaixz-switch[data-preview-state="disabled"] .miaixz-switch-track {
   background: var(--miaixz-color-border);
+  box-shadow: none;
 }
 
 .miaixz-switch-disabled .miaixz-switch-label,
@@ -109,3 +168,68 @@
     transition-duration: 0ms;
   }
 }
+
+.miaixz-switch.miaixz-switch-compact {
+  --miaixz-switch-width: 38px;
+  --miaixz-switch-height: 21px;
+  --miaixz-switch-thumb-size: 15px;
+  --miaixz-switch-thumb-inset: calc(
+    (var(--miaixz-switch-height) - var(--miaixz-switch-thumb-size)) / 2
+  );
+
+  flex: none;
+  grid-template-columns: var(--miaixz-switch-width);
+  gap: 0;
+}
+
+.miaixz-switch-compact:has(.miaixz-switch-content) {
+  grid-template-columns: var(--miaixz-switch-width) minmax(0, 1fr);
+  gap: var(--miaixz-space-8);
+}
+
+.miaixz-switch-compact .miaixz-switch-track {
+  padding: 0;
+  margin: 0;
+  border-radius: var(--miaixz-radius-round);
+  transition: none;
+}
+
+.miaixz-switch-compact .miaixz-switch-thumb {
+  position: absolute;
+  inset-block-start: var(--miaixz-switch-thumb-inset);
+  inset-inline-start: var(--miaixz-switch-thumb-inset);
+  background: var(--miaixz-color-surface);
+  border-radius: var(--miaixz-radius-round);
+  box-shadow: none;
+}
+
+.miaixz-switch-compact .miaixz-switch-input:checked + .miaixz-switch-track .miaixz-switch-thumb {
+  transform: translateX(
+    calc(
+      var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+        (var(--miaixz-switch-thumb-inset) * 2)
+    )
+  );
+}
+
+[dir="rtl"]
+  .miaixz-switch-compact
+  .miaixz-switch-input:checked
+  + .miaixz-switch-track
+  .miaixz-switch-thumb {
+  transform: translateX(
+    calc(
+      (
+          var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
+            (var(--miaixz-switch-thumb-inset) * 2)
+        ) *
+        -1
+    )
+  );
+}
+
+.miaixz-switch.miaixz-switch-compact .miaixz-switch-input:checked + .miaixz-switch-track {
+  background: var(--miaixz-color-brand);
+}
+/* stylelint-enable no-descending-specificity
+ */

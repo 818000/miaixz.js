@@ -1,8 +1,28 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef } from "react";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
 
-import { classNames } from "../../internal/class-names.js";
-import type { NavigationItemProps, NavigationProps } from "./navigation.types.js";
+import { classNames } from "../../shared/class-names.js";
+import type { NavigationEntry, NavigationProps } from "./navigation.types.js";
 
 /**
  * Renders a labeled navigation container for application links and actions.
@@ -10,7 +30,7 @@ import type { NavigationItemProps, NavigationProps } from "./navigation.types.js
  * @public
  */
 export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navigation(
-  { orientation = "vertical", label, className, children, ...props },
+  { items, variant = "default", orientation = "vertical", label, className, children, ...props },
   ref,
 ) {
   return (
@@ -18,9 +38,18 @@ export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navi
       {...props}
       ref={ref}
       aria-label={label}
-      className={classNames("miaixz-navigation", `miaixz-navigation-${orientation}`, className)}
+      data-variant={variant}
+      className={classNames(
+        "miaixz-navigation",
+        `miaixz-navigation-${orientation}`,
+        variant === "icon" && "miaixz-navigation-icon-only",
+        variant === "rail" && "miaixz-navigation-rail",
+        className,
+      )}
     >
-      {children}
+      {items?.map((item, index) => (
+        <NavigationEntryView key={`${item.href ?? "action"}-${index}`} {...item} />
+      )) ?? children}
     </nav>
   );
 });
@@ -28,15 +57,12 @@ export const Navigation = forwardRef<HTMLElement, NavigationProps>(function Navi
 /**
  * Renders an active-aware navigation link or button.
  *
- * @public
+ * @param entry - Declarative navigation entry.
+ * @returns The rendered navigation link or button.
+ * @internal
  */
-export const NavigationItem = forwardRef<
-  HTMLAnchorElement | HTMLButtonElement,
-  NavigationItemProps
->(function NavigationItem(
-  { href, active = false, disabled = false, icon, label, meta, className, ...props },
-  ref,
-) {
+function NavigationEntryView(entry: NavigationEntry) {
+  const { href, active = false, disabled = false, icon, label, meta, className, ...props } = entry;
   const content = (
     <>
       {icon && <span className="miaixz-navigation-icon">{icon}</span>}
@@ -55,7 +81,6 @@ export const NavigationItem = forwardRef<
       <a
         {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}
         {...sharedProps}
-        ref={ref as React.ForwardedRef<HTMLAnchorElement>}
         href={disabled ? undefined : href}
         tabIndex={disabled ? -1 : props.tabIndex}
       >
@@ -68,11 +93,10 @@ export const NavigationItem = forwardRef<
     <button
       {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}
       {...sharedProps}
-      ref={ref as React.ForwardedRef<HTMLButtonElement>}
       type={(props as ButtonHTMLAttributes<HTMLButtonElement>).type ?? "button"}
       disabled={disabled}
     >
       {content}
     </button>
   );
-});
+}

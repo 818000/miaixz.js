@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz surface system
  *
@@ -5,39 +25,19 @@
  * theme.css so every surface follows the active user theme.
  */
 
-:root {
-  /* Corner radius */
+[data-miaixz-theme] {
   --miaixz-radius-0: 0;
-  --miaixz-radius-4: 4px;
-  --miaixz-radius-8: 8px;
-  --miaixz-radius-12: 12px;
-  --miaixz-radius-16: 16px;
-  --miaixz-radius-round: 9999px;
-
-  /* Semantic radius */
-  --miaixz-radius-control: var(--miaixz-radius-8);
-  --miaixz-radius-panel: var(--miaixz-radius-12);
-  --miaixz-radius-dialog: var(--miaixz-radius-16);
-
-  /* Border width */
-  --miaixz-border-width-0: 0;
-  --miaixz-border-width-1: 1px;
-  --miaixz-border-width-2: 2px;
-  --miaixz-border-width-default: var(--miaixz-border-width-1);
-  --miaixz-border-width-strong: var(--miaixz-border-width-2);
-
-  /* Elevation */
-  --miaixz-shadow-none: none;
-  --miaixz-shadow-low: 0 1px 2px var(--miaixz-color-shadow);
-  --miaixz-shadow-medium: 0 6px 18px var(--miaixz-color-shadow);
-  --miaixz-shadow-high: 0 16px 36px var(--miaixz-color-shadow-strong);
-  --miaixz-shadow-overlay: 0 24px 64px var(--miaixz-color-shadow-strong);
+  --miaixz-radius-4: var(--miaixz-radius-control);
+  --miaixz-radius-8: var(--miaixz-radius-dialog);
+  --miaixz-radius-12: var(--miaixz-radius-dialog);
+  --miaixz-radius-16: var(--miaixz-radius-dialog);
+  --miaixz-module-radius: var(--miaixz-radius-panel);
 }
 
 .miaixz-surface {
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface);
-  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  color: var(--miaixz-surface-role-panel-foreground);
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
   border-radius: var(--miaixz-radius-panel);
   box-shadow: var(--miaixz-shadow-none);
 }

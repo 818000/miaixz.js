@@ -1,0 +1,178 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-grouped-list {
+  min-width: 0;
+  padding-block: var(--miaixz-space-4);
+  container: miaixz-grouped-list / inline-size;
+}
+
+.miaixz-grouped-list-grid {
+  display: grid;
+  gap: var(--miaixz-space-24);
+  min-width: 0;
+}
+
+.miaixz-grouped-list--columns .miaixz-grouped-list-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--miaixz-space-40) var(--miaixz-space-48);
+  padding-block: 0;
+}
+
+.miaixz-grouped-list-group {
+  display: grid;
+  grid-template-columns: minmax(88px, 112px) minmax(0, 1fr);
+  gap: var(--miaixz-space-24);
+  align-items: start;
+  min-width: 0;
+}
+
+.miaixz-grouped-list--columns .miaixz-grouped-list-group {
+  display: block;
+  min-width: 0;
+  padding-inline-start: var(--miaixz-space-16);
+  border-inline-start: 2px solid var(--miaixz-color-brand);
+}
+
+.miaixz-grouped-list-header {
+  min-width: 0;
+  padding-block: var(--miaixz-space-8);
+}
+
+.miaixz-grouped-list--columns .miaixz-grouped-list-header {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: baseline;
+  padding-block: 0 var(--miaixz-space-16);
+}
+
+.miaixz-grouped-list-heading,
+.miaixz-grouped-list-count,
+.miaixz-grouped-list-title,
+.miaixz-grouped-list-description,
+.miaixz-grouped-list-empty {
+  margin: 0;
+}
+
+.miaixz-grouped-list-heading {
+  font-size: var(--miaixz-text-section-title-size);
+  font-weight: var(--miaixz-font-weight-bold);
+  line-height: var(--miaixz-text-section-title-line-height);
+  color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-grouped-list-count {
+  margin-block-start: var(--miaixz-space-2);
+  font-size: var(--miaixz-text-caption-size);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-grouped-list--columns .miaixz-grouped-list-count {
+  margin-block-start: 0;
+}
+
+.miaixz-grouped-list-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: var(--miaixz-space-16) var(--miaixz-space-32);
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.miaixz-grouped-list--columns .miaixz-grouped-list-items {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--miaixz-space-16) var(--miaixz-space-24);
+}
+
+.miaixz-grouped-list-item {
+  min-width: 0;
+  min-height: var(--miaixz-space-48);
+  padding-block: var(--miaixz-space-8);
+}
+
+.miaixz-grouped-list--columns .miaixz-grouped-list-item {
+  min-height: 0;
+  padding-block: 0;
+}
+
+.miaixz-grouped-list-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-bold);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+}
+
+.miaixz-grouped-list-description,
+.miaixz-grouped-list-empty {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+  white-space: nowrap;
+}
+
+.miaixz-grouped-list-description {
+  margin-block-start: var(--miaixz-space-2);
+}
+
+.miaixz-grouped-list--columns .miaixz-grouped-list-description {
+  white-space: normal;
+}
+
+.miaixz-grouped-list-empty {
+  padding-block: var(--miaixz-space-8);
+  color: var(--miaixz-color-text-muted);
+}
+
+@container miaixz-grouped-list (width < 520px) {
+  .miaixz-grouped-list-group {
+    grid-template-columns: 1fr;
+    gap: var(--miaixz-space-4);
+  }
+
+  .miaixz-grouped-list-header {
+    display: flex;
+    gap: var(--miaixz-space-8);
+    align-items: baseline;
+  }
+
+  .miaixz-grouped-list-count {
+    margin-block-start: 0;
+  }
+
+  .miaixz-grouped-list-items {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container miaixz-grouped-list (width < 640px) {
+  .miaixz-grouped-list--columns .miaixz-grouped-list-grid {
+    grid-template-columns: 1fr;
+    gap: var(--miaixz-space-32);
+  }
+}

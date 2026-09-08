@@ -1,0 +1,285 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/* stylelint-disable no-descending-specificity -- Header behavior variants intentionally precede the shared main layout.
+ */
+
+/* Document scrolling owns the boundary when the shell header scrolls.
+ * Scope this to shell pages so unrelated documents retain browser defaults. */
+html:has(.miaixz-shell),
+body:has(.miaixz-shell) {
+  overscroll-behavior-y: none;
+}
+
+.miaixz-shell {
+  --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-width);
+  --miaixz-shell-content-sticky-offset: var(--miaixz-layout-header-height);
+
+  display: grid;
+  grid-template:
+    "sidebar header" var(--miaixz-layout-header-height)
+    "sidebar main" minmax(0, 1fr) /
+    var(--miaixz-shell-current-navigation-width) minmax(0, 1fr);
+  min-block-size: var(--miaixz-viewport-block);
+  padding-block-end: 0;
+  container-name: miaixz-shell;
+  container-type: inline-size;
+}
+
+.miaixz-shell[data-header-behavior="fixed"] {
+  --miaixz-shell-content-sticky-offset: 0px;
+
+  block-size: var(--miaixz-viewport-block);
+  overflow: clip;
+}
+
+.miaixz-shell[data-header-behavior="fixed"] > .miaixz-shell-main {
+  overflow: hidden auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: none;
+}
+
+.miaixz-shell[data-navigation-variant="rail"],
+[data-miaixz-shell="collapsible"] .miaixz-shell:not([data-navigation-variant]),
+[data-miaixz-shell="rail"] .miaixz-shell:not([data-navigation-variant]) {
+  --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-compact-width);
+}
+
+.miaixz-shell[data-navigation-variant="collapsible"] {
+  --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-compact-width);
+}
+
+.miaixz-shell[data-navigation-variant="collapsible"][data-navigation-expanded] {
+  --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-compact-width);
+}
+
+.miaixz-shell-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--miaixz-z-navigation);
+  display: flex;
+  grid-area: header;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--miaixz-layout-header-height);
+  padding-inline: var(--miaixz-page-gutter);
+  color: var(--miaixz-surface-role-header-foreground);
+  background: var(--miaixz-surface-role-header-background);
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-header-border);
+}
+
+.miaixz-shell[data-header-behavior="scroll"] > .miaixz-shell-header {
+  position: static;
+}
+
+.miaixz-shell-sidebar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--miaixz-z-navigation);
+  grid-area: sidebar;
+  inline-size: var(--miaixz-shell-current-navigation-width);
+  block-size: var(--miaixz-viewport-block);
+  min-height: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain none;
+  color: var(--miaixz-surface-role-sidebar-foreground);
+  scrollbar-width: thin;
+  background: var(--miaixz-surface-role-sidebar-background);
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell-sidebar::after {
+  position: absolute;
+  inset-block-start: calc(var(--miaixz-layout-header-height) - var(--miaixz-border-width-default));
+  inset-inline: 0;
+  pointer-events: none;
+  content: "";
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell[data-navigation-variant="collapsible"] > .miaixz-shell-sidebar::after {
+  content: none;
+}
+
+.miaixz-shell[data-navigation-variant="collapsible"] > .miaixz-shell-sidebar {
+  transition-timing-function: var(--miaixz-navigation-reveal-easing);
+  transition-duration: var(--miaixz-navigation-reveal-duration);
+  transition-property: inline-size, box-shadow;
+}
+
+.miaixz-shell[data-navigation-variant="collapsible"][data-navigation-expanded]
+  > .miaixz-shell-sidebar {
+  inline-size: var(--miaixz-layout-sidebar-width);
+  box-shadow: var(--miaixz-shadow-overlay);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-shell[data-navigation-variant="collapsible"] > .miaixz-shell-sidebar {
+    transition-duration: 0s;
+  }
+}
+
+.miaixz-shell-main {
+  grid-area: main;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.miaixz-shell-mobile-navigation {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: var(--miaixz-z-navigation);
+  visibility: hidden;
+  inline-size: 0;
+  block-size: 0;
+  overflow: hidden;
+  color: var(--miaixz-surface-role-sidebar-foreground);
+  background: var(--miaixz-surface-role-sidebar-background);
+  border-block-start: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell-navigation-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--miaixz-z-overlay) - 1);
+  visibility: hidden;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: 0;
+  pointer-events: none;
+  cursor: default;
+  background: var(--miaixz-color-backdrop);
+  border: 0;
+}
+
+@container miaixz-shell (width < 768px) {
+  .miaixz-shell-header,
+  .miaixz-shell-main {
+    grid-column: 1 / -1;
+  }
+
+  .miaixz-shell-header {
+    padding-block-start: var(--miaixz-safe-area-block-start);
+    padding-inline: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-start))
+      max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-end));
+  }
+
+  .miaixz-shell:not([data-mobile-navigation-mode="drawer"]) > .miaixz-shell-sidebar {
+    visibility: hidden;
+    inline-size: 0;
+    block-size: 0;
+    overflow: hidden;
+    border: 0;
+  }
+
+  .miaixz-shell:has(> .miaixz-shell-mobile-navigation) > .miaixz-shell-main {
+    padding-block-end: calc(
+      var(--miaixz-layout-mobile-navigation-height) + var(--miaixz-safe-area-block-end)
+    );
+  }
+
+  .miaixz-shell-mobile-navigation {
+    visibility: visible;
+    inline-size: 100%;
+    block-size: calc(
+      var(--miaixz-layout-mobile-navigation-height) + var(--miaixz-safe-area-block-end)
+    );
+    padding-block-end: var(--miaixz-safe-area-block-end);
+    padding-inline: var(--miaixz-safe-area-inline-start) var(--miaixz-safe-area-inline-end);
+    overflow: hidden;
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"] > .miaixz-shell-header {
+    padding-inline-start: calc(
+      var(--miaixz-layout-sidebar-compact-width) +
+        max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-start))
+    );
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"] > .miaixz-shell-sidebar {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: var(--miaixz-z-overlay);
+    visibility: visible;
+    inline-size: var(--miaixz-layout-sidebar-compact-width);
+    block-size: var(--miaixz-layout-header-height);
+    overflow: hidden;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar {
+    block-size: calc(var(--miaixz-layout-header-height) - var(--miaixz-space-4));
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar
+    .miaixz-navigation-rail-body,
+  .miaixz-shell[data-mobile-navigation-mode="drawer"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar
+    .miaixz-navigation-rail-utility {
+    visibility: hidden;
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"][data-navigation-expanded]
+    > .miaixz-shell-sidebar {
+    inset-block-end: 0;
+    inline-size: min(var(--miaixz-layout-sidebar-width), calc(100vi - var(--miaixz-space-32)));
+    block-size: var(--miaixz-viewport-block);
+    border-inline-end: var(--miaixz-border-width-default) solid
+      var(--miaixz-surface-role-sidebar-border);
+    box-shadow: var(--miaixz-shadow-overlay);
+  }
+
+  .miaixz-shell[data-mobile-navigation-mode="drawer"][data-navigation-expanded]
+    > .miaixz-shell-navigation-backdrop {
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+@media print {
+  .miaixz-shell {
+    display: block;
+  }
+
+  .miaixz-shell[data-header-behavior="fixed"] {
+    block-size: auto;
+    min-block-size: 0;
+    overflow: visible;
+  }
+
+  .miaixz-shell[data-header-behavior="fixed"] > .miaixz-shell-main {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  .miaixz-shell-header,
+  .miaixz-shell-sidebar,
+  .miaixz-shell-mobile-navigation,
+  .miaixz-shell-navigation-backdrop {
+    display: none !important;
+  }
+}

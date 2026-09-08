@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { createMiaixzAppearanceManager, type MiaixzAppearanceManager } from "./appearance/index.js";
 import {
   createApiClient,
@@ -26,6 +46,7 @@ import {
   type MiaixzI18n,
   type MiaixzI18nLoadError,
   type MiaixzLocale,
+  type MiaixzLocaleDefinition,
   type MiaixzMessageCatalog,
   type MiaixzMessageLoader,
 } from "./i18n/index.js";
@@ -101,6 +122,11 @@ export interface MiaixzSdkOptions {
    * Optional locale used when a message is unavailable in the active locale.
    */
   readonly fallbackLocale?: MiaixzLocale;
+
+  /**
+   * Optional trusted locale definitions exposed to global language selectors.
+   */
+  readonly locales?: readonly MiaixzLocaleDefinition[];
 
   /**
    * Optional initial project message catalogs.
@@ -292,6 +318,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   const i18n = createMiaixzI18n({
     ...(options.locale === undefined ? {} : { locale: options.locale }),
     ...(options.fallbackLocale === undefined ? {} : { fallbackLocale: options.fallbackLocale }),
+    ...(options.locales === undefined ? {} : { locales: options.locales }),
     ...(options.messages === undefined ? {} : { messages: options.messages }),
     ...(options.loadMessages === undefined ? {} : { loadMessages: options.loadMessages }),
     ...(options.onI18nLoadError === undefined ? {} : { onLoadError: options.onI18nLoadError }),
@@ -414,24 +441,53 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     auth,
     context,
     appearance,
+    /**
+     * Returns the active API client.
+     *
+     * @returns The active API client.
+     */
     get api() {
       return api;
     },
+    /**
+     * Returns the active file client.
+     *
+     * @returns The active file client.
+     */
     get files() {
       return files;
     },
+    /**
+     * Returns the active permission set.
+     *
+     * @returns The active permission set.
+     */
     get permissions() {
       return permissions;
     },
+    /**
+     * Replaces the active permission snapshot.
+     *
+     * @param snapshot - Permission snapshot to activate.
+     */
     setPermissions(snapshot) {
       permissions = createMiaixzPermissionSet(snapshot, i18n.t);
     },
+    /**
+     * Creates an API client for a configured service.
+     *
+     * @param service - Service identifier to resolve.
+     * @returns The configured service client.
+     */
     createServiceClient(service) {
       return createClient(
         getMiaixzServiceEndpoint(config.getSnapshot(), service, i18n.t),
         config.getSnapshot().environment,
       );
     },
+    /**
+     * Releases SDK subscriptions and owned resources.
+     */
     destroy() {
       stopAppearanceScopeSync();
       stopLocaleBroadcast();

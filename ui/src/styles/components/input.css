@@ -1,25 +1,37 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Input component
  */
 
 .miaixz-input {
+  position: relative;
   display: inline-flex;
   gap: var(--miaixz-control-gap);
   align-items: center;
   justify-content: flex-start;
   width: 100%;
   padding-block: 0;
+  overflow: hidden;
   cursor: text;
-}
-
-.miaixz-input:where(:hover:not(.miaixz-input-disabled)) {
-  border-color: var(--miaixz-color-border-strong);
-}
-
-.miaixz-input:focus-within {
-  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
-  outline-offset: var(--miaixz-control-focus-offset);
-  border-color: var(--miaixz-color-focus);
 }
 
 .miaixz-input-element {
@@ -28,6 +40,7 @@
   height: 100%;
   padding: 0;
   font: inherit;
+  font-size: inherit;
   line-height: inherit;
   color: inherit;
   outline: 0;
@@ -40,6 +53,16 @@
   opacity: 1;
 }
 
+.miaixz-input-element:autofill,
+.miaixz-input-element:-webkit-autofill {
+  color: var(--miaixz-surface-role-control-foreground);
+  caret-color: var(--miaixz-surface-role-control-foreground);
+  transition:
+    color 600000s 0s,
+    background-color 600000s 0s;
+  -webkit-text-fill-color: var(--miaixz-surface-role-control-foreground);
+}
+
 .miaixz-input-adornment {
   display: inline-flex;
   flex: none;
@@ -48,30 +71,39 @@
   color: var(--miaixz-color-text-secondary);
 }
 
+.miaixz-input-adornment:first-child {
+  width: auto;
+}
+
 .miaixz-input-adornment > svg {
   width: var(--miaixz-icon-size-control);
   height: var(--miaixz-icon-size-control);
 }
 
-.miaixz-input-invalid {
-  border-color: var(--miaixz-color-danger);
+.miaixz-input-adornment .miaixz-button-link {
+  text-decoration: none;
 }
 
-.miaixz-input-invalid:focus-within {
-  outline-color: var(--miaixz-color-danger);
-  border-color: var(--miaixz-color-danger);
-}
-
-.miaixz-input-disabled {
-  color: var(--miaixz-color-text-disabled);
-  cursor: not-allowed;
-  background: var(--miaixz-color-surface-secondary);
+.miaixz-input-adornment .miaixz-button-link:hover:not(:disabled, [aria-disabled="true"]),
+.miaixz-input-adornment .miaixz-button-link:focus-visible:not(:disabled, [aria-disabled="true"]) {
+  text-decoration: none;
 }
 
 .miaixz-input-disabled .miaixz-input-element {
   cursor: not-allowed;
 }
 
+.miaixz-input-disabled {
+  background: var(--miaixz-color-surface-secondary);
+}
+
 .miaixz-input-readonly {
   background: var(--miaixz-color-surface-secondary);
+}
+
+@media (pointer: coarse) {
+  .miaixz-input-adornment .miaixz-button {
+    min-block-size: var(--miaixz-control-min-target-size);
+    padding-inline: var(--miaixz-control-padding-inline-small);
+  }
 }

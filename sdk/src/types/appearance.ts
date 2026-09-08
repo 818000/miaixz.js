@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Lists the color modes supported by the Miaixz interface.
  *
@@ -41,9 +61,15 @@ export type MiaixzDensity = (typeof miaixzDensities)[number];
 export const miaixzThemeColorTokens = [
   "brand",
   "on-brand",
+  "brand-hover",
+  "brand-active",
+  "brand-strong",
+  "brand-soft",
+  "brand-soft-hover",
   "background",
   "surface",
   "surface-secondary",
+  "surface-chrome",
   "surface-hover",
   "surface-active",
   "surface-selected",
@@ -67,6 +93,15 @@ export const miaixzThemeColorTokens = [
   "shadow",
   "shadow-strong",
   "selection",
+  "data-1",
+  "data-2",
+  "data-3",
+  "data-4",
+  "data-5",
+  "data-6",
+  "data-7",
+  "data-8",
+  "data-neutral",
 ] as const;
 
 /**
@@ -81,7 +116,31 @@ export type MiaixzThemeColorToken = (typeof miaixzThemeColorTokens)[number];
  *
  * @public
  */
-export type MiaixzThemeColors = Partial<Readonly<Record<MiaixzThemeColorToken, string>>>;
+export type MiaixzThemeColors = Readonly<Record<MiaixzThemeColorToken, string>>;
+
+/**
+ * Maps an optional subset of theme color tokens to hexadecimal overrides.
+ *
+ * @public
+ */
+export type MiaixzThemeColorOverrides = Readonly<Partial<Record<MiaixzThemeColorToken, string>>>;
+
+/**
+ * Separates user color overrides by resolved color mode.
+ *
+ * @public
+ */
+export interface MiaixzThemeOverrides {
+  /**
+   * Overrides applied while the resolved color mode is light.
+   */
+  readonly light?: MiaixzThemeColorOverrides;
+
+  /**
+   * Overrides applied while the resolved color mode is dark.
+   */
+  readonly dark?: MiaixzThemeColorOverrides;
+}
 
 /**
  * Configures visual preferences shared across Miaixz applications.
@@ -89,6 +148,11 @@ export type MiaixzThemeColors = Partial<Readonly<Record<MiaixzThemeColorToken, s
  * @public
  */
 export interface MiaixzAppearanceSettings {
+  /**
+   * Identifies the selected theme.
+   */
+  readonly theme: string;
+
   /**
    * Preferred light, dark, or system color mode.
    */
@@ -100,9 +164,9 @@ export interface MiaixzAppearanceSettings {
   readonly density: MiaixzDensity;
 
   /**
-   * Optional theme color overrides keyed by semantic token.
+   * Contains optional light and dark user color overrides.
    */
-  readonly colors?: MiaixzThemeColors;
+  readonly overrides?: MiaixzThemeOverrides;
 }
 
 /**
@@ -114,9 +178,9 @@ export interface MiaixzAppearancePayload {
   /**
    * Identifies the frozen appearance payload schema.
    *
-   * @defaultValue 1
+   * @defaultValue 2
    */
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
 
   /**
    * Contains the validated appearance settings snapshot.

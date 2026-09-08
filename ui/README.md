@@ -1,5 +1,35 @@
 # @miaixz/ui
 
+## Theme ownership and local delivery
+
+Theme definitions, types, generated CSS and runtime logic live together in `src/theme/`.
+There is no runtime subdirectory. Internal modules import concrete files, never the public barrel.
+Maintain TypeScript definitions, not generated CSS.
+Design token types, field lists and shared defaults live in `src/design/`.
+Directory names do not change public symbols or CSS custom property names.
+Cross-component implementation helpers live in `src/shared/` (formerly `src/internal/`).
+This directory is package-private; consumers use existing public exports, not shared deep imports.
+`npm run build` compiles TypeScript, automatically runs `src/theme/generate.mjs`,
+then copies both CSS trees to `dist`. The CSS package test detects generated-file drift;
+the generator also accepts `--runtime-dir` and `--output-dir` for isolated reproduction.
+
+Public theme entries are `@miaixz/ui/theme`, `@miaixz/ui/{miaixz,neutral,contrast,theme}.css`;
+`@miaixz/ui/themes.css` remains an alias of `theme.css`, not a separate generated file.
+`styles.css` remains the complete default theme. Foundation, component, core and
+reset entries retain their responsibilities. CSS auditing uses `tests/scripts/audit.mjs`.
+
+For this remediation, build and pack locally, unpack under the Console's controlled
+`node_modules/.miaixz-local` directory and link the installed package to that output.
+Do not publish to npm or link application dependencies directly to source.
+
+Legacy subpaths and names remain available: ConfirmDialog → Confirm, InlineMessage → Notice,
+FormField → Field, SearchInput → Search, LoadingOverlay → Overlay, MultiSelect → Picker,
+DataTable → Datagrid, PageLayout → Page, FileUpload → Upload, TreeView → Tree,
+StatusIndicator → Status, EmptyState → Empty, VisuallyHidden → Hidden. These exports
+reference the same canonical component and prop type, without wrappers or separate styling.
+They preserve the documented responsibilities; undocumented historical prop signatures
+cannot be inferred from the previously missing legacy implementation directories.
+
 `@miaixz/ui` is the shared Miaixz React design system. It provides independently deployed frontend services, such as Home, Spaces, and Settings, with a consistent set of design tokens, themes, density modes, Lucide icons, and reusable components.
 
 The package is ESM-only and does not provide a CommonJS `require` entry point. JavaScript entry points do not load global CSS automatically; consumers must import the required stylesheet explicitly.
@@ -76,10 +106,12 @@ const stopAppearance = sdk.appearance.subscribe((appearance) => {
 sdk.appearance.patch({
   colorMode: "system",
   density: "comfortable",
-  colors: { brand: "#55b52d" },
+  overrides: { light: { brand: "#55b52d" } },
 });
 
-// Call these when the service is unmounted.
+/*
+ * Call these when the service is unmounted.
+ */
 stopAppearance();
 sdk.destroy();
 ```

@@ -1,74 +1,111 @@
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+import type { HTMLAttributes, ReactNode } from "react";
 
 /**
- * Defines the supported tab-list flow directions.
- *
- * @public
+ * Defines the supported tab-list flow directions. @public
  */
 export type TabsOrientation = "horizontal" | "vertical";
 
 /**
- * Configures controlled or uncontrolled tab selection.
- *
- * @public
+ * Defines one tab and its associated panel. @public
  */
-export interface TabsProps extends HTMLAttributes<HTMLDivElement> {
+export interface TabsEntry {
   /**
-   * Controls the selected tab value.
+   * Uniquely identifies the tab.
+   */
+  value: string;
+  /**
+   * Supplies the visible tab label.
+   */
+  label: ReactNode;
+  /**
+   * Supplies the associated panel content.
+   */
+  content: ReactNode;
+  /**
+   * Displays optional metadata beside the label.
+   */
+  count?: ReactNode;
+  /**
+   * Prevents selection of this tab.
+   */
+  disabled?: boolean;
+  /**
+   * Adds the associated panel to the sequential keyboard focus order.
+   */
+  panelTabIndex?: 0 | -1;
+}
+
+/**
+ * Configures a declarative controlled or uncontrolled tabs collection. @public
+ */
+export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  /**
+   * Displays actions alongside the tab list without making them tabs.
+   */
+  actions?: ReactNode;
+  /**
+   * Places actions immediately after the tabs or at the end of the header.
+   * Defaults to end to preserve existing header layouts.
+   */
+  actionsPlacement?: "adjacent" | "end";
+  /**
+   * Insets the header with actions while keeping associated panel widths unchanged.
+   */
+  headerInset?: boolean;
+  /**
+   * Removes panel padding for edge-to-edge tables and composed surfaces.
+   */
+  panelPadding?: "default" | "none";
+  /**
+   * Uses compact directory-toolbar header geometry.
+   */
+  headerVariant?: "default" | "toolbar";
+  /**
+   * Uses page-navigation geometry with unpadded associated panels.
+   */
+  variant?: "default" | "navigation" | "editor";
+  /**
+   * Supplies tabs and their panel content.
+   */
+  items: readonly TabsEntry[];
+  /**
+   * Provides the tab list's accessible name.
+   */
+  label: string;
+  /**
+   * Controls the selected tab.
    */
   value?: string;
   /**
-   * Sets the initial uncontrolled tab value.
+   * Selects the initial uncontrolled tab.
    */
   defaultValue?: string;
   /**
-   * Receives requested tab selection changes.
+   * Runs when the selected tab changes.
    */
   onValueChange?: (value: string) => void;
   /**
-   * Selects the tab-list flow direction and keyboard axis.
-   *
-   * @defaultValue `"horizontal"`
+   * Selects horizontal or vertical keyboard navigation.
    */
   orientation?: TabsOrientation;
-}
-
-/**
- * Configures an accessible tab-list container.
- *
- * @public
- */
-export interface TabListProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Provides the required accessible tab-list label.
-   */
-  label: string;
-}
-
-/**
- * Configures one selectable tab.
- *
- * @public
- */
-export interface TabProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "value"> {
-  /**
-   * Identifies the tab and its associated panel.
-   */
-  value: string;
-  /**
-   * Displays optional compact count or status content.
-   */
-  count?: ReactNode;
-}
-
-/**
- * Configures content associated with one tab value.
- *
- * @public
- */
-export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Identifies the tab that controls this panel.
-   */
-  value: string;
 }

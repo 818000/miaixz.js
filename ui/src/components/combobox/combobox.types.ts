@@ -1,7 +1,29 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import type { HTMLAttributes } from "react";
 
+import type { MiaixzFormPreviewProps } from "../shared.types.js";
+
 /**
- * Describes one selectable option shared by Combobox and MultiSelect.
+ * Describes one selectable option shared by Combobox and Picker.
  *
  * @typeParam Value - Stable string value type used by the owning product.
  * @public
@@ -48,7 +70,9 @@ export type MiaixzOptionLoader<Value extends string = string> = (
  * @typeParam Value - Stable string value type selected by the control.
  * @public
  */
-export interface MiaixzComboboxOwnProps<Value extends string = string> {
+export interface MiaixzComboboxOwnProps<
+  Value extends string = string,
+> extends MiaixzFormPreviewProps {
   /**
    * Supplies the complete static option collection.
    */
@@ -85,7 +109,7 @@ export interface MiaixzComboboxOwnProps<Value extends string = string> {
   defaultInputValue?: string;
 
   /**
-   * Receives requested search-input changes.
+   * Receives requested search changes.
    */
   onInputValueChange?: (value: string) => void;
 
@@ -118,6 +142,16 @@ export interface MiaixzComboboxOwnProps<Value extends string = string> {
    * Disables the complete composite control.
    */
   disabled?: boolean;
+
+  /**
+   * Prevents search and selection changes while preserving focus and content.
+   */
+  readOnly?: boolean;
+
+  /**
+   * Applies the invalid visual and accessibility state.
+   */
+  invalid?: boolean;
 }
 
 /**

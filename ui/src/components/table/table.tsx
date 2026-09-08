@@ -1,6 +1,26 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef } from "react";
 
-import { classNames } from "../../internal/class-names.js";
+import { classNames } from "../../shared/class-names.js";
 import type {
   TableBodyProps,
   TableCaptionProps,
@@ -19,8 +39,19 @@ import type {
  * @public
  */
 export const TableContainer = forwardRef<HTMLDivElement, TableContainerProps>(
-  function TableContainer({ className, ...props }, ref) {
-    return <div {...props} ref={ref} className={classNames("miaixz-table-container", className)} />;
+  function TableContainer({ className, frame = "default", surface = "default", ...props }, ref) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        className={classNames(
+          "miaixz-table-container",
+          frame === "plain" && "miaixz-table-container-plain",
+          surface === "transparent" && "miaixz-table-container-transparent",
+          className,
+        )}
+      />
+    );
   },
 );
 
@@ -30,14 +61,22 @@ export const TableContainer = forwardRef<HTMLDivElement, TableContainerProps>(
  * @public
  */
 export const Table = forwardRef<HTMLTableElement, TableProps>(function Table(
-  { stickyHeader = false, className, ...props },
+  { stickyHeader = false, variant = "default", className, ...props },
   ref,
 ) {
   return (
     <table
       {...props}
       ref={ref}
-      className={classNames("miaixz-table", stickyHeader && "miaixz-table-sticky", className)}
+      className={classNames(
+        variant === "dashed"
+          ? "miaixz-table-dashed"
+          : variant === "compact"
+            ? "miaixz-table-compact"
+            : "miaixz-table",
+        stickyHeader && "miaixz-table-sticky",
+        className,
+      )}
     />
   );
 });
@@ -124,13 +163,14 @@ export const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(functi
  * @public
  */
 export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(function TableCell(
-  { numeric = false, actions = false, className, ...props },
+  { numeric = false, actions = false, empty = false, className, ...props },
   ref,
 ) {
   return (
     <td
       {...props}
       ref={ref}
+      data-empty={empty || undefined}
       className={classNames(
         "miaixz-table-cell",
         numeric && "miaixz-table-numeric",
