@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from "@testing-library/react";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Button } from "../src/components/button/index.js";
 import { Columns } from "../src/components/columns/index.js";
@@ -10,8 +10,13 @@ import { Metric } from "../src/components/metric/index.js";
 import { Progress } from "../src/components/progress/index.js";
 import { Sparkline } from "../src/components/sparkline/index.js";
 import { MiaixzLocaleProvider } from "../src/i18n/index.js";
-import { useVisualizationGroupMotion } from "../src/internal/use-visualization-motion.js";
+import { useVisualizationGroupMotion } from "../src/shared/use-visualization-motion.js";
 
+/**
+ * Renders one delegated visualization-motion fixture.
+ *
+ * @returns A group containing one visualization target.
+ */
 function VisualizationMotionGroup() {
   const ref = useVisualizationGroupMotion<HTMLDivElement>({
     selector: "[data-group-visualization]",
@@ -24,7 +29,48 @@ function VisualizationMotionGroup() {
   );
 }
 
+afterEach(cleanup);
+
 describe("visual component ownership", () => {
+  it("keeps donut source data consumer-owned and bounds UI normalization styles", () => {
+    const segments = [
+      { label: "已完成", tone: "data-1", value: 1 },
+      { label: "待处理", tone: "warning", value: 3 },
+    ] as const;
+    const sourceSnapshot = structuredClone(segments);
+    const { container, rerender } = render(<Donut aria-label="任务分布" segments={segments} />);
+    const arcs = container.querySelectorAll<SVGCircleElement>(".miaixz-donut-segment");
+
+    expect(segments).toEqual(sourceSnapshot);
+    expect(arcs).toHaveLength(2);
+    expect(arcs[0]?.style.getPropertyValue("--miaixz-donut-segment")).toBe("25 75");
+    expect(arcs[0]?.style.getPropertyValue("--miaixz-donut-offset")).toBe("0");
+    expect(arcs[1]?.style.getPropertyValue("--miaixz-donut-segment")).toBe("75 25");
+    expect(arcs[1]?.style.getPropertyValue("--miaixz-donut-offset")).toBe("-25");
+    expect(arcs[0]?.getAttribute("style")).not.toMatch(/(?:#|rgb|color:|background:)/u);
+
+    rerender(
+      <Donut
+        aria-label="任务分布"
+        segments={[{ label: "已完成", tone: "success", value: 4 }]}
+        variant="distribution"
+      />,
+    );
+    const distribution = screen.getByRole("img", { name: "任务分布" });
+    expect(distribution.style.getPropertyValue("--miaixz-donut-fill")).toBe(
+      "conic-gradient(var(--miaixz-color-success) 0% 100%)",
+    );
+    expect(distribution.getAttribute("style")).not.toMatch(/(?:#|rgb)/u);
+  });
+
+  it("rejects invalid donut values before emitting dynamic geometry", () => {
+    expect(() =>
+      render(
+        <Donut aria-label="无效分布" segments={[{ label: "错误", tone: "danger", value: -1 }]} />,
+      ),
+    ).toThrow("Donut segment values must be finite non-negative numbers");
+  });
+
   it("renders the reusable resource columns variant", () => {
     const { container } = render(
       <Columns
@@ -58,12 +104,12 @@ describe("visual component ownership", () => {
       "M0 18H360 M0 46H360 M0 74H360",
     );
     expect(container.querySelector(".miaixz-sparkline-area")).not.toBeNull();
-    expect(container.querySelectorAll(".miaixz-sparkline-point")).toHaveLength(7);
+    expect(container.querySelectorAll(".miaixz-sparkline-point")).toHaveLength(4);
     expect(
       container.querySelector(".miaixz-sparkline-trend")?.getAttribute("preserveAspectRatio"),
     ).toBe("none");
-    expect(container.querySelector(".miaixz-sparkline-line")?.getAttribute("d")).toBe(
-      "M0 67 C24 63 34 53 60 55 S95 48 120 42 S156 48 180 35 S216 39 240 29 S276 33 300 20 S336 18 360 11",
+    expect(container.querySelector(".miaixz-sparkline-line")?.getAttribute("points")).toBe(
+      "0.00,74.00 120.00,41.00 240.00,63.00 360.00,8.00",
     );
   });
 

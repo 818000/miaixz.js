@@ -1,7 +1,115 @@
-import { forwardRef } from "react";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
 
-import { classNames } from "../../internal/class-names.js";
-import type { PanelProps } from "./panel.types.js";
+import { createElement, forwardRef, type HTMLAttributes } from "react";
+
+import { classNames } from "../../shared/class-names.js";
+import type {
+  PanelProps,
+  PanelFooterProps,
+  PanelRowProps,
+  PanelStyleOptions,
+} from "./panel.types.js";
+
+/**
+ * Shares the native surface recipe with directly composed cards.
+ *
+ * @param root0 - Framework-independent panel surface options.
+ * @param root0.variant - Direct composition recipe.
+ * @param root0.surface - Inherited or explicitly filled surface.
+ * @param root0.className - Optional consumer class appended to the recipe.
+ * @returns A complete class name for a directly composed panel surface.
+ * @public
+ */
+export function getPanelClassName({
+  variant = "plain",
+  surface = "default",
+  className,
+}: PanelStyleOptions = {}): string {
+  return classNames(
+    "miaixz-panel-surface",
+    `miaixz-panel-surface-${variant}`,
+    surface === "filled" && "miaixz-panel-surface-filled",
+    className,
+  );
+}
+
+/**
+ * Renders a standalone panel header region.
+ *
+ * @public
+ */
+export const PanelHeader = forwardRef<HTMLElement, HTMLAttributes<HTMLElement>>(
+  function PanelHeader({ className, ...props }, ref) {
+    return (
+      <header
+        {...props}
+        ref={ref}
+        className={classNames("miaixz-panel-section-header", className)}
+      />
+    );
+  },
+);
+
+/**
+ * Renders a standalone panel action region.
+ *
+ * @public
+ */
+export const PanelFooter = forwardRef<HTMLElement, PanelFooterProps>(function PanelFooter(
+  { className, variant = "framed", ...props },
+  ref,
+) {
+  return (
+    <footer
+      {...props}
+      ref={ref}
+      className={classNames(
+        (variant === "framed" || variant === "inset") && "miaixz-panel-action-footer",
+        `miaixz-panel-action-footer-${variant}`,
+        className,
+      )}
+    />
+  );
+});
+
+/**
+ * Renders one divided content row.
+ *
+ * @public
+ */
+export const PanelRow = forwardRef<HTMLElement, PanelRowProps>(function PanelRow(
+  { className, as = "article", spacing = "default", distribution = "between", ...props },
+  ref,
+) {
+  return createElement(as, {
+    ...props,
+    ref,
+    className: classNames(
+      "miaixz-panel-row",
+      distribution === "start" && "miaixz-panel-row-start",
+      spacing === "comfortable" && "miaixz-panel-row-comfortable",
+      className,
+    ),
+  });
+});
 
 /**
  * Renders a framed content surface with optional header, actions, and footer.
@@ -11,6 +119,9 @@ import type { PanelProps } from "./panel.types.js";
 export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
   {
     title,
+    as = "section",
+    frame = "default",
+    interaction = "default",
     sections,
     description,
     actions,
@@ -45,6 +156,36 @@ export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
     actions !== undefined ||
     leading !== undefined;
 
+  if (
+    variant === "plain" ||
+    variant === "content" ||
+    variant === "navigation" ||
+    variant === "section"
+  ) {
+    return createElement(
+      as,
+      {
+        ...props,
+        ref,
+        className: getPanelClassName({
+          variant,
+          ...(surface === "filled" ? { surface } : {}),
+          ...(className !== undefined ? { className } : {}),
+        }),
+      },
+      hasHeader && (
+        <header>
+          {leading}
+          {title !== undefined && <Heading>{title}</Heading>}
+          {description !== undefined && <p>{description}</p>}
+          {actions}
+        </header>
+      ),
+      sections ?? children,
+      footer !== undefined && <footer>{footer}</footer>,
+    );
+  }
+
   return (
     <section
       {...props}
@@ -52,6 +193,8 @@ export const Panel = forwardRef<HTMLElement, PanelProps>(function Panel(
       data-selected={selected || undefined}
       className={classNames(
         "miaixz-panel",
+        frame !== "default" && `miaixz-panel-frame-${frame}`,
+        interaction === "lift" && "miaixz-panel-lift",
         `miaixz-panel-${variant}`,
         `miaixz-panel-body-${bodyLayout}`,
         `miaixz-panel-body-gap-${bodyGap}`,

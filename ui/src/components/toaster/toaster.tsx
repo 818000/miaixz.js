@@ -1,9 +1,29 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { createMiaixzUiError } from "../../errors/index.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
-import { useMiaixzManualPopover, useMiaixzPortalTarget } from "../../internal/overlay/index.js";
+import { useMiaixzManualPopover, useMiaixzPortalTarget } from "../../shared/overlay/index.js";
 import { Toast } from "../toast/index.js";
 import type {
   ToastContextValue,
@@ -72,6 +92,12 @@ export function Toaster(properties: ToasterProps) {
   useMiaixzManualPopover(regionRef, hasVisibleToasts, portalTarget);
   const context = useMemo<ToastContextValue>(
     () => ({
+      /**
+       * Adds or replaces a toast notification.
+       *
+       * @param options - Toast content and display options.
+       * @returns The toast identifier.
+       */
       notify(options) {
         const id = options.id ?? createToastId();
         setToasts((current) => [
@@ -80,9 +106,17 @@ export function Toaster(properties: ToasterProps) {
         ]);
         return id;
       },
+      /**
+       * Removes one toast notification.
+       *
+       * @param id - Identifier of the toast to remove.
+       */
       dismiss(id) {
         setToasts((current) => current.filter((toast) => toast.id !== id));
       },
+      /**
+       * Removes every toast notification.
+       */
       dismissAll() {
         setToasts([]);
       },

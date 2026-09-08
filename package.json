@@ -1,6 +1,6 @@
 {
   "name": "miaixz.js",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "private": true,
   "description": "Build with intelligence. Create without limits.",
   "type": "module",
@@ -14,15 +14,17 @@
   ],
   "scripts": {
     "version:set": "bash .github/scripts/version.sh",
+    "headers:fix": "node .github/scripts/enforce.js --write",
+    "headers:check": "node .github/scripts/enforce.js --check",
     "prepare": "npm run build:sdk",
     "build:sdk": "npm run build --workspace @miaixz/sdk",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run build:sdk && npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
-    "format": "npm run format --workspaces --if-present",
-    "format:check": "npm run format:check --workspaces --if-present",
-    "check": "npm run build:sdk && npm run check --workspaces --if-present",
+    "format": "npm run headers:fix && prettier . --write --ignore-unknown --config ui/prettier.config.js --ignore-path .gitignore",
+    "format:check": "prettier . --check --ignore-unknown --config ui/prettier.config.js --ignore-path .gitignore",
+    "check": "npm run headers:check && npm run build:sdk && npm run check --workspaces --if-present && npm run format:check",
     "pack:check": "npm run build:sdk && npm run pack:check --workspaces --if-present"
   },
   "repository": {

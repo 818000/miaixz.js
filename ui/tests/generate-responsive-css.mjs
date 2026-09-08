@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { format } from "prettier";
 import prettierConfiguration from "../prettier.config.js";
@@ -7,7 +8,10 @@ import prettierConfiguration from "../prettier.config.js";
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const packageDirectory = resolve(scriptDirectory, "..");
 const checkOnly = process.argv.slice(2).includes("--check");
-const builtTokensPath = resolve(packageDirectory, "dist/tokens/breakpoints.js");
+const sourceHeader = (
+  await readFile(resolve(packageDirectory, "../.github/scripts/miaixz.org"), "utf8")
+).trim();
+const builtTokensPath = resolve(packageDirectory, "dist/design/breakpoints.js");
 const outputPath = resolve(packageDirectory, "src/styles/foundation/responsive.css");
 const { miaixzBreakpoints, miaixzContainerQueries, miaixzMediaQueries } = await import(
   pathToFileURL(builtTokensPath).href
@@ -65,7 +69,9 @@ function serializeResponsive(breakpoints, mediaQueries, containers) {
     )
     .join("\n\n");
   return [
-    "/* Generated from ui/src/tokens/breakpoints.ts; do not edit. */",
+    sourceHeader,
+    "",
+    "/*\n * Generated from ui/src/design/breakpoints.ts; do not edit.\n */",
     "",
     "[data-miaixz-theme] {",
     `  --miaixz-breakpoint-tablet: ${breakpoints.tablet}px;`,

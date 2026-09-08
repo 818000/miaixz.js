@@ -1,12 +1,73 @@
+import { readFileSync } from "node:fs";
+import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { ModuleFrame } from "../src/components/module-frame/index.js";
 import { Tabs } from "../src/components/tabs/index.js";
+
+/**
+ * Renders the controlled route tabs used by ModuleFrame consumers.
+ *
+ * @returns A module frame with route-level navigation.
+ */
+function ModuleTabsFixture() {
+  const [value, setValue] = useState("overview");
+  return (
+    <ModuleFrame
+      aria-label="空间模块"
+      navigation={{
+        label: "空间导航",
+        value,
+        onValueChange: setValue,
+        items: [
+          { id: "overview", label: "概览" },
+          { id: "dataset", label: "数据集" },
+          { id: "disabled", label: "已禁用", disabled: true },
+        ],
+      }}
+      title="客户增长空间"
+    >
+      <p>模块业务内容</p>
+    </ModuleFrame>
+  );
+}
 
 afterEach(cleanup);
 
 describe("Tabs", () => {
+  it("preserves controlled navigation state and keyboard behavior inside ModuleFrame", async () => {
+    render(<ModuleTabsFixture />);
+    const tabs = screen.getAllByRole("tab");
+    expect(screen.getByRole("tablist", { name: "空间导航" })).toHaveAttribute(
+      "aria-orientation",
+      "horizontal",
+    );
+    expect(tabs).toHaveLength(3);
+    expect(screen.getByRole("tab", { name: "概览" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "已禁用" })).toBeDisabled();
+    expect(screen.getByText("模块业务内容")).toBeVisible();
+
+    const user = userEvent.setup();
+    screen.getByRole("tab", { name: "概览" }).focus();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByRole("tab", { name: "数据集" })).toHaveFocus();
+    expect(screen.getByRole("tab", { name: "数据集" })).toHaveAttribute("aria-selected", "true");
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByRole("tab", { name: "概览" })).toHaveFocus();
+    expect(screen.getByRole("tab", { name: "概览" })).toHaveAttribute("aria-selected", "true");
+
+    const css = readFileSync("src/styles/components/tabs.css", "utf8");
+    const selectedRule = css.match(
+      /\.miaixz-tabs-navigation[\s\S]*?\.miaixz-tab\[aria-selected="true"\]\s*\{([^}]*)\}/u,
+    )?.[1];
+    expect(selectedRule).toContain("color: var(--miaixz-color-brand)");
+    expect(selectedRule).toContain("background: transparent");
+    expect(selectedRule).not.toMatch(/#[0-9a-f]{3,8}|rgb\(/iu);
+  });
+
   it("keeps header actions outside the tablist and preserves tab panels", () => {
     render(
       <Tabs

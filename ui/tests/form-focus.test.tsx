@@ -1,5 +1,6 @@
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
-import { cleanup, render } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -9,6 +10,8 @@ import {
   Textarea,
   Select,
   Combobox,
+  EditorSummary,
+  FormField,
   Picker,
   MiaixzLocaleProvider,
 } from "../src/index.js";
@@ -47,10 +50,48 @@ describe("shared field focus state ownership", () => {
         for (const key of ["disabled", "readonly", "invalid"]) {
           expect(shell.getAttribute(`data-${key}`)).toBe(state === key ? "true" : null);
         }
-        const editor = shell.matches("textarea") ? shell : shell.querySelector("input, button")!;
+        const editor = shell.querySelector<HTMLElement>("input, textarea, button")!;
         expect(editor).not.toBeNull();
-        if (state === "disabled") expect(editor.hasAttribute("disabled")).toBe(true);
+        if (state === "disabled") {
+          expect(editor).toBeDisabled();
+        } else {
+          editor.focus();
+          expect(document.activeElement).toBe(editor);
+        }
+        if (state === "readonly") {
+          expect(
+            editor.hasAttribute("readonly") || editor.getAttribute("aria-readonly") === "true",
+          ).toBe(true);
+        }
+        if (state === "invalid") expect(editor).toHaveAttribute("aria-invalid", "true");
+        else expect(editor).not.toHaveAttribute("aria-invalid");
       });
     }
   }
+
+  it("keeps field labels, guidance, errors and editor summary values reachable", () => {
+    render(
+      <>
+        <FormField errorText="名称不能为空" helperText="用于成员列表展示" label="显示名称" required>
+          <Input />
+        </FormField>
+        <EditorSummary
+          items={[
+            { label: "状态", value: "待完善" },
+            { label: "账号", value: "kimi.liu" },
+          ]}
+          subtitle="用户档案"
+          title="Kimi Liu"
+        />
+      </>,
+    );
+
+    const input = screen.getByRole("textbox", { name: "显示名称" });
+    expect(input).toBeRequired();
+    expect(input).toBeInvalid();
+    expect(input).toHaveAccessibleDescription("用于成员列表展示 名称不能为空");
+    expect(screen.getByRole("alert")).toHaveTextContent("名称不能为空");
+    expect(screen.getByRole("heading", { name: "Kimi Liu" })).toBeInTheDocument();
+    expect(screen.getByText("账号").closest("dl")).toHaveTextContent("kimi.liu");
+  });
 });

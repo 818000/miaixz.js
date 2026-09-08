@@ -1,8 +1,14 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { miaixzBuiltInThemes } from "../src/themes/index.js";
+import { miaixzBuiltInThemes } from "../src/theme/catalog.js";
 
+/**
+ * Calculates relative luminance for a six-digit hexadecimal color.
+ *
+ * @param hex - Hexadecimal color value.
+ * @returns Relative luminance from zero to one.
+ */
 function luminance(hex: string) {
   const channels = hex
     .slice(1)
@@ -14,11 +20,25 @@ function luminance(hex: string) {
   return channels[0]! * 0.2126 + channels[1]! * 0.7152 + channels[2]! * 0.0722;
 }
 
+/**
+ * Calculates the WCAG contrast ratio for two hexadecimal colors.
+ *
+ * @param foreground - Foreground color.
+ * @param background - Background color.
+ * @returns Contrast ratio with the lighter color first.
+ */
 function contrast(foreground: string, background: string) {
   const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
   return (values[0]! + 0.05) / (values[1]! + 0.05);
 }
 
+/**
+ * Extracts one component rule from its public stylesheet.
+ *
+ * @param file - Component stylesheet basename.
+ * @param selector - Exact selector prefix.
+ * @returns Complete rule block.
+ */
 function rule(file: string, selector: string) {
   const css = readFileSync(
     new URL(`../src/styles/components/${file}.css`, import.meta.url),

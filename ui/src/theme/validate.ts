@@ -1,31 +1,51 @@
-import { miaixzThemeColorTokens, type MiaixzThemeColorToken } from "../tokens/colors.js";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+import { miaixzThemeColorTokens, type MiaixzThemeColorToken } from "../design/colors.js";
 import {
   miaixzThemeCompositionFields,
   miaixzThemeCompositionValues,
   type MiaixzThemeComposition,
-} from "../tokens/composition.js";
+} from "../design/composition.js";
 import {
   miaixzDensities,
   miaixzThemeDensityGeometryFields,
   miaixzThemeDensityGeometryRanges,
   miaixzThemeLayoutGeometryFields,
   miaixzThemeLayoutGeometryRanges,
-} from "../tokens/geometry.js";
-import { miaixzThemeRadiusFields, miaixzThemeRadiusRange } from "../tokens/radius.js";
-import { miaixzThemeOpacityFields, miaixzThemeOpacityRange } from "../tokens/opacity.js";
+} from "../design/geometry.js";
+import { miaixzThemeRadiusFields, miaixzThemeRadiusRange } from "../design/radius.js";
+import { miaixzThemeOpacityFields, miaixzThemeOpacityRange } from "../design/opacity.js";
 import {
   miaixzThemeShadowFields,
   miaixzThemeShadowLevels,
   miaixzThemeShadowRanges,
-} from "../tokens/shadow.js";
-import { miaixzThemeSurfaceFields, miaixzThemeSurfaceRoles } from "../tokens/surfaces.js";
+} from "../design/shadow.js";
+import { miaixzThemeSurfaceFields, miaixzThemeSurfaceRoles } from "../design/surfaces.js";
 import {
   miaixzThemeFontFamilyFields,
   miaixzThemeFontFamilyLength,
   miaixzThemeTypographyFields,
-} from "../tokens/typography.js";
+} from "../design/typography.js";
 import { MiaixzThemeError } from "./errors.js";
-import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./theme.types.js";
+import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./types.js";
 
 const themeKeys = new Set([
   "schemaVersion",

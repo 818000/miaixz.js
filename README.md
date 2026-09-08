@@ -60,28 +60,43 @@ const sdk = createMiaixzSdk({
 
 await sdk.ready;
 
-const response =
-  await sdk.api.get<readonly { id: string; name: string }[]>("/spaces");
+const response = await sdk.api.get<readonly { id: string; name: string }[]>("/spaces");
 console.log(response.data);
 ```
 
 Use the shared React components and styles:
 
 ```tsx
-import "@miaixz/ui/styles.css";
-import { Button, FormField, Input } from "@miaixz/ui";
+import "@miaixz/ui/themes.css";
+import { Button, Field, Input, Theme } from "@miaixz/ui";
+
+import { sdk } from "./sdk.js";
 
 export function CreateSpaceForm() {
   return (
-    <form>
-      <FormField label="Space name" required>
-        <Input placeholder="Enter a space name" />
-      </FormField>
-      <Button type="submit">Create space</Button>
-    </form>
+    <Theme appearance={sdk.appearance} fallback="miaixz">
+      <form>
+        <Field label="Space name" required>
+          <Input placeholder="Enter a space name" />
+        </Field>
+        <Button type="submit">Create space</Button>
+      </form>
+    </Theme>
   );
 }
 ```
+
+Choose one public CSS entry at the application root:
+
+- `@miaixz/ui/miaixz.css`, `neutral.css`, or `contrast.css` for one built-in theme.
+- `@miaixz/ui/themes.css` for all three built-in themes.
+- `@miaixz/ui/core.css` when themes are supplied as registered definitions or loaded data.
+- `@miaixz/ui/styles.css` as the compatibility alias for `miaixz.css`.
+
+The SDK persists `theme`, `colorMode`, `density`, and mode-specific color overrides. The UI
+`Theme` component validates and applies them atomically. Applications own their page root background
+through the public Page Surface variables; the library intentionally does not set a background on
+`html` or `body`.
 
 See the package documentation for authentication modes, API envelopes, service clients, permissions, cross-tab events, appearance synchronization, internationalization, component contracts, and microfrontend integration:
 

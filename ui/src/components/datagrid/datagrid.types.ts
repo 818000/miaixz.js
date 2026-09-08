@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import type { HTMLAttributes, ReactNode } from "react";
 
 /**
@@ -59,7 +79,9 @@ export interface DatagridColumn<Row> {
    * @defaultValue `"start"`
    */
   readonly align?: "start" | "center" | "end";
-  /** Supplies the column's percentage share when fixed layout is selected. */
+  /**
+   * Supplies the column's percentage share when fixed layout is selected.
+   */
   readonly widthPercent?: number;
 }
 
@@ -70,13 +92,21 @@ export interface DatagridColumn<Row> {
  * @public
  */
 export interface MiaixzDatagridOwnProps<Row> {
-  /** Selects an inset list presentation without affecting the default table. */
+  /**
+   * Selects an inset list presentation without affecting the default table.
+   */
   variant?: "default" | "inset";
-  /** Keeps a descriptive caption accessible when it need not be displayed. */
+  /**
+   * Keeps a descriptive caption accessible when it need not be displayed.
+   */
   captionVisibility?: "visible" | "hidden";
-  /** Selects automatic or consumer-weighted fixed column layout. */
+  /**
+   * Selects automatic or consumer-weighted fixed column layout.
+   */
   layout?: "auto" | "fixed";
-  /** Selects standard or spacious multi-line rows. */
+  /**
+   * Selects standard or spacious multi-line rows.
+   */
   rowSize?: "default" | "compact" | "comfortable";
   /**
    * Sizes the body to its records in content mode, allowing page scrolling without a sticky head.
@@ -127,7 +157,9 @@ export interface MiaixzDatagridOwnProps<Row> {
    */
   selectionMode?: "none" | "single" | "multiple";
 
-  /** Sets the selection column's percentage width when composing a fixed table. */
+  /**
+   * Sets the selection column's percentage width when composing a fixed table.
+   */
   selectionWidthPercent?: number;
 
   /**

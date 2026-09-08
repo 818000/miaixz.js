@@ -1,7 +1,27 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef } from "react";
 
-import { classNames } from "../../internal/class-names.js";
-import { useVisualizationMotion } from "../../internal/use-visualization-motion.js";
+import { classNames } from "../../shared/class-names.js";
+import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
 import type { SparklineProps } from "./sparkline.types.js";
 
 /**
@@ -21,21 +41,11 @@ interface SparklinePoint {
 const viewBoxWidth = 120;
 const viewBoxHeight = 32;
 const viewBoxPadding = 2;
-const trendViewBox = "0 0 360 82";
+const trendViewBoxWidth = 360;
+const trendViewBoxHeight = 82;
+const trendViewBoxPadding = 8;
+const trendViewBox = `0 0 ${trendViewBoxWidth} ${trendViewBoxHeight}`;
 const trendGridPath = "M0 18H360 M0 46H360 M0 74H360";
-const trendAreaPath =
-  "M0 67 C24 63 34 53 60 55 S95 48 120 42 S156 48 180 35 S216 39 240 29 S276 33 300 20 S336 18 360 11 L360 74 L0 74Z";
-const trendLinePath =
-  "M0 67 C24 63 34 53 60 55 S95 48 120 42 S156 48 180 35 S216 39 240 29 S276 33 300 20 S336 18 360 11";
-const trendPoints = Object.freeze([
-  { x: 0, y: 67 },
-  { x: 60, y: 55 },
-  { x: 120, y: 42 },
-  { x: 180, y: 35 },
-  { x: 240, y: 29 },
-  { x: 300, y: 20 },
-  { x: 360, y: 11 },
-]);
 
 /**
  * Renders a compact line visualization without inferring missing samples.
@@ -66,11 +76,14 @@ export const Sparkline = forwardRef<SVGSVGElement, SparklineProps>(function Spar
   const minimum = isEmpty ? 0 : Math.min(...finiteValues);
   const maximum = isEmpty ? 1 : Math.max(...finiteValues);
   const range = maximum - minimum;
-  const inlinePadding = variant === "trend" ? 0 : viewBoxPadding;
-  const plotWidth = viewBoxWidth - inlinePadding * 2;
-  const plotHeight = viewBoxHeight - viewBoxPadding * 2;
+  const chartWidth = variant === "trend" ? trendViewBoxWidth : viewBoxWidth;
+  const chartHeight = variant === "trend" ? trendViewBoxHeight : viewBoxHeight;
+  const chartPadding = variant === "trend" ? trendViewBoxPadding : viewBoxPadding;
+  const inlinePadding = variant === "trend" ? 0 : chartPadding;
+  const plotWidth = chartWidth - inlinePadding * 2;
+  const plotHeight = chartHeight - chartPadding * 2;
   const baselineRatio = range === 0 ? 0.5 : (0 - minimum) / range;
-  const baselineY = viewBoxPadding + plotHeight * (1 - Math.min(1, Math.max(0, baselineRatio)));
+  const baselineY = chartPadding + plotHeight * (1 - Math.min(1, Math.max(0, baselineRatio)));
   const segments: SparklinePoint[][] = [];
   let activeSegment: SparklinePoint[] = [];
 
@@ -83,10 +96,10 @@ export const Sparkline = forwardRef<SVGSVGElement, SparklineProps>(function Spar
       }
       const x =
         values.length === 1
-          ? viewBoxWidth / 2
+          ? chartWidth / 2
           : inlinePadding + plotWidth * (index / (values.length - 1));
       const ratio = range === 0 ? 0.5 : (value - minimum) / range;
-      activeSegment.push({ x, y: viewBoxPadding + plotHeight * (1 - ratio) });
+      activeSegment.push({ x, y: chartPadding + plotHeight * (1 - ratio) });
     });
     if (activeSegment.length > 0) segments.push(activeSegment);
   }
@@ -114,18 +127,43 @@ export const Sparkline = forwardRef<SVGSVGElement, SparklineProps>(function Spar
       {variant === "trend" ? (
         <>
           <path className="miaixz-sparkline-grid" d={trendGridPath} aria-hidden="true" />
-          <path className="miaixz-sparkline-area" d={trendAreaPath} aria-hidden="true" />
-          <path
-            className="miaixz-sparkline-line"
-            d={trendLinePath}
-            pathLength={1}
-            aria-hidden="true"
-          />
-          <g className="miaixz-sparkline-points" aria-hidden="true">
-            {trendPoints.map(({ x, y }) => (
-              <circle key={`${x}-${y}`} className="miaixz-sparkline-point" cx={x} cy={y} r={2.5} />
-            ))}
-          </g>
+          {!isEmpty &&
+            segments.map((segment, index) => {
+              const points = segment.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+              const first = segment[0];
+              const last = segment.at(-1);
+              if (first === undefined || last === undefined) return null;
+              return (
+                <g key={`trend-segment-${index}`}>
+                  {segment.length > 1 && (
+                    <>
+                      <polygon
+                        className="miaixz-sparkline-area"
+                        points={`${points} ${last.x.toFixed(2)},${chartHeight - chartPadding} ${first.x.toFixed(2)},${chartHeight - chartPadding}`}
+                        aria-hidden="true"
+                      />
+                      <polyline
+                        className="miaixz-sparkline-line"
+                        points={points}
+                        pathLength={1}
+                        aria-hidden="true"
+                      />
+                    </>
+                  )}
+                  <g className="miaixz-sparkline-points" aria-hidden="true">
+                    {segment.map(({ x, y }) => (
+                      <circle
+                        key={`${x}-${y}`}
+                        className="miaixz-sparkline-point"
+                        cx={x}
+                        cy={y}
+                        r={2.5}
+                      />
+                    ))}
+                  </g>
+                </g>
+              );
+            })}
         </>
       ) : (
         <>

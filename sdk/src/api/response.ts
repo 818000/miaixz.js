@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import type { MiaixzApiEnvelope } from "../types/index.js";
 
 /**
@@ -67,7 +87,8 @@ export function isMiaixzApiEnvelope<T = unknown>(value: unknown): value is Miaix
   );
 }
 
-/* eslint-disable jsdoc/check-param-names, jsdoc/require-param -- TSDoc documents the inline field on its TypeScript property. */
+/* eslint-disable jsdoc/check-param-names, jsdoc/require-param -- TSDoc documents the inline field on its TypeScript property.
+ */
 /**
  * Determines whether an API result code represents success.
  *
@@ -83,7 +104,8 @@ export function isMiaixzApiSuccess(value: {
 }): boolean {
   return String(value.errcode) === "0";
 }
-/* eslint-enable jsdoc/check-param-names, jsdoc/require-param */
+/* eslint-enable jsdoc/check-param-names, jsdoc/require-param
+ */
 
 /**
  * Returns an envelope's `data` value and leaves non-envelope values unchanged.

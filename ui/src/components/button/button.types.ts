@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 /**
@@ -6,6 +26,16 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  * @public
  */
 export type ButtonVariant =
+  | "action"
+  | "action-primary"
+  | "favorite"
+  | "framed-icon"
+  | "choice"
+  | "navigation"
+  | "plain"
+  | "plain-primary"
+  | "text"
+  | "text-danger"
   | "danger"
   | "danger-link"
   | "ghost"
@@ -21,6 +51,42 @@ export type ButtonVariant =
  * @public
  */
 export type ButtonSize = "small" | "medium" | "large";
+
+/**
+ * Configures framework-independent styling shared by buttons and semantic links.
+ *
+ * @public
+ */
+export interface ButtonStyleOptions {
+  /**
+   * Selects the visual and semantic treatment.
+   *
+   * @defaultValue `"secondary"`
+   */
+  variant?: ButtonVariant;
+  /**
+   * Selects the control size for framed recipes.
+   *
+   * @defaultValue `"medium"`
+   */
+  size?: ButtonSize;
+  /**
+   * Expands the recipe to the width of its container.
+   *
+   * @defaultValue `false`
+   */
+  block?: boolean;
+  /**
+   * Applies icon-only structure without changing the selected variant.
+   *
+   * @defaultValue `false`
+   */
+  iconOnly?: boolean;
+  /**
+   * Appends a consumer-owned class without replacing the public recipe.
+   */
+  className?: string;
+}
 
 /**
  * Defines properties shared by all Miaixz button variants.
@@ -94,10 +160,9 @@ export interface MiaixzButtonWithContentProps extends MiaixzButtonBaseProps {
  */
 export interface MiaixzIconOnlyButtonProps extends MiaixzButtonBaseProps {
   /**
-   * Enables a frameless icon action with no surface, border or bottom focus line.
-   * Keeps the control hit area and keyboard-only focus outline. Text variants do
-   * not add a frame; danger and disabled actions retain their semantic colors.
-   * The accessible name is also used as the title unless a title is supplied.
+   * Enables an icon-only action while the selected variant controls whether the
+   * action is framed. Keeps the control hit area and keyboard-only focus treatment;
+   * the accessible name is also used as the title unless a title is supplied.
    */
   iconOnly: true;
   /**

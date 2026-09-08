@@ -1,11 +1,15 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { miaixzTheme } from "../src/themes/miaixz.js";
+import { miaixzTheme } from "../src/theme/miaixz.js";
 import { ThemeCatalog } from "../src/theme/catalog.js";
 import { validateResolvedTheme } from "../src/theme/validate.js";
-// Shared with the standalone CSS audit.
-// @ts-expect-error The audit entry point is a plain JavaScript module.
+/*
+ * Shared with the standalone CSS audit.
+ */
+/*
+ * @ts-expect-error The audit entry point is a plain JavaScript module.
+ */
 import { inspectComponentColors } from "./color-policy.mjs";
 
 describe("color ownership", () => {

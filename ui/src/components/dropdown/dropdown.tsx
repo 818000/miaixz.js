@@ -1,9 +1,29 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef } from "react";
 import type { ButtonHTMLAttributes, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 
 import { useMiaixzLocale } from "../../i18n/index.js";
-import { classNames } from "../../internal/class-names.js";
-import { MiaixzMenu } from "../../internal/menu/index.js";
+import { classNames } from "../../shared/class-names.js";
+import { MiaixzMenu } from "../../shared/menu/index.js";
 import { Icon } from "../icon/index.js";
 import { Popover } from "../popover/index.js";
 import { useMiaixzPopoverContext } from "../popover/context.js";
@@ -13,7 +33,7 @@ import type { DropdownEntry, DropdownProps } from "./dropdown.types.js";
  * Renders a localized Portal menu with package-owned keyboard behavior. @public
  */
 export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropdown(
-  { label, items, children, contentClassName, triggerProps, ...props },
+  { label, items, children, contentClassName, triggerProps, variant = "default", ...props },
   ref,
 ) {
   const { t } = useMiaixzLocale();
@@ -22,7 +42,11 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropd
       {...props}
       ref={ref}
       triggerProps={{ ...triggerProps, "aria-haspopup": "menu" }}
-      contentClassName={classNames("miaixz-dropdown-content", contentClassName)}
+      contentClassName={classNames(
+        "miaixz-dropdown-content",
+        `miaixz-dropdown-${variant}`,
+        contentClassName,
+      )}
     >
       <DropdownMenu label={label ?? t("ui.menu.label")}>
         {items?.map((entry, index) => <DropdownEntryView key={index} entry={entry} />) ?? children}
@@ -88,7 +112,16 @@ function DropdownEntryView(properties: DropdownEntryViewProps) {
   }
   if (entry.kind === "divider") return <hr className="miaixz-dropdown-divider" />;
 
-  const { icon, description, danger = false, selected = false, className, label, ...props } = entry;
+  const {
+    icon,
+    description,
+    danger = false,
+    selected = false,
+    emphasis = false,
+    className,
+    label,
+    ...props
+  } = entry;
   const originalOnClick = props.onClick as
     ((event: ReactMouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void) | undefined;
   const content = (
@@ -109,6 +142,7 @@ function DropdownEntryView(properties: DropdownEntryViewProps) {
       "miaixz-dropdown-item",
       danger && "miaixz-dropdown-item-danger",
       selected && "miaixz-dropdown-item-selected",
+      emphasis && "miaixz-dropdown-item-emphasis",
       className,
     ),
     onClick: (event: ReactMouseEvent<HTMLAnchorElement | HTMLButtonElement>) =>

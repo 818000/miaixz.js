@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { MiaixzLocaleProvider, miaixzUiMessages } from "../src/i18n/index.js";
-import { Datagrid } from "../src/components/datagrid/index.js";
+import { Datagrid, type DatagridColumn } from "../src/components/datagrid/index.js";
 import { Status } from "../src/components/status/index.js";
 import { readFileSync } from "node:fs";
 
@@ -34,6 +34,28 @@ describe("List composition", () => {
     );
     expect(css).toMatch(/\.miaixz-datagrid-body-fill \.miaixz-table-head\s*\{\s*position: sticky;/);
     expect(css).not.toMatch(/\.miaixz-datagrid \.miaixz-table-head\s*\{\s*position: sticky;/);
+  });
+
+  it("keeps compact table typography and row geometry on public roles", () => {
+    const css = readFileSync("src/styles/components/datagrid.css", "utf8");
+    const compactTable = css.match(
+      /\.miaixz-datagrid-rows-compact \.miaixz-table\s*\{([^}]*)\}/,
+    )?.[1];
+    const compactCell = css.match(
+      /\.miaixz-datagrid-rows-compact \.miaixz-table-cell\s*\{([^}]*)\}/,
+    )?.[1];
+    const compactHeader = css.match(
+      /\.miaixz-datagrid-rows-compact \.miaixz-table-header\s*\{([^}]*)\}/,
+    )?.[1];
+
+    expect(compactTable).toContain("font-size: var(--miaixz-text-compact-body-size)");
+    expect(compactTable).toContain("line-height: var(--miaixz-text-compact-body-line-height)");
+    expect(compactCell).toContain("height: 48px");
+    expect(compactCell).toContain("padding: 8px 10px");
+    expect(compactHeader).toContain("height: 40px");
+    expect(compactHeader).toContain("font-size: var(--miaixz-text-compact-caption-size)");
+    expect(compactHeader).toContain("line-height: var(--miaixz-text-compact-caption-line-height)");
+    expect(`${compactTable}${compactHeader}`).not.toMatch(/font-size:\s*(?:10|12)px/);
   });
 
   it("keeps a hidden caption accessible and fixed widths on column headers", () => {
@@ -70,5 +92,46 @@ describe("List composition", () => {
     );
     expect(container.querySelector(".miaixz-status-content")?.textContent).toBe("生产");
     expect(screen.getByText("健康")).toBeTruthy();
+  });
+
+  it("keeps empty and long business values inside the semantic Table composition", () => {
+    const i18n = createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages });
+    const columns: readonly DatagridColumn<Readonly<Record<"name", string>>>[] = [
+      {
+        id: "name",
+        header: "名称",
+        cell: (row) => row.name,
+      },
+    ];
+    const { rerender } = render(
+      <MiaixzLocaleProvider i18n={i18n}>
+        <Datagrid
+          caption="空数据列表"
+          columns={columns}
+          emptyState={<span>当前没有记录</span>}
+          getRowId={(row) => row.name}
+          rowSize="compact"
+          rows={[]}
+        />
+      </MiaixzLocaleProvider>,
+    );
+    const empty = screen.getByText("当前没有记录");
+    expect(empty.closest("td")?.getAttribute("colspan")).toBe("1");
+
+    const longName = "不会因为紧凑密度或固定表格组合而从语义单元格中丢失的超长业务名称";
+    rerender(
+      <MiaixzLocaleProvider i18n={i18n}>
+        <Datagrid
+          caption="长数据列表"
+          columns={columns}
+          getRowId={(row) => row.name}
+          layout="fixed"
+          rowSize="compact"
+          rows={[{ name: longName }]}
+        />
+      </MiaixzLocaleProvider>,
+    );
+    expect(screen.getByRole("cell", { name: longName }).textContent).toBe(longName);
+    expect(screen.getByRole("table", { name: "长数据列表" })).toBeTruthy();
   });
 });

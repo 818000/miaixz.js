@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz drawer component
  * Use a native dialog element when the drawer blocks the page.
@@ -176,4 +196,77 @@ dialog.miaixz-drawer-bottom {
 
 .miaixz-drawer-compact > .miaixz-drawer-body {
   padding: 20px;
+}
+
+dialog.miaixz-drawer-positioned::backdrop {
+  clip-path: inset(
+    var(--miaixz-drawer-backdrop-top) var(--miaixz-drawer-backdrop-right)
+      var(--miaixz-drawer-backdrop-bottom) var(--miaixz-drawer-backdrop-left)
+  );
+}
+
+dialog.miaixz-drawer-content {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface);
+  border: 0;
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+dialog.miaixz-drawer-content[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+dialog.miaixz-drawer-content::backdrop {
+  transition: none;
+}
+
+dialog.miaixz-drawer-content.miaixz-drawer-floating {
+  border: 1px solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-drawer-content > .miaixz-drawer-header {
+  gap: 0;
+  padding: 24px 0 17px;
+  margin-inline: 24px;
+  border-block-end: 1px solid var(--miaixz-color-border);
+}
+
+.miaixz-drawer-content .miaixz-drawer-title {
+  font-size: var(--miaixz-text-page-title-size);
+  font-weight: bold;
+  line-height: inherit;
+}
+
+.miaixz-drawer-content .miaixz-drawer-description {
+  margin: 5px 0 0;
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-drawer-content-close {
+  padding: 0;
+  font-size: var(--miaixz-text-metric-size);
+  line-height: 1;
+  color: var(--miaixz-color-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-drawer-content > .miaixz-drawer-body {
+  position: relative;
+  min-block-size: 0;
+  padding: 0 24px 20px;
+  overflow: auto;
+}
+
+.miaixz-drawer-content > .miaixz-drawer-footer {
+  gap: 9px;
+  min-block-size: 72px;
+  padding: 0 24px;
+  border-block-start: 1px solid var(--miaixz-color-border);
 }

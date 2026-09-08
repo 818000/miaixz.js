@@ -1,6 +1,26 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { forwardRef } from "react";
 
-import { classNames } from "../../internal/class-names.js";
+import { classNames } from "../../shared/class-names.js";
 import type { EmptyProps } from "./empty.types.js";
 
 /**
@@ -9,10 +29,29 @@ import type { EmptyProps } from "./empty.types.js";
  * @public
  */
 export const Empty = forwardRef<HTMLDivElement, EmptyProps>(function Empty(
-  { title, description, icon, actions, compact = false, headingLevel = 3, className, ...props },
+  {
+    title,
+    description,
+    icon,
+    actions,
+    compact = false,
+    headingLevel = 3,
+    variant = "default",
+    className,
+    ...props
+  },
   ref,
 ) {
   const Heading = `h${headingLevel}` as "h2" | "h3" | "h4" | "h5" | "h6";
+  if (variant === "plain") {
+    return (
+      <div {...props} ref={ref} className={classNames("miaixz-empty-plain", className)}>
+        {title}
+        {description}
+        {actions}
+      </div>
+    );
+  }
 
   return (
     <div

@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 /**
  * Miaixz pagination component
  * Use a nav element with an accessible label and aria-current="page".
@@ -74,6 +94,43 @@
   min-width: var(--miaixz-pagination-item-size);
   min-height: var(--miaixz-pagination-item-size);
   color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-pagination-plain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-block-size: 52px;
+  padding-inline: 14px;
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-pagination-plain-inset {
+  padding-inline: var(--miaixz-space-16);
+}
+
+.miaixz-pagination-plain > div {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+}
+
+.miaixz-pagination-plain button {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-pagination-plain :is(b, [aria-current="page"]) {
+  display: grid;
+  place-items: center;
+  inline-size: 34px;
+  block-size: 34px;
+  color: var(--miaixz-color-on-brand);
+  background: var(--miaixz-color-brand);
+  border-radius: var(--miaixz-radius-control);
 }
 
 .miaixz-pagination-summary {
