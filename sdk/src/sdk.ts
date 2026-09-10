@@ -71,6 +71,13 @@ import type {
 export type MiaixzAuthMode = "cookie" | "bearer";
 
 /**
+ * Selects whether Appearance persistence follows the active tenant context.
+ *
+ * @public
+ */
+export type MiaixzAppearanceScope = "global" | "tenant";
+
+/**
  * Configures a complete Miaixz SDK instance.
  *
  * @public
@@ -90,6 +97,13 @@ export interface MiaixzSdkOptions {
    * Optional runtime Context fields merged over restored persistent state.
    */
   readonly initialContext?: MiaixzRuntimeContext;
+
+  /**
+   * Controls whether Appearance is shared by the application or isolated per tenant.
+   *
+   * @defaultValue "tenant"
+   */
+  readonly appearanceScope?: MiaixzAppearanceScope;
 
   /**
    * Authentication integration; defaults to the Cookie/BFF mode.
@@ -229,6 +243,22 @@ function createAuthModeMismatchError(translate: MiaixzI18n["t"]): MiaixzSdkError
 }
 
 /**
+ * Resolves and validates the Appearance persistence scope at the runtime boundary.
+ *
+ * @param value - Optional untrusted scope supplied by the SDK consumer.
+ * @param translate - Translator used to resolve the public error message.
+ * @returns The normalized Appearance persistence scope.
+ * @throws MiaixzSdkError When the scope is unsupported.
+ */
+function resolveAppearanceScope(value: unknown, translate: MiaixzI18n["t"]): MiaixzAppearanceScope {
+  if (value === undefined) return "tenant";
+  if (value === "global" || value === "tenant") return value;
+  throw new MiaixzSdkError(translate("sdk.error.appearance.scopeInvalid"), {
+    code: "APPEARANCE_SCOPE_INVALID",
+  });
+}
+
+/**
  * Exposes the coordinated Miaixz runtime services used by a frontend application.
  *
  * @public
@@ -323,6 +353,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     ...(options.loadMessages === undefined ? {} : { loadMessages: options.loadMessages }),
     ...(options.onI18nLoadError === undefined ? {} : { onLoadError: options.onI18nLoadError }),
   });
+  const appearanceScope = resolveAppearanceScope(options.appearanceScope, i18n.t);
   if (
     authMode === "cookie" &&
     (options.authPersistence !== undefined || options.authRefresh !== undefined)
@@ -364,10 +395,13 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   if (context.getSnapshot().locale !== i18n.locale) {
     context.patch({ locale: i18n.locale });
   }
-  let appearanceTenantId = context.getSnapshot().tenantId;
+  let appearanceTenantId =
+    appearanceScope === "tenant" ? context.getSnapshot().tenantId : undefined;
   const appearance = createMiaixzAppearanceManager({
     appId: options.appId,
-    ...(appearanceTenantId === undefined ? {} : { tenantId: appearanceTenantId }),
+    ...(appearanceScope === "tenant" && appearanceTenantId !== undefined
+      ? { tenantId: appearanceTenantId }
+      : {}),
     events,
     translate: i18n.t,
     ...(storage === undefined ? {} : { storage }),
@@ -375,11 +409,14 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
       ? {}
       : { initialAppearance: config.getSnapshot().appearance }),
   });
-  const stopAppearanceScopeSync = context.subscribe((snapshot) => {
-    if (snapshot.tenantId === appearanceTenantId) return;
-    appearanceTenantId = snapshot.tenantId;
-    appearance.setScope(appearanceTenantId);
-  });
+  const stopAppearanceScopeSync =
+    appearanceScope === "tenant"
+      ? context.subscribe((snapshot) => {
+          if (snapshot.tenantId === appearanceTenantId) return;
+          appearanceTenantId = snapshot.tenantId;
+          appearance.setScope(appearanceTenantId);
+        })
+      : undefined;
 
   const createClient = (
     baseUrl: string,
@@ -489,7 +526,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
      * Releases SDK subscriptions and owned resources.
      */
     destroy() {
-      stopAppearanceScopeSync();
+      stopAppearanceScopeSync?.();
       stopLocaleBroadcast();
       stopLocaleSync();
       stopClientConfigSync();

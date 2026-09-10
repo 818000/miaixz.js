@@ -7,6 +7,24 @@ import {
   migrateMiaixzAppearanceV1,
   parseMiaixzAppearanceSettings,
 } from "../dist/appearance/index.js";
+import { createMiaixzSdk } from "../dist/sdk.js";
+
+const testConfig = Object.freeze({
+  apiBaseUrl: "https://api.example.test",
+  environment: "test",
+});
+
+function createMemoryStorage() {
+  const values = new Map();
+  return {
+    values,
+    storage: {
+      getItem: (key) => values.get(key) ?? null,
+      removeItem: (key) => values.delete(key),
+      setItem: (key, value) => values.set(key, value),
+    },
+  };
+}
 
 test("default appearance is a frozen schema v2 snapshot", () => {
   assert.deepEqual(miaixzDefaultAppearance, {
@@ -57,4 +75,73 @@ test("appearance v1 migration preserves mode, density, and colors", () => {
   });
   assert.equal(Object.isFrozen(appearance.overrides?.light), true);
   assert.equal(Object.isFrozen(appearance.overrides?.dark), true);
+});
+
+test("global Appearance remains stable while the tenant context changes", async () => {
+  const { storage, values } = createMemoryStorage();
+  const sdk = createMiaixzSdk({
+    appId: "portal",
+    appearanceScope: "global",
+    config: testConfig,
+    initialContext: { tenantId: "tenant-a" },
+    storage,
+  });
+  await sdk.ready;
+
+  sdk.appearance.set({
+    theme: "neutral",
+    colorMode: "dark",
+    density: "comfortable",
+  });
+  sdk.context.patch({ tenantId: "tenant-b" });
+  assert.deepEqual(sdk.appearance.getSnapshot(), {
+    theme: "neutral",
+    colorMode: "dark",
+    density: "comfortable",
+  });
+  sdk.context.patch({ tenantId: undefined });
+  assert.deepEqual(sdk.appearance.getSnapshot(), {
+    theme: "neutral",
+    colorMode: "dark",
+    density: "comfortable",
+  });
+  assert.deepEqual(
+    [...values.keys()].filter((key) => key.endsWith(":appearance")),
+    ["miaixz:v1:global:portal:appearance"],
+  );
+
+  sdk.destroy();
+});
+
+test("tenant Appearance remains the backwards-compatible default", async () => {
+  const { storage, values } = createMemoryStorage();
+  const sdk = createMiaixzSdk({
+    appId: "portal",
+    config: testConfig,
+    initialContext: { tenantId: "tenant-a" },
+    storage,
+  });
+  await sdk.ready;
+
+  sdk.appearance.setTheme("neutral");
+  sdk.context.patch({ tenantId: "tenant-b" });
+  assert.deepEqual(sdk.appearance.getSnapshot(), miaixzDefaultAppearance);
+  assert.deepEqual(
+    [...values.keys()].filter((key) => key.endsWith(":appearance")),
+    ["miaixz:v1:tenant-a:portal:appearance"],
+  );
+
+  sdk.destroy();
+});
+
+test("the composed SDK rejects an invalid Appearance scope", () => {
+  assert.throws(
+    () =>
+      createMiaixzSdk({
+        appId: "portal",
+        appearanceScope: "account",
+        config: testConfig,
+      }),
+    (error) => error?.code === "APPEARANCE_SCOPE_INVALID",
+  );
 });
