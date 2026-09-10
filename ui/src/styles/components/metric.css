@@ -579,7 +579,7 @@ button.miaixz-metric {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: var(--miaixz-console-body-size);
+  font-size: var(--miaixz-app-body-size);
   font-weight: 400;
   line-height: 1.5;
   color: var(--miaixz-color-text-secondary);
@@ -632,7 +632,7 @@ button.miaixz-metric {
   margin-top: var(--miaixz-metric-summary-content-margin);
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: var(--miaixz-console-meta-size);
+  font-size: var(--miaixz-app-meta-size);
   font-weight: 400;
   color: var(--miaixz-color-text-muted);
   white-space: nowrap;

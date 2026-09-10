@@ -107,6 +107,11 @@ body:has(.miaixz-shell) {
     var(--miaixz-surface-role-sidebar-border);
 }
 
+.miaixz-shell-sidebar[data-overflow="contained"] {
+  overflow: hidden;
+  scrollbar-width: auto;
+}
+
 .miaixz-shell-sidebar::after {
   position: absolute;
   inset-block-start: calc(var(--miaixz-layout-header-height) - var(--miaixz-border-width-default));

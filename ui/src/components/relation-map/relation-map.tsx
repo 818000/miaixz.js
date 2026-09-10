@@ -19,7 +19,6 @@
 */
 
 import { useId, useState, type KeyboardEvent } from "react";
-import { ZoomIn, ZoomOut } from "lucide-react";
 
 import { Button } from "../button/index.js";
 import { Icon } from "../icon/index.js";
@@ -118,7 +117,7 @@ export function RelationMap(props: RelationMapProps) {
           disabled={disabled || zoom <= minimumZoom}
           onClick={() => setZoom((value) => Math.max(minimumZoom, value - zoomStep))}
         >
-          <Icon icon={ZoomOut} />
+          <Icon name="ZoomOut" />
         </Button>
         <output aria-live="polite" className="miaixz-relation-map-zoom">
           {zoom}%
@@ -129,7 +128,7 @@ export function RelationMap(props: RelationMapProps) {
           disabled={disabled || zoom >= maximumZoom}
           onClick={() => setZoom((value) => Math.min(maximumZoom, value + zoomStep))}
         >
-          <Icon icon={ZoomIn} />
+          <Icon name="ZoomIn" />
         </Button>
       </div>
       <div className="miaixz-relation-map-viewport">

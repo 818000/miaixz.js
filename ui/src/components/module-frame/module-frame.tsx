@@ -78,6 +78,7 @@ export function ModuleFrame(props: ModuleFrameProps) {
           ) : navigation ? (
             <Tabs
               label={navigation.label}
+              panelPadding="none"
               variant="navigation"
               value={navigation.value}
               onValueChange={navigation.onValueChange}

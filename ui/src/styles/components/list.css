@@ -195,6 +195,8 @@
  */
 .miaixz-list-overview .miaixz-list-item,
 .miaixz-list-alert .miaixz-list-item {
+  --miaixz-list-interaction-background: var(--miaixz-color-surface-hover);
+
   display: block;
   min-height: 0;
   padding: 0;
@@ -213,6 +215,14 @@
   transition-timing-function: var(--miaixz-motion-interaction-easing);
   transition-duration: var(--miaixz-list-composition-interaction-duration);
   transition-property: background-color, box-shadow, transform;
+}
+
+.miaixz-list-interaction-tone > .miaixz-list-item {
+  --miaixz-list-interaction-background: color-mix(
+    in srgb,
+    var(--miaixz-list-tone) 8%,
+    var(--miaixz-color-surface)
+  );
 }
 
 .miaixz-list-overview .miaixz-list-item-control {
@@ -238,7 +248,7 @@
 .miaixz-list-overview
   .miaixz-list-item:not(.miaixz-list-item-interactive, [aria-disabled="true"])
   > :only-child:is(:hover, :has(:focus-visible)) {
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-list-interaction-background);
   box-shadow: inset 2px 0 0 var(--miaixz-list-tone);
   transform: translateX(3px);
 }
@@ -248,7 +258,7 @@
 .miaixz-list-alert
   .miaixz-list-item:not(.miaixz-list-item-interactive, [aria-disabled="true"])
   > :only-child:is(:hover, :has(:focus-visible)) {
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-list-interaction-background);
   box-shadow: inset 2px 0 0 var(--miaixz-list-tone);
   transform: translateX(3px);
 }

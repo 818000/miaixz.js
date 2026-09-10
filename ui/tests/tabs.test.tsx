@@ -38,6 +38,18 @@ function ModuleTabsFixture() {
 afterEach(cleanup);
 
 describe("Tabs", () => {
+  it("keeps density-aware spacing below navigation tabs unless explicitly removed", () => {
+    const css = readFileSync("src/styles/components/tabs.css", "utf8");
+    const panelRule = css.match(/\.miaixz-tab-panel\s*\{([^}]*)\}/u)?.[1];
+    const flushPanelRule = css.match(
+      /\.miaixz-tabs-panel-padding-none\s*>\s*\.miaixz-tab-panel\s*\{([^}]*)\}/u,
+    )?.[1];
+
+    expect(panelRule).toContain("padding-block-start: var(--miaixz-density-panel-padding)");
+    expect(flushPanelRule).toContain("padding-block-start: 0");
+    expect(css).not.toMatch(/\.miaixz-tabs-navigation\s*>\s*\.miaixz-tab-panel\s*\{[^}]*padding/u);
+  });
+
   it("preserves controlled navigation state and keyboard behavior inside ModuleFrame", async () => {
     render(<ModuleTabsFixture />);
     const tabs = screen.getAllByRole("tab");

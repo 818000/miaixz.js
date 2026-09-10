@@ -129,7 +129,8 @@
     "format:check": "prettier . --check",
     "test:appearance": "npm run build && node --test tests/appearance.test.mjs",
     "test:i18n": "npm run build && node --test tests/i18n.test.mjs",
-    "check": "npm run typecheck && npm run lint && npm run test:appearance && npm run test:i18n && npm run format:check",
+    "test:rest-signer": "npm run build && node --test tests/signer.test.mjs",
+    "check": "npm run typecheck && npm run lint && npm run test:appearance && npm run test:i18n && npm run test:rest-signer && npm run format:check",
     "pack:check": "npm run build && publint && attw --pack . && npm pack --dry-run"
   },
   "devDependencies": {

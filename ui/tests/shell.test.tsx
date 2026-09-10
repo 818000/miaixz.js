@@ -165,6 +165,30 @@ describe("Shell", () => {
     );
     expect(shell).not.toContain("touch-action: none");
   });
+
+  it("delegates sidebar overflow to an adaptive contained navigation", () => {
+    const { container } = render(
+      <Shell
+        header={<span>Header</span>}
+        sidebar={<span>Navigation</span>}
+        sidebarOverflow="contained"
+      >
+        <span>Content</span>
+      </Shell>,
+    );
+    expect(container.querySelector(".miaixz-shell-sidebar")).toHaveAttribute(
+      "data-overflow",
+      "contained",
+    );
+    const shell = readFileSync("src/styles/components/shell.css", "utf8");
+    const navigation = readFileSync("src/styles/components/navigation.css", "utf8");
+    expect(shell).toMatch(
+      /\.miaixz-shell-sidebar\[data-overflow="contained"\]\s*\{[^}]*overflow: hidden;/,
+    );
+    expect(navigation).toMatch(
+      /\.miaixz-navigation-rail-frame\[data-overflow-mode="adaptive"\] \.miaixz-navigation-rail-body\s*\{[^}]*overflow: hidden;/,
+    );
+  });
   it("keeps header and sidebar outside main when switching the scroll owner", () => {
     const content = { header: <span>Header</span>, sidebar: <span>Navigation</span> };
     const { container, rerender } = render(

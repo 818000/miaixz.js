@@ -11,6 +11,7 @@ const recipes = {
     "color-mix(in srgb, var(--miaixz-columns-tone) 45%, var(--miaixz-color-surface))",
   ],
   "sparkline.css": ["color-mix(in srgb, var(--miaixz-sparkline-tone) 8%, transparent)"],
+  "list.css": ["color-mix(in srgb, var(--miaixz-list-tone) 8%, var(--miaixz-color-surface))"],
   "appearance.css": [
     "color-mix(in srgb, var(--miaixz-appearance-preview-brand) 18%, var(--miaixz-appearance-preview-surface))",
   ],

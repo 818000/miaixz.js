@@ -81,7 +81,8 @@ export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "childre
    */
   headerVariant?: "default" | "toolbar";
   /**
-   * Uses page-navigation geometry with unpadded associated panels.
+   * Uses compact page-navigation geometry. Associated panel spacing follows
+   * `panelPadding`, including the default density-aware inset.
    */
   variant?: "default" | "navigation" | "editor";
   /**

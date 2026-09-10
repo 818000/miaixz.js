@@ -18,21 +18,39 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Navigation } from "./navigation.js";
-export { NavigationRail } from "./navigation-rail.js";
-export { NavigationRailGroup } from "./navigation-rail-group.js";
-export type { NavigationRailGroupProps } from "./navigation-rail-group.types.js";
-export type {
-  NavigationRailClassNames,
-  NavigationRailGroupModel,
-  NavigationRailItem,
-  NavigationRailOverflowMode,
-  NavigationRailProps,
-  NavigationRailSlot,
-  NavigationRailVariant,
-} from "./navigation-rail.types.js";
-export type {
-  NavigationEntry,
-  NavigationOrientation,
-  NavigationProps,
-} from "./navigation.types.js";
+import type {
+  ComponentPropsWithoutRef,
+  ForwardedRef,
+  ForwardRefExoticComponent,
+  ReactElement,
+  RefAttributes,
+} from "react";
+
+import type { MiaixzIconName } from "./icon-name.generated.js";
+
+/**
+ * Defines the provider-neutral SVG properties passed to an icon implementation.
+ *
+ * @internal
+ */
+export type IconProviderProps = Omit<ComponentPropsWithoutRef<"svg">, "children">;
+
+/**
+ * Defines a provider icon component without exposing the provider's public types.
+ *
+ * @internal
+ */
+export type IconProviderSource = ForwardRefExoticComponent<
+  IconProviderProps & RefAttributes<SVGSVGElement>
+>;
+
+/**
+ * Defines the internal boundary implemented by the active icon provider.
+ *
+ * @internal
+ */
+export type IconProviderRenderer = (
+  name: MiaixzIconName,
+  props: IconProviderProps,
+  ref: ForwardedRef<SVGSVGElement>,
+) => ReactElement;

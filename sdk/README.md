@@ -378,7 +378,7 @@ import {
 
 const manifest = {
   protocolVersion: MIAIXZ_MODULE_PROTOCOL_VERSION,
-  id: "spaces-console",
+  id: "spaces",
   version: "1.2.0",
   hostVersion: "^1.0.0",
   kind: "integrated",
@@ -427,7 +427,7 @@ Modules in the same runtime use `createMiaixzDirectHostBridge()`. Cross-origin i
 import { createMiaixzDirectHostBridge } from "@miaixz/sdk/runtime";
 
 const bridge = createMiaixzDirectHostBridge({
-  moduleId: "spaces-console",
+  moduleId: "spaces",
   adapter: {
     getContext: async () => sdk.context.getSnapshot(),
     hasPermissions: async (permissions) => sdk.permissions.canAll(permissions),

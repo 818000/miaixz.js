@@ -28,6 +28,13 @@ import type { HTMLAttributes, ReactNode, Ref } from "react";
 export type ShellMobileNavigationMode = "bottom" | "drawer";
 
 /**
+ * Selects whether the sidebar itself or its contained component owns overflow.
+ *
+ * @public
+ */
+export type ShellSidebarOverflow = "auto" | "contained";
+
+/**
  * Configures the root application shell. @public
  */
 export interface ShellProps extends HTMLAttributes<HTMLDivElement> {
@@ -43,6 +50,12 @@ export interface ShellProps extends HTMLAttributes<HTMLDivElement> {
    * Supplies the primary navigation sidebar.
    */
   sidebar: ReactNode;
+  /**
+   * Delegates overflow to a height-aware sidebar component when set to `contained`.
+   *
+   * @defaultValue `"auto"`
+   */
+  sidebarOverflow?: ShellSidebarOverflow;
   /**
    * Selects viewport-contained main scrolling (`fixed`) or document scrolling (`scroll`).
    * Fixed mode keeps the header and navigation outside the main scroll region.

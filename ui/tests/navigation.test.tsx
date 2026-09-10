@@ -1,6 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+import { describe, expect, it, vi } from "vitest";
 
+import { MiaixzLocaleProvider } from "../src/i18n/index.js";
 import {
   Navigation,
   NavigationRail,
@@ -65,5 +68,56 @@ describe("Navigation", () => {
     expect(
       screen.getByRole("button", { name: "收起菜单" }).closest("[data-variant='brand']"),
     ).not.toBeNull();
+  });
+
+  it("collects lower-priority links without scrolling the adaptive rail", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(160);
+    const { container } = render(
+      <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
+        <NavigationRail
+          brand={<a href="/">Miaixz</a>}
+          expanded
+          groups={[
+            {
+              id: "primary",
+              label: "主要功能",
+              items: [
+                { id: "active", active: true, href: "/active", label: "当前页面" },
+                { id: "optional", href: "/optional", label: "可收纳页面" },
+                { id: "optional-two", href: "/optional-two", label: "另一收纳页面" },
+              ],
+            },
+            {
+              id: "context",
+              label: "上下文",
+              placement: "end",
+              items: [
+                {
+                  id: "persistent",
+                  href: "/persistent",
+                  label: "固定页面",
+                  overflow: "never",
+                },
+              ],
+            },
+          ]}
+          overflowLabel="更多"
+          overflowMode="adaptive"
+          toggle={<button type="button">收起菜单</button>}
+        />
+      </MiaixzLocaleProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "更多" })).not.toBeNull());
+    expect(screen.getByRole("link", { name: "当前页面" })).not.toBeNull();
+    expect(screen.getByRole("link", { name: "固定页面" })).not.toBeNull();
+    expect(screen.queryByRole("link", { name: "可收纳页面" })).toBeNull();
+    expect(
+      container.querySelector(".miaixz-navigation-rail-frame")?.getAttribute("data-overflow-mode"),
+    ).toBe("adaptive");
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    expect(screen.getByRole("menuitem", { name: "可收纳页面" }).tagName).toBe("A");
   });
 });

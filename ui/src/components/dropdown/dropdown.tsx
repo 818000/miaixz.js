@@ -113,6 +113,7 @@ function DropdownEntryView(properties: DropdownEntryViewProps) {
   if (entry.kind === "divider") return <hr className="miaixz-dropdown-divider" />;
 
   const {
+    kind: _kind,
     icon,
     description,
     danger = false,
