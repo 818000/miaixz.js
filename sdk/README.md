@@ -234,6 +234,10 @@ record by `appId` and optional tenant ID. For `appId="portal"` without a tenant,
 `miaixz:v1:global:portal:appearance`. The stored payload has `schemaVersion: 2`; persisted v1 records
 are migrated to the built-in `miaixz` theme on read.
 
+The composed SDK defaults to `appearanceScope: "tenant"` for tenant-specific preferences. Set
+`appearanceScope: "global"` when theme, color mode, and density are application-wide user interface
+preferences that must remain stable while `context.tenantId` changes.
+
 Applications should switch Appearance through `useTheme()` because the UI runtime validates and
 applies the complete theme before persistence. Calling `sdk.appearance.patch()` is reserved for
 non-visual integration code that already has access to the same validated catalog transaction.
