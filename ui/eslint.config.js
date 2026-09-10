@@ -132,6 +132,22 @@ const configuration = [
       ],
     },
   },
+  {
+    files: ["src/components/**/*.{ts,tsx}", "src/shared/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["lucide-react", "lucide-react/**"],
+              message: "Render icons through the provider-neutral Miaixz Icon name contract.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   prettier,
 ];
 

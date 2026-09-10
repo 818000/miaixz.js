@@ -76,12 +76,23 @@ describe.each(["overview", "alert"] as const)(
         '.miaixz-list-item:not(.miaixz-list-item-interactive, [aria-disabled="true"])',
       );
       expect(css).toContain("> :only-child:is(:hover, :has(:focus-visible))");
-      expect(css).toContain("background: var(--miaixz-color-surface-hover)");
+      expect(css).toContain("background: var(--miaixz-list-interaction-background)");
       expect(css).toContain("box-shadow: inset 2px 0 0 var(--miaixz-list-tone)");
       expect(css).toContain("transform: translateX(3px)");
       expect(css).toContain(
         "transition-duration: var(--miaixz-list-composition-interaction-duration)",
       );
+    });
+
+    it("opts into an item-tone-derived interaction surface", () => {
+      render(<List variant={variant} interactionSurface="tone" items={[]} />);
+      expect(screen.getByRole("list").classList.contains("miaixz-list-interaction-tone")).toBe(
+        true,
+      );
+
+      const css = readFileSync("src/styles/components/list.css", "utf8");
+      expect(css).toContain(".miaixz-list-interaction-tone > .miaixz-list-item");
+      expect(css).toContain("var(--miaixz-list-tone) 8%");
     });
   },
 );

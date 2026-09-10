@@ -30,6 +30,7 @@ export const Shell = forwardRef<HTMLDivElement, ShellProps>(function Shell(
   {
     header,
     sidebar,
+    sidebarOverflow = "auto",
     headerBehavior = "fixed",
     navigationVariant,
     navigationExpanded = false,
@@ -59,7 +60,12 @@ export const Shell = forwardRef<HTMLDivElement, ShellProps>(function Shell(
       className={classNames("miaixz-shell", className)}
     >
       <header className={classNames("miaixz-shell-header", headerClassName)}>{header}</header>
-      <aside className={classNames("miaixz-shell-sidebar", sidebarClassName)}>{sidebar}</aside>
+      <aside
+        className={classNames("miaixz-shell-sidebar", sidebarClassName)}
+        data-overflow={sidebarOverflow}
+      >
+        {sidebar}
+      </aside>
       <main ref={mainRef} className={classNames("miaixz-shell-main", mainClassName)}>
         {children}
       </main>

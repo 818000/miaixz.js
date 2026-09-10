@@ -244,6 +244,22 @@
   scrollbar-width: thin;
 }
 
+.miaixz-navigation-rail-frame[data-overflow-mode="adaptive"] .miaixz-navigation-rail-body {
+  overflow: hidden;
+  scrollbar-width: auto;
+}
+
+.miaixz-navigation-rail-groups {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100%;
+  padding-block-end: var(--miaixz-space-8);
+}
+
+.miaixz-navigation-rail-groups > .miaixz-navigation-rail-group[data-placement="end"] {
+  margin-block-start: auto;
+}
+
 .miaixz-navigation-rail-group {
   display: block;
   min-inline-size: 0;
@@ -374,6 +390,58 @@
   padding: 0;
   color: var(--miaixz-color-text-primary);
   background: transparent;
+}
+
+.miaixz-navigation-rail-frame[data-overflow-mode="adaptive"] {
+  --miaixz-navigation-rail-item-block-size: var(--miaixz-layout-sidebar-compact-width);
+  --miaixz-navigation-rail-marker-block-size: calc(var(--miaixz-space-16) + var(--miaixz-space-16));
+}
+
+.miaixz-navigation-rail-frame[data-overflow-mode="adaptive"][data-density="compact"] {
+  --miaixz-navigation-rail-item-block-size: 52px;
+  --miaixz-navigation-rail-marker-block-size: var(--miaixz-space-24);
+}
+
+.miaixz-navigation-rail-frame[data-overflow-mode="adaptive"][data-density="condensed"] {
+  --miaixz-navigation-rail-item-block-size: var(--miaixz-control-min-target-size);
+  --miaixz-navigation-rail-marker-block-size: var(--miaixz-space-16);
+}
+
+.miaixz-navigation-rail-frame[data-overflow-mode="adaptive"] .miaixz-navigation-item {
+  block-size: var(--miaixz-navigation-rail-item-block-size);
+  min-block-size: var(--miaixz-navigation-rail-item-block-size);
+}
+
+.miaixz-navigation-rail-frame[data-overflow-mode="adaptive"] .miaixz-navigation-rail-group-marker {
+  block-size: var(--miaixz-navigation-rail-marker-block-size);
+}
+
+.miaixz-navigation-rail-overflow {
+  display: block;
+  flex: none;
+  inline-size: 100%;
+}
+
+.miaixz-navigation-rail-overflow-trigger {
+  display: grid;
+  grid-template-columns: var(--miaixz-layout-sidebar-compact-width) minmax(0, 1fr);
+  gap: 0;
+  inline-size: 100%;
+  padding: 0;
+  font: inherit;
+  text-align: start;
+  border: 0;
+  border-radius: 0;
+}
+
+.miaixz-navigation-rail-overflow-trigger:where(:hover, :focus-visible) {
+  outline: 0;
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-navigation-rail-overflow-trigger[aria-current="page"] {
+  font-weight: var(--miaixz-font-weight-medium);
+  background: linear-gradient(270deg, var(--miaixz-color-navigation-selected), transparent);
 }
 
 .miaixz-navigation-rail-frame[data-variant="brand"]

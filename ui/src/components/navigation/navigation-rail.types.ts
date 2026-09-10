@@ -20,6 +20,8 @@
 
 import type { HTMLAttributes, ReactNode } from "react";
 
+import type { NavigationEntry } from "./navigation.types.js";
+
 /**
  * Identifies the styleable regions of an application navigation rail.
  *
@@ -42,6 +44,57 @@ export type NavigationRailClassNames = Partial<Readonly<Record<NavigationRailSlo
 export type NavigationRailVariant = "default" | "brand";
 
 /**
+ * Selects how a navigation rail handles destinations that do not fit.
+ *
+ * @public
+ */
+export type NavigationRailOverflowMode = "scroll" | "adaptive";
+
+/**
+ * Adds stable identity and overflow policy to one rail destination.
+ *
+ * @public
+ */
+export type NavigationRailItem = NavigationEntry & {
+  /**
+   * Stable identity used while destinations move in and out of overflow.
+   */
+  readonly id: string;
+  /**
+   * Keeps the destination in the rail whenever a usable row remains.
+   */
+  readonly overflow?: "auto" | "never";
+  /**
+   * Keeps higher-priority destinations visible before lower-priority ones.
+   */
+  readonly priority?: number;
+};
+
+/**
+ * Describes one labeled group in an adaptive navigation rail.
+ *
+ * @public
+ */
+export interface NavigationRailGroupModel {
+  /**
+   * Stable group identity.
+   */
+  readonly id: string;
+  /**
+   * Group label revealed in expanded rails and overflow menus.
+   */
+  readonly label: ReactNode;
+  /**
+   * Direct destinations belonging to this group.
+   */
+  readonly items: readonly NavigationRailItem[];
+  /**
+   * Places persistent context-switching destinations next to rail utility content.
+   */
+  readonly placement?: "start" | "end";
+}
+
+/**
  * Configures a single-level application navigation rail.
  *
  * @public
@@ -62,7 +115,23 @@ export interface NavigationRailProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Supplies the direct, single-level navigation content.
    */
-  readonly navigation: ReactNode;
+  readonly navigation?: ReactNode;
+  /**
+   * Supplies structured destinations for adaptive overflow handling.
+   * When present, this replaces `navigation`.
+   */
+  readonly groups?: readonly NavigationRailGroupModel[];
+  /**
+   * Selects legacy scrolling or height-aware overflow collection.
+   * Structured `groups` default to adaptive mode; opaque `navigation` defaults to scrolling.
+   *
+   * @defaultValue `"adaptive"` for `groups`, otherwise `"scroll"`
+   */
+  readonly overflowMode?: NavigationRailOverflowMode;
+  /**
+   * Labels the disclosure that contains destinations which do not fit.
+   */
+  readonly overflowLabel?: string;
   /**
    * Reveals the brand and navigation labels without adding another menu level.
    *

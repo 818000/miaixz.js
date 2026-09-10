@@ -148,7 +148,7 @@ if (findings.length > 0) process.exitCode = 1;
 function isAllowedTypographyFallback(fileName, value) {
   return (
     fileName === "src/styles/foundation/typography.css" &&
-    /var\(--miaixz-(?:text|console)-[a-z0-9-]+,\s*var\(--miaixz-(?:font-size|line-height)-\d+/.test(
+    /var\(--miaixz-(?:text|app)-[a-z0-9-]+,\s*var\(--miaixz-(?:font-size|line-height)-\d+/.test(
       value,
     )
   );

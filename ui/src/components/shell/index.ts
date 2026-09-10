@@ -19,4 +19,4 @@
 */
 
 export { Shell } from "./shell.js";
-export type { ShellMobileNavigationMode, ShellProps } from "./shell.types.js";
+export type { ShellMobileNavigationMode, ShellProps, ShellSidebarOverflow } from "./shell.types.js";

@@ -43,7 +43,6 @@ import type {
 } from "./request.js";
 import {
   isMiaixzApiEnvelope,
-  isMiaixzApiSuccess,
   type MiaixzHttpResponse,
   type MiaixzResponseInterceptor,
 } from "./response.js";
@@ -709,6 +708,39 @@ interface MiaixzProblemDetails {
 }
 
 /**
+ * Describes a non-zero business response that may omit the success-only `data` field.
+ */
+interface MiaixzApiFailureEnvelope {
+  /**
+   * Machine-readable business failure code.
+   */
+  readonly errcode: string | number;
+
+  /**
+   * Human-readable business failure message.
+   */
+  readonly errmsg: string;
+}
+
+/**
+ * Recognizes a non-zero Miaixz business response even when an older service omits `data`.
+ *
+ * Successful envelopes still require `data`; accepting an incomplete success response would
+ * otherwise let callers observe an undefined payload as a valid result.
+ *
+ * @param value - Parsed response body.
+ * @returns Whether the body carries a valid business failure code and message.
+ */
+function isMiaixzApiFailureEnvelope(value: unknown): value is Readonly<MiaixzApiFailureEnvelope> {
+  return (
+    isRecord(value) &&
+    (typeof value.errcode === "string" || typeof value.errcode === "number") &&
+    String(value.errcode) !== "0" &&
+    typeof value.errmsg === "string"
+  );
+}
+
+/**
  * Normalizes an unsuccessful HTTP body into stable problem details.
  *
  * @param body - Parsed unsuccessful response body.
@@ -716,11 +748,12 @@ interface MiaixzProblemDetails {
  * @returns Stable problem details extracted from the response.
  */
 function extractProblem(body: unknown, response: Response): MiaixzProblemDetails {
-  if (isMiaixzApiEnvelope(body)) {
+  if (isMiaixzApiFailureEnvelope(body)) {
     return {
-      code: isMiaixzApiSuccess(body) ? `HTTP_${response.status}` : String(body.errcode),
+      code: String(body.errcode),
     };
   }
+  if (isMiaixzApiEnvelope(body)) return { code: `HTTP_${response.status}` };
   if (!isRecord(body)) return {};
   const result: MiaixzProblemDetails = {};
   if (typeof body.code === "string") result.code = body.code;
@@ -1437,6 +1470,7 @@ export function createApiClient(options: MiaixzApiClientOptions): MiaixzApiClien
           throw httpError;
         }
         const envelope = isMiaixzApiEnvelope(parsedBody) ? parsedBody : undefined;
+        const failureEnvelope = isMiaixzApiFailureEnvelope(parsedBody) ? parsedBody : undefined;
         const effectiveEnvelopeMode =
           responseType === "auto" && !expectsJsonEnvelope(rawResponse, responseType)
             ? "none"
@@ -1444,7 +1478,8 @@ export function createApiClient(options: MiaixzApiClientOptions): MiaixzApiClien
         if (
           effectiveEnvelopeMode === "required" &&
           expectsJsonEnvelope(rawResponse, responseType) &&
-          envelope === undefined
+          envelope === undefined &&
+          failureEnvelope === undefined
         ) {
           const invalidEnvelopeRequestId = getRequestId(rawResponse.headers);
           throw new MiaixzApiError(translate("sdk.error.api.envelopeInvalid"), {
@@ -1458,13 +1493,9 @@ export function createApiClient(options: MiaixzApiClientOptions): MiaixzApiClien
             retryable: false,
           });
         }
-        if (
-          effectiveEnvelopeMode !== "none" &&
-          envelope !== undefined &&
-          !isMiaixzApiSuccess(envelope)
-        ) {
+        if (effectiveEnvelopeMode !== "none" && failureEnvelope !== undefined) {
           const businessRequestId = getRequestId(rawResponse.headers);
-          const businessCode = String(envelope.errcode);
+          const businessCode = String(failureEnvelope.errcode);
           throw new MiaixzApiError(translate("sdk.error.api.business"), {
             status: rawResponse.status,
             method,

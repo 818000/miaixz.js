@@ -18,7 +18,7 @@ Public theme entries are `@miaixz/ui/theme`, `@miaixz/ui/{miaixz,neutral,contras
 `styles.css` remains the complete default theme. Foundation, component, core and
 reset entries retain their responsibilities. CSS auditing uses `tests/scripts/audit.mjs`.
 
-For this remediation, build and pack locally, unpack under the Console's controlled
+For this remediation, build and pack locally, unpack under the application's controlled
 `node_modules/.miaixz-local` directory and link the installed package to that output.
 Do not publish to npm or link application dependencies directly to source.
 
@@ -119,10 +119,65 @@ Components can be imported from the package root or from stable subpaths:
 
 ```tsx
 import { Button } from "@miaixz/ui/button";
-import { Icon } from "@miaixz/ui/icons";
+import { Icon, type MiaixzIconName } from "@miaixz/ui/icons";
+
+const tenantIcon: MiaixzIconName = "Blocks";
+
+<Icon name={tenantIcon} size="navigation" />;
 ```
 
-Do not import from `dist` or from internal source paths.
+`Icon` accepts every Lucide catalog name in PascalCase through the stable Miaixz `name` contract.
+Frequently used icons render synchronously and the rest load on demand. Business code must not
+import Lucide components directly or pass icon components into `Icon`; this keeps call sites stable
+if the underlying icon provider changes. Do not import from `dist` or from internal source paths.
+
+## Height-aware application navigation
+
+Use structured `groups` when a shell rail must remain scrollbar-free at every viewport height.
+The rail first reduces row density, then collects lower-priority destinations under the localized
+overflow disclosure. Active destinations and items marked `overflow: "never"` remain visible while
+a usable row is available. The overflow menu preserves destinations as links.
+
+```tsx
+import { NavigationRail, Shell, type NavigationRailGroupModel } from "@miaixz/ui";
+
+const groups: NavigationRailGroupModel[] = [
+  {
+    id: "workspace",
+    label: "Workspace",
+    items: [
+      { id: "workbench", href: "/workbench", label: "Workbench", selected: true },
+      { id: "spaces", href: "/spaces", label: "Spaces" },
+    ],
+  },
+  {
+    id: "context",
+    label: "Context",
+    placement: "end",
+    items: [{ id: "infra", href: "/infra/overview", label: "Multi-tenant", overflow: "never" }],
+  },
+];
+
+<Shell
+  header={header}
+  sidebar={
+    <NavigationRail
+      brand={brand}
+      toggle={toggle}
+      groups={groups}
+      overflowMode="adaptive"
+      overflowLabel="More"
+      utility={accountMenu}
+    />
+  }
+  sidebarOverflow="contained"
+>
+  {content}
+</Shell>;
+```
+
+Opaque `navigation` content keeps the legacy scrolling behavior. Use it only where the application
+cannot provide stable item identities and priority metadata.
 
 ## Style layers
 

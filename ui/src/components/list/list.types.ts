@@ -41,6 +41,12 @@ export interface ListProps extends HTMLAttributes<HTMLUListElement> {
    */
   dividerTone?: "default" | "panel";
   /**
+   * Selects a neutral or item-tone-derived hover and keyboard-focus surface.
+   *
+   * @defaultValue `neutral`
+   */
+  interactionSurface?: "neutral" | "tone";
+  /**
    * Selects the standard or compact row density.
    */
   density?: "default" | "compact";

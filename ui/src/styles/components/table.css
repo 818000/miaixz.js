@@ -93,18 +93,6 @@
   border-bottom: 0;
 }
 
-.miaixz-table-body .miaixz-table-row,
-.miaixz-table > tbody > tr {
-  transition-timing-function: var(--miaixz-motion-interaction-easing);
-  transition-duration: var(--miaixz-motion-interaction-duration);
-  transition-property: background-color;
-}
-
-.miaixz-table-body .miaixz-table-row:hover,
-.miaixz-table > tbody > tr:hover {
-  background: var(--miaixz-color-surface-hover);
-}
-
 .miaixz-table-numeric {
   font-variant-numeric: tabular-nums;
   text-align: end;
@@ -235,6 +223,22 @@
 .miaixz-table-compact a {
   color: var(--miaixz-color-brand);
   text-decoration: none;
+}
+
+:is(.miaixz-table, .miaixz-table-dashed, .miaixz-table-compact) > tbody > tr,
+.miaixz-table-body > .miaixz-table-row {
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: background-color;
+}
+
+:is(.miaixz-table, .miaixz-table-dashed, .miaixz-table-compact) > tbody > tr:hover,
+.miaixz-table-body > .miaixz-table-row:hover {
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-table-dashed > tbody > tr[data-selected="true"]:hover > td {
+  background: transparent;
 }
 
 /* stylelint-enable no-descending-specificity
