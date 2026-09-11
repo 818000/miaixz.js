@@ -69,7 +69,11 @@
 /* stylelint-disable no-descending-specificity
  */
 .miaixz-action-text:hover:not(:disabled),
-.miaixz-action-text:focus-visible:not(:disabled),
+.miaixz-action-text:focus-visible:not(:disabled) {
+  color: var(--miaixz-color-brand);
+  background: transparent;
+}
+
 .miaixz-icon-button:hover:not(:disabled),
 .miaixz-icon-button:focus-visible:not(:disabled) {
   color: var(--miaixz-color-brand);
@@ -92,7 +96,11 @@
 }
 
 .miaixz-action-text[data-action-tone="danger"]:hover:not(:disabled),
-.miaixz-action-text[data-action-tone="danger"]:focus-visible:not(:disabled),
+.miaixz-action-text[data-action-tone="danger"]:focus-visible:not(:disabled) {
+  color: var(--miaixz-color-danger);
+  background: transparent;
+}
+
 .miaixz-icon-button[data-action-tone="danger"]:hover:not(:disabled),
 .miaixz-icon-button[data-action-tone="danger"]:focus-visible:not(:disabled) {
   color: var(--miaixz-color-danger);
@@ -110,6 +118,17 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (width <= 1280px) {
+  .miaixz-action-text[data-label-collapse="compact"] {
+    width: var(--miaixz-density-control-height);
+    padding-inline: 0;
+  }
+
+  .miaixz-action-text[data-label-collapse="compact"] .miaixz-action-label {
+    display: none;
+  }
 }
 
 .miaixz-icon-button[aria-pressed="true"] {

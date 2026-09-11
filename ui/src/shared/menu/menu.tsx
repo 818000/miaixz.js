@@ -61,9 +61,9 @@ export interface MiaixzMenuProps extends HTMLAttributes<HTMLDivElement> {
   readonly active: boolean;
 
   /**
-   * References the menu button used for restoration and Tab ordering.
+   * References the menu trigger used for restoration and Tab ordering.
    */
-  readonly triggerRef: RefObject<HTMLButtonElement | null>;
+  readonly triggerRef: RefObject<HTMLElement | null>;
 
   /**
    * Requests closure and chooses whether trigger focus should be restored.
@@ -138,7 +138,7 @@ export function MiaixzMenu({
  */
 function handleMiaixzMenuKeyDown(
   event: KeyboardEvent<HTMLDivElement>,
-  trigger: HTMLButtonElement | null,
+  trigger: HTMLElement | null,
   onRequestClose: (restoreFocus: boolean) => void,
 ): void {
   const items = getMiaixzMenuItems(event.currentTarget);
@@ -216,12 +216,12 @@ function getMiaixzMenuItemFromEvent(event: MouseEvent<HTMLDivElement>): HTMLElem
 /**
  * Finds the document-order Tab stop adjacent to a Portal menu trigger.
  *
- * @param trigger - Owning menu button.
+ * @param trigger - Owning menu trigger.
  * @param reverse - Whether Shift+Tab requests the previous stop.
  * @returns Adjacent connected focus target, or null at a document boundary.
  */
 function getAdjacentMiaixzTabStop(
-  trigger: HTMLButtonElement | null,
+  trigger: HTMLElement | null,
   reverse: boolean,
 ): HTMLElement | null {
   if (trigger === null) return null;

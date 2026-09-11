@@ -67,7 +67,7 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
   forwardedRef,
 ) {
   const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ref = useMergedRef(forwardedRef, setRootElement);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
@@ -138,7 +138,8 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     [isOpen, requestClose],
   );
   useLayoutEffect(() => {
-    triggerRef.current = rootElement?.querySelector<HTMLButtonElement>("button") ?? null;
+    const candidate = rootElement?.firstElementChild;
+    triggerRef.current = candidate instanceof HTMLElement ? candidate : null;
   }, [rootElement, trigger]);
   const triggerElement = cloneElement(trigger, {
     id: triggerId,
@@ -154,11 +155,17 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
       className={classNames("miaixz-popover", className)}
       onClick={(event) => {
         onClick?.(event);
+        const triggerElement = rootElement?.firstElementChild;
+        const triggerDisabled =
+          triggerElement instanceof HTMLButtonElement
+            ? triggerElement.disabled
+            : triggerElement?.getAttribute("aria-disabled") === "true";
         if (
-          rootElement?.firstElementChild?.contains(event.target as Node) === true &&
+          triggerElement?.contains(event.target as Node) === true &&
           !event.defaultPrevented &&
-          !trigger.props.disabled
+          !triggerDisabled
         ) {
+          if (triggerElement instanceof HTMLAnchorElement) event.preventDefault();
           requestOpenChange(!isOpen, false);
         }
       }}

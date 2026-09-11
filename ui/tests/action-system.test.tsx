@@ -26,6 +26,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ActionBar,
   ActionText,
+  Dropdown,
   FormActions,
   IconButton,
   miaixzUiMessages,
@@ -166,6 +167,23 @@ describe("MoreActions", () => {
     ).toEqual(["导出", "删除"]);
     expect(menu.querySelector("hr")).not.toBeNull();
     expect(document.querySelector("button button")).toBeNull();
+  });
+});
+
+describe("Dropdown", () => {
+  it("supports a native anchor trigger without navigating away", () => {
+    renderAction(
+      <Dropdown
+        items={[{ label: "已归档", type: "button" }]}
+        label="空间分类"
+        trigger={<a href="#space-filter-more">更多</a>}
+      />,
+    );
+
+    const trigger = screen.getByRole("link", { name: "更多" });
+    fireEvent.click(trigger);
+    expect(screen.getByRole("menu", { name: "空间分类" })).toBeVisible();
+    expect(window.location.hash).not.toBe("#space-filter-more");
   });
 });
 

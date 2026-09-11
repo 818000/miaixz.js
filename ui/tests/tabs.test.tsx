@@ -94,6 +94,13 @@ describe("Tabs", () => {
     );
     expect(action.closest('[role="tablist"]')).toBeNull();
     expect(screen.getByRole("tabpanel", { name: "A" }).textContent).toBe("内容 A");
+
+    const css = readFileSync("src/styles/components/tabs.css", "utf8");
+    const headerListRule = css.match(
+      /(?:^|\n)\.miaixz-tabs-header\s*>\s*\.miaixz-tabs-list\s*\{([^}]*)\}/u,
+    )?.[1];
+    expect(headerListRule).toContain("align-self: stretch");
+    expect(headerListRule).toContain("border-bottom: 0");
   });
   it("supports adjacent actions without adding them to tab keyboard navigation", async () => {
     render(
