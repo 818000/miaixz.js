@@ -35,7 +35,7 @@ describe("optional strip icons", () => {
       "grid-template-columns: repeat(var(--miaixz-metric-group-columns), minmax(0, 1fr))",
     );
     expect(css).toMatch(/@container miaixz-metrics \(width <= 1200px\)[\s\S]*height: 150px/u);
-    expect(css).toMatch(/minmax\(220px, 1fr\)[\s\S]*overflow-x: auto/u);
+    expect(css).toMatch(/minmax\(220px, 1fr\)[\s\S]*overflow: auto hidden/u);
     expect(css).toContain(".miaixz-metric-group-summary-list > li:not(:last-child) .miaixz-metric");
     expect(css).toMatch(/li:hover,[\s\S]*li:focus-within[\s\S]*z-index: 2/u);
   });

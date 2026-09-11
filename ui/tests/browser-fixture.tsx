@@ -6,6 +6,8 @@ import { createRoot } from "react-dom/client";
 import { useState } from "react";
 
 import {
+  ActionBar,
+  ActionText,
   Appearance,
   Button,
   Descriptions,
@@ -16,12 +18,14 @@ import {
   EditorSection,
   EditorSummary,
   Field,
+  FormActions,
   Input,
-  getButtonClassName,
+  IconButton,
   Metric,
   MetricGroup,
   MiaixzLocaleProvider,
   Panel,
+  RowActions,
   Status,
   Steps,
   Switch,
@@ -66,6 +70,402 @@ const legacyTheme = defineTheme({
 });
 
 /**
+ * Renders the six frozen action-system visual baselines with real components.
+ *
+ * @returns The interactive action showcase.
+ */
+function ActionShowcase() {
+  return (
+    <section aria-label="操作体系基线" data-testid="action-showcase">
+      <Panel
+        data-testid="action-baseline-page-header"
+        actions={
+          <ActionBar
+            primary={{
+              id: "showcase-create",
+              intent: "create",
+              label: "新建资源",
+              icon: "Plus",
+              tone: "brand",
+              confirm: "none",
+              placement: "form-primary",
+              onAction: () => undefined,
+            }}
+            actions={[
+              {
+                id: "showcase-import",
+                intent: "import",
+                label: "导入",
+                icon: "Upload",
+                tone: "neutral",
+                confirm: "none",
+                placement: "visible",
+                onAction: () => undefined,
+              },
+              {
+                id: "showcase-refresh",
+                intent: "refresh",
+                label: "刷新",
+                icon: "RefreshCw",
+                tone: "neutral",
+                confirm: "none",
+                placement: "visible",
+                onAction: () => undefined,
+              },
+            ]}
+          />
+        }
+        description="一个实体主操作和两个低权重普通操作"
+        title="01 页面头部"
+      >
+        内容标题与摘要保持第一视觉层级。
+      </Panel>
+
+      <Panel
+        data-testid="action-baseline-card-header"
+        actions={
+          <ActionBar
+            actions={[
+              {
+                id: "showcase-edit-card",
+                intent: "edit",
+                label: "编辑",
+                icon: "Pencil",
+                tone: "neutral",
+                confirm: "none",
+                placement: "visible",
+                onAction: () => undefined,
+              },
+              {
+                id: "showcase-configure-card",
+                intent: "configure",
+                label: "配置",
+                icon: "Settings",
+                tone: "neutral",
+                confirm: "none",
+                placement: "visible",
+                onAction: () => undefined,
+              },
+            ]}
+          />
+        }
+        description="普通操作只显示图标和文字，不占据内容焦点"
+        title="02 卡片头部"
+      >
+        卡片正文用于承载核心信息。
+      </Panel>
+
+      <Panel
+        data-testid="action-baseline-table-row"
+        description="危险操作固定收进更多菜单"
+        title="03 表格行"
+      >
+        <TableContainer>
+          <Table>
+            <TableCaption>操作密度基线</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>名称</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead>操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>示例资源</TableCell>
+                <TableCell>正常</TableCell>
+                <TableCell>
+                  <RowActions
+                    actions={[
+                      {
+                        id: "showcase-view-row",
+                        intent: "view",
+                        label: "查看",
+                        icon: "Eye",
+                        tone: "neutral",
+                        confirm: "none",
+                        placement: "visible",
+                        onAction: () => undefined,
+                      },
+                      {
+                        id: "showcase-edit-row",
+                        intent: "edit",
+                        label: "编辑",
+                        icon: "Pencil",
+                        tone: "neutral",
+                        confirm: "none",
+                        placement: "visible",
+                        onAction: () => undefined,
+                      },
+                      {
+                        id: "showcase-export-row",
+                        intent: "export",
+                        label: "导出",
+                        icon: "Download",
+                        tone: "neutral",
+                        confirm: "none",
+                        placement: "overflow",
+                        onAction: () => undefined,
+                      },
+                      {
+                        id: "showcase-delete-row",
+                        intent: "delete",
+                        label: "删除",
+                        icon: "Trash2",
+                        tone: "danger",
+                        confirm: "danger",
+                        placement: "overflow",
+                        onAction: () => undefined,
+                      },
+                    ]}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Panel>
+
+      <Panel
+        data-testid="action-baseline-icon-actions"
+        actions={
+          <div aria-label="图标操作" className="miaixz-action-bar" role="toolbar">
+            <IconButton
+              action={{
+                id: "showcase-back",
+                intent: "back",
+                label: "返回",
+                icon: "ArrowLeft",
+                tone: "neutral",
+                confirm: "none",
+                placement: "icon",
+                onAction: () => undefined,
+              }}
+            />
+            <IconButton
+              action={{
+                id: "showcase-favorite",
+                intent: "favorite",
+                label: "收藏",
+                icon: "Star",
+                tone: "neutral",
+                confirm: "none",
+                placement: "icon",
+                onAction: () => undefined,
+              }}
+              pressed
+            />
+            <IconButton
+              action={{
+                id: "showcase-close",
+                intent: "close",
+                label: "关闭",
+                icon: "X",
+                tone: "neutral",
+                confirm: "none",
+                placement: "icon",
+                onAction: () => undefined,
+              }}
+            />
+            <IconButton
+              action={{
+                id: "showcase-more",
+                intent: "more",
+                label: "更多操作",
+                icon: "Ellipsis",
+                tone: "neutral",
+                confirm: "none",
+                placement: "icon",
+                onAction: () => undefined,
+              }}
+            />
+          </div>
+        }
+        description="仅用于空间受限且图标含义明确的操作"
+        title="04 图标操作"
+      >
+        聚焦或悬停 300ms 后显示说明。
+      </Panel>
+
+      <Panel
+        data-testid="action-baseline-form-actions"
+        description="取消在左、唯一提交操作在右"
+        title="05 表单底部"
+      >
+        <FormActions
+          cancel={{
+            id: "showcase-cancel",
+            intent: "cancel",
+            label: "取消",
+            icon: "CircleX",
+            tone: "neutral",
+            confirm: "none",
+            placement: "form-secondary",
+            onAction: () => undefined,
+          }}
+          submit={{
+            id: "showcase-save",
+            intent: "save",
+            label: "保存",
+            icon: "Save",
+            tone: "brand",
+            confirm: "none",
+            placement: "form-primary",
+            onAction: () => undefined,
+          }}
+        />
+        <FormActions
+          cancel={{
+            id: "showcase-cancel-loading",
+            intent: "cancel",
+            label: "取消",
+            icon: "CircleX",
+            tone: "neutral",
+            confirm: "none",
+            placement: "form-secondary",
+            onAction: () => undefined,
+          }}
+          submit={{
+            id: "showcase-save-loading",
+            intent: "save",
+            label: "保存",
+            icon: "Save",
+            tone: "brand",
+            confirm: "none",
+            placement: "form-primary",
+            loading: true,
+            onAction: () => undefined,
+          }}
+        />
+        <FormActions
+          cancel={{
+            id: "showcase-cancel-disabled",
+            intent: "cancel",
+            label: "取消",
+            icon: "CircleX",
+            tone: "neutral",
+            confirm: "none",
+            placement: "form-secondary",
+            onAction: () => undefined,
+          }}
+          dirty={false}
+          submit={{
+            id: "showcase-save-disabled",
+            intent: "save",
+            label: "保存",
+            icon: "Save",
+            tone: "brand",
+            confirm: "none",
+            placement: "form-primary",
+            onAction: () => undefined,
+          }}
+        />
+        <FormActions
+          cancel={{
+            id: "showcase-cancel-danger",
+            intent: "cancel",
+            label: "取消",
+            icon: "CircleX",
+            tone: "neutral",
+            confirm: "none",
+            placement: "form-secondary",
+            onAction: () => undefined,
+          }}
+          danger
+          submit={{
+            id: "showcase-delete-confirm",
+            intent: "submit",
+            label: "确认删除",
+            icon: "Trash2",
+            tone: "brand",
+            confirm: "danger",
+            placement: "form-primary",
+            onAction: () => undefined,
+          }}
+        />
+      </Panel>
+
+      <Panel
+        data-testid="action-baseline-state-matrix"
+        description="主题、密度及所有关键状态共用固定配方"
+        title="06 状态矩阵"
+      >
+        <div aria-label="操作状态矩阵" className="miaixz-action-bar" role="group">
+          <ActionText
+            action={{
+              id: "showcase-default",
+              intent: "edit",
+              label: "默认",
+              icon: "Pencil",
+              tone: "neutral",
+              confirm: "none",
+              placement: "visible",
+              onAction: () => undefined,
+              "data-testid": "action-default",
+            }}
+          />
+          <ActionText
+            action={{
+              id: "showcase-brand",
+              intent: "validate",
+              label: "品牌",
+              icon: "ShieldCheck",
+              tone: "brand",
+              confirm: "none",
+              placement: "visible",
+              onAction: () => undefined,
+              "data-testid": "action-brand",
+            }}
+          />
+          <ActionText
+            action={{
+              id: "showcase-danger",
+              intent: "delete",
+              label: "危险",
+              icon: "Trash2",
+              tone: "danger",
+              confirm: "danger",
+              placement: "visible",
+              onAction: () => undefined,
+              "data-testid": "action-danger",
+            }}
+          />
+          <ActionText
+            action={{
+              id: "showcase-disabled",
+              intent: "edit",
+              label: "禁用",
+              icon: "Pencil",
+              tone: "neutral",
+              confirm: "none",
+              placement: "visible",
+              disabled: true,
+              onAction: () => undefined,
+            }}
+          />
+          <ActionText
+            action={{
+              id: "showcase-loading",
+              intent: "refresh",
+              label: "加载",
+              icon: "RefreshCw",
+              tone: "neutral",
+              confirm: "none",
+              placement: "visible",
+              loading: true,
+              onAction: () => undefined,
+            }}
+          />
+          <Button variant="primary">主按钮</Button>
+          <Button variant="secondary">次按钮</Button>
+          <Button variant="danger">危险按钮</Button>
+        </div>
+      </Panel>
+    </section>
+  );
+}
+
+/**
  * Renders the interactive public-package browser contract fixture.
  *
  * @returns Theme, component, persistence, table, and drawer consumers.
@@ -90,11 +490,21 @@ function BrowserFixture() {
       <Theme appearance={appearance} fallback="miaixz" themes={[legacyTheme]}>
         <Appearance scope="authenticated" />
         <main aria-label="Miaixz UI 浏览器契约夹具">
+          <ActionShowcase />
           <Panel
             actions={
-              <a className={getButtonClassName({ variant: "link" })} href="#tables">
-                查看表格
-              </a>
+              <ActionText
+                action={{
+                  id: "view-table",
+                  intent: "view",
+                  label: "查看表格",
+                  icon: "Eye",
+                  tone: "neutral",
+                  confirm: "none",
+                  placement: "visible",
+                  href: "#tables",
+                }}
+              />
             }
             description="真实公共出口和固定数据"
             headingLevel={2}
@@ -105,9 +515,18 @@ function BrowserFixture() {
             <Button loading loadingLabel="正在保存">
               保存
             </Button>
-            <Button aria-label="刷新" iconOnly>
-              ↻
-            </Button>
+            <IconButton
+              action={{
+                id: "refresh-fixture",
+                intent: "refresh",
+                label: "刷新",
+                icon: "RefreshCw",
+                tone: "neutral",
+                confirm: "none",
+                placement: "icon",
+                onAction: () => undefined,
+              }}
+            />
             <Button
               onClick={() =>
                 appearance.setDensity(

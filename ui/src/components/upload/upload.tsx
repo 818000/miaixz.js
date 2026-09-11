@@ -23,7 +23,7 @@ import { forwardRef, useCallback, useEffect, useRef, useState, type ReactElement
 import { createMiaixzUiError, type MiaixzUiError } from "../../errors/index.js";
 import { classNames } from "../../shared/class-names.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
-import { Button } from "../button/index.js";
+import { RowActions, type ActionDescriptor } from "../action/index.js";
 import { Dropzone } from "../dropzone/index.js";
 import { Icon } from "../icon/index.js";
 import { Progress } from "../progress/index.js";
@@ -540,41 +540,60 @@ export const Upload = forwardRef<HTMLDivElement, UploadProps>(function Upload(
                   )}
                 </div>
                 <div className="miaixz-upload-actions">
-                  {(item.status === "queued" || item.status === "uploading") && (
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      disabled={disabled}
-                      startIcon={<Icon name="X" />}
-                      onClick={() => handleCancel(item.id)}
-                    >
-                      {t("ui.action.cancel")}
-                    </Button>
-                  )}
-                  {(item.status === "error" || item.status === "cancelled") && (
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      disabled={disabled}
-                      startIcon={<Icon name="RotateCcw" />}
-                      onClick={() => handleRetry(item.id)}
-                    >
-                      {t("ui.action.retry")}
-                    </Button>
-                  )}
-                  {(item.status === "success" ||
-                    item.status === "error" ||
-                    item.status === "cancelled") && (
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      disabled={disabled}
-                      startIcon={<Icon name="Trash2" />}
-                      onClick={() => handleRemove(item.id)}
-                    >
-                      {t("ui.action.remove")}
-                    </Button>
-                  )}
+                  <RowActions
+                    actions={[
+                      ...(item.status === "queued" || item.status === "uploading"
+                        ? [
+                            {
+                              id: `cancel-upload-${item.id}`,
+                              intent: "cancel",
+                              label: t("ui.action.cancel"),
+                              icon: "X",
+                              tone: "neutral",
+                              size: "compact",
+                              confirm: "none",
+                              placement: "visible",
+                              disabled,
+                              onAction: () => handleCancel(item.id),
+                            } satisfies ActionDescriptor,
+                          ]
+                        : []),
+                      ...(item.status === "error" || item.status === "cancelled"
+                        ? [
+                            {
+                              id: `retry-upload-${item.id}`,
+                              intent: "refresh",
+                              label: t("ui.action.retry"),
+                              icon: "RotateCcw",
+                              tone: "neutral",
+                              size: "compact",
+                              confirm: "none",
+                              placement: "visible",
+                              disabled,
+                              onAction: () => handleRetry(item.id),
+                            } satisfies ActionDescriptor,
+                          ]
+                        : []),
+                      ...(item.status === "success" ||
+                      item.status === "error" ||
+                      item.status === "cancelled"
+                        ? [
+                            {
+                              id: `remove-upload-${item.id}`,
+                              intent: "delete",
+                              label: t("ui.action.remove"),
+                              icon: "Trash2",
+                              tone: "danger",
+                              size: "compact",
+                              confirm: "danger",
+                              placement: "overflow",
+                              disabled,
+                              onAction: () => handleRemove(item.id),
+                            } satisfies ActionDescriptor,
+                          ]
+                        : []),
+                    ]}
+                  />
                 </div>
               </li>
             );

@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
+import { cloneElement, forwardRef } from "react";
 import type { ButtonHTMLAttributes, MouseEvent as ReactMouseEvent, ReactNode } from "react";
 
 import { useMiaixzLocale } from "../../i18n/index.js";
@@ -33,7 +33,7 @@ import type { DropdownEntry, DropdownProps } from "./dropdown.types.js";
  * Renders a localized Portal menu with package-owned keyboard behavior. @public
  */
 export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropdown(
-  { label, items, children, contentClassName, triggerProps, variant = "default", ...props },
+  { label, items, children, contentClassName, trigger, variant = "default", ...props },
   ref,
 ) {
   const { t } = useMiaixzLocale();
@@ -41,7 +41,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropd
     <Popover
       {...props}
       ref={ref}
-      triggerProps={{ ...triggerProps, "aria-haspopup": "menu" }}
+      trigger={cloneElement(trigger, { "aria-haspopup": "menu" })}
       contentClassName={classNames(
         "miaixz-dropdown-content",
         `miaixz-dropdown-${variant}`,

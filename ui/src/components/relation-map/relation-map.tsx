@@ -20,8 +20,7 @@
 
 import { useId, useState, type KeyboardEvent } from "react";
 
-import { Button } from "../button/index.js";
-import { Icon } from "../icon/index.js";
+import { IconButton } from "../action/index.js";
 import type {
   MiaixzRelationEdge,
   MiaixzRelationNode,
@@ -111,25 +110,35 @@ export function RelationMap(props: RelationMapProps) {
       className="miaixz-relation-map"
     >
       <div className="miaixz-relation-map-toolbar" aria-label={`${ariaLabel}缩放`}>
-        <Button
-          iconOnly
-          aria-label="缩小关系图"
-          disabled={disabled || zoom <= minimumZoom}
-          onClick={() => setZoom((value) => Math.max(minimumZoom, value - zoomStep))}
-        >
-          <Icon name="ZoomOut" />
-        </Button>
+        <IconButton
+          action={{
+            id: "relation-map-zoom-out",
+            intent: "view",
+            label: "缩小关系图",
+            icon: "ZoomOut",
+            tone: "neutral",
+            confirm: "none",
+            placement: "icon",
+            disabled: disabled || zoom <= minimumZoom,
+            onAction: () => setZoom((value) => Math.max(minimumZoom, value - zoomStep)),
+          }}
+        />
         <output aria-live="polite" className="miaixz-relation-map-zoom">
           {zoom}%
         </output>
-        <Button
-          iconOnly
-          aria-label="放大关系图"
-          disabled={disabled || zoom >= maximumZoom}
-          onClick={() => setZoom((value) => Math.min(maximumZoom, value + zoomStep))}
-        >
-          <Icon name="ZoomIn" />
-        </Button>
+        <IconButton
+          action={{
+            id: "relation-map-zoom-in",
+            intent: "view",
+            label: "放大关系图",
+            icon: "ZoomIn",
+            tone: "neutral",
+            confirm: "none",
+            placement: "icon",
+            disabled: disabled || zoom >= maximumZoom,
+            onAction: () => setZoom((value) => Math.min(maximumZoom, value + zoomStep)),
+          }}
+        />
       </div>
       <div className="miaixz-relation-map-viewport">
         <svg

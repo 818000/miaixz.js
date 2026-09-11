@@ -181,8 +181,10 @@
 }
 
 .miaixz-editor-summary dl {
+  display: grid;
+  gap: var(--miaixz-space-12);
   width: 100%;
-  padding: 0;
+  padding: var(--miaixz-space-16) 0 0;
   margin: 20px 0 18px;
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
@@ -191,8 +193,7 @@
   display: grid;
   grid-template-columns: 68px minmax(0, 1fr);
   gap: 8px;
-  padding: 11px 0;
-  border-bottom: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
+  padding: 0;
 }
 
 .miaixz-editor-summary dt,
@@ -220,7 +221,7 @@
 
 .miaixz-editor-section {
   display: grid;
-  gap: 16px;
+  gap: var(--miaixz-space-12);
 }
 
 .miaixz-editor-section > header {
@@ -228,8 +229,7 @@
   gap: 14px;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
-  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  padding-bottom: var(--miaixz-space-4);
 }
 
 .miaixz-editor-section > header > div {
@@ -295,6 +295,7 @@
 
 .miaixz-editor-group-options {
   display: grid;
+  gap: var(--miaixz-space-2);
   max-height: 238px;
   padding: 4px 12px;
   overflow: auto;
@@ -303,11 +304,6 @@
 .miaixz-editor-group-options > .miaixz-checkbox {
   min-height: 48px;
   padding-block: 6px;
-  border-bottom: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
-}
-
-.miaixz-editor-group-options > .miaixz-checkbox:last-child {
-  border-bottom: 0;
 }
 
 .miaixz-editor-overview {
@@ -350,6 +346,7 @@
 
 .miaixz-editor-picker {
   display: grid;
+  gap: var(--miaixz-space-2);
   max-height: 390px;
   padding-inline: 10px;
   overflow: auto;
@@ -360,11 +357,6 @@
 .miaixz-editor-picker > .miaixz-checkbox {
   min-height: 56px;
   padding-block: 7px;
-  border-bottom: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
-}
-
-.miaixz-editor-picker > .miaixz-checkbox:last-child {
-  border-bottom: 0;
 }
 
 .miaixz-editor-two > .miaixz-notice {
@@ -540,9 +532,8 @@
   gap: 16px;
   align-items: flex-start;
   justify-content: space-between;
-  padding-bottom: 13px;
-  margin-bottom: 18px;
-  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  padding-bottom: var(--miaixz-space-4);
+  margin-bottom: var(--miaixz-space-16);
 }
 
 .miaixz-editor-card > header div {

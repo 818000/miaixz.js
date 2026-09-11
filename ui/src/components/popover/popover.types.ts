@@ -18,7 +18,15 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactElement, ReactNode } from "react";
+
+/**
+ * Defines the native semantics Popover merges into its standard trigger.
+ */
+export interface PopoverTriggerProps extends Pick<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "aria-controls" | "aria-expanded" | "aria-haspopup" | "disabled" | "id"
+> {}
 
 /**
  * Configures a Portal-backed fixed popover.
@@ -35,7 +43,7 @@ export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Supplies the visible disclosure trigger.
    */
-  trigger: ReactNode;
+  trigger: ReactElement<PopoverTriggerProps>;
   /**
    * Controls the open state when supplied.
    */
@@ -66,20 +74,4 @@ export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
    * Adds a class to the popover content surface.
    */
   contentClassName?: string;
-  /**
-   * Supplies native attributes for the button trigger.
-   */
-  triggerProps?: ButtonHTMLAttributes<HTMLButtonElement>;
-  /**
-   * Selects a formal visual treatment for the disclosure trigger.
-   *
-   * @defaultValue `"default"`
-   */
-  triggerVariant?: "default" | "avatar" | "plain" | "text" | "action";
-  /**
-   * Prevents disclosure interaction.
-   *
-   * @defaultValue `false`
-   */
-  disabled?: boolean;
 }

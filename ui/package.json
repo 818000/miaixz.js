@@ -69,6 +69,10 @@
       "types": "./dist/components/alert/index.d.ts",
       "import": "./dist/components/alert/index.js"
     },
+    "./action": {
+      "types": "./dist/components/action/index.d.ts",
+      "import": "./dist/components/action/index.js"
+    },
     "./avatar": {
       "types": "./dist/components/avatar/index.d.ts",
       "import": "./dist/components/avatar/index.js"
@@ -313,7 +317,7 @@
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
     "icons:generate": "node src/icons/generate.mjs",
     "icons:check": "node src/icons/generate.mjs --check",
-    "build": "npm run icons:check && node ../.github/scripts/enforce.js --check && npm run lint && npm run clean && tsc -p tsconfig.build.json && node src/theme/generate.mjs && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
+    "build": "npm run icons:check && node ../.github/scripts/enforce.js --check && npm run lint && npm run audit:css && npm run clean && tsc -p tsconfig.build.json && node src/theme/generate.mjs && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "lint": "eslint src tests *.config.js",
     "lint:fix": "eslint src tests *.config.js --fix",
@@ -322,7 +326,8 @@
     "audit:css": "node tests/scripts/audit.mjs",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "check": "npm run icons:check && npm run typecheck && npm run lint && npm run lint:css && npm run format:check",
+    "test": "vitest run",
+    "check": "npm run icons:check && npm run typecheck && npm run lint && npm run lint:css && npm run audit:css && npm run test && npm run format:check",
     "pack:check": "npm run build && publint && attw --pack . && npm pack --dry-run"
   },
   "peerDependencies": {
@@ -343,6 +348,7 @@
     "@size-limit/esbuild": "12.1.0",
     "@size-limit/esbuild-why": "12.1.0",
     "@size-limit/file": "12.1.0",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.6",
     "@types/node": "26.4.0",

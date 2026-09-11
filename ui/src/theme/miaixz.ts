@@ -34,7 +34,7 @@ export const miaixzTheme = defineBuiltInTheme({
     light: {
       colors: {
         brand: "#62B52F",
-        "on-brand": "#FFFFFF",
+        "on-brand": "#10150D",
         "brand-hover": "#58A62A",
         "brand-active": "#4E9724",
         "brand-strong": "#266B1B",
@@ -81,7 +81,7 @@ export const miaixzTheme = defineBuiltInTheme({
     dark: {
       colors: {
         brand: "#7BCB52",
-        "on-brand": "#FFFFFF",
+        "on-brand": "#10150D",
         "brand-hover": "#8BD965",
         "brand-active": "#70BF48",
         "brand-strong": "#A3E37F",

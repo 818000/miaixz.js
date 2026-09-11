@@ -74,10 +74,7 @@ export function normalizeMiaixzApiEndpoint(
     return endpoint.href.replace(/\/+$/, "");
   }
 
-  if (
-    endpoint.protocol === "http:" &&
-    localHttpHostnames.has(endpoint.hostname)
-  ) {
+  if (endpoint.protocol === "http:" && localHttpHostnames.has(endpoint.hostname)) {
     return endpoint.href.replace(/\/+$/, "");
   }
 

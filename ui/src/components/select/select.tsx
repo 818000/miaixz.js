@@ -23,6 +23,7 @@ import {
   forwardRef,
   isValidElement,
   useCallback,
+  useContext,
   useId,
   useMemo,
   useRef,
@@ -35,6 +36,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { classNames } from "../../shared/class-names.js";
+import { MiaixzFieldContext } from "../../shared/field-context.js";
 import { useMiaixzOptionSurface } from "../../shared/option-surface.js";
 import {
   useMiaixzDismissibleLayer,
@@ -90,14 +92,23 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
     onChange,
     onBlur,
     onFocus,
+    id,
+    required = false,
     "aria-invalid": ariaInvalid,
     "aria-label": ariaLabel,
     "aria-labelledby": ariaLabelledby,
+    "aria-describedby": ariaDescribedBy,
     ...nativeProps
   },
   forwardedRef,
 ) {
   const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
+  const fieldContext = useContext(MiaixzFieldContext);
+  const field = fieldContext?.controlId === id ? fieldContext : null;
+  const resolvedLabelledby =
+    ariaLabelledby ?? (ariaLabel === undefined ? field?.labelId : undefined);
+  const resolvedDescribedBy = field?.describedBy ?? ariaDescribedBy;
+  const resolvedRequired = field?.required || required || undefined;
   const nativeRef = useRef<HTMLSelectElement>(null);
   const nativeMergedRef = useMergedRef(forwardedRef, nativeRef);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -222,6 +233,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         value={value}
         defaultValue={defaultValue}
         disabled={disabled}
+        required={required}
         tabIndex={-1}
         aria-hidden="true"
         aria-invalid={isInvalid || undefined}
@@ -233,11 +245,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
       </select>
       <button
         ref={triggerRef}
+        id={field?.controlId ?? id}
         type="button"
         role="combobox"
         className="miaixz-select-trigger"
         aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledby}
+        aria-labelledby={resolvedLabelledby}
+        aria-describedby={resolvedDescribedBy}
+        aria-required={resolvedRequired}
         aria-controls={listboxId}
         aria-expanded={open}
         aria-haspopup="listbox"
@@ -261,6 +276,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
             role="listbox"
             className="miaixz-select-surface"
             aria-label={ariaLabel}
+            aria-labelledby={resolvedLabelledby}
           >
             {options.map((option, index) => {
               const selected = option.value === selectedValue;

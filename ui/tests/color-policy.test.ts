@@ -13,13 +13,13 @@ import { validateResolvedTheme } from "../src/theme/validate.js";
 import { inspectComponentColors } from "./color-policy.mjs";
 
 describe("color ownership", () => {
-  it("keeps brand and link colors while filled green controls share white foregrounds", () => {
+  it("keeps brand and link colors while filled green controls share accessible foregrounds", () => {
     expect(miaixzTheme.modes.light.colors.brand).toBe("#62B52F");
     expect(miaixzTheme.modes.light.colors["brand-strong"]).toBe("#266B1B");
     expect(miaixzTheme.modes.dark.colors.brand).toBe("#7BCB52");
     expect(miaixzTheme.modes.dark.colors["brand-strong"]).toBe("#A3E37F");
-    expect(miaixzTheme.modes.light.colors["on-brand"]).toBe("#FFFFFF");
-    expect(miaixzTheme.modes.dark.colors["on-brand"]).toBe("#FFFFFF");
+    expect(miaixzTheme.modes.light.colors["on-brand"]).toBe("#10150D");
+    expect(miaixzTheme.modes.dark.colors["on-brand"]).toBe("#10150D");
   });
 
   it("keeps neutral light paint free of green tint", () => {
@@ -43,19 +43,19 @@ describe("color ownership", () => {
     expect(foundation.match(/color: var\(--miaixz-color-brand\);/g)).toHaveLength(2);
     expect(foundation).not.toContain("brand-strong");
     const input = readFileSync("src/styles/components/input.css", "utf8");
-    for (const rule of input.matchAll(/[^{}]*\.miaixz-button-link[^{}]*\{([^}]+)\}/g)) {
+    for (const rule of input.matchAll(/[^{}]*\.miaixz-action-text[^{}]*\{([^}]+)\}/g)) {
       expect(rule[1]).not.toMatch(/(?:^|[;\s])color\s*:/);
     }
     const button = readFileSync("src/styles/components/button.css", "utf8");
     expect(button).not.toContain("brand-strong");
-    expect(button).toMatch(
-      /\.miaixz-button-link\[aria-disabled="true"\] \{\s*color: var\(--miaixz-color-text-disabled\);/,
-    );
+    expect(button).toContain(".miaixz-button-primary");
+    expect(button).toContain(".miaixz-button-secondary");
+    expect(button).toContain(".miaixz-button-danger");
   });
 
   it("loads authored brand foregrounds without weakening content contrast validation", () => {
     const theme = new ThemeCatalog().get("miaixz");
-    expect(theme.modes.light.colors["on-brand"]).toBe("#FFFFFF");
+    expect(theme.modes.light.colors["on-brand"]).toBe("#10150D");
     expect(() =>
       validateResolvedTheme({
         ...theme,

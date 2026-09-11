@@ -94,4 +94,32 @@ describe("shared field focus state ownership", () => {
     expect(screen.getByRole("heading", { name: "Kimi Liu" })).toBeInTheDocument();
     expect(screen.getByText("账号").closest("dl")).toHaveTextContent("kimi.liu");
   });
+
+  it("connects a Select trigger to its Field label, guidance and required state", () => {
+    render(
+      <FormField helperText="选择租户后载入订阅" label="租户" required>
+        <Select defaultValue="tenant-001">
+          <option value="tenant-001">Miaixz</option>
+        </Select>
+      </FormField>,
+    );
+
+    const select = screen.getByRole("combobox", { name: "租户" });
+    expect(select).toHaveAccessibleDescription("选择租户后载入订阅");
+    expect(select).toHaveAttribute("aria-required", "true");
+    expect(select.id).not.toBe("");
+    expect(document.querySelector(`label[for="${select.id}"]`)).toHaveTextContent("租户");
+  });
+
+  it("reflects a control validation state on its field container", () => {
+    const { container } = render(
+      <FormField label="显示名称">
+        <Input invalid />
+      </FormField>,
+    );
+
+    const field = container.querySelector(".miaixz-field");
+    expect(field).toHaveClass("miaixz-field-invalid");
+    expect(field).toHaveAttribute("data-invalid", "true");
+  });
 });

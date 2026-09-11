@@ -179,6 +179,13 @@ export class Signer {
 }
 
 /**
+ * Preserves the explicit REST protocol name used by existing SDK consumers.
+ *
+ * @public
+ */
+export { Signer as RestSigner };
+
+/**
  * Signs and sends requests to the Miaixz REST gateway.
  *
  * @public

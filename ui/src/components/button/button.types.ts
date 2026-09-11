@@ -18,166 +18,94 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
+
+import type { MiaixzIconName } from "../../icons/index.js";
 
 /**
- * Defines the visual and semantic treatment of a button.
- *
- * @public
+ * Defines the three permitted visual button treatments. @public
  */
-export type ButtonVariant =
-  | "action"
-  | "action-primary"
-  | "favorite"
-  | "framed-icon"
-  | "choice"
-  | "navigation"
-  | "plain"
-  | "plain-primary"
-  | "text"
-  | "text-danger"
-  | "danger"
-  | "danger-link"
-  | "ghost"
-  | "link"
-  | "outline"
-  | "primary"
-  | "refresh"
-  | "secondary";
+export type ButtonVariant = "primary" | "secondary" | "danger";
 
 /**
- * Defines the supported button control sizes.
- *
- * @public
+ * Defines the supported framed-control sizes. @public
  */
 export type ButtonSize = "small" | "medium" | "large";
 
 /**
- * Configures framework-independent styling shared by buttons and semantic links.
- *
- * @public
+ * Configures a labeled command button. @public
  */
-export interface ButtonStyleOptions {
-  /**
-   * Selects the visual and semantic treatment.
-   *
-   * @defaultValue `"secondary"`
-   */
-  variant?: ButtonVariant;
-  /**
-   * Selects the control size for framed recipes.
-   *
-   * @defaultValue `"medium"`
-   */
-  size?: ButtonSize;
-  /**
-   * Expands the recipe to the width of its container.
-   *
-   * @defaultValue `false`
-   */
-  block?: boolean;
-  /**
-   * Applies icon-only structure without changing the selected variant.
-   *
-   * @defaultValue `false`
-   */
-  iconOnly?: boolean;
-  /**
-   * Appends a consumer-owned class without replacing the public recipe.
-   */
-  className?: string;
-}
-
-/**
- * Defines properties shared by all Miaixz button variants.
- *
- * @public
- */
-export interface MiaixzButtonBaseProps extends Omit<
+export interface ButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "children"
+  "children" | "className" | "style"
 > {
-  /**
-   * Selects the visual and semantic treatment.
-   *
-   * @defaultValue `"secondary"`
-   */
-  variant?: ButtonVariant;
-  /**
-   * Selects the button control size.
-   *
-   * @defaultValue `"medium"`
-   */
-  size?: ButtonSize;
-  /**
-   * Expands the button to the width of its container.
-   *
-   * @defaultValue `false`
-   */
-  block?: boolean;
-  /**
-   * Disables interaction and displays progress feedback.
-   *
-   * @defaultValue `false`
-   */
-  loading?: boolean;
-  /**
-   * Overrides the localized loading announcement.
-   */
-  loadingLabel?: string;
-  /**
-   * Displays content before the button label.
-   */
-  startIcon?: ReactNode;
-  /**
-   * Displays content after the button label.
-   */
-  endIcon?: ReactNode;
-}
-
-/**
- * Configures a labeled Miaixz button.
- *
- * @public
- */
-export interface MiaixzButtonWithContentProps extends MiaixzButtonBaseProps {
-  /**
-   * Keeps the visible label presentation enabled.
-   *
-   * @defaultValue `false`
-   */
-  iconOnly?: false;
   /**
    * Supplies the visible button label.
    */
-  children: ReactNode;
+  readonly children: ReactNode;
+  /**
+   * Selects one of the three framed treatments. @defaultValue `"secondary"`
+   */
+  readonly variant?: ButtonVariant;
+  /**
+   * Selects the shared control height. @defaultValue `"medium"`
+   */
+  readonly size?: ButtonSize;
+  /**
+   * Expands the button to the width of its container. @defaultValue `false`
+   */
+  readonly block?: boolean;
+  /**
+   * Disables interaction and displays progress feedback. @defaultValue `false`
+   */
+  readonly loading?: boolean;
+  /**
+   * Overrides the localized loading announcement.
+   */
+  readonly loadingLabel?: string;
+  /**
+   * Displays one framework-owned leading icon.
+   */
+  readonly startIcon?: MiaixzIconName;
+  /**
+   * Displays one framework-owned trailing icon.
+   */
+  readonly endIcon?: MiaixzIconName;
 }
 
 /**
- * Configures an accessible icon-only Miaixz button.
- *
- * @public
+ * Configures a real navigation link with framed button presentation. @public
  */
-export interface MiaixzIconOnlyButtonProps extends MiaixzButtonBaseProps {
+export interface ButtonLinkProps extends Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  "children" | "className" | "style" | "href"
+> {
   /**
-   * Enables an icon-only action while the selected variant controls whether the
-   * action is framed. Keeps the control hit area and keyboard-only focus treatment;
-   * the accessible name is also used as the title unless a title is supplied.
+   * Supplies the real navigation destination.
    */
-  iconOnly: true;
+  readonly href: string;
   /**
-   * Provides the required accessible name for an icon-only button.
+   * Supplies the visible link label.
    */
-  "aria-label": string;
+  readonly children: ReactNode;
   /**
-   * Supplies the icon-only button content.
+   * Selects one of the three framed treatments. @defaultValue `"secondary"`
    */
-  children: ReactNode;
+  readonly variant?: ButtonVariant;
+  /**
+   * Selects the shared control height. @defaultValue `"medium"`
+   */
+  readonly size?: ButtonSize;
+  /**
+   * Expands the link to the width of its container. @defaultValue `false`
+   */
+  readonly block?: boolean;
+  /**
+   * Displays one framework-owned leading icon.
+   */
+  readonly startIcon?: MiaixzIconName;
+  /**
+   * Displays one framework-owned trailing icon.
+   */
+  readonly endIcon?: MiaixzIconName;
 }
-
-/**
- * Configures either a labeled or an icon-only action button.
- *
- * @public
- */
-export type ButtonProps = MiaixzButtonWithContentProps | MiaixzIconOnlyButtonProps;

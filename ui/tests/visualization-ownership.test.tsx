@@ -2,7 +2,7 @@ import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Button } from "../src/components/button/index.js";
+import { ActionText } from "../src/components/action/index.js";
 import { Columns } from "../src/components/columns/index.js";
 import { Donut } from "../src/components/donut/index.js";
 import { Heatmap } from "../src/components/heatmap/index.js";
@@ -113,21 +113,31 @@ describe("visual component ownership", () => {
     );
   });
 
-  it("keeps refresh loading feedback inside the button variant", () => {
+  it("keeps refresh loading feedback inside the shared action", () => {
     const i18n = createMiaixzI18n();
     const { container } = render(
       <MiaixzLocaleProvider i18n={i18n}>
-        <Button loading loadingLabel="正在更新…" variant="refresh">
-          数据更新于 10:24
-        </Button>
+        <ActionText
+          action={{
+            id: "refresh-visualization",
+            intent: "refresh",
+            label: "数据更新于 10:24",
+            icon: "RefreshCw",
+            tone: "neutral",
+            confirm: "none",
+            placement: "visible",
+            loading: true,
+            onAction: () => undefined,
+          }}
+        />
       </MiaixzLocaleProvider>,
     );
 
-    expect(screen.getByRole("button", { name: "正在更新…" }).getAttribute("data-loading")).toBe(
-      "true",
-    );
-    expect(container.querySelector(".miaixz-button-spinner")).not.toBeNull();
-    expect(container.querySelector(".miaixz-button-label")?.textContent).toBe("正在更新…");
+    expect(
+      screen.getByRole("button", { name: "数据更新于 10:24" }).getAttribute("data-loading"),
+    ).toBe("true");
+    expect(container.querySelector(".miaixz-action-icon")).not.toBeNull();
+    expect(container.querySelector(".miaixz-action-label")?.textContent).toBe("数据更新于 10:24");
   });
 
   it("stops visualization replay immediately when the pointer leaves", () => {

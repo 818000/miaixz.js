@@ -18,13 +18,5 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Button, getButtonClassName } from "./button.js";
-export type {
-  ButtonStyleOptions,
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-  MiaixzButtonBaseProps,
-  MiaixzButtonWithContentProps,
-  MiaixzIconOnlyButtonProps,
-} from "./button.types.js";
+export { Button, ButtonLink } from "./button.js";
+export type { ButtonLinkProps, ButtonProps, ButtonSize, ButtonVariant } from "./button.types.js";
