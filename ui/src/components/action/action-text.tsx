@@ -33,6 +33,10 @@ interface ActionTextViewProps {
    * Whether the framework-owned icon remains visible.
    */
   readonly showIcon: boolean;
+  /**
+   * Optional responsive label presentation owned by the framework.
+   */
+  readonly collapseLabelAt?: "compact";
 }
 
 /**
@@ -44,7 +48,7 @@ interface ActionTextViewProps {
  * @public
  */
 export const ActionText = forwardRef<HTMLElement, ActionTextProps>(function ActionText(
-  { action, id, ...accessibility },
+  { action, collapseLabelAt, id, ...accessibility },
   ref,
 ) {
   return (
@@ -52,6 +56,7 @@ export const ActionText = forwardRef<HTMLElement, ActionTextProps>(function Acti
       ref={ref}
       {...(id === undefined ? {} : { id })}
       action={{ ...action, ...accessibility }}
+      {...(collapseLabelAt === undefined ? {} : { collapseLabelAt })}
       showIcon
     />
   );
@@ -67,7 +72,7 @@ export const ActionText = forwardRef<HTMLElement, ActionTextProps>(function Acti
  * @internal
  */
 export const ActionTextView = forwardRef<HTMLElement, ActionTextViewProps>(function ActionTextView(
-  { action, showIcon },
+  { action, collapseLabelAt, showIcon },
   ref,
 ) {
   const loading = "loading" in action && action.loading === true;
@@ -76,6 +81,7 @@ export const ActionTextView = forwardRef<HTMLElement, ActionTextViewProps>(funct
       ref={ref}
       action={action}
       className={`miaixz-action-text miaixz-action-${action.size ?? "default"}`}
+      {...(collapseLabelAt === undefined ? {} : { dataLabelCollapse: collapseLabelAt })}
     >
       {showIcon && (
         <span className="miaixz-action-icon">

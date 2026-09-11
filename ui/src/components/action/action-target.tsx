@@ -36,6 +36,10 @@ interface ActionTargetProps {
    */
   readonly className: string;
   /**
+   * Framework-owned responsive label behavior.
+   */
+  readonly dataLabelCollapse?: "compact";
+  /**
    * Native DOM id supplied by an owning composite.
    */
   readonly id?: string;
@@ -65,6 +69,7 @@ export function ActionTarget(properties: ActionTargetProps) {
     action,
     children,
     className,
+    dataLabelCollapse,
     id,
     pressed,
     ref,
@@ -89,6 +94,7 @@ export function ActionTarget(properties: ActionTargetProps) {
         className={className}
         data-action-intent={action.intent}
         data-action-tone={action.tone}
+        data-label-collapse={dataLabelCollapse}
         href={action.href}
         rel={action.rel}
         target={action.target}
@@ -109,6 +115,7 @@ export function ActionTarget(properties: ActionTargetProps) {
       className={className}
       data-action-intent={action.intent}
       data-action-tone={action.tone}
+      data-label-collapse={dataLabelCollapse}
       data-loading={action.loading || undefined}
       disabled={unavailable}
       onClick={action.onAction}

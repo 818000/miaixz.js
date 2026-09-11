@@ -111,10 +111,13 @@ describe("native modal focus restoration", () => {
     expect(dialog).toHaveAttribute("open");
     expect(within(dialog).getByText(/^长内容-/)).toHaveTextContent("可达内容");
     await waitFor(() =>
-      expect(document.activeElement).toBe(within(dialog).getByRole("button", { name: "关闭" })),
+      expect(document.activeElement).toBe(within(dialog).getByRole("link", { name: "关闭" })),
     );
 
-    const close = within(dialog).getByRole("button", { name: "关闭" });
+    const close = within(dialog).getByRole("link", { name: "关闭" });
+    expect(close.tagName).toBe("A");
+    expect(close).not.toHaveAttribute("title");
+    expect(within(dialog).queryByRole("tooltip")).toBeNull();
     const save = within(dialog).getByRole("button", { name: "保存" });
     save.focus();
     fireEvent.keyDown(save, { key: "Tab" });
@@ -156,19 +159,19 @@ describe("native modal focus restoration", () => {
     fireEvent.click(outerTrigger);
     const outer = screen.getByRole("dialog", { name: "外层" });
     await waitFor(() =>
-      expect(document.activeElement).toBe(within(outer).getByRole("button", { name: "关闭外层" })),
+      expect(document.activeElement).toBe(within(outer).getByRole("link", { name: "关闭外层" })),
     );
     const innerTrigger = within(outer).getByRole("button", { name: "打开内层" });
     innerTrigger.focus();
     fireEvent.click(innerTrigger);
 
     const inner = screen.getByRole("dialog", { name: "内层" });
-    fireEvent.click(within(inner).getByRole("button", { name: "关闭内层" }));
+    fireEvent.click(within(inner).getByRole("link", { name: "关闭内层" }));
     await waitFor(() => expect(inner).not.toHaveAttribute("open"));
     expect(outer).toHaveAttribute("open");
     await waitFor(() => expect(document.activeElement).toBe(innerTrigger));
 
-    fireEvent.click(within(outer).getByRole("button", { name: "关闭外层" }));
+    fireEvent.click(within(outer).getByRole("link", { name: "关闭外层" }));
     await waitFor(() => expect(outer).not.toHaveAttribute("open"));
     await waitFor(() => expect(document.activeElement).toBe(outerTrigger));
   });
@@ -180,7 +183,7 @@ describe("native modal focus restoration", () => {
     trigger.focus();
     fireEvent.keyDown(trigger, { key: "Enter" });
     fireEvent.click(trigger);
-    fireEvent.click(screen.getByRole("button", { name: "关闭" }));
+    fireEvent.click(screen.getByRole("link", { name: "关闭" }));
     await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 });

@@ -34,7 +34,7 @@ import { classNames } from "../../shared/class-names.js";
 import { useMiaixzNativeModal, useMiaixzPortalTarget } from "../../shared/overlay/index.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { IconButton } from "../action/index.js";
+import { Icon } from "../icon/index.js";
 import type { DrawerProps } from "./drawer.types.js";
 
 interface DrawerFrame {
@@ -268,19 +268,18 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
             )}
           </div>
           {showClose && (
-            <IconButton
-              action={{
-                id: "close-drawer",
-                intent: "close",
-                label: resolvedCloseLabel,
-                icon: "X",
-                tone: "neutral",
-                size: "compact",
-                confirm: "none",
-                placement: "icon",
-                onAction: () => onOpenChange(false),
+            <a
+              aria-label={resolvedCloseLabel}
+              className="miaixz-drawer-close miaixz-link-no-underline"
+              data-action-intent="close"
+              href="#miaixz-drawer-close"
+              onClick={(event) => {
+                event.preventDefault();
+                onOpenChange(false);
               }}
-            />
+            >
+              <Icon name="X" size="control" />
+            </a>
           )}
         </header>
         <div {...bodyProps} className={classNames("miaixz-drawer-body", bodyProps?.className)}>

@@ -77,6 +77,7 @@ export type PrimaryActionDescriptor = ActionDescriptor & {
 
 export interface ActionTextProps {
   readonly action: ActionDescriptor;
+  readonly collapseLabelAt?: "compact";
   readonly id?: string;
   readonly "aria-controls"?: string;
   readonly "aria-expanded"?: boolean;

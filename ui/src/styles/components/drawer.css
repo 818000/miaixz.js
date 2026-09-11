@@ -172,6 +172,31 @@ dialog.miaixz-drawer-bottom {
   color: var(--miaixz-color-text-secondary);
 }
 
+.miaixz-drawer-close {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--miaixz-density-control-height);
+  height: var(--miaixz-density-control-height);
+  color: var(--miaixz-color-text-secondary);
+  text-decoration: none;
+  background: transparent;
+  border-radius: var(--miaixz-radius-control);
+  transition: color var(--miaixz-motion-interaction-duration)
+    var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-drawer-close:is(:hover, :focus-visible) {
+  color: var(--miaixz-color-brand);
+  text-decoration: none;
+  background: transparent;
+}
+
+.miaixz-drawer-close:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-space-2);
+}
+
 .miaixz-drawer-body {
   flex: 1;
   min-height: 0;
@@ -245,16 +270,6 @@ dialog.miaixz-drawer-content.miaixz-drawer-floating {
   margin: 5px 0 0;
   font-size: var(--miaixz-text-caption-size);
   color: var(--miaixz-color-text-muted);
-}
-
-.miaixz-drawer-content-close {
-  padding: 0;
-  font-size: var(--miaixz-text-metric-size);
-  line-height: 1;
-  color: var(--miaixz-color-text-muted);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
 }
 
 .miaixz-drawer-content > .miaixz-drawer-body {

@@ -132,11 +132,11 @@ export interface DrawerProps extends Omit<
    */
   placement?: DrawerPlacement;
   /**
-   * Overrides the localized close-button label.
+   * Overrides the localized close-link label.
    */
   closeLabel?: string;
   /**
-   * Controls whether the close button is rendered.
+   * Controls whether the close link is rendered.
    *
    * @defaultValue `true`
    */

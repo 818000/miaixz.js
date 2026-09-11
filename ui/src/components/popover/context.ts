@@ -30,9 +30,9 @@ export interface MiaixzPopoverContextValue {
   readonly open: boolean;
 
   /**
-   * References the native button that owns the surface.
+   * References the native interactive element that owns the surface.
    */
-  readonly triggerRef: RefObject<HTMLButtonElement | null>;
+  readonly triggerRef: RefObject<HTMLElement | null>;
 
   /**
    * Requests closure and optionally restores trigger focus after the controlled state commits.

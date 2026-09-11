@@ -18,15 +18,37 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactElement, ReactNode } from "react";
+import type { HTMLAttributes, ReactElement, ReactNode } from "react";
 
 /**
  * Defines the native semantics Popover merges into its standard trigger.
  */
-export interface PopoverTriggerProps extends Pick<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  "aria-controls" | "aria-expanded" | "aria-haspopup" | "disabled" | "id"
-> {}
+export interface PopoverTriggerProps {
+  /**
+   * Associates the trigger with the rendered surface.
+   */
+  readonly "aria-controls"?: string;
+  /**
+   * Reports whether a non-button trigger is unavailable.
+   */
+  readonly "aria-disabled"?: boolean | "false" | "true";
+  /**
+   * Reports whether the rendered surface is open.
+   */
+  readonly "aria-expanded"?: boolean | "false" | "true";
+  /**
+   * Describes the kind of popup controlled by the trigger.
+   */
+  readonly "aria-haspopup"?: boolean | "dialog" | "grid" | "listbox" | "menu" | "tree";
+  /**
+   * Prevents interaction when the trigger is a native button.
+   */
+  readonly disabled?: boolean;
+  /**
+   * Identifies the trigger for accessibility relationships.
+   */
+  readonly id?: string;
+}
 
 /**
  * Configures a Portal-backed fixed popover.
@@ -41,7 +63,7 @@ export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
    */
   surface?: "default" | "picker";
   /**
-   * Supplies the visible disclosure trigger.
+   * Supplies the visible disclosure trigger. Native buttons and anchors are supported.
    */
   trigger: ReactElement<PopoverTriggerProps>;
   /**
