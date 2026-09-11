@@ -15,6 +15,24 @@ const componentSourceFiles = await collectFiles(
   resolve(packageDirectory, "src/components"),
   ".tsx",
 );
+const componentIndex = await readFile(resolve(packageDirectory, "src/components/index.ts"), "utf8");
+const packageManifest = await readFile(resolve(packageDirectory, "package.json"), "utf8");
+const actionTypes = await readFile(
+  resolve(packageDirectory, "src/components/action/action.types.ts"),
+  "utf8",
+);
+const actionStyle = await readFile(
+  resolve(packageDirectory, "src/styles/components/action.css"),
+  "utf8",
+);
+const pressInteractionSource = await readFile(
+  resolve(packageDirectory, "src/shared/press-interaction.ts"),
+  "utf8",
+);
+const buttonSource = await readFile(
+  resolve(packageDirectory, "src/components/button/button.tsx"),
+  "utf8",
+);
 const findings = [];
 const definitions = new Set();
 const uses = [];
@@ -90,6 +108,107 @@ for (const file of componentSourceFiles) {
   }
 }
 
+inspectRemovedActionApi("src/components/index.ts", componentIndex);
+inspectRemovedActionApi("package.json", packageManifest);
+
+for (const file of componentSourceFiles) {
+  const source = await readFile(file, "utf8");
+  const fileName = relative(packageDirectory, file);
+  inspect(
+    fileName,
+    source,
+    /<Button\b(?:(?!>).)*(?:\biconOnly\b|\bvariant\s*=\s*(?:\{\s*)?["'](?:action|action-primary|favorite|framed-icon|choice|navigation|plain|plain-primary|text|text-danger|danger-link|ghost|link|outline|refresh)["'])/gs,
+    "ACTION_REMOVED_BUTTON_API",
+  );
+}
+
+inspect(
+  "src/components/action/action.types.ts",
+  actionTypes,
+  /\breadonly\s+(?:className|style)\??\s*:/g,
+  "ACTION_PUBLIC_VISUAL_ESCAPE",
+);
+inspect(
+  "src/components/action/action.types.ts",
+  actionTypes,
+  /\b(?:icon|startIcon|endIcon)\??\s*:\s*ReactNode\b/g,
+  "ACTION_PUBLIC_REACT_NODE_ICON",
+);
+if (!/readonly\s+icon\s*:\s*MiaixzIconName\b/.test(actionTypes)) {
+  addFinding(
+    "src/components/action/action.types.ts",
+    actionTypes,
+    0,
+    "ACTION_ICON_NAME_TYPE_MISSING",
+    "ActionPresentation.icon",
+  );
+}
+
+for (const entry of ["action-text.tsx", "icon-button.tsx"]) {
+  const file = resolve(packageDirectory, "src/components/action", entry);
+  const source = await readFile(file, "utf8");
+  inspect(
+    `src/components/action/${entry}`,
+    source,
+    /miaixz-interactive|data-miaixz-ripple/g,
+    "ACTION_RIPPLE_SCOPE_LEAK",
+  );
+}
+{
+  const file = resolve(packageDirectory, "src/components/pressable/pressable.tsx");
+  const source = await readFile(file, "utf8");
+  inspect(
+    "src/components/pressable/pressable.tsx",
+    source,
+    /miaixz-interactive|data-miaixz-ripple/g,
+    "PRESSABLE_RIPPLE_SCOPE_LEAK",
+  );
+}
+if ((buttonSource.match(/data-miaixz-ripple="true"/g) ?? []).length !== 2) {
+  addFinding(
+    "src/components/button/button.tsx",
+    buttonSource,
+    0,
+    "BUTTON_RIPPLE_HOOK_MISSING",
+    'data-miaixz-ripple="true"',
+  );
+}
+for (const broadSelector of [
+  /button:not\(\[data-miaixz-ripple/g,
+  /\[role=['"]button['"]\]/g,
+  /a\.miaixz-interactive/g,
+]) {
+  for (const match of pressInteractionSource.matchAll(broadSelector)) {
+    addFinding(
+      "src/shared/press-interaction.ts",
+      pressInteractionSource,
+      match.index,
+      "RIPPLE_GLOBAL_SELECTOR",
+      match[0],
+    );
+  }
+}
+
+inspect(
+  "src/styles/components/action.css",
+  actionStyle,
+  /#[0-9a-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(/gi,
+  "ACTION_HARDCODED_VISUAL",
+);
+for (const declaration of actionStyle.matchAll(
+  /(border-radius|transition-duration|animation-duration)\s*:\s*([^;]+)/gi,
+)) {
+  if (!declaration[2].includes("var(--miaixz-")) {
+    addFinding(
+      "src/styles/components/action.css",
+      actionStyle,
+      declaration.index,
+      "ACTION_HARDCODED_VISUAL",
+      declaration[0],
+    );
+  }
+}
+
 for (const entry of ["miaixz.css", "neutral.css", "contrast.css", "theme.css"]) {
   const file = resolve(themeDirectory, entry);
   const source = await readFile(file, "utf8").catch(() => "");
@@ -157,6 +276,10 @@ function isAllowedTypographyFallback(fileName, value) {
 function inspect(fileName, source, pattern, code) {
   for (const match of source.matchAll(pattern))
     addFinding(fileName, source, match.index, code, match[0]);
+}
+
+function inspectRemovedActionApi(fileName, source) {
+  inspect(fileName, source, /\b(?:ButtonGroup|getButtonClassName)\b/g, "ACTION_REMOVED_EXPORT");
 }
 
 function inspectGlobalBackground(fileName, source) {

@@ -24,6 +24,9 @@
 
 .miaixz-field {
   --miaixz-form-collapse-width: 640px;
+  --miaixz-field-label-offset: calc(var(--miaixz-text-caption-line-height) / 2);
+  --miaixz-field-label-inline: var(--miaixz-space-12);
+  --miaixz-field-control-height: var(--miaixz-density-control-height);
 
   display: flex;
   flex-direction: column;
@@ -37,14 +40,6 @@
   color: var(--miaixz-color-text-primary);
 }
 
-@container miaixz-form (width < 640px) {
-  .miaixz-field-label-row {
-    flex-direction: column;
-    gap: var(--miaixz-space-4);
-    align-items: stretch;
-  }
-}
-
 .miaixz-field-label-row {
   display: flex;
   gap: var(--miaixz-space-12);
@@ -55,7 +50,9 @@
 
 .miaixz-field-label {
   min-width: 0;
-  font-weight: var(--miaixz-font-weight-regular);
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-caption-line-height);
   color: var(--miaixz-color-text-primary);
 }
 
@@ -78,4 +75,159 @@
 
 .miaixz-field-error {
   color: var(--miaixz-color-danger);
+}
+
+.miaixz-field:has(> .miaixz-control-small) {
+  --miaixz-field-control-height: var(--miaixz-control-height-small);
+}
+
+.miaixz-field:has(> .miaixz-control-large) {
+  --miaixz-field-control-height: var(--miaixz-control-height-large);
+}
+
+/* Input-like controls use a compact outlined label treatment. Labels stay
+ * visible at every point: empty controls rest the label inside the frame,
+ * while focus, content, and validation lift it onto the outline.
+ */
+.miaixz-field:has(
+  > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+) {
+  position: relative;
+  gap: var(--miaixz-space-4);
+  padding-block-start: var(--miaixz-field-label-offset);
+}
+
+.miaixz-field:has(
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+  )
+  > .miaixz-field-label-row {
+  position: absolute;
+  inset-block-start: var(--miaixz-field-label-offset);
+  inset-inline: var(--miaixz-field-label-inline);
+  z-index: 1;
+  gap: var(--miaixz-space-8);
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left center;
+  transition:
+    color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    transform var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-field:has(
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+  )
+  > .miaixz-field-label-row
+  > :is(.miaixz-field-label, .miaixz-field-optional) {
+  max-width: 100%;
+  padding-inline: var(--miaixz-space-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: auto;
+  background: var(--miaixz-surface-role-control-background);
+}
+
+.miaixz-field:has(
+    > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      ):is([data-disabled="true"], [data-readonly="true"])
+  )
+  > .miaixz-field-label-row
+  > :is(.miaixz-field-label, .miaixz-field-optional) {
+  background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-field:has(
+    > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      ):not([data-filled="true"], [data-preview-state="filled"], [data-preview-state="focus"])
+  ):not(:focus-within, [data-invalid="true"])
+  > .miaixz-field-label-row {
+  transform: translateY(calc(var(--miaixz-field-control-height) / 2 - 50%));
+}
+
+.miaixz-field:has(
+    > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      ):not([data-filled="true"], [data-preview-state="filled"], [data-preview-state="focus"])
+  ):not(:focus-within, [data-invalid="true"])
+  > .miaixz-field-label-row
+  > :is(.miaixz-field-label, .miaixz-field-optional) {
+  padding-inline: 0;
+  background: transparent;
+}
+
+.miaixz-field:has(
+    > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      ):not([data-filled="true"], [data-preview-state="filled"], [data-preview-state="focus"])
+  ):not(:focus-within, [data-invalid="true"])
+  > .miaixz-field-label-row
+  > .miaixz-field-optional {
+  opacity: 0;
+}
+
+.miaixz-field:has(
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-combobox, .miaixz-picker):not(
+        [data-filled="true"],
+        [data-preview-state="filled"],
+        [data-preview-state="focus"]
+      )
+  ):not(:focus-within, [data-invalid="true"])
+  :is(
+    .miaixz-input-element,
+    .miaixz-textarea,
+    .miaixz-combobox-input,
+    .miaixz-picker-input
+  )::placeholder {
+  opacity: 0;
+}
+
+.miaixz-field:focus-within > .miaixz-field-label-row > .miaixz-field-label {
+  color: var(--miaixz-color-brand-strong);
+}
+
+.miaixz-field[data-invalid="true"] > .miaixz-field-label-row > .miaixz-field-label {
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-field:has(
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+  )
+  > :is(.miaixz-field-helper, .miaixz-field-error) {
+  padding-inline: var(--miaixz-space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-field-label-row {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .miaixz-field-label-row > :is(.miaixz-field-label, .miaixz-field-optional) {
+    color: CanvasText;
+    background: Canvas;
+  }
+
+  .miaixz-field[data-invalid="true"] > .miaixz-field-label-row > .miaixz-field-label {
+    color: Mark;
+  }
 }

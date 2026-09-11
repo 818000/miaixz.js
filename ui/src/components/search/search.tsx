@@ -23,7 +23,7 @@ import { forwardRef, useRef, useState } from "react";
 import { classNames } from "../../shared/class-names.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
-import { Button } from "../button/index.js";
+import { IconButton } from "../action/index.js";
 import { Icon } from "../icon/index.js";
 import { Input } from "../input/index.js";
 import type { SearchProps } from "./search.types.js";
@@ -59,23 +59,25 @@ export const Search = forwardRef<HTMLInputElement, SearchProps>(function Search(
   const currentValue = value ?? internalValue;
   const clearAction =
     clearable && currentValue.length > 0 ? (
-      <Button
-        iconOnly
-        type="button"
-        size="small"
-        variant="ghost"
-        aria-label={resolvedClearLabel}
-        className="miaixz-search-clear"
-        onClick={() => {
-          if (value === undefined) {
-            setInternalValue("");
-          }
-          onValueChange?.("");
-          inputRef.current?.focus();
-        }}
-      >
-        <Icon name="X" size="control" />
-      </Button>
+      <span className="miaixz-search-clear">
+        <IconButton
+          action={{
+            id: "clear-search",
+            intent: "close",
+            label: resolvedClearLabel,
+            icon: "X",
+            tone: "neutral",
+            size: "compact",
+            confirm: "none",
+            placement: "icon",
+            onAction: () => {
+              if (value === undefined) setInternalValue("");
+              onValueChange?.("");
+              inputRef.current?.focus();
+            },
+          }}
+        />
+      </span>
     ) : undefined;
   const endAdornment =
     clearAction !== undefined || shortcut !== undefined ? (

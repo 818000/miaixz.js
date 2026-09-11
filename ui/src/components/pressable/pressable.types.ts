@@ -30,10 +30,9 @@ import type { ButtonHTMLAttributes } from "react";
  */
 export interface PressableProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
-   * Selects a reusable interaction surface; business content remains a child.
-   * The link variant shares anchor colors and underlines while retaining button semantics.
+   * Selects a reusable selection or composite interaction surface.
    */
-  variant?: "default" | "row" | "pill" | "card" | "link";
+  variant?: "default" | "row" | "pill" | "card";
   /**
    * Selects a shared row density.
    */

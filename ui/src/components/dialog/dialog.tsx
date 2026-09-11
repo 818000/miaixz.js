@@ -26,8 +26,7 @@ import { classNames } from "../../shared/class-names.js";
 import { useMiaixzNativeModal, useMiaixzPortalTarget } from "../../shared/overlay/index.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { Button } from "../button/index.js";
-import { Icon } from "../icon/index.js";
+import { IconButton } from "../action/index.js";
 import type { DialogProps } from "./dialog.types.js";
 
 /**
@@ -63,7 +62,9 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
   const generatedDescriptionId = `miaixz-dialog-description-${useId()}`;
   const descriptionId = description ? generatedDescriptionId : undefined;
   const portalTarget = useMiaixzPortalTarget();
-  const restoreFocusRef = useMiaixzNativeModal(internalRef, open, portalTarget);
+  const restoreFocusRef = useMiaixzNativeModal(internalRef, open, portalTarget, () =>
+    onOpenChange(false),
+  );
 
   if (portalTarget === null) return null;
   return createPortal(
@@ -108,15 +109,19 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
             )}
           </div>
           {showClose && (
-            <Button
-              iconOnly
-              variant="ghost"
-              size="small"
-              aria-label={resolvedCloseLabel}
-              onClick={() => onOpenChange(false)}
-            >
-              <Icon name="X" size="control" />
-            </Button>
+            <IconButton
+              action={{
+                id: "close-dialog",
+                intent: "close",
+                label: resolvedCloseLabel,
+                icon: "X",
+                tone: "neutral",
+                size: "compact",
+                confirm: "none",
+                placement: "icon",
+                onAction: () => onOpenChange(false),
+              }}
+            />
           )}
         </header>
         <div className="miaixz-dialog-body">{children}</div>

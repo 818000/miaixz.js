@@ -20,61 +20,38 @@
 
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
+import { classNames } from "../../shared/class-names.js";
 import { Icon } from "../icon/index.js";
-import type { ButtonProps, ButtonStyleOptions, ButtonVariant } from "./button.types.js";
-
-const directContentVariants = new Set<ButtonVariant>([
-  "action",
-  "action-primary",
-  "favorite",
-  "choice",
-  "plain",
-  "plain-primary",
-  "text",
-  "text-danger",
-  "navigation",
-]);
+import type { ButtonLinkProps, ButtonProps } from "./button.types.js";
 
 /**
- * Returns the complete shared visual recipe without imposing a framework or element.
+ * Renders the fixed label and optional framework-owned icons.
  *
- * @param root0 - Framework-independent button style options.
- * @param root0.variant - Visual and semantic treatment.
- * @param root0.size - Control size for framed recipes.
- * @param root0.block - Whether the recipe fills its container.
- * @param root0.iconOnly - Whether the recipe presents icon-only content.
- * @param root0.className - Optional consumer class appended to the recipe.
- * @returns A complete class name suitable for a button or semantic link.
- * @public
+ * @param properties - Label and icon content.
+ * @returns The shared framed action content.
  */
-export function getButtonClassName({
-  variant = "secondary",
-  size = "medium",
-  block = false,
-  iconOnly = false,
-  className,
-}: ButtonStyleOptions = {}): string {
-  if (directContentVariants.has(variant)) {
-    return classNames(`miaixz-button-${variant}`, block && "miaixz-control-block", className);
-  }
-  return classNames(
-    "miaixz-control",
-    "miaixz-button",
-    `miaixz-control-${size}`,
-    `miaixz-button-${variant}`,
-    block && "miaixz-control-block",
-    iconOnly && "miaixz-button-icon-only",
-    iconOnly && "miaixz-link-no-underline",
-    className,
+function ButtonContent(properties: Pick<ButtonProps, "children" | "startIcon" | "endIcon">) {
+  const { children, startIcon, endIcon } = properties;
+  return (
+    <>
+      {startIcon !== undefined && (
+        <span className="miaixz-button-icon">
+          <Icon name={startIcon} size="control" />
+        </span>
+      )}
+      <span className="miaixz-button-label">{children}</span>
+      {endIcon !== undefined && (
+        <span className="miaixz-button-icon">
+          <Icon name={endIcon} size="control" />
+        </span>
+      )}
+    </>
   );
 }
 
 /**
- * Renders an accessible action button with shared variants, sizes, and loading state.
- *
- * @public
+ * Renders one of the three permitted labeled command buttons. @public
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
@@ -83,10 +60,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     block = false,
     loading = false,
     loadingLabel,
-    iconOnly = false,
     startIcon,
     endIcon,
-    className,
     disabled,
     type = "button",
     children,
@@ -101,47 +76,77 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {...props}
       ref={ref}
       type={type}
-      title={props.title ?? (iconOnly ? props["aria-label"] : undefined)}
-      disabled={disabled || loading}
+      disabled={disabled === true || loading}
       aria-busy={loading || undefined}
       data-loading={loading || undefined}
+      data-miaixz-ripple="true"
       data-variant={variant}
       data-size={size}
-      className={getButtonClassName({
-        variant,
-        size,
-        block,
-        iconOnly,
-        ...(className !== undefined ? { className } : {}),
-      })}
+      className={classNames(
+        "miaixz-interactive",
+        "miaixz-control",
+        "miaixz-button",
+        `miaixz-control-${size}`,
+        `miaixz-button-${variant}`,
+        block && "miaixz-control-block",
+      )}
     >
       {loading ? (
-        variant === "refresh" ? (
-          <>
-            <span className="miaixz-button-label">{resolvedLoadingLabel}</span>
-            <span className="miaixz-button-icon">
-              <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
-            </span>
-          </>
-        ) : (
-          <>
-            <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
-            <span className={iconOnly ? "miaixz-hidden" : undefined}>{resolvedLoadingLabel}</span>
-          </>
-        )
-      ) : (
         <>
-          {startIcon && <span className="miaixz-button-icon">{startIcon}</span>}
-          {!iconOnly &&
-            (directContentVariants.has(variant) ? (
-              children
-            ) : (
-              <span className="miaixz-button-label">{children}</span>
-            ))}
-          {iconOnly && <span className="miaixz-button-icon">{children}</span>}
-          {endIcon && <span className="miaixz-button-icon">{endIcon}</span>}
+          <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
+          <span className="miaixz-button-label">{resolvedLoadingLabel}</span>
         </>
+      ) : (
+        <ButtonContent
+          {...(startIcon === undefined ? {} : { startIcon })}
+          {...(endIcon === undefined ? {} : { endIcon })}
+        >
+          {children}
+        </ButtonContent>
       )}
     </button>
+  );
+});
+
+/**
+ * Renders a real navigation target with one of the three framed treatments. @public
+ */
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(function ButtonLink(
+  {
+    variant = "secondary",
+    size = "medium",
+    block = false,
+    startIcon,
+    endIcon,
+    href,
+    children,
+    ...props
+  },
+  ref,
+) {
+  return (
+    <a
+      {...props}
+      ref={ref}
+      className={classNames(
+        "miaixz-interactive",
+        "miaixz-control",
+        "miaixz-button",
+        `miaixz-control-${size}`,
+        `miaixz-button-${variant}`,
+        block && "miaixz-control-block",
+      )}
+      data-size={size}
+      data-miaixz-ripple="true"
+      data-variant={variant}
+      href={href}
+    >
+      <ButtonContent
+        {...(startIcon === undefined ? {} : { startIcon })}
+        {...(endIcon === undefined ? {} : { endIcon })}
+      >
+        {children}
+      </ButtonContent>
+    </a>
   );
 });

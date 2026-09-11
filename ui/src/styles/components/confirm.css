@@ -57,6 +57,11 @@
   grid-area: confirm;
 }
 
+.miaixz-confirm-cancel > .miaixz-button,
+.miaixz-confirm-confirm > .miaixz-button {
+  width: 100%;
+}
+
 @container miaixz-form (width < 640px) {
   .miaixz-confirm-content {
     grid-template-areas:

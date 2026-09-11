@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
-import { Button } from "../button/index.js";
+import { IconButton } from "../action/index.js";
 import { Icon } from "../icon/index.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 import type { AlertProps } from "./alert.types.js";
@@ -65,16 +65,21 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
         {actions !== undefined && <div className="miaixz-alert-actions">{actions}</div>}
       </div>
       {onDismiss !== undefined && (
-        <Button
-          iconOnly
-          variant="ghost"
-          size="small"
-          aria-label={resolvedDismissLabel}
-          className="miaixz-alert-dismiss"
-          onClick={onDismiss}
-        >
-          <Icon name="X" />
-        </Button>
+        <span className="miaixz-alert-dismiss">
+          <IconButton
+            action={{
+              id: "dismiss-alert",
+              intent: "close",
+              label: resolvedDismissLabel,
+              icon: "X",
+              tone: "neutral",
+              size: "compact",
+              confirm: "none",
+              placement: "icon",
+              onAction: onDismiss,
+            }}
+          />
+        </span>
       )}
     </div>
   );

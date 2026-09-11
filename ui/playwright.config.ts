@@ -59,7 +59,8 @@ if (outputDir !== artifactsRoot && !outputDir.startsWith(`${artifactsRoot}${path
  */
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "theme.spec.ts",
+  testMatch: ["theme.spec.ts", "action-visual.spec.ts"],
+  snapshotPathTemplate: path.resolve("tests/visual-baselines/action-system/v1/{arg}{ext}"),
   outputDir,
   metadata: { packageStage, runId },
   fullyParallel: false,

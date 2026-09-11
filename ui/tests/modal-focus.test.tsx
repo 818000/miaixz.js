@@ -130,7 +130,7 @@ describe("native modal focus restoration", () => {
     fireEvent.click(trigger);
 
     let dialog = screen.getByRole("dialog", { name: "详情" });
-    fireEvent(dialog, new Event("cancel", { bubbles: false, cancelable: true }));
+    fireEvent.keyDown(document, { key: "Escape" });
     await waitFor(() => expect(dialog).not.toHaveAttribute("open"));
     await waitFor(() => expect(document.activeElement).toBe(trigger));
 

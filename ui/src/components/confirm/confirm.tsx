@@ -112,13 +112,11 @@ export function Confirm(props: ConfirmProps) {
       className="miaixz-confirm"
     >
       <div className="miaixz-confirm-content">
-        <Button
-          className="miaixz-confirm-cancel"
-          disabled={isPending}
-          onClick={() => handleOpenChange(false)}
-        >
-          {cancelLabel}
-        </Button>
+        <span className="miaixz-confirm-cancel">
+          <Button disabled={isPending} onClick={() => handleOpenChange(false)}>
+            {cancelLabel}
+          </Button>
+        </span>
         {confirmationText !== undefined && (
           <div className="miaixz-confirm-input">
             <Input
@@ -138,15 +136,16 @@ export function Confirm(props: ConfirmProps) {
             {error}
           </Notice>
         )}
-        <Button
-          className="miaixz-confirm-confirm"
-          variant={tone === "danger" ? "danger" : "primary"}
-          disabled={!canConfirm || isPending}
-          loading={isPending}
-          onClick={() => void handleConfirm()}
-        >
-          {confirmLabel}
-        </Button>
+        <span className="miaixz-confirm-confirm">
+          <Button
+            variant={tone === "danger" ? "danger" : "primary"}
+            disabled={!canConfirm || isPending}
+            loading={isPending}
+            onClick={() => void handleConfirm()}
+          >
+            {confirmLabel}
+          </Button>
+        </span>
       </div>
     </Dialog>
   );

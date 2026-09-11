@@ -23,7 +23,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode 
 
 import { useMiaixzLocale } from "../../i18n/index.js";
 import { useTheme } from "../../theme/context.js";
-import { Button } from "../button/index.js";
+import { ActionText } from "../action/index.js";
 import { Drawer } from "../drawer/index.js";
 import { Icon } from "../icon/index.js";
 import { LocalePicker } from "../locale-picker/index.js";
@@ -397,14 +397,19 @@ export function Appearance(props: AppearanceProps) {
       >
         {view === "language" ? (
           <div className="miaixz-appearance-language-view">
-            <Button
-              startIcon={<Icon aria-hidden="true" name="ChevronLeft" size="control" />}
-              onClick={() => setView("settings")}
-              size="small"
-              variant="ghost"
-            >
-              {localeRuntime.t("ui.appearance.language.back")}
-            </Button>
+            <ActionText
+              action={{
+                id: "appearance-language-back",
+                intent: "back",
+                label: localeRuntime.t("ui.appearance.language.back"),
+                icon: "ChevronLeft",
+                tone: "neutral",
+                size: "compact",
+                confirm: "none",
+                placement: "visible",
+                onAction: () => setView("settings"),
+              }}
+            />
             <LocalePicker
               disabled={isLoading}
               locale={localeRuntime.locale}

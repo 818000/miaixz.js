@@ -31,6 +31,7 @@ import {
 import { classNames } from "../../shared/class-names.js";
 import { Dropdown, type DropdownEntry } from "../dropdown/index.js";
 import { Icon } from "../icon/index.js";
+import { Pressable } from "../pressable/index.js";
 import { Navigation } from "./navigation.js";
 import { NavigationRailGroup } from "./navigation-rail-group.js";
 import type {
@@ -270,18 +271,17 @@ function RailOverflow(props: RailOverflowProps) {
       label={label}
       placement="top-start"
       trigger={
-        <>
+        <Pressable
+          aria-current={selected ? "page" : undefined}
+          className="miaixz-navigation-item miaixz-navigation-rail-overflow-trigger"
+          title={expanded ? undefined : label}
+        >
           <span className="miaixz-navigation-icon">
             <Icon aria-hidden="true" name="Ellipsis" size="navigation" />
           </span>
           <span className="miaixz-navigation-label">{label}</span>
-        </>
+        </Pressable>
       }
-      triggerProps={{
-        "aria-current": selected ? "page" : undefined,
-        className: "miaixz-navigation-item miaixz-navigation-rail-overflow-trigger",
-        title: expanded ? undefined : label,
-      }}
       variant="compact"
     />
   );

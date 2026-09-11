@@ -77,12 +77,8 @@ export function Field({
   return (
     <div
       {...props}
-      className={classNames(
-        "miaixz-field",
-        Boolean(errorText) && "miaixz-field-invalid",
-        className,
-      )}
-      data-invalid={Boolean(errorText) || undefined}
+      className={classNames("miaixz-field", isInvalid && "miaixz-field-invalid", className)}
+      data-invalid={isInvalid || undefined}
     >
       <div className="miaixz-field-label-row">
         <label id={labelId} className="miaixz-field-label" htmlFor={id}>

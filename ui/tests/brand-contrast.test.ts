@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { miaixzBuiltInThemes } from "../src/theme/catalog.js";
@@ -40,10 +41,7 @@ function contrast(foreground: string, background: string) {
  * @returns Complete rule block.
  */
 function rule(file: string, selector: string) {
-  const css = readFileSync(
-    new URL(`../src/styles/components/${file}.css`, import.meta.url),
-    "utf8",
-  );
+  const css = readFileSync(resolve(process.cwd(), "src/styles/components", `${file}.css`), "utf8");
   const start = css.indexOf(selector);
   expect(start).toBeGreaterThanOrEqual(0);
   return css.slice(css.indexOf("{", start), css.indexOf("}", start) + 1);
@@ -78,21 +76,20 @@ describe("brand foreground semantics", () => {
     for (const selector of [".miaixz-avatar-account {", ".miaixz-avatar-account:hover,"]) {
       expect(rule("avatar", selector)).toContain("color: var(--miaixz-color-on-brand);");
     }
-    for (const selector of [
-      ".miaixz-button-link {",
-      '.miaixz-button-link:focus-visible:not(:disabled, [aria-disabled="true"]) {',
-      '.miaixz-button-link:hover:not(:disabled, [aria-disabled="true"]) {',
-    ]) {
-      expect(rule("button", selector)).toContain("color: var(--miaixz-color-brand);");
-    }
+    expect(rule("action", '.miaixz-action-text[data-action-tone="brand"] {')).toContain(
+      "color: var(--miaixz-color-brand);",
+    );
+    expect(rule("action", ".miaixz-action-text:hover:not(:disabled),")).toContain(
+      "color: var(--miaixz-color-brand);",
+    );
     const navigation = rule(
       "navigation",
       '.miaixz-navigation-horizontal > .miaixz-navigation-item[aria-current="page"] {',
     );
     expect(navigation).toContain("color: var(--miaixz-color-text-primary);");
     expect(navigation).toContain("0 var(--miaixz-color-brand);");
-    expect(
-      rule("button", '.miaixz-button-refresh:hover:not(:disabled, [aria-disabled="true"]) {'),
-    ).toContain("color: var(--miaixz-color-text-primary);");
+    expect(rule("button", ".miaixz-button-primary {")).toContain(
+      "color: var(--miaixz-color-on-brand);",
+    );
   });
 });

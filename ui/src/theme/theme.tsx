@@ -38,6 +38,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { bindPressInteractions } from "../shared/press-interaction.js";
 import { applyTheme } from "./apply.js";
 import { ThemeCache } from "./cache.js";
 import { ThemeCatalog } from "./catalog.js";
@@ -210,6 +211,11 @@ export function Theme(props: ThemeProps) {
         : localTargetRef.current,
     [scope],
   );
+
+  useEffect(() => {
+    const target = targetElement();
+    return target === null ? undefined : bindPressInteractions(target);
+  }, [targetElement]);
 
   const commit = useCallback(
     (next: MiaixzAppearanceSettings, persist: () => void): void => {

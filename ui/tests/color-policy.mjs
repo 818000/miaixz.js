@@ -85,7 +85,9 @@ export function inspectComponentColors(fileName, source) {
       "srgb",
     ]);
     if (forcedRanges.some(([start, end]) => match.index >= start && match.index < end)) {
-      for (const systemColor of ["canvas", "canvastext", "highlight"]) allowed.add(systemColor);
+      for (const systemColor of ["canvas", "canvastext", "highlight", "mark"]) {
+        allowed.add(systemColor);
+      }
     }
     const unknown =
       value

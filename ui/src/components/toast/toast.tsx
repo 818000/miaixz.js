@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { useMiaixzLocale } from "../../i18n/index.js";
 import { classNames } from "../../shared/class-names.js";
-import { Button } from "../button/index.js";
+import { IconButton } from "../action/index.js";
 import { Icon } from "../icon/index.js";
 import type { ToastProps, ToastTone } from "./toast.types.js";
 
@@ -61,16 +61,21 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast(
         {action !== undefined && <div className="miaixz-toast-actions">{action}</div>}
       </div>
       {onDismiss && (
-        <Button
-          iconOnly
-          variant="ghost"
-          size="small"
-          aria-label={resolvedDismissLabel}
-          className="miaixz-toast-dismiss"
-          onClick={() => onDismiss(id)}
-        >
-          <Icon name="X" size="control" />
-        </Button>
+        <span className="miaixz-toast-dismiss">
+          <IconButton
+            action={{
+              id: `dismiss-toast-${id}`,
+              intent: "close",
+              label: resolvedDismissLabel,
+              icon: "X",
+              tone: "neutral",
+              size: "compact",
+              confirm: "none",
+              placement: "icon",
+              onAction: () => onDismiss(id),
+            }}
+          />
+        </span>
       )}
     </div>
   );

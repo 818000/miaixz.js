@@ -62,6 +62,40 @@ for (const density of ["compact", "standard", "comfortable"] as const) {
   });
 }
 
+test("theme delegates pointer and keyboard ripple feedback to semantic actions", async ({
+  page,
+}) => {
+  await page.goto("/tests/?theme=miaixz&colorMode=light&density=standard");
+  const button = page.getByRole("button", { name: "默认按钮" });
+
+  const pointerFeedback = await button.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    element.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        button: 0,
+        clientX: rect.left + rect.width / 4,
+        clientY: rect.top + rect.height / 2,
+      }),
+    );
+    const layer = element.querySelector<HTMLElement>(".miaixz-interaction-ripple-layer");
+    return {
+      interactive: element.classList.contains("miaixz-interactive"),
+      origin: layer?.dataset.origin,
+      ripple: layer?.querySelector(".miaixz-interaction-ripple") !== null,
+    };
+  });
+  expect(pointerFeedback).toEqual({ interactive: true, origin: "pointer", ripple: true });
+
+  const keyboardFeedback = await button.evaluate((element) => {
+    element.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+    return Array.from(
+      element.querySelectorAll<HTMLElement>(".miaixz-interaction-ripple-layer"),
+    ).some((layer) => layer.dataset.origin === "keyboard");
+  });
+  expect(keyboardFeedback).toBe(true);
+});
+
 test("a schema-one custom theme inherits newly added compact typography defaults", async ({
   page,
 }) => {

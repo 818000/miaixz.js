@@ -19,6 +19,7 @@
 */
 
 export * from "./alert/index.js";
+export * from "./action/index.js";
 export * from "./appearance/index.js";
 export * from "./avatar/index.js";
 export * from "./button/index.js";

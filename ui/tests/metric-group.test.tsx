@@ -76,8 +76,7 @@ describe("MetricGroup", () => {
     )?.[1];
 
     expect(fiveColumnRule).toContain("grid-template-columns: repeat(5, minmax(220px, 1fr))");
-    expect(fiveColumnRule).toContain("overflow-x: auto");
-    expect(fiveColumnRule).toContain("overflow-y: hidden");
+    expect(fiveColumnRule).toContain("overflow: auto hidden");
     expect(fiveColumnRule).toContain("overscroll-behavior-inline: contain");
     expect(css).toContain('[data-columns="5"]');
     expect(css).not.toContain("miaixz-metric-group-scroll");

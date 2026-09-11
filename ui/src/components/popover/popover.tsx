@@ -19,6 +19,7 @@
 */
 
 import {
+  cloneElement,
   forwardRef,
   useCallback,
   useEffect,
@@ -40,7 +41,6 @@ import {
 import { calculateMiaixzFloatingPosition } from "../../shared/overlay/floating-position.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
 import { useTheme } from "../../theme/context.js";
-import { getButtonClassName } from "../button/index.js";
 import { MiaixzPopoverContext } from "./context.js";
 import type { PopoverProps } from "./popover.types.js";
 
@@ -59,10 +59,8 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     placement = "bottom-start",
     offset = 8,
     contentClassName,
-    triggerProps,
-    triggerVariant = "default",
-    disabled = false,
     className,
+    onClick,
     children,
     ...props
   },
@@ -76,7 +74,7 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
   const isOpen = open ?? internalOpen;
   const contentId = useId();
   const generatedTriggerId = useId();
-  const triggerId = triggerProps?.id ?? generatedTriggerId;
+  const triggerId = trigger.props.id ?? generatedTriggerId;
   const restoreFocusRef = useRef(false);
   const previousOpenRef = useRef(isOpen);
   const portalTarget = useMiaixzPortalTarget(rootElement);
@@ -139,6 +137,14 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     () => ({ open: isOpen, triggerRef, requestClose }),
     [isOpen, requestClose],
   );
+  useLayoutEffect(() => {
+    triggerRef.current = rootElement?.querySelector<HTMLButtonElement>("button") ?? null;
+  }, [rootElement, trigger]);
+  const triggerElement = cloneElement(trigger, {
+    id: triggerId,
+    "aria-controls": contentId,
+    "aria-expanded": isOpen,
+  });
 
   return (
     <div
@@ -146,31 +152,18 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
       ref={ref}
       data-placement={placement}
       className={classNames("miaixz-popover", className)}
+      onClick={(event) => {
+        onClick?.(event);
+        if (
+          rootElement?.firstElementChild?.contains(event.target as Node) === true &&
+          !event.defaultPrevented &&
+          !trigger.props.disabled
+        ) {
+          requestOpenChange(!isOpen, false);
+        }
+      }}
     >
-      <button
-        {...triggerProps}
-        ref={triggerRef}
-        id={triggerId}
-        type={triggerProps?.type ?? "button"}
-        aria-controls={contentId}
-        aria-expanded={isOpen}
-        disabled={disabled || triggerProps?.disabled}
-        className={classNames(
-          triggerVariant === "plain" || triggerVariant === "text" || triggerVariant === "action"
-            ? getButtonClassName({ variant: triggerVariant })
-            : "miaixz-popover-trigger",
-          triggerVariant === "avatar" && "miaixz-popover-trigger-avatar",
-          triggerProps?.className,
-        )}
-        onClick={(event) => {
-          triggerProps?.onClick?.(event);
-          if (!event.defaultPrevented && !disabled && !triggerProps?.disabled) {
-            requestOpenChange(!isOpen, false);
-          }
-        }}
-      >
-        {trigger}
-      </button>
+      {triggerElement}
       {isOpen &&
         portalTarget !== null &&
         createPortal(

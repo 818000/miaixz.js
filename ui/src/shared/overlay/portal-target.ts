@@ -134,6 +134,17 @@ function getTopMiaixzModal(ownerDocument: Document | null): HTMLDialogElement | 
 }
 
 /**
+ * Reports whether one dialog is the active package-owned modal for its document.
+ *
+ * @param dialog - Candidate native dialog.
+ * @returns Whether the dialog is currently at the top of the modal stack.
+ * @internal
+ */
+export function isTopMiaixzModal(dialog: HTMLDialogElement): boolean {
+  return getTopMiaixzModal(dialog.ownerDocument) === dialog;
+}
+
+/**
  * Subscribes to modal target changes without creating a store during server rendering.
  *
  * @param ownerDocument - Document whose modal changes should be observed.

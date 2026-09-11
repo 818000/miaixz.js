@@ -53,6 +53,7 @@ export const MetricGroup = forwardRef<HTMLDivElement, MetricGroupProps>(function
         <ul
           className="miaixz-metric-group-summary-list"
           style={{ "--miaixz-metric-group-columns": columns } as CSSProperties}
+          tabIndex={0}
         >
           {children}
         </ul>

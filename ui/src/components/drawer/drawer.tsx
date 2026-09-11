@@ -34,8 +34,7 @@ import { classNames } from "../../shared/class-names.js";
 import { useMiaixzNativeModal, useMiaixzPortalTarget } from "../../shared/overlay/index.js";
 import { useMiaixzLocale } from "../../i18n/index.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { Button } from "../button/index.js";
-import { Icon } from "../icon/index.js";
+import { IconButton } from "../action/index.js";
 import type { DrawerProps } from "./drawer.types.js";
 
 interface DrawerFrame {
@@ -191,7 +190,9 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
   const generatedDescriptionId = `miaixz-drawer-description-${useId()}`;
   const descriptionId = description ? generatedDescriptionId : undefined;
   const portalTarget = useMiaixzPortalTarget();
-  const restoreFocusRef = useMiaixzNativeModal(internalRef, active, portalTarget);
+  const restoreFocusRef = useMiaixzNativeModal(internalRef, active, portalTarget, () =>
+    onOpenChange(false),
+  );
 
   const geometry: CSSProperties & Record<`--${string}`, string | number> = {};
   if (width !== undefined && placement !== "bottom") {
@@ -266,27 +267,21 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
               </p>
             )}
           </div>
-          {showClose &&
-            (density === "content" ? (
-              <button
-                type="button"
-                className="miaixz-drawer-content-close"
-                aria-label={resolvedCloseLabel}
-                onClick={() => onOpenChange(false)}
-              >
-                ×
-              </button>
-            ) : (
-              <Button
-                iconOnly
-                variant="ghost"
-                size="small"
-                aria-label={resolvedCloseLabel}
-                onClick={() => onOpenChange(false)}
-              >
-                <Icon name="X" size="control" />
-              </Button>
-            ))}
+          {showClose && (
+            <IconButton
+              action={{
+                id: "close-drawer",
+                intent: "close",
+                label: resolvedCloseLabel,
+                icon: "X",
+                tone: "neutral",
+                size: "compact",
+                confirm: "none",
+                placement: "icon",
+                onAction: () => onOpenChange(false),
+              }}
+            />
+          )}
         </header>
         <div {...bodyProps} className={classNames("miaixz-drawer-body", bodyProps?.className)}>
           {children}
