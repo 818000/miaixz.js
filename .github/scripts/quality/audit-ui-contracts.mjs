@@ -2,9 +2,10 @@ import { readFile, readdir } from "node:fs/promises";
 import { extname, relative, resolve } from "node:path";
 import process from "node:process";
 import { URL, fileURLToPath } from "node:url";
-import { inspectComponentColors } from "../color-policy.mjs";
+import { inspectComponentColors } from "./ui-color-policy.mjs";
 
-const packageDirectory = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
+const packageDirectory = resolve(repositoryRoot, "ui");
 const sourceDirectory = resolve(packageDirectory, "src");
 const stylesDirectory = resolve(packageDirectory, "src/styles");
 const themeDirectory = resolve(packageDirectory, "src/theme");

@@ -9,14 +9,16 @@ Design token types, field lists and shared defaults live in `src/design/`.
 Directory names do not change public symbols or CSS custom property names.
 Cross-component implementation helpers live in `src/shared/` (formerly `src/internal/`).
 This directory is package-private; consumers use existing public exports, not shared deep imports.
-`npm run build` compiles TypeScript, automatically runs `src/theme/generate.mjs`,
-then copies both CSS trees to `dist`. The CSS package test detects generated-file drift;
-the generator also accepts `--runtime-dir` and `--output-dir` for isolated reproduction.
+`npm run build` compiles TypeScript, automatically runs
+`.github/scripts/codegen/theme-css.mjs` from the repository root, then copies both
+CSS trees to `dist`. The CSS package test detects generated-file drift; the generator also accepts
+`--runtime-dir` and `--output-dir` for isolated reproduction.
 
 Public theme entries are `@miaixz/ui/theme`, `@miaixz/ui/styles.css`,
 `@miaixz/ui/theme.css`, `@miaixz/ui/neutral.css`, and `@miaixz/ui/contrast.css`.
 `styles.css` is the complete default theme. Foundation, component, core, and reset
-entries retain their responsibilities. CSS auditing uses `tests/scripts/audit.mjs`.
+entries retain their responsibilities. CSS auditing uses
+`.github/scripts/quality/audit-ui-contracts.mjs` from the repository root.
 Every public module that renders DOM also exposes one selective stylesheet at
 `@miaixz/ui/<subpath>/styles.css`; `Graph` uses
 `@miaixz/ui/diagram/graph/styles.css`. Selective consumers load a theme/foundation

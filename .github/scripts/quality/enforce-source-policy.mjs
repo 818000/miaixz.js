@@ -89,10 +89,10 @@ async function processSourceHeaders(mode) {
     throw new Error(`Unsupported mode: ${mode}`);
   }
 
-  const rootDirectory = resolve(dirname(scriptPath), "../..");
+  const rootDirectory = resolve(dirname(scriptPath), "../../..");
   const sourceDirectories = [resolve(rootDirectory, "sdk/src"), resolve(rootDirectory, "ui/src")];
   const header = normalizeHeader(
-    await readFile(resolve(dirname(scriptPath), "miaixz.org"), "utf8"),
+    await readFile(resolve(dirname(scriptPath), "../miaixz.org"), "utf8"),
   );
   const files = (
     await Promise.all(sourceDirectories.map((directory) => collectSourceFiles(directory)))

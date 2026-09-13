@@ -221,7 +221,7 @@ describe("CSS package ownership contract", () => {
       execFileSync(
         process.execPath,
         [
-          "src/theme/generate.mjs",
+          "../.github/scripts/codegen/theme-css.mjs",
           "--runtime-dir",
           resolve(packageDirectory, "dist"),
           "--output-dir",

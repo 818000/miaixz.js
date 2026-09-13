@@ -44,7 +44,7 @@ import { pathToFileURL } from "node:url";
 const root = process.argv[2];
 const version = process.argv[3];
 const { assertReleaseVersion, getSdkPeerRange } = await import(
-  pathToFileURL(join(root, ".github/scripts/version-range.mjs"))
+  pathToFileURL(join(root, ".github/scripts/version.mjs"))
 );
 assertReleaseVersion(version);
 

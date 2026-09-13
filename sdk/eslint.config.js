@@ -23,7 +23,7 @@ import eslint from "@eslint/js";
 import prettier from "eslint-config-prettier";
 import jsdoc from "eslint-plugin-jsdoc";
 import globals from "globals";
-import multilineComments from "../.github/scripts/enforce.js";
+import multilineComments from "../.github/scripts/quality/enforce-source-policy.mjs";
 
 const typeScriptFiles = ["**/*.ts"];
 
