@@ -18,5 +18,16 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Dropzone, DropzonePanel } from "./dropzone.js";
-export type { DropzoneProps, MiaixzDropzoneOwnProps } from "./dropzone.types.js";
+export { Dropzone, getDropzoneFileSignature, validateDropzoneFiles } from "./dropzone.js";
+export type { DropzoneValidationResult } from "./dropzone.js";
+export type {
+  DropzoneMultiplicity,
+  DropzoneOwnerState,
+  DropzoneProps,
+  DropzoneRejection,
+  DropzoneRejectionReason,
+  DropzoneRootAttributes,
+  DropzoneSlot,
+  DropzoneSlotProps,
+  MiaixzDropzoneOwnProps,
+} from "./dropzone.types.js";

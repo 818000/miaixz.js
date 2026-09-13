@@ -21,18 +21,38 @@
 export { Navigation } from "./navigation.js";
 export { NavigationRail } from "./navigation-rail.js";
 export { NavigationRailGroup } from "./navigation-rail-group.js";
-export type { NavigationRailGroupProps } from "./navigation-rail-group.types.js";
 export type {
-  NavigationRailClassNames,
+  MiaixzNavigationRailGroupOwnProps,
+  NavigationRailGroupOwnerState,
+  NavigationRailGroupProps,
+  NavigationRailGroupRootAttributes,
+  NavigationRailGroupSlot,
+  NavigationRailGroupSlotProps,
+} from "./navigation-rail-group.types.js";
+export type {
+  MiaixzNavigationRailOwnProps,
+  NavigationRailDensity,
   NavigationRailGroupModel,
   NavigationRailItem,
-  NavigationRailOverflowMode,
+  NavigationRailOverflowAttributes,
+  NavigationRailOwnerState,
   NavigationRailProps,
+  NavigationRailRootAttributes,
   NavigationRailSlot,
+  NavigationRailSlotProps,
   NavigationRailVariant,
 } from "./navigation-rail.types.js";
 export type {
+  MiaixzNavigationOwnProps,
+  NavigationDensity,
   NavigationEntry,
+  NavigationIconAttributes,
   NavigationOrientation,
+  NavigationOwnerState,
   NavigationProps,
+  NavigationRootAttributes,
+  NavigationSlot,
+  NavigationSlotProps,
+  NavigationSlots,
+  NavigationSurface,
 } from "./navigation.types.js";

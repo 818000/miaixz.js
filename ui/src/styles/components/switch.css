@@ -120,13 +120,12 @@
   background: var(--miaixz-color-brand-hover);
 }
 
-.miaixz-switch-input:where(:focus-visible) + .miaixz-switch-track,
-.miaixz-switch[data-preview-state="focus"] .miaixz-switch-track {
+.miaixz-switch-input:focus-visible + .miaixz-switch-track {
   outline: 0;
   box-shadow: var(--miaixz-control-focus-shadow);
 }
 
-.miaixz-switch:where(.miaixz-switch-invalid, [data-preview-state="invalid"]) .miaixz-switch-track {
+.miaixz-switch.miaixz-switch-invalid .miaixz-switch-track {
   box-shadow: var(--miaixz-control-invalid-shadow);
 }
 
@@ -151,8 +150,7 @@
   cursor: not-allowed;
 }
 
-.miaixz-switch-disabled .miaixz-switch-track,
-.miaixz-switch[data-preview-state="disabled"] .miaixz-switch-track {
+.miaixz-switch-disabled .miaixz-switch-track {
   background: var(--miaixz-color-border);
   box-shadow: none;
 }
@@ -169,7 +167,7 @@
   }
 }
 
-.miaixz-switch.miaixz-switch-compact {
+.miaixz-switch.miaixz-switch-small {
   --miaixz-switch-width: 38px;
   --miaixz-switch-height: 21px;
   --miaixz-switch-thumb-size: 15px;
@@ -182,19 +180,19 @@
   gap: 0;
 }
 
-.miaixz-switch-compact:has(.miaixz-switch-content) {
+.miaixz-switch-small:has(.miaixz-switch-content) {
   grid-template-columns: var(--miaixz-switch-width) minmax(0, 1fr);
   gap: var(--miaixz-space-8);
 }
 
-.miaixz-switch-compact .miaixz-switch-track {
+.miaixz-switch-small .miaixz-switch-track {
   padding: 0;
   margin: 0;
   border-radius: var(--miaixz-radius-round);
   transition: none;
 }
 
-.miaixz-switch-compact .miaixz-switch-thumb {
+.miaixz-switch-small .miaixz-switch-thumb {
   position: absolute;
   inset-block-start: var(--miaixz-switch-thumb-inset);
   inset-inline-start: var(--miaixz-switch-thumb-inset);
@@ -203,7 +201,7 @@
   box-shadow: none;
 }
 
-.miaixz-switch-compact .miaixz-switch-input:checked + .miaixz-switch-track .miaixz-switch-thumb {
+.miaixz-switch-small .miaixz-switch-input:checked + .miaixz-switch-track .miaixz-switch-thumb {
   transform: translateX(
     calc(
       var(--miaixz-switch-width) - var(--miaixz-switch-thumb-size) -
@@ -213,7 +211,7 @@
 }
 
 [dir="rtl"]
-  .miaixz-switch-compact
+  .miaixz-switch-small
   .miaixz-switch-input:checked
   + .miaixz-switch-track
   .miaixz-switch-thumb {
@@ -228,7 +226,7 @@
   );
 }
 
-.miaixz-switch.miaixz-switch-compact .miaixz-switch-input:checked + .miaixz-switch-track {
+.miaixz-switch.miaixz-switch-small .miaixz-switch-input:checked + .miaixz-switch-track {
   background: var(--miaixz-color-brand);
 }
 /* stylelint-enable no-descending-specificity

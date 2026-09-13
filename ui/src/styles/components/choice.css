@@ -80,15 +80,10 @@
   border-color: var(--miaixz-color-border-strong);
 }
 
-.miaixz-choice-input:where(:focus-visible) + .miaixz-choice-mark,
-.miaixz-choice[data-preview-state="focus"] .miaixz-choice-mark {
+.miaixz-choice-input:focus-visible + .miaixz-choice-mark {
   outline: 0;
   border-color: var(--miaixz-color-border-strong);
   box-shadow: var(--miaixz-control-focus-shadow);
-}
-
-.miaixz-choice[data-preview-state="hover"] .miaixz-choice-mark {
-  border-color: var(--miaixz-color-border-strong);
 }
 
 .miaixz-choice-input:where(:checked, :indeterminate) + .miaixz-choice-mark {
@@ -120,7 +115,7 @@
   border-radius: 50%;
 }
 
-.miaixz-choice:where(.miaixz-choice-invalid, [data-preview-state="invalid"]) .miaixz-choice-mark {
+.miaixz-choice.miaixz-choice-invalid .miaixz-choice-mark {
   border-color: var(--miaixz-color-danger);
   box-shadow: var(--miaixz-control-invalid-shadow);
 }
@@ -152,8 +147,7 @@
   color: var(--miaixz-color-text-disabled);
 }
 
-.miaixz-choice-disabled .miaixz-choice-mark,
-.miaixz-choice[data-preview-state="disabled"] .miaixz-choice-mark {
+.miaixz-choice-disabled .miaixz-choice-mark {
   background: var(--miaixz-color-surface-secondary);
   border-color: var(--miaixz-color-border);
   box-shadow: none;

@@ -18,218 +18,151 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc -- Closed editor compositions and slots are self-describing.
+ */
 import type { FieldsetHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
-/**
- * Selects a shared recipe for native, directly composed editor content.
- *
- * @public
- */
-export type EditorPart =
-  | "section"
-  | "hint"
-  | "image"
-  | "group"
-  | "group-head"
-  | "options"
-  | "actions"
-  | "compact-section"
-  | "picker"
-  | "code";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+import type { GridProps } from "../grid/grid.types.js";
+import type { MiaixzFeedbackTone } from "../shared.types.js";
 
-/**
- * Configures an unframed field group with a semantic legend.
- *
- * @public
- */
 export interface EditorFieldsetProps extends FieldsetHTMLAttributes<HTMLFieldSetElement> {
-  /**
-   * Supplies the semantic field group label.
-   */
   readonly legend: ReactNode;
-  /**
-   * Selects the default or emphasized legend treatment.
-   *
-   * @defaultValue `"default"`
-   */
   readonly emphasis?: "default" | "strong";
 }
 
-/**
- * Configures a divided status footer while business status colors remain with the consumer.
- *
- * @public
- */
-export type EditorStatusProps = HTMLAttributes<HTMLElement>;
-
-/**
- * One label and value displayed in an editor summary. @public
- */
-export interface EditorSummaryItem {
-  /**
-   * Supplies the item label.
-   */
-  readonly label: ReactNode;
-  /**
-   * Supplies the item value.
-   */
-  readonly value: ReactNode;
+export interface EditorLayoutOwnerState {
+  readonly layout: "single" | "split";
+  readonly divided: boolean;
 }
-
-/**
- * One compact value displayed above a tabbed editor. @public
- */
-export interface EditorOverviewItem {
-  /**
-   * Supplies the overview label.
-   */
-  readonly label: ReactNode;
-  /**
-   * Supplies the primary overview value.
-   */
-  readonly value: ReactNode;
-  /**
-   * Supplies optional supporting copy.
-   */
-  readonly description?: ReactNode;
+export interface EditorLayoutSlotProps {
+  readonly summary?: MiaixzSlotProps<EditorLayoutOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly content?: MiaixzSlotProps<EditorLayoutOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
-
-/**
- * Configures the two-column editor shell. @public
- */
 export interface EditorLayoutProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Supplies the editor's summary rail.
-   */
   readonly summary: ReactNode;
-
-  /**
-   * Selects the summary treatment used to separate it from the editor body.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: "default" | "divided";
+  readonly children: ReactNode;
+  readonly layout?: "single" | "split";
+  readonly divided?: boolean;
+  readonly slotProps?: EditorLayoutSlotProps;
 }
 
-/**
- * Configures the sticky identity summary shown beside an editor form. @public
- */
-export interface EditorSummaryProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
-  /**
-   * Supplies the profile image or fallback.
-   */
+export interface EditorSummaryItem {
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly value: ReactNode;
+}
+export interface EditorSummaryOwnerState {
+  readonly headingLevel: 1 | 2 | 3 | 4 | 5 | 6;
+}
+export interface EditorSummarySlotProps {
+  readonly avatar?: MiaixzSlotProps<EditorSummaryOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<EditorSummaryOwnerState, HTMLAttributes<HTMLHeadingElement>>;
+  readonly subtitle?: MiaixzSlotProps<EditorSummaryOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly status?: MiaixzSlotProps<EditorSummaryOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly facts?: MiaixzSlotProps<EditorSummaryOwnerState, HTMLAttributes<HTMLDListElement>>;
+  readonly footer?: MiaixzSlotProps<EditorSummaryOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface EditorSummaryProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  "children" | "title"
+> {
   readonly avatar: ReactNode;
-  /**
-   * Supplies the primary identity.
-   */
   readonly title: ReactNode;
-  /**
-   * Supplies supporting identity metadata.
-   */
   readonly subtitle: ReactNode;
-  /**
-   * Supplies optional status content.
-   */
   readonly status?: ReactNode;
-  /**
-   * Supplies the labeled summary values.
-   */
   readonly items: readonly EditorSummaryItem[];
-  /**
-   * Supplies content anchored at the summary's end.
-   */
   readonly footer?: ReactNode;
+  readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly slotProps?: EditorSummarySlotProps;
 }
 
-/**
- * Configures one titled editor section and its field layout. @public
- */
+export interface EditorSectionOwnerState {
+  readonly surface: "plain" | "framed" | "card";
+  readonly layout: "single" | "two-column";
+  readonly headingLevel: 1 | 2 | 3 | 4 | 5 | 6;
+}
+export interface EditorSectionSlotProps {
+  readonly header?: MiaixzSlotProps<EditorSectionOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly description?: MiaixzSlotProps<EditorSectionOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly body?: MiaixzSlotProps<EditorSectionOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
 export interface EditorSectionProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
-  /**
-   * Selects a form section or a framed content section.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: "default" | "framed" | "card";
-  /**
-   * Supplies the section heading.
-   */
   readonly title: ReactNode;
-  /**
-   * Supplies optional section guidance.
-   */
   readonly description?: ReactNode;
-  /**
-   * Supplies optional trailing header content.
-   */
   readonly accessory?: ReactNode;
-  /**
-   * Selects the field arrangement.
-   */
-  readonly layout?: "default" | "two" | "associations";
+  readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly surface?: "plain" | "framed" | "card";
+  readonly layout?: "single" | "two-column";
+  readonly slotProps?: EditorSectionSlotProps;
 }
 
-/**
- * Configures one framed association group inside an editor section. @public
+/*
+ * Reuses Grid without introducing editor-specific layout dimensions. @public
  */
+export type EditorFieldsProps = GridProps;
+export interface EditorActionsProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  readonly children: ReactNode;
+}
+/*
+ * Scopes the filled, outlined compact Panel recipe to editor compositions. @public
+ */
+export interface EditorBoxProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  "aria-label" | "aria-labelledby" | "children" | "title"
+> {
+  readonly children: ReactNode;
+}
+
+export interface EditorGroupOwnerState {
+  readonly headingLevel: 1 | 2 | 3 | 4 | 5 | 6;
+}
+export interface EditorGroupSlotProps {
+  readonly header?: MiaixzSlotProps<EditorGroupOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly description?: MiaixzSlotProps<EditorGroupOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly options?: MiaixzSlotProps<EditorGroupOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
 export interface EditorGroupProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
-  /**
-   * Supplies the group heading.
-   */
   readonly title: ReactNode;
-  /**
-   * Supplies optional group guidance.
-   */
   readonly description?: ReactNode;
-  /**
-   * Supplies optional trailing header content.
-   */
   readonly accessory?: ReactNode;
+  readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly slotProps?: EditorGroupSlotProps;
 }
 
-/**
- * Configures a compact three-column editor overview. @public
- */
-export interface EditorOverviewProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Keeps the original compact overview or shows detailed status cells.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: "default" | "detailed";
-  /**
-   * Supplies ordered overview values.
-   */
+export interface EditorOverviewItem {
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly value: ReactNode;
+  readonly description?: ReactNode;
+}
+export interface EditorOverviewOwnerState {
+  readonly density: "compact" | "comfortable";
+  readonly itemId: string | undefined;
+}
+export interface EditorOverviewSlotProps {
+  readonly item?: MiaixzSlotProps<EditorOverviewOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly label?: MiaixzSlotProps<EditorOverviewOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly value?: MiaixzSlotProps<EditorOverviewOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<EditorOverviewOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface EditorOverviewProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   readonly items: readonly EditorOverviewItem[];
+  readonly density?: "compact" | "comfortable";
+  readonly slotProps?: EditorOverviewSlotProps;
 }
 
-/**
- * Configures a bordered, scrollable editor option picker. @public
- */
-export type EditorPickerProps = HTMLAttributes<HTMLDivElement>;
+type EditorPickerName =
+  | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
+  | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
+export type EditorPickerProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "aria-labelledby" | "children"
+> &
+  EditorPickerName & { readonly children: ReactNode };
 
-/**
- * Configures a consistently spaced field collection; business code selects columns.
- *
- * @public
- */
-export type EditorFieldsProps = HTMLAttributes<HTMLDivElement>;
-/**
- * Configures a footer control group without automatic wrapping.
- *
- * @public
- */
-export type EditorActionsProps = HTMLAttributes<HTMLDivElement>;
-/**
- * Configures a small bordered control or guidance region.
- *
- * @public
- */
-export interface EditorBoxProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Selects the standard box or guidance treatment.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: "default" | "guidance";
+export interface EditorStatusProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  readonly tone: MiaixzFeedbackTone | "brand";
+  readonly label: ReactNode;
+  readonly children?: ReactNode;
 }

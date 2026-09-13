@@ -18,142 +18,255 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, type CSSProperties } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
-import type { DonutProps } from "./donut.types.js";
-
-/**
- * Extends React styles with private normalized donut geometry.
+/* eslint-disable jsdoc/require-jsdoc -- Public Donut contract lives in its type module.
  */
-interface MiaixzDonutSegmentStyle extends CSSProperties {
-  /**
-   * Supplies normalized visible and remaining arc percentages.
-   */
+import { forwardRef, useEffect, useId, useRef, useState, type CSSProperties } from "react";
+
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { DonutOwnerState, DonutProps } from "./donut.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+interface DonutSegmentStyle extends CSSProperties {
   readonly "--miaixz-donut-segment": string;
-  /**
-   * Supplies the accumulated normalized arc offset.
-   */
   readonly "--miaixz-donut-offset": string;
 }
 
-/**
- * Renders a normalized donut with a shared legend and center slot.
- *
- * @public
- */
-export const Donut = forwardRef<HTMLDivElement, DonutProps>(function Donut(
-  {
-    segments,
-    center,
-    size = "large",
-    variant = "default",
-    legend = "inline",
-    className,
-    onPointerEnter,
-    onPointerLeave,
-    "aria-label": ariaLabel,
-    style,
-    ...props
-  },
-  forwardedRef,
-) {
-  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
-    useVisualizationMotion<HTMLDivElement>({
-      forwardedRef,
-      onPointerEnter,
-      onPointerLeave,
+export const Donut = withMiaixzThemeComponent(
+  "Donut",
+  forwardRef<HTMLDivElement, DonutProps>(function Donut(
+    {
+      segments,
+      center,
+      description,
+      size = "large",
+      variant = "ring",
+      legend = "inline",
+      animate = false,
+      valueFormatter,
+      percentageFormatter,
+      slotProps,
+      "aria-label": ariaLabel,
+      ...props
+    },
+    ref,
+  ) {
+    const { locale, t } = useMiaixzLocale();
+    const descriptionId = useId();
+    const ids = new Set<string>();
+    for (const segment of segments) {
+      if (ids.has(segment.id)) {
+        throw new MiaixzUiError({
+          code: "UI_DONUT_DUPLICATE_SEGMENT_ID",
+          details: { id: segment.id },
+        });
+      }
+      if (!Number.isFinite(segment.value) || segment.value < 0) {
+        throw new MiaixzUiError({
+          code: "UI_DONUT_VALUE_INVALID",
+          details: { id: segment.id },
+        });
+      }
+      ids.add(segment.id);
+    }
+    const total = segments.reduce((sum, segment) => sum + segment.value, 0);
+    let offset = 0;
+    const formatValue =
+      valueFormatter ??
+      ((value: number) =>
+        new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value));
+    const formatPercentage =
+      percentageFormatter ??
+      ((ratio: number) =>
+        new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(
+          ratio,
+        ));
+    const normalized = segments.map((segment) => {
+      const ratio = total === 0 ? 0 : segment.value / total;
+      const currentOffset = offset;
+      offset += ratio * 100;
+      return {
+        segment,
+        ratio,
+        offset: currentOffset,
+        valueText: formatValue(segment.value, segment),
+        percentageText: formatPercentage(ratio, segment),
+      };
     });
-  if (segments.some(({ value }) => !Number.isFinite(value) || value < 0)) {
-    throw new TypeError("Donut segment values must be finite non-negative numbers");
-  }
-  const total = segments.reduce((sum, { value }) => sum + value, 0);
-  let offset = 0;
-  const normalized = segments.map((segment) => {
-    const percentage = total === 0 ? 0 : (segment.value / total) * 100;
-    const result = { ...segment, offset, percentage };
-    offset += percentage;
-    return result;
-  });
-
-  if (variant === "distribution") {
-    const stops = normalized.map(({ tone, offset: start, percentage }) => {
-      const token = tone === "neutral" ? "data-neutral" : tone;
-      return `var(--miaixz-color-${token}) ${start}% ${start + percentage}%`;
-    });
-    const fill = total === 0 ? "var(--miaixz-color-border)" : `conic-gradient(${stops.join(", ")})`;
+    const [animating, setAnimating] = useState(false);
+    const mountedRef = useRef(false);
+    const signature = segments.map(({ id, value, tone }) => `${id}:${value}:${tone}`).join("|");
+    useEffect(() => {
+      if (!mountedRef.current) {
+        mountedRef.current = true;
+        return;
+      }
+      const reducedMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!animate || reducedMotion) return;
+      setAnimating(false);
+      const timer = window.setTimeout(() => setAnimating(true), 0);
+      return () => window.clearTimeout(timer);
+    }, [animate, signature]);
+    const state = total === 0 ? "empty" : "ready";
+    const ownerState: DonutOwnerState = { size, variant, legend, state, animate: animating };
     return (
       <div
-        {...props}
-        ref={ref}
-        role="img"
-        aria-label={ariaLabel}
-        data-state={total === 0 ? "empty" : "ready"}
-        className={classNames("miaixz-donut-distribution", className)}
-        style={{ ...style, "--miaixz-donut-fill": fill } as CSSProperties}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-donut" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            role: "group",
+            "aria-label": ariaLabel,
+            ...(description === undefined ? {} : { "aria-describedby": descriptionId }),
+            "data-size": size,
+            "data-variant": variant,
+            "data-state": state,
+            ...(animating ? { "data-animate": true } : {}),
+          },
+          ownedProps: ["role", "aria-label", "aria-describedby"],
+        })}
       >
-        {center}
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-donut-visual" },
+            slotProps: slotProps?.visual,
+            internalProps: { "aria-hidden": true },
+            ownedProps: ["aria-hidden"],
+          })}
+        >
+          <svg className="miaixz-donut-svg" viewBox="0 0 100 100">
+            <circle className="miaixz-donut-track" cx="50" cy="50" r="40" pathLength="100" />
+            {total > 0 &&
+              normalized.map(
+                ({ segment, ratio, offset: segmentOffset, valueText, percentageText }) => (
+                  <circle
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: {
+                        className: `miaixz-donut-segment miaixz-donut-tone-${segment.tone}`,
+                      },
+                      slotProps: slotProps?.segment,
+                      internalProps: {
+                        cx: 50,
+                        cy: 50,
+                        r: 40,
+                        pathLength: 100,
+                        style: {
+                          "--miaixz-donut-segment": `${ratio * 100} ${100 - ratio * 100}`,
+                          "--miaixz-donut-offset": `${-segmentOffset}`,
+                        } as DonutSegmentStyle,
+                        "aria-label": `${segment.label}: ${valueText}, ${percentageText}`,
+                      },
+                      ownedProps: ["cx", "cy", "r", "pathLength", "aria-label"],
+                    })}
+                    key={segment.id}
+                  />
+                ),
+              )}
+          </svg>
+          {center !== undefined && <span className="miaixz-donut-center">{center}</span>}
+        </span>
+        {legend === "inline" && (
+          <ul
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-donut-legend" },
+              slotProps: slotProps?.legend,
+            })}
+          >
+            {normalized.map(({ segment, valueText, percentageText }) => (
+              <li
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-donut-legend-item" },
+                  slotProps: slotProps?.legendItem,
+                })}
+                key={segment.id}
+              >
+                <span
+                  className={`miaixz-donut-dot miaixz-donut-tone-${segment.tone}`}
+                  aria-hidden="true"
+                />
+                <span className="miaixz-donut-label">{segment.label}</span>
+                <span className="miaixz-donut-value">{valueText}</span>
+                <span className="miaixz-donut-percentage">{percentageText}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {description !== undefined && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-donut-description" },
+              slotProps: slotProps?.description,
+              internalProps: { id: descriptionId },
+              ownedProps: ["id"],
+            })}
+          >
+            {description}
+          </div>
+        )}
+        <table
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-hidden miaixz-donut-table" },
+            slotProps: slotProps?.table,
+          })}
+        >
+          <caption {...mergeMiaixzSlotProps({ ownerState, slotProps: slotProps?.caption })}>
+            {ariaLabel}
+          </caption>
+          <thead>
+            <tr>
+              {[t("ui.donut.segment"), t("ui.donut.value"), t("ui.donut.percentage")].map(
+                (heading) => (
+                  <th
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      slotProps: slotProps?.tableHeader,
+                      internalProps: { scope: "col" },
+                      ownedProps: ["scope"],
+                    })}
+                    key={heading}
+                  >
+                    {heading}
+                  </th>
+                ),
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {normalized.map(({ segment, valueText, percentageText }) => (
+              <tr key={segment.id}>
+                <th
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    slotProps: slotProps?.tableHeader,
+                    internalProps: { scope: "row" },
+                    ownedProps: ["scope"],
+                  })}
+                >
+                  {segment.label}
+                </th>
+                <td {...mergeMiaixzSlotProps({ ownerState, slotProps: slotProps?.tableCell })}>
+                  {valueText}
+                </td>
+                <td {...mergeMiaixzSlotProps({ ownerState, slotProps: slotProps?.tableCell })}>
+                  {percentageText}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
-  }
-
-  return (
-    <div
-      {...props}
-      style={style}
-      ref={ref}
-      role="img"
-      aria-label={ariaLabel}
-      data-state={total === 0 ? "empty" : "ready"}
-      data-motion-state={motionState}
-      className={classNames(
-        "miaixz-donut",
-        `miaixz-donut-${size}`,
-        `miaixz-donut-${variant}`,
-        legend === "hidden" && "miaixz-donut-legend-hidden",
-        className,
-      )}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-    >
-      <span className="miaixz-donut-visual" aria-hidden="true">
-        <svg className="miaixz-donut-svg" viewBox="0 0 100 100">
-          <circle className="miaixz-donut-track" cx="50" cy="50" r="40" pathLength="100" />
-          {total > 0 &&
-            normalized.map(({ label, tone, percentage, offset: segmentOffset }, index) => {
-              const style: MiaixzDonutSegmentStyle = {
-                "--miaixz-donut-segment": `${percentage} ${100 - percentage}`,
-                "--miaixz-donut-offset": `${-segmentOffset}`,
-              };
-              return (
-                <circle
-                  key={`${label}-${index}`}
-                  className={`miaixz-donut-segment miaixz-donut-tone-${tone}`}
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  pathLength="100"
-                  style={style}
-                />
-              );
-            })}
-        </svg>
-        {center !== undefined && <span className="miaixz-donut-center">{center}</span>}
-      </span>
-      {legend === "inline" && (
-        <ul className="miaixz-donut-legend" aria-hidden="true">
-          {normalized.map(({ label, value, tone }, index) => (
-            <li key={`${label}-${index}`} className="miaixz-donut-legend-item">
-              <span className={`miaixz-donut-dot miaixz-donut-tone-${tone}`} />
-              <span className="miaixz-donut-label">{label}</span>
-              <span className="miaixz-donut-value">{value}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-});
+  }),
+);

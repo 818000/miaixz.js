@@ -18,221 +18,119 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public List contracts are defined by the component type module.
+ */
 import { forwardRef } from "react";
 
+import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
-import type {
-  ListEntry,
-  ListProps,
-  ListDistributionItemProps,
-  ListMarkerProps,
-  ListCounterProps,
-  ListPart,
-  ListItemProps,
-} from "./list.types.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { ListProvider } from "./list-context.js";
+import { ListItem } from "./list-item.js";
+import type { ListCounterProps, ListMarkerProps, ListOwnerState, ListProps } from "./list.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Resolves a shared list text recipe without replacing native markup.
- *
- * @param part - Public list recipe part.
- * @param className - Optional consumer class name.
- * @returns Complete public recipe class name.
- * @public
+/*
+ * Renders a semantic list from one required declarative item source. @public
  */
-export function getListClassName(part: ListPart, className?: string): string {
-  return classNames(`miaixz-list-${part}`, className);
-}
-
-/**
- * Renders a compact visual count inside a list row. @public
- */
-export const ListCounter = forwardRef<HTMLSpanElement, ListCounterProps>(function ListCounter(
-  { className, variant = "default", ...props },
-  ref,
-) {
-  return (
-    <span
-      {...props}
-      ref={ref}
-      className={classNames(
-        variant === "alert" ? "miaixz-list-counter-alert" : "miaixz-list-counter",
-        className,
-      )}
-    />
-  );
-});
-
-/**
- * Renders a list marker without assigning business step numbers. @public
- */
-export const ListMarker = forwardRef<HTMLSpanElement, ListMarkerProps>(function ListMarker(
-  { className, variant = "default", children, ...props },
-  ref,
-) {
-  return (
-    <span {...props} ref={ref} className={classNames(`miaixz-list-marker-${variant}`, className)}>
-      {variant === "step" ? <i>{children}</i> : children}
-    </span>
-  );
-});
-
-/**
- * Renders one theme-toned list entry. @public
- */
-export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(function ListItem(
-  { className, tone = "neutral", ...props },
-  ref,
-) {
-  return (
-    <li
-      {...props}
-      ref={ref}
-      data-tone={tone}
-      className={classNames("miaixz-list-toned-item", className)}
-    />
-  );
-});
-
-/**
- * Renders one theme-toned distribution entry. @public
- */
-export const ListDistributionItem = forwardRef<HTMLLIElement, ListDistributionItemProps>(
-  function ListDistributionItem({ className, tone = "neutral", ...props }, ref) {
+export const List = withMiaixzThemeComponent(
+  "List",
+  forwardRef<HTMLUListElement, ListProps>(function List(
+    {
+      items,
+      layout = "list",
+      density = "standard",
+      surface = "plain",
+      dividers = true,
+      bordered = false,
+      slotProps,
+      ...props
+    },
+    ref,
+  ) {
+    const ids = new Set<string>();
+    for (const item of items) {
+      if (ids.has(item.id)) {
+        throw new MiaixzUiError({
+          code: "UI_COLLECTION_DUPLICATE_ID",
+          details: { id: item.id },
+        });
+      }
+      ids.add(item.id);
+    }
+    const ownerState: ListOwnerState = { layout, density, surface, dividers, bordered };
     return (
-      <li
-        {...props}
-        ref={ref}
-        data-tone={tone}
-        className={classNames("miaixz-list-distribution-item", className)}
-      />
+      <ListProvider value={{ density, surface }}>
+        <ul
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-list" },
+            componentProps: props,
+            slotProps: slotProps?.root,
+            forwardedRef: ref,
+            internalProps: {
+              "data-layout": layout,
+              "data-density": density,
+              "data-surface": surface,
+              ...(dividers ? { "data-dividers": true } : {}),
+              ...(bordered ? { "data-bordered": true } : {}),
+            },
+            ownedProps: [
+              "data-layout",
+              "data-density",
+              "data-surface",
+              "data-dividers",
+              "data-bordered",
+            ],
+          })}
+        >
+          {items.map((item) => (
+            <ListItem {...item} key={item.id} />
+          ))}
+        </ul>
+      </ListProvider>
     );
-  },
+  }),
 );
 
-/**
- * Renders a semantic collection with shared spacing and divider options.
- *
- * @public
+/*
+ * Renders a compact visual count inside a list row. @public
  */
-export const List = forwardRef<HTMLUListElement, ListProps>(function List(
-  {
-    items,
-    layout = "default",
-    disabledAppearance = "dim",
-    dividerTone = "default",
-    interactionSurface = "neutral",
-    bordered = false,
-    dividers = true,
-    plain = false,
-    nested = false,
-    density = "default",
-    variant = "default",
-    className,
-    children,
-    ...props
-  },
-  ref,
-) {
-  return (
-    <ul
-      {...props}
-      ref={ref}
-      className={classNames(
-        "miaixz-list",
-        `miaixz-list-${density}`,
-        `miaixz-list-${variant}`,
-        layout === "grid" && "miaixz-list-grid",
-        disabledAppearance === "preserve" && "miaixz-list-disabled-preserve",
-        dividerTone === "panel" && "miaixz-list-dividers-panel",
-        interactionSurface === "tone" && "miaixz-list-interaction-tone",
-        bordered && "miaixz-list-bordered",
-        !dividers && "miaixz-list-no-dividers",
-        plain && "miaixz-list-plain",
-        nested && "miaixz-list-nested",
-        className,
-      )}
-    >
-      {items?.map((item, index) => (
-        <ListEntryView key={`${item.id ?? "item"}-${index}`} {...item} />
-      )) ?? children}
-    </ul>
-  );
-});
+export const ListCounter = withMiaixzThemeComponent(
+  "ListCounter",
+  forwardRef<HTMLSpanElement, ListCounterProps>(function ListCounter(
+    { className, variant = "default", ...props },
+    ref,
+  ) {
+    return (
+      <span
+        {...props}
+        ref={ref}
+        className={classNames(
+          variant === "alert" ? "miaixz-list-counter-alert" : "miaixz-list-counter",
+          className,
+        )}
+      />
+    );
+  }),
+);
 
-/**
- * Renders one list row with optional leading, description, and trailing content.
- *
- * @param entry - Declarative list entry.
- * @returns The rendered list row.
- * @internal
+/*
+ * Renders a visual marker without assigning business meaning. @public
  */
-function ListEntryView(entry: ListEntry) {
-  const {
-    icon,
-    title,
-    description,
-    meta,
-    actions,
-    href,
-    onAction,
-    selected = false,
-    disabled = false,
-    className,
-    content,
-    tone,
-    ...props
-  } = entry;
-  const hasStructuredContent = title !== undefined || description !== undefined;
-  const interactive = href !== undefined || onAction !== undefined;
-  const rowContent = (
-    <>
-      {icon && <span className="miaixz-list-icon">{icon}</span>}
-      {hasStructuredContent ? (
-        <div className="miaixz-list-content">
-          {title !== undefined && <p className="miaixz-list-title">{title}</p>}
-          {description !== undefined && <p className="miaixz-list-description">{description}</p>}
-        </div>
-      ) : (
-        content
-      )}
-      {meta !== undefined && <span className="miaixz-list-meta">{meta}</span>}
-      {actions !== undefined && <span className="miaixz-list-actions">{actions}</span>}
-    </>
-  );
+export const ListMarker = withMiaixzThemeComponent(
+  "ListMarker",
+  forwardRef<HTMLSpanElement, ListMarkerProps>(function ListMarker(
+    { className, variant = "default", children, ...props },
+    ref,
+  ) {
+    return (
+      <span {...props} ref={ref} className={classNames(`miaixz-list-marker-${variant}`, className)}>
+        {variant === "step" ? <i>{children}</i> : children}
+      </span>
+    );
+  }),
+);
 
-  return (
-    <li
-      {...props}
-      data-selected={selected || undefined}
-      data-tone={tone}
-      aria-disabled={disabled || undefined}
-      className={classNames(
-        "miaixz-list-item",
-        interactive && "miaixz-list-item-interactive",
-        className,
-      )}
-    >
-      {href !== undefined ? (
-        <a
-          className="miaixz-list-item-control"
-          href={href}
-          aria-disabled={disabled || undefined}
-          tabIndex={disabled ? -1 : undefined}
-        >
-          {rowContent}
-        </a>
-      ) : onAction !== undefined ? (
-        <button
-          className="miaixz-list-item-control"
-          type="button"
-          disabled={disabled}
-          onClick={onAction}
-        >
-          {rowContent}
-        </button>
-      ) : (
-        rowContent
-      )}
-    </li>
-  );
-}
+export { ListItem } from "./list-item.js";

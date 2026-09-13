@@ -19,20 +19,12 @@
 */
 
 /*
- * Scoped theme behavior and compatibility aliases.
+ * Scoped theme behavior.
  */
 [data-miaixz-theme] {
   color: var(--miaixz-surface-role-page-foreground);
   accent-color: var(--miaixz-color-brand);
   caret-color: var(--miaixz-color-brand);
-
-  --miaixz-app-border: var(--miaixz-surface-role-panel-border);
-  --miaixz-app-divider: var(--miaixz-surface-role-panel-border);
-  --miaixz-app-selected: var(--miaixz-surface-role-selected-background);
-  --miaixz-module-border: var(--miaixz-app-border);
-  --miaixz-module-divider: var(--miaixz-app-divider);
-  --miaixz-module-soft: var(--miaixz-app-selected);
-  --miaixz-module-soft-strong: var(--miaixz-surface-role-selected-background);
 }
 
 [data-miaixz-theme] ::selection {

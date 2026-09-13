@@ -21,190 +21,161 @@
 import {
   cloneElement,
   forwardRef,
-  useCallback,
   useEffect,
   useId,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-
-import { classNames } from "../../shared/class-names.js";
-import {
-  useMiaixzDismissibleLayer,
-  useMiaixzFloatingPosition,
-  useMiaixzManualPopover,
-  useMiaixzPortalTarget,
-} from "../../shared/overlay/index.js";
-import { calculateMiaixzFloatingPosition } from "../../shared/overlay/floating-position.js";
-import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { useTheme } from "../../theme/context.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzDismissibleLayer } from "../../shared/overlay/dismissible-layer.js";
+import { useMiaixzFloatingPosition } from "../../shared/overlay/floating-position.js";
+import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
+import { useMiaixzManualPopover } from "../../shared/overlay/top-layer.js";
+import type { MiaixzOverlayChangeReason } from "../../shared/overlay/types.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useControlled } from "../../shared/use-controlled.js";
 import { MiaixzPopoverContext } from "./context.js";
-import type { PopoverProps } from "./popover.types.js";
+import type { PopoverOwnerState, PopoverProps } from "./popover.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a controlled or uncontrolled fixed Popover through the package Portal layer.
- *
- * @public
+ * Renders a controlled or uncontrolled button disclosure through the shared Portal layer.
  */
-export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover(
-  {
-    trigger,
-    surface = "default",
-    open,
-    defaultOpen = false,
-    onOpenChange,
-    placement = "bottom-start",
-    offset = 8,
-    contentClassName,
-    className,
-    onClick,
-    children,
-    ...props
-  },
-  forwardedRef,
-) {
-  const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
-  const triggerRef = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const ref = useMergedRef(forwardedRef, setRootElement);
-  const [internalOpen, setInternalOpen] = useState(defaultOpen);
-  const isOpen = open ?? internalOpen;
-  const contentId = useId();
-  const generatedTriggerId = useId();
-  const triggerId = trigger.props.id ?? generatedTriggerId;
-  const restoreFocusRef = useRef(false);
-  const previousOpenRef = useRef(isOpen);
-  const portalTarget = useMiaixzPortalTarget(rootElement);
-  const themeRevision = useOptionalThemeRevision();
-  if (!Number.isFinite(offset) || offset < 0) {
-    throw new RangeError("Popover offset must be a finite non-negative number");
-  }
-
-  const requestOpenChange = useCallback(
-    (nextOpen: boolean, restoreFocus: boolean) => {
-      restoreFocusRef.current = !nextOpen && restoreFocus;
-      if (open === undefined) setInternalOpen(nextOpen);
-      onOpenChange?.(nextOpen);
-    },
-    [onOpenChange, open],
-  );
-  const requestClose = useCallback(
-    (restoreFocus: boolean) => requestOpenChange(false, restoreFocus),
-    [requestOpenChange],
-  );
-
-  useMiaixzManualPopover(contentRef, isOpen, portalTarget);
-  useMiaixzFloatingPosition(triggerRef, contentRef, isOpen, placement, portalTarget, offset);
-  useLayoutEffect(() => {
-    const trigger = triggerRef.current;
-    const content = contentRef.current;
-    const viewport = trigger?.ownerDocument.defaultView;
-    if (!isOpen || trigger === null || content === null || viewport == null) return;
-    const position = calculateMiaixzFloatingPosition(
-      trigger.getBoundingClientRect(),
-      content.getBoundingClientRect(),
+export const Popover = withMiaixzThemeComponent(
+  "Popover",
+  forwardRef<HTMLButtonElement, PopoverProps>(function Popover(props, forwardedRef) {
+    const {
+      trigger,
+      children,
+      placement = "bottom-start",
+      offset = 8,
+      popupRole,
+      slotProps,
+    } = props;
+    if (!Number.isFinite(offset) || offset < 0) {
+      throw new MiaixzUiError({
+        code: "UI_POPOVER_OFFSET_INVALID",
+        details: { offset },
+      });
+    }
+    const pendingReasonRef = useRef<MiaixzOverlayChangeReason>("trigger");
+    const state = useControlled({
+      controlled: props.open !== undefined,
+      value: props.open,
+      defaultValue: props.defaultOpen ?? false,
+      hasDefaultValue: props.open !== undefined && props.defaultOpen !== undefined,
+      ...(props.onOpenChange === undefined
+        ? {}
+        : {
+            onValueChange: (open: boolean) =>
+              (props.onOpenChange as (open: boolean, reason: MiaixzOverlayChangeReason) => void)(
+                open,
+                pendingReasonRef.current,
+              ),
+          }),
+    });
+    const isOpen = state.value;
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+    const restoreFocusRef = useRef(false);
+    const previousOpenRef = useRef(isOpen);
+    const [triggerElement, setTriggerElement] = useState<HTMLButtonElement | null>(null);
+    const portalTarget = useMiaixzPortalTarget(triggerElement);
+    const contentId = useId();
+    const generatedTriggerId = useId();
+    const triggerId = trigger.props.id ?? generatedTriggerId;
+    const ownerState: PopoverOwnerState = {
+      open: isOpen,
       placement,
-      viewport.innerWidth,
-      viewport.innerHeight,
-      viewport.getComputedStyle(trigger).direction === "rtl",
-      offset,
+      ...(popupRole === undefined ? {} : { popupRole }),
+    };
+    const requestOpenChange = (nextOpen: boolean, reason: MiaixzOverlayChangeReason): void => {
+      if (nextOpen === isOpen) return;
+      pendingReasonRef.current = reason;
+      restoreFocusRef.current = !nextOpen && reason !== "trigger";
+      state.setValue(nextOpen);
+    };
+    const mergedTriggerProps = mergeMiaixzSlotProps({
+      ownerState,
+      componentProps: trigger.props,
+      slotProps: slotProps?.trigger,
+      internalRef: (element: HTMLButtonElement | null) => {
+        triggerRef.current = element;
+        setTriggerElement(element);
+      },
+      forwardedRef,
+      internalProps: {
+        id: triggerId,
+        "aria-controls": contentId,
+        "aria-expanded": isOpen,
+        ...(popupRole === undefined ? {} : { "aria-haspopup": popupRole }),
+        onClick: () => requestOpenChange(!isOpen, "trigger"),
+      },
+      ownedProps: ["id", "aria-controls", "aria-expanded", "aria-haspopup"],
+    });
+    const resolvedContentSlot =
+      typeof slotProps?.content === "function" ? slotProps.content(ownerState) : slotProps?.content;
+    const hasExplicitContentLabel =
+      typeof resolvedContentSlot?.["aria-label"] === "string" &&
+      resolvedContentSlot["aria-label"].trim() !== "";
+    const contentProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-popover-content" },
+      slotProps: resolvedContentSlot,
+      internalRef: contentRef,
+      internalProps: {
+        id: contentId,
+        ...(hasExplicitContentLabel ? {} : { "aria-labelledby": triggerId }),
+        popover: "manual",
+        ...(popupRole === undefined ? {} : { role: popupRole }),
+      },
+      ownedProps: ["id", "aria-labelledby", "role"],
+    });
+    useMiaixzManualPopover(contentRef, isOpen, portalTarget);
+    useMiaixzFloatingPosition(triggerRef, contentRef, isOpen, placement, portalTarget, offset);
+    useMiaixzDismissibleLayer({
+      active: isOpen,
+      triggerRef,
+      contentRef,
+      portalTarget,
+      onDismiss: (reason) => requestOpenChange(false, reason),
+    });
+    useLayoutEffect(() => {
+      const candidate = triggerRef.current;
+      if (candidate === null || !(candidate instanceof HTMLButtonElement)) {
+        throw new MiaixzUiError({
+          code: "UI_POPOVER_TRIGGER_INVALID",
+        });
+      }
+    }, [trigger]);
+    useEffect(() => {
+      const wasOpen = previousOpenRef.current;
+      previousOpenRef.current = isOpen;
+      if (!wasOpen || isOpen || !restoreFocusRef.current) return;
+      restoreFocusRef.current = false;
+      queueMicrotask(() => triggerRef.current?.focus({ preventScroll: true }));
+    }, [isOpen]);
+    const context = {
+      open: isOpen,
+      triggerRef,
+      contentRef,
+      requestClose: (reason: MiaixzOverlayChangeReason = "selection") =>
+        requestOpenChange(false, reason),
+    };
+    return (
+      <>
+        {cloneElement(trigger, mergedTriggerProps)}
+        {isOpen && portalTarget !== null
+          ? createPortal(
+              <MiaixzPopoverContext.Provider value={context}>
+                <div {...contentProps}>{children}</div>
+              </MiaixzPopoverContext.Provider>,
+              portalTarget,
+            )
+          : null}
+      </>
     );
-    content.style.left = `${position.x}px`;
-    content.style.top = `${position.y}px`;
-    content.dataset.placement = position.placement;
-    content.dataset.miaixzPositioned = "true";
-  }, [isOpen, placement, portalTarget, themeRevision, offset]);
-  useMiaixzDismissibleLayer({
-    active: isOpen,
-    triggerRef,
-    contentRef,
-    portalTarget,
-    onDismiss: () => requestClose(true),
-  });
-
-  useEffect(() => {
-    const wasOpen = previousOpenRef.current;
-    previousOpenRef.current = isOpen;
-    if (!wasOpen || isOpen || !restoreFocusRef.current) return;
-    restoreFocusRef.current = false;
-    queueMicrotask(() => triggerRef.current?.focus({ preventScroll: true }));
-  }, [isOpen]);
-
-  const context = useMemo(
-    () => ({ open: isOpen, triggerRef, requestClose }),
-    [isOpen, requestClose],
-  );
-  useLayoutEffect(() => {
-    const candidate = rootElement?.firstElementChild;
-    triggerRef.current = candidate instanceof HTMLElement ? candidate : null;
-  }, [rootElement, trigger]);
-  const triggerElement = cloneElement(trigger, {
-    id: triggerId,
-    "aria-controls": contentId,
-    "aria-expanded": isOpen,
-  });
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      data-placement={placement}
-      className={classNames("miaixz-popover", className)}
-      onClick={(event) => {
-        onClick?.(event);
-        const triggerElement = rootElement?.firstElementChild;
-        const triggerDisabled =
-          triggerElement instanceof HTMLButtonElement
-            ? triggerElement.disabled
-            : triggerElement?.getAttribute("aria-disabled") === "true";
-        if (
-          triggerElement?.contains(event.target as Node) === true &&
-          !event.defaultPrevented &&
-          !triggerDisabled
-        ) {
-          if (triggerElement instanceof HTMLAnchorElement) event.preventDefault();
-          requestOpenChange(!isOpen, false);
-        }
-      }}
-    >
-      {triggerElement}
-      {isOpen &&
-        portalTarget !== null &&
-        createPortal(
-          <MiaixzPopoverContext.Provider value={context}>
-            <div
-              ref={contentRef}
-              id={contentId}
-              role="region"
-              aria-labelledby={triggerId}
-              popover="manual"
-              className={classNames(
-                "miaixz-popover-content",
-                surface === "picker" && "miaixz-popover-picker",
-                contentClassName,
-              )}
-            >
-              {children}
-            </div>
-          </MiaixzPopoverContext.Provider>,
-          portalTarget,
-        )}
-    </div>
-  );
-});
-
-/**
- * Reads Theme geometry revision while preserving standalone Popover use.
- *
- * @returns The active Theme revision, or zero outside a Theme provider.
- */
-function useOptionalThemeRevision(): number {
-  try {
-    return useTheme().revision;
-  } catch {
-    return 0;
-  }
-}
+  }),
+);

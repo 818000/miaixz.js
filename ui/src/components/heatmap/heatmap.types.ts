@@ -18,67 +18,90 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed heatmap slots are self-describing.
+ */
+import type {
+  HTMLAttributes,
+  TableHTMLAttributes,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from "react";
 
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
-/**
- * Defines the fixed activity levels supported by Heatmap.
- *
- * @public
- */
 export type HeatmapLevel = 0 | 1 | 2 | 3 | 4 | 5;
-
-/**
- * Configures a legend that shares the Heatmap activity scale.
- * @public
- */
+export type HeatmapLevelLabels = readonly [string, string, string, string, string, string];
+export interface HeatmapCellContext {
+  readonly rowLabel: string;
+  readonly columnLabel: string;
+  readonly level: HeatmapLevel;
+  readonly rowIndex: number;
+  readonly columnIndex: number;
+}
+export interface HeatmapOwnerState {
+  readonly density: "compact" | "standard" | "comfortable";
+  readonly tone: MiaixzVisualTone;
+  readonly state: "empty" | "ready";
+}
+export interface HeatmapRootAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-tone"?: MiaixzVisualTone;
+  readonly "data-density"?: HeatmapOwnerState["density"];
+  readonly "data-state"?: HeatmapOwnerState["state"];
+}
+export interface HeatmapCellAttributes extends TdHTMLAttributes<HTMLTableCellElement> {
+  readonly "data-level"?: HeatmapLevel;
+}
+export interface HeatmapSlotProps {
+  readonly root?: MiaixzSlotProps<HeatmapOwnerState, HeatmapRootAttributes>;
+  readonly viewport?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly table?: MiaixzSlotProps<HeatmapOwnerState, TableHTMLAttributes<HTMLTableElement>>;
+  readonly caption?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLTableCaptionElement>>;
+  readonly columnHeader?: MiaixzSlotProps<
+    HeatmapOwnerState,
+    ThHTMLAttributes<HTMLTableCellElement>
+  >;
+  readonly rowHeader?: MiaixzSlotProps<HeatmapOwnerState, ThHTMLAttributes<HTMLTableCellElement>>;
+  readonly cell?: MiaixzSlotProps<HeatmapOwnerState, HeatmapCellAttributes>;
+  readonly cellText?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly legend?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface HeatmapProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "children" | "color"
+> {
+  readonly density?: "compact" | "standard" | "comfortable";
+  readonly rowLabels: readonly string[];
+  readonly columnLabels: readonly string[];
+  readonly levels: readonly (readonly HeatmapLevel[])[];
+  readonly levelLabels: HeatmapLevelLabels;
+  readonly tone: MiaixzVisualTone;
+  readonly "aria-label": string;
+  readonly getCellLabel?: (context: HeatmapCellContext) => string;
+  readonly slotProps?: HeatmapSlotProps;
+}
+export interface HeatmapLegendOwnerState {
+  readonly tone: MiaixzVisualTone;
+}
+export interface HeatmapLegendRootAttributes extends HTMLAttributes<HTMLSpanElement> {
+  readonly "data-tone"?: MiaixzVisualTone;
+}
+export interface HeatmapLegendSwatchAttributes extends HTMLAttributes<HTMLElement> {
+  readonly "data-level"?: number;
+}
+export interface HeatmapLegendSlotProps {
+  readonly root?: MiaixzSlotProps<HeatmapLegendOwnerState, HeatmapLegendRootAttributes>;
+  readonly lowLabel?: MiaixzSlotProps<HeatmapLegendOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly scale?: MiaixzSlotProps<HeatmapLegendOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly swatch?: MiaixzSlotProps<HeatmapLegendOwnerState, HeatmapLegendSwatchAttributes>;
+  readonly highLabel?: MiaixzSlotProps<HeatmapLegendOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<HeatmapLegendOwnerState, HTMLAttributes<HTMLOListElement>>;
+}
 export interface HeatmapLegendProps extends Omit<
   HTMLAttributes<HTMLSpanElement>,
   "children" | "color"
 > {
-  /**
-   * Uses the same semantic data tone as the accompanying Heatmap.
-   */
   readonly tone: MiaixzVisualTone;
-  /**
-   * Supplies the localized low-activity endpoint.
-   */
-  readonly lowLabel: string;
-  /**
-   * Supplies the localized high-activity endpoint.
-   */
-  readonly highLabel: string;
-}
-
-/**
- * Configures an accessible labeled heatmap.
- *
- * @public
- */
-export interface HeatmapProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "color"> {
-  /**
-   * Selects the default or dense dashboard geometry.
-   */
-  readonly density?: "default" | "compact";
-  /**
-   * Supplies one visible label for every data row.
-   */
-  readonly rowLabels: readonly string[];
-  /**
-   * Supplies one visible label for every data column.
-   */
-  readonly columnLabels: readonly string[];
-  /**
-   * Supplies a rectangular matrix of fixed zero-to-five activity levels.
-   */
-  readonly levels: readonly (readonly HeatmapLevel[])[];
-  /**
-   * Selects the theme-resolved visual tone mixed at each activity level.
-   */
-  readonly tone: MiaixzVisualTone;
-  /**
-   * Supplies the required accessible heatmap name.
-   */
-  readonly "aria-label": string;
+  readonly levelLabels: HeatmapLevelLabels;
+  readonly slotProps?: HeatmapLegendSlotProps;
 }

@@ -21,6 +21,7 @@
 import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type {
   TableBodyProps,
   TableCaptionProps,
@@ -32,14 +33,19 @@ import type {
   TableProps,
   TableRowProps,
 } from "./table.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
  * Provides responsive overflow and framing for a data table.
  *
  * @public
  */
-export const TableContainer = forwardRef<HTMLDivElement, TableContainerProps>(
-  function TableContainer({ className, frame = "default", surface = "default", ...props }, ref) {
+export const TableContainer = withMiaixzThemeComponent(
+  "TableContainer",
+  forwardRef<HTMLDivElement, TableContainerProps>(function TableContainer(
+    { className, frame = "default", surface = "default", ...props },
+    ref,
+  ) {
     return (
       <div
         {...props}
@@ -52,7 +58,7 @@ export const TableContainer = forwardRef<HTMLDivElement, TableContainerProps>(
         )}
       />
     );
-  },
+  }),
 );
 
 /**
@@ -60,36 +66,56 @@ export const TableContainer = forwardRef<HTMLDivElement, TableContainerProps>(
  *
  * @public
  */
-export const Table = forwardRef<HTMLTableElement, TableProps>(function Table(
-  { stickyHeader = false, variant = "default", className, ...props },
-  ref,
-) {
-  return (
-    <table
-      {...props}
-      ref={ref}
-      className={classNames(
-        variant === "dashed"
-          ? "miaixz-table-dashed"
-          : variant === "compact"
-            ? "miaixz-table-compact"
-            : "miaixz-table",
-        stickyHeader && "miaixz-table-sticky",
-        className,
-      )}
-    />
-  );
-});
+export const Table = withMiaixzThemeComponent(
+  "Table",
+  forwardRef<HTMLTableElement, TableProps>(function Table(
+    { stickyHeader = false, density = "standard", dividerStyle = "solid", slotProps, ...props },
+    ref,
+  ) {
+    const ownerState = { stickyHeader, density, dividerStyle };
+    return (
+      <table
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-table" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-density": density,
+            "data-divider-style": dividerStyle,
+            ...(stickyHeader ? { "data-sticky-header": true } : {}),
+          },
+          ownedProps: ["data-density", "data-divider-style", "data-sticky-header"],
+        })}
+      />
+    );
+  }),
+);
 
 /**
  * Renders a table header section.
  *
  * @public
  */
-export const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(
-  function TableHeader({ className, ...props }, ref) {
-    return <thead {...props} ref={ref} className={classNames("miaixz-table-head", className)} />;
-  },
+export const TableHeader = withMiaixzThemeComponent(
+  "TableHeader",
+  forwardRef<HTMLTableSectionElement, TableHeaderProps>(function TableHeader(
+    { slotProps, ...props },
+    ref,
+  ) {
+    return (
+      <thead
+        {...mergeMiaixzSlotProps({
+          ownerState: {},
+          defaultProps: { className: "miaixz-table-head" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+        })}
+      />
+    );
+  }),
 );
 
 /**
@@ -97,22 +123,29 @@ export const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>
  *
  * @public
  */
-export const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TableBody(
-  { className, ...props },
-  ref,
-) {
-  return <tbody {...props} ref={ref} className={classNames("miaixz-table-body", className)} />;
-});
+export const TableBody = withMiaixzThemeComponent(
+  "TableBody",
+  forwardRef<HTMLTableSectionElement, TableBodyProps>(function TableBody(
+    { className, ...props },
+    ref,
+  ) {
+    return <tbody {...props} ref={ref} className={classNames("miaixz-table-body", className)} />;
+  }),
+);
 
 /**
  * Renders a table footer section.
  *
  * @public
  */
-export const TableFooter = forwardRef<HTMLTableSectionElement, TableFooterProps>(
-  function TableFooter({ className, ...props }, ref) {
+export const TableFooter = withMiaixzThemeComponent(
+  "TableFooter",
+  forwardRef<HTMLTableSectionElement, TableFooterProps>(function TableFooter(
+    { className, ...props },
+    ref,
+  ) {
     return <tfoot {...props} ref={ref} className={classNames("miaixz-table-foot", className)} />;
-  },
+  }),
 );
 
 /**
@@ -120,76 +153,97 @@ export const TableFooter = forwardRef<HTMLTableSectionElement, TableFooterProps>
  *
  * @public
  */
-export const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(function TableRow(
-  { selected = false, className, ...props },
-  ref,
-) {
-  return (
-    <tr
-      {...props}
-      ref={ref}
-      data-selected={selected || undefined}
-      className={classNames("miaixz-table-row", className)}
-    />
-  );
-});
+export const TableRow = withMiaixzThemeComponent(
+  "TableRow",
+  forwardRef<HTMLTableRowElement, TableRowProps>(function TableRow(
+    { selected = false, className, ...props },
+    ref,
+  ) {
+    return (
+      <tr
+        {...props}
+        ref={ref}
+        data-selected={selected || undefined}
+        className={classNames("miaixz-table-row", className)}
+      />
+    );
+  }),
+);
 
 /**
  * Renders a column or row heading cell.
  *
  * @public
  */
-export const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(function TableHead(
-  { numeric = false, actions = false, className, ...props },
-  ref,
-) {
-  return (
-    <th
-      {...props}
-      ref={ref}
-      className={classNames(
-        "miaixz-table-header",
-        numeric && "miaixz-table-numeric",
-        actions && "miaixz-table-actions",
-        className,
-      )}
-    />
-  );
-});
+export const TableHead = withMiaixzThemeComponent(
+  "TableHead",
+  forwardRef<HTMLTableCellElement, TableHeadProps>(function TableHead(
+    { numeric = false, actions = false, scope = "col", slotProps, ...props },
+    ref,
+  ) {
+    const ownerState = { numeric, actions };
+    return (
+      <th
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: {
+            className: classNames(
+              "miaixz-table-header",
+              numeric && "miaixz-table-numeric",
+              actions && "miaixz-table-actions",
+            ),
+          },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { scope },
+          ownedProps: ["scope"],
+        })}
+      />
+    );
+  }),
+);
 
 /**
  * Renders a standard table data cell.
  *
  * @public
  */
-export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(function TableCell(
-  { numeric = false, actions = false, empty = false, className, ...props },
-  ref,
-) {
-  return (
-    <td
-      {...props}
-      ref={ref}
-      data-empty={empty || undefined}
-      className={classNames(
-        "miaixz-table-cell",
-        numeric && "miaixz-table-numeric",
-        actions && "miaixz-table-actions",
-        className,
-      )}
-    />
-  );
-});
+export const TableCell = withMiaixzThemeComponent(
+  "TableCell",
+  forwardRef<HTMLTableCellElement, TableCellProps>(function TableCell(
+    { numeric = false, actions = false, empty = false, className, ...props },
+    ref,
+  ) {
+    return (
+      <td
+        {...props}
+        ref={ref}
+        data-empty={empty || undefined}
+        className={classNames(
+          "miaixz-table-cell",
+          numeric && "miaixz-table-numeric",
+          actions && "miaixz-table-actions",
+          className,
+        )}
+      />
+    );
+  }),
+);
 
 /**
  * Renders an accessible table caption.
  *
  * @public
  */
-export const TableCaption = forwardRef<HTMLTableCaptionElement, TableCaptionProps>(
-  function TableCaption({ className, ...props }, ref) {
+export const TableCaption = withMiaixzThemeComponent(
+  "TableCaption",
+  forwardRef<HTMLTableCaptionElement, TableCaptionProps>(function TableCaption(
+    { className, ...props },
+    ref,
+  ) {
     return (
       <caption {...props} ref={ref} className={classNames("miaixz-table-caption", className)} />
     );
-  },
+  }),
 );

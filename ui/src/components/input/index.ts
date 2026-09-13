@@ -19,4 +19,11 @@
 */
 
 export { Input } from "./input.js";
-export type { InputProps, InputSize } from "./input.types.js";
+export type {
+  InputOwnerState,
+  InputProps,
+  InputRootAttributes,
+  InputSize,
+  InputSlot,
+  InputSlotProps,
+} from "./input.types.js";

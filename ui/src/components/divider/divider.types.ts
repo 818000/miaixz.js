@@ -41,5 +41,8 @@ export interface MiaixzDividerOwnProps {
  */
 export interface DividerProps
   extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzDividerOwnProps>,
+    Omit<
+      HTMLAttributes<HTMLDivElement>,
+      keyof MiaixzDividerOwnProps | "aria-orientation" | "children" | "role"
+    >,
     MiaixzDividerOwnProps {}

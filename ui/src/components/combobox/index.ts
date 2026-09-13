@@ -20,8 +20,20 @@
 
 export { Combobox } from "./combobox.js";
 export type {
+  ComboboxControlAttributes,
+  ComboboxOptionAttributes,
+  ComboboxOwnerState,
   ComboboxProps,
+  ComboboxRootAttributes,
+  ComboboxSlot,
+  ComboboxSlotProps,
+  ComboboxSurfaceAttributes,
+  MiaixzComboboxInputState,
   MiaixzComboboxOwnProps,
+  MiaixzComboboxValueState,
   MiaixzOption,
-  MiaixzOptionLoader,
+  MiaixzOptionGroup,
+  MiaixzOptionPage,
+  MiaixzOptionRenderState,
+  MiaixzOptionSource,
 } from "./combobox.types.js";

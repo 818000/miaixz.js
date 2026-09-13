@@ -47,10 +47,10 @@ describe("color ownership", () => {
       expect(rule[1]).not.toMatch(/(?:^|[;\s])color\s*:/);
     }
     const button = readFileSync("src/styles/components/button.css", "utf8");
-    expect(button).not.toContain("brand-strong");
-    expect(button).toContain(".miaixz-button-primary");
-    expect(button).toContain(".miaixz-button-secondary");
-    expect(button).toContain(".miaixz-button-danger");
+    expect(button).toContain("brand-strong");
+    expect(button).toContain('.miaixz-button[data-variant="solid"][data-tone="brand"]');
+    expect(button).toContain('.miaixz-button[data-variant="outlined"][data-tone="neutral"]');
+    expect(button).toContain('.miaixz-button[data-variant="plain"][data-tone="danger"]');
   });
 
   it("loads authored brand foregrounds without weakening content contrast validation", () => {
@@ -66,21 +66,23 @@ describe("color ownership", () => {
           },
         },
       }),
-    ).toThrow("The theme color contrast is insufficient");
+    ).toThrow("[UI_THEME_CONTRAST_INVALID] ui.theme.contrastInvalid");
   });
 
-  it("fills summary icon circles with their tone and theme foreground on hover or focus", () => {
-    const css = readFileSync("src/styles/components/metric.css", "utf8");
-    const base = css.match(/\.miaixz-metric-summary \.miaixz-metric-icon \{([^}]+)\}/)![1]!;
-    expect(base).toContain("color: var(--miaixz-metric-tone);");
-    expect(base).toContain("border: 1px solid var(--miaixz-color-border);");
-    const interactive = css.match(
-      /\.miaixz-metric-summary:hover \.miaixz-metric-icon,\s*\.miaixz-metric-summary:focus-visible \.miaixz-metric-icon \{([^}]+)\}/,
-    )![1]!;
-    expect(interactive).toContain("color: var(--miaixz-color-on-brand);");
-    expect(interactive).toContain("background: var(--miaixz-metric-tone);");
-    expect(interactive).toContain("border-color: var(--miaixz-metric-tone);");
-    expect(interactive).toContain("transform: scale(1.06);");
+  it("maps every public metric tone through the component tone variable", () => {
+    const css = readFileSync("src/styles/components/metrics.css", "utf8");
+    expect(css).toContain("color: var(--miaixz-metric-tone);");
+    for (const tone of ["neutral", "info", "success", "warning", "danger"]) {
+      expect(css).toContain(`.miaixz-metric[data-tone="${tone}"]`);
+      expect(css).toContain(
+        `--miaixz-metric-tone: var(--miaixz-color-${tone === "neutral" ? "data-neutral" : tone})`,
+      );
+    }
+    for (let index = 1; index <= 8; index += 1) {
+      expect(css).toContain(`.miaixz-metric[data-tone="data-${index}"]`);
+      expect(css).toContain(`--miaixz-metric-tone: var(--miaixz-color-data-${index})`);
+    }
+    expect(css).toContain(".miaixz-metric:where(a, button):focus-visible");
   });
 
   it("uses the primary for shared control bottom focus lines without changing invalid states", () => {
@@ -92,21 +94,20 @@ describe("color ownership", () => {
     expect(css.match(/--miaixz-control-invalid-shadow:([^;]+);/)![1]).toContain(
       "var(--miaixz-color-danger)",
     );
-    for (const state of ["readonly", "disabled"]) {
-      const rule = css.match(
-        new RegExp(`[^{}]*\\[data-preview-state="${state}"\\][^{}]*\\{([^}]+)\\}`),
-      )![1]!;
-      expect(rule).toContain("box-shadow: none;");
-    }
+    expect(
+      css.match(
+        /\.miaixz-control:where\(\[readonly\], \[data-readonly="true"\]\) \{([^}]+)\}/u,
+      )![1],
+    ).toContain("box-shadow: none;");
+    expect(css.match(/\.miaixz-control\[data-disabled="true"\] \{([^}]+)\}/u)![1]).toContain(
+      "box-shadow: none;",
+    );
   });
 
-  it("keeps selection borders branded while ordinary control text is neutral", () => {
+  it("keeps Pressable free of component-specific selection recipes", () => {
     const css = readFileSync("src/styles/components/pressable.css", "utf8");
-    const rule = css.match(
-      /(?:^|\n\n)\.miaixz-pressable-pill\[aria-pressed="true"\] \{([^}]+)\}/,
-    )![1]!;
-    expect(rule).toContain("border-color: var(--miaixz-color-brand);");
-    expect(rule).toContain("color: var(--miaixz-color-text-primary);");
+    expect(css).not.toMatch(/miaixz-pressable-(?:row|pill|card|density|separator)/);
+    expect(css).toContain(".miaixz-pressable:focus-visible");
   });
 
   it("rejects new recipes even inside a chart and disallows semantic misuse", () => {

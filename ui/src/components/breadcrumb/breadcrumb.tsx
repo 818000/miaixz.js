@@ -18,58 +18,134 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc, react-hooks/refs --
+ * Slot ref composition is centralized and public contracts live in the type module.
+ */
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import type { BreadcrumbEntry, BreadcrumbProps } from "./breadcrumb.types.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type {
+  BreadcrumbEntry,
+  BreadcrumbOwnerState,
+  BreadcrumbProps,
+  BreadcrumbSlotProps,
+} from "./breadcrumb.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Renders localized hierarchical navigation with semantic list markup.
- *
- * @public
+const ownerState: BreadcrumbOwnerState = {};
+
+/*
+ * Renders localized hierarchical navigation from one declarative item source. @public
  */
-export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Breadcrumb(
-  { label, items, className, children, ...props },
-  ref,
-) {
-  const { t } = useMiaixzLocale();
-  return (
-    <nav
-      {...props}
-      ref={ref}
-      aria-label={label ?? t("ui.breadcrumb.label")}
-      className={classNames("miaixz-breadcrumb", className)}
-    >
-      <ol className="miaixz-breadcrumb-list">
-        {items?.map((item, index) => (
-          <BreadcrumbEntryView key={`${item.href ?? "current"}-${index}`} {...item} />
-        )) ?? children}
-      </ol>
-    </nav>
+export const Breadcrumb = withMiaixzThemeComponent(
+  "Breadcrumb",
+  forwardRef<HTMLElement, BreadcrumbProps>(function Breadcrumb(
+    { label, items, slotProps, ...props },
+    ref,
+  ) {
+    const { t } = useMiaixzLocale();
+    const ids = new Set<string>();
+    for (const item of items) {
+      if (ids.has(item.id)) {
+        throw new MiaixzUiError({
+          code: "UI_COLLECTION_DUPLICATE_ID",
+          details: { id: item.id },
+        });
+      }
+      ids.add(item.id);
+    }
+    return (
+      <nav
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-breadcrumb" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "aria-label": label ?? t("ui.breadcrumb.label") },
+          ownedProps: ["aria-label"],
+        })}
+      >
+        <ol
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-breadcrumb-list" },
+            slotProps: slotProps?.list,
+          })}
+        >
+          {items.map((item) => (
+            <BreadcrumbEntryView entry={item} key={item.id} slotProps={slotProps} />
+          ))}
+        </ol>
+      </nav>
+    );
+  }),
+);
+
+function BreadcrumbEntryView({
+  entry,
+  slotProps,
+}: {
+  readonly entry: BreadcrumbEntry;
+  readonly slotProps: BreadcrumbSlotProps | undefined;
+}) {
+  const content = (
+    <>
+      {entry.icon !== undefined && (
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-breadcrumb-icon" },
+            slotProps: slotProps?.icon,
+          })}
+        >
+          {entry.icon}
+        </span>
+      )}
+      <span
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-breadcrumb-label" },
+          slotProps: slotProps?.label,
+        })}
+      >
+        {entry.label}
+      </span>
+    </>
   );
-});
-
-/**
- * Renders one breadcrumb link and its optional separator.
- *
- * @param entry - Declarative breadcrumb entry.
- * @returns The rendered breadcrumb row.
- * @internal
- */
-function BreadcrumbEntryView(entry: BreadcrumbEntry) {
-  const { current = false, icon, label, className, href, ...props } = entry;
   return (
-    <li className="miaixz-breadcrumb-item">
-      {current ? (
-        <span aria-current="page" className={classNames("miaixz-breadcrumb-current", className)}>
-          {icon !== undefined && <span className="miaixz-breadcrumb-icon">{icon}</span>}
-          <span className="miaixz-breadcrumb-label">{label}</span>
+    <li
+      {...mergeMiaixzSlotProps({
+        ownerState,
+        defaultProps: { className: "miaixz-breadcrumb-item" },
+        slotProps: slotProps?.item,
+      })}
+    >
+      {entry.current ? (
+        <span
+          {...entry.spanProps}
+          aria-current="page"
+          className={
+            entry.spanProps?.className === undefined
+              ? "miaixz-breadcrumb-current"
+              : `miaixz-breadcrumb-current ${entry.spanProps.className}`
+          }
+        >
+          {content}
         </span>
       ) : (
-        <a {...props} href={href} className={classNames("miaixz-breadcrumb-link", className)}>
-          {icon !== undefined && <span className="miaixz-breadcrumb-icon">{icon}</span>}
-          <span className="miaixz-breadcrumb-label">{label}</span>
+        <a
+          {...entry.anchorProps}
+          className={
+            entry.anchorProps?.className === undefined
+              ? "miaixz-breadcrumb-link"
+              : `miaixz-breadcrumb-link ${entry.anchorProps.className}`
+          }
+          href={entry.href}
+        >
+          {content}
         </a>
       )}
     </li>

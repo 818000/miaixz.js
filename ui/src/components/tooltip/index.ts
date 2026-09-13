@@ -18,5 +18,12 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./tooltip.js";
-export type * from "./tooltip.types.js";
+export { Tooltip } from "./tooltip.js";
+export type {
+  MiaixzTooltipTriggerProps,
+  TooltipOpenState,
+  TooltipOwnerState,
+  TooltipProps,
+  TooltipSlot,
+  TooltipSlotProps,
+} from "./tooltip.types.js";

@@ -18,64 +18,80 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { DialogHTMLAttributes, ReactNode } from "react";
-
-/**
- * Defines the supported modal dialog widths.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed dialog slots and state are self-describing.
  */
+
+import type {
+  ButtonHTMLAttributes,
+  DialogHTMLAttributes,
+  HTMLAttributes,
+  ReactNode,
+  RefAttributes,
+  RefObject,
+} from "react";
+
+import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
+
 export type DialogSize = "small" | "medium" | "large";
+export type DialogScroll = "paper" | "body";
+export type DialogCloseReason = "escape" | "backdrop" | "closeButton" | "nativeClose";
+export type DialogSlot =
+  "root" | "paper" | "header" | "title" | "description" | "content" | "actions" | "closeButton";
 
-/**
- * Configures a controlled native modal dialog.
- *
- * @public
- */
-export interface DialogProps extends Omit<
-  DialogHTMLAttributes<HTMLDialogElement>,
-  "open" | "title"
-> {
-  /**
-   * Controls whether the dialog is open.
-   */
-  open: boolean;
-  /**
-   * Receives requested open-state changes.
-   */
-  onOpenChange: (open: boolean) => void;
-  /**
-   * Supplies the dialog heading.
-   */
-  title: ReactNode;
-  /**
-   * Supplies supporting dialog description content.
-   */
-  description?: ReactNode;
-  /**
-   * Supplies the dialog action footer.
-   */
-  footer?: ReactNode;
-  /**
-   * Selects the dialog width.
-   *
-   * @defaultValue `"medium"`
-   */
-  size?: DialogSize;
-  /**
-   * Overrides the localized close-button label.
-   */
-  closeLabel?: string;
-  /**
-   * Controls whether the close button is rendered.
-   *
-   * @defaultValue `true`
-   */
-  showClose?: boolean;
-  /**
-   * Allows a backdrop click to request closure.
-   *
-   * @defaultValue `true`
-   */
-  closeOnBackdrop?: boolean;
+export interface DialogOwnerState {
+  readonly size: DialogSize;
+  readonly scroll: DialogScroll;
+  readonly open: boolean;
+  readonly showClose: boolean;
 }
+
+export interface DialogSlots {
+  readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
+}
+
+export type DialogRootAttributes = DialogHTMLAttributes<HTMLDialogElement> &
+  RefAttributes<HTMLDialogElement> & {
+    readonly "data-size"?: DialogSize;
+    readonly "data-scroll"?: DialogScroll;
+  };
+
+export interface DialogSlotProps {
+  readonly root?: MiaixzSlotProps<DialogOwnerState, DialogRootAttributes>;
+  readonly paper?: MiaixzSlotProps<
+    DialogOwnerState,
+    HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>
+  >;
+  readonly header?: MiaixzSlotProps<DialogOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<DialogOwnerState, HTMLAttributes<HTMLHeadingElement>>;
+  readonly description?: MiaixzSlotProps<DialogOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly content?: MiaixzSlotProps<DialogOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<DialogOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly closeButton?: MiaixzSlotProps<
+    DialogOwnerState,
+    ButtonHTMLAttributes<HTMLButtonElement> & RefAttributes<HTMLButtonElement>
+  >;
+}
+
+export interface MiaixzDialogOwnProps {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean, reason: DialogCloseReason) => void;
+  readonly title: ReactNode;
+  readonly description?: ReactNode;
+  readonly children: ReactNode;
+  readonly footer?: ReactNode;
+  readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly size?: DialogSize;
+  readonly scroll?: DialogScroll;
+  readonly showClose?: boolean;
+  readonly closeOnBackdrop?: boolean;
+  readonly closeLabel?: string;
+  readonly initialFocusRef?: RefObject<HTMLElement | null>;
+  readonly slots?: DialogSlots;
+  readonly slotProps?: DialogSlotProps;
+}
+
+export type DialogProps = MiaixzDialogOwnProps &
+  Omit<DialogHTMLAttributes<HTMLDialogElement>, keyof MiaixzDialogOwnProps | "role">;
+
+/* eslint-enable jsdoc/require-jsdoc
+ */

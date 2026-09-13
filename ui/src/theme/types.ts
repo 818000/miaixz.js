@@ -27,6 +27,7 @@ import type {
   MiaixzThemeOverrides,
 } from "@miaixz/sdk/appearance";
 import type { ReactNode } from "react";
+import type { ThemeComponents } from "./components.js";
 import type { MiaixzThemeError } from "./errors.js";
 import type { MiaixzThemeColorToken, MiaixzThemeColors } from "../design/colors.js";
 import type { MiaixzThemeComposition } from "../design/composition.js";
@@ -42,24 +43,6 @@ import type { MiaixzThemeTypography } from "../design/typography.js";
  *
  * @public
  */
-export type MiaixzThemeErrorCode =
-  | "UI_THEME_NOT_FOUND"
-  | "UI_THEME_LOAD_FAILED"
-  | "UI_THEME_LOAD_ABORTED"
-  | "UI_THEME_INVALID"
-  | "UI_THEME_TOKEN_UNKNOWN"
-  | "UI_THEME_TOKEN_MISSING"
-  | "UI_THEME_GEOMETRY_INVALID"
-  | "UI_THEME_SURFACE_INVALID"
-  | "UI_THEME_CONTRAST_INVALID"
-  | "UI_THEME_INHERITANCE_INVALID"
-  | "UI_THEME_SCHEMA_UNSUPPORTED"
-  | "UI_THEME_DUPLICATE"
-  | "UI_THEME_FALLBACK_INVALID"
-  | "UI_THEME_GLOBAL_DUPLICATE"
-  | "UI_THEME_APPLY_FAILED"
-  | "UI_THEME_PERSIST_FAILED";
-
 /**
  * Describes a typed theme failure before the concrete error class is instantiated.
  *
@@ -328,6 +311,10 @@ export interface ThemeBaseProps {
    * Rendered application subtree.
    */
   readonly children: ReactNode;
+  /**
+   * Supplies class-only runtime component defaults and variants.
+   */
+  readonly components?: Readonly<ThemeComponents>;
 }
 
 /**
@@ -445,6 +432,10 @@ export interface ThemeContextValue {
    * Last public runtime failure.
    */
   readonly error?: MiaixzThemeError;
+  /**
+   * Contains inherited runtime component defaults and class variants.
+   */
+  readonly components: Readonly<ThemeComponents>;
   /**
    * Applies and persists a theme transaction.
    */

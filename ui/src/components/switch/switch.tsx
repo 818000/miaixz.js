@@ -18,75 +18,169 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useState } from "react";
+import { forwardRef, useRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
-import type { SwitchProps } from "./switch.types.js";
+import { useFieldControl } from "../../shared/field-context.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
+import type { SwitchOwnerState, SwitchProps, SwitchRootAttributes } from "./switch.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders an accessible boolean switch backed by a native checkbox input.
+ * Renders an accessible native boolean switch with fixed semantic slots.
  *
  * @public
  */
-export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
-  {
-    label,
-    variant = "default",
-    description,
-    invalid = false,
-    previewState,
-    className,
-    disabled,
-    checked,
-    defaultChecked,
-    onChange,
-    "aria-invalid": ariaInvalid,
-    ...props
-  },
-  ref,
-) {
-  const [uncontrolledChecked, setUncontrolledChecked] = useState(defaultChecked ?? false);
-  const isChecked = checked === undefined ? uncontrolledChecked : checked;
-  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
-
-  return (
-    <label
-      className={classNames(
-        "miaixz-switch",
-        variant === "compact" && "miaixz-switch-compact",
-        disabled && "miaixz-switch-disabled",
-        isInvalid && "miaixz-switch-invalid",
-        className,
-      )}
-      data-disabled={disabled || undefined}
-      data-filled={isChecked || undefined}
-      data-invalid={isInvalid || undefined}
-      data-preview-state={previewState}
-    >
-      <input
-        {...props}
-        ref={ref}
-        type="checkbox"
-        role="switch"
-        disabled={disabled}
-        checked={checked}
-        defaultChecked={defaultChecked}
-        aria-invalid={isInvalid || undefined}
-        className="miaixz-switch-input"
-        onChange={(event) => {
-          if (checked === undefined) setUncontrolledChecked(event.currentTarget.checked);
-          onChange?.(event);
-        }}
-      />
-      <span className="miaixz-switch-track" aria-hidden="true">
-        <span className="miaixz-switch-thumb" />
-      </span>
-      {(label || description) && (
-        <span className="miaixz-switch-content">
-          {label && <span className="miaixz-switch-label">{label}</span>}
-          {description && <span className="miaixz-switch-description">{description}</span>}
+export const Switch = withMiaixzThemeComponent(
+  "Switch",
+  forwardRef<HTMLInputElement, SwitchProps>(function Switch(props, ref) {
+    const {
+      label,
+      size = "medium",
+      description,
+      invalid,
+      className,
+      style,
+      disabled,
+      checked,
+      defaultChecked,
+      onChange,
+      "aria-invalid": ariaInvalid,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
+      id,
+      required,
+      slotProps,
+      ...nativeProps
+    } = props;
+    const inputRef = useRef<HTMLInputElement>(null);
+    const checkedState = useChoiceControlState({
+      inputRef,
+      checked,
+      defaultChecked: defaultChecked ?? false,
+    });
+    const fieldProps = useFieldControl({
+      ...(id === undefined ? {} : { id }),
+      ...(required === undefined ? {} : { required }),
+      ...(disabled === undefined ? {} : { disabled }),
+      ...(invalid === undefined ? {} : { invalid }),
+      ...(ariaInvalid === undefined ? {} : { "aria-invalid": ariaInvalid }),
+      ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
+      ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
+    });
+    const effectiveDisabled = fieldProps.disabled ?? false;
+    const effectiveInvalid = fieldProps.invalid ?? false;
+    const ownerState: SwitchOwnerState = {
+      size,
+      checked: checkedState.value,
+      disabled: effectiveDisabled,
+      invalid: effectiveInvalid,
+    };
+    const rootProps = mergeMiaixzSlotProps<
+      SwitchOwnerState,
+      SwitchRootAttributes,
+      HTMLLabelElement
+    >({
+      ownerState,
+      defaultProps: {
+        className: classNames(
+          "miaixz-switch",
+          size === "small" && "miaixz-switch-small",
+          effectiveDisabled && "miaixz-switch-disabled",
+          effectiveInvalid && "miaixz-switch-invalid",
+        ),
+      },
+      componentProps: {
+        ...(className === undefined ? {} : { className }),
+        ...(style === undefined ? {} : { style }),
+      },
+      slotProps: slotProps?.root,
+      internalProps: {
+        "data-size": size,
+        ...(effectiveDisabled ? { "data-disabled": true } : {}),
+        ...(checkedState.value ? { "data-filled": true } : {}),
+        ...(effectiveInvalid ? { "data-invalid": true } : {}),
+      },
+      ownedProps: ["data-size", "data-disabled", "data-filled", "data-invalid"],
+    });
+    const inputProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-switch-input" },
+      componentProps: { ...nativeProps, ...(onChange === undefined ? {} : { onChange }) },
+      slotProps: slotProps?.input,
+      internalRef: inputRef,
+      forwardedRef: ref,
+      internalProps: {
+        ...(fieldProps.id === undefined ? {} : { id: fieldProps.id }),
+        type: "checkbox",
+        role: "switch",
+        disabled: effectiveDisabled,
+        ...(fieldProps.required === undefined ? {} : { required: fieldProps.required }),
+        ...(checked === undefined ? {} : { checked }),
+        ...(defaultChecked === undefined ? {} : { defaultChecked }),
+        ...(effectiveInvalid ? { "aria-invalid": true } : {}),
+        ...(fieldProps["aria-labelledby"] === undefined
+          ? {}
+          : { "aria-labelledby": fieldProps["aria-labelledby"] }),
+        ...(fieldProps["aria-describedby"] === undefined
+          ? {}
+          : { "aria-describedby": fieldProps["aria-describedby"] }),
+        onChange: checkedState.sync,
+      },
+      ownedProps: [
+        "id",
+        "type",
+        "role",
+        "disabled",
+        "required",
+        "checked",
+        "defaultChecked",
+        "aria-invalid",
+        "aria-labelledby",
+        "aria-describedby",
+      ],
+    });
+    const trackProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-switch-track" },
+      slotProps: slotProps?.track,
+      internalProps: { "aria-hidden": true },
+      ownedProps: ["aria-hidden"],
+    });
+    const thumbProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-switch-thumb" },
+      slotProps: slotProps?.thumb,
+    });
+    const contentProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-switch-content" },
+      slotProps: slotProps?.content,
+    });
+    const labelProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-switch-label" },
+      slotProps: slotProps?.label,
+    });
+    const descriptionProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-switch-description" },
+      slotProps: slotProps?.description,
+    });
+    return (
+      <label {...rootProps}>
+        <input {...inputProps} />
+        <span {...trackProps}>
+          <span {...thumbProps} />
         </span>
-      )}
-    </label>
-  );
-});
+        {(label !== undefined || description !== undefined) && (
+          <span {...contentProps}>
+            {label !== undefined && <span {...labelProps}>{label}</span>}
+            {description !== undefined && <span {...descriptionProps}>{description}</span>}
+          </span>
+        )}
+      </label>
+    );
+  }),
+);

@@ -21,7 +21,7 @@
 import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 
 import { lockMiaixzDocumentScroll } from "./document-scroll-lock.js";
-import { isTopMiaixzModal, registerMiaixzModal } from "./portal-target.js";
+import { registerMiaixzModal } from "./portal-target.js";
 
 /**
  * Uses layout timing in browsers and passive timing during server rendering.
@@ -86,20 +86,14 @@ interface MiaixzModalInteractionRecord {
  * @param ref - Reference containing the native dialog element.
  * @param open - Controlled modal open state.
  * @param portalTarget - Current Portal target used to retrigger synchronization after mounting.
- * @param requestClose - Controlled close request used by the document Escape fallback.
  * @returns Stable reference to the element focused before the modal opened.
  */
 export function useMiaixzNativeModal(
   ref: RefObject<HTMLDialogElement | null>,
   open: boolean,
   portalTarget: HTMLElement | null,
-  requestClose?: () => void,
 ): RefObject<HTMLElement | null> {
   const restoreFocusRef = useRef<HTMLElement | null>(null);
-  const requestCloseRef = useRef(requestClose);
-  useMiaixzClientLayoutEffect(() => {
-    requestCloseRef.current = requestClose;
-  }, [requestClose]);
   useEffect(() => {
     const ownerDocument = ref.current?.ownerDocument ?? portalTarget?.ownerDocument;
     if (ownerDocument === undefined) return undefined;
@@ -121,52 +115,12 @@ export function useMiaixzNativeModal(
     }
     const unregisterModal = registerMiaixzModal(dialog);
     const unlockDocument = lockMiaixzDocumentScroll(dialog.ownerDocument);
-    const handleEscape = (event: globalThis.KeyboardEvent) => {
-      if (
-        event.key !== "Escape" ||
-        event.defaultPrevented ||
-        event.isComposing ||
-        !isTopMiaixzModal(dialog) ||
-        hasOpenMiaixzBlockingPopover(dialog)
-      ) {
-        return;
-      }
-      event.preventDefault();
-      const EventConstructor = dialog.ownerDocument.defaultView?.Event ?? Event;
-      const cancelEvent = new EventConstructor("cancel", { bubbles: true, cancelable: true });
-      dialog.dispatchEvent(cancelEvent);
-      if (!cancelEvent.defaultPrevented && requestCloseRef.current !== undefined) {
-        requestCloseRef.current();
-      }
-    };
-    dialog.ownerDocument.addEventListener("keydown", handleEscape, true);
     return () => {
-      dialog.ownerDocument.removeEventListener("keydown", handleEscape, true);
       unregisterModal();
       unlockDocument();
     };
   }, [open, portalTarget, ref]);
   return restoreFocusRef;
-}
-
-/**
- * Detects an interactive popover that must consume Escape before its modal.
- *
- * Non-interactive tooltips never create an extra dismissal step: Escape closes the owning modal
- * and unmounting the modal also removes its tooltip. Menus, listboxes, and other interactive
- * popovers remain responsible for the first Escape key press.
- *
- * @param dialog - Active dialog whose descendants are inspected.
- * @returns Whether a descendant currently occupies the popover top layer.
- */
-function hasOpenMiaixzBlockingPopover(dialog: HTMLDialogElement): boolean {
-  try {
-    return [...dialog.querySelectorAll<HTMLElement>("[popover]:popover-open")].some(
-      (popover) => popover.getAttribute("role") !== "tooltip",
-    );
-  } catch {
-    return false;
-  }
 }
 
 /**

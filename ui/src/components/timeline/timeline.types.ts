@@ -18,85 +18,53 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ReactNode } from "react";
-
+/* eslint-disable jsdoc/require-jsdoc -- Closed timeline models and slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 
-/**
- * Defines one ordered event in a Timeline. @public
- */
 export interface MiaixzTimelineItem {
-  /**
-   * Uniquely identifies the event.
-   */
   readonly id: string;
-  /**
-   * Supplies the event heading.
-   */
   readonly title: ReactNode;
-  /**
-   * Displays supporting event detail.
-   */
   readonly description?: ReactNode;
-  /**
-   * Displays secondary event metadata.
-   */
   readonly meta?: ReactNode;
-  /**
-   * Provides readable event status text.
-   */
   readonly status: string;
-  /**
-   * Selects the semantic event tone.
-   */
   readonly tone: MiaixzFeedbackTone;
 }
-
-/**
- * Configures an ordered Timeline. @public
- */
-export interface TimelineDefaultProps {
-  /**
-   * Keeps the tracked-event presentation used by item data.
-   */
-  readonly variant?: "default";
-  /**
-   * Provides the ordered list's accessible name.
-   */
+export type TimelineLayout = "track" | "list" | "rows";
+export type TimelineSlot =
+  "root" | "item" | "node" | "body" | "heading" | "title" | "status" | "description" | "meta";
+export interface TimelineOwnerState {
+  readonly layout: TimelineLayout;
+  readonly itemId: string | undefined;
+  readonly tone: MiaixzFeedbackTone | undefined;
+}
+export type TimelineRootAttributes = HTMLAttributes<HTMLOListElement> &
+  RefAttributes<HTMLOListElement> & { readonly "data-layout"?: TimelineLayout };
+export type TimelineItemAttributes = HTMLAttributes<HTMLLIElement> & {
+  readonly "data-tone"?: MiaixzFeedbackTone;
+};
+export interface TimelineSlotProps {
+  readonly root?: MiaixzSlotProps<TimelineOwnerState, TimelineRootAttributes>;
+  readonly item?: MiaixzSlotProps<TimelineOwnerState, TimelineItemAttributes>;
+  readonly node?: MiaixzSlotProps<TimelineOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly body?: MiaixzSlotProps<TimelineOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly heading?: MiaixzSlotProps<TimelineOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<TimelineOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly status?: MiaixzSlotProps<TimelineOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<TimelineOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly meta?: MiaixzSlotProps<TimelineOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface MiaixzTimelineOwnProps {
   readonly "aria-label": string;
-  /**
-   * Supplies events in display order.
-   */
   readonly items: readonly MiaixzTimelineItem[];
+  readonly layout?: TimelineLayout;
+  readonly renderItem?: (item: MiaixzTimelineItem, defaultBody: ReactNode) => ReactNode;
+  readonly slotProps?: TimelineSlotProps;
 }
-
-/**
- * Configures a plain chronological list whose content and column widths belong to the consumer.
- *
- * @public
+/*
+ * Configures an ordered timeline from one item source. @public
  */
-export interface TimelineListProps {
-  /**
-   * Selects the spaced list or compact row presentation.
-   */
-  readonly variant: "list" | "rows";
-  /**
-   * Provides the ordered list's accessible name.
-   */
-  readonly "aria-label": string;
-  /**
-   * Supplies consumer-owned semantic list items.
-   */
-  readonly children: ReactNode;
-  /**
-   * Appends a consumer class name without replacing the recipe class.
-   */
-  readonly className?: string;
-}
-
-/**
- * Selects default tracked events or a plain list composition.
- *
- * @public
- */
-export type TimelineProps = TimelineDefaultProps | TimelineListProps;
+export type TimelineProps = MiaixzTimelineOwnProps &
+  Omit<HTMLAttributes<HTMLOListElement>, keyof MiaixzTimelineOwnProps | "children">;

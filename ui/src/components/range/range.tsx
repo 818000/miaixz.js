@@ -20,31 +20,78 @@
 
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import type { RangeProps } from "./range.types.js";
+import { useFieldControl } from "../../shared/field-context.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { RangeOwnerState, RangeProps } from "./range.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a branded native range input with the shared form-state contract.
+ * Renders a branded native range input with one root slot.
  *
  * @public
  */
-export const Range = forwardRef<HTMLInputElement, RangeProps>(function Range(
-  { className, disabled, invalid = false, previewState, readOnly, ...props },
-  ref,
-) {
-  return (
-    <input
-      {...props}
-      aria-invalid={invalid || undefined}
-      className={classNames("miaixz-range", className)}
-      data-disabled={disabled || undefined}
-      data-invalid={invalid || undefined}
-      data-preview-state={previewState}
-      data-readonly={readOnly || undefined}
-      disabled={disabled}
-      readOnly={readOnly}
-      ref={ref}
-      type="range"
-    />
-  );
-});
+export const Range = withMiaixzThemeComponent(
+  "Range",
+  forwardRef<HTMLInputElement, RangeProps>(function Range(props, ref) {
+    const {
+      disabled,
+      invalid,
+      id,
+      required,
+      slotProps,
+      "aria-invalid": ariaInvalid,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
+      ...nativeProps
+    } = props;
+    const fieldProps = useFieldControl({
+      ...(id === undefined ? {} : { id }),
+      ...(required === undefined ? {} : { required }),
+      ...(disabled === undefined ? {} : { disabled }),
+      ...(invalid === undefined ? {} : { invalid }),
+      ...(ariaInvalid === undefined ? {} : { "aria-invalid": ariaInvalid }),
+      ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
+      ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
+    });
+    const effectiveDisabled = fieldProps.disabled ?? false;
+    const effectiveInvalid = fieldProps.invalid ?? false;
+    const ownerState: RangeOwnerState = {
+      disabled: effectiveDisabled,
+      invalid: effectiveInvalid,
+    };
+    const rootProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-range" },
+      componentProps: nativeProps,
+      slotProps: slotProps?.root,
+      forwardedRef: ref,
+      internalProps: {
+        ...(fieldProps.id === undefined ? {} : { id: fieldProps.id }),
+        type: "range",
+        disabled: effectiveDisabled,
+        ...(fieldProps.required === undefined ? {} : { required: fieldProps.required }),
+        ...(effectiveInvalid ? { "aria-invalid": true } : {}),
+        ...(fieldProps["aria-labelledby"] === undefined
+          ? {}
+          : { "aria-labelledby": fieldProps["aria-labelledby"] }),
+        ...(fieldProps["aria-describedby"] === undefined
+          ? {}
+          : { "aria-describedby": fieldProps["aria-describedby"] }),
+        ...(effectiveDisabled ? { "data-disabled": true } : {}),
+        ...(effectiveInvalid ? { "data-invalid": true } : {}),
+      },
+      ownedProps: [
+        "id",
+        "type",
+        "disabled",
+        "required",
+        "aria-invalid",
+        "aria-labelledby",
+        "aria-describedby",
+        "data-disabled",
+        "data-invalid",
+      ],
+    });
+    return <input {...rootProps} />;
+  }),
+);

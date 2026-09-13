@@ -18,163 +18,25 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzSdkError } from "../api/errors.js";
-import { isMiaixzAppearanceSettings } from "../appearance/index.js";
-import { isMiaixzSdkConfig } from "../config/index.js";
-import { isMiaixzRuntimeContext } from "../context/index.js";
-import { miaixzDefaultI18n, type MiaixzLocale } from "../i18n/index.js";
+import { MiaixzSdkError } from "../errors/errors.js";
+import { isMiaixzAppearanceSettings } from "../appearance/validation.js";
+import { isMiaixzSdkConfig } from "../config/config.js";
+import { isMiaixzRuntimeContext } from "../context/context.js";
+import type { MiaixzAppearancePayload } from "../types/appearance.js";
+import type { MiaixzRuntimeContext } from "../types/context.js";
+import type { MiaixzSdkConfig } from "../types/config.js";
+
 import type {
-  MiaixzAppearancePayload,
-  MiaixzRuntimeContext,
-  MiaixzSdkConfig,
-} from "../types/index.js";
-
-/**
- * Validates an untrusted event payload before it crosses a browser-context boundary.
- *
- * @public
- */
-export type MiaixzEventValidator = (payload: unknown) => boolean;
-
-/**
- * Describes the only authentication state that may cross an SDK event channel.
- *
- * @public
- */
-export interface MiaixzAuthStatusEvent {
-  /**
-   * Reports whether credentials exist without exposing a session or token.
-   */
-  readonly status: "authenticated" | "anonymous";
-}
-
-/**
- * Describes a locale change shared between same-origin application instances.
- *
- * @public
- */
-export interface MiaixzLocaleChangedEvent {
-  /**
-   * Contains the canonical or otherwise valid BCP 47 locale to activate.
-   */
-  readonly locale: MiaixzLocale;
-}
-
-/**
- * Maps built-in SDK event names to their payload types.
- *
- * @public
- */
-export interface MiaixzSdkEventMap {
-  /**
-   * Contains a non-sensitive authentication invalidation signal.
-   */
-  readonly "auth:changed": Readonly<MiaixzAuthStatusEvent>;
-
-  /**
-   * Contains the runtime-context snapshot after it changes.
-   */
-  readonly "context:changed": Readonly<MiaixzRuntimeContext>;
-
-  /**
-   * Contains the versioned appearance snapshot after it changes.
-   */
-  readonly "appearance:changed": Readonly<MiaixzAppearancePayload>;
-
-  /**
-   * Contains the active locale after it changes.
-   */
-  readonly "locale:changed": Readonly<MiaixzLocaleChangedEvent>;
-
-  /**
-   * Contains the SDK configuration snapshot after it changes.
-   */
-  readonly "config:changed": Readonly<MiaixzSdkConfig>;
-}
-
-/**
- * Configures local and optional same-origin cross-tab event delivery.
- *
- * @public
- */
-export interface MiaixzEventBusOptions {
-  /**
-   * Selects a validated BroadcastChannel name, or disables cross-tab delivery.
-   *
-   * @defaultValue false
-   */
-  readonly channelName?: string | false;
-
-  /**
-   * Supplies runtime validators for application-defined event names.
-   */
-  readonly validators?: Readonly<Record<string, MiaixzEventValidator>>;
-
-  /**
-   * Creates a BroadcastChannel for tests or compatible custom browser runtimes.
-   */
-  readonly broadcastChannelFactory?: (name: string) => BroadcastChannel;
-}
-
-/**
- * Defines the only envelope accepted over a Miaixz BroadcastChannel.
- *
- * @public
- */
-export interface MiaixzEventEnvelope {
-  /**
-   * Identifies the frozen event-envelope schema.
-   */
-  readonly version: 1;
-
-  /**
-   * Uniquely identifies one broadcast operation for deduplication.
-   */
-  readonly eventId: string;
-
-  /**
-   * Identifies the event-bus instance that originated the message.
-   */
-  readonly sourceId: string;
-
-  /**
-   * Names the typed event represented by the payload.
-   */
-  readonly type: string;
-
-  /**
-   * Contains untrusted data that must pass the registered runtime validator.
-   */
-  readonly payload: unknown;
-}
-
-/**
- * Configures one event publication.
- *
- * @public
- */
-export interface MiaixzEventEmitOptions {
-  /**
-   * Indicates whether a locally dispatched event may also cross the configured channel.
-   *
-   * @defaultValue true
-   */
-  readonly broadcast?: boolean;
-}
-
-/**
- * Extracts string event names from an event map.
- *
- * @public
- */
-export type MiaixzEventName<Events extends object> = Extract<keyof Events, string>;
-
-/**
- * Receives a typed event payload.
- *
- * @public
- */
-export type MiaixzEventListener<T> = (payload: T) => void;
+  MiaixzAuthStatusEvent,
+  MiaixzEventBusOptions,
+  MiaixzEventEmitOptions,
+  MiaixzEventEnvelope,
+  MiaixzEventListener,
+  MiaixzEventName,
+  MiaixzEventValidator,
+  MiaixzLocaleChangedEvent,
+  MiaixzSdkEventMap,
+} from "./event-types.js";
 
 const miaixzEventChannelPattern = /^miaixz:v1:[a-z][a-z0-9-]{1,63}:events$/;
 const miaixzUuidPattern =
@@ -389,7 +251,6 @@ const miaixzBuiltinEventValidators: Readonly<Record<string, MiaixzEventValidator
  * Creates a localized event error without including rejected payload data.
  *
  * @param code - Stable event error code.
- * @param messageKey - Registered internationalization message key.
  * @returns Localized SDK event error.
  */
 function createMiaixzEventError(
@@ -398,13 +259,8 @@ function createMiaixzEventError(
     | "EVENT_VALIDATOR_MISSING"
     | "EVENT_PAYLOAD_NOT_CLONEABLE"
     | "EVENT_CRYPTO_UNAVAILABLE",
-  messageKey:
-    | "sdk.error.event.channelInvalid"
-    | "sdk.error.event.validatorMissing"
-    | "sdk.error.event.payloadNotCloneable"
-    | "sdk.error.event.cryptoUnavailable",
 ): MiaixzSdkError {
-  return new MiaixzSdkError(miaixzDefaultI18n.t(messageKey), { code });
+  return new MiaixzSdkError({ code });
 }
 
 /**
@@ -415,7 +271,7 @@ function createMiaixzEventError(
  */
 function createMiaixzEventId(): string {
   if (typeof globalThis.crypto?.randomUUID !== "function") {
-    throw createMiaixzEventError("EVENT_CRYPTO_UNAVAILABLE", "sdk.error.event.cryptoUnavailable");
+    throw createMiaixzEventError("EVENT_CRYPTO_UNAVAILABLE");
   }
   return globalThis.crypto.randomUUID();
 }
@@ -449,18 +305,12 @@ function isMiaixzEventEnvelope(value: unknown): value is MiaixzEventEnvelope {
  */
 function cloneMiaixzEventPayload(payload: unknown): unknown {
   if (typeof globalThis.structuredClone !== "function") {
-    throw createMiaixzEventError(
-      "EVENT_PAYLOAD_NOT_CLONEABLE",
-      "sdk.error.event.payloadNotCloneable",
-    );
+    throw createMiaixzEventError("EVENT_PAYLOAD_NOT_CLONEABLE");
   }
   try {
     return globalThis.structuredClone(payload);
   } catch {
-    throw createMiaixzEventError(
-      "EVENT_PAYLOAD_NOT_CLONEABLE",
-      "sdk.error.event.payloadNotCloneable",
-    );
+    throw createMiaixzEventError("EVENT_PAYLOAD_NOT_CLONEABLE");
   }
 }
 
@@ -513,7 +363,7 @@ export class MiaixzEventBus<Events extends object = MiaixzSdkEventMap> {
       return;
     }
     if (!miaixzEventChannelPattern.test(channelName)) {
-      throw createMiaixzEventError("EVENT_CHANNEL_INVALID", "sdk.error.event.channelInvalid");
+      throw createMiaixzEventError("EVENT_CHANNEL_INVALID");
     }
     const hasChannelFactory = typeof options.broadcastChannelFactory === "function";
     const hasNativeChannel = typeof globalThis.BroadcastChannel === "function";
@@ -595,7 +445,7 @@ export class MiaixzEventBus<Events extends object = MiaixzSdkEventMap> {
     options: Readonly<MiaixzEventEmitOptions> = {},
   ): void {
     if (this.#closed) {
-      throw createMiaixzEventError("EVENT_CHANNEL_INVALID", "sdk.error.event.channelInvalid");
+      throw createMiaixzEventError("EVENT_CHANNEL_INVALID");
     }
     this.#dispatch(type, payload);
     if (
@@ -608,7 +458,7 @@ export class MiaixzEventBus<Events extends object = MiaixzSdkEventMap> {
     const validator = Object.hasOwn(this.#validators, type) ? this.#validators[type] : undefined;
     if (validator === undefined) {
       if (options.broadcast === true) {
-        throw createMiaixzEventError("EVENT_VALIDATOR_MISSING", "sdk.error.event.validatorMissing");
+        throw createMiaixzEventError("EVENT_VALIDATOR_MISSING");
       }
       return;
     }

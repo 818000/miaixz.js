@@ -18,29 +18,31 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { createMiaixzAppearanceManager, type MiaixzAppearanceManager } from "./appearance/index.js";
+import {
+  createMiaixzAppearanceManager,
+  type MiaixzAppearanceManager,
+} from "./appearance/appearance.js";
 import {
   createApiClient,
-  MiaixzSdkError,
   type MiaixzApiClient,
-  type MiaixzApiTelemetryHooks,
   type MiaixzCsrfTokenProvider,
-} from "./api/index.js";
+} from "./api/client.js";
+import { type MiaixzApiTelemetryHooks } from "./api/telemetry-types.js";
+import { type MiaixzHttpResponse } from "./api/response.js";
+import { type MiaixzRequestBody, type MiaixzRequestOptions } from "./api/request.js";
 import {
   createMiaixzAuthManager,
   MiaixzAuthManager,
-  type MiaixzAuthSession,
   type MiaixzPersistentAuthStorage,
   type MiaixzSessionRefresher,
-} from "./auth/index.js";
-import { MiaixzConfigStore, getMiaixzServiceEndpoint } from "./config/index.js";
-import { createMiaixzContextStore, type MiaixzContextStore } from "./context/index.js";
-import {
-  createMiaixzEventBus,
-  type MiaixzEventBus,
-  type MiaixzSdkEventMap,
-} from "./events/index.js";
-import { createMiaixzFileClient, type MiaixzFileClient } from "./files/index.js";
+} from "./auth/auth.js";
+import { MiaixzConfigStore } from "./config/config.js";
+import { miaixzHeaders } from "./consts/constants.js";
+import { createMiaixzContextStore, type MiaixzContextStore } from "./context/context.js";
+import { MiaixzSdkError } from "./errors/errors.js";
+import type { MiaixzSdkEventMap } from "./events/event-types.js";
+import { createMiaixzEventBus, type MiaixzEventBus } from "./events/events.js";
+import { createMiaixzFileClient, type MiaixzFileClient } from "./files/files.js";
 import {
   createMiaixzI18n,
   type MiaixzI18n,
@@ -49,302 +51,508 @@ import {
   type MiaixzLocaleDefinition,
   type MiaixzMessageCatalog,
   type MiaixzMessageLoader,
-} from "./i18n/index.js";
-import { createMiaixzPermissionSet, type MiaixzPermissionSet } from "./permissions/index.js";
-import { miaixzHeaders } from "./consts/index.js";
+} from "./i18n/i18n.js";
+import { createMiaixzPermissionSet, type MiaixzPermissionSet } from "./permissions/permissions.js";
 import {
   createMiaixzStorageKey,
   getMiaixzBrowserStorage,
   type MiaixzKeyValueStorage,
-} from "./storage/index.js";
-import type {
-  MiaixzPermissionSnapshot,
-  MiaixzRuntimeContext,
-  MiaixzSdkConfig,
-} from "./types/index.js";
+} from "./storage/storage.js";
+import type { MiaixzPermissionSnapshot } from "./types/permissions.js";
+import type { MiaixzRuntimeContext } from "./types/context.js";
+import type { MiaixzSdkConfig } from "./types/config.js";
 
 /**
- * Selects the SDK authentication integration used for API requests.
+ * Selects the SDK authentication integration.
  *
  * @public
  */
 export type MiaixzAuthMode = "cookie" | "bearer";
 
 /**
- * Selects whether Appearance persistence follows the active tenant context.
+ * Selects whether Appearance persistence follows the active tenant.
  *
  * @public
  */
 export type MiaixzAppearanceScope = "global" | "tenant";
 
 /**
- * Configures a complete Miaixz SDK instance.
+ * Options shared by both authentication modes.
  *
  * @public
  */
-export interface MiaixzSdkOptions {
+export interface MiaixzSdkCommonOptions {
   /**
-   * Identifies the consuming frontend application and its persistence namespace.
+   * Identifies the consuming application and persistence namespace.
    */
   readonly appId: string;
-
   /**
-   * Validated deployment configuration for the SDK.
+   * Supplies the validated deployment configuration.
    */
   readonly config: MiaixzSdkConfig;
-
   /**
-   * Optional runtime Context fields merged over restored persistent state.
+   * Supplies runtime context merged over restored state.
    */
   readonly initialContext?: MiaixzRuntimeContext;
-
   /**
-   * Controls whether Appearance is shared by the application or isolated per tenant.
-   *
-   * @defaultValue "tenant"
+   * Selects global or tenant-scoped Appearance persistence.
    */
   readonly appearanceScope?: MiaixzAppearanceScope;
-
   /**
-   * Authentication integration; defaults to the Cookie/BFF mode.
-   *
-   * @defaultValue "cookie"
-   */
-  readonly authMode?: MiaixzAuthMode;
-
-  /**
-   * Explicitly acknowledged persistence used only by Bearer authentication.
-   */
-  readonly authPersistence?: MiaixzPersistentAuthStorage;
-
-  /**
-   * Session refresher used only by Bearer authentication.
-   */
-  readonly authRefresh?: MiaixzSessionRefresher;
-
-  /**
-   * Supplies the authoritative CSRF token for Cookie/BFF write requests.
-   */
-  readonly csrfTokenProvider?: MiaixzCsrfTokenProvider;
-
-  /**
-   * Optional initial locale.
+   * Supplies the initial locale.
    */
   readonly locale?: MiaixzLocale;
-
   /**
-   * Optional locale used when a message is unavailable in the active locale.
+   * Supplies the locale used for missing messages.
    */
   readonly fallbackLocale?: MiaixzLocale;
-
   /**
-   * Optional trusted locale definitions exposed to global language selectors.
+   * Registers trusted locale definitions.
    */
   readonly locales?: readonly MiaixzLocaleDefinition[];
-
   /**
-   * Optional initial project message catalogs.
+   * Registers initial project message catalogs.
    */
   readonly messages?: MiaixzMessageCatalog;
-
   /**
-   * Optional loader for project-owned language files.
+   * Loads project-owned language files.
    */
   readonly loadMessages?: MiaixzMessageLoader;
-
   /**
-   * Optional callback invoked when a project language file cannot be loaded.
+   * Observes project language-file failures.
    */
   readonly onI18nLoadError?: (error: MiaixzI18nLoadError) => void;
-
   /**
-   * Optional key-value storage shared by stateful SDK modules.
+   * Supplies stateful SDK storage.
    */
   readonly storage?: MiaixzKeyValueStorage;
-
   /**
-   * Optional Fetch implementation shared by API clients.
+   * Supplies the Fetch implementation used by API clients.
    */
   readonly fetch?: typeof fetch;
-
   /**
-   * Optional observers shared by the primary and service API clients.
+   * Observes sanitized request lifecycle telemetry.
    */
   readonly telemetry?: MiaixzApiTelemetryHooks;
-
   /**
-   * Optional preconfigured event bus shared by SDK modules.
-   */
-  readonly eventBus?: MiaixzEventBus<MiaixzSdkEventMap>;
-
-  /**
-   * Enables same-origin cross-tab events on the channel derived from `appId`.
-   *
-   * @defaultValue false
-   */
-  readonly eventChannel?: boolean;
-
-  /**
-   * Optional initial frontend permission snapshot.
+   * Supplies the initial frontend permission snapshot.
    */
   readonly permissions?: MiaixzPermissionSnapshot;
 }
 
 /**
- * Creates the stable AuthManager-shaped object exposed by Cookie/BFF SDK instances.
- *
- * The implementation intentionally never creates or stores a token session.
- */
-class MiaixzCookieAuthManager extends MiaixzAuthManager {
-  readonly #translate: MiaixzI18n["t"];
-
-  /**
-   * Creates a disabled token manager for a Cookie/BFF SDK instance.
-   *
-   * @param translate - Translator used for mode-mismatch errors.
-   * @param events - Shared SDK event bus.
-   */
-  constructor(translate: MiaixzI18n["t"], events: MiaixzEventBus<MiaixzSdkEventMap>) {
-    super({ translate, events });
-    this.#translate = translate;
-  }
-
-  /**
-   * Rejects token sessions because Cookie/BFF credentials are owned by the browser and server.
-   *
-   * @param _session - Rejected Bearer session.
-   * @throws MiaixzSdkError Always, because the SDK is using Cookie/BFF authentication.
-   */
-  override setSession(_session: MiaixzAuthSession): void {
-    throw createAuthModeMismatchError(this.#translate);
-  }
-
-  /**
-   * Rejects access-token reads because HttpOnly Cookie credentials are not script-readable.
-   *
-   * @returns A rejected promise for structural compatibility with the public manager.
-   * @throws MiaixzSdkError Always, because the SDK is using Cookie/BFF authentication.
-   */
-  override async getAccessToken(): Promise<undefined> {
-    throw createAuthModeMismatchError(this.#translate);
-  }
-}
-
-/**
- * Creates a localized authentication-mode mismatch error without credential details.
- *
- * @param translate - Translator used to resolve the public error message.
- * @returns A safe SDK error describing an unavailable authentication operation.
- */
-function createAuthModeMismatchError(translate: MiaixzI18n["t"]): MiaixzSdkError {
-  return new MiaixzSdkError(translate("sdk.error.auth.modeMismatch"), {
-    code: "AUTH_MODE_MISMATCH",
-  });
-}
-
-/**
- * Resolves and validates the Appearance persistence scope at the runtime boundary.
- *
- * @param value - Optional untrusted scope supplied by the SDK consumer.
- * @param translate - Translator used to resolve the public error message.
- * @returns The normalized Appearance persistence scope.
- * @throws MiaixzSdkError When the scope is unsupported.
- */
-function resolveAppearanceScope(value: unknown, translate: MiaixzI18n["t"]): MiaixzAppearanceScope {
-  if (value === undefined) return "tenant";
-  if (value === "global" || value === "tenant") return value;
-  throw new MiaixzSdkError(translate("sdk.error.appearance.scopeInvalid"), {
-    code: "APPEARANCE_SCOPE_INVALID",
-  });
-}
-
-/**
- * Exposes the coordinated Miaixz runtime services used by a frontend application.
+ * Cookie/BFF authentication options.
  *
  * @public
  */
-export interface MiaixzSdk {
+export interface MiaixzCookieSdkOptions {
   /**
-   * Mutable validated SDK configuration store.
+   * Selects Cookie/BFF authentication; omission has the same meaning.
+   */
+  readonly authMode?: "cookie";
+  /**
+   * Supplies the authoritative CSRF token for write requests.
+   */
+  readonly csrfTokenProvider?: MiaixzCsrfTokenProvider;
+  /**
+   * Rejects Bearer-only persistence.
+   */
+  readonly authPersistence?: never;
+  /**
+   * Rejects Bearer-only refresh behavior.
+   */
+  readonly authRefresh?: never;
+}
+
+/**
+ * Bearer authentication options.
+ *
+ * @public
+ */
+export interface MiaixzBearerSdkOptions {
+  /**
+   * Selects Bearer authentication.
+   */
+  readonly authMode: "bearer";
+  /**
+   * Supplies explicitly acknowledged Bearer persistence.
+   */
+  readonly authPersistence?: MiaixzPersistentAuthStorage;
+  /**
+   * Supplies the Bearer session refresher.
+   */
+  readonly authRefresh?: MiaixzSessionRefresher;
+  /**
+   * Rejects the Cookie-only CSRF provider.
+   */
+  readonly csrfTokenProvider?: never;
+}
+
+/**
+ * Makes an external event bus and an SDK-owned channel mutually exclusive.
+ *
+ * @public
+ */
+export type MiaixzSdkEventOptions =
+  | {
+      /**
+       * Supplies a host-owned event bus.
+       */
+      readonly eventBus: MiaixzEventBus<MiaixzSdkEventMap>;
+      /**
+       * Rejects simultaneous creation of an SDK-owned channel.
+       */
+      readonly eventChannel?: never;
+    }
+  | {
+      /**
+       * Rejects a host-owned bus on the internal-channel branch.
+       */
+      readonly eventBus?: never;
+      /**
+       * Enables the SDK-owned cross-tab channel.
+       */
+      readonly eventChannel?: boolean;
+    };
+
+/**
+ * Final SDK input contract.
+ *
+ * @public
+ */
+export type MiaixzSdkOptions = MiaixzSdkCommonOptions &
+  MiaixzSdkEventOptions &
+  (MiaixzCookieSdkOptions | MiaixzBearerSdkOptions);
+
+/**
+ * Services present on every SDK mode.
+ *
+ * @public
+ */
+export interface MiaixzSdkBase {
+  /**
+   * Mutable validated configuration store.
    */
   readonly config: MiaixzConfigStore;
-
   /**
-   * Internationalization runtime and project catalog loader.
+   * Internationalization runtime.
    */
   readonly i18n: MiaixzI18n;
   /**
-   * Resolves after the initial project language files have loaded.
+   * Initial project-message loading completion.
    */
   readonly ready: Promise<void>;
-
   /**
-   * Shared local and cross-window event bus.
+   * Shared local and cross-context event bus.
    */
   readonly events: MiaixzEventBus<MiaixzSdkEventMap>;
-
   /**
-   * Authentication session manager.
-   */
-  readonly auth: MiaixzAuthManager;
-
-  /**
-   * Runtime-context store and request-header provider.
+   * Runtime-context store.
    */
   readonly context: MiaixzContextStore;
-
   /**
-   * Theme and density appearance manager.
+   * Theme and density manager.
    */
   readonly appearance: MiaixzAppearanceManager;
-
   /**
-   * API client for the primary configured endpoint.
+   * Stable primary API façade.
    */
   readonly api: MiaixzApiClient;
-
   /**
-   * High-level file client for the primary configured endpoint.
+   * Stable primary file client.
    */
   readonly files: MiaixzFileClient;
-
   /**
-   * Current immutable frontend permission evaluator.
+   * Current immutable permission evaluator.
    */
   readonly permissions: MiaixzPermissionSet;
   /**
-   * Replaces the current frontend permission snapshot.
-   *
-   * @param snapshot - Permission snapshot to validate and activate.
-   * @throws MiaixzSdkError When the permission snapshot is invalid.
+   * Replaces the permission snapshot.
    */
   setPermissions(snapshot: MiaixzPermissionSnapshot): void;
   /**
-   * Creates an authenticated API client for a configured service endpoint.
-   *
-   * @param service - Configured service name to resolve.
-   * @returns An API client inheriting all SDK security and runtime options.
-   * @throws MiaixzSdkError When the service endpoint is missing or invalid.
+   * Returns a stable API façade for the exact service key.
    */
   createServiceClient(service: string): MiaixzApiClient;
   /**
-   * Releases all subscriptions and browser resources owned by this SDK instance.
+   * Releases all resources owned by this SDK.
    */
   destroy(): void;
 }
 
 /**
- * Composes the Miaixz API, auth, context, config, permissions, files, appearance,
- * events, storage, and internationalization modules into one service SDK.
+ * Cookie/BFF SDK without a token manager.
  *
- * @param options - Deployment configuration and runtime adapters.
- * @returns A service-ready SDK instance. Await `ready` before rendering project translations.
- * @throws MiaixzSdkError When application, configuration, authentication, or runtime options are invalid.
+ * @public
+ */
+export interface MiaixzCookieSdk extends MiaixzSdkBase {
+  /**
+   * Cookie/BFF mode discriminator.
+   */
+  readonly authMode: "cookie";
+}
+
+/**
+ * Bearer SDK with an explicit token manager.
+ *
+ * @public
+ */
+export interface MiaixzBearerSdk extends MiaixzSdkBase {
+  /**
+   * Bearer mode discriminator.
+   */
+  readonly authMode: "bearer";
+  /**
+   * Bearer session manager.
+   */
+  readonly auth: MiaixzAuthManager;
+}
+
+/**
+ * Runtime SDK union.
+ *
+ * @public
+ */
+export type MiaixzSdk = MiaixzCookieSdk | MiaixzBearerSdk;
+
+/**
+ * Controls one stable API façade.
+ */
+interface MiaixzApiFacadeController {
+  /**
+   * Stable client exposed to callers.
+   */
+  readonly client: MiaixzApiClient;
+  /**
+   * Atomically switches the active transport.
+   */
+  activate(client: MiaixzApiClient): void;
+  /**
+   * Marks a removed service endpoint.
+   */
+  markMissing(service: string): void;
+  /**
+   * Permanently disables the façade.
+   */
+  destroy(): void;
+}
+
+/**
+ * Represents every API façade lifecycle state.
+ */
+type FacadeState =
+  | {
+      /**
+       * Active transport state.
+       */
+      readonly kind: "active";
+      /**
+       * Current transport.
+       */
+      readonly client: MiaixzApiClient;
+    }
+  | {
+      /**
+       * Missing endpoint state.
+       */
+      readonly kind: "missing";
+      /**
+       * Exact missing service key.
+       */
+      readonly service: string;
+    }
+  | {
+      /**
+       * Destroyed SDK state.
+       */
+      readonly kind: "destroyed";
+    };
+
+/**
+ * Creates an identity-stable API façade around replaceable transports.
+ *
+ * @param initialClient - Initial validated transport.
+ * @returns Stable façade controller.
+ */
+function createApiFacade(initialClient: MiaixzApiClient): MiaixzApiFacadeController {
+  let state: FacadeState = { kind: "active", client: initialClient };
+  /**
+   * Returns the active transport or throws the deterministic lifecycle error.
+   *
+   * @returns The current active API transport.
+   */
+  const active = (): MiaixzApiClient => {
+    if (state.kind === "destroyed") throw new MiaixzSdkError({ code: "SDK_DESTROYED" });
+    if (state.kind === "missing") {
+      throw new MiaixzSdkError({
+        code: "SERVICE_ENDPOINT_MISSING",
+        details: { service: state.service },
+      });
+    }
+    return state.client;
+  };
+  const client: MiaixzApiClient = {
+    /**
+     * Returns the active base URL.
+     *
+     * @returns Base URL of the current transport.
+     */
+    get baseUrl() {
+      return active().baseUrl;
+    },
+    /**
+     * Delegates one fully configured request.
+     *
+     * @param path - Relative request path.
+     * @param options - Request-specific behavior.
+     * @returns The active transport response.
+     */
+    request<TResponse = unknown, TBody extends MiaixzRequestBody = MiaixzRequestBody>(
+      path: string,
+      options?: MiaixzRequestOptions<TResponse, TBody>,
+    ): Promise<MiaixzHttpResponse<TResponse>> {
+      return active().request(path, options);
+    },
+    /**
+     * Delegates a GET request.
+     *
+     * @param path - Relative request path.
+     * @param options - Request-specific behavior.
+     * @returns The active transport response.
+     */
+    get(path, options) {
+      return active().get(path, options);
+    },
+    /**
+     * Delegates a POST request.
+     *
+     * @param path - Relative request path.
+     * @param body - Optional request body.
+     * @param options - Request-specific behavior.
+     * @returns The active transport response.
+     */
+    post(path, body, options) {
+      return active().post(path, body, options);
+    },
+    /**
+     * Delegates a PUT request.
+     *
+     * @param path - Relative request path.
+     * @param body - Optional request body.
+     * @param options - Request-specific behavior.
+     * @returns The active transport response.
+     */
+    put(path, body, options) {
+      return active().put(path, body, options);
+    },
+    /**
+     * Delegates a PATCH request.
+     *
+     * @param path - Relative request path.
+     * @param body - Optional request body.
+     * @param options - Request-specific behavior.
+     * @returns The active transport response.
+     */
+    patch(path, body, options) {
+      return active().patch(path, body, options);
+    },
+    /**
+     * Delegates a DELETE request.
+     *
+     * @param path - Relative request path.
+     * @param options - Request-specific behavior.
+     * @returns The active transport response.
+     */
+    delete(path, options) {
+      return active().delete(path, options);
+    },
+  };
+  return {
+    client,
+    /**
+     * Activates a fully validated replacement transport.
+     *
+     * @param nextClient - Replacement transport.
+     */
+    activate(nextClient) {
+      if (state.kind === "destroyed") throw new MiaixzSdkError({ code: "SDK_DESTROYED" });
+      state = { kind: "active", client: nextClient };
+    },
+    /**
+     * Marks a service façade whose endpoint was removed.
+     *
+     * @param service - Exact service cache key.
+     */
+    markMissing(service) {
+      if (state.kind !== "destroyed") state = { kind: "missing", service };
+    },
+    /**
+     * Permanently disables the façade.
+     */
+    destroy() {
+      state = { kind: "destroyed" };
+    },
+  };
+}
+
+/**
+ * Validates the Appearance persistence scope.
+ *
+ * @param value - Runtime scope candidate.
+ * @returns Validated scope or the tenant default.
+ */
+function resolveAppearanceScope(value: unknown): MiaixzAppearanceScope {
+  if (value === undefined) return "tenant";
+  if (value === "global" || value === "tenant") return value;
+  throw new MiaixzSdkError({ code: "APPEARANCE_SCOPE_INVALID" });
+}
+
+/**
+ * Creates a default Cookie/BFF SDK.
+ *
+ * @param options - Cookie/BFF runtime options.
+ * @returns A Cookie SDK without a token manager.
+ * @public
+ */
+export function createMiaixzSdk(
+  options: MiaixzSdkCommonOptions & MiaixzSdkEventOptions & MiaixzCookieSdkOptions,
+): MiaixzCookieSdk;
+
+/**
+ * Creates a Bearer SDK with an authentication manager.
+ *
+ * @param options - Bearer runtime options.
+ * @returns A Bearer SDK with an authentication manager.
+ * @public
+ */
+export function createMiaixzSdk(
+  options: MiaixzSdkCommonOptions & MiaixzSdkEventOptions & MiaixzBearerSdkOptions,
+): MiaixzBearerSdk;
+
+/**
+ * Composes the complete Miaixz runtime.
+ *
+ * @param options - Authentication-specific runtime options.
+ * @returns A Cookie or Bearer SDK selected by the discriminator.
  * @public
  */
 export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   createMiaixzStorageKey({ appId: options.appId }, "context");
   const authMode = options.authMode ?? "cookie";
+  if (options.eventBus !== undefined && options.eventChannel !== undefined) {
+    throw new MiaixzSdkError({ code: "EVENT_CHANNEL_INVALID" });
+  }
+  if (
+    authMode === "cookie" &&
+    (Reflect.get(options, "authPersistence") !== undefined ||
+      Reflect.get(options, "authRefresh") !== undefined)
+  ) {
+    throw new MiaixzSdkError({ code: "CONFIG_INVALID" });
+  }
+  if (authMode === "bearer" && Reflect.get(options, "csrfTokenProvider") !== undefined) {
+    throw new MiaixzSdkError({ code: "CONFIG_INVALID" });
+  }
+
   const i18n = createMiaixzI18n({
     ...(options.locale === undefined ? {} : { locale: options.locale }),
     ...(options.fallbackLocale === undefined ? {} : { fallbackLocale: options.fallbackLocale }),
@@ -353,18 +561,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     ...(options.loadMessages === undefined ? {} : { loadMessages: options.loadMessages }),
     ...(options.onI18nLoadError === undefined ? {} : { onLoadError: options.onI18nLoadError }),
   });
-  const appearanceScope = resolveAppearanceScope(options.appearanceScope, i18n.t);
-  if (
-    authMode === "cookie" &&
-    (options.authPersistence !== undefined || options.authRefresh !== undefined)
-  ) {
-    throw createAuthModeMismatchError(i18n.t);
-  }
-  if (options.eventBus !== undefined && options.eventChannel === true) {
-    throw new MiaixzSdkError(i18n.t("sdk.error.event.channelInvalid"), {
-      code: "EVENT_CHANNEL_INVALID",
-    });
-  }
+  const appearanceScope = resolveAppearanceScope(options.appearanceScope);
   const ownsEventBus = options.eventBus === undefined;
   const events =
     options.eventBus ??
@@ -373,28 +570,25 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     });
   const storage = options.storage ?? getMiaixzBrowserStorage();
   const ready = i18n.initialize(["sdk"]);
-  const config = new MiaixzConfigStore(options.config, events, i18n.t);
-  const auth: MiaixzAuthManager =
-    authMode === "cookie"
-      ? new MiaixzCookieAuthManager(i18n.t, events)
-      : createMiaixzAuthManager({
+  const config = new MiaixzConfigStore(options.config, events);
+  const auth =
+    authMode === "bearer"
+      ? createMiaixzAuthManager({
           events,
-          translate: i18n.t,
           ...(options.authPersistence === undefined
             ? {}
             : { persistence: options.authPersistence }),
           ...(options.authRefresh === undefined ? {} : { refresh: options.authRefresh }),
-        });
+        })
+      : undefined;
   const context = createMiaixzContextStore({
     appId: options.appId,
     events,
-    translate: i18n.t,
     ...(storage === undefined ? {} : { storage }),
     ...(options.initialContext === undefined ? {} : { initialContext: options.initialContext }),
   });
-  if (context.getSnapshot().locale !== i18n.locale) {
-    context.patch({ locale: i18n.locale });
-  }
+  if (context.getSnapshot().locale !== i18n.locale) context.patch({ locale: i18n.locale });
+
   let appearanceTenantId =
     appearanceScope === "tenant" ? context.getSnapshot().tenantId : undefined;
   const appearance = createMiaixzAppearanceManager({
@@ -403,7 +597,6 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
       ? { tenantId: appearanceTenantId }
       : {}),
     events,
-    translate: i18n.t,
     ...(storage === undefined ? {} : { storage }),
     ...(config.getSnapshot().appearance === undefined
       ? {}
@@ -421,12 +614,13 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   const createClient = (
     baseUrl: string,
     environment: MiaixzSdkConfig["environment"],
+    timeoutMs: number | undefined,
   ): MiaixzApiClient =>
     createApiClient({
       baseUrl,
       environment,
       credentials: authMode === "cookie" ? "include" : "same-origin",
-      ...(authMode === "bearer" ? { authorizationProvider: auth.authorizationProvider } : {}),
+      ...(auth === undefined ? {} : { authorizationProvider: auth.authorizationProvider }),
       csrf:
         authMode === "cookie"
           ? {
@@ -441,21 +635,66 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
         if (!headers.has(miaixzHeaders.locale)) headers.set(miaixzHeaders.locale, i18n.locale);
         return headers;
       },
-      translate: i18n.t,
       ...(options.telemetry === undefined ? {} : { telemetry: options.telemetry }),
       ...(options.fetch === undefined ? {} : { fetch: options.fetch }),
-      ...(config.getSnapshot().requestTimeoutMs === undefined
-        ? {}
-        : { timeoutMs: config.getSnapshot().requestTimeoutMs }),
+      ...(timeoutMs === undefined ? {} : { timeoutMs }),
     });
 
-  let api = createClient(config.getSnapshot().apiBaseUrl, config.getSnapshot().environment);
-  let files = createMiaixzFileClient(api, { translate: i18n.t });
-  let permissions = createMiaixzPermissionSet(options.permissions ?? { allowed: [] }, i18n.t);
+  const initialConfig = config.getSnapshot();
+  const primary = createApiFacade(
+    createClient(
+      initialConfig.apiBaseUrl,
+      initialConfig.environment,
+      initialConfig.requestTimeoutMs,
+    ),
+  );
+  const files = createMiaixzFileClient(primary.client);
+  const services = new Map<string, MiaixzApiFacadeController>();
+  let permissions = createMiaixzPermissionSet(options.permissions ?? { allowed: [] });
+  let preparedUpdate:
+    | {
+        /**
+         * Prepared primary client.
+         */
+        readonly primary: MiaixzApiClient;
+        /**
+         * Prepared service clients keyed by the original service string.
+         */
+        readonly services: ReadonlyMap<string, MiaixzApiClient | undefined>;
+      }
+    | undefined;
 
-  const stopClientConfigSync = config.subscribe((nextConfig) => {
-    api = createClient(nextConfig.apiBaseUrl, nextConfig.environment);
-    files = createMiaixzFileClient(api, { translate: i18n.t });
+  const stopClientConfigPrepare = config.prepare((nextConfig) => {
+    const nextServices = new Map<string, MiaixzApiClient | undefined>();
+    for (const service of services.keys()) {
+      const endpoint = nextConfig.services?.[service];
+      nextServices.set(
+        service,
+        endpoint === undefined
+          ? undefined
+          : createClient(endpoint, nextConfig.environment, nextConfig.requestTimeoutMs),
+      );
+    }
+    preparedUpdate = {
+      primary: createClient(
+        nextConfig.apiBaseUrl,
+        nextConfig.environment,
+        nextConfig.requestTimeoutMs,
+      ),
+      services: nextServices,
+    };
+  });
+  const stopClientConfigSync = config.subscribe(() => {
+    const update = preparedUpdate;
+    if (update === undefined) return;
+    primary.activate(update.primary);
+    for (const [service, nextClient] of update.services) {
+      const controller = services.get(service);
+      if (controller === undefined) continue;
+      if (nextClient === undefined) controller.markMissing(service);
+      else controller.activate(nextClient);
+    }
+    preparedUpdate = undefined;
   });
 
   const stopLocaleBroadcast = i18n.subscribe((snapshot) => {
@@ -465,39 +704,23 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     }
   });
   const stopLocaleSync = events.on("locale:changed", ({ locale }) => {
-    if (locale !== i18n.locale) {
-      void i18n.changeLocale(locale).catch(() => undefined);
-    }
+    if (locale !== i18n.locale) void i18n.changeLocale(locale).catch(() => undefined);
   });
 
-  const sdk: MiaixzSdk = {
+  let destroyed = false;
+  const common: MiaixzSdkBase = {
     config,
     i18n,
     ready,
     events,
-    auth,
     context,
     appearance,
+    api: primary.client,
+    files,
     /**
-     * Returns the active API client.
+     * Returns the active permission evaluator.
      *
-     * @returns The active API client.
-     */
-    get api() {
-      return api;
-    },
-    /**
-     * Returns the active file client.
-     *
-     * @returns The active file client.
-     */
-    get files() {
-      return files;
-    },
-    /**
-     * Returns the active permission set.
-     *
-     * @returns The active permission set.
+     * @returns The active immutable permission set.
      */
     get permissions() {
       return permissions;
@@ -505,38 +728,59 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     /**
      * Replaces the active permission snapshot.
      *
-     * @param snapshot - Permission snapshot to activate.
+     * @param snapshot - Permission snapshot to validate and activate.
      */
     setPermissions(snapshot) {
-      permissions = createMiaixzPermissionSet(snapshot, i18n.t);
+      if (destroyed) throw new MiaixzSdkError({ code: "SDK_DESTROYED" });
+      permissions = createMiaixzPermissionSet(snapshot);
     },
     /**
-     * Creates an API client for a configured service.
+     * Returns a stable client for an exact configured service key.
      *
-     * @param service - Service identifier to resolve.
-     * @returns The configured service client.
+     * @param service - Exact service key from configuration.
+     * @returns Identity-stable service API façade.
      */
     createServiceClient(service) {
-      return createClient(
-        getMiaixzServiceEndpoint(config.getSnapshot(), service, i18n.t),
-        config.getSnapshot().environment,
+      if (destroyed) throw new MiaixzSdkError({ code: "SDK_DESTROYED" });
+      const existing = services.get(service);
+      if (existing !== undefined) return existing.client;
+      const endpoint = config.getSnapshot().services?.[service];
+      if (endpoint === undefined) {
+        throw new MiaixzSdkError({ code: "SERVICE_ENDPOINT_MISSING", details: { service } });
+      }
+      const controller = createApiFacade(
+        createClient(
+          endpoint,
+          config.getSnapshot().environment,
+          config.getSnapshot().requestTimeoutMs,
+        ),
       );
+      services.set(service, controller);
+      return controller.client;
     },
     /**
-     * Releases SDK subscriptions and owned resources.
+     * Releases all resources and permanently disables request façades.
      */
     destroy() {
+      if (destroyed) return;
+      destroyed = true;
       stopAppearanceScopeSync?.();
       stopLocaleBroadcast();
       stopLocaleSync();
+      stopClientConfigPrepare();
       stopClientConfigSync();
-      auth.destroy();
+      auth?.destroy();
       context.destroy();
       appearance.destroy();
       config.destroy();
+      primary.destroy();
+      for (const controller of services.values()) controller.destroy();
+      services.clear();
       if (ownsEventBus) events.close();
     },
   };
 
-  return sdk;
+  return authMode === "bearer"
+    ? { ...common, authMode: "bearer", auth: auth as MiaixzAuthManager }
+    : { ...common, authMode: "cookie" };
 }

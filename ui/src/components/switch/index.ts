@@ -19,4 +19,11 @@
 */
 
 export { Switch } from "./switch.js";
-export type { SwitchProps } from "./switch.types.js";
+export type {
+  SwitchOwnerState,
+  SwitchProps,
+  SwitchRootAttributes,
+  SwitchSize,
+  SwitchSlot,
+  SwitchSlotProps,
+} from "./switch.types.js";

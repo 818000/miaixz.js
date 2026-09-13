@@ -18,238 +18,127 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
+/* eslint-disable jsdoc/require-jsdoc -- Closed list item branches and slots are self-describing.
+ */
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  MouseEvent,
+  ReactNode,
+  RefAttributes,
+} from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
-/**
- * Configures a semantic list container.
- *
- * @public
- */
-export interface ListProps extends HTMLAttributes<HTMLUListElement> {
-  /**
-   * Selects full-width grid flow without fixing business row counts.
-   */
-  layout?: "default" | "grid";
-  /**
-   * Preserves fully legible disabled rows where nested actions show their own state.
-   */
-  disabledAppearance?: "dim" | "preserve";
-  /**
-   * Selects the generic or panel-surface divider color.
-   */
-  dividerTone?: "default" | "panel";
-  /**
-   * Selects a neutral or item-tone-derived hover and keyboard-focus surface.
-   *
-   * @defaultValue `neutral`
-   */
-  interactionSurface?: "neutral" | "tone";
-  /**
-   * Selects the standard or compact row density.
-   */
-  density?: "default" | "compact";
-  /**
-   * Selects a reusable row composition.
-   * Overview and alert rows retain their hover and descendant keyboard-focus treatment
-   * when a single content root contains independently interactive titles.
-   * This visual treatment does not make the row itself a link or button.
-   */
-  variant?:
-    | "alert"
-    | "default"
-    | "overview"
-    | "distribution"
-    | "progress"
-    | "feed"
-    | "ranking"
-    | "meter"
-    | "meter-spaced"
-    | "activity"
-    | "event"
-    | "detail"
-    | "connection"
-    | "navigation";
-  /**
-   * Supplies structured list entries.
-   */
-  items?: readonly ListEntry[];
-  /**
-   * Displays a surrounding border and row dividers.
-   *
-   * @defaultValue `false`
-   */
-  bordered?: boolean;
-  /**
-   * Displays separators between list items.
-   *
-   * @defaultValue `true`
-   */
-  dividers?: boolean;
-  /**
-   * Removes item padding and background treatment.
-   *
-   * @defaultValue `false`
-   */
-  plain?: boolean;
-  /**
-   * Applies the nested-list indentation.
-   *
-   * @defaultValue `false`
-   */
-  nested?: boolean;
+type WithoutInteractionHandlers<Props> = {
+  readonly [Key in keyof Props as Key extends `on${string}` ? never : Key]: Props[Key];
+};
+export type ListItemRootAttributes = Omit<
+  WithoutInteractionHandlers<HTMLAttributes<HTMLLIElement>>,
+  "aria-current" | "aria-disabled" | "children" | "id" | "role" | "tabIndex"
+>;
+export type StaticListControlAttributes = Omit<
+  WithoutInteractionHandlers<HTMLAttributes<HTMLDivElement>>,
+  "aria-current" | "aria-disabled" | "children" | "role" | "tabIndex"
+>;
+export type ListItemContent =
+  | { readonly content: ReactNode; readonly title?: never; readonly description?: never }
+  | { readonly content?: never; readonly title: ReactNode; readonly description?: ReactNode };
+interface ListItemPresentation extends ListItemRootAttributes {
+  readonly id: string;
+  readonly icon?: ReactNode;
+  readonly meta?: ReactNode;
+  readonly actions?: ReactNode;
+  readonly tone?: MiaixzVisualTone;
+}
+type StaticListItem = {
+  readonly kind: "static";
+  readonly divProps?: StaticListControlAttributes;
+  readonly href?: never;
+  readonly onAction?: never;
+  readonly disabled?: never;
+  readonly anchorProps?: never;
+  readonly buttonProps?: never;
+};
+type NavigationListItem = {
+  readonly kind: "navigation";
+  readonly href: string;
+  readonly anchorProps?: Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    "aria-disabled" | "children" | "href"
+  >;
+  readonly onAction?: never;
+  readonly disabled?: never;
+  readonly divProps?: never;
+  readonly buttonProps?: never;
+};
+type CommandListItem = {
+  readonly kind: "command";
+  readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
+  readonly disabled?: boolean;
+  readonly buttonProps?: Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    "aria-disabled" | "children" | "disabled" | "onClick" | "type"
+  >;
+  readonly href?: never;
+  readonly divProps?: never;
+  readonly anchorProps?: never;
+};
+export type ListItemProps = ListItemContent &
+  ListItemPresentation &
+  (StaticListItem | NavigationListItem | CommandListItem) & {
+    readonly slotProps?: ListItemSlotProps;
+  };
+
+export type ListLayout = "list" | "grid";
+export type ListDensity = "compact" | "standard" | "comfortable";
+export type ListSurface = "plain" | "panel";
+export type ListSlot = "root";
+export interface ListOwnerState {
+  readonly layout: ListLayout;
+  readonly density: ListDensity;
+  readonly surface: ListSurface;
+  readonly dividers: boolean;
+  readonly bordered: boolean;
+}
+export type ListRootAttributes = HTMLAttributes<HTMLUListElement> &
+  RefAttributes<HTMLUListElement> & {
+    readonly "data-layout"?: ListLayout;
+    readonly "data-density"?: ListDensity;
+    readonly "data-surface"?: ListSurface;
+    readonly "data-dividers"?: boolean;
+    readonly "data-bordered"?: boolean;
+  };
+export interface ListProps extends Omit<HTMLAttributes<HTMLUListElement>, "children"> {
+  readonly items: readonly ListItemProps[];
+  readonly layout?: ListLayout;
+  readonly density?: ListDensity;
+  readonly surface?: ListSurface;
+  readonly dividers?: boolean;
+  readonly bordered?: boolean;
+  readonly slotProps?: { readonly root?: MiaixzSlotProps<ListOwnerState, ListRootAttributes> };
 }
 
-/**
- * Configures a data-toned row in a compact distribution legend.
- *
- * @public
- */
-export interface ListDistributionItemProps extends HTMLAttributes<HTMLLIElement> {
-  /**
-   * Selects the marker's categorical visual tone.
-   */
-  tone?: MiaixzVisualTone;
+export type ListItemSlot = "root" | "primary" | "icon" | "content" | "meta" | "actions";
+export interface ListItemOwnerState {
+  readonly kind: "static" | "navigation" | "command";
+  readonly tone: MiaixzVisualTone;
+  readonly density: ListDensity;
+  readonly surface: ListSurface;
 }
+export type ListItemSlotProps = {
+  readonly root?: MiaixzSlotProps<ListItemOwnerState, ListItemRootAttributes>;
+  readonly primary?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly icon?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly meta?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly actions?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLSpanElement>>;
+};
 
-/**
- * Configures a native list item with categorical tone and no default row layout.
- *
- * @public
- */
-export type ListItemProps = ListDistributionItemProps;
-
-/**
- * Configures a small marker preceding list content.
- *
- * @public
- */
 export interface ListMarkerProps extends HTMLAttributes<HTMLSpanElement> {
-  /**
-   * Selects the plain, numbered-step, or dot marker recipe.
-   */
-  variant?: "default" | "step" | "dot";
+  readonly variant?: "default" | "step" | "dot";
 }
-
-/**
- * Configures a compact plain or outlined alert count.
- *
- * @public
- */
 export interface ListCounterProps extends HTMLAttributes<HTMLSpanElement> {
-  /**
-   * Selects the plain or alert counter recipe.
-   */
-  variant?: "default" | "alert";
+  readonly variant?: "default" | "alert";
 }
-
-/**
- * Identifies visual list parts that preserve consumer-owned semantic markup.
- *
- * @public
- */
-export type ListPart = "alert-copy" | "alert-meta" | "heading";
-
-/**
- * Configures one structured list item.
- *
- * @public
- */
-interface ListEntryBase extends Omit<
-  HTMLAttributes<HTMLLIElement>,
-  "children" | "content" | "title"
-> {
-  /**
-   * Selects the theme-resolved interaction tone.
-   */
-  tone?: MiaixzVisualTone;
-  /**
-   * Displays optional leading icon content.
-   */
-  icon?: ReactNode;
-  /**
-   * Supplies the structured item title.
-   */
-  title?: ReactNode;
-  /**
-   * Supplies supporting item description content.
-   */
-  description?: ReactNode;
-  /**
-   * Displays compact trailing metadata.
-   */
-  meta?: ReactNode;
-  /**
-   * Displays trailing item actions.
-   */
-  actions?: ReactNode;
-  /**
-   * Displays the selected-item treatment.
-   *
-   * @defaultValue `false`
-   */
-  selected?: boolean;
-  /**
-   * Marks the item as unavailable for interaction.
-   *
-   * @defaultValue `false`
-   */
-  disabled?: boolean;
-  /**
-   * Supplies unstructured row content when no title is provided.
-   */
-  content?: ReactNode;
-}
-
-/**
- * Configures a list item that navigates to another location.
- */
-interface ListLinkEntry extends ListEntryBase {
-  /**
-   * Navigates to the supplied location when the row is activated.
-   */
-  href: string;
-  /**
-   * Prevents action semantics from being combined with navigation.
-   */
-  onAction?: never;
-}
-
-/**
- * Configures a list item that runs an application action.
- */
-interface ListActionEntry extends ListEntryBase {
-  /**
-   * Prevents navigation semantics from being combined with an action.
-   */
-  href?: never;
-  /**
-   * Runs the supplied action when the row is activated.
-   */
-  onAction: () => void;
-}
-
-/**
- * Configures a list item that only displays information.
- */
-interface ListStaticEntry extends ListEntryBase {
-  /**
-   * Prevents static rows from receiving navigation semantics.
-   */
-  href?: never;
-  /**
-   * Prevents static rows from receiving action semantics.
-   */
-  onAction?: never;
-}
-
-/**
- * Configures one structured list item as a link, an action, or static content.
- *
- * Link and action semantics are mutually exclusive. Omitting both preserves a
- * non-interactive list row.
- *
- * @public
- */
-export type ListEntry = ListLinkEntry | ListActionEntry | ListStaticEntry;

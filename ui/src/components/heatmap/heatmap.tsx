@@ -18,99 +18,182 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
-import type { HeatmapProps } from "./heatmap.types.js";
-
-/**
- * Renders a labeled heatmap with an internally scrolling table viewport.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Public Heatmap contract lives in its type module.
  */
-export const Heatmap = forwardRef<HTMLDivElement, HeatmapProps>(function Heatmap(
-  {
-    rowLabels,
-    columnLabels,
-    levels,
-    tone,
-    density = "default",
-    className,
-    onPointerEnter,
-    onPointerLeave,
-    "aria-label": ariaLabel,
-    ...props
-  },
-  forwardedRef,
-) {
-  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
-    useVisualizationMotion<HTMLDivElement>({
-      forwardedRef,
-      onPointerEnter,
-      onPointerLeave,
-    });
-  if (levels.length !== rowLabels.length) {
-    throw new TypeError("Heatmap levels must contain one row for every row label");
-  }
-  if (levels.some((row) => row.length !== columnLabels.length)) {
-    throw new TypeError("Heatmap rows must contain one level for every column label");
-  }
-  if (
-    levels.some((row) => row.some((level) => !Number.isInteger(level) || level < 0 || level > 5))
-  ) {
-    throw new TypeError("Heatmap levels must be integers from zero through five");
-  }
+import { forwardRef, useId } from "react";
 
-  return (
-    <div
-      {...props}
-      ref={ref}
-      data-tone={tone}
-      data-state={rowLabels.length === 0 || columnLabels.length === 0 ? "empty" : "ready"}
-      data-motion-state={motionState}
-      className={classNames(
-        "miaixz-heatmap",
-        `miaixz-heatmap-${density}`,
-        `miaixz-heatmap-tone-${tone}`,
-        className,
-      )}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-    >
-      <div className="miaixz-heatmap-viewport" role="region" aria-label={ariaLabel} tabIndex={0}>
-        <table className="miaixz-heatmap-table">
-          <thead>
-            <tr>
-              <th className="miaixz-heatmap-corner" aria-hidden="true" />
-              {columnLabels.map((label, index) => (
-                <th key={`${label}-${index}`} className="miaixz-heatmap-column-label" scope="col">
-                  {label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rowLabels.map((rowLabel, rowIndex) => (
-              <tr key={`${rowLabel}-${rowIndex}`}>
-                <th className="miaixz-heatmap-row-label" scope="row">
-                  {rowLabel}
-                </th>
-                {levels[rowIndex]?.map((level, columnIndex) => (
-                  <td
-                    key={`${columnLabels[columnIndex] ?? "column"}-${columnIndex}`}
-                    className="miaixz-heatmap-cell"
-                    data-level={level}
-                    aria-label={`${rowLabel}, ${columnLabels[columnIndex]}: ${level}`}
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useOverflowFocus } from "../scroll/use-overflow-focus.js";
+import { HeatmapLegend } from "./heatmap-legend.js";
+import type { HeatmapCellContext, HeatmapOwnerState, HeatmapProps } from "./heatmap.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+export const Heatmap = withMiaixzThemeComponent(
+  "Heatmap",
+  forwardRef<HTMLDivElement, HeatmapProps>(function Heatmap(
+    {
+      rowLabels,
+      columnLabels,
+      levels,
+      levelLabels,
+      tone,
+      density = "standard",
+      getCellLabel,
+      slotProps,
+      "aria-label": ariaLabel,
+      ...props
+    },
+    ref,
+  ) {
+    const { t } = useMiaixzLocale();
+    const legendId = useId();
+    if (
+      levels.length !== rowLabels.length ||
+      levels.some((row) => row.length !== columnLabels.length)
+    ) {
+      throw new MiaixzUiError({
+        code: "UI_HEATMAP_DIMENSIONS_INVALID",
+      });
+    }
+    if (
+      levels.some((row) => row.some((level) => !Number.isInteger(level) || level < 0 || level > 5))
+    ) {
+      throw new MiaixzUiError({
+        code: "UI_HEATMAP_LEVEL_INVALID",
+      });
+    }
+    const state = rowLabels.length === 0 || columnLabels.length === 0 ? "empty" : "ready";
+    const ownerState: HeatmapOwnerState = { density, tone, state };
+    const { elementRef: viewportRef, overflowing } = useOverflowFocus(true);
+    const formatCell = (context: HeatmapCellContext) =>
+      getCellLabel?.(context) ??
+      t("ui.heatmap.cellLabel", {
+        row: context.rowLabel,
+        column: context.columnLabel,
+        level: levelLabels[context.level],
+      });
+    const legendRootSlot =
+      typeof slotProps?.legend === "function" ? slotProps.legend(ownerState) : slotProps?.legend;
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-heatmap" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-tone": tone, "data-density": density, "data-state": state },
+        })}
+      >
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-heatmap-viewport" },
+            slotProps: slotProps?.viewport,
+            internalRef: viewportRef,
+            internalProps: {
+              role: "region",
+              "aria-label": ariaLabel,
+              "aria-describedby": legendId,
+              ...(overflowing ? { tabIndex: 0 } : {}),
+            },
+            ownedProps: ["role", "aria-label", "aria-describedby", "tabIndex"],
+          })}
+        >
+          <table
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-heatmap-table" },
+              slotProps: slotProps?.table,
+            })}
+          >
+            <caption
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-hidden" },
+                slotProps: slotProps?.caption,
+              })}
+            >
+              {ariaLabel}
+            </caption>
+            <thead>
+              <tr>
+                <th className="miaixz-heatmap-corner" aria-hidden="true" />
+                {columnLabels.map((label, index) => (
+                  <th
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: { className: "miaixz-heatmap-column-label" },
+                      slotProps: slotProps?.columnHeader,
+                      internalProps: { scope: "col" },
+                      ownedProps: ["scope"],
+                    })}
+                    key={`${index}-${label}`}
                   >
-                    {level}
-                  </td>
+                    {label}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rowLabels.map((rowLabel, rowIndex) => (
+                <tr key={`${rowIndex}-${rowLabel}`}>
+                  <th
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: { className: "miaixz-heatmap-row-label" },
+                      slotProps: slotProps?.rowHeader,
+                      internalProps: { scope: "row" },
+                      ownedProps: ["scope"],
+                    })}
+                  >
+                    {rowLabel}
+                  </th>
+                  {levels[rowIndex]!.map((level, columnIndex) => {
+                    const cellText = formatCell({
+                      rowLabel,
+                      columnLabel: columnLabels[columnIndex]!,
+                      level,
+                      rowIndex,
+                      columnIndex,
+                    });
+                    return (
+                      <td
+                        {...mergeMiaixzSlotProps({
+                          ownerState,
+                          defaultProps: { className: "miaixz-heatmap-cell" },
+                          slotProps: slotProps?.cell,
+                          internalProps: { "data-level": level },
+                        })}
+                        key={columnIndex}
+                      >
+                        <span aria-hidden="true">{level}</span>
+                        <span
+                          {...mergeMiaixzSlotProps({
+                            ownerState,
+                            defaultProps: { className: "miaixz-hidden miaixz-heatmap-cell-text" },
+                            slotProps: slotProps?.cellText,
+                          })}
+                        >
+                          {cellText}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <HeatmapLegend
+          id={legendId}
+          tone={tone}
+          levelLabels={levelLabels}
+          {...(legendRootSlot === undefined ? {} : { slotProps: { root: legendRootSlot } })}
+        />
       </div>
-    </div>
-  );
-});
+    );
+  }),
+);

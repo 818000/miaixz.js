@@ -18,4 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./permissions.js";
+export {
+  createMiaixzPermissionSet,
+  isMiaixzPermissionSnapshot,
+  MiaixzPermissionSet,
+} from "./permissions.js";

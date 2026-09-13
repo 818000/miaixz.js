@@ -19,4 +19,15 @@
 */
 
 export { Tree } from "./tree.js";
-export type { MiaixzTreeOwnProps, TreeNode, TreeProps } from "./tree.types.js";
+export type {
+  MiaixzTreeOwnProps,
+  TreeDensity,
+  TreeDividerStyle,
+  TreeExpansionProps,
+  TreeNode,
+  TreeOwnerState,
+  TreeProps,
+  TreeSelectionProps,
+  TreeSlotProps,
+  TreeSurface,
+} from "./tree.types.js";

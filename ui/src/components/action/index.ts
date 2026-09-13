@@ -19,28 +19,32 @@
 */
 
 export { ActionBar } from "./action-bar.js";
-export { actionCatalog, getActionCatalogEntry, type ActionCatalogEntry } from "./action-catalog.js";
 export { ActionText } from "./action-text.js";
 export { FormActions } from "./form-actions.js";
 export { IconButton } from "./icon-button.js";
 export { MoreActions } from "./more-actions.js";
 export { RowActions } from "./row-actions.js";
-export type { ActionIntent } from "./action-intent.js";
 export type {
+  ActionBase,
   ActionBarProps,
-  ActionCommandTarget,
-  ActionConfirm,
+  ActionBarOwnerState,
+  ActionBarSlotProps,
+  CommandAction,
   ActionDescriptor,
-  ActionNavigationTarget,
-  ActionPlacement,
-  ActionPresentation,
-  ActionSize,
+  ActionTextSlotProps,
   ActionTextProps,
-  ActionTone,
+  FormCancelAction,
   FormActionsProps,
+  FormActionsOwnerState,
+  FormActionsSlotProps,
+  FormSubmitAction,
+  IconButtonOwnerState,
   IconButtonProps,
+  IconButtonRootAttributes,
+  IconButtonSlotProps,
   MoreActionsProps,
-  PrimaryActionDescriptor,
-  PrimaryActionIntent,
+  NavigationAction,
+  RowActionsOwnerState,
   RowActionsProps,
+  RowActionsSlotProps,
 } from "./action.types.js";

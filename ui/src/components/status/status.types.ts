@@ -18,43 +18,41 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
+/* eslint-disable jsdoc/require-jsdoc -- Closed status slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 
-/**
- * Defines properties owned by the Miaixz Status contract.
- *
- * @public
- */
-export interface MiaixzStatusOwnProps {
-  /**
-   * Selects the semantic text and marker size.
-   *
-   * @defaultValue `"medium"`
-   */
-  readonly size?: "small" | "medium";
-  /**
-   * Selects a reusable status composition without changing its semantic tone.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: "default" | "badge" | "compact" | "metric" | "split" | "tag" | "inline";
-  /**
-   * Selects the required semantic status tone, including the product brand status.
-   */
+export type StatusSize = "small" | "medium";
+export type StatusLayout = "inline" | "stacked";
+export type StatusSlot = "root" | "marker" | "content" | "label";
+export interface StatusOwnerState {
   readonly tone: MiaixzFeedbackTone | "brand";
-
-  /**
-   * Supplies the required visible status label. The label remains present for every variant.
-   */
-  readonly label: ReactNode;
+  readonly size: StatusSize;
+  readonly layout: StatusLayout;
 }
-
-/**
- * Configures a status marker that never relies on color alone.
- *
- * @public
+export type StatusRootAttributes = HTMLAttributes<HTMLSpanElement> &
+  RefAttributes<HTMLSpanElement> & {
+    readonly "data-tone"?: MiaixzFeedbackTone | "brand";
+    readonly "data-size"?: StatusSize;
+    readonly "data-layout"?: StatusLayout;
+  };
+export interface StatusSlotProps {
+  readonly root?: MiaixzSlotProps<StatusOwnerState, StatusRootAttributes>;
+  readonly marker?: MiaixzSlotProps<StatusOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<StatusOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<StatusOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzStatusOwnProps {
+  readonly tone: MiaixzFeedbackTone | "brand";
+  readonly label: ReactNode;
+  readonly children?: ReactNode;
+  readonly size?: StatusSize;
+  readonly layout?: StatusLayout;
+  readonly slotProps?: StatusSlotProps;
+}
+export type StatusProps = MiaixzStatusOwnProps &
+  Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzStatusOwnProps | "children">;
+/* eslint-enable jsdoc/require-jsdoc
  */
-export interface StatusProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzStatusOwnProps>, MiaixzStatusOwnProps {}

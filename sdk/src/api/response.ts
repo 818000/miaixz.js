@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzApiEnvelope } from "../types/index.js";
+import type { MiaixzApiEnvelope } from "../types/api.js";
 
 /**
  * Describes a successful HTTP response returned by the Miaixz API client.

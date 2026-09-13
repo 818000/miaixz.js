@@ -7,12 +7,15 @@ import { miaixzTheme, parseTheme } from "../src/theme/index.js";
 describe("neutral surface backgrounds", () => {
   it("keeps transparent component surfaces composited against their actual ancestor", () => {
     for (const [file, selector] of [
-      ["src/styles/components/panel.css", "miaixz-panel-transparent"],
-      ["src/styles/components/table.css", "miaixz-table-container-transparent"],
-      ["src/styles/components/metric-group.css", "miaixz-metric-group-transparent"],
+      ["src/styles/components/panel.css", String.raw`\.miaixz-panel`],
+      ["src/styles/components/table.css", String.raw`\.miaixz-table-container-transparent`],
+      [
+        "src/styles/components/metrics.css",
+        String.raw`\.miaixz-metrics\[data-surface="plain"\] \.miaixz-metrics-scroll`,
+      ],
     ] as const) {
       const css = readFileSync(file, "utf8");
-      const rule = css.match(new RegExp(`\\.${selector}\\s*\\{([^}]*)\\}`, "u"))?.[1];
+      const rule = css.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`, "u"))?.[1];
       expect(rule, `${selector} must have an explicit rule`).toBeDefined();
       expect(rule).toMatch(/background(?:-color)?:\s*transparent/u);
       expect(rule).not.toMatch(/background(?:-color)?:\s*var\(--miaixz-(?:color|surface-role)-/u);

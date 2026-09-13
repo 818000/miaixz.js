@@ -18,19 +18,38 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { InputHTMLAttributes } from "react";
+/* eslint-disable jsdoc/require-jsdoc --
+ * Slot contracts directly map the native root.
+ */
 
-import type { MiaixzFormPreviewProps } from "../shared.types.js";
+import type { InputHTMLAttributes, RefAttributes } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type RangeSlot = "root";
+
+export interface RangeOwnerState {
+  readonly disabled: boolean;
+  readonly invalid: boolean;
+}
+
+export interface RangeRootAttributes
+  extends InputHTMLAttributes<HTMLInputElement>, RefAttributes<HTMLInputElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-invalid"?: boolean;
+}
+
+export interface RangeSlotProps {
+  readonly root?: MiaixzSlotProps<RangeOwnerState, RangeRootAttributes>;
+}
 
 /**
- * Configures the Miaixz range control.
- *
- * @public
+ * Configures the native range input.
  */
-export interface RangeProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type">, MiaixzFormPreviewProps {
-  /**
-   * Applies the invalid state independently of `aria-invalid`.
-   */
-  invalid?: boolean;
+export interface RangeProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "children" | "readOnly" | "size" | "type"
+> {
+  readonly invalid?: boolean;
+  readonly slotProps?: RangeSlotProps;
 }

@@ -18,26 +18,46 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Scroll contracts are defined by the component type module.
+ */
 import { forwardRef } from "react";
 
+import { assertMiaixzAccessibleName } from "../../accessibility/assert-accessible-name.js";
 import { classNames } from "../../shared/class-names.js";
+import { useMergedRef } from "../../shared/use-merged-ref.js";
 import type { ScrollProps } from "./scroll.types.js";
+import { useOverflowFocus } from "./use-overflow-focus.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Creates a bounded, keyboard-focusable overflow region. @public
+/*
+ * Creates a bounded overflow region that is focusable only when configured or overflowing. @public
  */
-export const Scroll = forwardRef<HTMLDivElement, ScrollProps>(function Scroll(
-  { label, className, tabIndex, ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      aria-label={label}
-      role={label ? "region" : undefined}
-      tabIndex={tabIndex ?? 0}
-      className={classNames("miaixz-scroll", className)}
-    />
-  );
-});
+export const Scroll = withMiaixzThemeComponent(
+  "Scroll",
+  forwardRef<HTMLDivElement, ScrollProps>(function Scroll(
+    { focusable = "auto", className, ...props },
+    forwardedRef,
+  ) {
+    if (focusable !== "never") {
+      assertMiaixzAccessibleName({
+        ...(props["aria-label"] === undefined ? {} : { ariaLabel: props["aria-label"] }),
+        ...(props["aria-labelledby"] === undefined
+          ? {}
+          : { ariaLabelledBy: props["aria-labelledby"] }),
+      });
+    }
+    const { elementRef, overflowing } = useOverflowFocus(focusable === "auto");
+    const setRef = useMergedRef(forwardedRef, elementRef);
+    const isFocusable = focusable === "always" || (focusable === "auto" && overflowing);
+    return (
+      <div
+        {...props}
+        ref={setRef}
+        className={classNames("miaixz-scroll", className)}
+        role={isFocusable ? "region" : undefined}
+        tabIndex={isFocusable ? 0 : undefined}
+      />
+    );
+  }),
+);

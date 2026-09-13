@@ -1,7 +1,7 @@
 {
   "name": "@miaixz/sdk",
   "version": "0.6.0",
-  "description": "Miaixz API client, public types, models, validators, formatters, and utilities.",
+  "description": "Miaixz API client, runtime contracts, formatters, and utilities.",
   "type": "module",
   "engines": {
     "node": ">=20",
@@ -28,7 +28,9 @@
     "dist",
     "README.md",
     "LICENSE",
-    "NOTICE"
+    "NOTICE",
+    "CHANGELOG.md",
+    "MIGRATION.md"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -82,10 +84,6 @@
       "types": "./dist/i18n/index.d.ts",
       "import": "./dist/i18n/index.js"
     },
-    "./sdk": {
-      "types": "./dist/sdk.d.ts",
-      "import": "./dist/sdk.js"
-    },
     "./consts": {
       "types": "./dist/consts/index.d.ts",
       "import": "./dist/consts/index.js"
@@ -95,16 +93,12 @@
       "import": "./dist/contracts/index.js"
     },
     "./errors": {
-      "types": "./dist/api/errors.d.ts",
-      "import": "./dist/api/errors.js"
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js"
     },
     "./formatters": {
       "types": "./dist/formatters/index.d.ts",
       "import": "./dist/formatters/index.js"
-    },
-    "./models": {
-      "types": "./dist/models/index.d.ts",
-      "import": "./dist/models/index.js"
     },
     "./types": {
       "types": "./dist/types/index.d.ts",
@@ -113,36 +107,32 @@
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js"
-    },
-    "./validators": {
-      "types": "./dist/validators/index.d.ts",
-      "import": "./dist/validators/index.js"
     }
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
-    "build": "node ../.github/scripts/enforce.js --check && npm run lint && npm run clean && tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "lint": "eslint src *.config.js",
-    "lint:fix": "eslint src *.config.js --fix",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src tests *.config.js *.config.ts",
+    "lint:fix": "eslint src tests *.config.js *.config.ts --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "test:appearance": "npm run build && node --test tests/appearance.test.mjs",
-    "test:i18n": "npm run build && node --test tests/i18n.test.mjs",
-    "test:rest-signer": "npm run build && node --test tests/signer.test.mjs",
-    "check": "npm run typecheck && npm run lint && npm run test:appearance && npm run test:i18n && npm run test:rest-signer && npm run format:check",
-    "pack:check": "npm run build && publint && attw --pack . && npm pack --dry-run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "size": "size-limit",
+    "size:why": "size-limit --why",
+    "check": "npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
-    "@microsoft/api-extractor": "7.59.0",
-    "@playwright/test": "1.62.1",
     "@size-limit/esbuild": "12.1.0",
     "@size-limit/esbuild-why": "12.1.0",
     "@size-limit/file": "12.1.0",
+    "@types/node": "26.4.0",
+    "@vitest/coverage-v8": "4.1.11",
     "eslint": "10.9.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsdoc": "62.7.0",
@@ -150,7 +140,8 @@
     "prettier": "3.9.6",
     "publint": "0.3.24",
     "size-limit": "12.1.0",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
   },
   "publishConfig": {
     "access": "public",

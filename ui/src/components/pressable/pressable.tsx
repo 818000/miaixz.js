@@ -22,38 +22,27 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { PressableProps } from "./pressable.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a visually neutral button with consistent keyboard focus behavior.
+ * Renders a visually neutral native button with shared focus and disabled behavior.
  *
  * @public
  */
-export const Pressable = forwardRef<HTMLButtonElement, PressableProps>(function Pressable(
-  {
-    className,
-    disabled,
-    type = "button",
-    variant = "default",
-    density = "standard",
-    separator = "solid",
-    ...props
-  },
-  ref,
-) {
-  return (
-    <button
-      {...props}
-      className={classNames(
-        "miaixz-pressable",
-        `miaixz-pressable-${variant}`,
-        `miaixz-pressable-density-${density}`,
-        `miaixz-pressable-separator-${separator}`,
-        className,
-      )}
-      data-disabled={disabled || undefined}
-      disabled={disabled}
-      ref={ref}
-      type={type}
-    />
-  );
-});
+export const Pressable = withMiaixzThemeComponent(
+  "Pressable",
+  forwardRef<HTMLButtonElement, PressableProps>(function Pressable(
+    { className, disabled, type = "button", ...props },
+    ref,
+  ) {
+    return (
+      <button
+        {...props}
+        ref={ref}
+        className={classNames("miaixz-pressable", className)}
+        disabled={disabled}
+        type={type}
+      />
+    );
+  }),
+);

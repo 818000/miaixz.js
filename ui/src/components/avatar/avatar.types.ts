@@ -18,9 +18,30 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed Avatar slots are self-describing.
+ */
 
+import type { HTMLAttributes, ImgHTMLAttributes, RefAttributes } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
+
+export type AvatarSlot = "root" | "image" | "fallback";
+export interface AvatarOwnerState {
+  readonly size: MiaixzComponentSize;
+  readonly state: "image" | "fallback";
+  readonly decorative: boolean;
+}
+export type AvatarRootAttributes = HTMLAttributes<HTMLSpanElement> &
+  RefAttributes<HTMLSpanElement> & {
+    readonly "data-size"?: MiaixzComponentSize;
+    readonly "data-state"?: "image" | "fallback";
+  };
+export interface AvatarSlotProps {
+  readonly root?: MiaixzSlotProps<AvatarOwnerState, AvatarRootAttributes>;
+  readonly image?: MiaixzSlotProps<AvatarOwnerState, ImgHTMLAttributes<HTMLImageElement>>;
+  readonly fallback?: MiaixzSlotProps<AvatarOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
 
 /**
  * Defines properties owned by the Miaixz Avatar contract.
@@ -48,7 +69,12 @@ export interface MiaixzAvatarOwnProps {
    *
    * @defaultValue `"medium"`
    */
-  readonly size?: MiaixzComponentSize | "account" | "profile" | "fill";
+  readonly size?: MiaixzComponentSize;
+
+  /**
+   * Configures the fixed Avatar nodes.
+   */
+  readonly slotProps?: AvatarSlotProps;
 }
 
 /**
@@ -57,4 +83,14 @@ export interface MiaixzAvatarOwnProps {
  * @public
  */
 export interface AvatarProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzAvatarOwnProps>, MiaixzAvatarOwnProps {}
+  extends
+    Omit<
+      HTMLAttributes<HTMLSpanElement>,
+      | keyof MiaixzAvatarOwnProps
+      | "aria-hidden"
+      | "aria-label"
+      | "aria-labelledby"
+      | "children"
+      | "role"
+    >,
+    MiaixzAvatarOwnProps {}

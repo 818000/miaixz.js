@@ -18,45 +18,134 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { TimelineProps } from "./timeline.types.js";
-import { classNames } from "../../shared/class-names.js";
-
-/**
- * Renders ordered events with readable status text and a continuous visual track.
- *
- * @param props - Ordered timeline content.
- * @returns The semantic ordered timeline.
- * @public
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Timeline contracts are defined by the component type module.
  */
-export function Timeline(props: TimelineProps) {
-  if (!("items" in props)) {
+import { forwardRef } from "react";
+
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { TimelineOwnerState, TimelineProps } from "./timeline.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Renders invariant ol/li timeline semantics with customizable item bodies. @public
+ */
+export const Timeline = withMiaixzThemeComponent(
+  "Timeline",
+  forwardRef<HTMLOListElement, TimelineProps>(function Timeline(
+    { items, layout = "track", renderItem, slotProps, ...props },
+    ref,
+  ) {
+    const ids = new Set<string>();
+    for (const item of items) {
+      if (ids.has(item.id)) {
+        throw new MiaixzUiError({
+          code: "UI_TIMELINE_DUPLICATE_ID",
+          details: { id: item.id },
+        });
+      }
+      ids.add(item.id);
+    }
+    const rootState: TimelineOwnerState = { layout, itemId: undefined, tone: undefined };
     return (
       <ol
-        aria-label={props["aria-label"]}
-        className={classNames(`miaixz-timeline-${props.variant}`, props.className)}
+        {...mergeMiaixzSlotProps({
+          ownerState: rootState,
+          defaultProps: { className: "miaixz-timeline" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-layout": layout },
+          ownedProps: ["data-layout"],
+        })}
       >
-        {props.children}
+        {items.map((item) => {
+          const ownerState: TimelineOwnerState = { layout, itemId: item.id, tone: item.tone };
+          const defaultBody = (
+            <>
+              <div
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-timeline-heading" },
+                  slotProps: slotProps?.heading,
+                })}
+              >
+                <div
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-timeline-title" },
+                    slotProps: slotProps?.title,
+                  })}
+                >
+                  {item.title}
+                </div>
+                <span
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-timeline-status" },
+                    slotProps: slotProps?.status,
+                  })}
+                >
+                  {item.status}
+                </span>
+              </div>
+              {item.description !== undefined && (
+                <div
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-timeline-description" },
+                    slotProps: slotProps?.description,
+                  })}
+                >
+                  {item.description}
+                </div>
+              )}
+              {item.meta !== undefined && (
+                <div
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-timeline-meta" },
+                    slotProps: slotProps?.meta,
+                  })}
+                >
+                  {item.meta}
+                </div>
+              )}
+            </>
+          );
+          return (
+            <li
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-timeline-item" },
+                slotProps: slotProps?.item,
+                internalProps: { "data-tone": item.tone },
+              })}
+              key={item.id}
+            >
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-timeline-node" },
+                  slotProps: slotProps?.node,
+                  internalProps: { "aria-hidden": true },
+                  ownedProps: ["aria-hidden"],
+                })}
+              />
+              <div
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-timeline-body" },
+                  slotProps: slotProps?.body,
+                })}
+              >
+                {renderItem === undefined ? defaultBody : renderItem(item, defaultBody)}
+              </div>
+            </li>
+          );
+        })}
       </ol>
     );
-  }
-  const { "aria-label": ariaLabel, items } = props;
-  return (
-    <ol aria-label={ariaLabel} className="miaixz-timeline">
-      {items.map((item) => (
-        <li key={item.id} className="miaixz-timeline-item" data-tone={item.tone}>
-          <span className="miaixz-timeline-node" aria-hidden="true" />
-          <div className="miaixz-timeline-body">
-            <div className="miaixz-timeline-heading">
-              <strong className="miaixz-timeline-title">{item.title}</strong>
-              <span className="miaixz-timeline-status">{item.status}</span>
-            </div>
-            {item.description !== undefined && (
-              <div className="miaixz-timeline-description">{item.description}</div>
-            )}
-            {item.meta !== undefined && <div className="miaixz-timeline-meta">{item.meta}</div>}
-          </div>
-        </li>
-      ))}
-    </ol>
-  );
-}
+  }),
+);

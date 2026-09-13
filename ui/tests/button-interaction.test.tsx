@@ -48,7 +48,7 @@ describe("shared press interaction", () => {
       <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
         <div data-miaixz-theme="miaixz">
           <button type="button">选项卡</button>
-          <Pressable variant="row">选择详情</Pressable>
+          <Pressable className="selection-row">选择详情</Pressable>
         </div>
       </MiaixzLocaleProvider>,
     );
@@ -68,26 +68,35 @@ describe("shared press interaction", () => {
   it("covers framed buttons, real ButtonLink navigation and Pressable selection", () => {
     render(
       <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
-        <Button variant="primary">创建</Button>
-        <Button variant="secondary">取消</Button>
-        <Button variant="danger">删除</Button>
+        <Button variant="solid" tone="brand">
+          创建
+        </Button>
+        <Button variant="outlined" tone="neutral">
+          取消
+        </Button>
+        <Button variant="solid" tone="danger">
+          删除
+        </Button>
         <ButtonLink href="/create">前往创建</ButtonLink>
-        <Pressable variant="row">选择详情</Pressable>
+        <Pressable className="selection-row">选择详情</Pressable>
       </MiaixzLocaleProvider>,
     );
-    expect(screen.getByRole("button", { name: "创建" })).toHaveClass("miaixz-button-primary");
+    expect(screen.getByRole("button", { name: "创建" })).toHaveAttribute("data-tone", "brand");
     expect(screen.getByRole("button", { name: "创建" })).toHaveAttribute(
       "data-miaixz-ripple",
       "true",
     );
-    expect(screen.getByRole("button", { name: "取消" })).toHaveClass("miaixz-button-secondary");
-    expect(screen.getByRole("button", { name: "删除" })).toHaveClass("miaixz-button-danger");
+    expect(screen.getByRole("button", { name: "取消" })).toHaveAttribute(
+      "data-variant",
+      "outlined",
+    );
+    expect(screen.getByRole("button", { name: "删除" })).toHaveAttribute("data-tone", "danger");
     expect(screen.getByRole("link", { name: "前往创建" })).toHaveAttribute("href", "/create");
     expect(screen.getByRole("link", { name: "前往创建" })).toHaveAttribute(
       "data-miaixz-ripple",
       "true",
     );
-    expect(screen.getByRole("button", { name: "选择详情" })).toHaveClass("miaixz-pressable-row");
+    expect(screen.getByRole("button", { name: "选择详情" })).toHaveClass("selection-row");
     expect(screen.getByRole("button", { name: "选择详情" })).not.toHaveAttribute(
       "data-miaixz-ripple",
     );

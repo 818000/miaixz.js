@@ -7,18 +7,18 @@ describe("CSS geometry policy", () => {
   it("grants only exact declaration-level graphic geometry exceptions", () => {
     expect(
       geometryException({
-        fileName: "src/styles/components/metric.css",
-        selector: ".miaixz-metric-summary .miaixz-metric-visual",
-        property: "inset-block-start",
-        value: "24px",
+        fileName: "src/styles/components/diagram/graph.css",
+        selector: ".miaixz-graph-viewport",
+        property: "min-block-size",
+        value: "22rem",
       }),
-    ).toBe("Graphic viewport anchor");
+    ).toBe("Graph canvas viewport");
     expect(
       geometryException({
-        fileName: "metric.css",
-        selector: ".miaixz-metric-summary .miaixz-metric-visual",
-        property: "inset-block-start",
-        value: "25px",
+        fileName: "graph.css",
+        selector: ".miaixz-graph-viewport",
+        property: "min-block-size",
+        value: "23rem",
       }),
     ).toBeUndefined();
     expect(

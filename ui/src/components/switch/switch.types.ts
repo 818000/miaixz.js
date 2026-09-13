@@ -18,35 +18,62 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { InputHTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc --
+ * Slot contracts directly map fixed native elements.
+ */
 
-import type { MiaixzFormPreviewProps } from "../shared.types.js";
+import type {
+  HTMLAttributes,
+  InputHTMLAttributes,
+  LabelHTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type SwitchSize = "small" | "medium";
+export type SwitchSlot = "root" | "input" | "track" | "thumb" | "content" | "label" | "description";
+
+export interface SwitchOwnerState {
+  readonly size: SwitchSize;
+  readonly checked: boolean;
+  readonly disabled: boolean;
+  readonly invalid: boolean;
+}
+
+export interface SwitchRootAttributes
+  extends LabelHTMLAttributes<HTMLLabelElement>, RefAttributes<HTMLLabelElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-filled"?: boolean;
+  readonly "data-invalid"?: boolean;
+  readonly "data-size"?: SwitchSize;
+}
+
+export interface SwitchSlotProps {
+  readonly root?: MiaixzSlotProps<SwitchOwnerState, SwitchRootAttributes>;
+  readonly input?: MiaixzSlotProps<
+    SwitchOwnerState,
+    InputHTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>
+  >;
+  readonly track?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly thumb?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
 
 /**
  * Configures an accessible native boolean switch.
- *
- * @public
  */
-export interface SwitchProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type">, MiaixzFormPreviewProps {
-  /**
-   * Selects the regular control or a compact track without changing checkbox semantics.
-   *
-   * @defaultValue `"default"`
-   */
-  variant?: "default" | "compact";
-  /**
-   * Displays the primary switch label.
-   */
-  label?: ReactNode;
-  /**
-   * Displays supporting descriptive content.
-   */
-  description?: ReactNode;
-  /**
-   * Applies the invalid state independently of `aria-invalid`.
-   *
-   * @defaultValue `false`
-   */
-  invalid?: boolean;
+export interface SwitchProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "children" | "size" | "style" | "type"
+> {
+  readonly size?: SwitchSize;
+  readonly label?: ReactNode;
+  readonly description?: ReactNode;
+  readonly invalid?: boolean;
+  readonly style?: React.CSSProperties;
+  readonly slotProps?: SwitchSlotProps;
 }

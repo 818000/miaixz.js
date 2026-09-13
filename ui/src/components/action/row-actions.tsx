@@ -18,32 +18,77 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useMiaixzCompactActions } from "../../shared/responsive/index.js";
-import { ActionTextView } from "./action-text.js";
-import type { RowActionsProps } from "./action.types.js";
-import { MoreActions } from "./more-actions.js";
+import { createRef, useMemo, useRef, type HTMLAttributes } from "react";
+
+import {
+  assertUniqueActionIds,
+  partitionActions,
+  useActionCapacity,
+} from "../../shared/responsive/action-capacity.js";
+import { useMergedSlotProps } from "../../shared/slots.js";
+import { Icon } from "../icon/icon.js";
+import { ActionText } from "./action-text.js";
+import type { RowActionsOwnerState, RowActionsProps } from "./action.types.js";
+import { MoreActionsView } from "./more-actions.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Keeps row actions readable by showing at most two safe actions on desktop.
+ * Keeps row actions readable using the shared measured-capacity algorithm.
  *
- * @param root0 - Row action properties.
- * @param root0.actions - Ordered row actions.
+ * @param properties - Row action properties.
  * @returns The responsive row action group.
  * @public
  */
-export function RowActions({ actions }: RowActionsProps) {
-  const compact = useMiaixzCompactActions();
-  const safe = actions.filter((action) => action.tone !== "danger");
-  const visible = safe.slice(0, compact ? 1 : 2);
-  const visibleIds = new Set(visible.map((action) => action.id));
-  const overflow = actions.filter((action) => !visibleIds.has(action.id));
+function RowActions(properties: RowActionsProps) {
+  const { actions, overflowLabel, slotProps } = properties;
+  assertUniqueActionIds(actions);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const overflowMeasureRef = useRef<HTMLSpanElement>(null);
+  const actionMeasureRefs = useMemo(
+    () => actions.map(() => createRef<HTMLSpanElement>()),
+    [actions],
+  );
+  const capacity = useActionCapacity({ rootRef, actionMeasureRefs, overflowMeasureRef });
+  const partition = partitionActions(actions, capacity);
+  const ownerState: RowActionsOwnerState = { overflow: partition.overflow.length > 0 };
+  const rootProps = useMergedSlotProps<
+    RowActionsOwnerState,
+    HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
+  >({
+    ownerState,
+    defaultProps: { className: "miaixz-row-actions" },
+    slotProps: slotProps?.root,
+    internalRef: (element) => {
+      rootRef.current = element;
+    },
+  });
 
   return (
-    <div className="miaixz-row-actions">
-      {visible.map((action) => (
-        <ActionTextView key={action.id} action={action} showIcon={false} />
+    <div {...rootProps}>
+      <span className="miaixz-action-measurements" aria-hidden="true" inert>
+        {actions.map((action, index) => (
+          <span key={action.id} ref={actionMeasureRefs[index]} className="miaixz-action-text">
+            {action.icon !== undefined && (
+              <span className="miaixz-button-icon">
+                <Icon name={action.icon} size="control" />
+              </span>
+            )}
+            <span className="miaixz-button-label">{action.label}</span>
+          </span>
+        ))}
+        <span ref={overflowMeasureRef} className="miaixz-icon-button" />
+      </span>
+      {partition.visible.map((action) => (
+        <ActionText key={action.id} action={action} />
       ))}
-      <MoreActions actions={overflow} />
+      <MoreActionsView
+        actions={partition.overflow}
+        {...(overflowLabel === undefined ? {} : { label: overflowLabel })}
+      />
     </div>
   );
 }
+
+const ThemedRowActions = withMiaixzThemeComponent("RowActions", RowActions);
+export { ThemedRowActions as RowActions };

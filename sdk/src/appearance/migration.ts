@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzStorageMigration } from "../storage/index.js";
+import type { MiaixzStorageMigration } from "../storage/storage.js";
 import {
   miaixzThemeColorTokens,
   type MiaixzAppearanceSettings,
@@ -27,7 +27,7 @@ import {
   type MiaixzThemeColorOverrides,
   type MiaixzThemeColorToken,
   type MiaixzThemeOverrides,
-} from "../types/index.js";
+} from "../types/appearance.js";
 import {
   isMiaixzAppearanceSettings,
   isMiaixzColorMode,

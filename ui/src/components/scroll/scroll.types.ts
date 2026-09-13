@@ -18,14 +18,24 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc -- The focus and naming union is self-describing.
+ */
 import type { HTMLAttributes } from "react";
 
-/**
+type ScrollNativeProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "aria-labelledby" | "role" | "tabIndex"
+>;
+type ScrollName =
+  | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
+  | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
+type NamedScrollProps = ScrollNativeProps & ScrollName & { readonly focusable?: "auto" | "always" };
+type UnfocusableScrollProps = ScrollNativeProps & {
+  readonly focusable: "never";
+  readonly "aria-label"?: never;
+  readonly "aria-labelledby"?: never;
+};
+/*
  * Configures a bounded overflow region. @public
  */
-export interface ScrollProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Provides an accessible label for the scroll region.
-   */
-  label?: string;
-}
+export type ScrollProps = NamedScrollProps | UnfocusableScrollProps;

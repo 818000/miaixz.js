@@ -19,4 +19,15 @@
 */
 
 export { Shell } from "./shell.js";
-export type { ShellMobileNavigationMode, ShellProps, ShellSidebarOverflow } from "./shell.types.js";
+export type {
+  MiaixzShellOwnProps,
+  ShellDesktopNavigation,
+  ShellMobileNavigation,
+  ShellOwnerState,
+  ShellProps,
+  ShellRootAttributes,
+  ShellSidebarAttributes,
+  ShellSidebarOverflow,
+  ShellSlot,
+  ShellSlotProps,
+} from "./shell.types.js";

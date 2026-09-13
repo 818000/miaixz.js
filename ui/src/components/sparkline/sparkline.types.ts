@@ -18,37 +18,46 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { SVGAttributes } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed sparkline slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, SVGAttributes } from "react";
 
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
-/**
- * Configures a compact, theme-aware line visualization.
- *
- * @public
- */
+export interface SparklineOwnerState {
+  readonly variant: "line" | "area";
+  readonly size: "small" | "medium" | "large";
+  readonly tone: MiaixzVisualTone;
+  readonly showGrid: boolean;
+  readonly state: "empty" | "ready";
+}
+export interface SparklineRootAttributes extends SVGAttributes<SVGSVGElement> {
+  readonly "data-state"?: "empty" | "ready";
+  readonly "data-tone"?: MiaixzVisualTone;
+  readonly "data-variant"?: "line" | "area";
+  readonly "data-size"?: "small" | "medium" | "large";
+}
+export interface SparklineSlotProps {
+  readonly root?: MiaixzSlotProps<SparklineOwnerState, SparklineRootAttributes>;
+  readonly grid?: MiaixzSlotProps<SparklineOwnerState, SVGAttributes<SVGPathElement>>;
+  readonly area?: MiaixzSlotProps<SparklineOwnerState, SVGAttributes<SVGPolygonElement>>;
+  readonly line?: MiaixzSlotProps<SparklineOwnerState, SVGAttributes<SVGPolylineElement>>;
+  readonly points?: MiaixzSlotProps<SparklineOwnerState, SVGAttributes<SVGGElement>>;
+  readonly title?: MiaixzSlotProps<SparklineOwnerState, HTMLAttributes<HTMLTitleElement>>;
+  readonly description?: MiaixzSlotProps<SparklineOwnerState, SVGAttributes<SVGDescElement>>;
+}
 export interface SparklineProps extends Omit<
   SVGAttributes<SVGSVGElement>,
-  "children" | "color" | "values"
+  "aria-label" | "children" | "color" | "values"
 > {
-  /**
-   * Selects the standard chart or the compact metric-card geometry.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: "default" | "metric" | "trend";
-  /**
-   * Supplies ordered numeric samples. Non-finite samples produce visible gaps.
-   */
   readonly values: readonly number[];
-  /**
-   * Selects a theme-resolved semantic or categorical visual tone.
-   *
-   * @defaultValue `"brand"`
-   */
-  readonly tone?: MiaixzVisualTone;
-  /**
-   * Supplies the required accessible visualization name.
-   */
   readonly "aria-label": string;
+  readonly tone?: MiaixzVisualTone;
+  readonly variant?: "line" | "area";
+  readonly size?: "small" | "medium" | "large";
+  readonly showGrid?: boolean;
+  readonly valueFormatter?: (value: number) => string;
+  readonly description?: ReactNode;
+  readonly slotProps?: SparklineSlotProps;
 }

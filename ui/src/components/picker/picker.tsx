@@ -21,172 +21,451 @@
 import {
   forwardRef,
   useCallback,
+  useContext,
+  useId,
   useMemo,
+  useRef,
   useState,
   type ForwardedRef,
+  type HTMLAttributes,
+  type KeyboardEvent,
   type ReactElement,
   type RefAttributes,
 } from "react";
+import { createPortal } from "react-dom";
 
-import { createMiaixzUiError } from "../../errors/index.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import {
-  MiaixzOptionPicker,
-  useStableMiaixzComboboxControlModes,
-  validateMiaixzComboboxInputControl,
-  validateMiaixzComboboxValueControl,
-} from "../combobox/combobox.js";
-import type { MiaixzOption } from "../combobox/index.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { MiaixzCollectionController } from "../../shared/collection/controller.js";
+import { MiaixzFieldContext, useFieldControl } from "../../shared/field-context.js";
+import { useMiaixzOptionSurface } from "../../shared/option-surface.js";
+import { useMiaixzDismissibleLayer } from "../../shared/overlay/dismissible-layer.js";
+import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
+import { useMiaixzManualPopover } from "../../shared/overlay/top-layer.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useControlled } from "../../shared/use-controlled.js";
+import { useFormReset } from "../../shared/use-form-reset.js";
+import { useComboboxController } from "../combobox/combobox-controller.js";
+import { ComboboxInput } from "../combobox/combobox-input.js";
+import { ComboboxListbox } from "../combobox/combobox-listbox.js";
+import { ComboboxPopup } from "../combobox/combobox-popup.js";
+import type {
+  ComboboxOwnerState,
+  ComboboxRootAttributes,
+  MiaixzOption,
+  MiaixzOptionSource,
+} from "../combobox/combobox.types.js";
+import { emptyPickerValue, validatePickerValue } from "./picker-model.js";
 import type { PickerProps } from "./picker.types.js";
+import { renderDefaultValues } from "./picker-view.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders the public multiple-value Picker adapter.
+ * Renders the public multiple-value Picker composition.
  *
- * @typeParam Value - Stable string value selected by the control.
- * @param props - Public multiple-value combobox configuration.
+ * @typeParam Value - Stable option value type.
+ * @param props - Closed source, selection, input, and rendering configuration.
  * @param forwardedRef - Forwarded root div reference.
- * @returns A searchable multiple-value WAI-ARIA combobox.
+ * @returns A searchable multiple-selection picker.
  */
 function PickerImplementation<Value extends string = string>(
   props: PickerProps<Value>,
   forwardedRef: ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    options,
-    loadOptions,
+    label,
+    id,
+    name,
+    form,
+    placeholder,
+    emptyMessage,
+    loadingMessage,
+    errorMessage,
+    refineMessage,
+    removeMessage,
+    searchMessage,
+    disabled,
+    readOnly: explicitReadOnly = false,
+    invalid,
+    required,
+    renderOption,
+    renderValue,
+    selectionLimit,
+    slotProps,
+    className,
+    style,
     value,
     defaultValue,
     onValueChange,
     inputValue,
     defaultInputValue,
     onInputValueChange,
-    label,
-    placeholder,
-    emptyMessage,
-    loadingMessage,
-    errorMessage,
-    disabled = false,
-    readOnly = false,
-    invalid = false,
-    previewState,
+    options,
+    loadOptions,
     "aria-invalid": ariaInvalid,
-    selectionLimit,
-    ...rootProps
+    "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+    ...nativeRootProps
   } = props;
-  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
+  if ((options === undefined) === (loadOptions === undefined)) {
+    throw new MiaixzUiError({
+      code: "UI_OPTIONS_SOURCE_INVALID",
+    });
+  }
+  if (selectionLimit !== undefined && (!Number.isInteger(selectionLimit) || selectionLimit <= 0)) {
+    throw new MiaixzUiError({
+      code: "UI_SELECTION_LIMIT_INVALID",
+    });
+  }
+  const fieldContext = useContext(MiaixzFieldContext);
+  const fieldProps = useFieldControl({
+    ...(id === undefined ? {} : { id }),
+    ...(required === undefined ? {} : { required }),
+    ...(disabled === undefined ? {} : { disabled }),
+    ...(invalid === undefined ? {} : { invalid }),
+    ...(ariaInvalid === undefined ? {} : { "aria-invalid": ariaInvalid }),
+    ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
+    ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
+  });
+  const effectiveDisabled = fieldProps.disabled ?? false;
+  const effectiveInvalid = fieldProps.invalid ?? false;
+  const valueControlled = "value" in props;
+  const initialValue = defaultValue ?? emptyPickerValue;
+  validatePickerValue(initialValue, selectionLimit);
+  if (value !== undefined) validatePickerValue(value, selectionLimit);
+  const valueState = useControlled<readonly MiaixzOption<Value>[]>({
+    controlled: valueControlled,
+    value,
+    defaultValue: initialValue,
+    hasDefaultValue: valueControlled && "defaultValue" in props,
+    ...(onValueChange === undefined ? {} : { onValueChange }),
+    readOnly: true,
+  });
+  const inputControlled = "inputValue" in props;
+  const initialInputValue = defaultInputValue ?? "";
+  const inputState = useControlled<string>({
+    controlled: inputControlled,
+    value: inputValue,
+    defaultValue: initialInputValue,
+    hasDefaultValue: inputControlled && "defaultInputValue" in props,
+    ...(onInputValueChange === undefined ? {} : { onValueChange: onInputValueChange }),
+  });
+  const selectionReadOnly = explicitReadOnly || valueState.readOnly;
+  const selectedValues = useMemo(
+    () => new Set(valueState.value.map((option) => option.value)),
+    [valueState.value],
+  );
+  const source: MiaixzOptionSource<Value> =
+    options === undefined ? { loadOptions: loadOptions! } : { options };
+  const [open, setOpen] = useState(false);
+  const data = useComboboxController({ source, query: inputState.value, open });
+  const isAtLimit = selectionLimit !== undefined && valueState.value.length >= selectionLimit;
+  const [activeValue, setActiveValue] = useState<Value | null>(null);
+  const collectionItems = useMemo(
+    () =>
+      data.options.map((option) => ({
+        id: option.value,
+        value: option.value,
+        textValue: option.textValue,
+        disabled:
+          option.disabled === true ||
+          selectionReadOnly ||
+          selectedValues.has(option.value) ||
+          isAtLimit,
+      })),
+    [data.options, isAtLimit, selectedValues, selectionReadOnly],
+  );
+  const collection = useMemo(
+    () => new MiaixzCollectionController(collectionItems, activeValue),
+    [activeValue, collectionItems],
+  );
+  const resolvedActiveValue = open ? (collection.activeId as Value | null) : null;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const controlRef = useRef<HTMLDivElement>(null);
+  const surfaceRef = useRef<HTMLDivElement>(null);
+  const [rootElement, setRootElement] = useState<HTMLDivElement | null>(null);
+  const listboxId = useId();
+  const generatedLabelId = useId();
+  const optionIdPrefix = useId();
+  const labelId = fieldProps["aria-labelledby"] ?? generatedLabelId;
+  const portalTarget = useMiaixzPortalTarget(rootElement);
   const { t } = useMiaixzLocale();
-  const valueControlled = value !== undefined;
-  const inputControlled = inputValue !== undefined;
-  validateMiaixzComboboxValueControl(
-    t,
-    valueControlled,
-    defaultValue !== undefined,
-    onValueChange !== undefined,
-  );
-  validateMiaixzComboboxInputControl(
-    t,
-    inputControlled,
-    defaultInputValue !== undefined,
-    onInputValueChange !== undefined,
-  );
-  validateMiaixzSelectionLimit(t, selectionLimit);
-  useStableMiaixzComboboxControlModes(t, valueControlled, inputControlled);
+  const ownerState: ComboboxOwnerState = {
+    disabled: effectiveDisabled,
+    readOnly: explicitReadOnly,
+    invalid: effectiveInvalid,
+    open,
+    filled: valueState.value.length > 0 || inputState.value.length > 0,
+    loading: data.state === "loading",
+  };
 
-  const [internalValue, setInternalValue] = useState<readonly Value[]>(defaultValue ?? []);
-  const [internalInputValue, setInternalInputValue] = useState(defaultInputValue ?? "");
-  const selectedValues = valueControlled ? value : internalValue;
-  const currentInputValue = inputControlled ? inputValue : internalInputValue;
-  const selectedValueSet = useMemo(() => new Set(selectedValues), [selectedValues]);
-
-  const updateInputValue = useCallback(
-    (nextValue: string) => {
-      if (!inputControlled) setInternalInputValue(nextValue);
-      onInputValueChange?.(nextValue);
+  const close = useCallback(
+    (restoreFocus: boolean) => {
+      setOpen(false);
+      setActiveValue(null);
+      if (restoreFocus) queueMicrotask(() => inputRef.current?.focus({ preventScroll: true }));
     },
-    [inputControlled, onInputValueChange],
+    [setActiveValue, setOpen],
   );
-  const updateSelectedValues = useCallback(
-    (nextValues: readonly Value[]) => {
-      if (!valueControlled) setInternalValue(nextValues);
-      onValueChange?.(nextValues);
-    },
-    [onValueChange, valueControlled],
-  );
+  const openListbox = useCallback(() => {
+    if (effectiveDisabled) return;
+    collection.setActiveId(null);
+    setActiveValue(collection.activeId as Value | null);
+    setOpen(true);
+  }, [collection, effectiveDisabled, setActiveValue, setOpen]);
   const selectOption = useCallback(
     (option: MiaixzOption<Value>) => {
-      const selected = selectedValueSet.has(option.value);
-      const nextValues = selected
-        ? selectedValues.filter((selectedValue) => selectedValue !== option.value)
-        : [...selectedValues, option.value];
-      updateSelectedValues(nextValues);
-      updateInputValue("");
+      if (
+        selectionReadOnly ||
+        option.disabled === true ||
+        selectedValues.has(option.value) ||
+        isAtLimit
+      ) {
+        return;
+      }
+      valueState.setValue([...valueState.value, option]);
+      inputState.setValue("");
+      setOpen(true);
     },
-    [selectedValueSet, selectedValues, updateInputValue, updateSelectedValues],
+    [inputState, isAtLimit, selectedValues, selectionReadOnly, valueState],
   );
   const removeOption = useCallback(
-    (optionValue: Value) => {
-      updateSelectedValues(selectedValues.filter((selectedValue) => selectedValue !== optionValue));
+    (option: MiaixzOption<Value>) => {
+      if (selectionReadOnly) return;
+      valueState.setValue(valueState.value.filter((candidate) => candidate.value !== option.value));
     },
-    [selectedValues, updateSelectedValues],
+    [selectionReadOnly, valueState],
   );
-  const isOptionSelectionDisabled = useCallback(
-    (optionValue: Value) =>
-      selectionLimit !== undefined &&
-      selectedValues.length >= selectionLimit &&
-      !selectedValueSet.has(optionValue),
-    [selectedValueSet, selectedValues.length, selectionLimit],
+  const updateInput = useCallback(
+    (nextInput: string) => {
+      inputState.setValue(nextInput);
+      setOpen(true);
+    },
+    [inputState],
   );
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Escape" && open) {
+        event.preventDefault();
+        close(true);
+        return;
+      }
+      if (event.key === "Tab" && open) {
+        close(false);
+        return;
+      }
+      if (!open) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          openListbox();
+        }
+        return;
+      }
+      if (!["ArrowDown", "ArrowUp", "Home", "End", "Enter"].includes(event.key)) return;
+      const result = collection.handleKey(event.key, {
+        orientation: "vertical",
+        direction: "ltr",
+        loop: true,
+      });
+      if (!result.handled) return;
+      event.preventDefault();
+      setActiveValue(result.activeId as Value | null);
+      if (result.activate && result.activeId !== null) {
+        const option = data.options.find((candidate) => candidate.value === result.activeId);
+        if (option !== undefined) selectOption(option);
+      }
+    },
+    [close, collection, data.options, open, openListbox, selectOption, setActiveValue],
+  );
+  useFormReset(inputRef, () => {
+    valueState.resetValue(initialValue);
+    inputState.resetValue(initialInputValue);
+    close(false);
+  });
+  useMiaixzManualPopover(surfaceRef, open, portalTarget);
+  const activeOptionId =
+    open && resolvedActiveValue !== null ? `${optionIdPrefix}-${resolvedActiveValue}` : undefined;
+  useMiaixzOptionSurface(controlRef, surfaceRef, open, portalTarget, activeOptionId);
+  useMiaixzDismissibleLayer({
+    active: open,
+    triggerRef: controlRef,
+    contentRef: surfaceRef,
+    portalTarget,
+    onDismiss: () => close(true),
+  });
+
+  /* eslint-disable react-hooks/refs --
+   * Canonical slot merging only composes the forwarded and slot refs; it does not inspect them.
+   */
+  const rootProps = mergeMiaixzSlotProps<
+    ComboboxOwnerState,
+    ComboboxRootAttributes,
+    HTMLDivElement
+  >({
+    ownerState,
+    defaultProps: { className: "miaixz-picker" },
+    componentProps: {
+      ...nativeRootProps,
+      ...(className === undefined ? {} : { className }),
+      ...(style === undefined ? {} : { style }),
+    } as HTMLAttributes<HTMLDivElement>,
+    slotProps: slotProps?.root,
+    internalRef: setRootElement,
+    forwardedRef,
+    internalProps: {
+      "data-state": open ? "open" : "closed",
+      ...(effectiveDisabled ? { "data-disabled": true } : {}),
+      ...(explicitReadOnly ? { "data-readonly": true } : {}),
+      ...(effectiveInvalid ? { "data-invalid": true } : {}),
+      ...(ownerState.filled ? { "data-filled": true } : {}),
+    },
+    ownedProps: ["data-state", "data-disabled", "data-readonly", "data-invalid", "data-filled"],
+  });
+  /* eslint-enable react-hooks/refs --
+   * Resume ref access validation after the canonical merge boundary.
+   */
+  const labelProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-picker-label" },
+    slotProps: slotProps?.label,
+    internalProps: { id: generatedLabelId, htmlFor: fieldProps.id },
+    ownedProps: ["id", "htmlFor"],
+  });
+  const countProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-picker-count" },
+    slotProps: slotProps?.count,
+    internalProps: { "aria-live": "polite" },
+    ownedProps: ["aria-live"],
+  });
+  const values =
+    renderValue?.(valueState.value, {
+      remove: removeOption,
+      disabled: effectiveDisabled,
+      readOnly: selectionReadOnly,
+    }) ??
+    renderDefaultValues(
+      valueState.value,
+      ownerState,
+      slotProps,
+      removeMessage ?? t("ui.action.remove"),
+      effectiveDisabled || selectionReadOnly,
+      removeOption,
+    );
 
   return (
-    <MiaixzOptionPicker
-      component="picker"
-      rootProps={rootProps}
-      forwardedRef={forwardedRef}
-      options={options}
-      loadOptions={loadOptions}
-      selectedValues={selectedValues}
-      onOptionSelect={selectOption}
-      onOptionRemove={removeOption}
-      isOptionSelected={(optionValue) => selectedValueSet.has(optionValue)}
-      isOptionSelectionDisabled={isOptionSelectionDisabled}
-      inputValue={currentInputValue}
-      onInputValueChange={updateInputValue}
-      label={label}
-      placeholder={placeholder}
-      emptyMessage={emptyMessage}
-      loadingMessage={loadingMessage}
-      errorMessage={errorMessage}
-      disabled={disabled}
-      readOnly={readOnly}
-      invalid={isInvalid}
-      previewState={previewState}
-    />
+    <div {...rootProps}>
+      {fieldContext === null && <label {...labelProps}>{label}</label>}
+      <ComboboxInput
+        component="picker"
+        inputRef={inputRef}
+        controlRef={controlRef}
+        id={fieldProps.id}
+        form={form}
+        required={fieldProps.required === true}
+        listboxId={listboxId}
+        labelId={labelId}
+        describedBy={fieldProps["aria-describedby"]}
+        activeOptionId={activeOptionId}
+        inputValue={inputState.value}
+        placeholder={placeholder ?? searchMessage ?? t("ui.picker.search")}
+        ownerState={ownerState}
+        inputReadOnly={explicitReadOnly}
+        clearable={inputState.value.length > 0 && !explicitReadOnly}
+        slotProps={slotProps}
+        beforeInput={values}
+        afterInput={<output {...countProps}>{valueState.value.length}</output>}
+        clearLabel={t("ui.action.remove")}
+        toggleLabel={typeof label === "string" ? label : t("ui.picker.search")}
+        onOpen={openListbox}
+        onToggle={() => {
+          if (open) close(false);
+          else openListbox();
+          inputRef.current?.focus({ preventScroll: true });
+        }}
+        onClear={() => {
+          inputState.setValue("");
+          inputRef.current?.focus({ preventScroll: true });
+        }}
+        onInputValueChange={updateInput}
+        onKeyDown={handleKeyDown}
+      />
+      {name !== undefined &&
+        valueState.value.map((option) => {
+          const hiddenProps = mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-picker-native" },
+            slotProps: slotProps?.hiddenInput,
+            internalProps: {
+              type: "hidden",
+              name,
+              value: option.value,
+              ...(form === undefined ? {} : { form }),
+              disabled: effectiveDisabled,
+            },
+            ownedProps: ["type", "name", "value", "form", "disabled"],
+          });
+          return <input key={option.value} {...hiddenProps} />;
+        })}
+      {open &&
+        portalTarget !== null &&
+        createPortal(
+          <ComboboxPopup
+            component="picker"
+            surfaceRef={surfaceRef}
+            listboxId={listboxId}
+            labelId={labelId}
+            state={data.state}
+            ownerState={ownerState}
+            slotProps={slotProps}
+            loadingMessage={loadingMessage ?? t("ui.loading")}
+            errorMessage={errorMessage ?? t("ui.combobox.loadError")}
+            emptyMessage={emptyMessage ?? t("ui.collection.empty")}
+            refineMessage={refineMessage ?? t("ui.collection.refineSearch")}
+            empty={data.options.length === 0}
+            hasNextPage={data.hasNextPage}
+            onLoadNextPage={data.loadNextPage}
+          >
+            <ComboboxListbox
+              component="picker"
+              id={listboxId}
+              labelId={labelId}
+              optionIdPrefix={optionIdPrefix}
+              options={data.options}
+              activeValue={resolvedActiveValue}
+              multiple
+              ownerState={ownerState}
+              slotProps={slotProps}
+              renderOption={renderOption}
+              isSelected={(option) => selectedValues.has(option.value)}
+              isDisabled={(option) =>
+                selectionReadOnly ||
+                option.disabled === true ||
+                selectedValues.has(option.value) ||
+                isAtLimit
+              }
+              onActivate={(option) => {
+                setActiveValue(option.value);
+              }}
+              onSelect={selectOption}
+              hasNextPage={data.hasNextPage}
+              onLoadNextPage={data.loadNextPage}
+            />
+          </ComboboxPopup>,
+          portalTarget,
+        )}
+    </div>
   );
 }
 
 /**
- * Renders a searchable multiple-value WAI-ARIA combobox.
+ * Renders a searchable multiple-value WAI-ARIA picker.
  *
  * @public
  */
-export const Picker = forwardRef(PickerImplementation) as <Value extends string = string>(
-  props: PickerProps<Value> & RefAttributes<HTMLDivElement>,
-) => ReactElement;
-
-/**
- * Validates the optional multiple-selection limit.
- *
- * @param translate - Active localized message resolver.
- * @param selectionLimit - Optional maximum simultaneous selection count.
- */
-function validateMiaixzSelectionLimit(
-  translate: ReturnType<typeof useMiaixzLocale>["t"],
-  selectionLimit: number | undefined,
-): void {
-  if (selectionLimit !== undefined && (!Number.isInteger(selectionLimit) || selectionLimit <= 0)) {
-    throw createMiaixzUiError(translate, {
-      code: "UI_SELECTION_LIMIT_INVALID",
-      messageKey: "ui.error.selection.limitInvalid",
-    });
-  }
-}
+export const Picker = withMiaixzThemeComponent(
+  "Picker",
+  forwardRef(PickerImplementation) as <Value extends string = string>(
+    props: PickerProps<Value> & RefAttributes<HTMLDivElement>,
+  ) => ReactElement,
+);

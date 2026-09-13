@@ -37,7 +37,9 @@ for (const theme of ["miaixz", "neutral", "contrast"] as const) {
       await expect(root).toHaveAttribute("data-miaixz-color-mode", colorMode);
       await expect(root).toHaveAttribute("data-miaixz-density", "standard");
       await expect(page.getByRole("main", { name: "Miaixz UI 浏览器契约夹具" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "正在保存" })).toBeDisabled();
+      const loadingButton = page.locator('button.miaixz-button[data-loading="true"]').last();
+      await expect(loadingButton).toBeDisabled();
+      await expect(loadingButton.getByRole("status")).toHaveText("正在保存");
 
       const values = await root.evaluate((element, properties) => {
         const styles = getComputedStyle(element);

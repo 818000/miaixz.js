@@ -18,42 +18,49 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode } from "react";
-
-/**
- * Configures a breadcrumb navigation landmark.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed breadcrumb entries and slots are self-describing.
  */
-export interface BreadcrumbProps extends HTMLAttributes<HTMLElement> {
-  /**
-   * Provides the accessible navigation label.
-   */
-  label?: string;
-  /**
-   * Supplies the ordered breadcrumb destinations.
-   */
-  items?: readonly BreadcrumbEntry[];
-}
+import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Configures one destination in a breadcrumb trail.
- *
- * @public
- */
-export interface BreadcrumbEntry extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children"> {
-  /**
-   * Supplies the visible destination label.
-   */
-  label: ReactNode;
-  /**
-   * Marks the item as the current page instead of a link.
-   *
-   * @defaultValue `false`
-   */
-  current?: boolean;
-  /**
-   * Displays optional leading icon content.
-   */
-  icon?: ReactNode;
+interface BreadcrumbPresentation {
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly icon?: ReactNode;
 }
+export type BreadcrumbEntry =
+  | (BreadcrumbPresentation & {
+      readonly current: true;
+      readonly href?: never;
+      readonly spanProps?: Omit<HTMLAttributes<HTMLSpanElement>, "aria-current" | "children">;
+      readonly anchorProps?: never;
+    })
+  | (BreadcrumbPresentation & {
+      readonly current?: false;
+      readonly href: string;
+      readonly anchorProps?: Omit<
+        AnchorHTMLAttributes<HTMLAnchorElement>,
+        "aria-current" | "children" | "href"
+      >;
+      readonly spanProps?: never;
+    });
+export type BreadcrumbSlot = "root" | "list" | "item" | "icon" | "label";
+export type BreadcrumbOwnerState = Record<never, never>;
+export type BreadcrumbRootAttributes = HTMLAttributes<HTMLElement> & RefAttributes<HTMLElement>;
+export interface BreadcrumbSlotProps {
+  readonly root?: MiaixzSlotProps<BreadcrumbOwnerState, BreadcrumbRootAttributes>;
+  readonly list?: MiaixzSlotProps<BreadcrumbOwnerState, HTMLAttributes<HTMLOListElement>>;
+  readonly item?: MiaixzSlotProps<BreadcrumbOwnerState, HTMLAttributes<HTMLLIElement>>;
+  readonly icon?: MiaixzSlotProps<BreadcrumbOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<BreadcrumbOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzBreadcrumbOwnProps {
+  readonly label?: string;
+  readonly items: readonly BreadcrumbEntry[];
+  readonly slotProps?: BreadcrumbSlotProps;
+}
+/*
+ * Configures a breadcrumb navigation landmark. @public
+ */
+export type BreadcrumbProps = MiaixzBreadcrumbOwnProps &
+  Omit<HTMLAttributes<HTMLElement>, keyof MiaixzBreadcrumbOwnProps | "children">;

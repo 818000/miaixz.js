@@ -18,18 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzSdkError } from "../api/errors.js";
+import { MiaixzSdkError } from "../errors/errors.js";
+import { MIAIXZ_MODULE_PROTOCOL_VERSION } from "../contracts/module-manifest.js";
 import {
-  MIAIXZ_MODULE_PROTOCOL_VERSION,
   type MiaixzDirectHostBridgeOptions,
   type MiaixzHostAdapter,
   type MiaixzHostBridge,
   type MiaixzNavigationRequest,
-} from "../contracts/index.js";
+} from "../contracts/host-context.js";
 import { isMiaixzModulePermission } from "../contracts/permission.js";
-import { translateMiaixzDefaultMessage } from "../i18n/default-translator.js";
-import type { MiaixzMessageCatalog } from "../i18n/index.js";
-import type { MiaixzRuntimeContext } from "../types/index.js";
+import type { MiaixzMessageCatalog } from "../i18n/i18n.js";
+import type { MiaixzRuntimeContext } from "../types/context.js";
 
 const moduleIdentifierPattern = /^[a-z][a-z0-9-]{1,63}$/;
 
@@ -37,7 +36,6 @@ const moduleIdentifierPattern = /^[a-z][a-z0-9-]{1,63}$/;
  * Creates a localized Direct Bridge error without including caller-owned data.
  *
  * @param code - Stable Bridge error code.
- * @param messageKey - Registered internationalization message key.
  * @returns Localized SDK error.
  */
 function createBridgeError(
@@ -46,13 +44,8 @@ function createBridgeError(
     | "BRIDGE_DISPOSED"
     | "BRIDGE_MESSAGE_INVALID"
     | "BRIDGE_NAVIGATION_STATE_INVALID",
-  messageKey:
-    | "sdk.error.bridge.capabilityUnavailable"
-    | "sdk.error.bridge.disposed"
-    | "sdk.error.bridge.messageInvalid"
-    | "sdk.error.bridge.navigationStateInvalid",
 ): MiaixzSdkError {
-  return new MiaixzSdkError(translateMiaixzDefaultMessage(messageKey), { code });
+  return new MiaixzSdkError({ code });
 }
 
 /**
@@ -90,7 +83,7 @@ function hasOnlyKeys(
  */
 function parseModuleId(moduleId: string): string {
   if (!moduleIdentifierPattern.test(moduleId)) {
-    throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+    throw createBridgeError("BRIDGE_MESSAGE_INVALID");
   }
   return moduleId;
 }
@@ -114,7 +107,7 @@ function parseNavigationRequest(
     request.path.includes("\\") ||
     (request.replace !== undefined && typeof request.replace !== "boolean")
   ) {
-    throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+    throw createBridgeError("BRIDGE_MESSAGE_INVALID");
   }
 
   let state: unknown;
@@ -122,10 +115,7 @@ function parseNavigationRequest(
     try {
       state = structuredClone(request.state);
     } catch {
-      throw createBridgeError(
-        "BRIDGE_NAVIGATION_STATE_INVALID",
-        "sdk.error.bridge.navigationStateInvalid",
-      );
+      throw createBridgeError("BRIDGE_NAVIGATION_STATE_INVALID");
     }
   }
 
@@ -145,7 +135,7 @@ function parseNavigationRequest(
  */
 function parsePermissions(permissions: readonly string[]): readonly string[] {
   if (!Array.isArray(permissions) || !permissions.every(isMiaixzModulePermission)) {
-    throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+    throw createBridgeError("BRIDGE_MESSAGE_INVALID");
   }
   return Object.freeze([...permissions]);
 }
@@ -160,7 +150,7 @@ function parsePermissions(permissions: readonly string[]): readonly string[] {
  */
 function parseEventType(moduleId: string, type: string): string {
   if (typeof type !== "string") {
-    throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+    throw createBridgeError("BRIDGE_MESSAGE_INVALID");
   }
   const separator = type.indexOf(":");
   const owner = type.slice(0, separator);
@@ -172,7 +162,7 @@ function parseEventType(moduleId: string, type: string): string {
     !moduleIdentifierPattern.test(owner) ||
     !moduleIdentifierPattern.test(eventName)
   ) {
-    throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+    throw createBridgeError("BRIDGE_MESSAGE_INVALID");
   }
   return type;
 }
@@ -252,7 +242,7 @@ class MiaixzDirectHostBridge implements MiaixzHostBridge {
     return Promise.resolve().then(() => {
       this.#assertActive();
       if (namespace !== this.#moduleId) {
-        throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+        throw createBridgeError("BRIDGE_MESSAGE_INVALID");
       }
       return this.#requireCapability("registerMessages")(namespace, catalog);
     });
@@ -290,11 +280,11 @@ class MiaixzDirectHostBridge implements MiaixzHostBridge {
       this.#assertActive();
       const parsedType = parseEventType(this.#moduleId, type);
       if (typeof listener !== "function") {
-        throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+        throw createBridgeError("BRIDGE_MESSAGE_INVALID");
       }
       const unsubscribe = await this.#requireCapability("subscribe")<T>(parsedType, listener);
       if (typeof unsubscribe !== "function") {
-        throw createBridgeError("BRIDGE_MESSAGE_INVALID", "sdk.error.bridge.messageInvalid");
+        throw createBridgeError("BRIDGE_MESSAGE_INVALID");
       }
 
       let cancelled = false;
@@ -313,7 +303,7 @@ class MiaixzDirectHostBridge implements MiaixzHostBridge {
            * Cleanup failures cannot replace the deterministic disposed result.
            */
         }
-        throw createBridgeError("BRIDGE_DISPOSED", "sdk.error.bridge.disposed");
+        throw createBridgeError("BRIDGE_DISPOSED");
       }
       this.#subscriptions.add(cancel);
       return cancel;
@@ -340,7 +330,7 @@ class MiaixzDirectHostBridge implements MiaixzHostBridge {
    */
   #assertActive(): void {
     if (this.#disposed) {
-      throw createBridgeError("BRIDGE_DISPOSED", "sdk.error.bridge.disposed");
+      throw createBridgeError("BRIDGE_DISPOSED");
     }
   }
 
@@ -357,10 +347,7 @@ class MiaixzDirectHostBridge implements MiaixzHostBridge {
   ): NonNullable<MiaixzHostAdapter[Name]> {
     const capability = this.#adapter[name];
     if (capability === undefined) {
-      throw createBridgeError(
-        "BRIDGE_CAPABILITY_UNAVAILABLE",
-        "sdk.error.bridge.capabilityUnavailable",
-      );
+      throw createBridgeError("BRIDGE_CAPABILITY_UNAVAILABLE");
     }
     return capability as NonNullable<MiaixzHostAdapter[Name]>;
   }

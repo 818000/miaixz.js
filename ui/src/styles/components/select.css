@@ -21,9 +21,8 @@
 /**
  * Select component
  *
- * The native control remains in the form tree for submission and change-event
- * compatibility. Miaixz owns the visible trigger and listbox so option states
- * no longer inherit platform-specific colors or geometry.
+ * The visible trigger and explicit data model own interaction while one hidden
+ * input participates only in form serialization.
  */
 
 .miaixz-select {
@@ -172,6 +171,18 @@
   border-bottom: var(--miaixz-border-width-default) dashed transparent;
 }
 
+.miaixz-select-group + .miaixz-select-group,
+.miaixz-select-option + .miaixz-select-group {
+  margin-block-start: var(--miaixz-space-4);
+}
+
+.miaixz-select-group-label {
+  padding: var(--miaixz-space-4) var(--miaixz-space-12);
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  color: var(--miaixz-color-text-secondary);
+}
+
 .miaixz-select-option[data-state="active"] {
   background: var(--miaixz-color-surface-hover);
   border-bottom-color: var(--miaixz-color-border);
@@ -186,7 +197,7 @@
   cursor: not-allowed;
 }
 
-.miaixz-select-disabled .miaixz-select-trigger {
+.miaixz-select[data-disabled="true"] .miaixz-select-trigger {
   cursor: not-allowed;
 }
 
@@ -197,6 +208,6 @@
   }
 }
 
-.miaixz-select-disabled {
+.miaixz-select[data-disabled="true"] {
   background: var(--miaixz-color-surface-secondary);
 }

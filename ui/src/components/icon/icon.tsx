@@ -24,6 +24,7 @@ import type { IconProviderProps } from "../../icons/icon-provider.js";
 import { renderLucideIcon } from "../../icons/providers/lucide-provider.js";
 import { classNames } from "../../shared/class-names.js";
 import type { IconProps, IconSize } from "./icon.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const semanticSizes = new Set<IconSize>([
   "indicator",
@@ -39,27 +40,30 @@ const semanticSizes = new Set<IconSize>([
  *
  * @public
  */
-export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
-  { name, size = "inline", stroke = "regular", label, className, ...props },
-  ref,
-) {
-  const semanticSize =
-    typeof size === "string" && semanticSizes.has(size as IconSize)
-      ? (size as IconSize)
-      : undefined;
-  const pixelSize = semanticSize ? undefined : size;
-  const providerProps: IconProviderProps = {
-    ...(pixelSize === undefined ? {} : { width: pixelSize, height: pixelSize }),
-    ...props,
-    ...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true }),
-    focusable: "false",
-    className: classNames(
-      "miaixz-icon",
-      semanticSize && `miaixz-icon-${semanticSize}`,
-      stroke === "strong" && "miaixz-icon-strong",
-      className,
-    ),
-  };
+export const Icon = withMiaixzThemeComponent(
+  "Icon",
+  forwardRef<SVGSVGElement, IconProps>(function Icon(
+    { name, size = "inline", stroke = "regular", label, className, ...props },
+    ref,
+  ) {
+    const semanticSize =
+      typeof size === "string" && semanticSizes.has(size as IconSize)
+        ? (size as IconSize)
+        : undefined;
+    const pixelSize = semanticSize ? undefined : size;
+    const providerProps: IconProviderProps = {
+      ...(pixelSize === undefined ? {} : { width: pixelSize, height: pixelSize }),
+      ...props,
+      ...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true }),
+      focusable: "false",
+      className: classNames(
+        "miaixz-icon",
+        semanticSize && `miaixz-icon-${semanticSize}`,
+        stroke === "strong" && "miaixz-icon-strong",
+        className,
+      ),
+    };
 
-  return renderLucideIcon(name, providerProps, ref);
-});
+    return renderLucideIcon(name, providerProps, ref);
+  }),
+);

@@ -19,4 +19,18 @@
 */
 
 export { Button, ButtonLink } from "./button.js";
-export type { ButtonLinkProps, ButtonProps, ButtonSize, ButtonVariant } from "./button.types.js";
+export type {
+  ButtonLinkProps,
+  ButtonLinkRenderProps,
+  ButtonLinkRootAttributes,
+  ButtonLinkRenderer,
+  ButtonLinkSlotProps,
+  ButtonOwnerState,
+  ButtonProps,
+  ButtonRootAttributes,
+  ButtonSize,
+  ButtonSlot,
+  ButtonSlotProps,
+  ButtonTone,
+  ButtonVariant,
+} from "./button.types.js";

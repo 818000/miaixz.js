@@ -23,7 +23,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { DRAWER_WIDTHS, Drawer } from "../src/components/drawer/index.js";
+import { DRAWER_WIDTHS, Drawer, type DrawerWidth } from "../src/components/drawer/index.js";
 import { MiaixzLocaleProvider } from "../src/i18n/index.js";
 
 beforeEach(() => {
@@ -37,14 +37,14 @@ beforeEach(() => {
 afterEach(cleanup);
 
 /**
- * Renders explicit widths together with a legacy size.
+ * Renders one explicit width using the sole width contract.
  * @param width - Optional width override.
  * @returns A localized drawer.
  */
-function fixture(width?: number) {
+function fixture(width?: DrawerWidth) {
   return (
     <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
-      <Drawer open title="Width" size="large" width={width} onOpenChange={() => undefined}>
+      <Drawer open title="Width" width={width} onOpenChange={() => undefined}>
         Content
       </Drawer>
     </MiaixzLocaleProvider>
@@ -52,7 +52,7 @@ function fixture(width?: number) {
 }
 
 describe("Drawer widths", () => {
-  it("exports immutable presets and applies all presets and custom widths without positioned geometry", () => {
+  it("exports immutable numeric presets and applies named or custom widths from one property", () => {
     expect(Object.isFrozen(DRAWER_WIDTHS)).toBe(true);
     const { rerender } = render(fixture());
     for (const width of [...DRAWER_WIDTHS, 435.5]) {
@@ -61,14 +61,16 @@ describe("Drawer widths", () => {
       expect(drawer.style.getPropertyValue("--miaixz-drawer-width")).toBe(`${width}px`);
       expect(drawer).not.toHaveClass("miaixz-drawer-positioned");
       expect(drawer.style.inlineSize).toBe("");
-      expect(drawer).toHaveClass("miaixz-drawer-large");
+      expect(drawer).not.toHaveAttribute("data-positioned");
     }
-    rerender(fixture());
+    rerender(fixture("large"));
+    expect(screen.getByRole("dialog")).toHaveAttribute("data-width", "large");
     expect(screen.getByRole("dialog").style.getPropertyValue("--miaixz-drawer-width")).toBe("");
-    expect(screen.getByRole("dialog")).toHaveClass("miaixz-drawer-large");
   });
 
   it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])("rejects invalid width %s", (width) => {
-    expect(() => render(fixture(width))).toThrow(RangeError);
+    expect(() => render(fixture(width))).toThrowError(
+      expect.objectContaining({ code: "UI_DRAWER_WIDTH_INVALID" }),
+    );
   });
 });

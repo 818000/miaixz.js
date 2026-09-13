@@ -19,4 +19,15 @@
 */
 
 export { Steps } from "./steps.js";
-export type { StepsItem, StepsProps } from "./types.js";
+export type {
+  MiaixzStepsOwnProps,
+  StepsDensity,
+  StepsItem,
+  StepsOrientation,
+  StepsOwnerState,
+  StepsProps,
+  StepsRootAttributes,
+  StepsSlot,
+  StepsSlotProps,
+  StepsSurface,
+} from "./steps.types.js";

@@ -18,87 +18,164 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Steps contracts are defined by the component type module.
+ */
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import type { StepsItem, StepsProps } from "./types.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { StepsOwnerState, StepsProps } from "./steps.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Renders an ordered workflow as presentation by default and enables native-button interaction
- * only when the consumer supplies `onStepChange`.
- *
- * @public
+/*
+ * Renders a workflow whose visual dimensions never change its ol/li semantics. @public
  */
-export const Steps = forwardRef<HTMLOListElement, StepsProps>(function Steps(
-  { label, items, className, variant = "default", onStepChange, ...props },
-  ref,
-) {
-  const interactive = onStepChange !== undefined;
-
-  return (
-    <ol
-      {...props}
-      ref={ref}
-      aria-label={label}
-      data-interactive={interactive || undefined}
-      className={classNames(variant === "cards" ? "miaixz-steps-cards" : "miaixz-steps", className)}
-    >
-      {items.map((item, index) => {
-        const status = item.status ?? "pending";
-        const disabled = status === "disabled";
-        const content = <StepsItemContent item={item} index={index} />;
-
-        return (
-          <li
-            key={item.id ?? index}
-            data-status={status}
-            aria-current={status === "current" ? "step" : undefined}
-            aria-disabled={disabled || undefined}
-          >
-            {interactive ? (
-              <button
-                type="button"
-                className="miaixz-steps-item-content"
-                disabled={disabled}
-                onClick={() => onStepChange(item, index)}
+export const Steps = withMiaixzThemeComponent(
+  "Steps",
+  forwardRef<HTMLOListElement, StepsProps>(function Steps(
+    {
+      label,
+      items,
+      onStepChange,
+      orientation = "horizontal",
+      surface = "plain",
+      density = "standard",
+      connector = true,
+      slotProps,
+      ...props
+    },
+    ref,
+  ) {
+    const ids = new Set<string>();
+    for (const item of items) {
+      if (ids.has(item.id)) {
+        throw new MiaixzUiError({
+          code: "UI_STEPS_DUPLICATE_ID",
+          details: { id: item.id },
+        });
+      }
+      ids.add(item.id);
+    }
+    const interactive = onStepChange !== undefined;
+    const rootState: StepsOwnerState = {
+      orientation,
+      surface,
+      density,
+      connector,
+      status: undefined,
+      interactive,
+    };
+    return (
+      <ol
+        {...mergeMiaixzSlotProps({
+          ownerState: rootState,
+          defaultProps: { className: "miaixz-steps" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "aria-label": label,
+            "data-orientation": orientation,
+            "data-surface": surface,
+            "data-density": density,
+            ...(connector ? { "data-connector": true } : {}),
+          },
+          ownedProps: [
+            "aria-label",
+            "data-orientation",
+            "data-surface",
+            "data-density",
+            "data-connector",
+          ],
+        })}
+      >
+        {items.map((item, index) => {
+          const status = item.status ?? "pending";
+          const disabled = status === "disabled";
+          const ownerState: StepsOwnerState = {
+            orientation,
+            surface,
+            density,
+            connector,
+            status,
+            interactive,
+          };
+          const content = (
+            <>
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-steps-icon" },
+                  slotProps: slotProps?.icon,
+                })}
               >
-                {content}
-              </button>
-            ) : (
-              <div className="miaixz-steps-item-content">{content}</div>
-            )}
-          </li>
-        );
-      })}
-    </ol>
-  );
-});
-
-interface StepsItemContentProps {
-  /**
-   * Zero-based position used as the default marker.
-   */
-  readonly index: number;
-  /**
-   * Workflow item whose visible content is rendered.
-   */
-  readonly item: StepsItem;
-}
-
-/**
- * Renders shared static content for display and interactive step rows.
- *
- * @param properties - Item content properties.
- * @param properties.item - Workflow item whose visible content is rendered.
- * @param properties.index - Zero-based position used as the fallback marker.
- * @returns The marker, label, and optional description.
- */
-function StepsItemContent({ item, index }: StepsItemContentProps) {
-  return (
-    <>
-      <strong>{item.marker ?? index + 1}</strong>
-      <span>{item.label}</span>
-      {item.description !== undefined && <small>{item.description}</small>}
-    </>
-  );
-}
+                {item.marker ?? index + 1}
+              </span>
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-steps-label" },
+                  slotProps: slotProps?.label,
+                })}
+              >
+                {item.label}
+              </span>
+              {item.description !== undefined && (
+                <div
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-steps-description" },
+                    slotProps: slotProps?.description,
+                  })}
+                >
+                  {item.description}
+                </div>
+              )}
+            </>
+          );
+          return (
+            <li
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-steps-item" },
+                slotProps: slotProps?.item,
+                internalProps: {
+                  "data-status": status,
+                  ...(status === "current" ? { "aria-current": "step" as const } : {}),
+                  ...(disabled ? { "aria-disabled": true } : {}),
+                },
+                ownedProps: ["aria-current", "aria-disabled"],
+              })}
+              key={item.id}
+            >
+              {interactive ? (
+                <button
+                  className="miaixz-steps-item-content"
+                  disabled={disabled}
+                  onClick={() => onStepChange(item, index)}
+                  type="button"
+                >
+                  {content}
+                </button>
+              ) : (
+                <div className="miaixz-steps-item-content">{content}</div>
+              )}
+              {connector && index < items.length - 1 && (
+                <span
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-steps-connector" },
+                    slotProps: slotProps?.connector,
+                    internalProps: { "aria-hidden": true },
+                    ownedProps: ["aria-hidden"],
+                  })}
+                />
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    );
+  }),
+);

@@ -18,169 +18,140 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
-/**
- * Shared native panel-surface recipes. @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed panel semantics and slots are self-describing.
  */
-export interface PanelStyleOptions {
-  /**
-   * Selects frame-only or directly composed content/navigation surfaces.
-   */
-  variant?: "plain" | "content" | "navigation" | "section";
-  /**
-   * Selects the inherited transparent surface or an explicit panel fill.
-   */
-  surface?: "default" | "filled";
-  /**
-   * Retains consumer layout classes.
-   */
-  className?: string;
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type PanelSurface = "plain" | "filled";
+export type PanelFrame = "none" | "outlined" | "elevated";
+export type PanelDensity = "compact" | "standard" | "comfortable";
+type PanelAccessibleName =
+  | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
+  | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
+type PanelNativeProps = Omit<
+  HTMLAttributes<HTMLElement>,
+  "aria-label" | "aria-labelledby" | "children" | "title"
+>;
+export type PanelSemanticRootProps =
+  | (PanelNativeProps & {
+      readonly as?: "div" | "article";
+      readonly "aria-label"?: never;
+      readonly "aria-labelledby"?: never;
+    })
+  | (PanelNativeProps & { readonly as: "section" | "aside" } & PanelAccessibleName);
+export type PanelHeaderContent =
+  | {
+      readonly title?: never;
+      readonly description?: never;
+      readonly leading?: never;
+      readonly actions?: never;
+      readonly headingLevel?: never;
+    }
+  | {
+      readonly title: ReactNode;
+      readonly description?: ReactNode;
+      readonly leading?: ReactNode;
+      readonly actions?: ReactNode;
+      readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+    };
+export type PanelSlot = "root" | "header" | "body" | "footer" | "actions";
+export interface PanelOwnerState {
+  readonly surface: PanelSurface;
+  readonly frame: PanelFrame;
+  readonly density: PanelDensity;
+  readonly as: "div" | "section" | "article" | "aside";
+}
+export type PanelRootAttributes = HTMLAttributes<HTMLElement> &
+  RefAttributes<HTMLElement> & {
+    readonly "data-surface"?: PanelSurface;
+    readonly "data-frame"?: PanelFrame;
+    readonly "data-density"?: PanelDensity;
+  };
+export interface PanelSlotProps {
+  readonly root?: MiaixzSlotProps<PanelOwnerState, PanelRootAttributes>;
+  readonly header?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly body?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly footer?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export type PanelProps = PanelHeaderContent &
+  PanelSemanticRootProps & {
+    readonly children: ReactNode;
+    readonly footer?: ReactNode;
+    readonly surface?: PanelSurface;
+    readonly frame?: PanelFrame;
+    readonly density?: PanelDensity;
+    readonly slotProps?: PanelSlotProps;
+  };
+
+export type PanelHeaderSlot = "root" | "copy" | "leading" | "title" | "description" | "actions";
+export interface PanelHeaderOwnerState {
+  readonly density: PanelDensity;
+  readonly divider: boolean;
+  readonly alignment: "start" | "between";
+}
+export type PanelHeaderRootAttributes = HTMLAttributes<HTMLDivElement> & {
+  readonly "data-density"?: PanelDensity;
+  readonly "data-divider"?: boolean;
+  readonly "data-alignment"?: "start" | "between";
+};
+export interface PanelHeaderSlotProps {
+  readonly root?: MiaixzSlotProps<PanelHeaderOwnerState, PanelHeaderRootAttributes>;
+  readonly copy?: MiaixzSlotProps<PanelHeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly leading?: MiaixzSlotProps<PanelHeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<PanelHeaderOwnerState, HTMLAttributes<HTMLHeadingElement>>;
+  readonly description?: MiaixzSlotProps<PanelHeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<PanelHeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface PanelHeaderProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "children" | "title"
+> {
+  readonly title: ReactNode;
+  readonly description?: ReactNode;
+  readonly leading?: ReactNode;
+  readonly actions?: ReactNode;
+  readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly density?: PanelDensity;
+  readonly divider?: boolean;
+  readonly alignment?: "start" | "between";
+  readonly slotProps?: PanelHeaderSlotProps;
 }
 
-/**
- * Standalone framed action footer. @public
- */
-export interface PanelFooterProps extends HTMLAttributes<HTMLElement> {
-  /**
-   * Standalone frame or an inset footer inside an existing panel.
-   */
-  variant?: "framed" | "inset" | "metadata" | "summary" | "caption" | "divided" | "legend";
+export type PanelFooterSlot = "root";
+export interface PanelFooterOwnerState {
+  readonly density: PanelDensity;
+  readonly divider: boolean;
+  readonly alignment: "start" | "end" | "between";
 }
-/**
- * A divided content row, independent of business data. @public
- */
-export interface PanelRowProps extends HTMLAttributes<HTMLElement> {
-  /**
-   * Controls whether contents distribute across the row or retain their natural order.
-   */
-  distribution?: "between" | "start";
-  /**
-   * Preserves list semantics when used inside ul/ol.
-   */
-  as?: "article" | "li";
-  /**
-   * Selects the content spacing without changing row height.
-   */
-  spacing?: "default" | "comfortable";
+export type PanelFooterRootAttributes = HTMLAttributes<HTMLDivElement> & {
+  readonly "data-density"?: PanelDensity;
+  readonly "data-divider"?: boolean;
+  readonly "data-alignment"?: "start" | "end" | "between";
+};
+export interface PanelFooterProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  readonly children: ReactNode;
+  readonly divider?: boolean;
+  readonly alignment?: "start" | "end" | "between";
+  readonly density?: PanelDensity;
+  readonly slotProps?: {
+    readonly root?: MiaixzSlotProps<PanelFooterOwnerState, PanelFooterRootAttributes>;
+  };
 }
 
-/**
- * Configures a framed content surface.
- *
- * @public
- */
-export interface PanelProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
-  /**
-   * Selects an optional compact-radius frame and card padding.
-   */
-  frame?: "default" | "compact" | "card" | "compact-card" | "inset";
-  /**
-   * Selects an optional raised-on-hover interaction without changing default panels.
-   */
-  interaction?: "default" | "lift";
-  /**
-   * Selects native semantics for directly composed surfaces.
-   */
-  as?: "section" | "aside" | "article" | "header" | "div";
-  /**
-   * Removes body inline padding while preserving header and footer spacing.
-   */
-  bodyFlush?: boolean;
-  /**
-   * Removes all body padding for edge-to-edge composed content.
-   */
-  bodyPadding?: "default" | "none";
-  /**
-   * Keeps short titles and actions side by side in a narrow panel.
-   */
-  headerLayout?: "responsive" | "inline";
-  /**
-   * Selects whether the body grows to fill the panel.
-   */
-  bodyLayout?: "content" | "fill";
-  /**
-   * Selects the body spacing preset.
-   */
-  bodyGap?: "default" | "none";
-  /**
-   * Selects the dashboard body height preset.
-   */
-  bodySize?: "default" | "medium" | "tall";
-  /**
-   * Selects the panel header height preset.
-   */
-  headerSize?: "default" | "compact" | "entity" | "note";
-  /**
-   * Selects an optional minimum-height preset for tall local navigation panels.
-   */
-  minHeight?: "default" | "tall";
-  /**
-   * Enables narrow-screen horizontal body scrolling.
-   */
-  responsiveBodyScroll?: boolean;
-  /**
-   * Selects a reusable panel composition.
-   */
-  variant?: "dashboard" | "default" | "plain" | "content" | "navigation" | "section";
-  /**
-   * Selects the filled panel surface or a transparent background.
-   *
-   * @defaultValue `"default"`
-   */
-  surface?: "default" | "transparent" | "filled";
-  /**
-   * Supplies consistently spaced panel sections.
-   */
-  sections?: readonly ReactNode[];
-  /**
-   * Supplies the optional panel heading.
-   */
-  title?: ReactNode;
-  /**
-   * Supplies supporting panel description content.
-   */
-  description?: ReactNode;
-  /**
-   * Displays panel-level actions.
-   */
-  actions?: ReactNode;
-  /**
-   * Displays a compact leading visual beside the title and description.
-   */
-  leading?: ReactNode;
-  /**
-   * Supplies the panel footer content.
-   */
-  footer?: ReactNode;
-  /**
-   * Applies the elevated surface shadow.
-   *
-   * @defaultValue `false`
-   */
-  raised?: boolean;
-  /**
-   * Applies the selected surface treatment.
-   *
-   * @defaultValue `false`
-   */
-  selected?: boolean;
-  /**
-   * Enables interactive hover treatment.
-   *
-   * @defaultValue `false`
-   */
-  interactive?: boolean;
-  /**
-   * Removes inline padding from panel regions.
-   *
-   * @defaultValue `false`
-   */
-  flush?: boolean;
-  /**
-   * Selects the semantic heading level.
-   *
-   * @defaultValue `3`
-   */
-  headingLevel?: 2 | 3 | 4 | 5 | 6;
+export type PanelRowSlot = "root";
+export interface PanelRowOwnerState {
+  readonly density: PanelDensity;
+  readonly distribution: "start" | "between";
+}
+export type PanelRowRootAttributes = HTMLAttributes<HTMLDivElement> & {
+  readonly "data-density"?: PanelDensity;
+  readonly "data-distribution"?: "start" | "between";
+};
+export interface PanelRowProps extends HTMLAttributes<HTMLDivElement> {
+  readonly distribution?: "start" | "between";
+  readonly slotProps?: {
+    readonly root?: MiaixzSlotProps<PanelRowOwnerState, PanelRowRootAttributes>;
+  };
 }

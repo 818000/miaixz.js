@@ -3,108 +3,112 @@ name: NPM Registry
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to publish. Leave empty to read VERSION."
-        required: false
-        default: ""
+      tag:
+        description: "Existing version tag to republish or resume."
+        required: true
         type: string
   push:
     tags:
       - "*.*.*"
 
 env:
-  NODE_VERSION: "24"
+  NODE_VERSION: "24.21.0"
   NPM_REGISTRY: "https://registry.npmjs.org/"
+  RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
 
 permissions:
   contents: read
   id-token: write
 
 concurrency:
-  group: npm-release-${{ github.ref }}
+  group: npm-release-${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Build and Publish Both Packages
+  quality:
+    name: Validate Tagged Source
     if: ${{ github.repository == '818000/miaixz.js' }}
+    uses: ./.github/workflows/build-project.yml
+    with:
+      target-ref: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+      artifact-key: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+
+  publish:
+    name: Publish Validated Tarballs
+    needs: quality
+    if: ${{ needs.quality.result == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: release
       url: https://www.npmjs.com/search?q=%40miaixz
     outputs:
       version: ${{ steps.release.outputs.version }}
-      is-prerelease: ${{ steps.build.outputs.is-prerelease }}
+      is-prerelease: ${{ steps.release.outputs.is-prerelease }}
     steps:
-      - name: Check Out Code
-        uses: actions/checkout@v7
+      - name: Check Out Existing Tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-
-      - name: Resolve Release Version
-        id: release
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          REF_TYPE: ${{ github.ref_type }}
-          REF_NAME: ${{ github.ref_name }}
-          INPUT_VERSION: ${{ inputs.version || '' }}
-        run: |
-          set -euo pipefail
-
-          if [ ! -f VERSION ]; then
-            echo "::error file=VERSION::VERSION file is required"
-            exit 1
-          fi
-
-          VERSION_FILE="$(tr -d '[:space:]' < VERSION)"
-          if [ "$EVENT_NAME" = "push" ] && [ "$REF_TYPE" = "tag" ]; then
-            VERSION="$REF_NAME"
-            if [ "$REF_NAME" != "$VERSION_FILE" ]; then
-              echo "::error::Tag '$REF_NAME' must exactly match VERSION '$VERSION_FILE'"
-              exit 1
-            fi
-          else
-            VERSION="${INPUT_VERSION:-$VERSION_FILE}"
-          fi
-
-          if [ "$VERSION" != "$VERSION_FILE" ]; then
-            echo "::error file=VERSION::VERSION '$VERSION_FILE' does not match release version '$VERSION'"
-            exit 1
-          fi
-
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Set Up Node.js and npm
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: ${{ env.NPM_REGISTRY }}
           package-manager-cache: false
 
-      - name: Build Project
-        id: build
-        uses: ./.github/actions/build-project
+      - name: Verify Existing Tag and Metadata
+        id: release
+        env:
+          TAG: ${{ env.RELEASE_TAG }}
+        run: |
+          set -euo pipefail
+          git show-ref --verify --quiet "refs/tags/${TAG}" || {
+            echo "::error::Tag '${TAG}' does not exist"
+            exit 1
+          }
+          tag_commit="$(git rev-parse "${TAG}^{commit}")"
+          head_commit="$(git rev-parse HEAD)"
+          if [ "$head_commit" != "$tag_commit" ]; then
+            echo "::error::Checked-out HEAD does not equal the peeled tag commit"
+            exit 1
+          fi
+          node .github/scripts/check-release-metadata.mjs "$TAG"
+          if [[ "$TAG" == *-* ]]; then
+            is_prerelease=true
+          else
+            is_prerelease=false
+          fi
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "is-prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
+          npm run check:clean
+
+      - name: Download Validated Tarballs
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
-          version: ${{ steps.release.outputs.version }}
+          name: packages-${{ env.RELEASE_TAG }}
+          path: ${{ runner.temp }}/packages
 
       - name: Publish Both Packages to npm
         uses: ./.github/actions/npm-registry
         with:
           version: ${{ steps.release.outputs.version }}
           registry: ${{ env.NPM_REGISTRY }}
+          sdk-tarball: ${{ runner.temp }}/packages/miaixz-sdk-${{ steps.release.outputs.version }}.tgz
+          ui-tarball: ${{ runner.temp }}/packages/miaixz-ui-${{ steps.release.outputs.version }}.tgz
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   create-release:
     name: Create Release After npm Publication
     needs: publish
-    if: ${{ always() && github.ref_type == 'tag' && needs.publish.result == 'success' }}
+    if: ${{ needs.publish.result == 'success' }}
     permissions:
       contents: write
     uses: ./.github/workflows/create-release.yml
     with:
-      tag: ${{ github.ref_name }}
+      tag: ${{ needs.publish.outputs.version }}
       version: ${{ needs.publish.outputs.version }}
       prerelease: ${{ needs.publish.outputs.is-prerelease == 'true' }}
     secrets: inherit

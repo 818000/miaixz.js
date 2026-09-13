@@ -18,67 +18,50 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ReactNode } from "react";
-
-/**
- * Defines the semantic treatment of a confirmation action.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed confirmation slots are self-describing.
  */
+
+import type { HTMLAttributes, ReactNode } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+import type { ButtonProps } from "../button/button.types.js";
+
 export type ConfirmTone = "normal" | "danger";
+export type ConfirmCloseReason = "cancel" | "confirm" | "escape" | "backdrop";
+export type ConfirmSlot = "root" | "confirmationInput" | "error" | "cancelButton" | "confirmButton";
 
-/**
- * Configures a controlled confirmation dialog without exposing native dialog attributes.
- *
- * @public
- */
-export interface ConfirmProps {
-  /**
-   * Controls whether the confirmation dialog is open.
-   */
-  open: boolean;
-  /**
-   * Receives accepted open-state changes.
-   */
-  onOpenChange: (open: boolean) => void;
-  /**
-   * Supplies the confirmation heading.
-   */
-  title: ReactNode;
-  /**
-   * Supplies the confirmation description.
-   */
-  description: ReactNode;
-  /**
-   * Supplies the visible confirmation action label.
-   */
-  confirmLabel: string;
-  /**
-   * Supplies the visible cancellation action label.
-   */
-  cancelLabel: string;
-  /**
-   * Selects the normal or destructive confirmation treatment.
-   *
-   * @defaultValue `"normal"`
-   */
-  tone?: ConfirmTone;
-  /**
-   * Requires an exact internally managed text entry before confirmation.
-   */
-  confirmationText?: string;
-  /**
-   * Disables dismissal and actions while an externally managed operation is pending.
-   *
-   * @defaultValue `false`
-   */
-  pending?: boolean;
-  /**
-   * Supplies an already localized failure message.
-   */
-  error?: ReactNode;
-  /**
-   * Runs the confirmation action synchronously or asynchronously.
-   */
-  onConfirm: () => void | Promise<void>;
+export interface ConfirmOwnerState {
+  readonly open: boolean;
+  readonly tone: ConfirmTone;
+  readonly pending: boolean;
+  readonly confirmationRequired: boolean;
+  readonly confirmationMatches: boolean;
 }
+
+export interface ConfirmSlotProps {
+  readonly root?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly confirmationInput?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly error?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly cancelButton?: MiaixzSlotProps<ConfirmOwnerState, Omit<ButtonProps, "children">>;
+  readonly confirmButton?: MiaixzSlotProps<ConfirmOwnerState, Omit<ButtonProps, "children">>;
+}
+
+export interface ConfirmProps {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean, reason: ConfirmCloseReason) => void;
+  readonly title: ReactNode;
+  readonly description: ReactNode;
+  readonly confirmLabel: string;
+  readonly cancelLabel: string;
+  readonly tone?: ConfirmTone;
+  readonly confirmationText?: string;
+  readonly pending?: boolean;
+  readonly error?: ReactNode;
+  readonly errorFormatter?: (error: unknown) => ReactNode;
+  readonly onError?: (error: unknown) => void;
+  readonly onConfirm: () => void | Promise<void>;
+  readonly slotProps?: ConfirmSlotProps;
+}
+
+/* eslint-enable jsdoc/require-jsdoc
+ */

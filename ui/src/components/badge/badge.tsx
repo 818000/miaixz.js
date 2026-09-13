@@ -18,35 +18,67 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import type { BadgeProps } from "./badge.types.js";
-
-/**
- * Renders a compact semantic status or category label.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
  */
-export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
-  { tone = "neutral", outline = false, dot = false, icon, className, children, ...props },
-  ref,
-) {
-  return (
-    <span
-      {...props}
-      ref={ref}
-      data-tone={tone}
-      className={classNames(
-        "miaixz-badge",
-        tone !== "neutral" && `miaixz-badge-${tone}`,
-        outline && "miaixz-badge-outline",
-        className,
-      )}
-    >
-      {dot && <span className="miaixz-badge-dot" aria-hidden="true" />}
-      {icon && <span className="miaixz-badge-icon">{icon}</span>}
-      <span className="miaixz-badge-label">{children}</span>
-    </span>
-  );
-});
+import { forwardRef } from "react";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { BadgeOwnerState, BadgeProps } from "./badge.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Renders a standalone semantic label rather than an overlay badge.
+ */
+export const Badge = withMiaixzThemeComponent(
+  "Badge",
+  forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
+    { tone = "neutral", variant = "filled", marker = false, icon, children, slotProps, ...props },
+    ref,
+  ) {
+    const ownerState: BadgeOwnerState = { tone, variant, marker };
+    return (
+      <span
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-badge" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-tone": tone, "data-variant": variant },
+          ownedProps: ["data-tone", "data-variant"],
+        })}
+      >
+        {marker && (
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-badge-marker" },
+              slotProps: slotProps?.marker,
+              internalProps: { "aria-hidden": true },
+              ownedProps: ["aria-hidden"],
+            })}
+          />
+        )}
+        {icon !== undefined && (
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-badge-icon" },
+              slotProps: slotProps?.icon,
+            })}
+          >
+            {icon}
+          </span>
+        )}
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-badge-label" },
+            slotProps: slotProps?.label,
+          })}
+        >
+          {children}
+        </span>
+      </span>
+    );
+  }),
+);

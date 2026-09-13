@@ -42,7 +42,8 @@ import { bindPressInteractions } from "../shared/press-interaction.js";
 import { applyTheme } from "./apply.js";
 import { ThemeCache } from "./cache.js";
 import { ThemeCatalog } from "./catalog.js";
-import { ThemeContextProvider } from "./context.js";
+import { ThemeContextProvider, useMiaixzParentThemeComponents } from "./context.js";
+import { mergeMiaixzThemeComponents } from "./components.js";
 import { MiaixzThemeError } from "./errors.js";
 import { serializeThemeApplication } from "./serialize.js";
 import type { ThemeContextValue, ThemeProps } from "./types.js";
@@ -96,6 +97,11 @@ interface ThemeRuntimeState {
 export function Theme(props: ThemeProps) {
   const { appearance, loader, fallback = "miaixz", nonce, children } = props;
   const themes = props.themes ?? emptyThemes;
+  const parentComponents = useMiaixzParentThemeComponents();
+  const components = useMemo(
+    () => mergeMiaixzThemeComponents(parentComponents, props.components),
+    [parentComponents, props.components],
+  );
   const scope = props.scope ?? "global";
   const generatedId = useId();
   const instanceId =
@@ -361,6 +367,7 @@ export function Theme(props: ThemeProps) {
       revision,
       status: runtime.status,
       ...(runtime.error === undefined ? {} : { error: runtime.error }),
+      components,
       setTheme,
       setColorMode,
       setDensity,
@@ -370,6 +377,7 @@ export function Theme(props: ThemeProps) {
     }),
     [
       descriptors,
+      components,
       effectiveTheme,
       reset,
       resolvedColorMode,

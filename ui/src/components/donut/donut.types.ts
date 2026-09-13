@@ -18,64 +18,64 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed donut slots are self-describing.
+ */
+import type {
+  HTMLAttributes,
+  ReactNode,
+  SVGAttributes,
+  TableHTMLAttributes,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from "react";
 
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
-/**
- * Defines one labeled donut segment.
- *
- * @public
- */
 export interface DonutSegment {
-  /**
-   * Supplies the segment label.
-   */
+  readonly id: string;
   readonly label: string;
-  /**
-   * Supplies the finite non-negative source value.
-   */
   readonly value: number;
-  /**
-   * Selects the segment's theme-resolved visual tone.
-   */
   readonly tone: MiaixzVisualTone;
 }
-
-/**
- * Configures an accessible normalized donut visualization.
- *
- * @public
- */
-export interface DonutProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "color"> {
-  /**
-   * Selects the semantic visualization diameter.
-   *
-   * @defaultValue `"large"`
-   */
-  readonly size?: "small" | "medium" | "large";
-  /**
-   * Selects a reusable dashboard composition.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: "completion" | "default" | "token" | "distribution";
-  /**
-   * Selects whether the shared legend is rendered.
-   *
-   * @defaultValue `"inline"`
-   */
-  readonly legend?: "hidden" | "inline";
-  /**
-   * Supplies source segments without requiring pre-normalization.
-   */
-  readonly segments: readonly DonutSegment[];
-  /**
-   * Supplies optional content displayed in the ring center.
-   */
-  readonly center?: ReactNode;
-  /**
-   * Supplies the required accessible visualization description.
-   */
+export interface DonutOwnerState {
+  readonly size: "small" | "medium" | "large";
+  readonly variant: "ring" | "distribution";
+  readonly legend: "hidden" | "inline";
+  readonly state: "empty" | "ready";
+  readonly animate: boolean;
+}
+export interface DonutRootAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-size"?: DonutOwnerState["size"];
+  readonly "data-variant"?: DonutOwnerState["variant"];
+  readonly "data-state"?: DonutOwnerState["state"];
+  readonly "data-animate"?: boolean;
+}
+export interface DonutSlotProps {
+  readonly root?: MiaixzSlotProps<DonutOwnerState, DonutRootAttributes>;
+  readonly visual?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly segment?: MiaixzSlotProps<DonutOwnerState, SVGAttributes<SVGCircleElement>>;
+  readonly legend?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLUListElement>>;
+  readonly legendItem?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLLIElement>>;
+  readonly description?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly table?: MiaixzSlotProps<DonutOwnerState, TableHTMLAttributes<HTMLTableElement>>;
+  readonly caption?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLTableCaptionElement>>;
+  readonly tableHeader?: MiaixzSlotProps<DonutOwnerState, ThHTMLAttributes<HTMLTableCellElement>>;
+  readonly tableCell?: MiaixzSlotProps<DonutOwnerState, TdHTMLAttributes<HTMLTableCellElement>>;
+}
+export interface DonutProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "children" | "color"
+> {
   readonly "aria-label": string;
+  readonly segments: readonly DonutSegment[];
+  readonly size?: "small" | "medium" | "large";
+  readonly variant?: "ring" | "distribution";
+  readonly legend?: "hidden" | "inline";
+  readonly center?: ReactNode;
+  readonly description?: ReactNode;
+  readonly animate?: boolean;
+  readonly valueFormatter?: (value: number, segment: DonutSegment) => string;
+  readonly percentageFormatter?: (ratio: number, segment: DonutSegment) => string;
+  readonly slotProps?: DonutSlotProps;
 }

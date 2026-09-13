@@ -26,7 +26,7 @@
   --miaixz-badge-height: var(--miaixz-space-24);
   --miaixz-badge-padding-inline: var(--miaixz-space-8);
   --miaixz-badge-gap: var(--miaixz-space-4);
-  --miaixz-badge-dot-size: var(--miaixz-space-8);
+  --miaixz-badge-marker-size: var(--miaixz-space-8);
 }
 
 .miaixz-badge {
@@ -47,41 +47,41 @@
   border-radius: var(--miaixz-radius-round);
 }
 
-.miaixz-badge-brand {
+.miaixz-badge[data-tone="brand"] {
   color: var(--miaixz-color-text-primary);
   background: var(--miaixz-color-surface-selected);
 }
 
-.miaixz-badge-success {
+.miaixz-badge[data-tone="success"] {
   color: var(--miaixz-color-text-primary);
   background: var(--miaixz-color-success-soft);
 }
 
-.miaixz-badge-warning {
+.miaixz-badge[data-tone="warning"] {
   color: var(--miaixz-color-text-primary);
   background: var(--miaixz-color-warning-soft);
 }
 
-.miaixz-badge-danger {
+.miaixz-badge[data-tone="danger"] {
   color: var(--miaixz-color-text-primary);
   background: var(--miaixz-color-danger-soft);
 }
 
-.miaixz-badge-info {
+.miaixz-badge[data-tone="info"] {
   color: var(--miaixz-color-text-primary);
   background: var(--miaixz-color-info-soft);
 }
 
-.miaixz-badge-outline {
+.miaixz-badge[data-variant="outlined"] {
   color: var(--miaixz-color-text-secondary);
   background: transparent;
   border-color: var(--miaixz-color-border);
 }
 
-.miaixz-badge-dot {
+.miaixz-badge-marker {
   flex: none;
-  width: var(--miaixz-badge-dot-size);
-  height: var(--miaixz-badge-dot-size);
+  width: var(--miaixz-badge-marker-size);
+  height: var(--miaixz-badge-marker-size);
   background: currentcolor;
   border-radius: var(--miaixz-radius-round);
 }
@@ -104,18 +104,18 @@
   text-overflow: ellipsis;
 }
 
-.miaixz-badge-success .miaixz-badge-dot {
+.miaixz-badge[data-tone="success"] .miaixz-badge-marker {
   background: var(--miaixz-color-success);
 }
 
-.miaixz-badge-warning .miaixz-badge-dot {
+.miaixz-badge[data-tone="warning"] .miaixz-badge-marker {
   background: var(--miaixz-color-warning);
 }
 
-.miaixz-badge-danger .miaixz-badge-dot {
+.miaixz-badge[data-tone="danger"] .miaixz-badge-marker {
   background: var(--miaixz-color-danger);
 }
 
-.miaixz-badge-info .miaixz-badge-dot {
+.miaixz-badge[data-tone="info"] .miaixz-badge-marker {
   background: var(--miaixz-color-info);
 }

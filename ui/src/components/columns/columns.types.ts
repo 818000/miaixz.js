@@ -18,62 +18,72 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed columns models and slots are self-describing.
+ */
+import type {
+  HTMLAttributes,
+  TableHTMLAttributes,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from "react";
 
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
-/**
- * Defines one named column-chart series.
- *
- * @public
- */
 export interface ColumnsSeries {
-  /**
-   * Supplies the accessible series name.
-   */
+  readonly id: string;
   readonly label: string;
-  /**
-   * Supplies one value for every chart label.
-   */
   readonly values: readonly number[];
 }
-
-/**
- * Configures a compact one- or two-series column chart.
- *
- * @public
- */
-export interface ColumnsProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "color"> {
-  /**
-   * Selects a reusable chart geometry without exposing internal slots.
-   */
-  readonly variant?: "cost" | "dataset" | "default" | "paired" | "resource" | "timeline";
-  /**
-   * Supplies ordered category labels.
-   */
-  readonly labels: readonly string[];
-  /**
-   * Supplies one or two named data series.
-   */
-  readonly series: readonly ColumnsSeries[];
-  /**
-   * Supplies an optional positive chart-domain maximum.
-   */
-  readonly maximum?: number;
-  /**
-   * Shows a theme-owned key for the named series.
-   */
-  readonly showLegend?: boolean;
-  /**
-   * Selects standard or expanded chart geometry.
-   */
-  readonly size?: "default" | "large";
-  /**
-   * Selects the shared theme-resolved visual tone.
-   */
+export interface ColumnsOwnerState {
+  readonly orientation: "vertical" | "horizontal";
+  readonly layout: "grouped" | "stacked";
+  readonly density: "compact" | "standard" | "comfortable";
   readonly tone: MiaixzVisualTone;
-  /**
-   * Supplies the required accessible chart name.
-   */
-  readonly "aria-label": string;
+  readonly state: "empty" | "ready";
 }
+export interface ColumnsRootAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-orientation"?: ColumnsOwnerState["orientation"];
+  readonly "data-layout"?: ColumnsOwnerState["layout"];
+  readonly "data-density"?: ColumnsOwnerState["density"];
+  readonly "data-tone"?: MiaixzVisualTone;
+  readonly "data-state"?: ColumnsOwnerState["state"];
+}
+export interface ColumnsBarAttributes extends HTMLAttributes<HTMLSpanElement> {
+  readonly "data-series"?: number;
+}
+export interface ColumnsSlotProps {
+  readonly root?: MiaixzSlotProps<ColumnsOwnerState, ColumnsRootAttributes>;
+  readonly legend?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly legendItem?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly plot?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly category?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly bar?: MiaixzSlotProps<ColumnsOwnerState, ColumnsBarAttributes>;
+  readonly categoryLabel?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly table?: MiaixzSlotProps<ColumnsOwnerState, TableHTMLAttributes<HTMLTableElement>>;
+  readonly caption?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLTableCaptionElement>>;
+  readonly tableHeader?: MiaixzSlotProps<ColumnsOwnerState, ThHTMLAttributes<HTMLTableCellElement>>;
+  readonly tableCell?: MiaixzSlotProps<ColumnsOwnerState, TdHTMLAttributes<HTMLTableCellElement>>;
+}
+type ColumnsAccessibility =
+  | { readonly accessibleTable?: true; readonly "aria-describedby"?: string }
+  | { readonly accessibleTable: false; readonly "aria-describedby": string };
+interface ColumnsBaseProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "aria-describedby" | "children" | "color"
+> {
+  readonly labels: readonly string[];
+  readonly series: readonly ColumnsSeries[];
+  readonly maximum?: number;
+  readonly showLegend?: boolean;
+  readonly tone: MiaixzVisualTone;
+  readonly "aria-label": string;
+  readonly orientation?: "vertical" | "horizontal";
+  readonly layout?: "grouped" | "stacked";
+  readonly density?: "compact" | "standard" | "comfortable";
+  readonly categoryFormatter?: (label: string, index: number) => string;
+  readonly seriesFormatter?: (series: ColumnsSeries) => string;
+  readonly valueFormatter?: (value: number, series: ColumnsSeries, categoryIndex: number) => string;
+  readonly slotProps?: ColumnsSlotProps;
+}
+export type ColumnsProps = ColumnsBaseProps & ColumnsAccessibility;

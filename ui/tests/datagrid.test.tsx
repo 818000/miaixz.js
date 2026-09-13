@@ -1,137 +1,101 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
-import { createMiaixzI18n } from "@miaixz/sdk/i18n";
-import { MiaixzLocaleProvider, miaixzUiMessages } from "../src/i18n/index.js";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ */
+
+import "@testing-library/jest-dom/vitest";
+import { cleanup, fireEvent, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { Datagrid, type DatagridColumn } from "../src/components/datagrid/index.js";
-import { Status } from "../src/components/status/index.js";
-import { readFileSync } from "node:fs";
+import { renderWithLocale } from "./test-utils.js";
 
 afterEach(cleanup);
 
-describe("List composition", () => {
-  it.each(["content", "fill"] as const)("exposes the %s body layout contract", (bodyLayout) => {
-    const { container } = render(
-      <MiaixzLocaleProvider
-        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
-      >
-        <Datagrid
-          bodyLayout={bodyLayout}
-          caption="布局测试"
-          rows={[{ id: "a" }]}
-          getRowId={(row) => row.id}
-          columns={[{ id: "id", header: "记录", cell: (row) => row.id }]}
-        />
-      </MiaixzLocaleProvider>,
+interface Row {
+  /**
+   * Stable fixture identifier.
+   */
+  readonly id: string;
+  /**
+   * Visible fixture name.
+   */
+  readonly name: string;
+}
+
+const columns: readonly DatagridColumn<Row>[] = [
+  { id: "name", header: "名称", cell: (row) => row.name, sortable: true, widthPercent: 80 },
+];
+
+describe("Datagrid", () => {
+  it("renders a semantic table with the final layout and density dimensions", () => {
+    renderWithLocale(
+      <Datagrid
+        bodyLayout="fill"
+        caption="数据列表"
+        captionVisibility="hidden"
+        columns={columns}
+        density="comfortable"
+        getRowId={(row) => row.id}
+        layout="fixed"
+        rows={[{ id: "a", name: "Alpha" }]}
+        surface="inset"
+      />,
     );
-    expect(container.querySelector(`.miaixz-datagrid-body-${bodyLayout}`)).not.toBeNull();
-    expect(container.querySelector("[bodyLayout]")).toBeNull();
+
+    const table = screen.getByRole("table", { name: "数据列表" });
+    expect(table).toBeVisible();
+    expect(table.closest(".miaixz-datagrid")).toHaveAttribute("data-body-layout", "fill");
+    expect(table.closest(".miaixz-datagrid")).toHaveAttribute("data-density", "comfortable");
+    expect(screen.getByRole("cell", { name: "Alpha" })).toBeVisible();
+    expect(screen.getByRole("columnheader", { name: /名称/u })).toHaveStyle({ width: "80%" });
   });
 
-  it("limits sticky heads to fill mode and lets content-mode wheel events reach the page", () => {
-    const css = readFileSync("src/styles/components/datagrid.css", "utf8");
-    expect(css).toMatch(
-      /\.miaixz-datagrid-body-content \.miaixz-datagrid-container\s*\{\s*overscroll-behavior-y: auto;/,
+  it("cycles server-owned sorting without introducing grid semantics", () => {
+    const onSortChange = vi.fn();
+    renderWithLocale(
+      <Datagrid
+        caption="排序列表"
+        columns={columns}
+        getRowId={(row) => row.id}
+        onSortChange={onSortChange}
+        rows={[{ id: "a", name: "Alpha" }]}
+      />,
     );
-    expect(css).toMatch(/\.miaixz-datagrid-body-fill \.miaixz-table-head\s*\{\s*position: sticky;/);
-    expect(css).not.toMatch(/\.miaixz-datagrid \.miaixz-table-head\s*\{\s*position: sticky;/);
+    expect(screen.queryByRole("grid")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "名称" }));
+    expect(onSortChange).toHaveBeenCalledWith({ columnId: "name", direction: "ascending" });
   });
 
-  it("keeps compact table typography and row geometry on public roles", () => {
-    const css = readFileSync("src/styles/components/datagrid.css", "utf8");
-    const compactTable = css.match(
-      /\.miaixz-datagrid-rows-compact \.miaixz-table\s*\{([^}]*)\}/,
-    )?.[1];
-    const compactCell = css.match(
-      /\.miaixz-datagrid-rows-compact \.miaixz-table-cell\s*\{([^}]*)\}/,
-    )?.[1];
-    const compactHeader = css.match(
-      /\.miaixz-datagrid-rows-compact \.miaixz-table-header\s*\{([^}]*)\}/,
-    )?.[1];
-
-    expect(compactTable).toContain("font-size: var(--miaixz-text-compact-body-size)");
-    expect(compactTable).toContain("line-height: var(--miaixz-text-compact-body-line-height)");
-    expect(compactCell).toContain("height: 48px");
-    expect(compactCell).toContain("padding: 8px 10px");
-    expect(compactHeader).toContain("height: 40px");
-    expect(compactHeader).toContain("font-size: var(--miaixz-text-compact-caption-size)");
-    expect(compactHeader).toContain("line-height: var(--miaixz-text-compact-caption-line-height)");
-    expect(`${compactTable}${compactHeader}`).not.toMatch(/font-size:\s*(?:10|12)px/);
-  });
-
-  it("keeps a hidden caption accessible and fixed widths on column headers", () => {
-    render(
-      <MiaixzLocaleProvider
-        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
-      >
-        <Datagrid
-          variant="inset"
-          layout="fixed"
-          rowSize="comfortable"
-          captionVisibility="hidden"
-          caption="数据列表"
-          selectionMode="multiple"
-          selectionWidthPercent={4}
-          rows={[{ id: "a" }]}
-          getRowId={(row) => row.id}
-          columns={[{ id: "name", header: "名称", widthPercent: 96, cell: (row) => row.id }]}
-        />
-      </MiaixzLocaleProvider>,
+  it("reports multiple selection through controlled row ids", () => {
+    const onSelectedRowIdsChange = vi.fn();
+    renderWithLocale(
+      <Datagrid
+        caption="选择列表"
+        columns={columns}
+        getRowId={(row) => row.id}
+        onSelectedRowIdsChange={onSelectedRowIdsChange}
+        rows={[{ id: "a", name: "Alpha" }]}
+        selectedRowIds={[]}
+        selectionMode="multiple"
+      />,
     );
-    expect(screen.getByRole("table", { name: "数据列表" })).toBeTruthy();
-    expect(screen.getByRole("columnheader", { name: "名称" }).style.width).toBe("96%");
-    expect(screen.getAllByRole("columnheader")[0]?.style.width).toBe("4%");
-    expect(
-      screen.getByRole("table").closest(".miaixz-datagrid")?.hasAttribute("captionVisibility"),
-    ).toBe(false);
-  });
-  it("places business content between the status marker and label", () => {
-    const { container } = render(
-      <Status variant="split" label="健康" tone="success">
-        <strong>生产</strong>
-      </Status>,
-    );
-    expect(container.querySelector(".miaixz-status-content")?.textContent).toBe("生产");
-    expect(screen.getByText("健康")).toBeTruthy();
-  });
-
-  it("keeps empty and long business values inside the semantic Table composition", () => {
-    const i18n = createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages });
-    const columns: readonly DatagridColumn<Readonly<Record<"name", string>>>[] = [
-      {
-        id: "name",
-        header: "名称",
-        cell: (row) => row.name,
-      },
-    ];
-    const { rerender } = render(
-      <MiaixzLocaleProvider i18n={i18n}>
-        <Datagrid
-          caption="空数据列表"
-          columns={columns}
-          emptyState={<span>当前没有记录</span>}
-          getRowId={(row) => row.name}
-          rowSize="compact"
-          rows={[]}
-        />
-      </MiaixzLocaleProvider>,
-    );
-    const empty = screen.getByText("当前没有记录");
-    expect(empty.closest("td")?.getAttribute("colspan")).toBe("1");
-
-    const longName = "不会因为紧凑密度或固定表格组合而从语义单元格中丢失的超长业务名称";
-    rerender(
-      <MiaixzLocaleProvider i18n={i18n}>
-        <Datagrid
-          caption="长数据列表"
-          columns={columns}
-          getRowId={(row) => row.name}
-          layout="fixed"
-          rowSize="compact"
-          rows={[{ name: longName }]}
-        />
-      </MiaixzLocaleProvider>,
-    );
-    expect(screen.getByRole("cell", { name: longName }).textContent).toBe(longName);
-    expect(screen.getByRole("table", { name: "长数据列表" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("checkbox", { name: "选择行" }));
+    expect(onSelectedRowIdsChange).toHaveBeenCalledWith(["a"]);
   });
 });

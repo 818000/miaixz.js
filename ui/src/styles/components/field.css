@@ -149,7 +149,7 @@
         .miaixz-select,
         .miaixz-combobox,
         .miaixz-picker
-      ):not([data-filled="true"], [data-preview-state="filled"], [data-preview-state="focus"])
+      ):not([data-filled="true"])
   ):not(:focus-within, [data-invalid="true"])
   > .miaixz-field-label-row {
   transform: translateY(calc(var(--miaixz-field-control-height) / 2 - 50%));
@@ -162,7 +162,7 @@
         .miaixz-select,
         .miaixz-combobox,
         .miaixz-picker
-      ):not([data-filled="true"], [data-preview-state="filled"], [data-preview-state="focus"])
+      ):not([data-filled="true"])
   ):not(:focus-within, [data-invalid="true"])
   > .miaixz-field-label-row
   > :is(.miaixz-field-label, .miaixz-field-optional) {
@@ -177,7 +177,7 @@
         .miaixz-select,
         .miaixz-combobox,
         .miaixz-picker
-      ):not([data-filled="true"], [data-preview-state="filled"], [data-preview-state="focus"])
+      ):not([data-filled="true"])
   ):not(:focus-within, [data-invalid="true"])
   > .miaixz-field-label-row
   > .miaixz-field-optional {
@@ -186,9 +186,7 @@
 
 .miaixz-field:has(
     > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-combobox, .miaixz-picker):not(
-        [data-filled="true"],
-        [data-preview-state="filled"],
-        [data-preview-state="focus"]
+        [data-filled="true"]
       )
   ):not(:focus-within, [data-invalid="true"])
   :is(

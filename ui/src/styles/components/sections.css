@@ -1,0 +1,178 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-sections {
+  min-width: 0;
+  padding-block: var(--miaixz-space-4);
+  container: miaixz-sections / inline-size;
+}
+
+.miaixz-sections-grid {
+  display: grid;
+  gap: var(--miaixz-space-24);
+  min-width: 0;
+}
+
+.miaixz-sections[data-layout="columns"] .miaixz-sections-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--miaixz-space-40) var(--miaixz-space-48);
+  padding-block: 0;
+}
+
+.miaixz-sections-section {
+  display: grid;
+  grid-template-columns: minmax(88px, 112px) minmax(0, 1fr);
+  gap: var(--miaixz-space-24);
+  align-items: start;
+  min-width: 0;
+}
+
+.miaixz-sections[data-layout="columns"] .miaixz-sections-section {
+  display: block;
+  min-width: 0;
+  padding-inline-start: var(--miaixz-space-16);
+  border-inline-start: 2px solid var(--miaixz-color-brand);
+}
+
+.miaixz-sections-header {
+  min-width: 0;
+  padding-block: var(--miaixz-space-8);
+}
+
+.miaixz-sections[data-layout="columns"] .miaixz-sections-header {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: baseline;
+  padding-block: 0 var(--miaixz-space-16);
+}
+
+.miaixz-sections-heading,
+.miaixz-sections-count,
+.miaixz-sections-title,
+.miaixz-sections-description,
+.miaixz-sections-empty {
+  margin: 0;
+}
+
+.miaixz-sections-heading {
+  font-size: var(--miaixz-text-section-title-size);
+  font-weight: var(--miaixz-font-weight-bold);
+  line-height: var(--miaixz-text-section-title-line-height);
+  color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-sections-count {
+  margin-block-start: var(--miaixz-space-2);
+  font-size: var(--miaixz-text-caption-size);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-sections[data-layout="columns"] .miaixz-sections-count {
+  margin-block-start: 0;
+}
+
+.miaixz-sections-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: var(--miaixz-space-16) var(--miaixz-space-32);
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.miaixz-sections[data-layout="columns"] .miaixz-sections-items {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--miaixz-space-16) var(--miaixz-space-24);
+}
+
+.miaixz-sections-item {
+  min-width: 0;
+  min-height: var(--miaixz-space-48);
+  padding-block: var(--miaixz-space-8);
+}
+
+.miaixz-sections[data-layout="columns"] .miaixz-sections-item {
+  min-height: 0;
+  padding-block: 0;
+}
+
+.miaixz-sections-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-bold);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+}
+
+.miaixz-sections-description,
+.miaixz-sections-empty {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+  white-space: nowrap;
+}
+
+.miaixz-sections-description {
+  margin-block-start: var(--miaixz-space-2);
+}
+
+.miaixz-sections[data-layout="columns"] .miaixz-sections-description {
+  white-space: normal;
+}
+
+.miaixz-sections-empty {
+  padding-block: var(--miaixz-space-8);
+  color: var(--miaixz-color-text-muted);
+}
+
+@container miaixz-sections (width < 520px) {
+  .miaixz-sections-section {
+    grid-template-columns: 1fr;
+    gap: var(--miaixz-space-4);
+  }
+
+  .miaixz-sections-header {
+    display: flex;
+    gap: var(--miaixz-space-8);
+    align-items: baseline;
+  }
+
+  .miaixz-sections-count {
+    margin-block-start: 0;
+  }
+
+  .miaixz-sections-items {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container miaixz-sections (width < 640px) {
+  .miaixz-sections[data-layout="columns"] .miaixz-sections-grid {
+    grid-template-columns: 1fr;
+    gap: var(--miaixz-space-32);
+  }
+}

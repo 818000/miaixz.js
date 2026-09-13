@@ -19,4 +19,11 @@
 */
 
 export { Brand } from "./brand.js";
-export type { BrandProps } from "./brand.types.js";
+export type {
+  BrandOwnerState,
+  BrandProps,
+  BrandRootAttributes,
+  BrandSlot,
+  BrandSlotProps,
+  MiaixzBrandOwnProps,
+} from "./brand.types.js";

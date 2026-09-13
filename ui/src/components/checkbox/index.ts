@@ -19,4 +19,10 @@
 */
 
 export { Checkbox } from "./checkbox.js";
-export type { CheckboxProps } from "./checkbox.types.js";
+export type {
+  CheckboxOwnerState,
+  CheckboxProps,
+  CheckboxRootAttributes,
+  CheckboxSlot,
+  CheckboxSlotProps,
+} from "./checkbox.types.js";

@@ -18,35 +18,38 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed sidebar slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
+export type SidebarSize = "default" | "wide";
+export type SidebarSlot = "root" | "sidebar" | "content" | "footer";
+export interface SidebarOwnerState {
+  readonly size: SidebarSize;
+  readonly stickySidebar: boolean;
+}
+export type SidebarRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & { readonly "data-size"?: SidebarSize };
+export type SidebarAsideAttributes = HTMLAttributes<HTMLElement> & {
+  readonly "data-sticky"?: boolean;
+};
+export interface SidebarSlotProps {
+  readonly root?: MiaixzSlotProps<SidebarOwnerState, SidebarRootAttributes>;
+  readonly sidebar?: MiaixzSlotProps<SidebarOwnerState, SidebarAsideAttributes>;
+  readonly content?: MiaixzSlotProps<SidebarOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly footer?: MiaixzSlotProps<SidebarOwnerState, HTMLAttributes<HTMLElement>>;
+}
+export interface MiaixzSidebarOwnProps {
+  readonly sidebar: ReactNode;
+  readonly sidebarLabel?: string;
+  readonly stickySidebar?: boolean;
+  readonly size?: SidebarSize;
+  readonly footer?: ReactNode;
+  readonly slotProps?: SidebarSlotProps;
+}
+/*
  * Configures a local sidebar and content layout. @public
  */
-export interface SidebarProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Supplies the sidebar content.
-   */
-  sidebar: ReactNode;
-  /**
-   * Provides an accessible label for the sidebar.
-   */
-  sidebarLabel?: string;
-  /**
-   * Keeps the sidebar visible while its content scrolls.
-   */
-  stickySidebar?: boolean;
-  /**
-   * Collapses this sidebar when the viewport enters the selected range or a
-   * narrower range. Omitting the property preserves the default tablet collapse.
-   */
-  collapseAt?: "compactDesktop";
-  /**
-   * Selects the public local-sidebar width preset.
-   */
-  size?: "default" | "wide";
-  /**
-   * Adds a class to the main content region.
-   */
-  contentClassName?: string;
-}
+export type SidebarProps = MiaixzSidebarOwnProps &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzSidebarOwnProps>;

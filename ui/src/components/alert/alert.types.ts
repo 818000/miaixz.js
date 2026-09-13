@@ -18,53 +18,40 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed feedback slots are self-describing.
+ */
 
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzFeedbackLive } from "../feedback/feedback.types.js";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 
-/**
- * Defines properties owned by the Miaixz Alert contract.
- *
- * @public
- */
-export interface MiaixzAlertOwnProps {
-  /**
-   * Selects the semantic feedback tone.
-   *
-   * @defaultValue `"neutral"`
-   */
-  readonly tone?: MiaixzFeedbackTone;
-
-  /**
-   * Displays an optional alert heading.
-   */
-  readonly title?: ReactNode;
-
-  /**
-   * Supplies the required alert message content.
-   */
-  readonly children: ReactNode;
-
-  /**
-   * Displays optional actions below the message.
-   */
-  readonly actions?: ReactNode;
-
-  /**
-   * Overrides the localized accessible dismissal label.
-   */
-  readonly dismissLabel?: string;
-
-  /**
-   * Enables dismissal and receives the dismissal request.
-   */
-  readonly onDismiss?: () => void;
+export type AlertSlot = "root" | "icon" | "content" | "title" | "message" | "actions" | "dismiss";
+export interface AlertOwnerState {
+  readonly tone: MiaixzFeedbackTone;
+  readonly live: MiaixzFeedbackLive;
+  readonly dismissible: boolean;
 }
-
-/**
- * Configures a prominent semantic feedback message.
- *
- * @public
- */
-export interface AlertProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzAlertOwnProps>, MiaixzAlertOwnProps {}
+export type AlertRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & { readonly "data-tone"?: MiaixzFeedbackTone };
+export interface AlertSlotProps {
+  readonly root?: MiaixzSlotProps<AlertOwnerState, AlertRootAttributes>;
+  readonly icon?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly message?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly dismiss?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzAlertOwnProps {
+  readonly tone?: MiaixzFeedbackTone;
+  readonly live?: MiaixzFeedbackLive;
+  readonly title?: ReactNode;
+  readonly children: ReactNode;
+  readonly actions?: ReactNode;
+  readonly dismissLabel?: string;
+  readonly onDismiss?: () => void;
+  readonly slotProps?: AlertSlotProps;
+}
+export type AlertProps = MiaixzAlertOwnProps &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzAlertOwnProps | "role" | "aria-live">;

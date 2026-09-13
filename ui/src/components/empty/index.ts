@@ -19,4 +19,11 @@
 */
 
 export { Empty } from "./empty.js";
-export type { EmptyProps } from "./empty.types.js";
+export type {
+  EmptyOwnerState,
+  EmptyProps,
+  EmptySlot,
+  EmptySlotProps,
+  EmptySlots,
+  EmptyVariant,
+} from "./empty.types.js";

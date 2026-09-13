@@ -18,74 +18,142 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useState } from "react";
+import { forwardRef, useRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
 import { hasMiaixzControlValue } from "../../shared/control-state.js";
-import type { TextareaProps } from "./textarea.types.js";
+import { useFieldControl } from "../../shared/field-context.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useControlValueState } from "../../shared/use-control-value-state.js";
+import type {
+  TextareaOwnerState,
+  TextareaProps,
+  TextareaRootAttributes,
+  TextareaControlAttributes,
+} from "./textarea.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a multiline text control using the shared form appearance.
+ * Renders a multiline native input with explicit root and textarea slots.
  *
  * @public
  */
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  {
-    size = "medium",
-    invalid = false,
-    resize = "vertical",
-    className,
-    disabled,
-    readOnly,
-    previewState,
-    value,
-    defaultValue,
-    onChange,
-    "aria-invalid": ariaInvalid,
-    ...props
-  },
-  ref,
-) {
-  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
-  const [uncontrolledFilled, setUncontrolledFilled] = useState(() =>
-    hasMiaixzControlValue(defaultValue),
-  );
-  const isFilled = value === undefined ? uncontrolledFilled : hasMiaixzControlValue(value);
-
-  return (
-    <span
-      data-size={size}
-      data-invalid={isInvalid || undefined}
-      data-disabled={disabled || undefined}
-      data-readonly={readOnly || undefined}
-      data-filled={isFilled || undefined}
-      data-preview-state={previewState}
-      className={classNames(
-        "miaixz-control",
-        "miaixz-textarea-frame",
-        `miaixz-control-${size}`,
-        isInvalid && "miaixz-textarea-invalid",
-        disabled && "miaixz-textarea-disabled",
-        readOnly && "miaixz-textarea-readonly",
-        className,
-      )}
-    >
-      <textarea
-        {...props}
-        ref={ref}
-        disabled={disabled}
-        readOnly={readOnly}
-        value={value}
-        defaultValue={defaultValue}
-        aria-invalid={isInvalid || undefined}
-        data-resize={resize}
-        className={classNames("miaixz-textarea", `miaixz-textarea-${size}`)}
-        onChange={(event) => {
-          if (value === undefined)
-            setUncontrolledFilled(hasMiaixzControlValue(event.currentTarget.value));
-          onChange?.(event);
-        }}
-      />
-    </span>
-  );
-});
+export const Textarea = withMiaixzThemeComponent(
+  "Textarea",
+  forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(props, ref) {
+    const {
+      size = "medium",
+      invalid,
+      resize = "vertical",
+      className,
+      style,
+      disabled,
+      readOnly,
+      value,
+      defaultValue,
+      id,
+      required,
+      "aria-invalid": ariaInvalid,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
+      slotProps,
+      ...nativeProps
+    } = props;
+    const fieldProps = useFieldControl({
+      ...(id === undefined ? {} : { id }),
+      ...(required === undefined ? {} : { required }),
+      ...(disabled === undefined ? {} : { disabled }),
+      ...(invalid === undefined ? {} : { invalid }),
+      ...(ariaInvalid === undefined ? {} : { "aria-invalid": ariaInvalid }),
+      ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
+      ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
+    });
+    const effectiveInvalid =
+      fieldProps.invalid ??
+      (fieldProps["aria-invalid"] !== undefined &&
+        fieldProps["aria-invalid"] !== false &&
+        fieldProps["aria-invalid"] !== "false");
+    const effectiveDisabled = fieldProps.disabled ?? false;
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const filledState = useControlValueState({
+      controlRef: textareaRef,
+      value: value === undefined ? undefined : hasMiaixzControlValue(value),
+      defaultValue: hasMiaixzControlValue(defaultValue),
+      read: (control) => hasMiaixzControlValue(control.value),
+    });
+    const ownerState: TextareaOwnerState = {
+      size,
+      resize,
+      invalid: effectiveInvalid,
+      disabled: effectiveDisabled,
+      readOnly: readOnly === true,
+      filled: filledState.value,
+    };
+    const rootProps = mergeMiaixzSlotProps<
+      TextareaOwnerState,
+      TextareaRootAttributes,
+      HTMLSpanElement
+    >({
+      ownerState,
+      defaultProps: { className: `miaixz-control miaixz-textarea-frame miaixz-control-${size}` },
+      componentProps: {
+        ...(className === undefined ? {} : { className }),
+        ...(style === undefined ? {} : { style }),
+      },
+      slotProps: slotProps?.root,
+      internalProps: {
+        "data-size": size,
+        ...(effectiveInvalid ? { "data-invalid": true } : {}),
+        ...(effectiveDisabled ? { "data-disabled": true } : {}),
+        ...(readOnly ? { "data-readonly": true } : {}),
+        ...(filledState.value ? { "data-filled": true } : {}),
+      },
+      ownedProps: ["data-size", "data-invalid", "data-disabled", "data-readonly", "data-filled"],
+    });
+    const textareaProps = mergeMiaixzSlotProps<
+      TextareaOwnerState,
+      TextareaControlAttributes,
+      HTMLTextAreaElement
+    >({
+      ownerState,
+      defaultProps: { className: `miaixz-textarea miaixz-textarea-${size}` },
+      componentProps: {
+        ...nativeProps,
+        ...(value === undefined ? {} : { value }),
+        ...(defaultValue === undefined ? {} : { defaultValue }),
+      },
+      slotProps: slotProps?.textarea,
+      internalRef: textareaRef,
+      forwardedRef: ref,
+      internalProps: {
+        ...(fieldProps.id === undefined ? {} : { id: fieldProps.id }),
+        ...(fieldProps.required === undefined ? {} : { required: fieldProps.required }),
+        disabled: effectiveDisabled,
+        ...(readOnly === undefined ? {} : { readOnly }),
+        ...(effectiveInvalid ? { "aria-invalid": true } : {}),
+        ...(fieldProps["aria-labelledby"] === undefined
+          ? {}
+          : { "aria-labelledby": fieldProps["aria-labelledby"] }),
+        ...(fieldProps["aria-describedby"] === undefined
+          ? {}
+          : { "aria-describedby": fieldProps["aria-describedby"] }),
+        "data-resize": resize,
+        onChange: filledState.sync,
+      },
+      ownedProps: [
+        "id",
+        "required",
+        "disabled",
+        "readOnly",
+        "aria-invalid",
+        "aria-labelledby",
+        "aria-describedby",
+        "data-resize",
+      ],
+    });
+    return (
+      <span {...rootProps}>
+        <textarea {...textareaProps} />
+      </span>
+    );
+  }),
+);

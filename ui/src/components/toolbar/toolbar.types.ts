@@ -18,42 +18,34 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc -- The behavior and naming union is self-describing.
+ */
 import type { HTMLAttributes, ReactNode } from "react";
 
-/**
- * Configures an accessible group of related controls.
- *
- * @public
+export type ToolbarSurface = "plain" | "filled";
+export type ToolbarDensity = "compact" | "standard" | "comfortable";
+export type ToolbarOrientation = "horizontal" | "vertical";
+type ToolbarName =
+  | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
+  | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
+type ToolbarNoName = {
+  readonly "aria-label"?: never;
+  readonly "aria-labelledby"?: never;
+};
+type ToolbarNativeProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "aria-labelledby" | "aria-orientation" | "children" | "role"
+> & {
+  readonly children: ReactNode;
+  readonly surface?: ToolbarSurface;
+  readonly density?: ToolbarDensity;
+  readonly orientation?: ToolbarOrientation;
+  readonly wrap?: boolean;
+};
+type SemanticToolbarProps = ToolbarNativeProps & ToolbarName & { readonly behavior: "toolbar" };
+type GroupToolbarProps = ToolbarNativeProps &
+  (ToolbarName | ToolbarNoName) & { readonly behavior?: "group" };
+/*
+ * Configures a visual control group or a keyboard-managed ARIA toolbar. @public
  */
-export interface ToolbarProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Provides the required accessible toolbar label.
-   */
-  label: string;
-  /**
-   * Selects the control flow direction and keyboard metadata.
-   *
-   * @defaultValue `"horizontal"`
-   */
-  orientation?: "horizontal" | "vertical";
-  /**
-   * Supplies leading filters, search, or contextual content.
-   */
-  leading?: ReactNode;
-  /**
-   * Supplies trailing toolbar actions.
-   */
-  actions?: ReactNode;
-  /**
-   * Keeps the toolbar visible within its scrolling container.
-   *
-   * @defaultValue `false`
-   */
-  sticky?: boolean;
-  /**
-   * Selects a reusable toolbar composition without encoding filter fields or column widths.
-   *
-   * @defaultValue `"default"`
-   */
-  variant?: "default" | "panel" | "directory" | "filter" | "batch" | "editor" | "grid" | "inline";
-}
+export type ToolbarProps = SemanticToolbarProps | GroupToolbarProps;

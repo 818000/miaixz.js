@@ -18,27 +18,57 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { InputHTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc --
+ * Slot contracts directly map fixed native elements.
+ */
 
-import type { MiaixzFormPreviewProps } from "../shared.types.js";
+import type {
+  HTMLAttributes,
+  InputHTMLAttributes,
+  LabelHTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type RadioSlot = "root" | "input" | "mark" | "content" | "label" | "description";
+
+export interface RadioOwnerState {
+  readonly checked: boolean;
+  readonly disabled: boolean;
+  readonly invalid: boolean;
+}
+
+export interface RadioRootAttributes
+  extends LabelHTMLAttributes<HTMLLabelElement>, RefAttributes<HTMLLabelElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-filled"?: boolean;
+  readonly "data-invalid"?: boolean;
+}
+
+export interface RadioSlotProps {
+  readonly root?: MiaixzSlotProps<RadioOwnerState, RadioRootAttributes>;
+  readonly input?: MiaixzSlotProps<
+    RadioOwnerState,
+    InputHTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>
+  >;
+  readonly mark?: MiaixzSlotProps<RadioOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<RadioOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<RadioOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<RadioOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
 
 /**
  * Configures a labeled native radio control.
- *
- * @public
  */
-export interface RadioProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type">, MiaixzFormPreviewProps {
-  /**
-   * Displays the primary radio label.
-   */
-  label?: ReactNode;
-  /**
-   * Displays supporting descriptive content.
-   */
-  description?: ReactNode;
-  /**
-   * Applies the invalid state independently of `aria-invalid`.
-   */
-  invalid?: boolean;
+export interface RadioProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "children" | "size" | "style" | "type"
+> {
+  readonly label?: ReactNode;
+  readonly description?: ReactNode;
+  readonly invalid?: boolean;
+  readonly style?: React.CSSProperties;
+  readonly slotProps?: RadioSlotProps;
 }

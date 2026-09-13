@@ -18,33 +18,59 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { InputHTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc --
+ * Slot contracts directly map fixed native elements.
+ */
 
-import type { MiaixzFormPreviewProps } from "../shared.types.js";
+import type {
+  HTMLAttributes,
+  InputHTMLAttributes,
+  LabelHTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type CheckboxSlot = "root" | "input" | "mark" | "content" | "label" | "description";
+
+export interface CheckboxOwnerState {
+  readonly checked: boolean;
+  readonly indeterminate: boolean;
+  readonly disabled: boolean;
+  readonly invalid: boolean;
+}
+
+export interface CheckboxRootAttributes
+  extends LabelHTMLAttributes<HTMLLabelElement>, RefAttributes<HTMLLabelElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-filled"?: boolean;
+  readonly "data-invalid"?: boolean;
+}
+
+export interface CheckboxSlotProps {
+  readonly root?: MiaixzSlotProps<CheckboxOwnerState, CheckboxRootAttributes>;
+  readonly input?: MiaixzSlotProps<
+    CheckboxOwnerState,
+    InputHTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>
+  >;
+  readonly mark?: MiaixzSlotProps<CheckboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<CheckboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<CheckboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<CheckboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
 
 /**
  * Configures a native checkbox with optional supporting content.
- *
- * @public
  */
-export interface CheckboxProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type">, MiaixzFormPreviewProps {
-  /**
-   * Displays the primary checkbox label.
-   */
-  label?: ReactNode;
-  /**
-   * Displays supporting descriptive content.
-   */
-  description?: ReactNode;
-  /**
-   * Displays the native mixed-selection state.
-   *
-   * @defaultValue `false`
-   */
-  indeterminate?: boolean;
-  /**
-   * Applies the invalid state independently of `aria-invalid`.
-   */
-  invalid?: boolean;
+export interface CheckboxProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "children" | "size" | "style" | "type"
+> {
+  readonly label?: ReactNode;
+  readonly description?: ReactNode;
+  readonly indeterminate?: boolean;
+  readonly invalid?: boolean;
+  readonly style?: React.CSSProperties;
+  readonly slotProps?: CheckboxSlotProps;
 }

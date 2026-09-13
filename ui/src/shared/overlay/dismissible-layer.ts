@@ -20,10 +20,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 
-/**
- * Identifies the user interaction that dismissed an overlay layer.
- */
-export type MiaixzDismissReason = "escape" | "outside";
+import type { MiaixzDismissReason } from "./types.js";
 
 /**
  * Configures one active package-owned dismissible layer.
@@ -147,6 +144,7 @@ function getMiaixzDismissibleLayerStore(ownerDocument: Document): MiaixzDismissi
     topLayer.dismiss("escape");
   };
   const handlePointerDown = (event: PointerEvent) => {
+    if (event.defaultPrevented) return;
     const path = event.composedPath();
     let containingIndex = -1;
     for (let index = entries.length - 1; index >= 0; index -= 1) {
@@ -157,17 +155,17 @@ function getMiaixzDismissibleLayerStore(ownerDocument: Document): MiaixzDismissi
       }
     }
     for (let index = entries.length - 1; index > containingIndex; index -= 1) {
-      entries[index]?.dismiss("outside");
+      entries[index]?.dismiss("outsidePress");
     }
   };
 
-  ownerDocument.addEventListener("keydown", handleKeyDown, true);
-  ownerDocument.addEventListener("pointerdown", handlePointerDown, true);
+  ownerDocument.addEventListener("keydown", handleKeyDown);
+  ownerDocument.addEventListener("pointerdown", handlePointerDown);
   const created: MiaixzDismissibleLayerStore = {
     entries,
     removeListeners: () => {
-      ownerDocument.removeEventListener("keydown", handleKeyDown, true);
-      ownerDocument.removeEventListener("pointerdown", handlePointerDown, true);
+      ownerDocument.removeEventListener("keydown", handleKeyDown);
+      ownerDocument.removeEventListener("pointerdown", handlePointerDown);
     },
   };
   miaixzDismissibleLayerStores.set(ownerDocument, created);

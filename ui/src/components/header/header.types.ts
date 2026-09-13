@@ -18,38 +18,46 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed header slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
+export type HeaderDensity = "compact" | "standard" | "comfortable";
+export type HeaderSlot = "root" | "content" | "eyebrow" | "title" | "description" | "actions";
+export interface HeaderOwnerState {
+  readonly density: HeaderDensity;
+  readonly spacing: "default" | "none";
+}
+export interface HeaderSlots {
+  readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
+}
+export type HeaderRootAttributes = HTMLAttributes<HTMLElement> &
+  RefAttributes<HTMLElement> & {
+    readonly "data-density"?: HeaderDensity;
+    readonly "data-spacing"?: "default" | "none";
+  };
+export interface HeaderSlotProps {
+  readonly root?: MiaixzSlotProps<HeaderOwnerState, HeaderRootAttributes>;
+  readonly content?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly eyebrow?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLHeadingElement>>;
+  readonly description?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface MiaixzHeaderOwnProps {
+  readonly density?: HeaderDensity;
+  readonly spacing?: "default" | "none";
+  readonly title: ReactNode;
+  readonly eyebrow?: ReactNode;
+  readonly description?: ReactNode;
+  readonly actions?: ReactNode;
+  readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly slots?: HeaderSlots;
+  readonly slotProps?: HeaderSlotProps;
+}
+/*
  * Configures a page title and action region. @public
  */
-export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
-  /**
-   * Selects the compact, vertically centered title composition.
-   */
-  variant?: "default" | "compact";
-  /**
-   * Lets a parent layout own spacing after a composed header.
-   */
-  spacing?: "default" | "none";
-  /**
-   * Supplies the page heading.
-   */
-  title: ReactNode;
-  /**
-   * Displays short context above the heading.
-   */
-  eyebrow?: ReactNode;
-  /**
-   * Displays supporting text below the heading.
-   */
-  description?: ReactNode;
-  /**
-   * Displays page-level actions.
-   */
-  actions?: ReactNode;
-  /**
-   * Selects the semantic heading level.
-   */
-  headingLevel?: 1 | 2 | 3;
-}
+export type HeaderProps = MiaixzHeaderOwnProps &
+  Omit<HTMLAttributes<HTMLElement>, keyof MiaixzHeaderOwnProps | "title">;

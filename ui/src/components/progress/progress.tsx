@@ -18,101 +18,124 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, type CSSProperties } from "react";
-
-import { createMiaixzUiError } from "../../errors/index.js";
-import { classNames } from "../../shared/class-names.js";
-import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import type { ProgressProps } from "./progress.types.js";
-
-/**
- * Extends React styles with the private progress percentage property.
+/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
  */
-interface MiaixzProgressStyle extends CSSProperties {
-  /**
-   * Supplies the clamped determinate fill percentage.
-   */
+import { forwardRef, type CSSProperties } from "react";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { ProgressOwnerState, ProgressProps } from "./progress.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+interface ProgressIndicatorStyle extends CSSProperties {
   readonly "--miaixz-progress-value"?: string;
 }
 
-/**
- * Renders accessible determinate or indeterminate progress feedback.
- *
- * @public
+/*
+ * Formats determinate progress as a rounded percentage.
  */
-export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progress(
-  {
-    value,
-    max = 100,
-    label,
-    showValue = false,
-    tone = "brand",
-    size = "default",
-    className,
-    onPointerEnter,
-    onPointerLeave,
-    ...props
-  },
-  forwardedRef,
-) {
-  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
-    useVisualizationMotion<HTMLDivElement>({
-      forwardedRef,
-      onPointerEnter,
-      onPointerLeave,
-    });
-  const { t } = useMiaixzLocale();
-  if (!Number.isFinite(max) || max <= 0) {
-    throw createMiaixzUiError(t, {
-      code: "UI_PROGRESS_MAX_INVALID",
-      messageKey: "ui.error.progress.maxInvalid",
-      details: { max },
-    });
-  }
-  if (value !== undefined && !Number.isFinite(value)) {
-    throw createMiaixzUiError(t, {
-      code: "UI_PROGRESS_VALUE_INVALID",
-      messageKey: "ui.error.progress.valueInvalid",
-      details: { value },
-    });
-  }
+function defaultValueFormatter(value: number, max: number): string {
+  return `${Math.round((value / max) * 100)}%`;
+}
 
-  const clampedValue = value === undefined ? undefined : Math.min(max, Math.max(0, value));
-  const percentage =
-    clampedValue === undefined ? undefined : Math.round((clampedValue / max) * 100);
-  const progressStyle: MiaixzProgressStyle | undefined =
-    percentage === undefined ? undefined : { "--miaixz-progress-value": `${percentage}%` };
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={max}
-      aria-valuenow={clampedValue}
-      data-state={clampedValue === undefined ? "indeterminate" : "determinate"}
-      data-motion-state={motionState}
-      data-tone={tone}
-      className={classNames(
-        "miaixz-progress",
-        `miaixz-progress-${size}`,
-        `miaixz-progress-tone-${tone}`,
-        tone.startsWith("data-") && "miaixz-progress-tone-data",
-        clampedValue === undefined && "miaixz-progress-indeterminate",
-        className,
-      )}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-    >
-      <span className="miaixz-progress-track" aria-hidden="true">
-        <span className="miaixz-progress-indicator" style={progressStyle} />
-      </span>
-      {showValue && percentage !== undefined && (
-        <span className="miaixz-progress-value">{percentage}%</span>
-      )}
-    </div>
-  );
-});
+/*
+ * Renders validated determinate or indeterminate progress.
+ */
+export const Progress = withMiaixzThemeComponent(
+  "Progress",
+  forwardRef<HTMLDivElement, ProgressProps>(function Progress(
+    {
+      value,
+      max = 100,
+      label,
+      showValue = false,
+      valueFormatter = defaultValueFormatter,
+      tone = "brand",
+      size = "medium",
+      slotProps,
+      ...props
+    },
+    ref,
+  ) {
+    if (!Number.isFinite(max) || max <= 0) {
+      throw new MiaixzUiError({
+        code: "UI_PROGRESS_MAX_INVALID",
+        details: { max },
+      });
+    }
+    if (value !== undefined && (!Number.isFinite(value) || value < 0 || value > max)) {
+      throw new MiaixzUiError({
+        code: "UI_PROGRESS_VALUE_INVALID",
+        details: { max, value },
+      });
+    }
+    const determinate = value !== undefined;
+    const formattedValue = determinate && showValue ? valueFormatter(value, max) : undefined;
+    const ownerState: ProgressOwnerState = { size, tone, determinate, showValue };
+    const indicatorStyle: ProgressIndicatorStyle | undefined = determinate
+      ? { "--miaixz-progress-value": `${(value / max) * 100}%` }
+      : undefined;
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-progress" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            role: "progressbar",
+            "aria-label": label,
+            "aria-valuemin": 0,
+            "aria-valuemax": max,
+            ...(determinate ? { "aria-valuenow": value } : {}),
+            ...(formattedValue === undefined ? {} : { "aria-valuetext": formattedValue }),
+            "data-state": determinate ? "determinate" : "indeterminate",
+            "data-tone": tone,
+            "data-size": size,
+          },
+          ownedProps: [
+            "role",
+            "aria-label",
+            "aria-valuemin",
+            "aria-valuemax",
+            "aria-valuenow",
+            "aria-valuetext",
+            "data-state",
+            "data-tone",
+            "data-size",
+          ],
+        })}
+      >
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-progress-track" },
+            slotProps: slotProps?.track,
+            internalProps: { "aria-hidden": true },
+            ownedProps: ["aria-hidden"],
+          })}
+        >
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-progress-indicator" },
+              slotProps: slotProps?.indicator,
+              internalProps: { style: indicatorStyle },
+            })}
+          />
+        </span>
+        {formattedValue !== undefined && (
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-progress-value" },
+              slotProps: slotProps?.value,
+            })}
+          >
+            {formattedValue}
+          </span>
+        )}
+      </div>
+    );
+  }),
+);

@@ -22,24 +22,28 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { DividerProps } from "./divider.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
  * Renders a semantic separator along the selected axis.
  *
  * @public
  */
-export const Divider = forwardRef<HTMLDivElement, DividerProps>(function Divider(
-  { orientation = "horizontal", className, ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role="separator"
-      aria-orientation={orientation === "vertical" ? "vertical" : undefined}
-      data-orientation={orientation}
-      className={classNames("miaixz-divider", `miaixz-divider-${orientation}`, className)}
-    />
-  );
-});
+export const Divider = withMiaixzThemeComponent(
+  "Divider",
+  forwardRef<HTMLDivElement, DividerProps>(function Divider(
+    { orientation = "horizontal", className, ...props },
+    ref,
+  ) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        role="separator"
+        aria-orientation={orientation === "vertical" ? "vertical" : undefined}
+        data-orientation={orientation}
+        className={classNames("miaixz-divider", `miaixz-divider-${orientation}`, className)}
+      />
+    );
+  }),
+);

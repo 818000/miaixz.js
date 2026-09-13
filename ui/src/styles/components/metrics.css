@@ -1,0 +1,244 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Metric item styles.
+ */
+.miaixz-metric {
+  --miaixz-metric-tone: var(--miaixz-color-brand);
+
+  display: grid;
+  min-width: 0;
+  color: var(--miaixz-color-text-primary);
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+}
+
+button.miaixz-metric,
+a.miaixz-metric {
+  width: 100%;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.miaixz-metric[data-density="compact"] {
+  gap: var(--miaixz-space-4);
+  padding: var(--miaixz-space-12);
+}
+
+.miaixz-metric[data-density="standard"] {
+  gap: var(--miaixz-space-8);
+  padding: var(--miaixz-space-16);
+}
+
+.miaixz-metric[data-density="comfortable"] {
+  gap: var(--miaixz-space-12);
+  padding: var(--miaixz-space-20);
+}
+
+.miaixz-metric[data-variant="standard"] {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.miaixz-metric[data-variant="summary"] {
+  grid-template-columns: minmax(0, 1fr) auto;
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-metric[data-variant="strip"] {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: center;
+  min-height: var(--miaixz-density-list-item-height);
+}
+
+.miaixz-metric[data-variant="card"] {
+  grid-template-columns: minmax(0, 1fr) auto;
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+  box-shadow: var(--miaixz-shadow-low);
+}
+
+.miaixz-metric-label,
+.miaixz-metric-hint,
+.miaixz-metric-status,
+.miaixz-metric-trend,
+.miaixz-metric-visual,
+.miaixz-metric-value {
+  min-width: 0;
+}
+
+.miaixz-metric-label,
+.miaixz-metric-hint,
+.miaixz-metric-status {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-metric-value {
+  grid-column: 1;
+  font-size: var(--miaixz-text-metric-size);
+  font-weight: var(--miaixz-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--miaixz-metric-tone);
+}
+
+.miaixz-metric-trend,
+.miaixz-metric-status {
+  grid-column: 2;
+  text-align: end;
+}
+
+.miaixz-metric-hint {
+  grid-column: 1 / -1;
+}
+
+.miaixz-metric-visual {
+  grid-column: 1 / -1;
+}
+
+.miaixz-metric[data-emphasized] .miaixz-metric-value {
+  font-size: var(--miaixz-text-page-title-size);
+}
+
+.miaixz-metric:where(a, button):focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+}
+
+.miaixz-metric[data-tone="neutral"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-neutral);
+}
+
+.miaixz-metric[data-tone="info"] {
+  --miaixz-metric-tone: var(--miaixz-color-info);
+}
+
+.miaixz-metric[data-tone="success"] {
+  --miaixz-metric-tone: var(--miaixz-color-success);
+}
+
+.miaixz-metric[data-tone="warning"] {
+  --miaixz-metric-tone: var(--miaixz-color-warning);
+}
+
+.miaixz-metric[data-tone="danger"] {
+  --miaixz-metric-tone: var(--miaixz-color-danger);
+}
+
+.miaixz-metric[data-tone="data-1"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-1);
+}
+
+.miaixz-metric[data-tone="data-2"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-2);
+}
+
+.miaixz-metric[data-tone="data-3"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-3);
+}
+
+.miaixz-metric[data-tone="data-4"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-4);
+}
+
+.miaixz-metric[data-tone="data-5"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-5);
+}
+
+.miaixz-metric[data-tone="data-6"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-6);
+}
+
+.miaixz-metric[data-tone="data-7"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-7);
+}
+
+.miaixz-metric[data-tone="data-8"] {
+  --miaixz-metric-tone: var(--miaixz-color-data-8);
+}
+
+/* stylelint-disable no-descending-specificity --
+ * Layout and density independently specialize direct Metric descendants.
+ */
+.miaixz-metrics {
+  min-width: 0;
+  container: miaixz-metrics / inline-size;
+}
+
+.miaixz-metrics[data-spacing-after="compact"] {
+  margin-block-end: var(--miaixz-space-12);
+}
+
+.miaixz-metrics-scroll {
+  display: grid;
+  min-width: 0;
+  overflow: auto;
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-metrics[data-surface="plain"] .miaixz-metrics-scroll {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.miaixz-metrics[data-layout="grid"] .miaixz-metrics-scroll,
+.miaixz-metrics[data-layout="strip"] .miaixz-metrics-scroll {
+  grid-template-columns: repeat(var(--miaixz-metrics-columns), minmax(0, 1fr));
+}
+
+.miaixz-metrics[data-layout="strip"] .miaixz-metric + .miaixz-metric {
+  border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-metrics[data-density="compact"] .miaixz-metric {
+  gap: var(--miaixz-space-4);
+  padding: var(--miaixz-space-12);
+}
+
+.miaixz-metrics[data-density="comfortable"] .miaixz-metric {
+  gap: var(--miaixz-space-12);
+  padding: var(--miaixz-space-20);
+}
+
+@container miaixz-metrics (width < 1024px) {
+  .miaixz-metrics[data-responsive="default"] .miaixz-metrics-scroll {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container miaixz-metrics (width < 768px) {
+  .miaixz-metrics[data-responsive="default"] .miaixz-metrics-scroll,
+  .miaixz-metrics[data-responsive="mobile"] .miaixz-metrics-scroll {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .miaixz-metrics[data-layout="strip"] .miaixz-metric + .miaixz-metric {
+    border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+    border-inline-start: 0;
+  }
+}

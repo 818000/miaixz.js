@@ -18,186 +18,198 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
-import type { SparklineProps } from "./sparkline.types.js";
-
-/**
- * Represents one normalized SVG point.
+/* eslint-disable jsdoc/require-jsdoc -- Public Sparkline contract lives in its type module.
  */
+import { forwardRef, useId } from "react";
+
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { SparklineOwnerState, SparklineProps } from "./sparkline.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
 interface SparklinePoint {
-  /**
-   * Horizontal coordinate in the fixed view box.
-   */
   readonly x: number;
-  /**
-   * Vertical coordinate in the fixed view box.
-   */
   readonly y: number;
 }
 
-const viewBoxWidth = 120;
-const viewBoxHeight = 32;
-const viewBoxPadding = 2;
-const trendViewBoxWidth = 360;
-const trendViewBoxHeight = 82;
-const trendViewBoxPadding = 8;
-const trendViewBox = `0 0 ${trendViewBoxWidth} ${trendViewBoxHeight}`;
-const trendGridPath = "M0 18H360 M0 46H360 M0 74H360";
+const dimensions = {
+  small: { width: 120, height: 32, padding: 2 },
+  medium: { width: 120, height: 32, padding: 2 },
+  large: { width: 360, height: 82, padding: 8 },
+} as const;
 
-/**
- * Renders a compact line visualization without inferring missing samples.
- *
- * @public
- */
-export const Sparkline = forwardRef<SVGSVGElement, SparklineProps>(function Sparkline(
-  {
-    values,
-    tone = "brand",
-    variant = "default",
-    className,
-    onPointerEnter,
-    onPointerLeave,
-    "aria-label": ariaLabel,
-    ...props
-  },
-  forwardedRef,
-) {
-  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
-    useVisualizationMotion<SVGSVGElement>({
-      forwardedRef,
-      onPointerEnter,
-      onPointerLeave,
-    });
-  const finiteValues = values.filter(Number.isFinite);
-  const isEmpty = finiteValues.length < 2;
-  const minimum = isEmpty ? 0 : Math.min(...finiteValues);
-  const maximum = isEmpty ? 1 : Math.max(...finiteValues);
-  const range = maximum - minimum;
-  const chartWidth = variant === "trend" ? trendViewBoxWidth : viewBoxWidth;
-  const chartHeight = variant === "trend" ? trendViewBoxHeight : viewBoxHeight;
-  const chartPadding = variant === "trend" ? trendViewBoxPadding : viewBoxPadding;
-  const inlinePadding = variant === "trend" ? 0 : chartPadding;
-  const plotWidth = chartWidth - inlinePadding * 2;
-  const plotHeight = chartHeight - chartPadding * 2;
-  const baselineRatio = range === 0 ? 0.5 : (0 - minimum) / range;
-  const baselineY = chartPadding + plotHeight * (1 - Math.min(1, Math.max(0, baselineRatio)));
-  const segments: SparklinePoint[][] = [];
-  let activeSegment: SparklinePoint[] = [];
-
-  if (!isEmpty) {
-    values.forEach((value, index) => {
-      if (!Number.isFinite(value)) {
-        if (activeSegment.length > 0) segments.push(activeSegment);
-        activeSegment = [];
-        return;
-      }
-      const x =
-        values.length === 1
-          ? chartWidth / 2
-          : inlinePadding + plotWidth * (index / (values.length - 1));
-      const ratio = range === 0 ? 0.5 : (value - minimum) / range;
-      activeSegment.push({ x, y: chartPadding + plotHeight * (1 - ratio) });
-    });
-    if (activeSegment.length > 0) segments.push(activeSegment);
-  }
-
-  return (
-    <svg
-      {...props}
-      ref={ref}
-      role="img"
-      aria-label={ariaLabel}
-      viewBox={variant === "trend" ? trendViewBox : "0 0 120 32"}
-      preserveAspectRatio={variant === "trend" ? "none" : undefined}
-      data-state={isEmpty ? "empty" : "ready"}
-      data-motion-state={motionState}
-      data-tone={tone}
-      className={classNames(
-        "miaixz-sparkline",
-        `miaixz-sparkline-${variant}`,
-        `miaixz-sparkline-tone-${tone}`,
-        className,
-      )}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-    >
-      {variant === "trend" ? (
-        <>
-          <path className="miaixz-sparkline-grid" d={trendGridPath} aria-hidden="true" />
-          {!isEmpty &&
-            segments.map((segment, index) => {
-              const points = segment.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
-              const first = segment[0];
-              const last = segment.at(-1);
-              if (first === undefined || last === undefined) return null;
-              return (
-                <g key={`trend-segment-${index}`}>
-                  {segment.length > 1 && (
-                    <>
-                      <polygon
-                        className="miaixz-sparkline-area"
-                        points={`${points} ${last.x.toFixed(2)},${chartHeight - chartPadding} ${first.x.toFixed(2)},${chartHeight - chartPadding}`}
-                        aria-hidden="true"
-                      />
-                      <polyline
-                        className="miaixz-sparkline-line"
-                        points={points}
-                        pathLength={1}
-                        aria-hidden="true"
-                      />
-                    </>
-                  )}
-                  <g className="miaixz-sparkline-points" aria-hidden="true">
-                    {segment.map(({ x, y }) => (
-                      <circle
-                        key={`${x}-${y}`}
-                        className="miaixz-sparkline-point"
-                        cx={x}
-                        cy={y}
-                        r={2.5}
-                      />
-                    ))}
-                  </g>
-                </g>
-              );
+export const Sparkline = withMiaixzThemeComponent(
+  "Sparkline",
+  forwardRef<SVGSVGElement, SparklineProps>(function Sparkline(
+    {
+      values,
+      tone = "brand",
+      variant = "line",
+      size = "small",
+      showGrid = false,
+      valueFormatter,
+      description,
+      slotProps,
+      "aria-label": ariaLabel,
+      ...props
+    },
+    ref,
+  ) {
+    const { locale, t } = useMiaixzLocale();
+    const titleId = useId();
+    const descriptionId = useId();
+    const finiteValues = values.filter(Number.isFinite);
+    const state = finiteValues.length === 0 ? "empty" : "ready";
+    const ownerState: SparklineOwnerState = { variant, size, tone, showGrid, state };
+    const format =
+      valueFormatter ?? ((value: number) => new Intl.NumberFormat(locale).format(value));
+    const resolvedDescription =
+      description ??
+      (finiteValues.length === 0
+        ? t("ui.sparkline.empty")
+        : t("ui.sparkline.summary", {
+            first: format(finiteValues[0]!),
+            last: format(finiteValues[finiteValues.length - 1]!),
+            minimum: format(Math.min(...finiteValues)),
+            maximum: format(Math.max(...finiteValues)),
+          }));
+    const { width, height, padding } = dimensions[size];
+    const minimum = finiteValues.length === 0 ? 0 : Math.min(...finiteValues);
+    const maximum = finiteValues.length === 0 ? 1 : Math.max(...finiteValues);
+    const range = maximum - minimum;
+    const plotWidth = width - padding * 2;
+    const plotHeight = height - padding * 2;
+    const segments: SparklinePoint[][] = [];
+    let current: SparklinePoint[] = [];
+    if (finiteValues.length === 1) {
+      segments.push([{ x: width / 2, y: height / 2 }]);
+    } else if (finiteValues.length > 1) {
+      values.forEach((value, index) => {
+        if (!Number.isFinite(value)) {
+          if (current.length > 0) segments.push(current);
+          current = [];
+          return;
+        }
+        const x = padding + plotWidth * (index / Math.max(1, values.length - 1));
+        const ratio = range === 0 ? 0.5 : (value - minimum) / range;
+        current.push({ x, y: padding + plotHeight * (1 - ratio) });
+      });
+      if (current.length > 0) segments.push(current);
+    }
+    const gridY = [18, 46, 74].map((value) => (value * height) / 82);
+    return (
+      <svg
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-sparkline" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            role: "img",
+            "aria-labelledby": titleId,
+            "aria-describedby": descriptionId,
+            viewBox: `0 0 ${width} ${height}`,
+            preserveAspectRatio: size === "large" ? "none" : undefined,
+            "data-state": state,
+            "data-tone": tone,
+            "data-variant": variant,
+            "data-size": size,
+          },
+          ownedProps: ["role", "aria-labelledby", "aria-describedby", "viewBox"],
+        })}
+      >
+        <title
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            slotProps: slotProps?.title,
+            internalProps: { id: titleId },
+            ownedProps: ["id"],
+          })}
+        >
+          {ariaLabel}
+        </title>
+        <desc
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            slotProps: slotProps?.description,
+            internalProps: { id: descriptionId },
+            ownedProps: ["id"],
+          })}
+        >
+          {resolvedDescription}
+        </desc>
+        {showGrid && state === "ready" && (
+          <path
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-sparkline-grid" },
+              slotProps: slotProps?.grid,
+              internalProps: {
+                d: gridY.map((y) => `M0 ${y}H${width}`).join(" "),
+                "aria-hidden": true,
+              },
+              ownedProps: ["d", "aria-hidden"],
             })}
-        </>
-      ) : (
-        <>
-          <line
-            className="miaixz-sparkline-baseline"
-            x1={viewBoxPadding}
-            x2={viewBoxWidth - viewBoxPadding}
-            y1={baselineY}
-            y2={baselineY}
-            aria-hidden="true"
           />
-          {!isEmpty &&
-            segments.map((segment, index) =>
-              segment.length > 1 ? (
+        )}
+        {segments.map((segment, index) => {
+          const points = segment.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+          const first = segment[0];
+          const last = segment[segment.length - 1];
+          return (
+            <g key={`${index}-${points}`}>
+              {variant === "area" &&
+                segment.length > 1 &&
+                first !== undefined &&
+                last !== undefined && (
+                  <polygon
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: { className: "miaixz-sparkline-area" },
+                      slotProps: slotProps?.area,
+                      internalProps: {
+                        points: `${points} ${last.x.toFixed(2)},${height - padding} ${first.x.toFixed(2)},${height - padding}`,
+                        "aria-hidden": true,
+                      },
+                      ownedProps: ["points", "aria-hidden"],
+                    })}
+                  />
+                )}
+              {segment.length > 1 && (
                 <polyline
-                  key={`segment-${index}`}
-                  className="miaixz-sparkline-line"
-                  points={segment.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ")}
-                  pathLength={1}
-                  aria-hidden="true"
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-sparkline-line" },
+                    slotProps: slotProps?.line,
+                    internalProps: { points, pathLength: 1, "aria-hidden": true },
+                    ownedProps: ["points", "pathLength", "aria-hidden"],
+                  })}
                 />
-              ) : (
-                <circle
-                  key={`point-${index}`}
-                  className="miaixz-sparkline-point"
-                  cx={segment[0]?.x}
-                  cy={segment[0]?.y}
-                  r={1.5}
-                  aria-hidden="true"
-                />
-              ),
-            )}
-        </>
-      )}
-    </svg>
-  );
-});
+              )}
+              <g
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-sparkline-points" },
+                  slotProps: slotProps?.points,
+                  internalProps: { "aria-hidden": true },
+                  ownedProps: ["aria-hidden"],
+                })}
+              >
+                {segment.map(({ x, y }, pointIndex) => (
+                  <circle
+                    key={`${pointIndex}-${x}-${y}`}
+                    className="miaixz-sparkline-point"
+                    cx={x}
+                    cy={y}
+                    r={size === "large" ? 2.5 : 1.5}
+                  />
+                ))}
+              </g>
+            </g>
+          );
+        })}
+      </svg>
+    );
+  }),
+);

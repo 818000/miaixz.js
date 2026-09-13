@@ -18,60 +18,54 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
-
+/* eslint-disable jsdoc/require-jsdoc -- Closed progress slots are self-describing.
+ */
+import type { HTMLAttributes, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
-/**
- * Defines properties owned by the Miaixz Progress contract.
- *
- * @public
- */
-export interface MiaixzProgressOwnProps {
-  /**
-   * Selects the default or thin track geometry.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly size?: "default" | "thin";
-  /**
-   * Supplies the current value, or leaves progress indeterminate when omitted.
-   */
-  readonly value?: number;
-
-  /**
-   * Supplies the finite positive maximum value.
-   *
-   * @defaultValue `100`
-   */
-  readonly max?: number;
-
-  /**
-   * Supplies the required localized accessible progress label.
-   */
-  readonly label: string;
-
-  /**
-   * Displays the rounded percentage for determinate progress.
-   *
-   * @defaultValue `false`
-   */
-  readonly showValue?: boolean;
-
-  /**
-   * Selects a theme-resolved semantic or categorical visual tone.
-   *
-   * @defaultValue `"brand"`
-   */
-  readonly tone?: MiaixzVisualTone;
+export type ProgressSize = "small" | "medium";
+export type ProgressSlot = "root" | "track" | "indicator" | "value";
+export interface ProgressOwnerState {
+  readonly size: ProgressSize;
+  readonly tone: MiaixzVisualTone;
+  readonly determinate: boolean;
+  readonly showValue: boolean;
 }
-
-/**
- * Configures determinate or indeterminate progress feedback.
- *
- * @public
+export type ProgressRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & {
+    readonly "data-state"?: "determinate" | "indeterminate";
+    readonly "data-tone"?: MiaixzVisualTone;
+    readonly "data-size"?: ProgressSize;
+  };
+export interface ProgressSlotProps {
+  readonly root?: MiaixzSlotProps<ProgressOwnerState, ProgressRootAttributes>;
+  readonly track?: MiaixzSlotProps<ProgressOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly indicator?: MiaixzSlotProps<ProgressOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly value?: MiaixzSlotProps<ProgressOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzProgressOwnProps {
+  readonly value?: number;
+  readonly max?: number;
+  readonly label: string;
+  readonly showValue?: boolean;
+  readonly valueFormatter?: (value: number, max: number) => string;
+  readonly tone?: MiaixzVisualTone;
+  readonly size?: ProgressSize;
+  readonly slotProps?: ProgressSlotProps;
+}
+export type ProgressProps = MiaixzProgressOwnProps &
+  Omit<
+    HTMLAttributes<HTMLDivElement>,
+    | keyof MiaixzProgressOwnProps
+    | "children"
+    | "role"
+    | "aria-label"
+    | "aria-labelledby"
+    | "aria-valuemin"
+    | "aria-valuemax"
+    | "aria-valuenow"
+    | "aria-valuetext"
+  >;
+/* eslint-enable jsdoc/require-jsdoc
  */
-export interface ProgressProps
-  extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzProgressOwnProps | "color">,
-    MiaixzProgressOwnProps {}

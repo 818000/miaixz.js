@@ -20,67 +20,80 @@
 
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { IconButton } from "../action/index.js";
-import { Icon } from "../icon/index.js";
-import type { MiaixzFeedbackTone } from "../shared.types.js";
-import type { AlertProps } from "./alert.types.js";
-
-const miaixzAlertIcons: Record<
-  MiaixzFeedbackTone,
-  "Info" | "CircleCheck" | "TriangleAlert" | "CircleAlert"
-> = {
-  neutral: "Info",
-  info: "Info",
-  success: "CircleCheck",
-  warning: "TriangleAlert",
-  danger: "CircleAlert",
-};
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { getMiaixzFeedbackSemantics, MiaixzFeedback } from "../feedback/feedback.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { AlertOwnerState, AlertProps } from "./alert.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a prominent localized feedback message with optional actions and dismissal.
- *
- * @public
+ * Renders prominent feedback with independently controlled tone and announcement priority.
  */
-export const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
-  { tone = "neutral", title, children, actions, dismissLabel, onDismiss, className, ...props },
-  ref,
-) {
-  const { t } = useMiaixzLocale();
-  const resolvedDismissLabel = dismissLabel ?? t("ui.action.dismiss");
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role={tone === "danger" ? "alert" : "status"}
-      data-tone={tone}
-      className={classNames("miaixz-alert", `miaixz-alert-${tone}`, className)}
-    >
-      <Icon name={miaixzAlertIcons[tone]} size="control" className="miaixz-alert-icon" />
-      <div className="miaixz-alert-content">
-        {title !== undefined && <div className="miaixz-alert-title">{title}</div>}
-        <div className="miaixz-alert-message">{children}</div>
-        {actions !== undefined && <div className="miaixz-alert-actions">{actions}</div>}
-      </div>
-      {onDismiss !== undefined && (
-        <span className="miaixz-alert-dismiss">
-          <IconButton
-            action={{
-              id: "dismiss-alert",
-              intent: "close",
-              label: resolvedDismissLabel,
-              icon: "X",
-              tone: "neutral",
-              size: "compact",
-              confirm: "none",
-              placement: "icon",
-              onAction: onDismiss,
-            }}
-          />
-        </span>
-      )}
-    </div>
-  );
-});
+export const Alert = withMiaixzThemeComponent(
+  "Alert",
+  forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
+    const {
+      tone = "neutral",
+      live: liveProp,
+      title,
+      children,
+      actions,
+      dismissLabel,
+      onDismiss,
+      slotProps,
+      ...rootNativeProps
+    } = props;
+    const { t } = useMiaixzLocale();
+    const live = liveProp ?? (tone === "danger" ? "assertive" : "polite");
+    const ownerState: AlertOwnerState = { tone, live, dismissible: onDismiss !== undefined };
+    return (
+      <MiaixzFeedback
+        actions={actions}
+        actionsProps={mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-alert-actions" },
+          slotProps: slotProps?.actions,
+        })}
+        contentProps={mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-alert-content" },
+          slotProps: slotProps?.content,
+        })}
+        dismissLabel={dismissLabel ?? t("ui.action.dismiss")}
+        dismissProps={mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-alert-dismiss" },
+          slotProps: slotProps?.dismiss,
+        })}
+        iconProps={mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-alert-icon" },
+          slotProps: slotProps?.icon,
+        })}
+        message={children}
+        messageProps={mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-alert-message" },
+          slotProps: slotProps?.message,
+        })}
+        onDismiss={onDismiss}
+        rootProps={mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: `miaixz-alert miaixz-alert-${tone}` },
+          componentProps: rootNativeProps,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { ...getMiaixzFeedbackSemantics(tone, live), "data-tone": tone },
+          ownedProps: ["role", "aria-live", "data-tone"],
+        })}
+        title={title}
+        titleProps={mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-alert-title" },
+          slotProps: slotProps?.title,
+        })}
+        tone={tone}
+      />
+    );
+  }),
+);

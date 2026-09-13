@@ -18,12 +18,22 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { Dropdown, type DropdownEntry } from "../dropdown/index.js";
-import { Icon } from "../icon/index.js";
-import { actionCatalog } from "./action-catalog.js";
+import { useId } from "react";
+
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { Dropdown } from "../dropdown/dropdown.js";
+import { type DropdownEntry } from "../dropdown/dropdown.types.js";
+import { Icon } from "../icon/icon.js";
 import type { ActionDescriptor, MoreActionsProps } from "./action.types.js";
 import { IconButton } from "./icon-button.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+interface MoreActionsViewProps extends MoreActionsProps {
+  /**
+   * Overrides the overflow trigger's accessible name.
+   */
+  readonly label?: string;
+}
 
 /**
  * Converts one action descriptor to a semantic dropdown entry.
@@ -32,67 +42,83 @@ import { IconButton } from "./icon-button.js";
  * @returns One navigation or command menu item.
  */
 function createMenuEntry(action: ActionDescriptor): DropdownEntry {
-  const common = {
-    danger: action.tone === "danger",
-    ...(action.description === undefined ? {} : { description: action.description }),
-    icon: <Icon name={action.icon} size="control" />,
+  const presentation = {
+    id: action.id,
     label: action.label,
-    ...(action.selected === undefined ? {} : { selected: action.selected }),
+    textValue: action.label,
+    tone: action.tone === "danger" ? ("danger" as const) : ("neutral" as const),
+    ...(action.description === undefined ? {} : { description: action.description }),
+    ...(action.icon === undefined ? {} : { icon: <Icon name={action.icon} size="control" /> }),
   };
-  if ("href" in action && action.href !== undefined) {
+  if (action.kind === "navigation") {
     return {
-      ...common,
+      ...presentation,
+      kind: "link",
       href: action.href,
-      ...(action.rel === undefined ? {} : { rel: action.rel }),
-      ...(action.target === undefined ? {} : { target: action.target }),
+      ...(action.anchorProps === undefined ? {} : { anchorProps: action.anchorProps }),
     };
   }
   return {
-    ...common,
+    ...presentation,
+    kind: "action",
     disabled: action.disabled === true || action.loading === true,
-    onClick: action.onAction,
+    onAction: action.onAction,
+    ...(action.buttonProps === undefined && action.loading !== true
+      ? {}
+      : {
+          buttonProps: {
+            ...action.buttonProps,
+            ...(action.loading ? { "aria-busy": true } : {}),
+          },
+        }),
   };
 }
 
 /**
- * Renders low-frequency actions in one consistent overflow menu.
+ * Renders low-frequency actions in one stable overflow menu.
  *
- * @param root0 - More-actions properties.
- * @param root0.actions - Ordered actions placed in the menu.
+ * @param properties - Overflow actions and optional accessible label.
  * @returns The overflow menu, or nothing when no actions exist.
- * @public
+ * @internal
  */
-export function MoreActions({ actions }: MoreActionsProps) {
+export function MoreActionsView(properties: MoreActionsViewProps) {
+  const { actions, label: labelOverride } = properties;
   const { t } = useMiaixzLocale();
+  const dividerId = useId();
   if (actions.length === 0) return null;
   const regular = actions.filter((action) => action.tone !== "danger");
   const danger = actions.filter((action) => action.tone === "danger");
   const items: DropdownEntry[] = regular.map(createMenuEntry);
-  if (regular.length > 0 && danger.length > 0) items.push({ kind: "divider" });
+  if (regular.length > 0 && danger.length > 0) {
+    items.push({ id: `${dividerId}-danger`, kind: "divider" });
+  }
   items.push(...danger.map(createMenuEntry));
-  const catalog = actionCatalog.more;
-  const label = t(catalog.labelKey);
+  const label = labelOverride ?? t("ui.action.more");
 
   return (
     <Dropdown
+      density="compact"
       items={items}
       label={label}
       placement="bottom-end"
+      surface="plain"
       trigger={
-        <IconButton
-          action={{
-            id: "miaixz-more-actions",
-            intent: "more",
-            label,
-            icon: catalog.icon,
-            tone: catalog.tone,
-            placement: catalog.placement,
-            confirm: catalog.confirm,
-            onAction: () => undefined,
-          }}
-        />
+        <IconButton icon="Ellipsis" label={label} size="small" tone="neutral" tooltip={false} />
       }
-      variant="compact"
     />
   );
 }
+
+/**
+ * Renders low-frequency actions using the localized default trigger name.
+ *
+ * @param properties - Ordered actions placed in the menu.
+ * @returns The overflow menu, or nothing when no actions exist.
+ * @public
+ */
+function MoreActions(properties: MoreActionsProps) {
+  return <MoreActionsView {...properties} />;
+}
+
+const ThemedMoreActions = withMiaixzThemeComponent("MoreActions", MoreActions);
+export { ThemedMoreActions as MoreActions };

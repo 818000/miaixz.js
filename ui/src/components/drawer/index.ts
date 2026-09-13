@@ -22,9 +22,14 @@ export { Drawer } from "./drawer.js";
 export { DRAWER_WIDTHS } from "./drawer-widths.js";
 export type { DrawerWidthPreset } from "./drawer-widths.js";
 export type {
+  DrawerCloseReason,
   DrawerDensity,
   DrawerInset,
+  DrawerOwnerState,
   DrawerPlacement,
   DrawerProps,
-  DrawerSize,
+  DrawerSlot,
+  DrawerSlotProps,
+  DrawerSlots,
+  DrawerWidth,
 } from "./drawer.types.js";

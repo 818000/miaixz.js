@@ -148,6 +148,12 @@ const configuration = [
       ],
     },
   },
+  {
+    files: ["tests/types/**/*.test-d.tsx"],
+    rules: {
+      "miaixz/require-multiline": "off",
+    },
+  },
   prettier,
 ];
 

@@ -18,36 +18,32 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
-/**
- * Defines properties owned by the Miaixz Overlay contract.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed overlay slots are self-describing.
  */
-export interface MiaixzOverlayOwnProps {
-  /**
-   * Controls whether the loading surface is present.
-   */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type OverlaySlot = "root" | "content" | "surface" | "indicator";
+export interface OverlayOwnerState {
   readonly active: boolean;
-
-  /**
-   * Supplies the required localized accessible loading label.
-   */
-  readonly label: string;
-
-  /**
-   * Supplies content that remains mounted while loading.
-   */
-  readonly children: ReactNode;
+  readonly blocking: boolean;
 }
-
-/**
- * Configures a loading surface that preserves its child content.
- *
- * @public
- */
-export interface OverlayProps
-  extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzOverlayOwnProps>,
-    MiaixzOverlayOwnProps {}
+export interface OverlaySlotProps {
+  readonly root?: MiaixzSlotProps<
+    OverlayOwnerState,
+    HTMLAttributes<HTMLDivElement> &
+      RefAttributes<HTMLDivElement> & { readonly "data-blocking"?: boolean }
+  >;
+  readonly content?: MiaixzSlotProps<OverlayOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly surface?: MiaixzSlotProps<OverlayOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly indicator?: MiaixzSlotProps<OverlayOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzOverlayOwnProps {
+  readonly active: boolean;
+  readonly blocking?: boolean;
+  readonly label: string;
+  readonly children: ReactNode;
+  readonly slotProps?: OverlaySlotProps;
+}
+export type OverlayProps = MiaixzOverlayOwnProps &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzOverlayOwnProps | "aria-busy">;

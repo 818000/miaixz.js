@@ -18,35 +18,100 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import { Spinner } from "../spinner/index.js";
-import type { OverlayProps } from "./overlay.types.js";
+import { forwardRef, useEffect, useRef } from "react";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Spinner } from "../spinner/spinner.js";
+import type { OverlayOwnerState, OverlayProps } from "./overlay.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a loading surface without unmounting the underlying content.
- *
- * @public
+ * Renders blocking or nonblocking loading feedback without unmounting content.
  */
-export const Overlay = forwardRef<HTMLDivElement, OverlayProps>(function Overlay(
-  { active, label, children, className, ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      aria-busy={active || undefined}
-      data-loading={active || undefined}
-      className={classNames("miaixz-overlay", className)}
-    >
-      <div className="miaixz-overlay-content">{children}</div>
-      {active && (
-        <div className="miaixz-overlay-surface">
-          <Spinner label={label} />
-        </div>
-      )}
-    </div>
-  );
-});
+export const Overlay = withMiaixzThemeComponent(
+  "Overlay",
+  forwardRef<HTMLDivElement, OverlayProps>(function Overlay(props, ref) {
+    const { active, blocking = true, label, children, slotProps, ...rootNativeProps } = props;
+    const contentRef = useRef<HTMLDivElement>(null);
+    const surfaceRef = useRef<HTMLDivElement>(null);
+    const restoreRef = useRef<HTMLElement | undefined>(undefined);
+    const movedFocusRef = useRef(false);
+    useEffect(() => {
+      if (!active || !blocking) return undefined;
+      const content = contentRef.current;
+      const surface = surfaceRef.current;
+      if (content === null || surface === null) return undefined;
+      const activeElement = content.ownerDocument.activeElement;
+      if (activeElement instanceof HTMLElement && content.contains(activeElement)) {
+        restoreRef.current = activeElement;
+        movedFocusRef.current = true;
+        surface.focus();
+      }
+      return undefined;
+    }, [active, blocking]);
+    useEffect(() => {
+      if (active || !movedFocusRef.current) return;
+      movedFocusRef.current = false;
+      const target = restoreRef.current;
+      restoreRef.current = undefined;
+      if (isRestorable(target)) target.focus();
+    }, [active]);
+    const ownerState: OverlayOwnerState = { active, blocking };
+    const rootProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-overlay" },
+      componentProps: rootNativeProps,
+      slotProps: slotProps?.root,
+      forwardedRef: ref,
+      internalProps: {
+        ...(active ? { "aria-busy": true, "data-loading": true } : {}),
+        "data-blocking": blocking,
+      },
+      ownedProps: ["aria-busy"],
+    });
+    const contentProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-overlay-content" },
+      slotProps: slotProps?.content,
+      internalRef: contentRef,
+      internalProps: { inert: active && blocking },
+      ownedProps: ["inert"],
+    });
+    const surfaceProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-overlay-surface" },
+      slotProps: slotProps?.surface,
+      internalRef: surfaceRef,
+      internalProps: { tabIndex: -1 },
+      ownedProps: ["tabIndex"],
+    });
+    const indicatorProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-overlay-indicator" },
+      slotProps: slotProps?.indicator,
+    });
+    return (
+      <div {...rootProps}>
+        <div {...contentProps}>{children}</div>
+        {active ? (
+          <div {...surfaceProps}>
+            <span {...indicatorProps}>
+              <Spinner label={label} />
+            </span>
+          </div>
+        ) : null}
+      </div>
+    );
+  }),
+);
+
+/**
+ * Checks the exact focus-restoration safety conditions.
+ *
+ * @param target - Previously focused content element.
+ * @returns Whether focus may safely return to the target.
+ */
+function isRestorable(target: HTMLElement | undefined): target is HTMLElement {
+  if (target === undefined || !target.isConnected || target.closest("[inert]") !== null)
+    return false;
+  return !("disabled" in target) || !(target as HTMLButtonElement).disabled;
+}

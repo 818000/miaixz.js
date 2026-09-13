@@ -20,12 +20,13 @@
 
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import { Icon } from "../icon/index.js";
-import type { IconSize } from "../icon/index.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Icon } from "../icon/icon.js";
+import type { IconSize } from "../icon/icon.types.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
-import { Hidden } from "../hidden/index.js";
-import type { SpinnerProps } from "./spinner.types.js";
+import { Hidden } from "../hidden/hidden.js";
+import type { SpinnerOwnerState, SpinnerProps, SpinnerRootAttributes } from "./spinner.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const miaixzSpinnerIconSizes: Record<MiaixzComponentSize, IconSize> = {
   small: "inline",
@@ -38,20 +39,43 @@ const miaixzSpinnerIconSizes: Record<MiaixzComponentSize, IconSize> = {
  *
  * @public
  */
-export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(function Spinner(
-  { size = "medium", label, className, ...props },
-  ref,
-) {
-  return (
-    <span
-      {...props}
-      ref={ref}
-      role="status"
-      data-size={size}
-      className={classNames("miaixz-spinner", `miaixz-spinner-${size}`, className)}
-    >
-      <Icon name="LoaderCircle" size={miaixzSpinnerIconSizes[size]} />
-      <Hidden>{label}</Hidden>
-    </span>
-  );
-});
+export const Spinner = withMiaixzThemeComponent(
+  "Spinner",
+  forwardRef<HTMLSpanElement, SpinnerProps>(function Spinner(
+    { size = "medium", label, slotProps, ...rootNativeProps },
+    ref,
+  ) {
+    const ownerState: SpinnerOwnerState = { size };
+    const rootProps = mergeMiaixzSlotProps<
+      SpinnerOwnerState,
+      SpinnerRootAttributes,
+      HTMLSpanElement
+    >({
+      ownerState,
+      defaultProps: { className: `miaixz-spinner miaixz-spinner-${size}` },
+      componentProps: rootNativeProps,
+      slotProps: slotProps?.root,
+      forwardedRef: ref,
+      internalProps: { role: "status", "data-size": size },
+      ownedProps: ["role", "data-size"],
+    });
+    const indicatorProps = mergeMiaixzSlotProps({
+      ownerState,
+      slotProps: slotProps?.indicator,
+      internalProps: { name: "LoaderCircle" as const, size: miaixzSpinnerIconSizes[size] },
+      ownedProps: ["name", "size"],
+    });
+    const labelProps = mergeMiaixzSlotProps({
+      ownerState,
+      slotProps: slotProps?.label,
+      internalProps: { children: label },
+      ownedProps: ["children"],
+    });
+    return (
+      <span {...rootProps}>
+        <Icon {...indicatorProps} />
+        <Hidden {...labelProps} />
+      </span>
+    );
+  }),
+);

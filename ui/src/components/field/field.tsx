@@ -18,70 +18,142 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { cloneElement, useId } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
+import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
 import { MiaixzFieldContext } from "../../shared/field-context.js";
-import type { FieldProps } from "./field.types.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useStableId } from "../../shared/use-stable-id.js";
+import type { FieldOwnerState, FieldProps, FieldRootSlotProps } from "./field.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Combines optional ARIA reference identifiers without empty segments.
- *
- * @param ids - Candidate identifiers in semantic reading order.
- * @returns A space-delimited identifier list or `undefined` when empty.
- */
-function mergeIds(...ids: ReadonlyArray<string | undefined>): string | undefined {
-  const value = ids.filter(Boolean).join(" ");
-  return value || undefined;
-}
-
-/* eslint-disable jsdoc/check-param-names, jsdoc/require-param -- TSDoc documents the typed properties instead of dotted parameter names.
+/* eslint-disable jsdoc/check-param-names, jsdoc/require-param -- Props are documented by FieldProps.
  */
 /**
- * Connects a form control to its label, description, required state, and error.
- * Generated identifiers preserve accessible relationships without caller setup.
+ * Connects one nested main control to a label, description, required state, and error.
  *
- * @param props - Form-field configuration and native container properties.
- * @returns The connected field structure.
+ * @param props - Field configuration and native root properties.
+ * @returns The connected Field structure.
  * @public
  */
-export function Field({
+function Field({
   label,
   children,
   helperText,
   errorText,
   optionalText,
   required = false,
+  invalid,
+  disabled = false,
   controlId,
+  slotProps,
   className,
-  ...props
+  style,
+  ...rootProps
 }: FieldProps) {
-  const generatedId = useId();
-  const id = controlId ?? children.props.id ?? `miaixz-field-${generatedId}`;
-  const labelId = `${id}-label`;
-  const helperId = helperText ? `${id}-helper` : undefined;
-  const errorId = errorText ? `${id}-error` : undefined;
-  const describedBy = mergeIds(children.props["aria-describedby"], helperId, errorId);
-  const isRequired = required || Boolean(children.props.required);
-  const isInvalid = Boolean(errorText) || Boolean(children.props.invalid);
-  const ariaInvalid = errorText ? true : children.props["aria-invalid"];
+  if (controlId !== undefined && controlId.trim().length === 0) {
+    throw new MiaixzUiError({
+      code: "UI_FIELD_CONTROL_ID_INVALID",
+    });
+  }
+  const errorExists = errorText !== undefined && errorText !== null;
+  if (errorExists && invalid === false) {
+    throw new MiaixzUiError({
+      code: "UI_FIELD_INVALID_CONFLICT",
+    });
+  }
 
-  const control = cloneElement(children, {
-    id,
-    ...(isRequired ? { required: true } : {}),
-    ...(isInvalid ? { invalid: true } : {}),
-    ...(ariaInvalid === undefined ? {} : { "aria-invalid": ariaInvalid }),
-    ...(describedBy === undefined ? {} : { "aria-describedby": describedBy }),
+  const id = useStableId(controlId, "miaixz-field");
+  const labelId = `${id}-label`;
+  const descriptionId =
+    helperText === undefined || helperText === null ? undefined : `${id}-description`;
+  const errorId = errorExists ? `${id}-error` : undefined;
+  const effectiveInvalid = invalid ?? errorExists;
+  const ownerState: FieldOwnerState = { required, invalid: effectiveInvalid, disabled };
+  const registeredControlRef = useRef<symbol | null>(null);
+  const registerControl = useCallback((token: symbol) => {
+    const registered = registeredControlRef.current;
+    if (registered !== null && registered !== token) {
+      throw new MiaixzUiError({
+        code: "UI_FIELD_MULTIPLE_CONTROLS",
+      });
+    }
+    registeredControlRef.current = token;
+  }, []);
+  const unregisterControl = useCallback((token: symbol) => {
+    if (registeredControlRef.current === token) registeredControlRef.current = null;
+  }, []);
+  const context = useMemo(
+    () => ({
+      controlId: id,
+      labelId,
+      descriptionId,
+      errorId,
+      required,
+      invalid: effectiveInvalid,
+      disabled,
+      registerControl,
+      unregisterControl,
+    }),
+    [
+      descriptionId,
+      disabled,
+      effectiveInvalid,
+      errorId,
+      id,
+      labelId,
+      registerControl,
+      required,
+      unregisterControl,
+    ],
+  );
+
+  const mergedRootProps = mergeMiaixzSlotProps<FieldOwnerState, FieldRootSlotProps, HTMLDivElement>(
+    {
+      ownerState,
+      componentProps: { ...rootProps, className, style },
+      slotProps: slotProps?.root,
+      defaultProps: {
+        className: classNames("miaixz-field", effectiveInvalid && "miaixz-field-invalid"),
+      },
+      internalProps: {
+        ...(effectiveInvalid ? { "data-invalid": true } : {}),
+        ...(disabled ? { "data-disabled": true } : {}),
+      },
+    },
+  );
+  const mergedLabelProps = mergeMiaixzSlotProps({
+    ownerState,
+    slotProps: slotProps?.label,
+    defaultProps: { className: "miaixz-field-label" },
+    internalProps: { id: labelId, htmlFor: id },
+    ownedProps: ["id", "htmlFor"],
+  });
+  const mergedControlProps = mergeMiaixzSlotProps({
+    ownerState,
+    slotProps: slotProps?.control,
+    defaultProps: { className: "miaixz-field-control" },
+  });
+  const mergedDescriptionProps = mergeMiaixzSlotProps({
+    ownerState,
+    slotProps: slotProps?.description,
+    defaultProps: { className: "miaixz-field-helper" },
+    internalProps: { id: descriptionId },
+    ownedProps: ["id"],
+  });
+  const mergedErrorProps = mergeMiaixzSlotProps({
+    ownerState,
+    slotProps: slotProps?.error,
+    defaultProps: { className: "miaixz-field-error" },
+    internalProps: { id: errorId, role: "alert" },
+    ownedProps: ["id", "role"],
   });
 
   return (
-    <div
-      {...props}
-      className={classNames("miaixz-field", isInvalid && "miaixz-field-invalid", className)}
-      data-invalid={isInvalid || undefined}
-    >
+    <div {...mergedRootProps}>
       <div className="miaixz-field-label-row">
-        <label id={labelId} className="miaixz-field-label" htmlFor={id}>
+        <label {...mergedLabelProps}>
           {label}
           {required && (
             <span className="miaixz-field-required" aria-hidden="true">
@@ -89,25 +161,20 @@ export function Field({
             </span>
           )}
         </label>
-        {!required && optionalText && <span className="miaixz-field-optional">{optionalText}</span>}
+        {!required && optionalText !== undefined && optionalText !== null && (
+          <span className="miaixz-field-optional">{optionalText}</span>
+        )}
       </div>
-      <MiaixzFieldContext.Provider
-        value={{ controlId: id, labelId, describedBy, required: isRequired }}
-      >
-        {control}
+      <MiaixzFieldContext.Provider value={context}>
+        <div {...mergedControlProps}>{children}</div>
       </MiaixzFieldContext.Provider>
-      {helperText && (
-        <div id={helperId} className="miaixz-field-helper">
-          {helperText}
-        </div>
-      )}
-      {errorText && (
-        <div id={errorId} className="miaixz-field-error" role="alert">
-          {errorText}
-        </div>
-      )}
+      {descriptionId && <div {...mergedDescriptionProps}>{helperText}</div>}
+      {errorId && <div {...mergedErrorProps}>{errorText}</div>}
     </div>
   );
 }
 /* eslint-enable jsdoc/check-param-names, jsdoc/require-param
  */
+
+const ThemedField = withMiaixzThemeComponent("Field", Field);
+export { ThemedField as Field };

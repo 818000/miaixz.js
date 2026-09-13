@@ -19,4 +19,11 @@
 */
 
 export { Field } from "./field.js";
-export type { FieldControlProps, FieldProps } from "./field.types.js";
+export { useFieldControl } from "../../shared/field-context.js";
+export type {
+  FieldControlProps,
+  FieldOwnerState,
+  FieldProps,
+  FieldSlot,
+  FieldSlotProps,
+} from "./field.types.js";
