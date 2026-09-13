@@ -1,4 +1,4 @@
-/**
+/*
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -31,7 +31,11 @@ const strictCommentPlugin = stylelint.createPlugin(
     if (!primaryOption) return;
 
     root.walkComments((comment) => {
-      if (!comment.toString().startsWith("/**")) {
+      const raw = comment.toString();
+      const isRepositoryHeader =
+        comment.source?.start?.line === 1 && raw.startsWith("/*\n") && raw.includes("miaixz.org");
+
+      if (!raw.startsWith("/**") && !isRepositoryHeader) {
         stylelint.utils.report({
           message: strictCommentMessages.nonJsdoc,
           node: comment,

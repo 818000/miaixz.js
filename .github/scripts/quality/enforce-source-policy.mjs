@@ -1,4 +1,4 @@
-/**
+/*
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -29,7 +29,7 @@ const requireStrictComments = {
   meta: {
     type: "layout",
     docs: {
-      description: "Require source comments to use multiline JSDoc blocks.",
+      description: "Require non-license source comments to use multiline JSDoc blocks.",
     },
     fixable: "whitespace",
     schema: [],
@@ -61,6 +61,11 @@ const requireStrictComments = {
       Program() {
         for (const comment of sourceCode.getAllComments()) {
           const raw = sourceCode.getText(comment);
+          const isRepositoryHeader =
+            comment.type === "Block" &&
+            raw.startsWith("/*\n") &&
+            raw.includes("miaixz.org") &&
+            sourceCode.text.slice(0, comment.range[0]).trim() === "";
           const typeScriptDirectives = raw.match(/@ts-[\w-]+/gu) ?? [];
           const validTypeScriptDirective =
             typeScriptDirectives.length === 1 &&
@@ -82,7 +87,7 @@ const requireStrictComments = {
               messageId: "finalLineText",
             });
           }
-          if (comment.type === "Block" && !raw.startsWith("/**")) {
+          if (comment.type === "Block" && !raw.startsWith("/**") && !isRepositoryHeader) {
             context.report({
               loc: comment.loc,
               messageId: "nonJsdoc",
@@ -281,8 +286,10 @@ async function collectScriptFiles(directory) {
 function normalizeHeader(source) {
   const header = source.replaceAll("\r\n", "\n").trim();
 
-  if (!/^\/\*\*\n[\s\S]+\n\s*\*\/$/u.test(header) || !header.includes("miaixz.org")) {
-    throw new Error("miaixz.org must contain one multiline JSDoc block with miaixz.org branding.");
+  if (!/^\/\*\n[\s\S]+\n\s*\*\/$/u.test(header) || !header.includes("miaixz.org")) {
+    throw new Error(
+      "miaixz.org must contain one multiline block comment with miaixz.org branding.",
+    );
   }
 
   return header;
