@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 /**
  * Identifies the editor family selected by ONLYOFFICE Docs.
@@ -79,6 +79,8 @@ export type OnlyOfficeEditorConfig = Readonly<Record<string, unknown>> & {
  * @public
  */
 export interface OfficeViewLabels {
+  /** Labels the Office toolbar. */
+  readonly toolbar: string;
   /**
    * Announces editor loading.
    */
@@ -89,13 +91,26 @@ export interface OfficeViewLabels {
   readonly error: string;
 }
 
+/** Defines native properties for stable OfficeView slots. @public */
+export interface OfficeViewSlotProps {
+  readonly toolbar?: Omit<
+    ComponentPropsWithoutRef<"div">,
+    "children" | "role" | "aria-label"
+  >;
+  readonly editor?: Omit<ComponentPropsWithoutRef<"div">, "children" | "id">;
+  readonly status?: Omit<
+    ComponentPropsWithoutRef<"div">,
+    "children" | "role" | "aria-live"
+  >;
+}
+
 /**
  * Configures an ONLYOFFICE Docs preview surface.
  *
  * @public
  */
 export interface OfficeViewProps extends Omit<
-  HTMLAttributes<HTMLDivElement>,
+  ComponentPropsWithoutRef<"div">,
   "children" | "onError"
 > {
   /**
@@ -118,6 +133,8 @@ export interface OfficeViewProps extends Omit<
    * Adds application-owned actions without assigning security meaning to their visibility.
    */
   readonly actions?: ReactNode;
+  /** Passes native properties to stable internal slots. */
+  readonly slotProps?: OfficeViewSlotProps;
   /**
    * Runs after the editor instance is created.
    */

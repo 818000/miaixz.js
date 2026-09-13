@@ -18,10 +18,11 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useId, useMemo, useRef, useState } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { NavigationRailOwnerState, NavigationRailProps } from "./navigation-rail.types.js";
 import {
   createOverflowEntries,
@@ -68,7 +69,7 @@ export const NavigationRail = withMiaixzThemeComponent(
     const ownerState: NavigationRailOwnerState = { expanded, variant, density, measured };
     const layout = useMemo(() => resolveRailLayout(groups, measurements), [groups, measurements]);
 
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       const body = bodyRef.current;
       if (body === null) return;
       let frame = 0;

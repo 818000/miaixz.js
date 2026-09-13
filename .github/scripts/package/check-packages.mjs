@@ -61,6 +61,36 @@ try {
 }
 
 /**
+ * Creates a minimal valid single-page PDF for the packed browser smoke test.
+ *
+ * @param {string} path Temporary output path.
+ * @returns {Buffer} Generated PDF bytes.
+ */
+function createOnePagePdf(path) {
+  const objects = [
+    "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
+    "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
+    "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Resources << >> /Contents 4 0 R >>\nendobj\n",
+    "4 0 obj\n<< /Length 0 >>\nstream\n\nendstream\nendobj\n",
+  ];
+  let source = "%PDF-1.4\n";
+  const offsets = [];
+  for (const object of objects) {
+    offsets.push(Buffer.byteLength(source, "ascii"));
+    source += object;
+  }
+  const crossReferenceOffset = Buffer.byteLength(source, "ascii");
+  source += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const offset of offsets) {
+    source += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  }
+  source += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${crossReferenceOffset}\n%%EOF\n`;
+  const contents = Buffer.from(source, "ascii");
+  writeFileSync(path, contents);
+  return contents;
+}
+
+/**
  * Validates the files and export targets required for a publishable workspace.
  *
  * @param {{ directory: string, manifest: object, rootPath: string }} workspace Workspace metadata.
@@ -88,6 +118,13 @@ function validateManifest({ directory, manifest, rootPath }) {
       }
     }
   }
+  if (directory === "view") {
+    readFileSync(join(rootPath, "dist/pdf/pdf.worker.min.mjs"));
+    const styles = readFileSync(join(rootPath, "dist/styles.css"), "utf8");
+    if (!styles.includes(".miaixz-preview") || /\.miaixz-view(?:-|\b)/u.test(styles)) {
+      throw new Error("view/dist/styles.css must use only the miaixz-preview namespace");
+    }
+  }
 }
 
 /**
@@ -107,10 +144,16 @@ function pack({ directory }) {
   if (!Array.isArray(result) || result.length !== 1 || typeof result[0].filename !== "string") {
     throw new Error(`Unable to resolve ${directory} tarball`);
   }
-  const forbiddenPolicyFiles = new Set(["SECURITY.md", "SUPPORT.md", "THIRD_PARTY_NOTICES.md"]);
+  const forbiddenPackageFiles = new Set([
+    "CHANGELOG.md",
+    "MIGRATION.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "THIRD_PARTY_NOTICES.md",
+  ]);
   for (const file of result[0].files ?? []) {
     const topLevel = file.path.split("/")[0];
-    if (forbiddenPolicyFiles.has(topLevel)) {
+    if (forbiddenPackageFiles.has(topLevel)) {
       throw new Error(`${directory} tarball contains duplicate package-local policy ${topLevel}`);
     }
   }
@@ -196,11 +239,14 @@ function createConsumer(name, matrix, tarballs, browser) {
     `${createPublicExportSource()}\n${createConsumerSource()}`,
   );
   if (browser) {
+    const onePagePdfBase64 = createOnePagePdf(join(temporaryDirectory, "one-page.pdf")).toString(
+      "base64",
+    );
     writeFileSync(
       join(directory, "index.html"),
       '<div id="root"></div><script type="module" src="/browser.tsx"></script>',
     );
-    writeFileSync(join(directory, "browser.tsx"), createBrowserSource());
+    writeFileSync(join(directory, "browser.tsx"), createBrowserSource(onePagePdfBase64));
   }
   run("npm", ["install", "--ignore-scripts", "--package-lock=false"], directory);
   run("npm", ["exec", "--", "tsc"], directory);
@@ -266,8 +312,18 @@ function createPublicExportSource() {
 ${imports.join("\n")}
 import * as packedUiRoot from "@miaixz/ui";
 ${removedSubpaths.map((specifier) => `// @ts-expect-error Removed package subpath must remain unresolvable.\nimport type {} from ${JSON.stringify(specifier)};`).join("\n")}
+// @ts-expect-error Scoped intent definitions are not a packed root export.
+const packedIntentDefinitions = packedUiRoot.intentDefinitions;
+// @ts-expect-error Scoped intent resolver is not a packed root export.
+const packedGetIntentDefinition = packedUiRoot.getIntentDefinition;
+// @ts-expect-error Scoped intent type is not a packed root export.
+type PackedIntent = import("@miaixz/ui").Intent;
+// @ts-expect-error Scoped intent definition type is not a packed root export.
+type PackedIntentDefinition = import("@miaixz/ui").IntentDefinition;
 
 void [${bindings.join(", ")}];
+void [packedIntentDefinitions, packedGetIntentDefinition];
+void (undefined as unknown as PackedIntent | PackedIntentDefinition);
 for (const specifier of ${JSON.stringify(specifiers)}) {
   const resolved = import.meta.resolve(specifier);
   if (!resolved.includes("/node_modules/@miaixz/")) {
@@ -360,6 +416,11 @@ async function runBrowserSmoke(directory) {
   const { chromium } = await import("@playwright/test");
   const browser = await chromium.launch();
   const page = await browser.newPage();
+  const browserErrors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") browserErrors.push(`console: ${message.text()}`);
+  });
+  page.on("pageerror", (error) => browserErrors.push(`pageerror: ${error.message}`));
   try {
     await page.goto(`http://127.0.0.1:${address.port}`);
     await page.waitForSelector("#theme-button");
@@ -383,7 +444,7 @@ async function runBrowserSmoke(directory) {
       "Dialog focus restoration",
     );
 
-    const leftNode = page.locator('.miaixz-graph-node[aria-label="Left"]');
+    const leftNode = page.getByRole("button", { name: "Left" });
     await leftNode.focus();
     await page.keyboard.press("ArrowRight");
     assertEqual(
@@ -391,6 +452,16 @@ async function runBrowserSmoke(directory) {
       "Right",
       "Graph directional keyboard navigation",
     );
+
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    assertEqual(await page.getByText("125%").textContent(), "125%", "Image zoom output");
+    await page.getByRole("img", { name: "1 / 1" }).waitFor();
+    await page.waitForFunction(() => window.__miaixzPackedOfficeCreated === 1);
+    await page.getByRole("button", { name: "Remove Office preview" }).click();
+    await page.waitForFunction(() => window.__miaixzPackedOfficeDestroyed === 1);
+    if (browserErrors.length > 0) {
+      throw new Error(`Packed browser emitted errors:\n${browserErrors.join("\n")}`);
+    }
   } finally {
     await browser.close();
     await new Promise((resolveClose) => server.close(resolveClose));
@@ -437,43 +508,55 @@ function createConsumerSource() {
 import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { Button, Dialog, Field, Graph, Input, MiaixzLocaleProvider, Select, Theme } from "@miaixz/ui";
-import { ImageView } from "@miaixz/view/image";
+import { FileView } from "@miaixz/view";
 import { renderToString } from "react-dom/server";
 
 const appearance = createMiaixzAppearanceManager({ appId: "packed-smoke" });
 const i18n = createMiaixzI18n();
 const option = { kind: "option" as const, id: "one", value: "one", label: "One", textValue: "One" };
-const html = renderToString(
-  <MiaixzLocaleProvider i18n={i18n}>
-    <Theme appearance={appearance} scope="local">
-      <form>
-        <Field label="Name"><Input name="name" /></Field>
-        <Field label="Choice"><Select aria-label="Choice" defaultValue="one" items={[option]} name="choice" /></Field>
-        <Button type="submit">Submit</Button>
-      </form>
-      <Dialog open={false} onOpenChange={() => {}} title="Dialog">Content</Dialog>
-      <Graph aria-label="Graph" edges={[]} nodes={[{ id: "one", label: "One", x: 50, y: 50, tone: "neutral" }]} tableCaption="Graph data" />
-      <ImageView alt="Preview" controls={false} src="https://example.test/image.png" />
-    </Theme>
-  </MiaixzLocaleProvider>,
-);
-if (!html.includes("miaixz-button") || !html.includes("Graph data") || !html.includes("miaixz-view-image")) throw new Error("Packed SSR output is incomplete");
+const consoleErrors: unknown[][] = [];
+const originalConsoleError = console.error;
+let html = "";
+console.error = (...parameters: unknown[]) => { consoleErrors.push(parameters); };
+try {
+  html = renderToString(
+    <MiaixzLocaleProvider i18n={i18n}>
+      <Theme appearance={appearance} scope="local">
+        <form>
+          <Field label="Name"><Input name="name" /></Field>
+          <Field label="Choice"><Select aria-label="Choice" defaultValue="one" items={[option]} name="choice" /></Field>
+          <Button type="submit">Submit</Button>
+        </form>
+        <Dialog open={false} onOpenChange={() => {}} title="Dialog">Content</Dialog>
+        <Graph aria-label="Graph" edges={[]} nodes={[{ id: "one", label: "One", x: 50, y: 50, tone: "neutral" }]} tableCaption="Graph data" />
+        <FileView alt="Preview" controls={false} kind="image" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
+        <FileView kind="pdf" src={new Uint8Array([37, 80, 68, 70])} />
+        <FileView config={{ documentType: "word", document: { fileType: "docx", key: "one", title: "One", url: "https://files.example.test/one.docx" } }} documentServerUrl="http://127.0.0.1" kind="office" />
+      </Theme>
+    </MiaixzLocaleProvider>,
+  );
+} finally {
+  console.error = originalConsoleError;
+}
+if (consoleErrors.length > 0) throw new Error("Packed SSR emitted console errors");
+if (!html.includes("miaixz-button") || !html.includes("Graph data") || !html.includes("miaixz-preview-image") || !html.includes("miaixz-preview-pdf") || !html.includes("miaixz-preview-office")) throw new Error("Packed SSR output is incomplete");
 `;
 }
 
 /**
  * Generates the interactive browser consumer smoke-test source.
  *
+ * @param {string} onePagePdfBase64 Generated one-page PDF encoded for the browser source.
  * @returns {string} TypeScript and JSX source for the browser consumer.
  */
-function createBrowserSource() {
+function createBrowserSource(onePagePdfBase64) {
   return `
 import "@miaixz/ui/styles.css";
 import "@miaixz/view/styles.css";
 import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { Button, Dialog, Field, Graph, Input, MiaixzLocaleProvider, Select, Theme } from "@miaixz/ui";
-import { ImageView } from "@miaixz/view/image";
+import { FileView } from "@miaixz/view";
 import { useState, type FormEvent } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -484,6 +567,7 @@ const option = { kind: "option" as const, id: "one", value: "one", label: "One",
 function App() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formResult, setFormResult] = useState("");
+  const [showOffice, setShowOffice] = useState(true);
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -516,7 +600,16 @@ function App() {
           ]}
           tableCaption="Graph data"
         />
-        <ImageView alt="Packed preview" controls={false} src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
+        <FileView alt="Packed preview" kind="image" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
+        <FileView kind="pdf" src={Uint8Array.from(atob("${onePagePdfBase64}"), character => character.charCodeAt(0))} />
+        {showOffice && (
+          <FileView
+            config={{ documentType: "word", document: { fileType: "docx", key: "one", title: "One", url: "http://127.0.0.1/one.docx" } }}
+            documentServerUrl={window.location.origin}
+            kind="office"
+          />
+        )}
+        <Button aria-label="Remove Office preview" onClick={() => setShowOffice(false)}>Remove Office</Button>
       </Theme>
     </MiaixzLocaleProvider>
   );
@@ -524,6 +617,22 @@ function App() {
 
 const root = document.getElementById("root");
 if (root === null) throw new Error("Packed browser root is missing");
+type PackedWindow = Window & {
+  DocsAPI?: { DocEditor: new (target: string, config: unknown) => { destroyEditor(): void } };
+  __miaixzPackedOfficeCreated?: number;
+  __miaixzPackedOfficeDestroyed?: number;
+};
+const packedWindow = window as PackedWindow;
+packedWindow.DocsAPI = {
+  DocEditor: class {
+    constructor() {
+      packedWindow.__miaixzPackedOfficeCreated = (packedWindow.__miaixzPackedOfficeCreated ?? 0) + 1;
+    }
+    destroyEditor() {
+      packedWindow.__miaixzPackedOfficeDestroyed = (packedWindow.__miaixzPackedOfficeDestroyed ?? 0) + 1;
+    }
+  },
+};
 createRoot(root).render(<App />);
 `;
 }

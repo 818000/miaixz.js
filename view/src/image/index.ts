@@ -19,4 +19,4 @@
 */
 
 export { ImageView } from "./image-view.js";
-export type { ImageViewLabels, ImageViewProps } from "./image-view.types.js";
+export type { ImageViewLabels, ImageViewProps, ImageViewSlotProps } from "./image-view.types.js";

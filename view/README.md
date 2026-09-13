@@ -12,12 +12,46 @@ Node.js 20.19 or later is required for the PDF.js runtime.
 npm install @miaixz/view @miaixz/ui react react-dom
 ```
 
-Import the Miaixz UI theme before the preview styles:
+## Public entries
 
-```ts
+This table is checked directly against the package export map.
+
+| Entry | Kind |
+| ----- | ---- |
+| `.` | JavaScript |
+| `./image` | JavaScript |
+| `./pdf` | JavaScript |
+| `./office` | JavaScript |
+| `./errors` | JavaScript |
+| `./styles.css` | CSS |
+
+Import the Miaixz UI theme before the preview styles. A preview tree is supported only inside the
+UI `Theme` scope; it also uses the shared locale provider for surrounding application copy:
+
+```tsx compile
 import "@miaixz/ui/styles.css";
 import "@miaixz/view/styles.css";
+import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
+import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+import { MiaixzLocaleProvider, Theme } from "@miaixz/ui";
+import { FileView } from "@miaixz/view";
+
+const appearance = createMiaixzAppearanceManager({ appId: "preview-example" });
+const i18n = createMiaixzI18n({ locale: "en-US", fallbackLocale: "en-US" });
+
+export function PreviewExample() {
+  return (
+    <MiaixzLocaleProvider i18n={i18n}>
+      <Theme appearance={appearance} scope="local">
+        <FileView alt="Architecture diagram" kind="image" src="/diagram.png" />
+      </Theme>
+    </MiaixzLocaleProvider>
+  );
+}
 ```
+
+The design-system `View` for page layout comes from `@miaixz/ui/view`. This package is only for
+file previews and deliberately has no bare `View` export.
 
 ## Components
 

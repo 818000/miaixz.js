@@ -88,6 +88,15 @@ import { ListItemControl } from "../../src/index.js";
  * @ts-expect-error Scoped intent definitions are not a root export. */
 import { intentDefinitions } from "../../src/index.js";
 /**
+ * @ts-expect-error Scoped intent resolver is not a root export. */
+import { getIntentDefinition } from "../../src/index.js";
+/**
+ * @ts-expect-error Scoped intent type is not a root export. */
+import type { Intent } from "../../src/index.js";
+/**
+ * @ts-expect-error Scoped intent definition type is not a root export. */
+import type { IntentDefinition } from "../../src/index.js";
+/**
  * @ts-expect-error Scoped PanelRow is not a root export. */
 import { PanelRow } from "../../src/index.js";
 /**

@@ -18,11 +18,5 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { PdfView } from "./pdf-view.js";
-export type {
-  PdfDocumentInfo,
-  PdfViewLabels,
-  PdfViewProps,
-  PdfViewSlotProps,
-  PdfViewSource,
-} from "./pdf-view.types.js";
+export { MiaixzViewError } from "./view-error.js";
+export type { MiaixzViewErrorCode } from "./view-error.js";

@@ -21,9 +21,7 @@
 import {
   createElement,
   forwardRef,
-  useEffect,
   useId,
-  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -37,6 +35,7 @@ import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { useMiaixzNativeModal } from "../../shared/overlay/native-modal.js";
 import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { Icon } from "../icon/icon.js";
 import type {
   DrawerCloseReason,
@@ -54,8 +53,6 @@ interface DrawerFrame {
   readonly viewportWidth: number;
   readonly viewportHeight: number;
 }
-
-const useDrawerLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
 /**
  * Rejects invalid public drawer geometry without normalizing it.
@@ -156,7 +153,7 @@ export const Drawer = withMiaixzThemeComponent(
     const positioned = boundary !== undefined || inset !== undefined;
     const [frame, setFrame] = useState<DrawerFrame | null>(null);
 
-    useDrawerLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       if (!open || !positioned || boundary === null) {
         setFrame(null);
         return undefined;

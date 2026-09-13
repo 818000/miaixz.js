@@ -18,18 +18,14 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
+import { useRef, type RefObject } from "react";
 import { useMiaixzFloatingPosition } from "./overlay/floating-position.js";
+import { useMiaixzLayoutEffect } from "./use-client-layout-effect.js";
 
 /**
  * Limits an option surface to six actual rows before it scrolls.
  */
 const miaixzVisibleOptionLimit = 6;
-
-/**
- * Uses layout timing in browsers and passive timing during server rendering.
- */
-const useClientLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
 /**
  * Measures the first six rows without assuming fixed typography or row height.
@@ -92,11 +88,11 @@ export function useMiaixzOptionSurface(
   activeOptionId: string | undefined,
 ): void {
   const activeOptionRef = useRef(activeOptionId);
-  useClientLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     activeOptionRef.current = activeOptionId;
   }, [activeOptionId]);
 
-  useClientLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     const trigger = triggerRef.current;
     const surface = surfaceRef.current;
     if (!open || trigger === null || surface === null) return undefined;
@@ -136,7 +132,7 @@ export function useMiaixzOptionSurface(
    */
   useMiaixzFloatingPosition(triggerRef, surfaceRef, open, "bottom-start", portalTarget);
 
-  useClientLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     const surface = surfaceRef.current;
     if (!open || !activeOptionId || surface === null) return;
     revealMiaixzOption(surface, activeOptionId);

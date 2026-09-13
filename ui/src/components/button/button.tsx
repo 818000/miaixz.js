@@ -18,13 +18,14 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useId, useLayoutEffect, useRef, type Ref } from "react";
+import { forwardRef, useId, useRef, type Ref } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
 import { MiaixzButtonContent } from "./button-content.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
 import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
 import type {
@@ -190,7 +191,7 @@ export const ButtonLink = withMiaixzThemeComponent(
       disabled: false,
     };
     const anchorRef = useRef<HTMLAnchorElement>(null);
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       if (anchorRef.current instanceof HTMLAnchorElement) return;
       throw new MiaixzUiError({
         code: "UI_BUTTON_LINK_RENDERER_INVALID",

@@ -21,10 +21,12 @@
 import { forwardRef, useEffect, useId, useState } from "react";
 
 import { classNames } from "../shared/class-names.js";
+import { useLatestRef } from "../shared/use-latest-ref.js";
 import { loadOnlyOfficeApi, type OnlyOfficeEditorInstance } from "./office-loader.js";
 import type { OfficeViewLabels, OfficeViewProps } from "./office-view.types.js";
 
 const defaultLabels: OfficeViewLabels = {
+  toolbar: "Office preview controls",
   loading: "Loading Office document",
   error: "Unable to preview this Office document",
 };
@@ -51,6 +53,7 @@ export const OfficeView = forwardRef<HTMLDivElement, OfficeViewProps>(function O
     scriptNonce,
     labels: labelOverrides,
     actions,
+    slotProps,
     onReady,
     onError,
     className,
@@ -59,9 +62,11 @@ export const OfficeView = forwardRef<HTMLDivElement, OfficeViewProps>(function O
   ref,
 ) {
   const generatedId = useId();
-  const targetId = `miaixz-view-office-${generatedId.replaceAll(":", "")}`;
+  const targetId = `miaixz-preview-office-${generatedId.replaceAll(":", "")}`;
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const labels = { ...defaultLabels, ...labelOverrides };
+  const onReadyRef = useLatestRef(onReady);
+  const onErrorRef = useLatestRef(onError);
 
   useEffect(() => {
     let active = true;
@@ -73,33 +78,47 @@ export const OfficeView = forwardRef<HTMLDivElement, OfficeViewProps>(function O
         if (!active) return;
         editor = new api.DocEditor(targetId, config);
         setStatus("ready");
-        onReady?.();
+        onReadyRef.current?.();
       })
       .catch((value: unknown) => {
         if (!active) return;
         const error = toError(value);
         setStatus("error");
-        onError?.(error);
+        onErrorRef.current?.(error);
       });
 
     return () => {
       active = false;
       editor?.destroyEditor();
     };
-  }, [config, documentServerUrl, onError, onReady, scriptNonce, targetId]);
+  }, [config, documentServerUrl, onErrorRef, onReadyRef, scriptNonce, targetId]);
 
   return (
     <div
       {...rootProps}
-      className={classNames("miaixz-view", "miaixz-view-office", className)}
+      className={classNames("miaixz-preview", "miaixz-preview-office", className)}
       ref={ref}
     >
-      {actions !== undefined && <div className="miaixz-view-toolbar">{actions}</div>}
-      <div className="miaixz-view-office-editor" id={targetId} />
+      {actions !== undefined && (
+        <div
+          {...slotProps?.toolbar}
+          aria-label={labels.toolbar}
+          className={classNames("miaixz-preview-toolbar", slotProps?.toolbar?.className)}
+          role="toolbar"
+        >
+          {actions}
+        </div>
+      )}
+      <div
+        {...slotProps?.editor}
+        className={classNames("miaixz-preview-office-editor", slotProps?.editor?.className)}
+        id={targetId}
+      />
       {status !== "ready" && (
         <div
+          {...slotProps?.status}
           aria-live="polite"
-          className="miaixz-view-status"
+          className={classNames("miaixz-preview-status", slotProps?.status?.className)}
           role={status === "error" ? "alert" : "status"}
         >
           {status === "error" ? labels.error : labels.loading}

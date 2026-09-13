@@ -18,7 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 
 /**
  * Tracks whether a scroll owner overflows so it can become keyboard-focusable only when useful.
@@ -29,7 +30,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 export function useOverflowFocus(enabled: boolean) {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [overflowing, setOverflowing] = useState(false);
-  useLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     if (!enabled) return;
     const element = elementRef.current;
     if (element === null) return;

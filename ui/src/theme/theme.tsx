@@ -32,13 +32,13 @@ import {
   useEffect,
   useId,
   useInsertionEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   useSyncExternalStore,
 } from "react";
 import { bindPressInteractions } from "../shared/press-interaction.js";
+import { useMiaixzLayoutEffect } from "../shared/use-client-layout-effect.js";
 import { applyTheme } from "./apply.js";
 import { ThemeCache } from "./cache.js";
 import { ThemeCatalog } from "./catalog.js";
@@ -190,7 +190,7 @@ export function Theme(props: ThemeProps) {
     };
   }, [scope]);
 
-  useLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     const style = styleRef.current;
     const target =
       scope === "global"
@@ -202,7 +202,7 @@ export function Theme(props: ThemeProps) {
     return applyTheme(target, style, application);
   }, [application, scope]);
 
-  useLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     if (appliedKeyRef.current === applicationKey) return;
     appliedKeyRef.current = applicationKey;
     setRevision((value) => value + 1);

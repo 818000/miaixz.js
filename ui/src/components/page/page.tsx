@@ -18,10 +18,11 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { createElement, forwardRef, useCallback, useLayoutEffect, useRef } from "react";
+import { createElement, forwardRef, useCallback, useRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { PageProps } from "./page.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
@@ -43,7 +44,7 @@ export const Page = withMiaixzThemeComponent(
       },
       [forwardedRef],
     );
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       if (component !== "section") return;
       const root = rootRef.current;
       const labelledBy = props["aria-labelledby"];

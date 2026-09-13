@@ -22,6 +22,7 @@ export { OfficeView } from "./office-view.js";
 export type {
   OfficeViewLabels,
   OfficeViewProps,
+  OfficeViewSlotProps,
   OnlyOfficeDocument,
   OnlyOfficeDocumentType,
   OnlyOfficeEditorConfig,

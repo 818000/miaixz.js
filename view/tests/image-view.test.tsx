@@ -23,7 +23,10 @@ describe("ImageView", () => {
       <ImageView
         actions={<button type="button">Share</button>}
         alt="Map"
-        imageProps={{ decoding: "async", className: "consumer-image" }}
+        slotProps={{
+          image: { decoding: "async", className: "consumer-image", style: { transform: "none" } },
+          toolbar: { className: "consumer-toolbar" },
+        }}
         initialScale={2}
         labels={{ zoomOut: "Smaller", rotateLeft: "Turn back" }}
         maxScale={2}
@@ -35,11 +38,36 @@ describe("ImageView", () => {
 
     const image = screen.getByRole("img", { name: "Map" });
     expect(image).toHaveClass("consumer-image");
+    expect(image).toHaveStyle({ transform: "scale(2) rotate(0deg)" });
+    expect(screen.getByRole("toolbar", { name: "Image preview controls" })).toHaveClass(
+      "consumer-toolbar",
+    );
     expect(screen.getByRole("button", { name: "Zoom in" })).toBeDisabled();
     await user.click(screen.getByRole("button", { name: "Smaller" }));
     await user.click(screen.getByRole("button", { name: "Turn back" }));
     expect(image).toHaveStyle({ transform: "scale(1) rotate(-90deg)" });
     expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
+  });
+
+  it("validates every scale input with one stable error code", () => {
+    for (const props of [
+      { minScale: 0 },
+      { maxScale: 0.5, minScale: 1 },
+      { scaleStep: Number.NaN },
+      { initialScale: Number.POSITIVE_INFINITY },
+    ]) {
+      expect(() => render(<ImageView alt="Invalid" src="invalid.png" {...props} />)).toThrow(
+        "[VIEW_IMAGE_SCALE_INVALID]",
+      );
+    }
+  });
+
+  it("clamps current zoom when the selectable range changes", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<ImageView alt="Range" maxScale={4} src="range.png" />);
+    await user.click(screen.getByRole("button", { name: "Zoom in" }));
+    rerender(<ImageView alt="Range" maxScale={1} src="range.png" />);
+    expect(await screen.findByText("100%")).toBeInTheDocument();
   });
 
   it("can hide controls and route image requests through FileView", () => {

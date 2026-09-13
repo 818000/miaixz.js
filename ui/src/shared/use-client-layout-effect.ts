@@ -18,11 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { PdfView } from "./pdf-view.js";
-export type {
-  PdfDocumentInfo,
-  PdfViewLabels,
-  PdfViewProps,
-  PdfViewSlotProps,
-  PdfViewSource,
-} from "./pdf-view.types.js";
+import { useEffect, useLayoutEffect } from "react";
+
+/**
+ * Uses layout timing in browsers and passive timing during server rendering.
+ */
+export const useMiaixzLayoutEffect =
+  typeof document === "undefined" ? useEffect : useLayoutEffect;

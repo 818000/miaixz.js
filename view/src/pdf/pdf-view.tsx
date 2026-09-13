@@ -21,7 +21,10 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 
+import { MiaixzViewError } from "../errors/view-error.js";
 import { clamp, classNames } from "../shared/class-names.js";
+import { useLatestRef } from "../shared/use-latest-ref.js";
+import { usePdfRequest } from "./pdf-request.js";
 import type {
   PdfDocumentInfo,
   PdfViewLabels,
@@ -30,6 +33,7 @@ import type {
 } from "./pdf-view.types.js";
 
 const defaultLabels: PdfViewLabels = {
+  toolbar: "PDF preview controls",
   loading: "Loading PDF",
   error: "Unable to preview this PDF",
   previousPage: "Previous page",
@@ -63,6 +67,16 @@ function toDocumentSource(
   return { data };
 }
 
+/** Rejects invalid public PDF navigation values on every render. */
+function validatePdfConfiguration(initialPage: number, initialScale: number): void {
+  if (!Number.isInteger(initialPage) || initialPage <= 0) {
+    throw new MiaixzViewError("VIEW_PDF_PAGE_INVALID");
+  }
+  if (!Number.isFinite(initialScale) || initialScale <= 0) {
+    throw new MiaixzViewError("VIEW_PDF_SCALE_INVALID");
+  }
+}
+
 /**
  * Normalizes values caught at the PDF.js boundary.
  *
@@ -81,13 +95,13 @@ function toError(value: unknown): Error {
 export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView(
   {
     src,
-    workerSrc,
     initialPage = 1,
     initialScale = 1,
     httpHeaders,
     withCredentials = false,
     labels: labelOverrides,
     actions,
+    slotProps,
     onDocumentLoad,
     onError,
     className,
@@ -95,35 +109,46 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
   },
   ref,
 ) {
+  validatePdfConfiguration(initialPage, initialScale);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [document, setDocument] = useState<PDFDocumentProxy>();
   const [page, setPage] = useState(initialPage);
   const [scale, setScale] = useState(() => clamp(initialScale, 0.25, 4));
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const labels = { ...defaultLabels, ...labelOverrides };
+  const request = usePdfRequest(src, httpHeaders, withCredentials);
+  const initialPageRef = useLatestRef(initialPage);
+  const onDocumentLoadRef = useLatestRef(onDocumentLoad);
+  const onErrorRef = useLatestRef(onError);
 
   useEffect(() => {
     let active = true;
     let loadingTask: PDFDocumentLoadingTask | undefined;
+    let loadedDocument: PDFDocumentProxy | undefined;
     setDocument(undefined);
     setStatus("loading");
 
     void import("pdfjs-dist")
       .then(async (pdfjs) => {
-        pdfjs.GlobalWorkerOptions.workerSrc =
-          workerSrc ?? new URL("./pdf.worker.min.mjs", import.meta.url).toString();
-        loadingTask = pdfjs.getDocument(toDocumentSource(src, httpHeaders, withCredentials));
-        const loadedDocument = await loadingTask.promise;
+        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+          "./pdf.worker.min.mjs",
+          import.meta.url,
+        ).toString();
+        loadingTask = pdfjs.getDocument(
+          toDocumentSource(request.source, request.httpHeaders, request.withCredentials),
+        );
+        const nextDocument = await loadingTask.promise;
         if (!active) {
-          await loadedDocument.destroy();
+          await nextDocument.destroy();
           return;
         }
-        const selectedPage = clamp(Math.trunc(initialPage), 1, loadedDocument.numPages);
+        loadedDocument = nextDocument;
+        const selectedPage = clamp(initialPageRef.current, 1, nextDocument.numPages);
         setPage(selectedPage);
-        setDocument(loadedDocument);
-        onDocumentLoad?.({
-          pages: loadedDocument.numPages,
-          fingerprints: loadedDocument.fingerprints.filter(
+        setDocument(nextDocument);
+        onDocumentLoadRef.current?.({
+          pages: nextDocument.numPages,
+          fingerprints: nextDocument.fingerprints.filter(
             (fingerprint): fingerprint is string => fingerprint !== null,
           ),
         });
@@ -132,14 +157,15 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
         if (!active) return;
         const error = toError(value);
         setStatus("error");
-        onError?.(error);
+        onErrorRef.current?.(error);
       });
 
     return () => {
       active = false;
-      void loadingTask?.destroy();
+      if (loadedDocument === undefined) void loadingTask?.destroy();
+      else void loadedDocument.destroy();
     };
-  }, [httpHeaders, initialPage, onDocumentLoad, onError, src, withCredentials, workerSrc]);
+  }, [initialPageRef, onDocumentLoadRef, onErrorRef, request]);
 
   useEffect(() => {
     if (document === undefined || canvasRef.current === null) return;
@@ -174,26 +200,31 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
         const error = toError(value);
         if (!active || error.name === "RenderingCancelledException") return;
         setStatus("error");
-        onError?.(error);
+        onErrorRef.current?.(error);
       });
 
     return () => {
       active = false;
       renderTask?.cancel();
     };
-  }, [document, onError, page, scale]);
+  }, [document, onErrorRef, page, scale]);
 
   const totalPages = document?.numPages ?? 0;
   return (
     <div
       {...rootProps}
-      className={classNames("miaixz-view", "miaixz-view-pdf", className)}
+      className={classNames("miaixz-preview", "miaixz-preview-pdf", className)}
       ref={ref}
     >
-      <div aria-label="PDF preview controls" className="miaixz-view-toolbar" role="toolbar">
+      <div
+        {...slotProps?.toolbar}
+        aria-label={labels.toolbar}
+        className={classNames("miaixz-preview-toolbar", slotProps?.toolbar?.className)}
+        role="toolbar"
+      >
         <button
           aria-label={labels.previousPage}
-          className="miaixz-view-command"
+          className="miaixz-preview-command"
           disabled={document === undefined || page <= 1}
           onClick={() => setPage((value) => Math.max(1, value - 1))}
           title={labels.previousPage}
@@ -201,12 +232,12 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
         >
           ‹
         </button>
-        <output aria-live="polite" className="miaixz-view-value">
+        <output aria-live="polite" className="miaixz-preview-value">
           {labels.page(page, totalPages)}
         </output>
         <button
           aria-label={labels.nextPage}
-          className="miaixz-view-command"
+          className="miaixz-preview-command"
           disabled={document === undefined || page >= totalPages}
           onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
           title={labels.nextPage}
@@ -216,7 +247,7 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
         </button>
         <button
           aria-label={labels.zoomOut}
-          className="miaixz-view-command"
+          className="miaixz-preview-command"
           disabled={scale <= 0.25}
           onClick={() => setScale((value) => clamp(value - 0.25, 0.25, 4))}
           title={labels.zoomOut}
@@ -224,12 +255,12 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
         >
           −
         </button>
-        <output aria-live="polite" className="miaixz-view-value">
+        <output aria-live="polite" className="miaixz-preview-value">
           {Math.round(scale * 100)}%
         </output>
         <button
           aria-label={labels.zoomIn}
-          className="miaixz-view-command"
+          className="miaixz-preview-command"
           disabled={scale >= 4}
           onClick={() => setScale((value) => clamp(value + 0.25, 0.25, 4))}
           title={labels.zoomIn}
@@ -239,16 +270,22 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
         </button>
         {actions}
       </div>
-      <div className="miaixz-view-stage">
+      <div
+        {...slotProps?.stage}
+        className={classNames("miaixz-preview-stage", slotProps?.stage?.className)}
+      >
         <canvas
+          {...slotProps?.canvas}
           aria-label={labels.page(page, totalPages)}
-          className="miaixz-view-pdf-canvas"
+          className={classNames("miaixz-preview-pdf-canvas", slotProps?.canvas?.className)}
           ref={canvasRef}
+          role="img"
         />
         {status !== "ready" && (
           <div
+            {...slotProps?.status}
             aria-live="polite"
-            className="miaixz-view-status"
+            className={classNames("miaixz-preview-status", slotProps?.status?.className)}
             role={status === "error" ? "alert" : "status"}
           >
             {status === "error" ? labels.error : labels.loading}

@@ -194,12 +194,16 @@ function auditEdge(source, edge) {
     if (
       source.startsWith(sdkSourceRoot) &&
       (/^@miaixz\/ui(?:\/|$)/.test(edge.specifier) ||
+        /^@miaixz\/view(?:\/|$)/.test(edge.specifier) ||
         /^react(?:-dom)?(?:\/|$)/.test(edge.specifier))
     ) {
       violations.push(`${relative(source)} imports forbidden SDK dependency ${edge.specifier}`);
     }
     if (source.startsWith(viewSourceRoot) && /^@miaixz\/sdk(?:\/|$)/.test(edge.specifier)) {
       violations.push(`${relative(source)} imports forbidden preview dependency ${edge.specifier}`);
+    }
+    if (source.startsWith(uiSourceRoot) && /^@miaixz\/view(?:\/|$)/.test(edge.specifier)) {
+      violations.push(`${relative(source)} imports forbidden UI dependency ${edge.specifier}`);
     }
     return;
   }
@@ -261,6 +265,38 @@ function auditEdge(source, edge) {
 }
 
 /**
+ * Enforces the single server-safe owner for React layout effects.
+ *
+ * @param {string} source Absolute source path to inspect.
+ * @returns {void}
+ */
+function auditLayoutEffectOwnership(source) {
+  if (!source.startsWith(uiSourceRoot)) return;
+  const sourcePath = relative(source);
+  const contents = readFileSync(source, "utf8");
+  const ownerPath = "ui/src/shared/use-client-layout-effect.ts";
+  const importsReactLayoutEffect =
+    /import\s*\{[^}]*\buseLayoutEffect\b[^}]*\}\s*from\s*["']react["']/su.test(contents);
+  const definesParallelLayoutEffect =
+    /typeof\s+document\s*===\s*["']undefined["']\s*\?\s*useEffect\s*:\s*useLayoutEffect/su.test(
+      contents,
+    );
+
+  if (sourcePath === ownerPath) {
+    if (!importsReactLayoutEffect || !definesParallelLayoutEffect) {
+      violations.push(`${ownerPath} must own the server-safe React layout effect definition`);
+    }
+    return;
+  }
+  if (importsReactLayoutEffect) {
+    violations.push(`${sourcePath} imports React useLayoutEffect outside ${ownerPath}`);
+  }
+  if (definesParallelLayoutEffect) {
+    violations.push(`${sourcePath} defines a parallel client layout effect outside ${ownerPath}`);
+  }
+}
+
+/**
  * Returns strongly connected components containing more than one file.
  *
  * @param {Map<string, Set<string>>} graph Directed source dependency graph.
@@ -311,6 +347,7 @@ function findCycles(graph) {
 const sourceFiles = sourceRoots.flatMap(listSourceFiles);
 const graph = new Map(sourceFiles.map((file) => [file, new Set()]));
 for (const source of sourceFiles) {
+  auditLayoutEffectOwnership(source);
   const classification = source.startsWith(uiSourceRoot) ? classifyUi(source) : undefined;
   if (classification?.kind === "unclassified") {
     violations.push(

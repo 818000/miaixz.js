@@ -19,6 +19,7 @@
 */
 
 import type { OnlyOfficeEditorConfig } from "./office-view.types.js";
+import { MiaixzViewError } from "../errors/view-error.js";
 
 /**
  * Represents the small lifecycle surface used from an ONLYOFFICE editor instance.
@@ -43,7 +44,13 @@ export interface OnlyOfficeApi {
   ) => OnlyOfficeEditorInstance;
 }
 
-const loadingScripts = new Map<string, Promise<OnlyOfficeApi>>();
+interface OnlyOfficeApiRegistry {
+  readonly apiUrl: string;
+  readonly nonce: string | null;
+  readonly promise: Promise<OnlyOfficeApi>;
+}
+
+let officeApiRegistry: OnlyOfficeApiRegistry | undefined;
 
 /**
  * Reads the optional global API installed by the document-server script.
@@ -68,11 +75,20 @@ function readApi(): OnlyOfficeApi | undefined {
  * @returns Normalized browser API URL.
  */
 function resolveApiUrl(documentServerUrl: string): string {
-  const url = new URL(documentServerUrl, window.location.href);
-  if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("ONLYOFFICE documentServerUrl must use HTTP or HTTPS.");
+  let url: URL;
+  try {
+    url = new URL(documentServerUrl);
+  } catch {
+    throw new MiaixzViewError("VIEW_OFFICE_SERVER_URL_INVALID");
   }
-  url.pathname = `${url.pathname.replace(/\/$/u, "")}/web-apps/apps/api/documents/api.js`;
+  if (
+    (url.protocol !== "http:" && url.protocol !== "https:") ||
+    url.username !== "" ||
+    url.password !== ""
+  ) {
+    throw new MiaixzViewError("VIEW_OFFICE_SERVER_URL_INVALID");
+  }
+  url.pathname = `${url.pathname.replace(/\/+$/u, "")}/web-apps/apps/api/documents/api.js`;
   url.search = "";
   url.hash = "";
   return url.toString();
@@ -89,32 +105,55 @@ export function loadOnlyOfficeApi(
   documentServerUrl: string,
   nonce?: string,
 ): Promise<OnlyOfficeApi> {
-  const existingApi = readApi();
-  if (existingApi !== undefined) return Promise.resolve(existingApi);
-  const apiUrl = resolveApiUrl(documentServerUrl);
-  const pending = loadingScripts.get(apiUrl);
-  if (pending !== undefined) return pending;
+  let apiUrl: string;
+  try {
+    apiUrl = resolveApiUrl(documentServerUrl);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+  const normalizedNonce = nonce ?? null;
+  if (officeApiRegistry !== undefined) {
+    if (officeApiRegistry.apiUrl !== apiUrl) {
+      return Promise.reject(new MiaixzViewError("VIEW_OFFICE_SERVER_CONFLICT"));
+    }
+    if (officeApiRegistry.nonce !== normalizedNonce) {
+      return Promise.reject(new MiaixzViewError("VIEW_OFFICE_NONCE_CONFLICT"));
+    }
+    return officeApiRegistry.promise;
+  }
 
+  const existingApi = readApi();
+  if (existingApi !== undefined) {
+    const promise = Promise.resolve(existingApi);
+    officeApiRegistry = { apiUrl, nonce: normalizedNonce, promise };
+    return promise;
+  }
+
+  let script: HTMLScriptElement;
   const loading = new Promise<OnlyOfficeApi>((resolve, reject) => {
-    const script = document.createElement("script");
+    script = document.createElement("script");
     script.async = true;
     script.src = apiUrl;
-    script.dataset.miaixzViewOffice = apiUrl;
+    script.dataset.miaixzPreviewOffice = apiUrl;
     if (nonce !== undefined) script.nonce = nonce;
     script.addEventListener("load", () => {
       const api = readApi();
       if (api === undefined) {
-        reject(new Error("ONLYOFFICE loaded without exposing window.DocsAPI."));
+        script.remove();
+        reject(new MiaixzViewError("VIEW_OFFICE_API_MISSING"));
         return;
       }
       resolve(api);
     });
     script.addEventListener("error", () => {
-      reject(new Error(`Unable to load the ONLYOFFICE browser API from ${apiUrl}.`));
+      script.remove();
+      reject(new MiaixzViewError("VIEW_OFFICE_API_LOAD_FAILED"));
     });
     document.head.append(script);
   });
-  loadingScripts.set(apiUrl, loading);
-  void loading.catch(() => loadingScripts.delete(apiUrl));
+  officeApiRegistry = { apiUrl, nonce: normalizedNonce, promise: loading };
+  void loading.catch(() => {
+    if (officeApiRegistry?.promise === loading) officeApiRegistry = undefined;
+  });
   return loading;
 }

@@ -18,17 +18,47 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 
+import { MiaixzViewError } from "../errors/view-error.js";
 import { clamp, classNames } from "../shared/class-names.js";
 import type { ImageViewLabels, ImageViewProps } from "./image-view.types.js";
 
 const defaultLabels: ImageViewLabels = {
+  toolbar: "Image preview controls",
   zoomIn: "Zoom in",
   zoomOut: "Zoom out",
   rotateLeft: "Rotate left",
   rotateRight: "Rotate right",
 };
+
+/**
+ * Rejects invalid image scale configuration before state is initialized or updated.
+ *
+ * @param initialScale - Initial image scale.
+ * @param minScale - Smallest selectable scale.
+ * @param maxScale - Largest selectable scale.
+ * @param scaleStep - Scale delta applied by toolbar commands.
+ */
+function validateScaleConfiguration(
+  initialScale: number,
+  minScale: number,
+  maxScale: number,
+  scaleStep: number,
+): void {
+  if (
+    !Number.isFinite(minScale) ||
+    minScale <= 0 ||
+    !Number.isFinite(maxScale) ||
+    maxScale < minScale ||
+    !Number.isFinite(scaleStep) ||
+    scaleStep <= 0 ||
+    !Number.isFinite(initialScale) ||
+    initialScale <= 0
+  ) {
+    throw new MiaixzViewError("VIEW_IMAGE_SCALE_INVALID");
+  }
+}
 
 /**
  * Renders an image with optional client-side zoom and rotation controls.
@@ -46,30 +76,40 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
     scaleStep = 0.25,
     labels: labelOverrides,
     actions,
-    imageProps,
+    slotProps,
     className,
     ...rootProps
   },
   ref,
 ) {
+  validateScaleConfiguration(initialScale, minScale, maxScale, scaleStep);
   const [scale, setScale] = useState(() => clamp(initialScale, minScale, maxScale));
   const [rotation, setRotation] = useState(0);
   const labels = { ...defaultLabels, ...labelOverrides };
   const transform = `scale(${scale}) rotate(${rotation}deg)`;
 
+  useEffect(() => {
+    setScale((value) => clamp(value, minScale, maxScale));
+  }, [maxScale, minScale]);
+
   return (
     <div
       {...rootProps}
-      className={classNames("miaixz-view", "miaixz-view-image", className)}
+      className={classNames("miaixz-preview", "miaixz-preview-image", className)}
       ref={ref}
     >
       {(controls || actions !== undefined) && (
-        <div aria-label="Image preview controls" className="miaixz-view-toolbar" role="toolbar">
+        <div
+          {...slotProps?.toolbar}
+          aria-label={labels.toolbar}
+          className={classNames("miaixz-preview-toolbar", slotProps?.toolbar?.className)}
+          role="toolbar"
+        >
           {controls && (
             <>
               <button
                 aria-label={labels.zoomOut}
-                className="miaixz-view-command"
+                className="miaixz-preview-command"
                 disabled={scale <= minScale}
                 onClick={() => setScale((value) => clamp(value - scaleStep, minScale, maxScale))}
                 title={labels.zoomOut}
@@ -77,12 +117,12 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
               >
                 −
               </button>
-              <output aria-live="polite" className="miaixz-view-value">
+              <output aria-live="polite" className="miaixz-preview-value">
                 {Math.round(scale * 100)}%
               </output>
               <button
                 aria-label={labels.zoomIn}
-                className="miaixz-view-command"
+                className="miaixz-preview-command"
                 disabled={scale >= maxScale}
                 onClick={() => setScale((value) => clamp(value + scaleStep, minScale, maxScale))}
                 title={labels.zoomIn}
@@ -92,7 +132,7 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
               </button>
               <button
                 aria-label={labels.rotateLeft}
-                className="miaixz-view-command"
+                className="miaixz-preview-command"
                 onClick={() => setRotation((value) => value - 90)}
                 title={labels.rotateLeft}
                 type="button"
@@ -101,7 +141,7 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
               </button>
               <button
                 aria-label={labels.rotateRight}
-                className="miaixz-view-command"
+                className="miaixz-preview-command"
                 onClick={() => setRotation((value) => value + 90)}
                 title={labels.rotateRight}
                 type="button"
@@ -113,13 +153,16 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
           {actions}
         </div>
       )}
-      <div className="miaixz-view-stage">
+      <div
+        {...slotProps?.stage}
+        className={classNames("miaixz-preview-stage", slotProps?.stage?.className)}
+      >
         <img
-          {...imageProps}
+          {...slotProps?.image}
           alt={alt}
-          className={classNames("miaixz-view-image-content", imageProps?.className)}
+          className={classNames("miaixz-preview-image-content", slotProps?.image?.className)}
           src={src}
-          style={{ ...imageProps?.style, transform }}
+          style={{ ...slotProps?.image?.style, transform }}
         />
       </div>
     </div>

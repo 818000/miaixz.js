@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ImgHTMLAttributes, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 /**
  * Defines localized labels used by image preview controls.
@@ -26,6 +26,8 @@ import type { HTMLAttributes, ImgHTMLAttributes, ReactNode } from "react";
  * @public
  */
 export interface ImageViewLabels {
+  /** Labels the image toolbar. */
+  readonly toolbar: string;
   /**
    * Labels the zoom-in command.
    */
@@ -44,12 +46,22 @@ export interface ImageViewLabels {
   readonly rotateRight: string;
 }
 
+/** Defines native properties for stable ImageView slots. @public */
+export interface ImageViewSlotProps {
+  readonly toolbar?: Omit<
+    ComponentPropsWithoutRef<"div">,
+    "children" | "role" | "aria-label"
+  >;
+  readonly stage?: Omit<ComponentPropsWithoutRef<"div">, "children">;
+  readonly image?: Omit<ComponentPropsWithoutRef<"img">, "children" | "src" | "alt">;
+}
+
 /**
  * Configures an image preview surface.
  *
  * @public
  */
-export interface ImageViewProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface ImageViewProps extends Omit<ComponentPropsWithoutRef<"div">, "children"> {
   /**
    * Supplies the authorized image URL.
    */
@@ -96,8 +108,6 @@ export interface ImageViewProps extends Omit<HTMLAttributes<HTMLDivElement>, "ch
    * Adds application-owned actions without assigning security meaning to their visibility.
    */
   readonly actions?: ReactNode;
-  /**
-   * Passes native properties to the rendered image.
-   */
-  readonly imageProps?: Omit<ImgHTMLAttributes<HTMLImageElement>, "alt" | "src">;
+  /** Passes native properties to stable internal slots. */
+  readonly slotProps?: ImageViewSlotProps;
 }

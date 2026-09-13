@@ -454,8 +454,6 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:browser": "playwright test",
-    "size": "size-limit",
-    "size:why": "size-limit --why",
     "check": "npm run typecheck && npm run lint && npm run lint:css && npm run audit:css && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
@@ -474,9 +472,6 @@
     "@eslint/js": "10.0.1",
     "@miaixz/sdk": "0.6.0",
     "@playwright/test": "1.62.1",
-    "@size-limit/esbuild": "12.1.0",
-    "@size-limit/esbuild-why": "12.1.0",
-    "@size-limit/file": "12.1.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.6",
@@ -496,7 +491,6 @@
     "publint": "0.3.24",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "size-limit": "12.1.0",
     "stylelint": "17.14.1",
     "stylelint-config-recess-order": "7.8.0",
     "stylelint-config-standard": "40.0.0",

@@ -6,13 +6,38 @@ This is the official Miaixz browser SDK. It gives independently deployed fronten
 
 The SDK has no third-party runtime dependencies and can be built and published independently with npm.
 
-The current `0.5.x` development line uses Host Bridge protocol `1.0.0`.
+The Host Bridge protocol version is `1.0.0`; repository checks keep this statement aligned with the exported protocol constant.
 
 ## Installation
 
 ```bash
 npm install @miaixz/sdk
 ```
+
+## Public entries
+
+This table is checked directly against the package export map.
+
+| Entry | Kind |
+| ----- | ---- |
+| `.` | JavaScript |
+| `./api` | JavaScript |
+| `./auth` | JavaScript |
+| `./context` | JavaScript |
+| `./config` | JavaScript |
+| `./permissions` | JavaScript |
+| `./runtime` | JavaScript |
+| `./events` | JavaScript |
+| `./storage` | JavaScript |
+| `./appearance` | JavaScript |
+| `./files` | JavaScript |
+| `./i18n` | JavaScript |
+| `./consts` | JavaScript |
+| `./contracts` | JavaScript |
+| `./errors` | JavaScript |
+| `./formatters` | JavaScript |
+| `./types` | JavaScript |
+| `./utils` | JavaScript |
 
 ## One-time setup
 

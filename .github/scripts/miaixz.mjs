@@ -61,7 +61,9 @@ function readPackageManifest(path) {
 export function assertReleaseVersion(version) {
   const match = semanticVersionPattern.exec(version);
   if (!match) {
-    throw new Error(`'${version}' must be a complete semantic version without build metadata.`);
+    throw new Error(
+      `'${version}' must be a complete semantic version without build metadata.`,
+    );
   }
   return {
     major: Number(match[1]),
@@ -98,21 +100,39 @@ export function loadWorkspaceRepository(root = repositoryRoot) {
   const configuredWorkspaces = Array.isArray(rootManifest.workspaces)
     ? rootManifest.workspaces
     : rootManifest.workspaces?.packages;
-  if (!Array.isArray(configuredWorkspaces) || configuredWorkspaces.length === 0) {
-    throw new Error("Root package.json must define at least one workspace directory.");
+  if (
+    !Array.isArray(configuredWorkspaces) ||
+    configuredWorkspaces.length === 0
+  ) {
+    throw new Error(
+      "Root package.json must define at least one workspace directory.",
+    );
   }
 
   const directories = configuredWorkspaces.map((directory) => {
-    if (typeof directory !== "string" || directory.trim() !== directory || directory === "") {
-      throw new Error("Every workspace entry must be a non-empty normalized directory string.");
+    if (
+      typeof directory !== "string" ||
+      directory.trim() !== directory ||
+      directory === ""
+    ) {
+      throw new Error(
+        "Every workspace entry must be a non-empty normalized directory string.",
+      );
     }
     if (isAbsolute(directory) || /[*?[\]{}]/u.test(directory)) {
-      throw new Error(`Workspace '${directory}' must be an explicit relative directory.`);
+      throw new Error(
+        `Workspace '${directory}' must be an explicit relative directory.`,
+      );
     }
     const workspaceRoot = resolve(root, directory);
     const workspaceRelativePath = relative(root, workspaceRoot);
-    if (workspaceRelativePath === "" || workspaceRelativePath.startsWith("..")) {
-      throw new Error(`Workspace '${directory}' must stay below the repository root.`);
+    if (
+      workspaceRelativePath === "" ||
+      workspaceRelativePath.startsWith("..")
+    ) {
+      throw new Error(
+        `Workspace '${directory}' must stay below the repository root.`,
+      );
     }
     return directory;
   });
@@ -142,7 +162,9 @@ export function loadWorkspaceRepository(root = repositoryRoot) {
   }
 
   return {
-    publicWorkspaces: workspaces.filter(({ manifest }) => manifest.private !== true),
+    publicWorkspaces: workspaces.filter(
+      ({ manifest }) => manifest.private !== true,
+    ),
     root,
     rootManifest,
     rootPackagePath,
@@ -160,7 +182,9 @@ export function loadWorkspaceRepository(root = repositoryRoot) {
  * @throws {Error} If internal workspace dependencies contain a cycle.
  */
 export function sortWorkspacesByDependencies(workspaces) {
-  const byName = new Map(workspaces.map((workspace) => [workspace.name, workspace]));
+  const byName = new Map(
+    workspaces.map((workspace) => [workspace.name, workspace]),
+  );
   const sorted = [];
   const visiting = new Set();
   const visited = new Set();
@@ -176,10 +200,15 @@ export function sortWorkspacesByDependencies(workspaces) {
   function visit(workspace, trail) {
     if (visited.has(workspace.name)) return;
     if (visiting.has(workspace.name)) {
-      throw new Error(`Workspace dependency cycle: ${[...trail, workspace.name].join(" -> ")}.`);
+      throw new Error(
+        `Workspace dependency cycle: ${[...trail, workspace.name].join(" -> ")}.`,
+      );
     }
     visiting.add(workspace.name);
-    for (const dependency of getInternalWorkspaceDependencies(workspace, byName)) {
+    for (const dependency of getInternalWorkspaceDependencies(
+      workspace,
+      byName,
+    )) {
       visit(dependency, [...trail, workspace.name]);
     }
     visiting.delete(workspace.name);
@@ -219,13 +248,18 @@ function getInternalWorkspaceDependencies(workspace, workspacesByName) {
  * @returns {void}
  * @throws {Error} If the script name is empty, a workspace omits it, or an npm command fails.
  */
-export function runWorkspaceScript(script, repository = loadWorkspaceRepository()) {
+export function runWorkspaceScript(
+  script,
+  repository = loadWorkspaceRepository(),
+) {
   if (typeof script !== "string" || script.trim() === "") {
     throw new Error("A workspace script name is required.");
   }
   for (const workspace of sortWorkspacesByDependencies(repository.workspaces)) {
     if (workspace.manifest.scripts?.[script] === undefined) {
-      throw new Error(`${workspace.name} does not define the '${script}' script.`);
+      throw new Error(
+        `${workspace.name} does not define the '${script}' script.`,
+      );
     }
     execFileSync("npm", ["run", script, "--workspace", workspace.name], {
       cwd: repository.root,
@@ -239,7 +273,10 @@ export function runWorkspaceScript(script, repository = loadWorkspaceRepository(
  * the direct CLI entry point.
  */
 const entryPath = process.argv[1];
-if (entryPath !== undefined && import.meta.url === pathToFileURL(resolve(entryPath)).href) {
+if (
+  entryPath !== undefined &&
+  import.meta.url === pathToFileURL(resolve(entryPath)).href
+) {
   const script = process.argv[2]?.trim();
   if (!script) throw new Error("Usage: miaixz.mjs <script>.");
   runWorkspaceScript(script);

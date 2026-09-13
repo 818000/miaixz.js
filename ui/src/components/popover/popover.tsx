@@ -23,7 +23,6 @@ import {
   forwardRef,
   useEffect,
   useId,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -36,6 +35,7 @@ import { useMiaixzManualPopover } from "../../shared/overlay/top-layer.js";
 import type { MiaixzOverlayChangeReason } from "../../shared/overlay/types.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { MiaixzPopoverContext } from "./context.js";
 import type { PopoverOwnerState, PopoverProps } from "./popover.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
@@ -142,7 +142,7 @@ export const Popover = withMiaixzThemeComponent(
       portalTarget,
       onDismiss: (reason) => requestOpenChange(false, reason),
     });
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       const candidate = triggerRef.current;
       if (candidate === null || !(candidate instanceof HTMLButtonElement)) {
         throw new MiaixzUiError({

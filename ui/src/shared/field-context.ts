@@ -18,9 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { createContext, useContext, useLayoutEffect, useRef } from "react";
+import { createContext, useContext, useRef } from "react";
 
 import { MiaixzUiError } from "../errors/ui-error.js";
+import { useMiaixzLayoutEffect } from "./use-client-layout-effect.js";
 
 /**
  * Describes state and ARIA properties inherited by a Field control.
@@ -148,7 +149,7 @@ export function useFieldControl<ControlProps extends FieldControlProps>(
   const context = useContext(MiaixzFieldContext);
   const registrationTokenRef = useRef(Symbol("miaixz-field-control"));
 
-  useLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     if (context === null) return undefined;
     const token = registrationTokenRef.current;
     context.registerControl(token);

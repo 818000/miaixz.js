@@ -20,12 +20,19 @@
 
 export { FileView } from "./file/file-view.js";
 export type { FileViewProps } from "./file/file-view.types.js";
+export { MiaixzViewError } from "./errors/view-error.js";
+export type { MiaixzViewErrorCode } from "./errors/view-error.js";
 export { ImageView } from "./image/image-view.js";
-export type { ImageViewLabels, ImageViewProps } from "./image/image-view.types.js";
+export type {
+  ImageViewLabels,
+  ImageViewProps,
+  ImageViewSlotProps,
+} from "./image/image-view.types.js";
 export { OfficeView } from "./office/office-view.js";
 export type {
   OfficeViewLabels,
   OfficeViewProps,
+  OfficeViewSlotProps,
   OnlyOfficeDocument,
   OnlyOfficeDocumentType,
   OnlyOfficeEditorConfig,
@@ -35,5 +42,6 @@ export type {
   PdfDocumentInfo,
   PdfViewLabels,
   PdfViewProps,
+  PdfViewSlotProps,
   PdfViewSource,
 } from "./pdf/pdf-view.types.js";

@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 /**
  * Defines the accepted in-memory and remote PDF sources.
@@ -49,6 +49,8 @@ export interface PdfDocumentInfo {
  * @public
  */
 export interface PdfViewLabels {
+  /** Labels the PDF toolbar. */
+  readonly toolbar: string;
   /**
    * Announces document loading.
    */
@@ -83,20 +85,36 @@ export interface PdfViewLabels {
   readonly page: (current: number, total: number) => string;
 }
 
+/** Defines native properties for stable PdfView slots. @public */
+export interface PdfViewSlotProps {
+  readonly toolbar?: Omit<
+    ComponentPropsWithoutRef<"div">,
+    "children" | "role" | "aria-label"
+  >;
+  readonly stage?: Omit<ComponentPropsWithoutRef<"div">, "children">;
+  readonly canvas?: Omit<
+    ComponentPropsWithoutRef<"canvas">,
+    "children" | "role" | "aria-label"
+  >;
+  readonly status?: Omit<
+    ComponentPropsWithoutRef<"div">,
+    "children" | "role" | "aria-live"
+  >;
+}
+
 /**
  * Configures a PDF.js preview surface.
  *
  * @public
  */
-export interface PdfViewProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onError"> {
+export interface PdfViewProps extends Omit<
+  ComponentPropsWithoutRef<"div">,
+  "children" | "onError"
+> {
   /**
    * Supplies an authorized URL or an in-memory PDF.
    */
   readonly src: PdfViewSource;
-  /**
-   * Overrides the worker URL copied into the package distribution.
-   */
-  readonly workerSrc?: string;
   /**
    * Selects the first page rendered after loading.
    *
@@ -127,6 +145,8 @@ export interface PdfViewProps extends Omit<HTMLAttributes<HTMLDivElement>, "chil
    * Adds application-owned actions without assigning security meaning to their visibility.
    */
   readonly actions?: ReactNode;
+  /** Passes native properties to stable internal slots. */
+  readonly slotProps?: PdfViewSlotProps;
   /**
    * Receives serializable document metadata after loading.
    */

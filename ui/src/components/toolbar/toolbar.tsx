@@ -21,7 +21,6 @@
 import {
   forwardRef,
   useCallback,
-  useLayoutEffect,
   useRef,
   useState,
   type FocusEvent,
@@ -31,6 +30,7 @@ import {
 import { assertMiaixzAccessibleName } from "../../accessibility/assert-accessible-name.js";
 import { classNames } from "../../shared/class-names.js";
 import { useRovingFocus } from "../../shared/use-roving-focus.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { ToolbarProps } from "./toolbar.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
@@ -109,7 +109,7 @@ export const Toolbar = withMiaixzThemeComponent(
       );
       setDirection(getComputedStyle(root).direction === "rtl" ? "rtl" : "ltr");
     }, []);
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       if (behavior !== "toolbar") {
         setElements([]);
         return;
@@ -126,7 +126,7 @@ export const Toolbar = withMiaixzThemeComponent(
       });
       return () => observer.disconnect();
     }, [behavior, rebuild, children]);
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       if (behavior !== "toolbar") return;
       for (const element of elements) {
         const tabIndex = roving.getTabIndex(element);

@@ -18,33 +18,16 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/**
- * Preserves ESM semantics while Size Limit bundles an entry for measurement.
- *
- * @param configuration - Generated esbuild configuration.
- * @returns ESM-compatible esbuild configuration.
- */
-function useEsmFormat(configuration) {
-  return { ...configuration, format: "esm" };
-}
+import { useRef, type RefObject } from "react";
 
-export default [
-  {
-    name: "Image preview entry",
-    path: "dist/image/index.js",
-    limit: "8 kB",
-    modifyEsbuildConfig: useEsmFormat,
-  },
-  {
-    name: "Office preview entry",
-    path: "dist/office/index.js",
-    limit: "10 kB",
-    modifyEsbuildConfig: useEsmFormat,
-  },
-  {
-    name: "PDF preview entry",
-    path: "dist/pdf/index.js",
-    limit: "110 kB",
-    modifyEsbuildConfig: useEsmFormat,
-  },
-];
+/**
+ * Retains the latest render value without changing resource-effect identity.
+ *
+ * @param value - Value exposed through the stable ref.
+ * @returns Stable ref containing the latest value.
+ */
+export function useLatestRef<T>(value: T): RefObject<T> {
+  const ref = useRef(value);
+  ref.current = value;
+  return ref;
+}

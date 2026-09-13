@@ -18,11 +18,40 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { PdfView } from "./pdf-view.js";
-export type {
-  PdfDocumentInfo,
-  PdfViewLabels,
-  PdfViewProps,
-  PdfViewSlotProps,
-  PdfViewSource,
-} from "./pdf-view.types.js";
+/**
+ * Identifies every stable public preview contract failure.
+ *
+ * @public
+ */
+export type MiaixzViewErrorCode =
+  | "VIEW_IMAGE_SCALE_INVALID"
+  | "VIEW_PDF_PAGE_INVALID"
+  | "VIEW_PDF_SCALE_INVALID"
+  | "VIEW_OFFICE_SERVER_URL_INVALID"
+  | "VIEW_OFFICE_SERVER_CONFLICT"
+  | "VIEW_OFFICE_NONCE_CONFLICT"
+  | "VIEW_OFFICE_API_MISSING"
+  | "VIEW_OFFICE_API_LOAD_FAILED";
+
+/**
+ * Reports a language-neutral preview contract failure without retaining sensitive input.
+ *
+ * @public
+ */
+export class MiaixzViewError extends Error {
+  /**
+   * Stable machine-readable failure code.
+   */
+  readonly code: MiaixzViewErrorCode;
+
+  /**
+   * Creates a preview contract error.
+   *
+   * @param code - Stable machine-readable failure code.
+   */
+  constructor(code: MiaixzViewErrorCode) {
+    super(`[${code}]`);
+    this.name = "MiaixzViewError";
+    this.code = code;
+  }
+}

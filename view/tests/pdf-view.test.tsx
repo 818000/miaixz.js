@@ -43,6 +43,7 @@ function configureSuccessfulDocument(): void {
 
 describe("PdfView", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     configureSuccessfulDocument();
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
       {} as CanvasRenderingContext2D,
@@ -58,7 +59,6 @@ describe("PdfView", () => {
         initialPage={8}
         onDocumentLoad={onDocumentLoad}
         src="https://files.example/report.pdf"
-        workerSrc="https://assets.example/pdf.worker.mjs"
         withCredentials
       />,
     );
@@ -67,7 +67,7 @@ describe("PdfView", () => {
       expect(onDocumentLoad).toHaveBeenCalledWith({ pages: 2, fingerprints: ["fingerprint"] }),
     );
     await waitFor(() => expect(pdf.render).toHaveBeenCalled());
-    expect(pdf.workerOptions.workerSrc).toBe("https://assets.example/pdf.worker.mjs");
+    expect(pdf.workerOptions.workerSrc).toContain("pdf.worker.min.mjs");
     expect(pdf.getDocument).toHaveBeenCalledWith({
       url: "https://files.example/report.pdf",
       withCredentials: true,
@@ -78,6 +78,62 @@ describe("PdfView", () => {
     await user.click(screen.getByRole("button", { name: "Zoom in" }));
     await waitFor(() => expect(screen.getByText("1 / 2")).toBeInTheDocument());
     expect(screen.getByText("125%")).toBeInTheDocument();
+  });
+
+  it("keeps resource identity stable across callback, page, and equivalent header changes", async () => {
+    const firstLoad = vi.fn();
+    const { rerender } = render(
+      <PdfView httpHeaders={{ Authorization: "opaque" }} onDocumentLoad={firstLoad} src="a.pdf" />,
+    );
+    await waitFor(() => expect(firstLoad).toHaveBeenCalledOnce());
+    const replacement = vi.fn();
+    rerender(
+      <PdfView
+        httpHeaders={{ Authorization: "opaque" }}
+        initialPage={2}
+        onDocumentLoad={replacement}
+        src={new URL("a.pdf", "https://example.test")}
+      />,
+    );
+    expect(pdf.getDocument).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not reload for equivalent URL values or callback identity changes", async () => {
+    const firstLoad = vi.fn();
+    const source = new URL("https://files.example/a.pdf");
+    const { rerender } = render(
+      <PdfView httpHeaders={{ X: "one" }} onDocumentLoad={firstLoad} src={source} />,
+    );
+    await waitFor(() => expect(firstLoad).toHaveBeenCalledOnce());
+    pdf.getDocument.mockClear();
+    const replacement = vi.fn();
+    rerender(
+      <PdfView
+        httpHeaders={{ X: "one" }}
+        initialPage={2}
+        onDocumentLoad={replacement}
+        src={new URL(source.toString())}
+      />,
+    );
+    expect(pdf.getDocument).not.toHaveBeenCalled();
+  });
+
+  it("validates navigation inputs and protects semantic slot ownership", async () => {
+    expect(() => render(<PdfView initialPage={0} src="invalid.pdf" />)).toThrow(
+      "[VIEW_PDF_PAGE_INVALID]",
+    );
+    expect(() => render(<PdfView initialScale={0} src="invalid.pdf" />)).toThrow(
+      "[VIEW_PDF_SCALE_INVALID]",
+    );
+    render(
+      <PdfView
+        labels={{ toolbar: "Document commands" }}
+        slotProps={{ canvas: { "aria-label": "ignored", className: "canvas-slot" } }}
+        src="valid.pdf"
+      />,
+    );
+    expect(screen.getByRole("toolbar", { name: "Document commands" })).toBeInTheDocument();
+    expect(await screen.findByRole("img", { name: /\/ 2/u })).toHaveClass("canvas-slot");
   });
 
   it("copies in-memory data and routes PDF requests through FileView", async () => {

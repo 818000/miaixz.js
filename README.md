@@ -22,7 +22,7 @@ The repository is organized as an npm workspace. All public packages use one syn
 
 ## Requirements
 
-- Node.js 20 or later; `@miaixz/view` requires Node.js 20.19 or later.
+- Node.js 20.19 or later at the workspace root. SDK and UI consumers support Node.js 20 or later; `@miaixz/view` requires Node.js 20.19 or later.
 - npm 10 or later.
 - An ESM-compatible application and build tool.
 - React and ReactDOM when using `@miaixz/ui` or `@miaixz/view`.
@@ -39,6 +39,12 @@ Install the design system and its peers:
 
 ```bash
 npm install @miaixz/ui @miaixz/sdk react react-dom
+```
+
+Install file previews together with their UI theme peer:
+
+```bash
+npm install @miaixz/view @miaixz/ui @miaixz/sdk react react-dom
 ```
 
 All packages are ESM-only and do not expose CommonJS `require` entry points.
@@ -102,6 +108,34 @@ The SDK persists `theme`, `colorMode`, `density`, and mode-specific color overri
 `Theme` component validates and applies them atomically. Applications own their page root background
 through the public Page Surface variables; the library intentionally does not set a background on
 `html` or `body`.
+
+`@miaixz/ui/view` exports the design-system `View` used for page layout. `@miaixz/view` is a
+separate file-preview package and exports `FileView`, `ImageView`, `PdfView`, and `OfficeView`—it
+does not export a component named `View`. Preview styles depend on UI theme tokens, so import the
+UI stylesheet first, then the preview stylesheet, and render previews inside both locale and Theme
+providers:
+
+```tsx compile
+import "@miaixz/ui/styles.css";
+import "@miaixz/view/styles.css";
+import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
+import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+import { MiaixzLocaleProvider, Theme } from "@miaixz/ui";
+import { FileView } from "@miaixz/view";
+
+const appearance = createMiaixzAppearanceManager({ appId: "preview-example" });
+const i18n = createMiaixzI18n({ locale: "en-US", fallbackLocale: "en-US" });
+
+export function PreviewExample() {
+  return (
+    <MiaixzLocaleProvider i18n={i18n}>
+      <Theme appearance={appearance} scope="local">
+        <FileView alt="Architecture diagram" kind="image" src="/diagram.png" />
+      </Theme>
+    </MiaixzLocaleProvider>
+  );
+}
+```
 
 See the package documentation for authentication modes, API envelopes, service clients, permissions, cross-tab events, appearance synchronization, internationalization, component contracts, and microfrontend integration:
 

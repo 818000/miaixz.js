@@ -23,7 +23,6 @@ import {
   forwardRef,
   useEffect,
   useId,
-  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -37,6 +36,7 @@ import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
 import { useMiaixzManualPopover } from "../../shared/overlay/top-layer.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { TooltipOwnerState, TooltipProps } from "./tooltip.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
@@ -173,7 +173,7 @@ export const Tooltip = withMiaixzThemeComponent(
       },
     });
     useEffect(() => clearTimer, []);
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       const element = childRef.current;
       if (element === null || !(element instanceof HTMLElement)) {
         throw new MiaixzUiError({

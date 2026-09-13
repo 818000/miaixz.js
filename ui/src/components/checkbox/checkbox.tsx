@@ -18,12 +18,13 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useLayoutEffect, useRef } from "react";
+import { forwardRef, useRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type {
   CheckboxOwnerState,
   CheckboxProps,
@@ -81,7 +82,7 @@ export const Checkbox = withMiaixzThemeComponent(
       disabled: effectiveDisabled,
       invalid: effectiveInvalid,
     };
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       if (inputRef.current !== null) inputRef.current.indeterminate = indeterminate;
     }, [indeterminate]);
 

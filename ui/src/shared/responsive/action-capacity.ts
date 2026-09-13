@@ -18,9 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useLayoutEffect, useState, type RefObject } from "react";
+import { useState, type RefObject } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLayoutEffect } from "../use-client-layout-effect.js";
 
 /**
  * Describes an action identity accepted by the shared capacity algorithm.
@@ -142,7 +143,7 @@ export function calculateMiaixzActionCapacity(
  */
 export function useActionCapacity(options: MiaixzActionCapacityOptions): number {
   const [capacity, setCapacity] = useState(0);
-  useLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     const root = options.rootRef.current;
     const overflow = options.overflowMeasureRef.current;
     const actionElements = options.actionMeasureRefs.map((reference) => reference.current);

@@ -22,7 +22,6 @@ import {
   createElement,
   forwardRef,
   useId,
-  useLayoutEffect,
   useRef,
   type DialogHTMLAttributes,
   type MouseEvent,
@@ -34,6 +33,7 @@ import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { useMiaixzNativeModal } from "../../shared/overlay/native-modal.js";
 import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
 import { Icon } from "../icon/icon.js";
@@ -158,7 +158,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
     const requestClose = (reason: DialogCloseReason): void => onOpenChange(false, reason);
     const restoreFocusRef = useMiaixzNativeModal(dialogRef, open, portalTarget);
 
-    useLayoutEffect(() => {
+    useMiaixzLayoutEffect(() => {
       if (!open) return;
       const paper = paperRef.current;
       if (paper === null) return;

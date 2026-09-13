@@ -117,8 +117,6 @@
     "format:check": "prettier . --check",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "size": "size-limit",
-    "size:why": "size-limit --why",
     "check": "npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
   },
   "devDependencies": {
@@ -126,9 +124,6 @@
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
-    "@size-limit/esbuild": "12.1.0",
-    "@size-limit/esbuild-why": "12.1.0",
-    "@size-limit/file": "12.1.0",
     "@types/node": "26.4.0",
     "@vitest/coverage-v8": "4.1.11",
     "eslint": "10.9.1",
@@ -137,7 +132,6 @@
     "globals": "17.11.0",
     "prettier": "3.9.6",
     "publint": "0.3.24",
-    "size-limit": "12.1.0",
     "typescript": "7.0.2",
     "vitest": "4.1.11"
   },
