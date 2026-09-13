@@ -18,31 +18,35 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import type { SkeletonProps } from "./skeleton.types.js";
-
-/**
- * Renders a non-interactive placeholder while content is loading.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
  */
-export const Skeleton = forwardRef<HTMLSpanElement, SkeletonProps>(function Skeleton(
-  { variant = "text", width, height, className, style, ...props },
-  ref,
-) {
-  return (
-    <span
-      {...props}
-      ref={ref}
-      aria-hidden="true"
-      className={classNames(
-        "miaixz-skeleton",
-        variant !== "custom" && `miaixz-skeleton-${variant}`,
-        className,
-      )}
-      style={{ ...style, width, height }}
-    />
-  );
-});
+import { forwardRef } from "react";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { SkeletonOwnerState, SkeletonProps } from "./skeleton.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Renders an empty, assistive-hidden geometric loading placeholder.
+ */
+export const Skeleton = withMiaixzThemeComponent(
+  "Skeleton",
+  forwardRef<HTMLSpanElement, SkeletonProps>(function Skeleton(
+    { variant = "text", width, height, slotProps, style, ...props },
+    ref,
+  ) {
+    const ownerState: SkeletonOwnerState = { variant };
+    return (
+      <span
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-skeleton" },
+          componentProps: { ...props, style: { ...style, width, height } },
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "aria-hidden": true, "data-variant": variant },
+          ownedProps: ["aria-hidden", "data-variant"],
+        })}
+      />
+    );
+  }),
+);

@@ -19,4 +19,13 @@
 */
 
 export { Timeline } from "./timeline.js";
-export type { MiaixzTimelineItem, TimelineProps } from "./timeline.types.js";
+export type {
+  MiaixzTimelineItem,
+  MiaixzTimelineOwnProps,
+  TimelineLayout,
+  TimelineOwnerState,
+  TimelineProps,
+  TimelineRootAttributes,
+  TimelineSlot,
+  TimelineSlotProps,
+} from "./timeline.types.js";

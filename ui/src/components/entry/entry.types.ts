@@ -18,24 +18,36 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc --
+ * Closed Entry dimensions and slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Configures a full-viewport application entry layout.
- *
- * @public
+export interface EntryOwnerState {
+  readonly layout: "split" | "centered";
+  readonly contentComponent: "div" | "main";
+  readonly hasAside: boolean;
+}
+export type EntryRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & {
+    readonly "data-layout"?: EntryOwnerState["layout"];
+    readonly "data-has-aside"?: boolean;
+  };
+export interface EntrySlotProps {
+  readonly root?: MiaixzSlotProps<EntryOwnerState, EntryRootAttributes>;
+  readonly aside?: MiaixzSlotProps<EntryOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly asideContent?: MiaixzSlotProps<EntryOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly content?: MiaixzSlotProps<EntryOwnerState, HTMLAttributes<HTMLElement>>;
+}
+
+/*
+ * Configures a full-viewport application entry layout. @public
  */
 export interface EntryProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-  /**
-   * Overrides the entry composition registered by the active theme.
-   */
-  variant?: "split" | "centered";
-  /**
-   * Supplies optional supporting content for the desktop split layout.
-   */
-  aside?: ReactNode;
-  /**
-   * Supplies the primary entry content.
-   */
-  children: ReactNode;
+  readonly layout?: "split" | "centered";
+  readonly contentComponent?: "div" | "main";
+  readonly aside?: ReactNode;
+  readonly children: ReactNode;
+  readonly slotProps?: EntrySlotProps;
 }

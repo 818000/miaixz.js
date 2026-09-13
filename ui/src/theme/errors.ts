@@ -18,27 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzUiError } from "../errors/index.js";
-import type { MiaixzThemeErrorCode } from "./types.js";
-
-const miaixzThemeErrorMessages: Readonly<Record<MiaixzThemeErrorCode, string>> = Object.freeze({
-  UI_THEME_NOT_FOUND: "The requested theme was not found",
-  UI_THEME_LOAD_FAILED: "The theme could not be loaded",
-  UI_THEME_LOAD_ABORTED: "The theme load was cancelled",
-  UI_THEME_INVALID: "The theme definition is invalid",
-  UI_THEME_TOKEN_UNKNOWN: "The theme contains an unknown token",
-  UI_THEME_TOKEN_MISSING: "The theme is missing a required token",
-  UI_THEME_GEOMETRY_INVALID: "The theme geometry is invalid",
-  UI_THEME_SURFACE_INVALID: "The theme surface mapping is invalid",
-  UI_THEME_CONTRAST_INVALID: "The theme color contrast is insufficient",
-  UI_THEME_INHERITANCE_INVALID: "The theme inheritance chain is invalid",
-  UI_THEME_SCHEMA_UNSUPPORTED: "The theme schema version is unsupported",
-  UI_THEME_DUPLICATE: "The theme identifier is already registered",
-  UI_THEME_FALLBACK_INVALID: "The fallback theme is invalid",
-  UI_THEME_GLOBAL_DUPLICATE: "Only one global Theme instance is allowed",
-  UI_THEME_APPLY_FAILED: "The theme could not be applied",
-  UI_THEME_PERSIST_FAILED: "The theme preference could not be persisted",
-});
+import { MiaixzUiError } from "../errors/ui-error.js";
+import type { MiaixzThemeErrorCode } from "./error-types.js";
 
 /**
  * Configures one structured theme runtime error.
@@ -81,10 +62,8 @@ export class MiaixzThemeError extends MiaixzUiError {
    * @param options - Optional safe theme, details, and cause metadata.
    */
   constructor(code: MiaixzThemeErrorCode, options: MiaixzThemeErrorOptions = {}) {
-    const messageKey = themeErrorMessageKey(code);
-    super(miaixzThemeErrorMessages[code], {
+    super({
       code,
-      messageKey,
       ...(options.details === undefined && options.theme === undefined
         ? {}
         : {
@@ -113,20 +92,4 @@ function asDetails(details: unknown): Record<string, unknown> {
     : details === undefined
       ? {}
       : { value: details };
-}
-
-/**
- * Converts a theme error code to its fixed lower-camel message key.
- *
- * @param code - Stable theme error code.
- * @returns Registered theme message key.
- */
-function themeErrorMessageKey(code: MiaixzThemeErrorCode): string {
-  const words = code.slice("UI_THEME_".length).toLowerCase().split("_");
-  const suffix = words
-    .map((word, index) =>
-      index === 0 ? word : `${word.slice(0, 1).toUpperCase()}${word.slice(1)}`,
-    )
-    .join("");
-  return `ui.theme.${suffix}`;
 }

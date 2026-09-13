@@ -18,79 +18,169 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useLayoutEffect, useRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
-import type { CheckboxProps } from "./checkbox.types.js";
+import { useFieldControl } from "../../shared/field-context.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
+import type {
+  CheckboxOwnerState,
+  CheckboxProps,
+  CheckboxRootAttributes,
+} from "./checkbox.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a labeled native checkbox with shared visual treatment.
+ * Renders a labeled native checkbox with fixed semantic slots.
  *
  * @public
  */
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
-  {
-    label,
-    description,
-    indeterminate = false,
-    invalid = false,
-    previewState,
-    className,
-    disabled,
-    checked,
-    defaultChecked,
-    onChange,
-    "aria-invalid": ariaInvalid,
-    ...props
-  },
-  forwardedRef,
-) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [uncontrolledChecked, setUncontrolledChecked] = useState(defaultChecked ?? false);
-  const isChecked = checked === undefined ? uncontrolledChecked : checked;
-  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
+export const Checkbox = withMiaixzThemeComponent(
+  "Checkbox",
+  forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(props, ref) {
+    const {
+      label,
+      description,
+      indeterminate = false,
+      invalid,
+      className,
+      style,
+      disabled,
+      checked,
+      defaultChecked,
+      onChange,
+      required,
+      id,
+      slotProps,
+      "aria-invalid": ariaInvalid,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
+      ...nativeProps
+    } = props;
+    const inputRef = useRef<HTMLInputElement>(null);
+    const checkedState = useChoiceControlState({
+      inputRef,
+      checked,
+      defaultChecked: defaultChecked ?? false,
+    });
+    const fieldProps = useFieldControl({
+      ...(id === undefined ? {} : { id }),
+      ...(required === undefined ? {} : { required }),
+      ...(disabled === undefined ? {} : { disabled }),
+      ...(invalid === undefined ? {} : { invalid }),
+      ...(ariaInvalid === undefined ? {} : { "aria-invalid": ariaInvalid }),
+      ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
+      ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
+    });
+    const effectiveDisabled = fieldProps.disabled ?? false;
+    const effectiveInvalid = fieldProps.invalid ?? false;
+    const ownerState: CheckboxOwnerState = {
+      checked: checkedState.value,
+      indeterminate,
+      disabled: effectiveDisabled,
+      invalid: effectiveInvalid,
+    };
+    useLayoutEffect(() => {
+      if (inputRef.current !== null) inputRef.current.indeterminate = indeterminate;
+    }, [indeterminate]);
 
-  useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement, []);
-  useEffect(() => {
-    if (inputRef.current) inputRef.current.indeterminate = indeterminate;
-  }, [indeterminate]);
-
-  return (
-    <label
-      className={classNames(
-        "miaixz-choice",
-        "miaixz-checkbox",
-        disabled && "miaixz-choice-disabled",
-        isInvalid && "miaixz-choice-invalid",
-        className,
-      )}
-      data-disabled={disabled || undefined}
-      data-filled={isChecked || indeterminate || undefined}
-      data-invalid={isInvalid || undefined}
-      data-preview-state={previewState}
-    >
-      <input
-        {...props}
-        ref={inputRef}
-        type="checkbox"
-        disabled={disabled}
-        checked={checked}
-        defaultChecked={defaultChecked}
-        aria-checked={indeterminate ? "mixed" : checked}
-        aria-invalid={isInvalid || undefined}
-        className="miaixz-choice-input"
-        onChange={(event) => {
-          if (checked === undefined) setUncontrolledChecked(event.currentTarget.checked);
-          onChange?.(event);
-        }}
-      />
-      <span className="miaixz-choice-mark" aria-hidden="true" />
-      {(label || description) && (
-        <span className="miaixz-choice-content">
-          {label && <span className="miaixz-choice-label">{label}</span>}
-          {description && <span className="miaixz-choice-description">{description}</span>}
-        </span>
-      )}
-    </label>
-  );
-});
+    const rootProps = mergeMiaixzSlotProps<
+      CheckboxOwnerState,
+      CheckboxRootAttributes,
+      HTMLLabelElement
+    >({
+      ownerState,
+      defaultProps: {
+        className: classNames(
+          "miaixz-choice",
+          "miaixz-checkbox",
+          effectiveDisabled && "miaixz-choice-disabled",
+          effectiveInvalid && "miaixz-choice-invalid",
+        ),
+      },
+      componentProps: {
+        ...(className === undefined ? {} : { className }),
+        ...(style === undefined ? {} : { style }),
+      },
+      slotProps: slotProps?.root,
+      internalProps: {
+        ...(effectiveDisabled ? { "data-disabled": true } : {}),
+        ...(checkedState.value || indeterminate ? { "data-filled": true } : {}),
+        ...(effectiveInvalid ? { "data-invalid": true } : {}),
+      },
+      ownedProps: ["data-disabled", "data-filled", "data-invalid"],
+    });
+    const inputProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-choice-input" },
+      componentProps: { ...nativeProps, ...(onChange === undefined ? {} : { onChange }) },
+      slotProps: slotProps?.input,
+      internalRef: inputRef,
+      forwardedRef: ref,
+      internalProps: {
+        ...(fieldProps.id === undefined ? {} : { id: fieldProps.id }),
+        type: "checkbox",
+        disabled: effectiveDisabled,
+        ...(fieldProps.required === undefined ? {} : { required: fieldProps.required }),
+        ...(checked === undefined ? {} : { checked }),
+        ...(defaultChecked === undefined ? {} : { defaultChecked }),
+        "aria-checked": indeterminate ? "mixed" : checkedState.value,
+        ...(effectiveInvalid ? { "aria-invalid": true } : {}),
+        ...(fieldProps["aria-labelledby"] === undefined
+          ? {}
+          : { "aria-labelledby": fieldProps["aria-labelledby"] }),
+        ...(fieldProps["aria-describedby"] === undefined
+          ? {}
+          : { "aria-describedby": fieldProps["aria-describedby"] }),
+        onChange: checkedState.sync,
+      },
+      ownedProps: [
+        "id",
+        "type",
+        "disabled",
+        "required",
+        "checked",
+        "defaultChecked",
+        "aria-checked",
+        "aria-invalid",
+        "aria-labelledby",
+        "aria-describedby",
+      ],
+    });
+    const markProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-choice-mark" },
+      slotProps: slotProps?.mark,
+      internalProps: { "aria-hidden": true },
+      ownedProps: ["aria-hidden"],
+    });
+    const contentProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-choice-content" },
+      slotProps: slotProps?.content,
+    });
+    const labelProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-choice-label" },
+      slotProps: slotProps?.label,
+    });
+    const descriptionProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-choice-description" },
+      slotProps: slotProps?.description,
+    });
+    return (
+      <label {...rootProps}>
+        <input {...inputProps} />
+        <span {...markProps} />
+        {(label !== undefined || description !== undefined) && (
+          <span {...contentProps}>
+            {label !== undefined && <span {...labelProps}>{label}</span>}
+            {description !== undefined && <span {...descriptionProps}>{description}</span>}
+          </span>
+        )}
+      </label>
+    );
+  }),
+);

@@ -19,4 +19,14 @@
 */
 
 export { Descriptions } from "./descriptions.js";
-export type { DescriptionsItem, DescriptionsProps } from "./types.js";
+export type {
+  DescriptionsDensity,
+  DescriptionsItem,
+  DescriptionsLayout,
+  DescriptionsOwnerState,
+  DescriptionsProps,
+  DescriptionsRootAttributes,
+  DescriptionsSlot,
+  DescriptionsSlotProps,
+  MiaixzDescriptionsOwnProps,
+} from "./descriptions.types.js";

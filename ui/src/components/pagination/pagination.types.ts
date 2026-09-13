@@ -18,50 +18,48 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
-/**
- * Configures controlled page-number navigation.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed pagination slots are self-describing.
  */
-export interface PaginationProps extends Omit<HTMLAttributes<HTMLElement>, "onChange"> {
-  /**
-   * Selects default navigation or an unframed compact footer with optional native children.
-   */
-  variant?: "default" | "plain" | "plain-inset";
-  /**
-   * Selects the current one-based page.
-   */
-  page: number;
-  /**
-   * Supplies the total number of pages.
-   */
-  pageCount: number;
-  /**
-   * Receives a requested one-based page.
-   */
-  onPageChange: (page: number) => void;
-  /**
-   * Controls the page count shown on either side of the current page.
-   *
-   * @defaultValue `1`
-   */
-  siblingCount?: number;
-  /**
-   * Overrides the localized navigation label.
-   */
-  label?: string;
-  /**
-   * Overrides the localized previous-page label.
-   */
-  previousLabel?: string;
-  /**
-   * Overrides the localized next-page label.
-   */
-  nextLabel?: string;
-  /**
-   * Displays optional pagination summary content.
-   */
-  summary?: ReactNode;
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type PaginationVariant = "default" | "plain";
+export type PaginationSlot = "root" | "summary" | "list" | "item" | "ellipsis";
+export interface PaginationOwnerState {
+  readonly variant: PaginationVariant;
+  readonly inset: boolean;
+  readonly page: number;
+  readonly pageCount: number;
 }
+export type PaginationRootAttributes = HTMLAttributes<HTMLElement> &
+  RefAttributes<HTMLElement> & {
+    readonly "data-variant"?: PaginationVariant;
+    readonly "data-inset"?: boolean;
+  };
+export interface PaginationSlotProps {
+  readonly root?: MiaixzSlotProps<PaginationOwnerState, PaginationRootAttributes>;
+  readonly summary?: MiaixzSlotProps<PaginationOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly list?: MiaixzSlotProps<PaginationOwnerState, HTMLAttributes<HTMLUListElement>>;
+  readonly item?: MiaixzSlotProps<PaginationOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly ellipsis?: MiaixzSlotProps<PaginationOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzPaginationOwnProps {
+  readonly variant?: PaginationVariant;
+  readonly inset?: boolean;
+  readonly page: number;
+  readonly pageCount: number;
+  readonly onPageChange: (page: number) => void;
+  readonly siblingCount?: number;
+  readonly showPrevious?: boolean;
+  readonly showNext?: boolean;
+  readonly label?: string;
+  readonly previousLabel?: string;
+  readonly nextLabel?: string;
+  readonly summary?: ReactNode;
+  readonly slotProps?: PaginationSlotProps;
+}
+/*
+ * Configures controlled page-number navigation. @public
+ */
+export type PaginationProps = MiaixzPaginationOwnProps &
+  Omit<HTMLAttributes<HTMLElement>, keyof MiaixzPaginationOwnProps | "children" | "onChange">;

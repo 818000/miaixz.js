@@ -21,6 +21,7 @@
 /*
  * Generated from ui/src/design/breakpoints.ts; do not edit.
  */
+
 [data-miaixz-theme] {
   --miaixz-breakpoint-tablet: 768px;
   --miaixz-breakpoint-compact-desktop: 1024px;
@@ -164,7 +165,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .miaixz-sidebar > .miaixz-sticky {
+  .miaixz-sidebar > .miaixz-sidebar-aside[data-sticky] {
     position: static;
   }
 }

@@ -20,9 +20,16 @@
 
 import { createContext, createElement, useContext, type ReactNode } from "react";
 import { MiaixzThemeError } from "./errors.js";
+import type {
+  MiaixzThemeComponent,
+  MiaixzThemeComponentRegistry,
+  ThemeComponents,
+} from "./components.js";
 import type { ThemeContextValue } from "./types.js";
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+const emptyThemeComponent = Object.freeze({});
+const emptyThemeComponents: Readonly<ThemeComponents> = Object.freeze({});
 
 /**
  * Configures the internal theme context provider.
@@ -61,4 +68,28 @@ export function useTheme(): ThemeContextValue {
   throw new MiaixzThemeError("UI_THEME_INVALID", {
     details: { reason: "provider-missing" },
   });
+}
+
+/**
+ * Returns runtime component configuration without requiring a Theme provider.
+ *
+ * @param name - Exact public DOM component name registered by the Theme contract.
+ * @returns Active inherited component configuration or an immutable empty object.
+ * @internal
+ */
+export function useMiaixzThemeComponent<Name extends keyof MiaixzThemeComponentRegistry>(
+  name: Name,
+): MiaixzThemeComponent<Name> {
+  return (useContext(ThemeContext)?.components[name] ??
+    emptyThemeComponent) as MiaixzThemeComponent<Name>;
+}
+
+/**
+ * Returns the parent component registry for nested Theme composition.
+ *
+ * @returns The inherited component registry or an immutable empty registry.
+ * @internal
+ */
+export function useMiaixzParentThemeComponents(): Readonly<ThemeComponents> {
+  return useContext(ThemeContext)?.components ?? emptyThemeComponents;
 }

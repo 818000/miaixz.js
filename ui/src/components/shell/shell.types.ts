@@ -18,95 +18,59 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode, Ref } from "react";
-
-/**
- * Selects the narrow-screen navigation presentation.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed shell navigation and slots are self-describing.
  */
-export type ShellMobileNavigationMode = "bottom" | "drawer";
+import type { HTMLAttributes, ReactNode, Ref, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Selects whether the sidebar itself or its contained component owns overflow.
- *
- * @public
- */
 export type ShellSidebarOverflow = "auto" | "contained";
-
-/**
+export type ShellDesktopNavigation =
+  { readonly mode: "sidebar" } | { readonly mode: "rail"; readonly expanded: boolean };
+export type ShellMobileNavigation =
+  | { readonly mode: "none" }
+  | { readonly mode: "bottom"; readonly content: ReactNode }
+  | {
+      readonly mode: "drawer";
+      readonly open: boolean;
+      readonly dismissLabel: string;
+      readonly onOpenChange: (open: boolean) => void;
+    };
+export type ShellSlot = "root" | "header" | "sidebar" | "main" | "mobileNavigation";
+export interface ShellOwnerState {
+  readonly desktopNavigation: ShellDesktopNavigation;
+  readonly mobileNavigation: ShellMobileNavigation;
+  readonly headerBehavior: "fixed" | "scroll";
+  readonly sidebarOverflow: ShellSidebarOverflow;
+}
+export type ShellRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & {
+    readonly "data-desktop-navigation"?: "sidebar" | "rail";
+    readonly "data-navigation-expanded"?: boolean;
+    readonly "data-header-behavior"?: "fixed" | "scroll";
+  };
+export type ShellSidebarAttributes = HTMLAttributes<HTMLElement> & {
+  readonly "data-overflow"?: ShellSidebarOverflow;
+};
+export interface ShellSlotProps {
+  readonly root?: MiaixzSlotProps<ShellOwnerState, ShellRootAttributes>;
+  readonly header?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly sidebar?: MiaixzSlotProps<ShellOwnerState, ShellSidebarAttributes>;
+  readonly main?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly mobileNavigation?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface MiaixzShellOwnProps {
+  readonly mainRef?: Ref<HTMLElement>;
+  readonly header: ReactNode;
+  readonly sidebar: ReactNode;
+  readonly children: ReactNode;
+  readonly sidebarOverflow?: ShellSidebarOverflow;
+  readonly headerBehavior?: "fixed" | "scroll";
+  readonly desktopNavigation?: ShellDesktopNavigation;
+  readonly mobileNavigation?: ShellMobileNavigation;
+  readonly slotProps?: ShellSlotProps;
+}
+/*
  * Configures the root application shell. @public
  */
-export interface ShellProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Exposes the real content element to boundary-aware overlays.
-   */
-  mainRef?: Ref<HTMLElement>;
-  /**
-   * Supplies the application header.
-   */
-  header: ReactNode;
-  /**
-   * Supplies the primary navigation sidebar.
-   */
-  sidebar: ReactNode;
-  /**
-   * Delegates overflow to a height-aware sidebar component when set to `contained`.
-   *
-   * @defaultValue `"auto"`
-   */
-  sidebarOverflow?: ShellSidebarOverflow;
-  /**
-   * Selects viewport-contained main scrolling (`fixed`) or document scrolling (`scroll`).
-   * Fixed mode keeps the header and navigation outside the main scroll region.
-   * Both modes suppress vertical boundary bounce while preserving normal scrolling.
-   * Nested sticky content can consume `--miaixz-shell-content-sticky-offset`.
-   *
-   * @defaultValue `"fixed"`
-   */
-  headerBehavior?: "fixed" | "scroll";
-  /**
-   * Overrides the shell navigation composition registered by the active theme.
-   */
-  navigationVariant?: "collapsible" | "rail" | "sidebar";
-  /**
-   * Expands a collapsible navigation rail to the theme sidebar width.
-   *
-   * @defaultValue `false`
-   */
-  navigationExpanded?: boolean;
-  /**
-   * Selects bottom navigation or a sidebar drawer on narrow screens.
-   *
-   * @defaultValue `"bottom"`
-   */
-  mobileNavigationMode?: ShellMobileNavigationMode;
-  /**
-   * Labels the drawer backdrop control for assistive technology.
-   */
-  navigationDismissLabel?: string;
-  /**
-   * Closes the narrow-screen navigation drawer.
-   */
-  onNavigationDismiss?: () => void;
-  /**
-   * Supplies optional narrow-screen bottom navigation.
-   */
-  mobileNavigation?: ReactNode;
-  /**
-   * Adds a class to the main content region.
-   */
-  mainClassName?: string;
-  /**
-   * Adds a class to the header region.
-   */
-  headerClassName?: string;
-  /**
-   * Adds a class to the sidebar region.
-   */
-  sidebarClassName?: string;
-  /**
-   * Adds a class to the mobile navigation region.
-   */
-  mobileNavigationClassName?: string;
-}
+export type ShellProps = MiaixzShellOwnProps &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzShellOwnProps>;

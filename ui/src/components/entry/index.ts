@@ -19,4 +19,4 @@
 */
 
 export { Entry } from "./entry.js";
-export type { EntryProps } from "./entry.types.js";
+export type { EntryOwnerState, EntryProps, EntrySlotProps } from "./entry.types.js";

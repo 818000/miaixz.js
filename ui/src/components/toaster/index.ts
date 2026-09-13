@@ -23,5 +23,8 @@ export type {
   ToastContextValue,
   ToastOptions,
   ToasterProps,
+  ToasterOwnerState,
+  ToasterSlot,
+  ToasterSlotProps,
   ToastRecord,
 } from "./toaster.types.js";

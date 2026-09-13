@@ -18,59 +18,70 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ChangeEventHandler, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc --
+ * The closed state and slot unions are self-describing.
+ */
 
-import type { InputProps } from "../input/index.js";
+import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+import type { InputProps, InputRootAttributes, InputSize } from "../input/input.types.js";
+
+export type SearchChangeReason = "input" | "clear";
+export type SearchSlot =
+  "root" | "input" | "startAdornment" | "endAdornment" | "clear" | "shortcut";
+
+export interface SearchOwnerState {
+  readonly variant: "default" | "header";
+  readonly width: "fill" | "medium";
+  readonly size: InputSize;
+  readonly disabled: boolean;
+  readonly readOnly: boolean;
+  readonly filled: boolean;
+}
+
+export interface SearchSlotProps {
+  readonly root?: MiaixzSlotProps<SearchOwnerState, InputRootAttributes>;
+  readonly input?: MiaixzSlotProps<SearchOwnerState, InputHTMLAttributes<HTMLInputElement>>;
+  readonly startAdornment?: MiaixzSlotProps<SearchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly endAdornment?: MiaixzSlotProps<SearchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly clear?: MiaixzSlotProps<SearchOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly shortcut?: MiaixzSlotProps<SearchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+
+interface SearchBaseProps extends Omit<
+  InputProps,
+  | "children"
+  | "defaultValue"
+  | "endAdornment"
+  | "onChange"
+  | "slotProps"
+  | "startAdornment"
+  | "type"
+  | "value"
+> {
+  readonly variant?: "default" | "header";
+  readonly width?: "fill" | "medium";
+  readonly shortcut?: ReactNode;
+  readonly clearable?: boolean;
+  readonly clearLabel?: string;
+  readonly onClear?: () => void;
+  readonly slotProps?: SearchSlotProps;
+}
+
+export type SearchValueState =
+  | {
+      readonly value: string;
+      readonly defaultValue?: never;
+      readonly onValueChange: (value: string, reason: SearchChangeReason) => void;
+    }
+  | {
+      readonly value?: never;
+      readonly defaultValue?: string;
+      readonly onValueChange?: (value: string, reason: SearchChangeReason) => void;
+    };
 
 /**
  * Configures a controlled or uncontrolled localized search field.
- *
- * @public
  */
-export interface SearchProps extends Omit<
-  InputProps,
-  "type" | "startAdornment" | "endAdornment" | "value" | "defaultValue" | "onChange"
-> {
-  /**
-   * Selects the standard field or header-only presentation.
-   *
-   * @defaultValue `"default"`
-   */
-  variant?: "default" | "header";
-  /**
-   * Selects fill-width or fixed directory-toolbar geometry.
-   */
-  width?: "fill" | "medium";
-  /**
-   * Displays a keyboard shortcut after the editable input area.
-   */
-  shortcut?: ReactNode;
-  /**
-   * Controls the current search value.
-   */
-  value?: string;
-  /**
-   * Sets the initial uncontrolled search value.
-   *
-   * @defaultValue An empty string.
-   */
-  defaultValue?: string;
-  /**
-   * Receives native input change events.
-   */
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-  /**
-   * Receives the normalized current search value.
-   */
-  onValueChange?: (value: string) => void;
-  /**
-   * Displays a clear action while the field contains text.
-   *
-   * @defaultValue `true`
-   */
-  clearable?: boolean;
-  /**
-   * Overrides the localized clear-action label.
-   */
-  clearLabel?: string;
-}
+export type SearchProps = SearchBaseProps & SearchValueState;

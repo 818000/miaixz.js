@@ -18,9 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzPermissionCode, MiaixzPermissionSnapshot } from "../types/index.js";
-import { MiaixzSdkError } from "../api/errors.js";
-import { miaixzDefaultI18n, type MiaixzTranslator } from "../i18n/index.js";
+import type { MiaixzPermissionCode, MiaixzPermissionSnapshot } from "../types/permissions.js";
+import { MiaixzSdkError } from "../errors/errors.js";
 import { isRecord } from "../utils/object.js";
 
 /**
@@ -82,14 +81,10 @@ export class MiaixzPermissionSet {
    * Creates an immutable permission evaluator.
    *
    * @param snapshot - Permission grants and roles supplied by the backend.
-   * @param translate - Translator used by runtime validation errors.
    */
-  constructor(
-    snapshot: MiaixzPermissionSnapshot,
-    translate: MiaixzTranslator = miaixzDefaultI18n.t,
-  ) {
+  constructor(snapshot: MiaixzPermissionSnapshot) {
     if (!isMiaixzPermissionSnapshot(snapshot)) {
-      throw new MiaixzSdkError(translate("sdk.error.permissions.invalid"), {
+      throw new MiaixzSdkError({
         code: "PERMISSIONS_INVALID",
       });
     }
@@ -144,13 +139,9 @@ export class MiaixzPermissionSet {
  * Creates an immutable permission evaluator from a backend snapshot.
  *
  * @param snapshot - Permission grants and roles supplied by the backend.
- * @param translate - Translator used by runtime validation errors.
  * @returns Immutable permission evaluator.
  * @public
  */
-export function createMiaixzPermissionSet(
-  snapshot: MiaixzPermissionSnapshot,
-  translate: MiaixzTranslator = miaixzDefaultI18n.t,
-): MiaixzPermissionSet {
-  return new MiaixzPermissionSet(snapshot, translate);
+export function createMiaixzPermissionSet(snapshot: MiaixzPermissionSnapshot): MiaixzPermissionSet {
+  return new MiaixzPermissionSet(snapshot);
 }

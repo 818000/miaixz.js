@@ -13,22 +13,18 @@ This directory is package-private; consumers use existing public exports, not sh
 then copies both CSS trees to `dist`. The CSS package test detects generated-file drift;
 the generator also accepts `--runtime-dir` and `--output-dir` for isolated reproduction.
 
-Public theme entries are `@miaixz/ui/theme`, `@miaixz/ui/{miaixz,neutral,contrast,theme}.css`;
-`@miaixz/ui/themes.css` remains an alias of `theme.css`, not a separate generated file.
-`styles.css` remains the complete default theme. Foundation, component, core and
-reset entries retain their responsibilities. CSS auditing uses `tests/scripts/audit.mjs`.
+Public theme entries are `@miaixz/ui/theme`, `@miaixz/ui/styles.css`,
+`@miaixz/ui/theme.css`, `@miaixz/ui/neutral.css`, and `@miaixz/ui/contrast.css`.
+`styles.css` is the complete default theme. Foundation, component, core, and reset
+entries retain their responsibilities. CSS auditing uses `tests/scripts/audit.mjs`.
+Every public module that renders DOM also exposes one selective stylesheet at
+`@miaixz/ui/<subpath>/styles.css`; `Graph` uses
+`@miaixz/ui/diagram/graph/styles.css`. Selective consumers load a theme/foundation
+entry first, then only the component module styles they use.
 
 For this remediation, build and pack locally, unpack under the application's controlled
 `node_modules/.miaixz-local` directory and link the installed package to that output.
 Do not publish to npm or link application dependencies directly to source.
-
-Legacy subpaths and names remain available: ConfirmDialog → Confirm, InlineMessage → Notice,
-FormField → Field, SearchInput → Search, LoadingOverlay → Overlay, MultiSelect → Picker,
-DataTable → Datagrid, PageLayout → Page, FileUpload → Upload, TreeView → Tree,
-StatusIndicator → Status, EmptyState → Empty, VisuallyHidden → Hidden. These exports
-reference the same canonical component and prop type, without wrappers or separate styling.
-They preserve the documented responsibilities; undocumented historical prop signatures
-cannot be inferred from the previously missing legacy implementation directories.
 
 `@miaixz/ui` is the shared Miaixz React design system. It provides independently deployed frontend services, such as Home, Spaces, and Settings, with a consistent set of design tokens, themes, density modes, Lucide icons, and reusable components.
 
@@ -70,10 +66,10 @@ const widthOptions = DRAWER_WIDTHS.map((value) => ({ label: `${value}px`, value 
 </Drawer>;
 ```
 
-`width` also accepts custom positive finite numbers such as `435`. It takes
-precedence over `size`; omitting it preserves the existing `small`, `medium`,
-`large`, `xlarge`, and `wide` behavior. Width does not change density, fonts,
-spacing or editor structure. Use `density` separately when needed.
+`width` accepts the named presets `small`, `medium`, `large`, `xlarge`, and `wide`,
+or a custom positive finite number such as `435`; its default is `medium` for side
+drawers. Bottom drawers do not accept `width`. Width does not change density, fonts,
+spacing or editor structure; use `density` separately.
 
 Left and right drawers clamp the requested width to the available viewport or
 explicit `boundary`, accounting for `inset`. Bottom drawers remain full width.
@@ -87,10 +83,10 @@ The Appearance panel uses **360px**, while the two-column user editor uses
 ## Installation
 
 ```bash
-npm install @miaixz/ui @miaixz/sdk react react-dom lucide-react
+npm install @miaixz/ui @miaixz/sdk react react-dom
 ```
 
-`@miaixz/sdk`, `react`, `react-dom`, and `lucide-react` are peer dependencies and are not bundled into the component package. The current `0.5.x` development line requires `@miaixz/sdk >=0.5.0 <1.0.0`.
+`@miaixz/sdk`, `react`, and `react-dom` are peer dependencies. The icon provider dependency is owned by the component package. The exact supported SDK range is declared by the installed package metadata.
 
 ## Basic usage
 
@@ -99,16 +95,16 @@ Load the complete stylesheet once at the application entry point and provide the
 ```tsx
 import "@miaixz/ui/styles.css";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
-import { Button, FormField, Input, MiaixzLocaleProvider } from "@miaixz/ui";
+import { Button, Field, Input, MiaixzLocaleProvider } from "@miaixz/ui";
 
 const i18n = createMiaixzI18n({ locale: "en-US", fallbackLocale: "en-US" });
 
 export function Example() {
   return (
     <MiaixzLocaleProvider i18n={i18n}>
-      <FormField label="Space name" required>
+      <Field label="Space name" required>
         <Input placeholder="Enter a space name" />
-      </FormField>
+      </Field>
       <Button type="button">Save</Button>
     </MiaixzLocaleProvider>
   );
@@ -119,7 +115,10 @@ Components can be imported from the package root or from stable subpaths:
 
 ```tsx
 import { Button } from "@miaixz/ui/button";
+import { Graph } from "@miaixz/ui/diagram/graph";
 import { Icon, type MiaixzIconName } from "@miaixz/ui/icons";
+import "@miaixz/ui/button/styles.css";
+import "@miaixz/ui/diagram/graph/styles.css";
 
 const tenantIcon: MiaixzIconName = "Blocks";
 
@@ -165,7 +164,6 @@ const groups: NavigationRailGroupModel[] = [
       brand={brand}
       toggle={toggle}
       groups={groups}
-      overflowMode="adaptive"
       overflowLabel="More"
       utility={accountMenu}
     />
@@ -176,24 +174,23 @@ const groups: NavigationRailGroupModel[] = [
 </Shell>;
 ```
 
-Opaque `navigation` content keeps the legacy scrolling behavior. Use it only where the application
-cannot provide stable item identities and priority metadata.
-
 ## Style layers
 
 - `@miaixz/ui/foundation.css`: design tokens and foundational theme, typography, spacing, radius, shadow, motion, and density capabilities.
 - `@miaixz/ui/components.css`: component styles. When both layers define the same selector, the component layer is authoritative.
 - `@miaixz/ui/styles.css`: the recommended complete entry point, combining the foundation and component layers in a stable order.
+- `@miaixz/ui/<subpath>/styles.css`: the sole selective CSS entry for each public DOM module; nested Graph uses `@miaixz/ui/diagram/graph/styles.css`.
 
 Business applications should not override internal component selectors. Apply brand customization through public CSS variables and runtime appearance settings.
 
 ## Themes, colors, and density
 
-The SDK stores and synchronizes appearance state. The UI package applies validated settings to the DOM:
+The SDK stores and synchronizes appearance state. `Theme` is the only runtime owner that validates
+and applies those settings to the DOM:
 
-```ts
+```tsx
 import { createMiaixzSdk } from "@miaixz/sdk";
-import { applyMiaixzAppearance } from "@miaixz/ui/appearance";
+import { Theme } from "@miaixz/ui";
 
 const sdk = createMiaixzSdk({
   appId: "portal",
@@ -203,22 +200,19 @@ const sdk = createMiaixzSdk({
   },
 });
 
-applyMiaixzAppearance(sdk.appearance.getSnapshot());
-const stopAppearance = sdk.appearance.subscribe((appearance) => {
-  applyMiaixzAppearance(appearance);
-});
-
 sdk.appearance.patch({
   colorMode: "system",
   density: "comfortable",
   overrides: { light: { brand: "#55b52d" } },
 });
 
-/*
- * Call these when the service is unmounted.
- */
-stopAppearance();
-sdk.destroy();
+export function Root() {
+  return (
+    <Theme appearance={sdk.appearance} fallback="miaixz">
+      <App />
+    </Theme>
+  );
+}
 ```
 
 Supported color preferences are `light`, `dark`, and `system`. Supported density levels are `compact`, `standard`, and `comfortable`. The SDK persists appearance per application and tenant. Independently deployed services should synchronize the same settings through the Host Bridge or shared configuration.
@@ -283,18 +277,18 @@ Every independently deployed service installs compatible UI and SDK versions ins
 
 1. Validating SDK module manifests and the Host Bridge protocol version.
 2. Synchronizing non-sensitive context, locale, permissions, and appearance snapshots with modules.
-3. Ensuring that React, ReactDOM, Lucide, and the SDK have only compatible instances within one runtime.
+3. Ensuring that React, ReactDOM, and the SDK have only compatible instances within one runtime.
 
-Modules in the same runtime use `createMiaixzDirectHostBridge()`. Cross-origin iframes use `createMiaixzPostMessageHost()` and `createMiaixzPostMessageChildBridge()` with exact origins. After receiving an appearance snapshot, a module calls `applyMiaixzAppearance()` and must not read or modify the host DOM directly.
+Modules in the same runtime use `createMiaixzDirectHostBridge()`. Cross-origin iframes use `createMiaixzPostMessageHost()` and `createMiaixzPostMessageChildBridge()` with exact origins. A bridge writes each received snapshot to the module's `MiaixzAppearanceManager`; the mounted `Theme` applies it. A module must not create theme style nodes or read and modify the host DOM directly.
 
 ## Components
 
 The public component collection includes:
 
-- Foundations and forms: Icon, Button, Input, SearchInput, Textarea, Select, Combobox, MultiSelect, FormField, Checkbox, Radio, Switch, Dropzone, and FileUpload.
-- Navigation and layout: Navigation, Breadcrumb, Tabs, Toolbar, AppShell, Page, PageHeader, PageToolbar, Grid, SplitLayout, and SidebarLayout.
-- Data display: Panel, List, Table, DataTable, TreeView, Badge, Pagination, Avatar, Divider, and StatusIndicator.
-- Feedback and overlays: Alert, InlineMessage, Progress, Spinner, LoadingOverlay, Tooltip, Popover, Dropdown, Dialog, ConfirmDialog, Drawer, Toast, Skeleton, EmptyState, and VisuallyHidden.
+- Foundations and forms: Icon, Button, Input, Search, Textarea, Select, Combobox, Picker, Field, Checkbox, Radio, Switch, Dropzone, and Upload.
+- Navigation and layout: Navigation, Breadcrumb, Tabs, Toolbar, Shell, Page, View, Header, Grid, Cluster, Split, Stack, Sidebar, Scroll, and Entry.
+- Data display: Panel, List, Table, Datagrid, Tree, Badge, Pagination, Avatar, Divider, and Status.
+- Feedback and overlays: Alert, Notice, Progress, Spinner, Overlay, Tooltip, Popover, Dropdown, Dialog, Confirm, Drawer, Toast, Skeleton, Empty, and Hidden.
 
 Interactive components preserve native semantics, keyboard behavior, and visible focus. Icon-only buttons must provide an accessible name.
 
@@ -303,8 +297,9 @@ Interactive components preserve native semantics, keyboard behavior, and visible
 ```bash
 npm install
 npm run check
-npm run pack:check
 ```
+
+Run `npm run check:package` from the repository root to validate both packed packages.
 
 The package builds independently with npm and does not rely on implicit tools outside the repository.
 

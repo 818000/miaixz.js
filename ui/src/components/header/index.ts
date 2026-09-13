@@ -19,4 +19,13 @@
 */
 
 export { Header } from "./header.js";
-export type { HeaderProps } from "./header.types.js";
+export type {
+  HeaderDensity,
+  HeaderOwnerState,
+  HeaderProps,
+  HeaderRootAttributes,
+  HeaderSlot,
+  HeaderSlotProps,
+  HeaderSlots,
+  MiaixzHeaderOwnProps,
+} from "./header.types.js";

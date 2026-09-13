@@ -16,35 +16,31 @@ describe("global link and command semantics", () => {
         <ActionText
           action={{
             id: "audit",
-            intent: "view",
+            kind: "navigation",
             label: "查看审计",
             icon: "Eye",
             tone: "neutral",
-            confirm: "none",
-            placement: "visible",
             href: "/audit",
           }}
         />
         <ActionText
           action={{
             id: "execute",
-            intent: "validate",
+            kind: "command",
             label: "执行操作",
             icon: "ShieldCheck",
             tone: "neutral",
-            confirm: "none",
-            placement: "visible",
             onAction: execute,
           }}
         />
-        <ButtonLink href="/create" variant="primary">
+        <ButtonLink href="/create" variant="solid" tone="brand">
           创建记录
         </ButtonLink>
       </MiaixzLocaleProvider>,
     );
 
     expect(screen.getByRole("link", { name: "查看审计" })).toHaveAttribute("href", "/audit");
-    expect(screen.getByRole("link", { name: "创建记录" })).toHaveClass("miaixz-button-primary");
+    expect(screen.getByRole("link", { name: "创建记录" })).toHaveAttribute("data-variant", "solid");
     const command = screen.getByRole("button", { name: "执行操作" });
     expect(command).toHaveAttribute("type", "button");
     fireEvent.click(command);

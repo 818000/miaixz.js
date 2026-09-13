@@ -19,4 +19,10 @@
 */
 
 export { Picker } from "./picker.js";
-export type { MiaixzPickerOwnProps, PickerProps } from "./picker.types.js";
+export type {
+  MiaixzPickerOwnProps,
+  PickerProps,
+  PickerRenderValueState,
+  PickerSlotProps,
+  PickerValueState,
+} from "./picker.types.js";

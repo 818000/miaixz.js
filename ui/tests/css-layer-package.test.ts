@@ -34,14 +34,23 @@ interface PackageManifest {
   readonly files: readonly string[];
 }
 
+interface AttwConfig {
+  /**
+   * Non-JavaScript package entrypoints intentionally omitted from type resolution.
+   */
+  readonly excludeEntrypoints: readonly string[];
+}
+
 const packageManifest = JSON.parse(
   readFileSync(resolve(packageDirectory, "package.json"), "utf8"),
 ) as PackageManifest;
+const attwConfig = JSON.parse(
+  readFileSync(resolve(packageDirectory, ".attw.json"), "utf8"),
+) as AttwConfig;
 const cssExports = [
   "./styles.css",
   "./core.css",
   "./theme.css",
-  "./miaixz.css",
   "./neutral.css",
   "./contrast.css",
   "./reset.css",
@@ -56,7 +65,15 @@ const generatedSources = [
   "src/styles/core.css",
   "src/styles/reset.css",
 ] as const;
-const remediatedComponents = ["descriptions", "editor", "module-frame", "steps", "table"] as const;
+const remediatedComponents = ["descriptions", "editor", "steps", "table", "view"] as const;
+const stylelessCodeExports = new Set([
+  ".",
+  "./errors",
+  "./i18n",
+  "./patterns/action-catalog",
+  "./theme",
+  "./visualization-motion",
+]);
 
 /**
  * Reads direct CSS imports from one aggregate.
@@ -91,8 +108,18 @@ function expandCss(file: string, chain: readonly string[] = []): string[] {
 }
 
 describe("CSS package ownership contract", () => {
-  it("keeps the legacy aggregate name as an alias without a second stylesheet", () => {
-    expect(packageManifest.exports["./themes.css"]).toBe(packageManifest.exports["./theme.css"]);
+  it("keeps the type-package checker exclusions equal to the CSS export surface", () => {
+    const exportedCssSubpaths = Object.entries(packageManifest.exports)
+      .filter(([, target]) => typeof target === "string")
+      .map(([subpath]) => subpath.slice(2))
+      .sort();
+
+    expect([...attwConfig.excludeEntrypoints].sort()).toEqual(exportedCssSubpaths);
+  });
+
+  it("does not publish duplicate aggregate aliases", () => {
+    expect(packageManifest.exports["./miaixz.css"]).toBeUndefined();
+    expect(packageManifest.exports["./themes.css"]).toBeUndefined();
     expect(() => readFileSync(resolve(packageDirectory, "src/theme/themes.css"))).toThrow();
   });
 
@@ -109,6 +136,26 @@ describe("CSS package ownership contract", () => {
     expect(packageManifest.files).toContain("dist");
   });
 
+  it("exports one unique stylesheet for every public DOM module", () => {
+    const componentEntries = Object.entries(packageManifest.exports).filter(
+      ([subpath, target]) => typeof target !== "string" && !stylelessCodeExports.has(subpath),
+    );
+    const targets: string[] = [];
+
+    for (const [subpath] of componentEntries) {
+      const componentPath = subpath === "./icons" ? "icon" : subpath.slice(2);
+      const styleSubpath = `${subpath}/styles.css`;
+      const expectedTarget = `./dist/styles/components/${componentPath}.css`;
+      expect(packageManifest.exports[styleSubpath], styleSubpath).toBe(expectedTarget);
+      expect(() =>
+        readFileSync(resolve(packageDirectory, expectedTarget.replace("./dist/", "src/"))),
+      ).not.toThrow();
+      targets.push(expectedTarget);
+    }
+
+    expect(new Set(targets).size).toBe(targets.length);
+  });
+
   it("keeps remediated component JavaScript, types and CSS on the public root graph", () => {
     const componentRoot = readFileSync(
       resolve(packageDirectory, "src/components/index.ts"),
@@ -116,10 +163,16 @@ describe("CSS package ownership contract", () => {
     );
     const cssRoot = readFileSync(resolve(packageDirectory, "src/styles/components.css"), "utf8");
     const publicRoot = readFileSync(resolve(packageDirectory, "src/index.ts"), "utf8");
-    expect(publicRoot).toContain('export * from "./components/index.js"');
+    expect(publicRoot).toContain('from "./components/index.js"');
 
     for (const component of remediatedComponents) {
-      expect(componentRoot).toContain(`export * from "./${component}/index.js"`);
+      if (component === "editor") {
+        expect(componentRoot).toContain(
+          'export { EditorFieldset, EditorLayout, EditorSection, EditorSummary } from "./editor/index.js"',
+        );
+      } else {
+        expect(componentRoot).toContain(`from "./${component}/index.js"`);
+      }
       expect(() =>
         readFileSync(resolve(packageDirectory, `src/components/${component}/index.ts`), "utf8"),
       ).not.toThrow();
@@ -134,7 +187,6 @@ describe("CSS package ownership contract", () => {
       ["styles.css", 1],
       ["core.css", 0],
       ["theme.css", 3],
-      ["miaixz.css", 1],
       ["neutral.css", 1],
       ["contrast.css", 1],
     ]);

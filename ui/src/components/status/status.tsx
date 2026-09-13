@@ -18,48 +18,65 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import type { StatusProps } from "./status.types.js";
-
-/**
- * Renders a semantic status as both a visual marker and visible text.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
  */
-export const Status = forwardRef<HTMLSpanElement, StatusProps>(function Status(
-  { tone, label, size = "medium", variant = "default", children, className, ...props },
-  ref,
-) {
-  if (variant === "tag") {
+import { forwardRef } from "react";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { StatusOwnerState, StatusProps } from "./status.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Renders one stable marker, optional content, and status label structure.
+ */
+export const Status = withMiaixzThemeComponent(
+  "Status",
+  forwardRef<HTMLSpanElement, StatusProps>(function Status(
+    { tone, label, children, size = "medium", layout = "inline", slotProps, ...props },
+    ref,
+  ) {
+    const ownerState: StatusOwnerState = { tone, size, layout };
     return (
       <span
-        {...props}
-        ref={ref}
-        data-tone={tone}
-        className={classNames("miaixz-status-tag", `miaixz-status-tag-${tone}`, className)}
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-status" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-tone": tone, "data-size": size, "data-layout": layout },
+          ownedProps: ["data-tone", "data-size", "data-layout"],
+        })}
       >
-        {label}
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-status-marker" },
+            slotProps: slotProps?.marker,
+            internalProps: { "aria-hidden": true },
+            ownedProps: ["aria-hidden"],
+          })}
+        />
+        {children !== undefined && (
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-status-content" },
+              slotProps: slotProps?.content,
+            })}
+          >
+            {children}
+          </span>
+        )}
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-status-label" },
+            slotProps: slotProps?.label,
+          })}
+        >
+          {label}
+        </span>
       </span>
     );
-  }
-  return (
-    <span
-      {...props}
-      ref={ref}
-      data-tone={tone}
-      className={classNames(
-        "miaixz-status",
-        `miaixz-status-${tone}`,
-        `miaixz-status-size-${size}`,
-        `miaixz-status-${variant}`,
-        className,
-      )}
-    >
-      <span className="miaixz-status-marker" aria-hidden="true" />
-      {children !== undefined && <span className="miaixz-status-content">{children}</span>}
-      <span className="miaixz-status-label">{label}</span>
-    </span>
-  );
-});
+  }),
+);

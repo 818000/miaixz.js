@@ -20,75 +20,34 @@
 
 import { forwardRef } from "react";
 
-import { Icon } from "../icon/index.js";
+import { Icon } from "../icon/icon.js";
 import { ActionTarget } from "./action-target.js";
-import type { ActionDescriptor, ActionTextProps } from "./action.types.js";
-
-interface ActionTextViewProps {
-  /**
-   * Resolved action contract.
-   */
-  readonly action: ActionDescriptor;
-  /**
-   * Whether the framework-owned icon remains visible.
-   */
-  readonly showIcon: boolean;
-  /**
-   * Optional responsive label presentation owned by the framework.
-   */
-  readonly collapseLabelAt?: "compact";
-}
+import type { ActionTextProps } from "./action.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders a low-emphasis text action while preserving native semantics.
+ * Renders an always-labeled low-emphasis command or navigation action.
  *
- * @param root0 - Action text properties.
- * @param root0.action - Resolved action contract.
- * @returns A semantic text action.
  * @public
  */
-export const ActionText = forwardRef<HTMLElement, ActionTextProps>(function ActionText(
-  { action, collapseLabelAt, id, ...accessibility },
-  ref,
-) {
-  return (
-    <ActionTextView
-      ref={ref}
-      {...(id === undefined ? {} : { id })}
-      action={{ ...action, ...accessibility }}
-      {...(collapseLabelAt === undefined ? {} : { collapseLabelAt })}
-      showIcon
-    />
-  );
-});
-
-/**
- * Selects the framework-owned toolbar or row presentation.
- *
- * @param properties - Internal action presentation properties.
- * @param properties.action - Resolved action contract.
- * @param properties.showIcon - Whether the icon is visible.
- * @returns A text action with its prescribed icon visibility.
- * @internal
- */
-export const ActionTextView = forwardRef<HTMLElement, ActionTextViewProps>(function ActionTextView(
-  { action, collapseLabelAt, showIcon },
-  ref,
-) {
-  const loading = "loading" in action && action.loading === true;
-  return (
-    <ActionTarget
-      ref={ref}
-      action={action}
-      className={`miaixz-action-text miaixz-action-${action.size ?? "default"}`}
-      {...(collapseLabelAt === undefined ? {} : { dataLabelCollapse: collapseLabelAt })}
-    >
-      {showIcon && (
-        <span className="miaixz-action-icon">
-          <Icon name={loading ? "LoaderCircle" : action.icon} size="control" />
-        </span>
-      )}
-      <span className="miaixz-action-label">{action.label}</span>
-    </ActionTarget>
-  );
-});
+export const ActionText = withMiaixzThemeComponent(
+  "ActionText",
+  forwardRef<HTMLButtonElement | HTMLAnchorElement, ActionTextProps>(function ActionText(
+    { action, slotProps },
+    ref,
+  ) {
+    const startIcon =
+      action.icon === undefined ? undefined : <Icon name={action.icon} size="control" />;
+    return (
+      <ActionTarget
+        ref={ref}
+        action={action}
+        className="miaixz-action-text"
+        {...(slotProps === undefined ? {} : { slotProps })}
+        {...(startIcon === undefined ? {} : { startIcon })}
+      >
+        {action.label}
+      </ActionTarget>
+    );
+  }),
+);

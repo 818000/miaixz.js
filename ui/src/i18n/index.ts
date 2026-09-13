@@ -18,5 +18,31 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "../errors/index.js";
-export * from "./i18n.js";
+export { MiaixzDocumentLocale } from "./document-locale.js";
+export {
+  defineLocale,
+  miaixzBuiltInLocales,
+  MiaixzLocaleCatalog,
+  MiaixzLocaleProvider,
+  miaixzUiMessages,
+  useMiaixzLocale,
+} from "./i18n.js";
+export type {
+  MiaixzI18n,
+  MiaixzI18nSnapshot,
+  MiaixzLocale,
+  MiaixzLocaleContextValue,
+  MiaixzLocaleDefinition,
+  MiaixzLocaleDescriptor,
+  MiaixzLocaleDirection,
+  MiaixzLocaleProviderProps,
+  MiaixzMessageCatalog,
+  MiaixzMessageLoader,
+  MiaixzMessageLoaderMap,
+  MiaixzMessageLoaderResult,
+  MiaixzMessageModule,
+  MiaixzMessageParams,
+  MiaixzMessages,
+  MiaixzMessageSource,
+  MiaixzTranslator,
+} from "./i18n.js";

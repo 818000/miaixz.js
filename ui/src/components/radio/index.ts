@@ -19,4 +19,17 @@
 */
 
 export { Radio } from "./radio.js";
-export type { RadioProps } from "./radio.types.js";
+export { RadioGroup } from "./radio-group.js";
+export type {
+  RadioGroupItem,
+  RadioGroupOwnerState,
+  RadioGroupProps,
+  RadioGroupSlotProps,
+} from "./radio-group.types.js";
+export type {
+  RadioOwnerState,
+  RadioProps,
+  RadioRootAttributes,
+  RadioSlot,
+  RadioSlotProps,
+} from "./radio.types.js";

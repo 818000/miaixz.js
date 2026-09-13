@@ -18,133 +18,100 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { DialogHTMLAttributes, HTMLAttributes, ReactNode } from "react";
-
-/**
- * Defines the supported drawer widths.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed drawer slots and state are self-describing.
  */
-export type DrawerSize = "small" | "medium" | "large" | "xlarge" | "wide";
 
-/**
- * Defines the supported drawer content densities.
- *
- * @public
- */
-export type DrawerDensity = "default" | "compact" | "content";
+import type {
+  ButtonHTMLAttributes,
+  DialogHTMLAttributes,
+  HTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
 
-/**
- * Defines logical insets inside the selected overlay boundary.
- *
- * @public
- */
+import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
+
+export type DrawerWidth = "small" | "medium" | "large" | "xlarge" | "wide" | number;
+export type DrawerDensity = "compact" | "standard" | "comfortable";
+export type DrawerPlacement = "left" | "right" | "bottom";
+export type DrawerCloseReason = "escape" | "backdrop" | "closeButton" | "nativeClose";
+export type DrawerSlot =
+  "root" | "paper" | "header" | "title" | "description" | "content" | "footer" | "closeButton";
+
 export interface DrawerInset {
-  /**
-   * Applies the same nonnegative inset to the block start and end edges.
-   */
   readonly block?: number;
-  /**
-   * Applies the same nonnegative inset to the inline start and end edges.
-   */
   readonly inline?: number;
 }
 
-/**
- * Defines the viewport edge from which a drawer opens.
- *
- * @public
- */
-export type DrawerPlacement = "left" | "right" | "bottom";
-
-/**
- * Configures a controlled native modal drawer.
- *
- * @public
- */
-export interface DrawerProps extends Omit<
-  DialogHTMLAttributes<HTMLDialogElement>,
-  "open" | "title"
-> {
-  /**
-   * Sets an explicit positive finite width in CSS pixels, overriding size.
-   * Choose from DRAWER_WIDTHS or supply a custom width. The rendered width is
-   * clamped to the viewport or boundary without changing density or typography.
-   * Bottom drawers remain full width.
-   */
-  width?: number;
-  /**
-   * Uses an element as the overlay boundary; `undefined` uses the viewport and `null` waits.
-   */
-  boundary?: HTMLElement | null;
-  /**
-   * Applies nonnegative finite insets in CSS pixels.
-   *
-   * @defaultValue `0`
-   */
-  inset?: number | DrawerInset;
-  /**
-   * Adds the existing border and panel radius for inset content drawers.
-   *
-   * @defaultValue `false`
-   */
-  floating?: boolean;
-  /**
-   * Extends the body element without exposing overlay positioning.
-   */
-  bodyProps?: HTMLAttributes<HTMLDivElement>;
-  /**
-   * Controls whether the drawer is open.
-   */
-  open: boolean;
-  /**
-   * Receives requested open-state changes.
-   */
-  onOpenChange: (open: boolean) => void;
-  /**
-   * Supplies the drawer heading.
-   */
-  title: ReactNode;
-  /**
-   * Supplies supporting drawer description content.
-   */
-  description?: ReactNode;
-  /**
-   * Supplies the drawer action footer.
-   */
-  footer?: ReactNode;
-  /**
-   * Selects the drawer width.
-   *
-   * @defaultValue `"medium"`
-   */
-  size?: DrawerSize;
-  /**
-   * Selects standard or compact drawer chrome and content padding.
-   *
-   * @defaultValue `"default"`
-   */
-  density?: DrawerDensity;
-  /**
-   * Selects the viewport edge used by the drawer.
-   *
-   * @defaultValue `"right"`
-   */
-  placement?: DrawerPlacement;
-  /**
-   * Overrides the localized close-link label.
-   */
-  closeLabel?: string;
-  /**
-   * Controls whether the close link is rendered.
-   *
-   * @defaultValue `true`
-   */
-  showClose?: boolean;
-  /**
-   * Allows a backdrop click to request closure.
-   *
-   * @defaultValue `true`
-   */
-  closeOnBackdrop?: boolean;
+export interface DrawerOwnerState {
+  readonly open: boolean;
+  readonly placement: DrawerPlacement;
+  readonly width: DrawerWidth | undefined;
+  readonly density: DrawerDensity;
+  readonly floating: boolean;
+  readonly positioned: boolean;
+  readonly showClose: boolean;
 }
+
+export interface DrawerSlots {
+  readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
+}
+
+export type DrawerRootAttributes = DialogHTMLAttributes<HTMLDialogElement> &
+  RefAttributes<HTMLDialogElement> & {
+    readonly "data-placement"?: DrawerPlacement;
+    readonly "data-width"?: Exclude<DrawerWidth, number>;
+    readonly "data-density"?: DrawerDensity;
+    readonly "data-floating"?: boolean;
+    readonly "data-positioned"?: boolean;
+  };
+
+export interface DrawerSlotProps {
+  readonly root?: MiaixzSlotProps<DrawerOwnerState, DrawerRootAttributes>;
+  readonly paper?: MiaixzSlotProps<DrawerOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly header?: MiaixzSlotProps<DrawerOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly title?: MiaixzSlotProps<DrawerOwnerState, HTMLAttributes<HTMLHeadingElement>>;
+  readonly description?: MiaixzSlotProps<DrawerOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly content?: MiaixzSlotProps<DrawerOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly footer?: MiaixzSlotProps<DrawerOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly closeButton?: MiaixzSlotProps<DrawerOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+}
+
+interface DrawerSharedProps {
+  readonly boundary?: HTMLElement | null;
+  readonly inset?: number | DrawerInset;
+  readonly floating?: boolean;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean, reason: DrawerCloseReason) => void;
+  readonly title: ReactNode;
+  readonly description?: ReactNode;
+  readonly children: ReactNode;
+  readonly footer?: ReactNode;
+  readonly density?: DrawerDensity;
+  readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly closeLabel?: string;
+  readonly showClose?: boolean;
+  readonly closeOnBackdrop?: boolean;
+  readonly slots?: DrawerSlots;
+  readonly slotProps?: DrawerSlotProps;
+}
+
+type DrawerSideGeometry = {
+  readonly placement?: "left" | "right";
+  readonly width?: DrawerWidth;
+};
+
+type DrawerBottomGeometry = {
+  readonly placement: "bottom";
+  readonly width?: never;
+};
+
+export type DrawerProps = DrawerSharedProps &
+  (DrawerSideGeometry | DrawerBottomGeometry) &
+  Omit<
+    DialogHTMLAttributes<HTMLDialogElement>,
+    keyof DrawerSharedProps | "children" | "open" | "role" | "title" | "width"
+  >;
+
+/* eslint-enable jsdoc/require-jsdoc
+ */

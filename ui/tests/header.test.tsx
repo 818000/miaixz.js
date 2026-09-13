@@ -1,84 +1,75 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ */
+
+import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+
 import { Header } from "../src/components/header/index.js";
-import { Columns } from "../src/components/columns/index.js";
-import { Pressable } from "../src/components/pressable/index.js";
+import { Metric } from "../src/components/metrics/index.js";
 import { Panel } from "../src/components/panel/index.js";
-import { Metric } from "../src/components/metric/index.js";
 
 afterEach(cleanup);
 
-describe("Composition variants", () => {
-  it("keeps compact summaries and emphasized cards in the metric component", () => {
-    const { container } = render(
-      <>
-        <Metric variant="compact" label="命中" value={4} tone="success" />
-        <Metric variant="card" emphasized label="在线" value={42} tone="info" />
-      </>,
+describe("composition dimensions", () => {
+  it("keeps density and spacing on Header without leaking component props", () => {
+    render(
+      <Header
+        actions={<button type="button">操作</button>}
+        density="compact"
+        description="说明"
+        spacing="none"
+        title="标题"
+      />,
     );
-    expect(container.querySelector(".miaixz-metric-compact")?.textContent).toBe("命中4");
-    expect(container.querySelector(".miaixz-metric-card")?.getAttribute("data-emphasized")).toBe(
-      "true",
-    );
+    const header = screen.getByRole("heading", { name: "标题" }).closest("header");
+    expect(header).toHaveAttribute("data-density", "compact");
+    expect(header).toHaveAttribute("data-spacing", "none");
+    expect(header).not.toHaveAttribute("density");
+    expect(screen.getByRole("button", { name: "操作" })).toBeVisible();
   });
-  it("separates body flush from header spacing and inline actions", () => {
-    const { container } = render(
-      <Panel bodyFlush headerLayout="inline" title="标题" actions={<button>新建</button>}>
+
+  it("composes Panel from final surface, frame and density dimensions", () => {
+    render(
+      <Panel
+        aria-label="设置"
+        as="section"
+        density="comfortable"
+        frame="outlined"
+        surface="filled"
+        title="设置"
+      >
         正文
       </Panel>,
     );
-    const panel = container.querySelector("section")!;
-    expect(panel.classList.contains("miaixz-panel-body-flush")).toBe(true);
-    expect(panel.classList.contains("miaixz-panel-flush")).toBe(false);
-    expect(panel.classList.contains("miaixz-panel-header-inline")).toBe(true);
-    expect(panel.hasAttribute("bodyFlush")).toBe(false);
+    const panel = screen.getByRole("region", { name: "设置" });
+    expect(panel).toHaveAttribute("data-frame", "outlined");
+    expect(panel).toHaveAttribute("data-surface", "filled");
+    expect(panel).toHaveAttribute("data-density", "comfortable");
   });
-  it("keeps the compact heading and actions accessible without leaking props", () => {
-    render(
-      <Header
-        title="标题"
-        description="说明"
-        variant="compact"
-        spacing="none"
-        actions={<button>操作</button>}
-      />,
+
+  it("keeps metric variant and emphasis as independent final dimensions", () => {
+    const { container } = render(
+      <Metric emphasized label="在线" value="42" variant="card" tone="info" />,
     );
-    const header = screen.getByRole("heading", { name: "标题" }).closest("header")!;
-    expect(header.classList.contains("miaixz-header-compact")).toBe(true);
-    expect(header.hasAttribute("variant")).toBe(false);
-    expect(screen.getByRole("button", { name: "操作" })).toBeTruthy();
-  });
-  it("retains the chart name, series legend and accessible values", () => {
-    render(
-      <Columns
-        aria-label="趋势"
-        tone="info"
-        variant="paired"
-        size="large"
-        showLegend
-        labels={["周一"]}
-        series={[
-          { label: "正式", values: [12] },
-          { label: "灰度", values: [3] },
-        ]}
-      />,
-    );
-    const chart = screen.getByRole("img", { name: "趋势" });
-    expect(chart.classList.contains("miaixz-columns-large")).toBe(true);
-    expect(chart.querySelector(".miaixz-columns-legend")?.textContent).toBe("正式灰度");
-    expect(document.getElementById(chart.getAttribute("aria-describedby")!)?.textContent).toContain(
-      "正式 12、灰度 3",
-    );
-  });
-  it("owns selected row, density and separator styles without DOM prop leakage", () => {
-    render(
-      <Pressable variant="row" density="compact" separator="none" aria-pressed>
-        条目
-      </Pressable>,
-    );
-    const row = screen.getByRole("button", { name: "条目" });
-    expect(row.classList.contains("miaixz-pressable-density-compact")).toBe(true);
-    expect(row.getAttribute("aria-pressed")).toBe("true");
-    expect(row.hasAttribute("density")).toBe(false);
+    expect(container.querySelector(".miaixz-metric")).toHaveAttribute("data-variant", "card");
+    expect(container.querySelector(".miaixz-metric")).toHaveAttribute("data-emphasized", "true");
   });
 });

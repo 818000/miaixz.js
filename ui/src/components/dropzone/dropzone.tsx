@@ -18,6 +18,9 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc -- The closed validation records are self-describing.
+ */
+
 import {
   forwardRef,
   useRef,
@@ -25,32 +28,86 @@ import {
   type ChangeEvent,
   type DragEvent,
   type ReactElement,
-  type HTMLAttributes,
 } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import { Icon } from "../icon/index.js";
-import type { DropzoneProps } from "./dropzone.types.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Icon } from "../icon/icon.js";
+import type { DropzoneOwnerState, DropzoneProps, DropzoneRejection } from "./dropzone.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Frames an existing file-picker workflow without adding selection behavior. @public
+/*
+ * Describes one deterministic file-validation result.
  */
-export const DropzonePanel = forwardRef<HTMLElement, HTMLAttributes<HTMLElement>>(
-  function DropzonePanel({ className, ...props }, ref) {
-    return (
-      <section {...props} ref={ref} className={classNames("miaixz-dropzone-panel", className)} />
-    );
-  },
-);
+export interface DropzoneValidationResult {
+  /*
+   * Contains accepted files in original order.
+   */
+  readonly accepted: readonly File[];
+  /*
+   * Contains one highest-priority rejection per rejected file.
+   */
+  readonly rejections: readonly DropzoneRejection[];
+}
 
 /**
- * Converts one browser FileList into an immutable consumer-facing array.
+ * Applies the sole accept, duplicate, size, and count validation algorithm.
  *
- * @param files - Browser file collection to normalize.
- * @returns Files in their original browser order.
+ * @param files - Candidate files in browser order.
+ * @param options - Effective validation limits.
+ * @param options.accept - Optional native accept expression.
+ * @param options.maxFiles - Maximum eligible file count.
+ * @param options.maxSizeBytes - Optional maximum file size.
+ * @param existingSignatures - Signatures already owned by an Upload queue.
+ * @returns Accepted files and structured rejections in input order.
  */
-function toMiaixzFileArray(files: FileList | null): readonly File[] {
-  return Object.freeze(files === null ? [] : Array.from(files));
+export function validateDropzoneFiles(
+  files: readonly File[],
+  options: {
+    readonly accept?: string;
+    readonly maxFiles: number;
+    readonly maxSizeBytes?: number;
+  },
+  existingSignatures: ReadonlySet<string> = new Set(),
+): DropzoneValidationResult {
+  validateLimits(options.maxFiles, options.maxSizeBytes);
+  const acceptTokens = parseAccept(options.accept);
+  const seen = new Set(existingSignatures);
+  const eligible: File[] = [];
+  const rejectionByFile = new Map<File, DropzoneRejection>();
+  for (const file of files) {
+    const signature = getDropzoneFileSignature(file);
+    let reason: DropzoneRejection["reason"] | undefined;
+    if (seen.has(signature)) reason = "duplicate";
+    else if (!matchesAccept(file, acceptTokens)) reason = "type";
+    else if (options.maxSizeBytes !== undefined && file.size > options.maxSizeBytes)
+      reason = "size";
+    seen.add(signature);
+    if (reason === undefined) eligible.push(file);
+    else rejectionByFile.set(file, { file, reason });
+  }
+  for (const file of eligible.slice(options.maxFiles)) {
+    rejectionByFile.set(file, { file, reason: "count" });
+  }
+  return {
+    accepted: Object.freeze(eligible.slice(0, options.maxFiles)),
+    rejections: Object.freeze(
+      files.flatMap((file) => {
+        const rejection = rejectionByFile.get(file);
+        return rejection === undefined ? [] : [rejection];
+      }),
+    ),
+  };
+}
+
+/**
+ * Creates the fixed duplicate identity shared with Upload.
+ *
+ * @param file - Browser file to identify.
+ * @returns Stable metadata signature.
+ */
+export function getDropzoneFileSignature(file: File): string {
+  return `${file.name}\u0000${file.size}\u0000${file.lastModified}`;
 }
 
 /**
@@ -58,131 +115,173 @@ function toMiaixzFileArray(files: FileList | null): readonly File[] {
  *
  * @public
  */
-export const Dropzone = forwardRef<HTMLDivElement, DropzoneProps>(function Dropzone(
-  {
-    accept,
-    multiple = false,
-    disabled = false,
-    label,
-    onFiles,
-    className,
-    children,
-    onDragEnter,
-    onDragLeave,
-    onDragOver,
-    onDrop,
-    ...props
-  },
-  ref,
-): ReactElement {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dragDepthRef = useRef(0);
-  const [dragActive, setDragActive] = useState(false);
+export const Dropzone = withMiaixzThemeComponent(
+  "Dropzone",
+  forwardRef<HTMLDivElement, DropzoneProps>(function Dropzone(props, ref): ReactElement {
+    const {
+      accept,
+      multiple = false,
+      maxFiles,
+      maxSizeBytes,
+      disabled = false,
+      label,
+      children,
+      onFiles,
+      onReject,
+      slotProps,
+      ...rootNativeProps
+    } = props;
+    const effectiveMaxFiles = multiple ? (maxFiles ?? 10) : 1;
+    validateLimits(effectiveMaxFiles, maxSizeBytes);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const dragDepthRef = useRef(0);
+    const [dragActive, setDragActive] = useState(false);
+    const [rejections, setRejections] = useState<readonly DropzoneRejection[]>([]);
+    const ownerState: DropzoneOwnerState = {
+      disabled,
+      dragActive,
+      hasError: rejections.length > 0,
+    };
 
-  /**
-   * Opens the native file picker from the keyboard-accessible trigger.
-   */
-  function handleBrowse(): void {
-    if (!disabled) inputRef.current?.click();
+    const processFiles = (files: readonly File[]) => {
+      if (disabled || files.length === 0) return;
+      const result = validateDropzoneFiles(files, {
+        ...(accept === undefined ? {} : { accept }),
+        maxFiles: effectiveMaxFiles,
+        ...(maxSizeBytes === undefined ? {} : { maxSizeBytes }),
+      });
+      setRejections(result.rejections);
+      if (result.accepted.length > 0) onFiles(result.accepted);
+      if (result.rejections.length > 0) onReject?.(result.rejections);
+    };
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+      const files = event.currentTarget.files === null ? [] : Array.from(event.currentTarget.files);
+      event.currentTarget.value = "";
+      processFiles(files);
+    };
+    const handleDragEnter = (event: DragEvent<HTMLDivElement>) => {
+      if (disabled || !event.dataTransfer.types.includes("Files")) return;
+      event.preventDefault();
+      dragDepthRef.current += 1;
+      setDragActive(true);
+    };
+    const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+      if (disabled || !event.dataTransfer.types.includes("Files")) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+    };
+    const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+      if (disabled || !event.dataTransfer.types.includes("Files")) return;
+      event.preventDefault();
+      dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+      if (dragDepthRef.current === 0) setDragActive(false);
+    };
+    const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+      if (disabled || !event.dataTransfer.types.includes("Files")) return;
+      event.preventDefault();
+      dragDepthRef.current = 0;
+      setDragActive(false);
+      processFiles(Array.from(event.dataTransfer.files));
+    };
+
+    const rootProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-dropzone" },
+      componentProps: rootNativeProps,
+      slotProps: slotProps?.root,
+      forwardedRef: ref,
+      internalProps: {
+        "data-state": dragActive ? "active" : "idle",
+        ...(disabled ? { "data-disabled": true } : {}),
+        onDragEnter: handleDragEnter,
+        onDragLeave: handleDragLeave,
+        onDragOver: handleDragOver,
+        onDrop: handleDrop,
+      },
+      ownedProps: ["data-state", "data-disabled"],
+    });
+    const inputProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-dropzone-input" },
+      slotProps: slotProps?.input,
+      internalRef: inputRef,
+      internalProps: {
+        type: "file",
+        ...(accept === undefined ? {} : { accept }),
+        multiple,
+        disabled,
+        tabIndex: -1,
+        "aria-hidden": true,
+        onChange: handleInputChange,
+      },
+      ownedProps: ["type", "accept", "multiple", "disabled", "tabIndex", "aria-hidden"],
+    });
+    const triggerProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-dropzone-trigger" },
+      slotProps: slotProps?.trigger,
+      internalProps: {
+        type: "button",
+        disabled,
+        "aria-label": label,
+        onClick: () => inputRef.current?.click(),
+      },
+      ownedProps: ["type", "disabled", "aria-label"],
+    });
+    const contentProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-dropzone-content" },
+      slotProps: slotProps?.content,
+    });
+    return (
+      <div {...rootProps}>
+        <input {...inputProps} />
+        <button {...triggerProps}>
+          <Icon name="Upload" size="feature" className="miaixz-dropzone-icon" />
+          <span {...contentProps}>{children}</span>
+        </button>
+      </div>
+    );
+  }),
+);
+
+/*
+ * Validates the two positive integer limits.
+ */
+function validateLimits(maxFiles: number, maxSizeBytes: number | undefined): void {
+  if (!Number.isInteger(maxFiles) || maxFiles <= 0) {
+    throw new MiaixzUiError({
+      code: "UI_FILE_MAX_FILES_INVALID",
+    });
   }
-
-  /**
-   * Publishes files selected by the native picker and resets its repeat-selection state.
-   *
-   * @param event - Native file input change event.
-   */
-  function handleInputChange(event: ChangeEvent<HTMLInputElement>): void {
-    const files = toMiaixzFileArray(event.currentTarget.files);
-    event.currentTarget.value = "";
-    if (!disabled && files.length > 0) onFiles(files);
+  if (maxSizeBytes !== undefined && (!Number.isInteger(maxSizeBytes) || maxSizeBytes <= 0)) {
+    throw new MiaixzUiError({
+      code: "UI_FILE_MAX_SIZE_INVALID",
+    });
   }
+}
 
-  /**
-   * Activates drag feedback while preserving a consumer-supplied native handler.
-   *
-   * @param event - Drag-enter event crossing the dropzone boundary.
-   */
-  function handleDragEnter(event: DragEvent<HTMLDivElement>): void {
-    onDragEnter?.(event);
-    if (event.defaultPrevented || disabled || !event.dataTransfer.types.includes("Files")) return;
-    event.preventDefault();
-    dragDepthRef.current += 1;
-    setDragActive(true);
-  }
+/*
+ * Parses one accept expression into normalized non-empty tokens.
+ */
+function parseAccept(accept: string | undefined): readonly string[] {
+  return (accept ?? "")
+    .split(",")
+    .map((token) => token.trim().toLocaleLowerCase())
+    .filter(Boolean);
+}
 
-  /**
-   * Keeps the surface eligible as a file drop target.
-   *
-   * @param event - Drag-over event occurring above the dropzone.
-   */
-  function handleDragOver(event: DragEvent<HTMLDivElement>): void {
-    onDragOver?.(event);
-    if (event.defaultPrevented || disabled || !event.dataTransfer.types.includes("Files")) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "copy";
-  }
-
-  /**
-   * Clears drag feedback after the final nested boundary is left.
-   *
-   * @param event - Drag-leave event crossing a nested or outer boundary.
-   */
-  function handleDragLeave(event: DragEvent<HTMLDivElement>): void {
-    onDragLeave?.(event);
-    if (event.defaultPrevented || disabled || !event.dataTransfer.types.includes("Files")) return;
-    event.preventDefault();
-    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
-    if (dragDepthRef.current === 0) setDragActive(false);
-  }
-
-  /**
-   * Publishes dropped files in browser order without starting an upload.
-   *
-   * @param event - Drop event containing the selected files.
-   */
-  function handleDrop(event: DragEvent<HTMLDivElement>): void {
-    onDrop?.(event);
-    if (event.defaultPrevented || disabled || !event.dataTransfer.types.includes("Files")) return;
-    event.preventDefault();
-    dragDepthRef.current = 0;
-    setDragActive(false);
-    const files = toMiaixzFileArray(event.dataTransfer.files);
-    if (files.length > 0) onFiles(files);
-  }
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      data-state={dragActive ? "active" : "idle"}
-      data-disabled={disabled || undefined}
-      className={classNames("miaixz-dropzone", className)}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        multiple={multiple}
-        disabled={disabled}
-        tabIndex={-1}
-        aria-hidden="true"
-        className="miaixz-dropzone-input"
-        onChange={handleInputChange}
-      />
-      <button
-        type="button"
-        disabled={disabled}
-        aria-label={label}
-        className="miaixz-dropzone-trigger"
-        onClick={handleBrowse}
-      >
-        <Icon name="Upload" size="feature" className="miaixz-dropzone-icon" />
-        <span className="miaixz-dropzone-content">{children ?? label}</span>
-      </button>
-    </div>
-  );
-});
+/*
+ * Applies extension, MIME wildcard, and exact MIME accept rules.
+ */
+function matchesAccept(file: File, tokens: readonly string[]): boolean {
+  if (tokens.length === 0) return true;
+  const name = file.name.toLocaleLowerCase();
+  const type = file.type.toLocaleLowerCase();
+  return tokens.some((token) => {
+    if (token.startsWith(".")) return name.endsWith(token);
+    if (/^[^/]+\/\*$/u.test(token)) return type.startsWith(`${token.slice(0, -1)}`);
+    if (/^[^/]+\/[^/]+$/u.test(token)) return type === token;
+    return false;
+  });
+}

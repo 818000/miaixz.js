@@ -19,5 +19,12 @@
 */
 
 export { Avatar } from "./avatar.js";
-export type { AvatarProps, MiaixzAvatarOwnProps } from "./avatar.types.js";
+export type {
+  AvatarOwnerState,
+  AvatarProps,
+  AvatarRootAttributes,
+  AvatarSlot,
+  AvatarSlotProps,
+  MiaixzAvatarOwnProps,
+} from "./avatar.types.js";
 export type { MiaixzComponentSize } from "../shared.types.js";

@@ -1,13 +1,17 @@
 name: Build Project
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      version:
-        description: "Version to validate. Leave empty to read VERSION."
+      target-ref:
+        description: "Git ref to validate."
         required: false
-        default: ""
         type: string
+      artifact-key:
+        description: "Stable key used for same-run artifacts."
+        required: false
+        type: string
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -17,32 +21,131 @@ on:
     tags-ignore:
       - "*"
 
-env:
-  NODE_VERSION: "24"
-
 permissions:
   contents: read
+
+env:
+  ARTIFACT_KEY: ${{ inputs['artifact-key'] || github.sha }}
+  TARGET_REF: ${{ inputs['target-ref'] || github.ref }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build npm Packages
+  static:
+    name: Static (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - "20.20.2"
+          - "24.21.0"
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_REF }}
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run Static Checks
+        run: npm run check:static
+
+      - name: Upload Node 24 Build
+        if: matrix.node == '24.21.0'
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: dist-${{ env.ARTIFACT_KEY }}
+          path: |
+            sdk/dist
+            ui/dist
+          if-no-files-found: error
+
+      - name: Verify Clean Workspace
+        run: npm run check:clean
+
+  browser:
+    name: Browser Contracts
+    needs: static
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_REF }}
 
       - name: Set Up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          registry-url: "https://registry.npmjs.org/"
+          node-version: "24.21.0"
           package-manager-cache: false
 
-      - name: Build Project
-        uses: ./.github/actions/build-project
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Download Same-Commit Build
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
-          version: ${{ inputs.version || '' }}
+          name: dist-${{ env.ARTIFACT_KEY }}
+          path: .
+
+      - name: Install Browser Runtimes
+        run: npm exec -- playwright install --with-deps chromium firefox webkit
+
+      - name: Run Browser Checks
+        run: npm run check:browser
+
+      - name: Verify Clean Workspace
+        run: npm run check:clean
+
+  packed:
+    name: Packed Consumers
+    needs: static
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TARGET_REF }}
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+          package-manager-cache: false
+
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Download Same-Commit Build
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        with:
+          name: dist-${{ env.ARTIFACT_KEY }}
+          path: .
+
+      - name: Install Packed Browser Runtime
+        run: npm exec -- playwright install --with-deps chromium
+
+      - name: Run Packed Consumer Checks
+        run: npm run check:package
+        env:
+          MIAIXZ_PACKAGE_OUTPUT: ${{ runner.temp }}/packages
+
+      - name: Upload Validated Tarballs
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: packages-${{ env.ARTIFACT_KEY }}
+          path: ${{ runner.temp }}/packages/*.tgz
+          if-no-files-found: error
+
+      - name: Verify Clean Workspace
+        run: npm run check:clean

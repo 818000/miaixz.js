@@ -1,0 +1,67 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-view {
+  --miaixz-view-gutter: clamp(var(--miaixz-space-20), 2.4vw, var(--miaixz-space-40));
+
+  min-block-size: calc(100dvh - var(--miaixz-shell-header-height));
+  padding: var(--miaixz-space-24) var(--miaixz-view-gutter) var(--miaixz-space-40);
+}
+
+.miaixz-view[data-density="compact"] {
+  padding-block-start: var(--miaixz-space-16);
+}
+
+.miaixz-view[data-density="comfortable"] {
+  padding-block-start: var(--miaixz-space-32);
+}
+
+.miaixz-view[data-surface="framed"] {
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-view-navigation {
+  margin-block-start: var(--miaixz-space-16);
+}
+
+.miaixz-view-content,
+.miaixz-view-navigation .miaixz-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-space-16);
+  min-inline-size: 0;
+  padding-block-start: var(--miaixz-space-20);
+}
+
+@media (width <= 980px) {
+  .miaixz-view {
+    --miaixz-view-gutter: var(--miaixz-space-20);
+  }
+}
+
+@media (width <= 720px) {
+  .miaixz-view {
+    --miaixz-view-gutter: var(--miaixz-space-16);
+
+    padding-block-end: var(--miaixz-space-32);
+  }
+}

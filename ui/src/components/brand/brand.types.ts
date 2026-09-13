@@ -18,18 +18,26 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
-/**
- * Configures a shared platform identity without owning routing or settings. @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed brand slots are self-describing.
  */
-export interface BrandProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
-  /**
-   * Supplies the platform name from application configuration.
-   */
-  name: string;
-  /**
-   * Supplies a logo image or custom mark, including framework image components.
-   */
-  logo?: ReactNode;
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type BrandSlot = "root" | "logo" | "name";
+export type BrandOwnerState = Record<never, never>;
+export type BrandRootAttributes = HTMLAttributes<HTMLSpanElement> & RefAttributes<HTMLSpanElement>;
+export interface BrandSlotProps {
+  readonly root?: MiaixzSlotProps<BrandOwnerState, BrandRootAttributes>;
+  readonly logo?: MiaixzSlotProps<BrandOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly name?: MiaixzSlotProps<BrandOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+export interface MiaixzBrandOwnProps {
+  readonly name: string;
+  readonly logo?: ReactNode;
+  readonly slotProps?: BrandSlotProps;
+}
+/*
+ * Configures a non-interactive platform identity. @public
+ */
+export type BrandProps = MiaixzBrandOwnProps &
+  Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzBrandOwnProps | "children">;

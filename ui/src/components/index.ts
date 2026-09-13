@@ -18,89 +18,697 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./alert/index.js";
-export * from "./action/index.js";
-export * from "./appearance/index.js";
-export * from "./avatar/index.js";
-export * from "./button/index.js";
-export * from "./badge/index.js";
-export * from "./bar/index.js";
-export * from "./body/index.js";
-export * from "./brand/index.js";
-export * from "./breadcrumb/index.js";
-export * from "./checkbox/index.js";
-export * from "./combobox/index.js";
-export * from "./cluster/index.js";
-export * from "./columns/index.js";
-export * from "./confirm/index.js";
-export * from "./datagrid/index.js";
-export * from "./descriptions/index.js";
-export * from "./dialog/index.js";
-export * from "./divider/index.js";
-export * from "./donut/index.js";
-export * from "./drawer/index.js";
-export * from "./dropdown/index.js";
-export * from "./editor/index.js";
-export * from "./dropzone/index.js";
-export * from "./empty/index.js";
-export * from "./entry/index.js";
-export * from "./upload/index.js";
-export * from "./field/index.js";
-export * from "./grid/index.js";
-export * from "./grouped-list/index.js";
-export * from "./header/index.js";
-export * from "./heatmap/index.js";
-export * from "./icon/index.js";
-export * from "./notice/index.js";
-export * from "./input/index.js";
-export * from "./list/index.js";
-export * from "./locale-picker/index.js";
-export * from "./metric/index.js";
-export * from "./metric-group/index.js";
-export * from "./module-frame/index.js";
-export * from "./overlay/index.js";
-export * from "./picker/index.js";
-export * from "./navigation/index.js";
-export * from "./panel/index.js";
-export * from "./pagination/index.js";
-export * from "./page/index.js";
-export * from "./popover/index.js";
-export * from "./pressable/index.js";
-export * from "./progress/index.js";
-export * from "./range/index.js";
-export * from "./radio/index.js";
-export * from "./relation-map/index.js";
-export * from "./select/index.js";
-export * from "./search/index.js";
-export * from "./skeleton/index.js";
-export * from "./scroll/index.js";
-export * from "./shell/index.js";
-export * from "./sidebar/index.js";
-export * from "./spinner/index.js";
-export * from "./sparkline/index.js";
-export * from "./split/index.js";
-export * from "./stack/index.js";
-export * from "./status/index.js";
-export * from "./steps/index.js";
-export * from "./sticky/index.js";
-export * from "./switch/index.js";
-export * from "./table/index.js";
-export * from "./tabs/index.js";
-export * from "./textarea/index.js";
-export * from "./toolbar/index.js";
-export * from "./tree/index.js";
-export * from "./tooltip/index.js";
-export * from "./toast/index.js";
-export * from "./toaster/index.js";
-export * from "./timeline/index.js";
-export * from "./hidden/index.js";
+export { Alert } from "./alert/index.js";
 export type {
-  MiaixzComponentSize,
-  MiaixzFeedbackTone,
-  MiaixzFormPreviewProps,
-  MiaixzFormPreviewState,
-  MiaixzVisualTone,
-} from "./shared.types.js";
+  AlertOwnerState,
+  AlertProps,
+  AlertRootAttributes,
+  AlertSlot,
+  AlertSlotProps,
+  MiaixzAlertOwnProps,
+} from "./alert/index.js";
+export {
+  ActionBar,
+  ActionText,
+  FormActions,
+  IconButton,
+  MoreActions,
+  RowActions,
+} from "./action/index.js";
+export type {
+  ActionBarOwnerState,
+  ActionBarProps,
+  ActionBarSlotProps,
+  ActionBase,
+  ActionDescriptor,
+  ActionTextProps,
+  ActionTextSlotProps,
+  CommandAction,
+  FormActionsOwnerState,
+  FormActionsProps,
+  FormActionsSlotProps,
+  FormCancelAction,
+  FormSubmitAction,
+  IconButtonOwnerState,
+  IconButtonProps,
+  IconButtonRootAttributes,
+  IconButtonSlotProps,
+  MoreActionsProps,
+  NavigationAction,
+  RowActionsOwnerState,
+  RowActionsProps,
+  RowActionsSlotProps,
+} from "./action/index.js";
+export { Avatar } from "./avatar/index.js";
+export type {
+  AvatarOwnerState,
+  AvatarProps,
+  AvatarRootAttributes,
+  AvatarSlot,
+  AvatarSlotProps,
+  MiaixzAvatarOwnProps,
+} from "./avatar/index.js";
+export { Button, ButtonLink } from "./button/index.js";
+export type {
+  ButtonLinkProps,
+  ButtonLinkRenderer,
+  ButtonLinkRenderProps,
+  ButtonLinkRootAttributes,
+  ButtonLinkSlotProps,
+  ButtonOwnerState,
+  ButtonProps,
+  ButtonRootAttributes,
+  ButtonSize,
+  ButtonSlot,
+  ButtonSlotProps,
+  ButtonTone,
+  ButtonVariant,
+} from "./button/index.js";
+export { Badge } from "./badge/index.js";
+export type {
+  BadgeOwnerState,
+  BadgeProps,
+  BadgeSlot,
+  BadgeSlotProps,
+  BadgeTone,
+  BadgeVariant,
+} from "./badge/index.js";
+export { Bar } from "./bar/index.js";
+export type { BarProps } from "./bar/index.js";
+export { Brand } from "./brand/index.js";
+export type {
+  BrandOwnerState,
+  BrandProps,
+  BrandRootAttributes,
+  BrandSlot,
+  BrandSlotProps,
+  MiaixzBrandOwnProps,
+} from "./brand/index.js";
+export { Breadcrumb } from "./breadcrumb/index.js";
+export type {
+  BreadcrumbEntry,
+  BreadcrumbOwnerState,
+  BreadcrumbProps,
+  BreadcrumbRootAttributes,
+  BreadcrumbSlot,
+  BreadcrumbSlotProps,
+  MiaixzBreadcrumbOwnProps,
+} from "./breadcrumb/index.js";
+export { Checkbox } from "./checkbox/index.js";
+export type {
+  CheckboxOwnerState,
+  CheckboxProps,
+  CheckboxRootAttributes,
+  CheckboxSlot,
+  CheckboxSlotProps,
+} from "./checkbox/index.js";
+export { Combobox } from "./combobox/index.js";
+export type {
+  ComboboxControlAttributes,
+  ComboboxOptionAttributes,
+  ComboboxOwnerState,
+  ComboboxProps,
+  ComboboxRootAttributes,
+  ComboboxSlot,
+  ComboboxSlotProps,
+  ComboboxSurfaceAttributes,
+  MiaixzComboboxInputState,
+  MiaixzComboboxOwnProps,
+  MiaixzComboboxValueState,
+  MiaixzOption,
+  MiaixzOptionGroup,
+  MiaixzOptionPage,
+  MiaixzOptionRenderState,
+  MiaixzOptionSource,
+} from "./combobox/index.js";
+export { Cluster } from "./cluster/index.js";
+export type { ClusterProps } from "./cluster/index.js";
+export { Columns } from "./columns/index.js";
+export type { ColumnsProps, ColumnsSeries } from "./columns/index.js";
+export { Confirm } from "./confirm/index.js";
+export type {
+  ConfirmCloseReason,
+  ConfirmOwnerState,
+  ConfirmProps,
+  ConfirmSlot,
+  ConfirmSlotProps,
+  ConfirmTone,
+} from "./confirm/index.js";
+export { Datagrid } from "./datagrid/index.js";
+export type {
+  DatagridColumn,
+  DatagridProps,
+  DatagridSort,
+  DatagridSortDirection,
+  MiaixzDatagridOwnProps,
+} from "./datagrid/index.js";
+export { Descriptions } from "./descriptions/index.js";
+export type {
+  DescriptionsDensity,
+  DescriptionsItem,
+  DescriptionsLayout,
+  DescriptionsOwnerState,
+  DescriptionsProps,
+  DescriptionsRootAttributes,
+  DescriptionsSlot,
+  DescriptionsSlotProps,
+  MiaixzDescriptionsOwnProps,
+} from "./descriptions/index.js";
+export { Dialog } from "./dialog/index.js";
+export type {
+  DialogCloseReason,
+  DialogOwnerState,
+  DialogProps,
+  DialogScroll,
+  DialogSize,
+  DialogSlot,
+  DialogSlotProps,
+  DialogSlots,
+} from "./dialog/index.js";
+export { Divider } from "./divider/index.js";
+export type { DividerProps, MiaixzDividerOwnProps } from "./divider/index.js";
+export { Donut } from "./donut/index.js";
+export type { DonutProps, DonutSegment } from "./donut/index.js";
+export { Drawer, DRAWER_WIDTHS } from "./drawer/index.js";
+export type {
+  DrawerCloseReason,
+  DrawerDensity,
+  DrawerInset,
+  DrawerOwnerState,
+  DrawerPlacement,
+  DrawerProps,
+  DrawerSlot,
+  DrawerSlotProps,
+  DrawerSlots,
+  DrawerWidth,
+  DrawerWidthPreset,
+} from "./drawer/index.js";
+export { Dropdown } from "./dropdown/index.js";
+export type {
+  DropdownActionEntry,
+  DropdownAnchorProps,
+  DropdownButtonProps,
+  DropdownCheckboxEntry,
+  DropdownDividerEntry,
+  DropdownEntry,
+  DropdownLabelEntry,
+  DropdownLinkEntry,
+  DropdownPresentation,
+  DropdownProps,
+  DropdownRadioGroupEntry,
+  DropdownRadioOption,
+  DropdownSubmenuEntry,
+  DropdownSubmenuItem,
+  DropdownTone,
+} from "./dropdown/index.js";
+export { EditorFieldset, EditorLayout, EditorSection, EditorSummary } from "./editor/index.js";
+export type {
+  EditorFieldsetProps,
+  EditorLayoutProps,
+  EditorSectionProps,
+  EditorSummaryItem,
+  EditorSummaryProps,
+} from "./editor/index.js";
+export { Dropzone, getDropzoneFileSignature, validateDropzoneFiles } from "./dropzone/index.js";
+export type {
+  DropzoneMultiplicity,
+  DropzoneOwnerState,
+  DropzoneProps,
+  DropzoneRejection,
+  DropzoneRejectionReason,
+  DropzoneRootAttributes,
+  DropzoneSlot,
+  DropzoneSlotProps,
+  DropzoneValidationResult,
+  MiaixzDropzoneOwnProps,
+} from "./dropzone/index.js";
+export { Empty } from "./empty/index.js";
+export type {
+  EmptyOwnerState,
+  EmptyProps,
+  EmptySlot,
+  EmptySlotProps,
+  EmptySlots,
+  EmptyVariant,
+} from "./empty/index.js";
+export { Entry } from "./entry/index.js";
+export type { EntryOwnerState, EntryProps, EntrySlotProps } from "./entry/index.js";
+export { Upload } from "./upload/index.js";
+export type {
+  LocalUploadFileRecord,
+  MiaixzUploadContext,
+  MiaixzUploadHandler,
+  MiaixzUploadOwnProps,
+  RemoteUploadFileRecord,
+  UploadFileBase,
+  UploadFileRecord,
+  UploadFilesState,
+  UploadMultiplicity,
+  UploadOwnerState,
+  UploadProps,
+  UploadRemoveConfirmation,
+  UploadRemovePolicy,
+  UploadRetryPolicy,
+  UploadRootAttributes,
+  UploadSlot,
+  UploadSlotProps,
+} from "./upload/index.js";
+export { Field, useFieldControl } from "./field/index.js";
+export type {
+  FieldControlProps,
+  FieldOwnerState,
+  FieldProps,
+  FieldSlot,
+  FieldSlotProps,
+} from "./field/index.js";
+export { Grid } from "./grid/index.js";
+export type { GridProps } from "./grid/index.js";
+export { Sections } from "./sections/index.js";
+export type {
+  MiaixzSectionsOwnProps,
+  SectionsEntry,
+  SectionsItem,
+  SectionsLayout,
+  SectionsOwnerState,
+  SectionsProps,
+  SectionsRootAttributes,
+  SectionsSlot,
+  SectionsSlotProps,
+} from "./sections/index.js";
+export { Header } from "./header/index.js";
+export type {
+  HeaderDensity,
+  HeaderOwnerState,
+  HeaderProps,
+  HeaderRootAttributes,
+  HeaderSlot,
+  HeaderSlotProps,
+  HeaderSlots,
+  MiaixzHeaderOwnProps,
+} from "./header/index.js";
+export { Heatmap, HeatmapLegend } from "./heatmap/index.js";
+export type { HeatmapLegendProps, HeatmapLevel, HeatmapProps } from "./heatmap/index.js";
+export { Icon } from "./icon/index.js";
+export type { IconProps, IconSize, IconStroke } from "./icon/index.js";
+export { Notice } from "./notice/index.js";
+export type {
+  MiaixzNoticeOwnProps,
+  NoticeOwnerState,
+  NoticeProps,
+  NoticeSlot,
+  NoticeSlotProps,
+} from "./notice/index.js";
+export { Input } from "./input/index.js";
+export type {
+  InputOwnerState,
+  InputProps,
+  InputRootAttributes,
+  InputSize,
+  InputSlot,
+  InputSlotProps,
+} from "./input/index.js";
+export { List, ListCounter, ListItem, ListMarker } from "./list/index.js";
+export type {
+  ListCounterProps,
+  ListDensity,
+  ListItemContent,
+  ListItemOwnerState,
+  ListItemProps,
+  ListItemRootAttributes,
+  ListItemSlot,
+  ListItemSlotProps,
+  ListLayout,
+  ListMarkerProps,
+  ListOwnerState,
+  ListProps,
+  ListRootAttributes,
+  ListSlot,
+  ListSurface,
+  StaticListControlAttributes,
+} from "./list/index.js";
+export { Locale } from "./locale/index.js";
+export type {
+  LocaleOwnerState,
+  LocaleProps,
+  LocaleRootAttributes,
+  LocaleSlot,
+  LocaleSlotProps,
+} from "./locale/index.js";
+export { Metric, Metrics } from "./metrics/index.js";
+export type {
+  MetricActionProps,
+  MetricDensity,
+  MetricLinkProps,
+  MetricOwnerState,
+  MetricProps,
+  MetricSlotProps,
+  MetricsProps,
+  MetricStaticProps,
+  MetricVariant,
+} from "./metrics/index.js";
+export { View } from "./view/index.js";
+export type {
+  ViewDensity,
+  ViewMode,
+  ViewModeProps,
+  ViewOwnerState,
+  ViewProps,
+  ViewRootAttributes,
+  ViewSlot,
+  ViewSlotProps,
+  ViewSurface,
+} from "./view/index.js";
+export { Overlay } from "./overlay/index.js";
+export type {
+  MiaixzOverlayOwnProps,
+  OverlayOwnerState,
+  OverlayProps,
+  OverlaySlot,
+  OverlaySlotProps,
+} from "./overlay/index.js";
+export { Picker } from "./picker/index.js";
+export type {
+  MiaixzPickerOwnProps,
+  PickerProps,
+  PickerRenderValueState,
+  PickerSlotProps,
+  PickerValueState,
+} from "./picker/index.js";
+export { Navigation, NavigationRail, NavigationRailGroup } from "./navigation/index.js";
+export type {
+  MiaixzNavigationOwnProps,
+  MiaixzNavigationRailGroupOwnProps,
+  MiaixzNavigationRailOwnProps,
+  NavigationDensity,
+  NavigationEntry,
+  NavigationIconAttributes,
+  NavigationOrientation,
+  NavigationOwnerState,
+  NavigationProps,
+  NavigationRailDensity,
+  NavigationRailGroupModel,
+  NavigationRailGroupOwnerState,
+  NavigationRailGroupProps,
+  NavigationRailGroupRootAttributes,
+  NavigationRailGroupSlot,
+  NavigationRailGroupSlotProps,
+  NavigationRailItem,
+  NavigationRailOverflowAttributes,
+  NavigationRailOwnerState,
+  NavigationRailProps,
+  NavigationRailRootAttributes,
+  NavigationRailSlot,
+  NavigationRailSlotProps,
+  NavigationRailVariant,
+  NavigationRootAttributes,
+  NavigationSlot,
+  NavigationSlotProps,
+  NavigationSlots,
+  NavigationSurface,
+} from "./navigation/index.js";
+export { Panel, PanelFooter, PanelHeader } from "./panel/index.js";
+export type {
+  PanelDensity,
+  PanelFooterProps,
+  PanelFrame,
+  PanelHeaderProps,
+  PanelProps,
+  PanelSurface,
+} from "./panel/index.js";
+export { getPaginationEntries, Pagination } from "./pagination/index.js";
+export type {
+  MiaixzPaginationEntry,
+  MiaixzPaginationOwnProps,
+  PaginationOwnerState,
+  PaginationProps,
+  PaginationRootAttributes,
+  PaginationSlot,
+  PaginationSlotProps,
+  PaginationVariant,
+} from "./pagination/index.js";
+export { Page } from "./page/index.js";
+export type { PageProps } from "./page/index.js";
+export { Popover } from "./popover/index.js";
+export type {
+  PopoverChangeReason,
+  PopoverOpenState,
+  PopoverOwnerState,
+  PopoverPopupRole,
+  PopoverProps,
+  PopoverSlot,
+  PopoverSlotProps,
+  PopoverTriggerProps,
+} from "./popover/index.js";
+export { Pressable } from "./pressable/index.js";
+export type { PressableProps } from "./pressable/index.js";
+export { Progress } from "./progress/index.js";
+export type {
+  MiaixzProgressOwnProps,
+  ProgressOwnerState,
+  ProgressProps,
+  ProgressSize,
+  ProgressSlot,
+  ProgressSlotProps,
+} from "./progress/index.js";
+export { Range } from "./range/index.js";
+export type {
+  RangeOwnerState,
+  RangeProps,
+  RangeRootAttributes,
+  RangeSlot,
+  RangeSlotProps,
+} from "./range/index.js";
+export { Radio, RadioGroup } from "./radio/index.js";
+export type {
+  RadioGroupItem,
+  RadioGroupOwnerState,
+  RadioGroupProps,
+  RadioGroupSlotProps,
+  RadioOwnerState,
+  RadioProps,
+  RadioRootAttributes,
+  RadioSlot,
+  RadioSlotProps,
+} from "./radio/index.js";
+export { Graph } from "./diagram/graph/index.js";
+export type {
+  GraphEdge,
+  GraphNode,
+  GraphOwnerState,
+  GraphProps,
+  GraphSlot,
+  GraphSlotProps,
+} from "./diagram/graph/index.js";
+export { Select } from "./select/index.js";
+export type {
+  SelectEntry,
+  SelectGroup,
+  SelectOption,
+  SelectOptionAttributes,
+  SelectOwnerState,
+  SelectProps,
+  SelectRootAttributes,
+  SelectSize,
+  SelectSlot,
+  SelectSlotProps,
+  SelectValueState,
+} from "./select/index.js";
+export { Search } from "./search/index.js";
+export type {
+  SearchChangeReason,
+  SearchOwnerState,
+  SearchProps,
+  SearchSlot,
+  SearchSlotProps,
+  SearchValueState,
+} from "./search/index.js";
+export { Skeleton } from "./skeleton/index.js";
+export type {
+  SkeletonOwnerState,
+  SkeletonProps,
+  SkeletonSlot,
+  SkeletonSlotProps,
+  SkeletonVariant,
+} from "./skeleton/index.js";
+export { Scroll } from "./scroll/index.js";
+export type { ScrollProps } from "./scroll/index.js";
+export { Shell } from "./shell/index.js";
+export type {
+  MiaixzShellOwnProps,
+  ShellDesktopNavigation,
+  ShellMobileNavigation,
+  ShellOwnerState,
+  ShellProps,
+  ShellRootAttributes,
+  ShellSidebarAttributes,
+  ShellSidebarOverflow,
+  ShellSlot,
+  ShellSlotProps,
+} from "./shell/index.js";
+export { Sidebar } from "./sidebar/index.js";
+export type {
+  MiaixzSidebarOwnProps,
+  SidebarAsideAttributes,
+  SidebarOwnerState,
+  SidebarProps,
+  SidebarRootAttributes,
+  SidebarSize,
+  SidebarSlot,
+  SidebarSlotProps,
+} from "./sidebar/index.js";
+export { Spinner } from "./spinner/index.js";
+export type {
+  MiaixzSpinnerOwnProps,
+  SpinnerOwnerState,
+  SpinnerProps,
+  SpinnerRootAttributes,
+  SpinnerSlot,
+  SpinnerSlotProps,
+} from "./spinner/index.js";
+export { Sparkline } from "./sparkline/index.js";
+export type { SparklineProps } from "./sparkline/index.js";
+export { Split } from "./split/index.js";
+export type { SplitProps } from "./split/index.js";
+export { Stack } from "./stack/index.js";
+export type { StackProps } from "./stack/index.js";
+export { Status } from "./status/index.js";
+export type {
+  MiaixzStatusOwnProps,
+  StatusLayout,
+  StatusOwnerState,
+  StatusProps,
+  StatusSize,
+  StatusSlot,
+  StatusSlotProps,
+} from "./status/index.js";
+export { Steps } from "./steps/index.js";
+export type {
+  MiaixzStepsOwnProps,
+  StepsDensity,
+  StepsItem,
+  StepsOrientation,
+  StepsOwnerState,
+  StepsProps,
+  StepsRootAttributes,
+  StepsSlot,
+  StepsSlotProps,
+  StepsSurface,
+} from "./steps/index.js";
+export { Switch } from "./switch/index.js";
+export type {
+  SwitchOwnerState,
+  SwitchProps,
+  SwitchRootAttributes,
+  SwitchSize,
+  SwitchSlot,
+  SwitchSlotProps,
+} from "./switch/index.js";
+export {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./table/index.js";
+export type {
+  TableBodyProps,
+  TableCaptionProps,
+  TableCellProps,
+  TableContainerProps,
+  TableDensity,
+  TableDividerStyle,
+  TableFooterProps,
+  TableHeaderProps,
+  TableHeadProps,
+  TableOwnerState,
+  TableProps,
+  TableRootAttributes,
+  TableRowProps,
+  TableSlot,
+} from "./table/index.js";
+export { Tabs } from "./tabs/index.js";
+export type {
+  MiaixzTabsOwnProps,
+  TabsActivationMode,
+  TabsEntry,
+  TabsOrientation,
+  TabsOwnerState,
+  TabsProps,
+  TabsRootAttributes,
+  TabsSlot,
+  TabsSlotProps,
+  TabsValueState,
+} from "./tabs/index.js";
+export { Textarea } from "./textarea/index.js";
+export type { TextareaProps, TextareaResize, TextareaSize } from "./textarea/index.js";
+export { Toolbar } from "./toolbar/index.js";
+export type {
+  ToolbarDensity,
+  ToolbarOrientation,
+  ToolbarProps,
+  ToolbarSurface,
+} from "./toolbar/index.js";
+export { Tree } from "./tree/index.js";
+export type {
+  MiaixzTreeOwnProps,
+  TreeDensity,
+  TreeDividerStyle,
+  TreeExpansionProps,
+  TreeNode,
+  TreeOwnerState,
+  TreeProps,
+  TreeSelectionProps,
+  TreeSlotProps,
+  TreeSurface,
+} from "./tree/index.js";
+export { Tooltip } from "./tooltip/index.js";
+export type {
+  MiaixzTooltipTriggerProps,
+  TooltipOpenState,
+  TooltipOwnerState,
+  TooltipProps,
+  TooltipSlot,
+  TooltipSlotProps,
+} from "./tooltip/index.js";
+export { Toast } from "./toast/index.js";
+export type {
+  ToastAction,
+  ToastCloseReason,
+  ToastOwnerState,
+  ToastProps,
+  ToastSlot,
+  ToastSlotProps,
+  ToastSlots,
+  ToastTone,
+} from "./toast/index.js";
+export { Toaster, useToast } from "./toaster/index.js";
+export type {
+  ToastContextValue,
+  ToasterOwnerState,
+  ToasterProps,
+  ToasterSlot,
+  ToasterSlotProps,
+  ToastOptions,
+  ToastRecord,
+} from "./toaster/index.js";
+export { Timeline } from "./timeline/index.js";
+export type {
+  MiaixzTimelineItem,
+  MiaixzTimelineOwnProps,
+  TimelineLayout,
+  TimelineOwnerState,
+  TimelineProps,
+  TimelineRootAttributes,
+  TimelineSlot,
+  TimelineSlotProps,
+} from "./timeline/index.js";
+export { Hidden } from "./hidden/index.js";
+export type { HiddenProps } from "./hidden/index.js";
+export type { MiaixzComponentSize, MiaixzFeedbackTone, MiaixzVisualTone } from "./shared.types.js";
 export {
   useVisualizationGroupMotion,
   type VisualizationGroupMotionOptions,

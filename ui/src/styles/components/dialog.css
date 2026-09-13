@@ -42,11 +42,11 @@ dialog.miaixz-dialog {
   padding: 0;
   margin: auto;
   overflow: hidden;
-  color: var(--miaixz-surface-role-overlay-foreground);
-  background: var(--miaixz-surface-role-overlay-background);
-  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-overlay-border);
-  border-radius: var(--miaixz-radius-dialog);
-  box-shadow: var(--miaixz-shadow-overlay);
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   opacity: 0;
   transform: translateY(var(--miaixz-dialog-offset));
   transition-timing-function: var(--miaixz-motion-enter-easing);
@@ -56,8 +56,7 @@ dialog.miaixz-dialog {
 }
 
 dialog.miaixz-dialog[open] {
-  display: flex;
-  flex-direction: column;
+  display: block;
   opacity: 1;
   transform: translateY(0);
 }
@@ -86,11 +85,11 @@ dialog.miaixz-dialog[open]::backdrop {
   }
 }
 
-.miaixz-dialog-small {
+.miaixz-dialog[data-size="small"] {
   --miaixz-dialog-width: var(--miaixz-dialog-width-small);
 }
 
-.miaixz-dialog-large {
+.miaixz-dialog[data-size="large"] {
   --miaixz-dialog-width: var(--miaixz-dialog-width-large);
 }
 
@@ -117,6 +116,28 @@ dialog.miaixz-dialog[open]::backdrop {
   line-height: var(--miaixz-text-page-title-line-height);
 }
 
+.miaixz-dialog-close {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--miaixz-density-control-height);
+  block-size: var(--miaixz-density-control-height);
+  padding: 0;
+  color: var(--miaixz-color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-dialog-close:is(:hover, :focus-visible) {
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-dialog-close:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-space-2);
+}
+
 .miaixz-dialog-description {
   margin: var(--miaixz-space-4) 0 0;
   color: var(--miaixz-color-text-secondary);
@@ -136,4 +157,30 @@ dialog.miaixz-dialog[open]::backdrop {
   align-items: center;
   justify-content: flex-end;
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-dialog-paper {
+  display: flex;
+  flex-direction: column;
+  max-block-size: var(--miaixz-dialog-max-height);
+  overflow: hidden;
+  color: var(--miaixz-surface-role-overlay-foreground);
+  background: var(--miaixz-surface-role-overlay-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-overlay-border);
+  border-radius: var(--miaixz-radius-dialog);
+  box-shadow: var(--miaixz-shadow-overlay);
+}
+
+.miaixz-dialog[data-scroll="body"] {
+  overflow: auto;
+}
+
+.miaixz-dialog[data-scroll="body"] > .miaixz-dialog-paper,
+.miaixz-dialog[data-scroll="body"] .miaixz-dialog-body {
+  max-block-size: none;
+  overflow: visible;
+}
+
+.miaixz-dialog-heading {
+  min-inline-size: 0;
 }

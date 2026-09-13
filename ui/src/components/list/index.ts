@@ -18,20 +18,22 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export {
-  List,
-  ListItem,
-  ListCounter,
-  ListMarker,
-  ListDistributionItem,
-  getListClassName,
-} from "./list.js";
+export { List, ListItem, ListCounter, ListMarker } from "./list.js";
 export type {
-  ListEntry,
-  ListProps,
-  ListDistributionItemProps,
-  ListMarkerProps,
   ListCounterProps,
-  ListPart,
+  ListDensity,
+  ListItemContent,
+  ListItemOwnerState,
   ListItemProps,
+  ListItemRootAttributes,
+  ListItemSlot,
+  ListItemSlotProps,
+  ListLayout,
+  ListMarkerProps,
+  ListOwnerState,
+  ListProps,
+  ListRootAttributes,
+  ListSlot,
+  ListSurface,
+  StaticListControlAttributes,
 } from "./list.types.js";

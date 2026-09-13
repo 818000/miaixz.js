@@ -19,5 +19,13 @@
 */
 
 export { Status } from "./status.js";
-export type { MiaixzStatusOwnProps, StatusProps } from "./status.types.js";
+export type {
+  MiaixzStatusOwnProps,
+  StatusLayout,
+  StatusOwnerState,
+  StatusProps,
+  StatusSize,
+  StatusSlot,
+  StatusSlotProps,
+} from "./status.types.js";
 export type { MiaixzFeedbackTone } from "../shared.types.js";

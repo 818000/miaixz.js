@@ -18,5 +18,12 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./search.js";
-export type * from "./search.types.js";
+export { Search } from "./search.js";
+export type {
+  SearchChangeReason,
+  SearchOwnerState,
+  SearchProps,
+  SearchSlot,
+  SearchSlotProps,
+  SearchValueState,
+} from "./search.types.js";

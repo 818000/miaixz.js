@@ -36,18 +36,17 @@ if [ "$#" -ne 1 ] || [ -z "$1" ]; then
     exit 1
 fi
 
-node - "$root" "$1" <<'NODE'
-const { readFileSync, renameSync, writeFileSync } = require("node:fs");
-const { join } = require("node:path");
+node --input-type=module - "$root" "$1" <<'NODE'
+import { readFileSync, renameSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.argv[2];
 const version = process.argv[3];
-const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$/;
-
-if (!semver.test(version)) {
-  console.error(`ERROR: '${version}' must be a complete semantic version without build metadata.`);
-  process.exit(1);
-}
+const { assertReleaseVersion, getSdkPeerRange } = await import(
+  pathToFileURL(join(root, ".github/scripts/version-range.mjs"))
+);
+assertReleaseVersion(version);
 
 const paths = {
   version: join(root, "VERSION"),
@@ -74,8 +73,7 @@ uiPackage.version = version;
 
 uiPackage.peerDependencies ??= {};
 uiPackage.devDependencies ??= {};
-const nextMajor = Number(version.split(".")[0]) + 1;
-uiPackage.peerDependencies["@miaixz/sdk"] = `>=${version} <${nextMajor}.0.0`;
+uiPackage.peerDependencies["@miaixz/sdk"] = getSdkPeerRange(version);
 uiPackage.devDependencies["@miaixz/sdk"] = version;
 
 const updates = [
@@ -95,7 +93,7 @@ for (const [path] of updates) {
 const verifiedRoot = readPackage(paths.rootPackage);
 const verifiedSdk = readPackage(paths.sdkPackage);
 const verifiedUi = readPackage(paths.uiPackage);
-const expectedPeerRange = `>=${version} <${nextMajor}.0.0`;
+const expectedPeerRange = getSdkPeerRange(version);
 const versionsMatch =
   readFileSync(paths.version, "utf8").trim() === version &&
   verifiedRoot.version === version &&

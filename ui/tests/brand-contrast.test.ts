@@ -73,22 +73,16 @@ describe("brand foreground semantics", () => {
   }
 
   it("uses semantic foregrounds without changing branded backgrounds or indicators", () => {
-    for (const selector of [".miaixz-avatar-account {", ".miaixz-avatar-account:hover,"]) {
-      expect(rule("avatar", selector)).toContain("color: var(--miaixz-color-on-brand);");
-    }
-    expect(rule("action", '.miaixz-action-text[data-action-tone="brand"] {')).toContain(
-      "color: var(--miaixz-color-brand);",
-    );
-    expect(rule("action", ".miaixz-action-text:hover:not(:disabled),")).toContain(
-      "color: var(--miaixz-color-brand);",
+    expect(rule("button", '.miaixz-button[data-variant="plain"][data-tone="brand"] {')).toContain(
+      "color: var(--miaixz-color-brand-strong);",
     );
     const navigation = rule(
       "navigation",
-      '.miaixz-navigation-horizontal > .miaixz-navigation-item[aria-current="page"] {',
+      '.miaixz-navigation[data-orientation="horizontal"] > .miaixz-navigation-item[aria-current] {',
     );
     expect(navigation).toContain("color: var(--miaixz-color-text-primary);");
     expect(navigation).toContain("0 var(--miaixz-color-brand);");
-    expect(rule("button", ".miaixz-button-primary {")).toContain(
+    expect(rule("button", '.miaixz-button[data-variant="solid"][data-tone="brand"] {')).toContain(
       "color: var(--miaixz-color-on-brand);",
     );
   });

@@ -18,44 +18,83 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Sidebar contracts are defined by the component type module.
+ */
 import { forwardRef } from "react";
 
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { classNames } from "../../shared/class-names.js";
-import type { SidebarProps } from "./sidebar.types.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { SidebarOwnerState, SidebarProps } from "./sidebar.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Creates a localized sidebar and content layout. @public
+/*
+ * Creates a local sidebar layout without owning viewport or expanded state. @public
  */
-export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(function Sidebar(
-  {
-    sidebar,
-    sidebarLabel,
-    stickySidebar = true,
-    collapseAt,
-    size = "default",
-    contentClassName,
-    className,
-    children,
-    ...props
-  },
-  ref,
-) {
-  const { t } = useMiaixzLocale();
-  return (
-    <div
-      {...props}
-      ref={ref}
-      className={classNames("miaixz-sidebar", `miaixz-sidebar-${size}`, className)}
-      data-collapse-at={collapseAt}
-    >
-      <aside
-        aria-label={sidebarLabel ?? t("ui.sectionNavigation.label")}
-        className={classNames("miaixz-sidebar-aside", stickySidebar && "miaixz-sticky")}
+export const Sidebar = withMiaixzThemeComponent(
+  "Sidebar",
+  forwardRef<HTMLDivElement, SidebarProps>(function Sidebar(
+    {
+      sidebar,
+      sidebarLabel,
+      stickySidebar = true,
+      size = "default",
+      footer,
+      slotProps,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const { t } = useMiaixzLocale();
+    const ownerState: SidebarOwnerState = { size, stickySidebar };
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-sidebar" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-size": size },
+          ownedProps: ["data-size"],
+        })}
       >
-        {sidebar}
-      </aside>
-      <div className={classNames("miaixz-sidebar-main", contentClassName)}>{children}</div>
-    </div>
-  );
-});
+        <aside
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-sidebar-aside" },
+            slotProps: slotProps?.sidebar,
+            internalProps: {
+              "aria-label": sidebarLabel ?? t("ui.sectionNavigation.label"),
+              ...(stickySidebar ? { "data-sticky": true } : {}),
+            },
+            ownedProps: ["aria-label", "data-sticky"],
+          })}
+        >
+          {sidebar}
+        </aside>
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-sidebar-content" },
+            slotProps: slotProps?.content,
+          })}
+        >
+          {children}
+        </div>
+        {footer !== undefined && (
+          <footer
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-sidebar-footer" },
+              slotProps: slotProps?.footer,
+            })}
+          >
+            {footer}
+          </footer>
+        )}
+      </div>
+    );
+  }),
+);

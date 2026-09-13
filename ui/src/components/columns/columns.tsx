@@ -18,140 +18,272 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useId, type CSSProperties } from "react";
-import { Hidden } from "../hidden/index.js";
-
-import { classNames } from "../../shared/class-names.js";
-import { useVisualizationMotion } from "../../shared/use-visualization-motion.js";
-import type { ColumnsProps } from "./columns.types.js";
-
-/**
- * Extends React styles with the private normalized datum value.
+/* eslint-disable jsdoc/require-jsdoc -- Public Columns contract lives in its type module.
  */
-interface MiaixzColumnsDatumStyle extends CSSProperties {
-  /**
-   * Supplies one clamped zero-to-one-hundred percentage.
-   */
+import { forwardRef, type CSSProperties } from "react";
+
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { classNames } from "../../shared/class-names.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { ColumnsOwnerState, ColumnsProps } from "./columns.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+interface ColumnsBarStyle extends CSSProperties {
   readonly "--miaixz-columns-value": string;
+  readonly "--miaixz-columns-offset": string;
 }
 
-/**
- * Renders a compact one- or two-series column chart.
- *
- * @public
- */
-export const Columns = forwardRef<HTMLDivElement, ColumnsProps>(function Columns(
-  {
-    labels,
-    series,
-    maximum: suppliedMaximum,
-    showLegend = false,
-    size = "default",
-    tone,
-    variant = "default",
-    className,
-    onPointerEnter,
-    onPointerLeave,
-    "aria-label": ariaLabel,
-    ...props
-  },
-  forwardedRef,
-) {
-  const descriptionId = useId();
-  const { ref, motionState, handlePointerEnter, handlePointerLeave } =
-    useVisualizationMotion<HTMLDivElement>({
-      forwardedRef,
-      onPointerEnter,
-      onPointerLeave,
-    });
-  if (series.length > 2) throw new TypeError("Columns accepts at most two series");
-  if (series.some(({ values }) => values.length !== labels.length)) {
-    throw new TypeError("Columns labels and series values must have equal lengths");
-  }
-  if (series.some(({ values }) => values.some((value) => !Number.isFinite(value)))) {
-    throw new TypeError("Columns series values must be finite numbers");
-  }
-  if (
-    suppliedMaximum !== undefined &&
-    (!Number.isFinite(suppliedMaximum) || suppliedMaximum <= 0)
+export const Columns = withMiaixzThemeComponent(
+  "Columns",
+  forwardRef<HTMLDivElement, ColumnsProps>(function Columns(
+    {
+      labels,
+      series,
+      maximum: suppliedMaximum,
+      showLegend = false,
+      tone,
+      orientation = "vertical",
+      layout = "grouped",
+      density = "standard",
+      categoryFormatter = (label) => label,
+      seriesFormatter = (item) => item.label,
+      valueFormatter,
+      accessibleTable = true,
+      slotProps,
+      className,
+      "aria-label": ariaLabel,
+      "aria-describedby": ariaDescribedBy,
+      ...props
+    },
+    ref,
   ) {
-    throw new TypeError("Columns maximum must be a finite positive number");
-  }
-
-  const isEmpty = labels.length === 0 || series.length === 0;
-  const dataMaximum = isEmpty
-    ? 0
-    : Math.max(0, ...series.flatMap(({ values }) => values.map((value) => Math.max(0, value))));
-  const maximum = suppliedMaximum ?? dataMaximum;
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role="img"
-      aria-label={ariaLabel}
-      aria-describedby={[props["aria-describedby"], descriptionId].filter(Boolean).join(" ")}
-      data-state={isEmpty ? "empty" : "ready"}
-      data-motion-state={motionState}
-      data-tone={tone}
-      className={classNames(
-        "miaixz-columns",
-        `miaixz-columns-${variant}`,
-        `miaixz-columns-tone-${tone}`,
-        size === "large" && "miaixz-columns-large",
-        showLegend && "miaixz-columns-with-legend",
-        className,
-      )}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-    >
-      <Hidden id={descriptionId}>
-        {labels
-          .map(
-            (label, index) =>
-              `${label}：${series.map((item) => `${item.label} ${item.values[index]}`).join("、")}`,
+    const { locale, t } = useMiaixzLocale();
+    const formatValue =
+      valueFormatter ??
+      ((value: number) =>
+        new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value));
+    const empty = labels.length === 0 && series.length === 0;
+    if (!empty && (labels.length === 0 || series.length < 1 || series.length > 2)) {
+      throw new MiaixzUiError({
+        code: "UI_COLUMNS_SERIES_COUNT_INVALID",
+      });
+    }
+    const ids = new Set<string>();
+    for (const item of series) {
+      if (ids.has(item.id)) {
+        throw new MiaixzUiError({
+          code: "UI_COLUMNS_DUPLICATE_SERIES_ID",
+          details: { id: item.id },
+        });
+      }
+      if (item.values.length !== labels.length) {
+        throw new MiaixzUiError({
+          code: "UI_COLUMNS_VALUE_LENGTH_INVALID",
+          details: { id: item.id },
+        });
+      }
+      if (item.values.some((value) => !Number.isFinite(value) || value < 0)) {
+        throw new MiaixzUiError({
+          code: "UI_COLUMNS_VALUE_INVALID",
+          details: { id: item.id },
+        });
+      }
+      ids.add(item.id);
+    }
+    const domainMaximum = empty
+      ? 0
+      : layout === "stacked"
+        ? Math.max(
+            ...labels.map((_, index) => series.reduce((sum, item) => sum + item.values[index]!, 0)),
           )
-          .join("；")}
-      </Hidden>
-      {showLegend && (
-        <span className="miaixz-columns-legend" aria-hidden="true">
-          {series.map((item, index) => (
-            <span key={item.label}>
-              <i className={index === 1 ? "miaixz-columns-key-secondary" : undefined} />
-              {item.label}
-            </span>
-          ))}
-        </span>
-      )}
-      <span className="miaixz-columns-plot" aria-hidden="true">
-        {!isEmpty &&
-          labels.map((label, labelIndex) => (
-            <span key={`${label}-${labelIndex}`} className="miaixz-columns-group">
-              <span className="miaixz-columns-bars">
-                {series.map(({ label: seriesLabel, values }, seriesIndex) => {
-                  const value = values[labelIndex] ?? 0;
-                  const percentage =
-                    maximum === 0 ? 0 : Math.min(100, (Math.max(0, value) / maximum) * 100);
-                  const style: MiaixzColumnsDatumStyle = {
-                    "--miaixz-columns-value": `${percentage}%`,
-                  };
-                  return (
-                    <span
-                      key={`${seriesLabel}-${seriesIndex}`}
-                      className={classNames(
-                        "miaixz-columns-bar",
-                        seriesIndex === 1 && "miaixz-columns-bar-secondary",
-                      )}
-                      style={style}
-                      title={`${seriesLabel}, ${label}: ${value}`}
-                    />
-                  );
+        : Math.max(...series.flatMap((item) => item.values));
+    if (
+      suppliedMaximum !== undefined &&
+      (!Number.isFinite(suppliedMaximum) || suppliedMaximum <= 0 || suppliedMaximum < domainMaximum)
+    ) {
+      throw new MiaixzUiError({
+        code: "UI_COLUMNS_MAXIMUM_INVALID",
+      });
+    }
+    const maximum = suppliedMaximum ?? domainMaximum;
+    const ownerState: ColumnsOwnerState = {
+      orientation,
+      layout,
+      density,
+      tone,
+      state: empty ? "empty" : "ready",
+    };
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-columns" },
+          componentProps: { ...props, className },
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            role: "group",
+            "aria-label": ariaLabel,
+            ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
+            "data-orientation": orientation,
+            "data-layout": layout,
+            "data-density": density,
+            "data-tone": tone,
+            "data-state": empty ? "empty" : "ready",
+          },
+          ownedProps: ["role", "aria-label", "aria-describedby"],
+        })}
+      >
+        {showLegend && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-columns-legend" },
+              slotProps: slotProps?.legend,
+            })}
+          >
+            {series.map((item, index) => (
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-columns-legend-item" },
+                  slotProps: slotProps?.legendItem,
                 })}
+                key={item.id}
+              >
+                <i data-series={index} aria-hidden="true" />
+                {seriesFormatter(item)}
               </span>
-              <span className="miaixz-columns-label">{label}</span>
-            </span>
-          ))}
-      </span>
-    </div>
-  );
-});
+            ))}
+          </div>
+        )}
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-columns-plot" },
+            slotProps: slotProps?.plot,
+            internalProps: { "aria-hidden": true },
+            ownedProps: ["aria-hidden"],
+          })}
+        >
+          {!empty &&
+            labels.map((label, categoryIndex) => {
+              let stackedOffset = 0;
+              return (
+                <div
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-columns-category" },
+                    slotProps: slotProps?.category,
+                  })}
+                  key={`${categoryIndex}-${label}`}
+                >
+                  <div className="miaixz-columns-bars">
+                    {series.map((item, seriesIndex) => {
+                      const value = item.values[categoryIndex]!;
+                      const valuePercent = maximum === 0 ? 0 : (value / maximum) * 100;
+                      const offset = stackedOffset;
+                      if (layout === "stacked") stackedOffset += valuePercent;
+                      return (
+                        <span
+                          {...mergeMiaixzSlotProps({
+                            ownerState,
+                            defaultProps: { className: "miaixz-columns-bar" },
+                            slotProps: slotProps?.bar,
+                            internalProps: {
+                              "data-series": seriesIndex,
+                              style: {
+                                "--miaixz-columns-value": `${valuePercent}%`,
+                                "--miaixz-columns-offset": `${offset}%`,
+                              } as ColumnsBarStyle,
+                              title: `${seriesFormatter(item)}, ${categoryFormatter(label, categoryIndex)}: ${formatValue(value, item, categoryIndex)}`,
+                            },
+                            ownedProps: ["title"],
+                          })}
+                          key={item.id}
+                        />
+                      );
+                    })}
+                  </div>
+                  <span
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: { className: "miaixz-columns-label" },
+                      slotProps: slotProps?.categoryLabel,
+                    })}
+                  >
+                    {categoryFormatter(label, categoryIndex)}
+                  </span>
+                </div>
+              );
+            })}
+        </div>
+        {accessibleTable && (
+          <table
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-hidden miaixz-columns-table" },
+              slotProps: slotProps?.table,
+            })}
+          >
+            <caption {...mergeMiaixzSlotProps({ ownerState, slotProps: slotProps?.caption })}>
+              {ariaLabel}
+            </caption>
+            <thead>
+              <tr>
+                <th
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    slotProps: slotProps?.tableHeader,
+                    internalProps: { scope: "col" },
+                    ownedProps: ["scope"],
+                  })}
+                >
+                  {t("ui.columns.category")}
+                </th>
+                {series.map((item) => (
+                  <th
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      slotProps: slotProps?.tableHeader,
+                      internalProps: { scope: "col" },
+                      ownedProps: ["scope"],
+                    })}
+                    key={item.id}
+                  >
+                    {seriesFormatter(item)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {labels.map((label, categoryIndex) => (
+                <tr key={`${categoryIndex}-${label}`}>
+                  <th
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      slotProps: slotProps?.tableHeader,
+                      internalProps: { scope: "row" },
+                      ownedProps: ["scope"],
+                    })}
+                  >
+                    {categoryFormatter(label, categoryIndex)}
+                  </th>
+                  {series.map((item) => (
+                    <td
+                      {...mergeMiaixzSlotProps({ ownerState, slotProps: slotProps?.tableCell })}
+                      key={item.id}
+                    >
+                      {formatValue(item.values[categoryIndex]!, item, categoryIndex)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    );
+  }),
+);

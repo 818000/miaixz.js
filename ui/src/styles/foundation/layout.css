@@ -62,14 +62,3 @@
 [data-miaixz-theme] [hidden] {
   display: none !important;
 }
-
-[data-miaixz-theme] .miaixz-hidden {
-  position: absolute !important;
-  inline-size: var(--miaixz-border-width-1) !important;
-  block-size: var(--miaixz-border-width-1) !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-  clip-path: inset(50%) !important;
-}

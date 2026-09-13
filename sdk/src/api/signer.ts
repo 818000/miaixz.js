@@ -22,7 +22,7 @@
  */
 
 import type { MiaixzApiClient } from "./client.js";
-import { MiaixzApiError, MiaixzSdkError } from "./errors.js";
+import { MiaixzApiError, MiaixzSdkError } from "../errors/errors.js";
 import type { MiaixzHttpMethod, MiaixzResponseParser } from "./request.js";
 import type { MiaixzHttpResponse } from "./response.js";
 
@@ -277,7 +277,8 @@ export class RestGatewayClient {
 }
 
 function signatureError(code: string, message: string): MiaixzSdkError {
-  return new MiaixzSdkError(message, { code });
+  void message;
+  return new MiaixzSdkError({ code });
 }
 
 function normalizeHttpMethod(method: MiaixzHttpMethod): MiaixzHttpMethod {

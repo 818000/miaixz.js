@@ -1,102 +1,63 @@
-import { readFileSync } from "node:fs";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ */
+
+import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Icon } from "../src/components/icon/index.js";
-import { Metric } from "../src/components/metric/index.js";
-import { MetricGroup } from "../src/components/metric-group/index.js";
+
+import { Metric, Metrics } from "../src/components/metrics/index.js";
+import { renderWithLocale } from "./test-utils.js";
 
 afterEach(cleanup);
 
-describe("optional strip icons", () => {
-  it("preserves the workbench five-item summary composition and geometry", () => {
+describe("Metric interaction contracts", () => {
+  it("maps strip layout through one shared context while preserving explicit variants", () => {
+    renderWithLocale(
+      <Metrics aria-label="指标" layout="strip">
+        <Metric label="默认" value="8" />
+        <Metric label="卡片" value="5" variant="card" />
+      </Metrics>,
+    );
+    expect(screen.getByText("默认").closest(".miaixz-metric")).toHaveAttribute(
+      "data-variant",
+      "strip",
+    );
+    expect(screen.getByText("卡片").closest(".miaixz-metric")).toHaveAttribute(
+      "data-variant",
+      "card",
+    );
+  });
+
+  it("renders static, navigation and action metrics with distinct native semantics", () => {
+    const onAction = vi.fn();
     render(
-      <MetricGroup aria-label="工作概览" columns={5} itemVariant="preserve" variant="summary">
-        {Array.from({ length: 5 }, (_, index) => (
-          <li key={index}>
-            <Metric label={`指标 ${index + 1}`} value={index + 1} variant="summary" />
-          </li>
-        ))}
-      </MetricGroup>,
-    );
-    const group = screen.getByLabelText("工作概览");
-    const list = group.querySelector(".miaixz-metric-group-summary-list") as HTMLElement;
-    expect(group.getAttribute("data-columns")).toBe("5");
-    expect(list.style.getPropertyValue("--miaixz-metric-group-columns")).toBe("5");
-    expect(list.children).toHaveLength(5);
-    expect(list.querySelectorAll(".miaixz-metric-summary")).toHaveLength(5);
-    expect(screen.getByText("指标 5")).toBeTruthy();
-    expect(screen.getByText("5")).toBeTruthy();
-
-    const css = readFileSync("src/styles/components/metric-group.css", "utf8");
-    const summaryRule = css.match(/\.miaixz-metric-group-summary-list\s*\{([^}]*)\}/)?.[1];
-    expect(summaryRule).toContain("height: 114.75px");
-    expect(summaryRule).toContain("min-height: calc(86px + var(--miaixz-density-item-height))");
-    expect(summaryRule).toContain(
-      "grid-template-columns: repeat(var(--miaixz-metric-group-columns), minmax(0, 1fr))",
-    );
-    expect(css).toMatch(/@container miaixz-metrics \(width <= 1200px\)[\s\S]*height: 150px/u);
-    expect(css).toMatch(/minmax\(220px, 1fr\)[\s\S]*overflow: auto hidden/u);
-    expect(css).toContain(".miaixz-metric-group-summary-list > li:not(:last-child) .miaixz-metric");
-    expect(css).toMatch(/li:hover,[\s\S]*li:focus-within[\s\S]*z-index: 2/u);
-  });
-
-  it("keeps metrics static and decorative icons out of the accessibility tree", () => {
-    const { container } = render(
-      <Metric icon={<Icon name="LayoutGrid" />} label="应用" value="17" variant="strip" />,
-    );
-    const metric = container.querySelector("article")!;
-    expect(metric.classList.contains("miaixz-metric-strip-with-icon")).toBe(true);
-    expect(metric.hasAttribute("tabindex")).toBe(false);
-    expect(container.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
-    expect(container.querySelector("svg")?.getAttribute("focusable")).toBe("false");
-    expect(container.querySelector("button, a")).toBeNull();
-  });
-
-  it("does not reserve icon space for iconless strips or other variants", () => {
-    const { container } = render(
       <>
-        <Metric label="指标" value="8" variant="strip" />
-        <Metric icon={null} label="指标" value="8" variant="strip" />
-        <Metric icon={<Icon name="Server" />} label="指标" value="8" variant="summary" />
+        <Metric label="静态" value="1" />
+        <Metric href="/details" label="链接" value="2" />
+        <Metric label="动作" onAction={onAction} value="3" />
       </>,
     );
-    expect(container.querySelector(".miaixz-metric-strip-with-icon")).toBeNull();
-  });
 
-  it("retains real link and action semantics when supplied by the consumer", () => {
-    const action = vi.fn();
-    const { container } = render(
-      <>
-        <Metric
-          icon={<Icon name="SlidersHorizontal" />}
-          label="配置"
-          value="8"
-          variant="strip"
-          href="/configurations"
-        />
-        <Metric
-          icon={<Icon name="Upload" />}
-          label="发布"
-          value="8"
-          variant="strip"
-          onAction={action}
-        />
-      </>,
-    );
-    expect(container.querySelector("a")?.getAttribute("href")).toBe("/configurations");
-    fireEvent.click(container.querySelector("button")!);
-    expect(action).toHaveBeenCalledOnce();
-    expect(container.querySelectorAll(".miaixz-metric-strip-with-icon")).toHaveLength(2);
-  });
-
-  it("uses only theme paint for circle hover and keyboard focus without coloring dividers", () => {
-    const css = readFileSync("src/styles/components/metric.css", "utf8");
-    const rule = css.match(
-      /\.miaixz-metric-strip-with-icon:hover \.miaixz-metric-icon,\s*\.miaixz-metric-strip-with-icon:focus-visible \.miaixz-metric-icon \{([^}]+)\}/,
-    )![1]!;
-    expect(rule).toContain("color: var(--miaixz-color-on-brand);");
-    expect(rule).toContain("background: var(--miaixz-metric-tone);");
-    expect(rule).toContain("border-color: var(--miaixz-metric-tone);");
-    expect(css).not.toContain(".miaixz-metric-strip::before");
+    expect(screen.queryByRole("button", { name: /静态/u })).toBeNull();
+    expect(screen.getByRole("link", { name: /链接/u })).toHaveAttribute("href", "/details");
+    fireEvent.click(screen.getByRole("button", { name: /动作/u }));
+    expect(onAction).toHaveBeenCalledOnce();
   });
 });

@@ -18,95 +18,63 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
-/**
- * Defines the supported tab-list flow directions. @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed tab state and slots are self-describing.
  */
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
 export type TabsOrientation = "horizontal" | "vertical";
-
-/**
- * Defines one tab and its associated panel. @public
- */
+export type TabsActivationMode = "manual" | "automatic";
 export interface TabsEntry {
-  /**
-   * Uniquely identifies the tab.
-   */
-  value: string;
-  /**
-   * Supplies the visible tab label.
-   */
-  label: ReactNode;
-  /**
-   * Supplies the associated panel content.
-   */
-  content: ReactNode;
-  /**
-   * Displays optional metadata beside the label.
-   */
-  count?: ReactNode;
-  /**
-   * Prevents selection of this tab.
-   */
-  disabled?: boolean;
-  /**
-   * Adds the associated panel to the sequential keyboard focus order.
-   */
-  panelTabIndex?: 0 | -1;
+  readonly value: string;
+  readonly label: ReactNode;
+  readonly content: ReactNode;
+  readonly count?: ReactNode;
+  readonly disabled?: boolean;
+  readonly panelTabIndex?: 0 | -1;
 }
-
-/**
+export type TabsValueState =
+  | {
+      readonly value: string;
+      readonly defaultValue?: never;
+      readonly onValueChange?: (value: string) => void;
+    }
+  | {
+      readonly value?: never;
+      readonly defaultValue?: string;
+      readonly onValueChange?: (value: string) => void;
+    };
+export type TabsSlot = "root" | "list" | "tab" | "label" | "count" | "panel";
+export interface TabsOwnerState {
+  readonly orientation: TabsOrientation;
+  readonly activationMode: TabsActivationMode;
+  readonly selected: boolean;
+  readonly disabled: boolean;
+  readonly value: string | undefined;
+}
+export type TabsRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & { readonly "data-orientation"?: TabsOrientation };
+export interface TabsSlotProps {
+  readonly root?: MiaixzSlotProps<TabsOwnerState, TabsRootAttributes>;
+  readonly list?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly tab?: MiaixzSlotProps<TabsOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly label?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly count?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly panel?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface MiaixzTabsOwnProps {
+  readonly items: readonly TabsEntry[];
+  readonly label: string;
+  readonly orientation?: TabsOrientation;
+  readonly activationMode?: TabsActivationMode;
+  readonly slotProps?: TabsSlotProps;
+}
+/*
  * Configures a declarative controlled or uncontrolled tabs collection. @public
  */
-export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-  /**
-   * Displays actions alongside the tab list without making them tabs.
-   */
-  actions?: ReactNode;
-  /**
-   * Places actions immediately after the tabs or at the end of the header.
-   * Defaults to end to preserve existing header layouts.
-   */
-  actionsPlacement?: "adjacent" | "end";
-  /**
-   * Insets the header with actions while keeping associated panel widths unchanged.
-   */
-  headerInset?: boolean;
-  /**
-   * Removes panel padding for edge-to-edge tables and composed surfaces.
-   */
-  panelPadding?: "default" | "none";
-  /**
-   * Uses compact directory-toolbar header geometry.
-   */
-  headerVariant?: "default" | "toolbar";
-  /**
-   * Uses compact page-navigation geometry. Associated panel spacing follows
-   * `panelPadding`, including the default density-aware inset.
-   */
-  variant?: "default" | "navigation" | "editor";
-  /**
-   * Supplies tabs and their panel content.
-   */
-  items: readonly TabsEntry[];
-  /**
-   * Provides the tab list's accessible name.
-   */
-  label: string;
-  /**
-   * Controls the selected tab.
-   */
-  value?: string;
-  /**
-   * Selects the initial uncontrolled tab.
-   */
-  defaultValue?: string;
-  /**
-   * Runs when the selected tab changes.
-   */
-  onValueChange?: (value: string) => void;
-  /**
-   * Selects horizontal or vertical keyboard navigation.
-   */
-  orientation?: TabsOrientation;
-}
+export type TabsProps = TabsValueState &
+  MiaixzTabsOwnProps &
+  Omit<
+    HTMLAttributes<HTMLDivElement>,
+    keyof MiaixzTabsOwnProps | keyof TabsValueState | "children"
+  >;

@@ -18,9 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzSdkError } from "../api/errors.js";
-import { translateMiaixzDefaultMessage } from "../i18n/default-translator.js";
-import type { MiaixzTranslator } from "../i18n/index.js";
+import { MiaixzSdkError } from "../errors/errors.js";
 import {
   miaixzColorModes,
   miaixzDensities,
@@ -31,7 +29,7 @@ import {
   type MiaixzThemeColorOverrides,
   type MiaixzThemeColorToken,
   type MiaixzThemeOverrides,
-} from "../types/index.js";
+} from "../types/appearance.js";
 
 const miaixzAppearanceKeys = new Set(["theme", "colorMode", "density", "overrides"]);
 const miaixzOverrideModeKeys = new Set(["light", "dark"]);
@@ -92,7 +90,29 @@ export function isMiaixzThemeId(value: unknown): value is string {
  * @public
  */
 export function parseMiaixzAppearanceSettings(value: unknown): MiaixzAppearanceSettings {
-  return parseMiaixzAppearanceSettingsWithTranslator(value, translateMiaixzDefaultMessage);
+  const record = readPlainDataObject(value);
+  if (
+    record === undefined ||
+    !hasOnlyKeys(record, miaixzAppearanceKeys) ||
+    !Object.hasOwn(record, "theme") ||
+    !Object.hasOwn(record, "colorMode") ||
+    !Object.hasOwn(record, "density") ||
+    !isMiaixzThemeId(record.theme) ||
+    !isMiaixzColorMode(record.colorMode) ||
+    !isMiaixzDensity(record.density)
+  ) {
+    throw createAppearanceError();
+  }
+
+  const overrides = Object.hasOwn(record, "overrides")
+    ? parseThemeOverrides(record.overrides)
+    : undefined;
+  return Object.freeze({
+    theme: record.theme,
+    colorMode: record.colorMode,
+    density: record.density,
+    ...(overrides === undefined ? {} : { overrides }),
+  });
 }
 
 /**
@@ -112,65 +132,20 @@ export function isMiaixzAppearanceSettings(value: unknown): value is MiaixzAppea
 }
 
 /**
- * Parses Appearance Schema v2 with the supplied SDK translator.
- *
- * @param value - Untrusted appearance settings.
- * @param translate - Translator used for validation failures.
- * @returns Deeply frozen normalized settings.
- * @throws MiaixzSdkError When validation fails.
- */
-export function parseMiaixzAppearanceSettingsWithTranslator(
-  value: unknown,
-  translate: MiaixzTranslator,
-): MiaixzAppearanceSettings {
-  const record = readPlainDataObject(value);
-  if (
-    record === undefined ||
-    !hasOnlyKeys(record, miaixzAppearanceKeys) ||
-    !Object.hasOwn(record, "theme") ||
-    !Object.hasOwn(record, "colorMode") ||
-    !Object.hasOwn(record, "density") ||
-    !isMiaixzThemeId(record.theme) ||
-    !isMiaixzColorMode(record.colorMode) ||
-    !isMiaixzDensity(record.density)
-  ) {
-    throw createAppearanceError(translate);
-  }
-
-  const overrides = Object.hasOwn(record, "overrides")
-    ? parseThemeOverrides(record.overrides, translate)
-    : undefined;
-  return Object.freeze({
-    theme: record.theme,
-    colorMode: record.colorMode,
-    density: record.density,
-    ...(overrides === undefined ? {} : { overrides }),
-  });
-}
-
-/**
  * Parses and freezes optional light and dark override branches.
  *
  * @param value - Untrusted overrides value.
- * @param translate - Translator used for validation failures.
  * @returns Frozen overrides, or undefined when omitted.
  * @throws MiaixzSdkError When the structure or a color is invalid.
  */
-function parseThemeOverrides(
-  value: unknown,
-  translate: MiaixzTranslator,
-): MiaixzThemeOverrides | undefined {
+function parseThemeOverrides(value: unknown): MiaixzThemeOverrides | undefined {
   if (value === undefined) return undefined;
   const record = readPlainDataObject(value);
   if (record === undefined || !hasOnlyKeys(record, miaixzOverrideModeKeys)) {
-    throw createAppearanceError(translate);
+    throw createAppearanceError();
   }
-  const light = Object.hasOwn(record, "light")
-    ? parseColorOverrides(record.light, translate)
-    : undefined;
-  const dark = Object.hasOwn(record, "dark")
-    ? parseColorOverrides(record.dark, translate)
-    : undefined;
+  const light = Object.hasOwn(record, "light") ? parseColorOverrides(record.light) : undefined;
+  const dark = Object.hasOwn(record, "dark") ? parseColorOverrides(record.dark) : undefined;
   return Object.freeze({
     ...(light === undefined ? {} : { light }),
     ...(dark === undefined ? {} : { dark }),
@@ -181,17 +156,13 @@ function parseThemeOverrides(
  * Parses one color-mode override branch.
  *
  * @param value - Untrusted color map.
- * @param translate - Translator used for validation failures.
  * @returns Frozen normalized color overrides, or undefined when omitted.
  * @throws MiaixzSdkError When a token or color is invalid.
  */
-function parseColorOverrides(
-  value: unknown,
-  translate: MiaixzTranslator,
-): MiaixzThemeColorOverrides | undefined {
+function parseColorOverrides(value: unknown): MiaixzThemeColorOverrides | undefined {
   if (value === undefined) return undefined;
   const record = readPlainDataObject(value);
-  if (record === undefined) throw createAppearanceColorError(translate);
+  if (record === undefined) throw createAppearanceColorError();
   const normalized: Partial<Record<MiaixzThemeColorToken, string>> = {};
   for (const [token, color] of Object.entries(record)) {
     if (
@@ -199,7 +170,7 @@ function parseColorOverrides(
       typeof color !== "string" ||
       !miaixzThemeColorPattern.test(color)
     ) {
-      throw createAppearanceColorError(translate, token);
+      throw createAppearanceColorError(token);
     }
     normalized[token as MiaixzThemeColorToken] = color.toUpperCase();
   }
@@ -248,24 +219,20 @@ function hasOnlyKeys(
 /**
  * Creates a localized appearance-structure failure.
  *
- * @param translate - Translator used to resolve the public message.
  * @returns Stable SDK validation error.
  */
-function createAppearanceError(translate: MiaixzTranslator): MiaixzSdkError {
-  return new MiaixzSdkError(translate("sdk.error.appearance.invalid"), {
-    code: "APPEARANCE_INVALID",
-  });
+function createAppearanceError(): MiaixzSdkError {
+  return new MiaixzSdkError({ code: "APPEARANCE_INVALID" });
 }
 
 /**
  * Creates a localized appearance-color failure.
  *
- * @param translate - Translator used to resolve the public message.
  * @param token - Optional rejected token name.
  * @returns Stable SDK color-validation error.
  */
-function createAppearanceColorError(translate: MiaixzTranslator, token?: string): MiaixzSdkError {
-  return new MiaixzSdkError(translate("sdk.error.appearance.colorInvalid"), {
+function createAppearanceColorError(token?: string): MiaixzSdkError {
+  return new MiaixzSdkError({
     code: "APPEARANCE_COLOR_INVALID",
     ...(token === undefined ? {} : { details: Object.freeze({ token }) }),
   });

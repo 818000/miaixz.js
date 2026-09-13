@@ -19,4 +19,13 @@
 */
 
 export { Dialog } from "./dialog.js";
-export type { DialogProps, DialogSize } from "./dialog.types.js";
+export type {
+  DialogCloseReason,
+  DialogOwnerState,
+  DialogProps,
+  DialogScroll,
+  DialogSize,
+  DialogSlot,
+  DialogSlotProps,
+  DialogSlots,
+} from "./dialog.types.js";

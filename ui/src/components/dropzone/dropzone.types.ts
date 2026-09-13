@@ -18,50 +18,76 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
-
-/**
- * Defines properties owned by the Miaixz Dropzone contract.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc --
+ * The closed file and slot contracts are self-describing.
  */
-export interface MiaixzDropzoneOwnProps {
-  /**
-   * Supplies the native file input accept expression.
-   */
-  readonly accept?: string;
 
-  /**
-   * Allows more than one file to be selected in one operation.
-   *
-   * @defaultValue `false`
-   */
-  readonly multiple?: boolean;
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
 
-  /**
-   * Prevents pointer, keyboard, and drag-and-drop selection.
-   *
-   * @defaultValue `false`
-   */
-  readonly disabled?: boolean;
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-  /**
-   * Supplies the required localized accessible selection label.
-   */
-  readonly label: string;
+export type DropzoneRejectionReason = "type" | "size" | "count" | "duplicate";
 
-  /**
-   * Receives the complete files selected by one input or drop operation.
-   */
-  readonly onFiles: (files: readonly File[]) => void;
+export interface DropzoneRejection {
+  readonly file: File;
+  readonly reason: DropzoneRejectionReason;
 }
 
-/**
+export type DropzoneSlot = "root" | "input" | "trigger" | "content" | "error";
+
+export interface DropzoneOwnerState {
+  readonly disabled: boolean;
+  readonly dragActive: boolean;
+  readonly hasError: boolean;
+}
+
+export interface DropzoneRootAttributes
+  extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-state"?: "active" | "idle";
+}
+
+export interface DropzoneSlotProps {
+  readonly root?: MiaixzSlotProps<DropzoneOwnerState, DropzoneRootAttributes>;
+  readonly input?: MiaixzSlotProps<
+    DropzoneOwnerState,
+    InputHTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>
+  >;
+  readonly trigger?: MiaixzSlotProps<DropzoneOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly content?: MiaixzSlotProps<DropzoneOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly error?: MiaixzSlotProps<DropzoneOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+
+export type DropzoneMultiplicity =
+  | {
+      readonly multiple?: false;
+      readonly maxFiles?: never;
+    }
+  | {
+      readonly multiple: true;
+      readonly maxFiles?: number;
+    };
+
+export interface MiaixzDropzoneOwnProps {
+  readonly accept?: string;
+  readonly maxSizeBytes?: number;
+  readonly disabled?: boolean;
+  readonly label: string;
+  readonly children: ReactNode;
+  readonly onFiles: (files: readonly File[]) => void;
+  readonly onReject?: (rejections: readonly DropzoneRejection[]) => void;
+  readonly slotProps?: DropzoneSlotProps;
+}
+
+/*
  * Configures a request-independent file selection dropzone.
- *
- * @public
  */
-export interface DropzoneProps
-  extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzDropzoneOwnProps>,
-    MiaixzDropzoneOwnProps {}
+export type DropzoneProps = MiaixzDropzoneOwnProps &
+  DropzoneMultiplicity &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzDropzoneOwnProps | "children">;

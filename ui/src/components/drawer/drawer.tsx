@@ -18,276 +18,397 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc -- Internal geometry is locally typed.
+ */
+
 import {
+  createElement,
   forwardRef,
   useEffect,
-  useLayoutEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
+  type MouseEvent,
 } from "react";
 import { createPortal } from "react-dom";
 
 import { FocusScope } from "../../accessibility/focus-scope.js";
-import { classNames } from "../../shared/class-names.js";
-import { useMiaixzNativeModal, useMiaixzPortalTarget } from "../../shared/overlay/index.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { Icon } from "../icon/index.js";
-import type { DrawerProps } from "./drawer.types.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { useMiaixzNativeModal } from "../../shared/overlay/native-modal.js";
+import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Icon } from "../icon/icon.js";
+import type {
+  DrawerCloseReason,
+  DrawerOwnerState,
+  DrawerProps,
+  DrawerRootAttributes,
+} from "./drawer.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 interface DrawerFrame {
-  /**
-   * Clamped left edge in viewport coordinates.
-   */
-  left: number;
-  /**
-   * Clamped top edge in viewport coordinates.
-   */
-  top: number;
-  /**
-   * Clamped right edge in viewport coordinates.
-   */
-  right: number;
-  /**
-   * Clamped bottom edge in viewport coordinates.
-   */
-  bottom: number;
-  /**
-   * Layout viewport width used to resolve logical right offsets.
-   */
-  viewportWidth: number;
-  /**
-   * Layout viewport height used to resolve logical bottom offsets.
-   */
-  viewportHeight: number;
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly viewportWidth: number;
+  readonly viewportHeight: number;
 }
 
 const useDrawerLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
-/**
- * Rejects dimensions that cannot produce a stable drawer frame.
- *
- * @param value - Optional numeric dimension to validate.
- * @param name - Dimension name included in the error message.
- * @param positive - Whether zero must also be rejected.
- * @returns Nothing when the dimension is valid.
+/*
+ * Rejects invalid public drawer geometry without normalizing it.
  */
-function validateDimension(value: number | undefined, name: string, positive = false): void {
-  if (value !== undefined && (!Number.isFinite(value) || (positive ? value <= 0 : value < 0))) {
-    throw new RangeError(
-      `Drawer ${name} must be a finite ${positive ? "positive" : "nonnegative"} number.`,
-    );
-  }
+function validateDrawerDimension(
+  value: number | undefined,
+  positive: boolean,
+  code: "UI_DRAWER_WIDTH_INVALID" | "UI_DRAWER_INSET_INVALID",
+): void {
+  if (value === undefined || (Number.isFinite(value) && (positive ? value > 0 : value >= 0)))
+    return;
+  throw new MiaixzUiError({ code, details: { value } });
 }
 
-/**
- * Renders a native modal drawer with localized dismissal and configurable side.
- *
- * @public
+/*
+ * Removes component-owned properties before the native root merge.
  */
-export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer(
-  {
-    open,
-    onOpenChange,
-    title,
-    description,
-    footer,
-    size = "medium",
-    density = "default",
-    width,
-    boundary,
-    inset,
-    floating = false,
-    bodyProps,
-    placement = "right",
-    closeLabel,
-    showClose = true,
-    closeOnBackdrop = true,
-    className,
-    children,
-    onCancel,
-    onClose,
-    onClick,
-    style,
-    ...props
-  },
-  forwardedRef,
-) {
-  const blockInset = typeof inset === "number" ? inset : (inset?.block ?? 0);
-  const inlineInset = typeof inset === "number" ? inset : (inset?.inline ?? 0);
-  validateDimension(width, "width", true);
-  validateDimension(blockInset, "block inset");
-  validateDimension(inlineInset, "inline inset");
-  const positioned = boundary !== undefined || inset !== undefined;
-  const [frame, setFrame] = useState<DrawerFrame | null>(null);
-  const requestOpenChange = useRef(onOpenChange);
-  requestOpenChange.current = onOpenChange;
-  useDrawerLayoutEffect(() => {
-    if (!open || !positioned || boundary === null) {
-      setFrame(null);
-      return;
-    }
-    const ownerDocument = boundary?.ownerDocument ?? document;
-    const view = ownerDocument.defaultView;
-    if (!view) return;
-    let removed = false;
-    const update = () => {
-      if (boundary && !boundary.isConnected) {
+function getDrawerNativeProps(props: DrawerProps): Partial<DrawerRootAttributes> {
+  const {
+    boundary: _boundary,
+    inset: _inset,
+    floating: _floating,
+    open: _open,
+    onOpenChange: _onOpenChange,
+    title: _title,
+    description: _description,
+    children: _children,
+    footer: _footer,
+    density: _density,
+    headingLevel: _headingLevel,
+    closeLabel: _closeLabel,
+    showClose: _showClose,
+    closeOnBackdrop: _closeOnBackdrop,
+    slots: _slots,
+    slotProps: _slotProps,
+    placement: _placement,
+    width: _width,
+    ...nativeProps
+  } = props;
+  return nativeProps;
+}
+
+/*
+ * Compares immutable geometry snapshots without triggering redundant renders.
+ */
+function drawerFramesEqual(previous: DrawerFrame, next: DrawerFrame): boolean {
+  return (Object.keys(next) as (keyof DrawerFrame)[]).every((key) => previous[key] === next[key]);
+}
+
+/*
+ * Renders the sole modal drawer contract.
+ */
+export const Drawer = withMiaixzThemeComponent(
+  "Drawer",
+  forwardRef<HTMLDialogElement, DrawerProps>(function Drawer(props, forwardedRef) {
+    const {
+      open,
+      onOpenChange,
+      title,
+      description,
+      children,
+      footer,
+      density = "standard",
+      boundary,
+      inset,
+      floating = false,
+      placement = "right",
+      width = placement === "bottom" ? undefined : "medium",
+      headingLevel = 2,
+      closeLabel,
+      showClose = true,
+      closeOnBackdrop = true,
+      slots,
+      slotProps,
+    } = props;
+    const blockInset = typeof inset === "number" ? inset : (inset?.block ?? 0);
+    const inlineInset = typeof inset === "number" ? inset : (inset?.inline ?? 0);
+    validateDrawerDimension(
+      typeof width === "number" ? width : undefined,
+      true,
+      "UI_DRAWER_WIDTH_INVALID",
+    );
+    validateDrawerDimension(blockInset, false, "UI_DRAWER_INSET_INVALID");
+    validateDrawerDimension(inlineInset, false, "UI_DRAWER_INSET_INVALID");
+    const positioned = boundary !== undefined || inset !== undefined;
+    const [frame, setFrame] = useState<DrawerFrame | null>(null);
+
+    useDrawerLayoutEffect(() => {
+      if (!open || !positioned || boundary === null) {
         setFrame(null);
-        if (!removed) requestOpenChange.current(false);
-        removed = true;
-        return;
+        return undefined;
       }
-      const visual = view.visualViewport;
-      const viewportWidth = view.innerWidth;
-      const viewportHeight = view.innerHeight;
-      const left = visual?.offsetLeft ?? 0;
-      const top = visual?.offsetTop ?? 0;
-      const right = left + (visual?.width ?? viewportWidth);
-      const bottom = top + (visual?.height ?? viewportHeight);
-      const rect = boundary?.getBoundingClientRect();
-      const next = {
-        left: Math.min(right, Math.max(left, rect?.left ?? left)),
-        top: Math.min(bottom, Math.max(top, rect?.top ?? top)),
-        right: Math.max(left, Math.min(right, rect?.right ?? right)),
-        bottom: Math.max(top, Math.min(bottom, rect?.bottom ?? bottom)),
-        viewportWidth,
-        viewportHeight,
+      const ownerDocument = boundary?.ownerDocument ?? document;
+      const view = ownerDocument.defaultView;
+      if (view === null) return undefined;
+      let animationFrame = 0;
+      const update = (): void => {
+        animationFrame = 0;
+        if (boundary !== undefined && !boundary.isConnected) {
+          setFrame(null);
+          return;
+        }
+        const visual = view.visualViewport;
+        const viewportWidth = view.innerWidth;
+        const viewportHeight = view.innerHeight;
+        const left = visual?.offsetLeft ?? 0;
+        const top = visual?.offsetTop ?? 0;
+        const right = left + (visual?.width ?? viewportWidth);
+        const bottom = top + (visual?.height ?? viewportHeight);
+        const rect = boundary?.getBoundingClientRect();
+        const next: DrawerFrame = {
+          left: Math.min(right, Math.max(left, rect?.left ?? left)),
+          top: Math.min(bottom, Math.max(top, rect?.top ?? top)),
+          right: Math.max(left, Math.min(right, rect?.right ?? right)),
+          bottom: Math.max(top, Math.min(bottom, rect?.bottom ?? bottom)),
+          viewportWidth,
+          viewportHeight,
+        };
+        setFrame((previous) =>
+          previous !== null && drawerFramesEqual(previous, next) ? previous : next,
+        );
       };
-      setFrame((previous) =>
-        previous &&
-        (Object.keys(next) as (keyof DrawerFrame)[]).every((key) => previous[key] === next[key])
-          ? previous
-          : next,
-      );
-    };
-    update();
-    const resize = new ResizeObserver(update);
-    resize.observe(boundary ?? ownerDocument.documentElement);
-    const removal = new MutationObserver(update);
-    removal.observe(ownerDocument.body, { childList: true, subtree: true });
-    view.addEventListener("resize", update);
-    ownerDocument.addEventListener("scroll", update, true);
-    view.visualViewport?.addEventListener("resize", update);
-    view.visualViewport?.addEventListener("scroll", update);
-    return () => {
-      resize.disconnect();
-      removal.disconnect();
-      view.removeEventListener("resize", update);
-      ownerDocument.removeEventListener("scroll", update, true);
-      view.visualViewport?.removeEventListener("resize", update);
-      view.visualViewport?.removeEventListener("scroll", update);
-    };
-  }, [open, positioned, boundary]);
-  const active = open && (!positioned || (boundary !== null && frame !== null));
-  const { t } = useMiaixzLocale();
-  const resolvedCloseLabel = closeLabel ?? t("ui.drawer.close");
-  const internalRef = useRef<HTMLDialogElement>(null);
-  const ref = useMergedRef(internalRef, forwardedRef);
-  const titleId = `miaixz-drawer-title-${useId()}`;
-  const generatedDescriptionId = `miaixz-drawer-description-${useId()}`;
-  const descriptionId = description ? generatedDescriptionId : undefined;
-  const portalTarget = useMiaixzPortalTarget();
-  const restoreFocusRef = useMiaixzNativeModal(internalRef, active, portalTarget, () =>
-    onOpenChange(false),
-  );
+      const requestFrame =
+        view.requestAnimationFrame?.bind(view) ?? ((callback) => view.setTimeout(callback, 0));
+      const cancelFrame = view.cancelAnimationFrame?.bind(view) ?? view.clearTimeout.bind(view);
+      const scheduleUpdate = (): void => {
+        if (animationFrame === 0) animationFrame = requestFrame(update);
+      };
+      update();
+      const resizeObserver =
+        typeof ResizeObserver === "function" ? new ResizeObserver(scheduleUpdate) : undefined;
+      resizeObserver?.observe(boundary ?? ownerDocument.documentElement);
+      view.addEventListener("resize", scheduleUpdate);
+      ownerDocument.addEventListener("scroll", scheduleUpdate, true);
+      view.visualViewport?.addEventListener("resize", scheduleUpdate);
+      view.visualViewport?.addEventListener("scroll", scheduleUpdate);
+      return () => {
+        if (animationFrame !== 0) cancelFrame(animationFrame);
+        resizeObserver?.disconnect();
+        view.removeEventListener("resize", scheduleUpdate);
+        ownerDocument.removeEventListener("scroll", scheduleUpdate, true);
+        view.visualViewport?.removeEventListener("resize", scheduleUpdate);
+        view.visualViewport?.removeEventListener("scroll", scheduleUpdate);
+      };
+    }, [boundary, open, positioned]);
 
-  const geometry: CSSProperties & Record<`--${string}`, string | number> = {};
-  if (width !== undefined && placement !== "bottom") {
-    geometry["--miaixz-drawer-width"] = `${width}px`;
-  }
-  if (positioned && frame) {
-    const availableWidth = Math.max(0, frame.right - frame.left - inlineInset * 2);
-    const availableHeight = Math.max(0, frame.bottom - frame.top - blockInset * 2);
-    const desiredWidth = width === undefined ? "var(--miaixz-drawer-width)" : `${width}px`;
-    Object.assign(geometry, {
-      top: placement === "bottom" ? "auto" : frame.top + blockInset,
-      bottom: frame.viewportHeight - frame.bottom + blockInset,
-      left: placement === "right" ? "auto" : frame.left + inlineInset,
-      right: placement === "left" ? "auto" : frame.viewportWidth - frame.right + inlineInset,
-      inlineSize:
-        placement === "bottom" ? availableWidth : `min(${desiredWidth}, ${availableWidth}px)`,
-      blockSize: placement === "bottom" ? "auto" : availableHeight,
-      maxBlockSize: availableHeight,
-      "--miaixz-drawer-backdrop-top": `${frame.top}px`,
-      "--miaixz-drawer-backdrop-right": `${Math.max(0, frame.viewportWidth - frame.right)}px`,
-      "--miaixz-drawer-backdrop-bottom": `${Math.max(0, frame.viewportHeight - frame.bottom)}px`,
-      "--miaixz-drawer-backdrop-left": `${frame.left}px`,
+    const active = open && (!positioned || (boundary !== null && frame !== null));
+    const { t } = useMiaixzLocale();
+    const resolvedCloseLabel = closeLabel ?? t("ui.drawer.close");
+    const dialogRef = useRef<HTMLDialogElement>(null);
+    const titleId = useId();
+    const descriptionId = useId();
+    const portalTarget = useMiaixzPortalTarget();
+    const restoreFocusRef = useMiaixzNativeModal(dialogRef, active, portalTarget);
+    const ownerState: DrawerOwnerState = {
+      open,
+      placement,
+      width,
+      density,
+      floating,
+      positioned,
+      showClose,
+    };
+
+    const requestClose = (reason: DrawerCloseReason): void => onOpenChange(false, reason);
+    const geometry: CSSProperties & Record<`--${string}`, string | number> = {};
+    if (typeof width === "number") geometry["--miaixz-drawer-width"] = `${width}px`;
+    if (positioned && frame !== null) {
+      const availableWidth = Math.max(0, frame.right - frame.left - inlineInset * 2);
+      const availableHeight = Math.max(0, frame.bottom - frame.top - blockInset * 2);
+      Object.assign(geometry, {
+        top: placement === "bottom" ? "auto" : frame.top + blockInset,
+        bottom: frame.viewportHeight - frame.bottom + blockInset,
+        left: placement === "right" ? "auto" : frame.left + inlineInset,
+        right: placement === "left" ? "auto" : frame.viewportWidth - frame.right + inlineInset,
+        inlineSize:
+          placement === "bottom"
+            ? availableWidth
+            : `min(var(--miaixz-drawer-width), ${availableWidth}px)`,
+        blockSize: placement === "bottom" ? "auto" : availableHeight,
+        maxBlockSize: availableHeight,
+        "--miaixz-drawer-backdrop-top": `${frame.top}px`,
+        "--miaixz-drawer-backdrop-right": `${Math.max(0, frame.viewportWidth - frame.right)}px`,
+        "--miaixz-drawer-backdrop-bottom": `${Math.max(0, frame.viewportHeight - frame.bottom)}px`,
+        "--miaixz-drawer-backdrop-left": `${frame.left}px`,
+      });
+    }
+
+    const rootProps = mergeMiaixzSlotProps<
+      DrawerOwnerState,
+      DrawerRootAttributes,
+      HTMLDialogElement
+    >({
+      ownerState,
+      defaultProps: { className: "miaixz-drawer" },
+      componentProps: getDrawerNativeProps(props),
+      slotProps: slotProps?.root,
+      internalRef: dialogRef,
+      forwardedRef,
+      internalProps: {
+        "aria-labelledby": titleId,
+        ...(description === undefined ? {} : { "aria-describedby": descriptionId }),
+        "data-placement": placement,
+        ...(typeof width === "string" ? { "data-width": width } : {}),
+        "data-density": density,
+        ...(floating ? { "data-floating": true } : {}),
+        ...(positioned ? { "data-positioned": true } : {}),
+        onCancel: (event) => {
+          event.preventDefault();
+          requestClose("escape");
+        },
+        onClose: () => {
+          if (props.open) requestClose("nativeClose");
+        },
+        onClick: (event) => {
+          if (
+            closeOnBackdrop &&
+            event.target === event.currentTarget &&
+            isDrawerBackdropPoint(event, event.currentTarget)
+          ) {
+            requestClose("backdrop");
+          }
+        },
+      },
+      ownedProps: [
+        "aria-labelledby",
+        "aria-describedby",
+        "data-placement",
+        "data-width",
+        "data-density",
+        "data-floating",
+        "data-positioned",
+      ],
     });
-  }
+    const Description = slots?.description ?? "div";
 
-  if (portalTarget === null || (positioned && frame === null)) return null;
-  return createPortal(
-    <FocusScope active={active} containerRef={internalRef} restoreFocusRef={restoreFocusRef}>
-      <dialog
-        {...props}
-        ref={ref}
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        data-placement={placement}
-        style={{ ...style, ...geometry }}
-        className={classNames(
-          "miaixz-drawer",
-          size !== "medium" && `miaixz-drawer-${size}`,
-          density === "compact" && "miaixz-drawer-compact",
-          density === "content" && "miaixz-drawer-content",
-          floating && "miaixz-drawer-floating",
-          positioned && "miaixz-drawer-positioned",
-          placement !== "right" && `miaixz-drawer-${placement}`,
-          className,
-        )}
-        onCancel={(event) => {
-          onCancel?.(event);
-          if (!event.defaultPrevented) {
-            event.preventDefault();
-            onOpenChange(false);
-          }
-        }}
-        onClose={(event) => {
-          onClose?.(event);
-          if (open) onOpenChange(false);
-        }}
-        onClick={(event) => {
-          onClick?.(event);
-          if (!event.defaultPrevented && closeOnBackdrop && event.target === event.currentTarget) {
-            onOpenChange(false);
-          }
-        }}
-      >
-        <header className="miaixz-drawer-header">
-          <div>
-            <h2 id={titleId} className="miaixz-drawer-title">
-              {title}
-            </h2>
-            {description !== undefined && (
-              <p id={descriptionId} className="miaixz-drawer-description">
-                {description}
-              </p>
+    if (portalTarget === null || (positioned && frame === null)) return null;
+    return createPortal(
+      <FocusScope active={active} containerRef={dialogRef} restoreFocusRef={restoreFocusRef}>
+        <dialog
+          {...rootProps}
+          style={{ ...rootProps.style, ...geometry }}
+          onCancel={(event) => {
+            rootProps.onCancel?.(event);
+            event.stopPropagation();
+          }}
+          onClose={(event) => {
+            rootProps.onClose?.(event);
+            event.stopPropagation();
+          }}
+        >
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-drawer-paper" },
+              slotProps: slotProps?.paper,
+            })}
+          >
+            <header
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-drawer-header" },
+                slotProps: slotProps?.header,
+              })}
+            >
+              <div className="miaixz-drawer-heading">
+                {createElement(
+                  `h${headingLevel}`,
+                  mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-drawer-title" },
+                    slotProps: slotProps?.title,
+                    internalProps: { id: titleId },
+                    ownedProps: ["id"],
+                  }),
+                  title,
+                )}
+                {description !== undefined && (
+                  <Description
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: { className: "miaixz-drawer-description" },
+                      slotProps: slotProps?.description,
+                      internalProps: { id: descriptionId },
+                      ownedProps: ["id"],
+                    })}
+                  >
+                    {description}
+                  </Description>
+                )}
+              </div>
+              {showClose && (
+                <button
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-drawer-close" },
+                    slotProps: slotProps?.closeButton,
+                    internalProps: {
+                      type: "button",
+                      "aria-label": resolvedCloseLabel,
+                      onClick: () => requestClose("closeButton"),
+                    },
+                    ownedProps: ["type", "aria-label"],
+                  })}
+                >
+                  <Icon name="X" size="control" />
+                </button>
+              )}
+            </header>
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-drawer-body" },
+                slotProps: slotProps?.content,
+              })}
+            >
+              {children}
+            </div>
+            {footer !== undefined && (
+              <footer
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-drawer-footer" },
+                  slotProps: slotProps?.footer,
+                })}
+              >
+                {footer}
+              </footer>
             )}
           </div>
-          {showClose && (
-            <a
-              aria-label={resolvedCloseLabel}
-              className="miaixz-drawer-close miaixz-link-no-underline"
-              data-action-intent="close"
-              href="#miaixz-drawer-close"
-              onClick={(event) => {
-                event.preventDefault();
-                onOpenChange(false);
-              }}
-            >
-              <Icon name="X" size="control" />
-            </a>
-          )}
-        </header>
-        <div {...bodyProps} className={classNames("miaixz-drawer-body", bodyProps?.className)}>
-          {children}
-        </div>
-        {footer !== undefined && <footer className="miaixz-drawer-footer">{footer}</footer>}
-      </dialog>
-    </FocusScope>,
-    portalTarget,
+        </dialog>
+      </FocusScope>,
+      portalTarget,
+    );
+  }),
+);
+
+/*
+ * Distinguishes the drawer paper from its native backdrop hit area.
+ */
+function isDrawerBackdropPoint(
+  event: MouseEvent<HTMLDialogElement>,
+  dialog: HTMLDialogElement,
+): boolean {
+  const paper = dialog.firstElementChild?.getBoundingClientRect();
+  return (
+    paper === undefined ||
+    event.clientX < paper.left ||
+    event.clientX > paper.right ||
+    event.clientY < paper.top ||
+    event.clientY > paper.bottom
   );
-});
+}

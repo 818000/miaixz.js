@@ -9,6 +9,12 @@ inputs:
     description: "npm registry URL."
     required: false
     default: "https://registry.npmjs.org/"
+  sdk-tarball:
+    description: "Previously validated @miaixz/sdk tarball."
+    required: true
+  ui-tarball:
+    description: "Previously validated @miaixz/ui tarball."
+    required: true
 
 runs:
   using: composite
@@ -18,10 +24,19 @@ runs:
       env:
         RELEASE_VERSION: ${{ inputs.version }}
         NPM_REGISTRY: ${{ inputs.registry }}
+        SDK_TARBALL: ${{ inputs.sdk-tarball }}
+        UI_TARBALL: ${{ inputs.ui-tarball }}
       run: |
         set -euo pipefail
 
         PACKAGES=("@miaixz/sdk" "@miaixz/ui")
+        TARBALLS=("$SDK_TARBALL" "$UI_TARBALL")
+        for tarball in "${TARBALLS[@]}"; do
+          if [ ! -f "$tarball" ]; then
+            echo "::error::Validated tarball is missing: $tarball"
+            exit 1
+          fi
+        done
         if [[ "$RELEASE_VERSION" == *-* ]]; then
           DIST_TAG=next
         else
@@ -55,7 +70,9 @@ runs:
           echo "::warning::Only one package currently has version $RELEASE_VERSION; publishing the missing package to restore parity"
         fi
 
-        for package_name in "${PACKAGES[@]}"; do
+        for index in "${!PACKAGES[@]}"; do
+          package_name="${PACKAGES[$index]}"
+          tarball="${TARBALLS[$index]}"
           if is_published "$package_name"; then
             echo "$package_name@$RELEASE_VERSION is already present on npm"
             continue
@@ -63,7 +80,7 @@ runs:
 
           echo "::group::Publish $package_name@$RELEASE_VERSION"
           npm publish \
-            --workspace "$package_name" \
+            "$tarball" \
             --access public \
             --tag "$DIST_TAG" \
             --provenance \

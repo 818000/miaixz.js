@@ -18,109 +18,76 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
-
-/**
- * Defines the supported navigation flow directions.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed navigation entries and slots are self-describing.
  */
+import type {
+  AnchorHTMLAttributes,
+  AriaAttributes,
+  HTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
+import type { MiaixzIconName } from "../../icons/icon-name.generated.js";
+import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
+import type { IconProps } from "../icon/icon.types.js";
+
 export type NavigationOrientation = "horizontal" | "vertical";
-
-/**
- * Configures a labeled application navigation region.
- *
- * @public
- */
-export interface NavigationProps extends HTMLAttributes<HTMLElement> {
-  /**
-   * Supplies navigation destinations and actions.
-   */
-  items?: readonly NavigationEntry[];
-  /**
-   * Selects the standard navigation or compact rail presentation.
-   *
-   * @defaultValue `"default"`
-   */
-  variant?: "default" | "icon" | "rail";
-  /**
-   * Selects the navigation flow direction.
-   *
-   * @defaultValue `"vertical"`
-   */
-  orientation?: NavigationOrientation;
-  /**
-   * Provides the required accessible navigation label.
-   */
-  label: string;
+export type NavigationDensity = "compact" | "standard" | "comfortable";
+export type NavigationSurface = "plain" | "filled";
+export interface NavigationEntry {
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly textValue: string;
+  readonly href: string;
+  readonly current?: AriaAttributes["aria-current"];
+  readonly icon?: MiaixzIconName;
+  readonly meta?: ReactNode;
+  readonly anchorProps?: Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    "aria-current" | "children" | "href"
+  >;
 }
-
-/**
- * Defines properties shared by Miaixz navigation item variants.
- *
- * @public
- */
-export interface MiaixzNavigationItemBaseProps {
-  /**
-   * Marks the item as the active page.
-   *
-   * @defaultValue `false`
-   */
-  active?: boolean;
-  /**
-   * Prevents item interaction.
-   *
-   * @defaultValue `false`
-   */
-  disabled?: boolean;
-  /**
-   * Displays optional leading icon content.
-   */
-  icon?: ReactNode;
-  /**
-   * Supplies the visible item label.
-   */
-  label: ReactNode;
-  /**
-   * Displays compact trailing metadata.
-   */
-  meta?: ReactNode;
+export interface NavigationOwnerState {
+  readonly orientation: NavigationOrientation;
+  readonly density: NavigationDensity;
+  readonly surface: NavigationSurface;
+  readonly current: AriaAttributes["aria-current"] | undefined;
+  readonly itemId: string | undefined;
 }
-
-/**
- * Configures a link-backed Miaixz navigation item.
- *
- * @public
- */
-export interface MiaixzNavigationLinkItemProps extends Omit<
-  AnchorHTMLAttributes<HTMLAnchorElement>,
-  "children" | "href"
-> {
-  /**
-   * Supplies the required navigation destination.
-   */
-  href: string;
+export type NavigationSlot = "root" | "item" | "icon" | "label" | "meta";
+export type NavigationRootAttributes = HTMLAttributes<HTMLElement> &
+  RefAttributes<HTMLElement> & {
+    readonly "data-orientation"?: NavigationOrientation;
+    readonly "data-density"?: NavigationDensity;
+    readonly "data-surface"?: NavigationSurface;
+  };
+export type NavigationIconAttributes = Omit<IconProps, "label"> & {
+  readonly "aria-hidden": true;
+};
+export interface NavigationSlots {
+  readonly icon?: MiaixzSlotComponent<NavigationIconAttributes>;
 }
-
-/**
- * Configures a button-backed Miaixz navigation item.
- *
- * @public
- */
-export interface MiaixzNavigationButtonItemProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  "children" | "disabled"
-> {
-  /**
-   * Keeps the item in button mode when no destination is supplied.
-   */
-  href?: undefined;
+export interface NavigationSlotProps {
+  readonly root?: MiaixzSlotProps<NavigationOwnerState, NavigationRootAttributes>;
+  readonly item?: MiaixzSlotProps<
+    NavigationOwnerState,
+    AnchorHTMLAttributes<HTMLAnchorElement> & RefAttributes<HTMLAnchorElement>
+  >;
+  readonly icon?: MiaixzSlotProps<NavigationOwnerState, NavigationIconAttributes>;
+  readonly label?: MiaixzSlotProps<NavigationOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly meta?: MiaixzSlotProps<NavigationOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
-
-/**
- * Configures a navigation item rendered as either a link or a button.
- *
- * @public
+export interface MiaixzNavigationOwnProps {
+  readonly items: readonly NavigationEntry[];
+  readonly orientation?: NavigationOrientation;
+  readonly density?: NavigationDensity;
+  readonly surface?: NavigationSurface;
+  readonly label: string;
+  readonly slots?: NavigationSlots;
+  readonly slotProps?: NavigationSlotProps;
+}
+/*
+ * Configures a labeled, link-only navigation region. @public
  */
-export type NavigationEntry = MiaixzNavigationItemBaseProps &
-  (MiaixzNavigationLinkItemProps | MiaixzNavigationButtonItemProps);
+export type NavigationProps = MiaixzNavigationOwnProps &
+  Omit<HTMLAttributes<HTMLElement>, keyof MiaixzNavigationOwnProps | "children">;

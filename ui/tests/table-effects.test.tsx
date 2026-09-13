@@ -1,40 +1,42 @@
 import { readFileSync } from "node:fs";
+import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { Table } from "../src/components/table/index.js";
+import { Table, TableBody, TableCell, TableRow } from "../src/components/table/index.js";
 
 afterEach(cleanup);
 
 describe("table row effects", () => {
-  it.each(["default", "dashed", "compact"] as const)(
-    "keeps the %s variant on the shared hover surface",
-    (variant) => {
-      render(
-        <Table variant={variant} aria-label={`${variant} table`}>
-          <tbody>
-            <tr>
-              <td>Record</td>
-            </tr>
-          </tbody>
-        </Table>,
-      );
-      expect(
-        screen
-          .getByRole("table")
-          .classList.contains(variant === "default" ? "miaixz-table" : `miaixz-table-${variant}`),
-      ).toBe(true);
+  it.each([
+    ["compact", "dashed"],
+    ["standard", "solid"],
+    ["comfortable", "none"],
+  ] as const)("keeps density %s independent from the %s divider", (density, dividerStyle) => {
+    render(
+      <Table aria-label="Records" density={density} dividerStyle={dividerStyle}>
+        <TableBody>
+          <TableRow selected>
+            <TableCell>Record</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+    );
 
-      const css = readFileSync("src/styles/components/table.css", "utf8");
-      expect(css).toContain(
-        ":is(.miaixz-table, .miaixz-table-dashed, .miaixz-table-compact) > tbody > tr:hover",
-      );
-      expect(css).toContain("background: var(--miaixz-color-surface-hover)");
-    },
-  );
+    const table = screen.getByRole("table");
+    expect(table).toHaveAttribute("data-density", density);
+    expect(table).toHaveAttribute("data-divider-style", dividerStyle);
+    expect(screen.getByRole("row")).toHaveAttribute("data-selected", "true");
+  });
 
-  it("lets the shared hover surface replace a dashed selected cell surface", () => {
+  it("uses one row hover rule after the selected-row rule", () => {
     const css = readFileSync("src/styles/components/table.css", "utf8");
-    expect(css).toContain('.miaixz-table-dashed > tbody > tr[data-selected="true"]:hover > td');
+    const selectedRule = '.miaixz-table-row[data-selected="true"]';
+    const hoverRule = ":is(.miaixz-table) > tbody > tr:hover";
+
+    expect(css).toContain(selectedRule);
+    expect(css).toContain(hoverRule);
+    expect(css).toContain("background: var(--miaixz-color-surface-hover)");
+    expect(css.indexOf(hoverRule)).toBeGreaterThan(css.indexOf(selectedRule));
   });
 });

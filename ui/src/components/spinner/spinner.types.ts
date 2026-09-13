@@ -18,9 +18,27 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed Spinner slots are self-describing.
+ */
 
+import type { HTMLAttributes, RefAttributes } from "react";
+
+import type { HiddenProps } from "../hidden/hidden.types.js";
+import type { IconProps } from "../icon/icon.types.js";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
+
+export type SpinnerSlot = "root" | "indicator" | "label";
+export interface SpinnerOwnerState {
+  readonly size: MiaixzComponentSize;
+}
+export type SpinnerRootAttributes = HTMLAttributes<HTMLSpanElement> &
+  RefAttributes<HTMLSpanElement> & { readonly "data-size"?: MiaixzComponentSize };
+export interface SpinnerSlotProps {
+  readonly root?: MiaixzSlotProps<SpinnerOwnerState, SpinnerRootAttributes>;
+  readonly indicator?: MiaixzSlotProps<SpinnerOwnerState, IconProps>;
+  readonly label?: MiaixzSlotProps<SpinnerOwnerState, HiddenProps>;
+}
 
 /**
  * Defines properties owned by the Miaixz Spinner contract.
@@ -39,6 +57,11 @@ export interface MiaixzSpinnerOwnProps {
    * Supplies the required localized accessible loading label.
    */
   readonly label: string;
+
+  /**
+   * Configures the fixed Spinner nodes.
+   */
+  readonly slotProps?: SpinnerSlotProps;
 }
 
 /**
@@ -48,5 +71,14 @@ export interface MiaixzSpinnerOwnProps {
  */
 export interface SpinnerProps
   extends
-    Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzSpinnerOwnProps>,
+    Omit<
+      HTMLAttributes<HTMLSpanElement>,
+      | keyof MiaixzSpinnerOwnProps
+      | "aria-atomic"
+      | "aria-label"
+      | "aria-labelledby"
+      | "aria-live"
+      | "children"
+      | "role"
+    >,
     MiaixzSpinnerOwnProps {}

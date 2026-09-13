@@ -19,4 +19,10 @@
 */
 
 export { Range } from "./range.js";
-export type { RangeProps } from "./range.types.js";
+export type {
+  RangeOwnerState,
+  RangeProps,
+  RangeRootAttributes,
+  RangeSlot,
+  RangeSlotProps,
+} from "./range.types.js";

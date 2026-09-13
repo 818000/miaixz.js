@@ -49,7 +49,7 @@
 }
 
 .miaixz-entry-aside,
-.miaixz-entry-main {
+.miaixz-entry-content {
   min-inline-size: 0;
   padding-block: max(var(--miaixz-entry-padding), var(--miaixz-safe-area-block-start))
     max(var(--miaixz-entry-padding), var(--miaixz-safe-area-block-end));
@@ -63,12 +63,12 @@
     var(--miaixz-surface-role-sidebar-border);
 }
 
-.miaixz-entry-main {
+.miaixz-entry-content {
   display: grid;
   place-items: center;
 }
 
-.miaixz-entry-main > * {
+.miaixz-entry-content > * {
   inline-size: 100%;
   max-inline-size: var(--miaixz-layout-dialog-width);
 }
@@ -78,7 +78,7 @@
     display: none;
   }
 
-  .miaixz-entry-main {
+  .miaixz-entry-content {
     --miaixz-entry-split-padding: clamp(
       var(--miaixz-space-24),
       12vw,
@@ -90,37 +90,35 @@
 }
 
 @container miaixz-entry (width < 768px) {
-  .miaixz-entry-main {
+  .miaixz-entry-content {
     --miaixz-entry-split-padding: var(--miaixz-space-16);
   }
 }
 
-.miaixz-entry[data-variant="split"] > .miaixz-entry-aside,
-.miaixz-entry[data-variant="split"] > .miaixz-entry-main {
+.miaixz-entry[data-layout="split"] > .miaixz-entry-aside,
+.miaixz-entry[data-layout="split"] > .miaixz-entry-content {
   --miaixz-entry-padding: var(--miaixz-entry-split-padding);
 }
 
-.miaixz-entry[data-variant="split"] > .miaixz-entry-aside {
+.miaixz-entry[data-layout="split"] > .miaixz-entry-aside {
   background: transparent;
 }
 
-.miaixz-entry[data-variant="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content {
+.miaixz-entry[data-layout="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content {
   inline-size: calc(100% + (var(--miaixz-entry-padding) * 2));
   block-size: calc(100% + (var(--miaixz-entry-padding) * 2));
   margin: calc(var(--miaixz-entry-padding) * -1);
 }
 
-.miaixz-entry[data-variant="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content > * {
+.miaixz-entry[data-layout="split"] > .miaixz-entry-aside > .miaixz-entry-aside-content > * {
   inline-size: 100%;
   block-size: 100%;
 }
 
-.miaixz-entry[data-variant="centered"],
-[data-miaixz-entry="centered"] .miaixz-entry:not([data-variant]) {
+.miaixz-entry[data-layout="centered"] {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.miaixz-entry[data-variant="centered"] > .miaixz-entry-aside,
-[data-miaixz-entry="centered"] .miaixz-entry:not([data-variant]) > .miaixz-entry-aside {
+.miaixz-entry[data-layout="centered"] > .miaixz-entry-aside {
   display: none;
 }

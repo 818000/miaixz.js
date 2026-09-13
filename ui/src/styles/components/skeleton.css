@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* stylelint-disable no-descending-specificity --
+ * Text-line adjacency and terminal rules intentionally share specificity.
+ */
+
 /**
  * Miaixz skeleton loading component
  * Skeleton containers should be hidden from assistive technology.
@@ -25,9 +29,9 @@
 
 [data-miaixz-theme] {
   --miaixz-skeleton-text-height: var(--miaixz-font-size-12);
-  --miaixz-skeleton-heading-height: var(--miaixz-font-size-20);
-  --miaixz-skeleton-avatar-size: var(--miaixz-icon-size-40);
-  --miaixz-skeleton-button-width: 96px;
+  --miaixz-skeleton-heading-height: 1.5rem;
+  --miaixz-skeleton-avatar-size: 2.5rem;
+  --miaixz-skeleton-button-width: 6rem;
   --miaixz-skeleton-last-line-width: 64%;
   --miaixz-skeleton-duration: 1200ms;
 }
@@ -55,41 +59,38 @@
     var(--miaixz-easing-standard);
 }
 
-.miaixz-skeleton-text {
+.miaixz-skeleton[data-variant="text"] {
   width: 100%;
   height: var(--miaixz-skeleton-text-height);
 }
 
-.miaixz-skeleton-text + .miaixz-skeleton-text {
+.miaixz-skeleton[data-variant="text"] + .miaixz-skeleton[data-variant="text"] {
   margin-block-start: var(--miaixz-space-8);
 }
 
-.miaixz-skeleton-text:last-child {
+.miaixz-skeleton[data-variant="text"]:last-child {
   width: var(--miaixz-skeleton-last-line-width);
 }
 
-.miaixz-skeleton-heading {
-  width: 48%;
-  height: var(--miaixz-skeleton-heading-height);
-}
-
-.miaixz-skeleton-avatar {
+.miaixz-skeleton[data-variant="circular"] {
   flex: none;
-  width: var(--miaixz-skeleton-avatar-size);
-  height: var(--miaixz-skeleton-avatar-size);
+  width: var(--miaixz-icon-size-40);
+  height: var(--miaixz-icon-size-40);
   border-radius: var(--miaixz-radius-round);
 }
 
-.miaixz-skeleton-button {
-  width: var(--miaixz-skeleton-button-width);
-  height: var(--miaixz-density-control-height);
-  border-radius: var(--miaixz-radius-control);
-}
-
-.miaixz-skeleton-row {
+.miaixz-skeleton[data-variant="rectangular"],
+.miaixz-skeleton[data-variant="rounded"] {
   width: 100%;
   height: var(--miaixz-density-table-row-height);
+}
+
+.miaixz-skeleton[data-variant="rectangular"] {
   border-radius: 0;
+}
+
+.miaixz-skeleton[data-variant="rounded"] {
+  border-radius: var(--miaixz-radius-control);
 }
 
 @keyframes miaixz-skeleton-shimmer {

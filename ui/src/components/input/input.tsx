@@ -18,78 +18,175 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useState } from "react";
+import { forwardRef, useRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import { hasMiaixzControlValue } from "../../shared/control-state.js";
-import type { InputProps } from "./input.types.js";
+import { useFieldControl } from "../../shared/field-context.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useControlValueState } from "../../shared/use-control-value-state.js";
+import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
+import { useMiaixzThemeComponent } from "../../theme/context.js";
+import type { InputOwnerState, InputProps, InputRootAttributes, InputSlot } from "./input.types.js";
 
 /**
- * Renders a single-line native input with shared validation styling.
+ * Removes Input-owned fields from native input attributes.
+ *
+ * @param props - Complete or partial public Input properties.
+ * @returns Native properties that belong on the input element.
+ */
+function getInputNativeProps(props: Partial<InputProps>) {
+  const {
+    size: _size,
+    invalid: _invalid,
+    startAdornment: _startAdornment,
+    endAdornment: _endAdornment,
+    slotProps: _slotProps,
+    className: _className,
+    style: _style,
+    ...nativeProps
+  } = props;
+  return nativeProps;
+}
+
+/**
+ * Renders a single-line native input with explicit root and input slots.
  *
  * @public
  */
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  {
-    size = "medium",
-    invalid = false,
-    startAdornment,
-    endAdornment,
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(props, ref) {
+  const theme = useMiaixzThemeComponent("Input");
+  const defaults = theme?.defaultProps;
+  const {
+    size = defaults?.size ?? "medium",
+    invalid = defaults?.invalid,
+    startAdornment = defaults?.startAdornment,
+    endAdornment = defaults?.endAdornment,
     className,
-    disabled,
-    readOnly,
-    previewState,
-    value,
-    defaultValue,
-    onChange,
-    "aria-invalid": ariaInvalid,
-    ...props
-  },
-  ref,
-) {
-  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
-  const [uncontrolledFilled, setUncontrolledFilled] = useState(() =>
-    hasMiaixzControlValue(defaultValue),
-  );
-  const isFilled = value === undefined ? uncontrolledFilled : hasMiaixzControlValue(value);
-
-  return (
-    <span
-      className={classNames(
+    style,
+    disabled = defaults?.disabled,
+    readOnly = defaults?.readOnly,
+    value = defaults?.value,
+    defaultValue = defaults?.defaultValue,
+    id = defaults?.id,
+    required = defaults?.required,
+    "aria-invalid": ariaInvalid = defaults?.["aria-invalid"],
+    "aria-labelledby": ariaLabelledBy = defaults?.["aria-labelledby"],
+    "aria-describedby": ariaDescribedBy = defaults?.["aria-describedby"],
+    slotProps,
+  } = props;
+  const fieldProps = useFieldControl({
+    ...(id === undefined ? {} : { id }),
+    ...(required === undefined ? {} : { required }),
+    ...(disabled === undefined ? {} : { disabled }),
+    ...(invalid === undefined ? {} : { invalid }),
+    ...(ariaInvalid === undefined ? {} : { "aria-invalid": ariaInvalid }),
+    ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
+    ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
+  });
+  const effectiveInvalid =
+    fieldProps.invalid ??
+    (fieldProps["aria-invalid"] !== undefined &&
+      fieldProps["aria-invalid"] !== false &&
+      fieldProps["aria-invalid"] !== "false");
+  const effectiveDisabled = fieldProps.disabled ?? false;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const filledState = useControlValueState({
+    controlRef: inputRef,
+    value: value === undefined ? undefined : hasMiaixzControlValue(value),
+    defaultValue: hasMiaixzControlValue(defaultValue),
+    read: (control) => hasMiaixzControlValue(control.value),
+  });
+  const ownerState: InputOwnerState = {
+    size,
+    invalid: effectiveInvalid,
+    disabled: effectiveDisabled,
+    readOnly: readOnly === true,
+    filled: filledState.value,
+  };
+  const themeClasses = (slot: InputSlot) => getMiaixzThemeSlotClassNames(theme, ownerState, slot);
+  const rootProps = mergeMiaixzSlotProps<InputOwnerState, InputRootAttributes, HTMLSpanElement>({
+    ownerState,
+    defaultProps: {
+      className: classNames(
         "miaixz-control",
         "miaixz-input",
         `miaixz-control-${size}`,
-        Boolean(startAdornment) && "miaixz-input-with-start",
-        Boolean(endAdornment) && "miaixz-input-with-end",
-        isInvalid && "miaixz-input-invalid",
-        disabled && "miaixz-input-disabled",
-        readOnly && "miaixz-input-readonly",
-        className,
-      )}
-      data-size={size}
-      data-invalid={isInvalid || undefined}
-      data-disabled={disabled || undefined}
-      data-readonly={readOnly || undefined}
-      data-filled={isFilled || undefined}
-      data-preview-state={previewState}
-    >
-      {startAdornment && <span className="miaixz-input-adornment">{startAdornment}</span>}
-      <input
-        {...props}
-        ref={ref}
-        disabled={disabled}
-        readOnly={readOnly}
-        value={value}
-        defaultValue={defaultValue}
-        aria-invalid={isInvalid || undefined}
-        className="miaixz-input-element"
-        onChange={(event) => {
-          if (value === undefined)
-            setUncontrolledFilled(hasMiaixzControlValue(event.currentTarget.value));
-          onChange?.(event);
-        }}
-      />
-      {endAdornment && <span className="miaixz-input-adornment">{endAdornment}</span>}
+        startAdornment !== undefined && "miaixz-input-with-start",
+        endAdornment !== undefined && "miaixz-input-with-end",
+      ),
+    },
+    themeDefaultProps: {
+      ...(defaults?.className === undefined ? {} : { className: defaults.className }),
+      ...(defaults?.style === undefined ? {} : { style: defaults.style }),
+    },
+    componentProps: {
+      ...(className === undefined ? {} : { className }),
+      ...(style === undefined ? {} : { style }),
+    },
+    themeClassNames: themeClasses("root"),
+    slotProps: slotProps?.root,
+    internalProps: {
+      "data-size": size,
+      ...(effectiveInvalid ? { "data-invalid": true } : {}),
+      ...(effectiveDisabled ? { "data-disabled": true } : {}),
+      ...(readOnly ? { "data-readonly": true } : {}),
+      ...(filledState.value ? { "data-filled": true } : {}),
+    },
+    ownedProps: ["data-size", "data-invalid", "data-disabled", "data-readonly", "data-filled"],
+  });
+  const inputProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-input-element" },
+    componentProps: {
+      ...getInputNativeProps(props),
+    },
+    themeDefaultProps: getInputNativeProps(defaults ?? {}),
+    themeClassNames: themeClasses("input"),
+    slotProps: slotProps?.input,
+    internalRef: inputRef,
+    forwardedRef: ref,
+    internalProps: {
+      ...(fieldProps.id === undefined ? {} : { id: fieldProps.id }),
+      ...(fieldProps.required === undefined ? {} : { required: fieldProps.required }),
+      disabled: effectiveDisabled,
+      ...(readOnly === undefined ? {} : { readOnly }),
+      ...(effectiveInvalid ? { "aria-invalid": true } : {}),
+      ...(fieldProps["aria-labelledby"] === undefined
+        ? {}
+        : { "aria-labelledby": fieldProps["aria-labelledby"] }),
+      ...(fieldProps["aria-describedby"] === undefined
+        ? {}
+        : { "aria-describedby": fieldProps["aria-describedby"] }),
+      onChange: filledState.sync,
+    },
+    ownedProps: [
+      "id",
+      "required",
+      "disabled",
+      "readOnly",
+      "aria-invalid",
+      "aria-labelledby",
+      "aria-describedby",
+    ],
+  });
+  const startProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-input-adornment miaixz-input-start-adornment" },
+    themeClassNames: themeClasses("startAdornment"),
+    slotProps: slotProps?.startAdornment,
+  });
+  const endProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-input-adornment miaixz-input-end-adornment" },
+    themeClassNames: themeClasses("endAdornment"),
+    slotProps: slotProps?.endAdornment,
+  });
+  return (
+    <span {...rootProps}>
+      {startAdornment !== undefined && <span {...startProps}>{startAdornment}</span>}
+      <input {...inputProps} />
+      {endAdornment !== undefined && <span {...endProps}>{endAdornment}</span>}
     </span>
   );
 });

@@ -18,223 +18,57 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-.miaixz-descriptions-matrix {
-  display: grid;
-  grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid var(--miaixz-color-border);
-  border-radius: var(--miaixz-radius-panel);
-}
-
-.miaixz-descriptions-matrix dt {
-  padding: var(--miaixz-space-12);
-  margin: 0;
-  font-size: var(--miaixz-text-body-size);
-  color: var(--miaixz-color-text-muted);
-  overflow-wrap: anywhere;
-  background: var(--miaixz-color-surface-secondary);
-  border-bottom: 1px solid var(--miaixz-color-border);
-}
-
-.miaixz-descriptions-matrix dd {
-  padding: var(--miaixz-space-12);
-  margin: 0;
-  font-size: var(--miaixz-text-body-size);
-  overflow-wrap: anywhere;
-  border-bottom: 1px solid var(--miaixz-color-border);
-}
-
 .miaixz-descriptions {
+  --miaixz-descriptions-columns: 1;
+
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(var(--miaixz-descriptions-columns), minmax(0, 1fr));
   gap: 0;
   margin: 0;
 }
 
-.miaixz-descriptions[data-columns="2"]:not(.miaixz-descriptions-matrix) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.miaixz-descriptions[data-columns="2"] {
+  --miaixz-descriptions-columns: 2;
 }
 
-.miaixz-descriptions[data-columns="3"]:not(.miaixz-descriptions-matrix) {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.miaixz-descriptions[data-columns="3"] {
+  --miaixz-descriptions-columns: 3;
 }
 
-.miaixz-descriptions-matrix[data-columns="2"] {
-  grid-template-columns: repeat(2, minmax(0, 0.4fr) minmax(0, 1fr));
-}
-
-.miaixz-descriptions-matrix[data-columns="3"] {
-  grid-template-columns: repeat(3, minmax(0, 0.4fr) minmax(0, 1fr));
-}
-
-.miaixz-descriptions dt,
-.miaixz-descriptions dd {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.miaixz-descriptions-default {
-  margin: 0;
-}
-
-.miaixz-descriptions-metrics {
-  display: grid;
-  gap: 0;
-  overflow: hidden;
-  background: transparent;
-  border-radius: 0;
-}
-
-:is(.miaixz-descriptions-metrics > div) {
-  min-width: 0;
-  padding: 11px 12px;
-  border-inline-end: 1px dashed var(--miaixz-surface-role-panel-border);
-}
-
-:is(.miaixz-descriptions-metrics dt) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: var(--miaixz-text-body-size);
-  color: var(--miaixz-color-text-muted);
-  white-space: nowrap;
-}
-
-:is(.miaixz-descriptions-metrics dd) {
-  margin: 5px 0 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: var(--miaixz-text-metric-size);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.miaixz-descriptions-metrics dt {
-  line-height: 1.45;
-}
-
-.miaixz-descriptions-metrics dd {
-  line-height: 1.2;
-}
-
-:is(.miaixz-descriptions-statistics dt) {
-  font-size: var(--miaixz-text-caption-size);
-  font-weight: 400;
-  line-height: 1.45;
-  color: var(--miaixz-color-text-muted);
-}
-
-:is(.miaixz-descriptions-statistics dd) {
-  margin: 5px 0 0;
-  font-size: var(--miaixz-text-caption-size);
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--miaixz-color-text-primary);
-}
-
-:is(.miaixz-descriptions-statistics > div) {
-  min-width: 0;
-  padding: 11px 12px;
-  border-inline-end: 1px solid var(--miaixz-surface-role-panel-border);
-}
-
-:is(.miaixz-descriptions-statistics > div:last-child) {
-  border-inline-end: 0;
-}
-
-.miaixz-descriptions-default > div {
+.miaixz-descriptions-item {
   display: flex;
-  gap: 14px;
+  gap: var(--miaixz-space-16);
   align-items: center;
   justify-content: space-between;
+  min-width: 0;
   min-height: 46px;
-  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
-}
-
-.miaixz-descriptions-stacked > div {
-  display: grid;
-  gap: 5px;
-  padding: 10px;
-  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
-}
-
-.miaixz-descriptions-stacked dd {
-  margin: 0;
-}
-
-.miaixz-descriptions-default dt,
-.miaixz-descriptions-stacked dt {
-  color: var(--miaixz-color-text-muted);
-}
-
-.miaixz-descriptions-key-value {
-  padding: 0;
-  margin: 0;
-}
-
-.miaixz-descriptions-key-value > div {
-  display: grid;
-  gap: 18px;
-  align-items: center;
-  min-height: 58px;
-  padding: 12px 18px;
-  border-bottom: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
-}
-
-.miaixz-descriptions-key-value dt,
-.miaixz-descriptions-key-value dd {
-  min-width: 0;
-  margin: 0;
-}
-
-.miaixz-descriptions-binding {
-  margin: 0;
-}
-
-.miaixz-descriptions-binding > div {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-  padding: 12px 0;
-  border-bottom: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
-}
-
-.miaixz-descriptions-binding dt {
-  font-size: var(--miaixz-text-caption-size);
-  color: var(--miaixz-color-text-muted);
-}
-
-.miaixz-descriptions-binding dd {
-  margin: 0;
-}
-
-.miaixz-descriptions-metrics.miaixz-descriptions-value-compact dd {
-  font-size: var(--miaixz-text-page-title-size);
-}
-
-.miaixz-descriptions-metrics > div:last-child {
-  border-inline-end: 0;
-}
-
-.miaixz-descriptions-key-value > div:last-child {
-  border-bottom: 0;
-}
-
-.miaixz-descriptions-compact.miaixz-descriptions-default > div {
-  min-height: 40px;
-}
-
-.miaixz-descriptions-compact.miaixz-descriptions-stacked > div,
-.miaixz-descriptions-compact.miaixz-descriptions-key-value > div,
-.miaixz-descriptions-compact.miaixz-descriptions-binding > div {
   padding-block: var(--miaixz-space-8);
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
-.miaixz-descriptions-compact.miaixz-descriptions-matrix :is(dt, dd) {
-  padding: var(--miaixz-space-8);
+.miaixz-descriptions[data-layout="stacked"] .miaixz-descriptions-item {
+  flex-direction: column;
+  gap: var(--miaixz-space-4);
+  align-items: stretch;
 }
 
-.miaixz-descriptions-matrix dt:last-of-type,
-.miaixz-descriptions-matrix dd:last-of-type {
-  border-bottom: 0;
+.miaixz-descriptions[data-density="compact"] .miaixz-descriptions-item {
+  min-height: 40px;
+  padding-block: var(--miaixz-space-4);
+}
+
+.miaixz-descriptions[data-density="comfortable"] .miaixz-descriptions-item {
+  min-height: 54px;
+  padding-block: var(--miaixz-space-12);
+}
+
+.miaixz-descriptions-term,
+.miaixz-descriptions-definition {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.miaixz-descriptions-term {
+  color: var(--miaixz-color-text-muted);
 }

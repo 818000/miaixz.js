@@ -18,7 +18,30 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./appearance.js";
-export * from "./migration.js";
-export * from "./validation.js";
-export * from "../types/appearance.js";
+export {
+  createMiaixzAppearanceManager,
+  MiaixzAppearanceManager,
+  miaixzAppearanceSchemaVersion,
+} from "./appearance.js";
+export type { MiaixzAppearanceManagerOptions } from "./appearance.js";
+export { miaixzAppearanceMigrationV1ToV2, migrateMiaixzAppearanceV1 } from "./migration.js";
+export {
+  isMiaixzAppearanceSettings,
+  isMiaixzColorMode,
+  isMiaixzDensity,
+  isMiaixzThemeId,
+  miaixzDefaultAppearance,
+  parseMiaixzAppearanceSettings,
+} from "./validation.js";
+export { miaixzColorModes, miaixzDensities, miaixzThemeColorTokens } from "../types/appearance.js";
+export type {
+  MiaixzAppearancePayload,
+  MiaixzAppearanceSettings,
+  MiaixzColorMode,
+  MiaixzDensity,
+  MiaixzResolvedColorMode,
+  MiaixzThemeColorOverrides,
+  MiaixzThemeColors,
+  MiaixzThemeColorToken,
+  MiaixzThemeOverrides,
+} from "../types/appearance.js";

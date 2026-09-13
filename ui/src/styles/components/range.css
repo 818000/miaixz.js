@@ -83,8 +83,7 @@
   background: var(--miaixz-color-surface-active);
 }
 
-.miaixz-range:disabled,
-.miaixz-range[data-preview-state="disabled"] {
+.miaixz-range:disabled {
   color: var(--miaixz-color-text-disabled);
   cursor: not-allowed;
   opacity: var(--miaixz-opacity-disabled);

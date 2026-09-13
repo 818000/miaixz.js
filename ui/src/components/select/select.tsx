@@ -19,134 +19,180 @@
 */
 
 import {
-  Children,
   forwardRef,
-  isValidElement,
   useCallback,
-  useContext,
+  useEffect,
   useId,
   useMemo,
   useRef,
   useState,
   type KeyboardEvent,
-  type OptionHTMLAttributes,
-  type ReactElement,
-  type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
 
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
-import { MiaixzFieldContext } from "../../shared/field-context.js";
-import { useMiaixzOptionSurface } from "../../shared/option-surface.js";
+import { MiaixzCollectionController } from "../../shared/collection/controller.js";
+import { useFieldControl } from "../../shared/field-context.js";
 import {
-  useMiaixzDismissibleLayer,
-  useMiaixzManualPopover,
-  useMiaixzPortalTarget,
-} from "../../shared/overlay/index.js";
-import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { Icon } from "../icon/index.js";
-import type { SelectProps } from "./select.types.js";
-
-interface MiaixzSelectOption {
-  /**
-   * Supplies the stable form value.
-   */
-  readonly value: string;
-
-  /**
-   * Supplies the visible option label.
-   */
-  readonly label: string;
-
-  /**
-   * Reports whether interaction is unavailable.
-   */
-  readonly disabled: boolean;
-}
-
-interface MiaixzSelectOptionGroup {
-  /**
-   * Supplies nested option elements.
-   */
-  readonly children?: ReactNode;
-}
+  registerMiaixzFormValidationControl,
+  resolveMiaixzFormOwner,
+} from "../../shared/form-validation-registry.js";
+import { useMiaixzOptionSurface } from "../../shared/option-surface.js";
+import { useMiaixzDismissibleLayer } from "../../shared/overlay/dismissible-layer.js";
+import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
+import { useMiaixzManualPopover } from "../../shared/overlay/top-layer.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useControlled } from "../../shared/use-controlled.js";
+import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
+import { useMiaixzThemeComponent } from "../../theme/context.js";
+import { Icon } from "../icon/icon.js";
+import { emptySelectItems, joinIds, validateAndFlattenSelectEntries } from "./select-model.js";
+import type {
+  SelectOption,
+  SelectOwnerState,
+  SelectProps,
+  SelectRootAttributes,
+  SelectSlot,
+} from "./select.types.js";
+import { getSelectTriggerProps, renderSelectEntries } from "./select-view.js";
 
 /**
- * Renders an accessible Miaixz option picker while retaining a native select
- * element for form submission and backwards-compatible change events.
+ * Renders the sole single-selection component model.
  *
  * @public
  */
-export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  {
-    size = "medium",
-    invalid = false,
-    className,
-    disabled = false,
-    readOnly = false,
-    widthPreset = "fill",
-    previewState,
-    children,
-    value,
+export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select(props, ref) {
+  const theme = useMiaixzThemeComponent("Select");
+  const defaults = theme?.defaultProps;
+  const items = props.items ?? defaults?.items ?? emptySelectItems;
+  const size = props.size ?? defaults?.size ?? "medium";
+  const invalid = props.invalid ?? defaults?.invalid;
+  const explicitReadOnly = props.readOnly ?? defaults?.readOnly ?? false;
+  const required = props.required ?? defaults?.required;
+  const disabled = props.disabled ?? defaults?.disabled;
+  const widthPreset = props.widthPreset ?? defaults?.widthPreset ?? "fill";
+  const form = props.form ?? defaults?.form;
+  const name = props.name ?? defaults?.name;
+  const onInvalid = props.onInvalid ?? defaults?.onInvalid;
+  const controlled =
+    "value" in props || (!("defaultValue" in props) && defaults?.value !== undefined);
+  const defaultValue = props.defaultValue ?? defaults?.defaultValue ?? "";
+  const onValueChange = props.onValueChange ?? defaults?.onValueChange;
+  const valueState = useControlled<string>({
+    controlled,
+    value: props.value ?? defaults?.value,
     defaultValue,
-    onChange,
-    onBlur,
-    onFocus,
-    id,
-    required = false,
-    "aria-invalid": ariaInvalid,
-    "aria-label": ariaLabel,
-    "aria-labelledby": ariaLabelledby,
-    "aria-describedby": ariaDescribedBy,
-    ...nativeProps
-  },
-  forwardedRef,
-) {
-  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
-  const fieldContext = useContext(MiaixzFieldContext);
-  const field = fieldContext?.controlId === id ? fieldContext : null;
-  const resolvedLabelledby =
-    ariaLabelledby ?? (ariaLabel === undefined ? field?.labelId : undefined);
-  const resolvedDescribedBy = field?.describedBy ?? ariaDescribedBy;
-  const resolvedRequired = field?.required || required || undefined;
-  const nativeRef = useRef<HTMLSelectElement>(null);
-  const nativeMergedRef = useMergedRef(forwardedRef, nativeRef);
+    hasDefaultValue: controlled && "defaultValue" in props,
+    ...(onValueChange === undefined ? {} : { onValueChange }),
+    readOnly: true,
+  });
+  const readOnly = explicitReadOnly || valueState.readOnly;
+  const { t } = useMiaixzLocale();
+  const flatOptions = useMemo(() => validateAndFlattenSelectEntries(items), [items]);
+  const selected = flatOptions.find(({ option }) => option.value === valueState.value)?.option;
+  if (valueState.value !== "" && selected === undefined) {
+    throw new MiaixzUiError({
+      code: "UI_CONTROLLED_VALUE_INVALID",
+    });
+  }
+
+  const fieldProps = useFieldControl({
+    ...(props.id === undefined ? {} : { id: props.id }),
+    ...(required === undefined ? {} : { required }),
+    ...(disabled === undefined ? {} : { disabled }),
+    ...(invalid === undefined ? {} : { invalid }),
+    ...(props["aria-invalid"] === undefined ? {} : { "aria-invalid": props["aria-invalid"] }),
+    ...(props["aria-labelledby"] === undefined
+      ? {}
+      : { "aria-labelledby": props["aria-labelledby"] }),
+    ...(props["aria-describedby"] === undefined
+      ? {}
+      : { "aria-describedby": props["aria-describedby"] }),
+  });
+  const effectiveDisabled = fieldProps.disabled ?? false;
+  const [validationInvalid, setValidationInvalid] = useState(false);
+  const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
+  const [open, setOpen] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const rootRef = useRef<HTMLSpanElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const [rootElement, setRootElement] = useState<HTMLSpanElement | null>(null);
-  const [open, setOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const [uncontrolledValue, setUncontrolledValue] = useState(() =>
-    normalizeSelectValue(defaultValue),
+  const controllerRef = useRef(
+    new MiaixzCollectionController(flatOptions.map(({ option }) => option)),
   );
-  const options = useMemo(() => collectMiaixzSelectOptions(children), [children]);
-  const selectedValue = value === undefined ? uncontrolledValue : normalizeSelectValue(value);
-  const selectedIndex = options.findIndex((option) => option.value === selectedValue);
-  const selectedOption = options[selectedIndex];
+  controllerRef.current.updateItems(flatOptions.map(({ option }) => option));
   const listboxId = useId();
   const optionIdPrefix = useId();
+  const validationMessageId = useId();
   const portalTarget = useMiaixzPortalTarget(rootElement);
   const setRootRef = useCallback((element: HTMLSpanElement | null) => {
     rootRef.current = element;
     setRootElement(element);
   }, []);
+  const ownerState: SelectOwnerState = {
+    size,
+    invalid: effectiveInvalid,
+    disabled: effectiveDisabled,
+    readOnly,
+    open,
+    filled: valueState.value !== "",
+    widthPreset,
+  };
+  const themeClasses = (slot: SelectSlot) => getMiaixzThemeSlotClassNames(theme, ownerState, slot);
 
   const close = useCallback((restoreFocus: boolean) => {
     setOpen(false);
-    setActiveIndex(-1);
+    setActiveId(null);
     if (restoreFocus) queueMicrotask(() => triggerRef.current?.focus({ preventScroll: true }));
   }, []);
-
   const openListbox = useCallback(() => {
-    if (disabled || readOnly) return;
-    setActiveIndex(selectedIndex >= 0 ? selectedIndex : findEnabledOption(options, 0, 1));
+    if (effectiveDisabled) return;
+    controllerRef.current.setActiveId(selected?.id ?? null);
+    setActiveId(controllerRef.current.activeId);
     setOpen(true);
-  }, [disabled, options, readOnly, selectedIndex]);
+  }, [effectiveDisabled, selected?.id]);
+  const choose = useCallback(
+    (option: SelectOption) => {
+      if (readOnly || option.disabled === true) return;
+      close(true);
+      valueState.setValue(option.value);
+      setValidationInvalid(false);
+    },
+    [close, readOnly, valueState],
+  );
+
+  useEffect(() => {
+    if (valueState.value !== "") setValidationInvalid(false);
+  }, [valueState.value]);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (root === null) return undefined;
+    const owner = resolveMiaixzFormOwner(root, form);
+    if (owner === null) return undefined;
+    return registerMiaixzFormValidationControl(owner, {
+      element: triggerRef.current ?? root,
+      validate: () => {
+        const nextInvalid =
+          !effectiveDisabled && fieldProps.required === true && valueState.value === "";
+        setValidationInvalid(nextInvalid);
+        if (nextInvalid) onInvalid?.("required");
+        return !nextInvalid;
+      },
+      reset: () => {
+        valueState.resetValue(defaultValue);
+        setValidationInvalid(false);
+        close(false);
+      },
+      focus: () => triggerRef.current?.focus({ preventScroll: true }),
+    });
+  }, [close, defaultValue, effectiveDisabled, fieldProps.required, form, onInvalid, valueState]);
 
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
-  const activeOptionId = open && activeIndex >= 0 ? `${optionIdPrefix}-${activeIndex}` : undefined;
-  useMiaixzOptionSurface(rootRef, surfaceRef, open, portalTarget, activeOptionId);
+  const activeOptionId = open && activeId !== null ? `${optionIdPrefix}-${activeId}` : undefined;
+  useMiaixzOptionSurface(triggerRef, surfaceRef, open, portalTarget, activeOptionId);
   useMiaixzDismissibleLayer({
     active: open,
     triggerRef,
@@ -155,226 +201,204 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
     onDismiss: () => close(true),
   });
 
-  const selectOption = useCallback(
-    (option: MiaixzSelectOption) => {
-      if (option.disabled || readOnly) return;
-      if (value === undefined) setUncontrolledValue(option.value);
-      const element = nativeRef.current;
-      if (element !== null) {
-        const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")?.set;
-        setter?.call(element, option.value);
-        element.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-      close(true);
-    },
-    [close, readOnly, value],
-  );
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+  const internalKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === "Escape" && open) {
       event.preventDefault();
       close(true);
       return;
     }
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      event.preventDefault();
-      if (!open) {
-        openListbox();
-        return;
-      }
-      const direction = event.key === "ArrowDown" ? 1 : -1;
-      setActiveIndex((current) => findEnabledOption(options, current + direction, direction));
+    if (event.key === "Tab" && open) {
+      close(false);
       return;
     }
-    if (event.key === "Home" && open) {
-      event.preventDefault();
-      setActiveIndex(findEnabledOption(options, 0, 1));
-      return;
-    }
-    if (event.key === "End" && open) {
-      event.preventDefault();
-      setActiveIndex(findEnabledOption(options, options.length - 1, -1));
-      return;
-    }
-    if (event.key === "Enter" && open) {
-      const option = options[activeIndex];
-      if (option !== undefined) {
+    if (!open) {
+      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
         event.preventDefault();
-        selectOption(option);
+        openListbox();
       }
+      return;
+    }
+    const result = controllerRef.current.handleKey(event.key, {
+      orientation: "vertical",
+      direction: "ltr",
+      loop: true,
+    });
+    if (!result.handled) return;
+    event.preventDefault();
+    setActiveId(result.activeId);
+    if (result.activate && result.activeId !== null) {
+      const option = flatOptions.find(({ option: candidate }) => candidate.id === result.activeId);
+      if (option !== undefined) choose(option.option);
     }
   };
 
-  return (
-    <span
-      ref={setRootRef}
-      className={classNames(
+  const describedBy = joinIds(
+    fieldProps["aria-describedby"],
+    validationInvalid ? validationMessageId : undefined,
+  );
+  const rootProps = mergeMiaixzSlotProps<SelectOwnerState, SelectRootAttributes, HTMLSpanElement>({
+    ownerState,
+    defaultProps: {
+      className: classNames(
         "miaixz-control",
         "miaixz-select",
         `miaixz-control-${size}`,
-        isInvalid && "miaixz-select-invalid",
-        disabled && "miaixz-select-disabled",
-        readOnly && "miaixz-select-readonly",
         widthPreset === "compact" && "miaixz-select-width-compact",
-        className,
-      )}
-      data-size={size}
-      data-state={open ? "open" : "closed"}
-      data-invalid={isInvalid || undefined}
-      data-disabled={disabled || undefined}
-      data-readonly={readOnly || undefined}
-      data-filled={selectedValue.length > 0 || undefined}
-      data-preview-state={previewState}
-    >
-      <select
-        {...nativeProps}
-        ref={nativeMergedRef}
-        className="miaixz-select-native"
-        value={value}
-        defaultValue={defaultValue}
-        disabled={disabled}
-        required={required}
-        tabIndex={-1}
-        aria-hidden="true"
-        aria-invalid={isInvalid || undefined}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-      >
-        {children}
-      </select>
-      <button
-        ref={triggerRef}
-        id={field?.controlId ?? id}
-        type="button"
-        role="combobox"
-        className="miaixz-select-trigger"
-        aria-label={ariaLabel}
-        aria-labelledby={resolvedLabelledby}
-        aria-describedby={resolvedDescribedBy}
-        aria-required={resolvedRequired}
-        aria-controls={listboxId}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-activedescendant={activeOptionId}
-        aria-invalid={isInvalid || undefined}
-        aria-readonly={readOnly || undefined}
-        disabled={disabled}
-        onClick={() => (open ? close(false) : openListbox())}
-        onKeyDown={handleKeyDown}
-      >
-        <span className="miaixz-select-value">{selectedOption?.label ?? "\u00a0"}</span>
-        <Icon name="ChevronDown" size="control" className="miaixz-select-indicator" />
+      ),
+    },
+    themeDefaultProps: {
+      ...(defaults?.className === undefined ? {} : { className: defaults.className }),
+      ...(defaults?.style === undefined ? {} : { style: defaults.style }),
+    },
+    componentProps: {
+      ...(props.className === undefined ? {} : { className: props.className }),
+      ...(props.style === undefined ? {} : { style: props.style }),
+    },
+    themeClassNames: themeClasses("root"),
+    slotProps: props.slotProps?.root,
+    internalRef: setRootRef,
+    internalProps: {
+      "data-size": size,
+      "data-state": open ? "open" : "closed",
+      ...(effectiveInvalid ? { "data-invalid": true } : {}),
+      ...(effectiveDisabled ? { "data-disabled": true } : {}),
+      ...(readOnly ? { "data-readonly": true } : {}),
+      ...(valueState.value !== "" ? { "data-filled": true } : {}),
+    },
+    ownedProps: [
+      "data-size",
+      "data-state",
+      "data-invalid",
+      "data-disabled",
+      "data-readonly",
+      "data-filled",
+    ],
+  });
+  const triggerProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-select-trigger" },
+    themeDefaultProps: getSelectTriggerProps(defaults ?? {}),
+    componentProps: getSelectTriggerProps(props),
+    themeClassNames: themeClasses("trigger"),
+    slotProps: props.slotProps?.trigger,
+    internalRef: triggerRef,
+    forwardedRef: ref,
+    internalProps: {
+      id: fieldProps.id,
+      type: "button" as const,
+      role: "combobox",
+      disabled: effectiveDisabled,
+      "aria-controls": listboxId,
+      "aria-expanded": open,
+      "aria-haspopup": "listbox" as const,
+      ...(activeOptionId === undefined ? {} : { "aria-activedescendant": activeOptionId }),
+      ...(effectiveInvalid ? { "aria-invalid": true } : {}),
+      ...(readOnly ? { "aria-readonly": true } : {}),
+      ...(fieldProps.required ? { "aria-required": true } : {}),
+      ...(fieldProps["aria-labelledby"] === undefined
+        ? {}
+        : { "aria-labelledby": fieldProps["aria-labelledby"] }),
+      ...(describedBy === undefined ? {} : { "aria-describedby": describedBy }),
+      onClick: () => (open ? close(false) : openListbox()),
+      onKeyDown: internalKeyDown,
+    },
+    ownedProps: [
+      "id",
+      "type",
+      "role",
+      "disabled",
+      "aria-controls",
+      "aria-expanded",
+      "aria-haspopup",
+      "aria-activedescendant",
+      "aria-invalid",
+      "aria-readonly",
+      "aria-required",
+      "aria-labelledby",
+      "aria-describedby",
+    ],
+  });
+  const valueProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-select-value" },
+    themeClassNames: themeClasses("value"),
+    slotProps: props.slotProps?.value,
+  });
+  const iconProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-select-indicator" },
+    themeClassNames: themeClasses("icon"),
+    slotProps: props.slotProps?.icon,
+  });
+  const hiddenInputProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-select-native" },
+    themeClassNames: themeClasses("hiddenInput"),
+    slotProps: props.slotProps?.hiddenInput,
+    internalProps: {
+      type: "hidden",
+      value: valueState.value,
+      ...(name === undefined ? {} : { name }),
+      ...(form === undefined ? {} : { form }),
+      disabled: effectiveDisabled,
+    },
+    ownedProps: ["type", "value", "name", "form", "disabled"],
+  });
+  const validationProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-hidden" },
+    themeClassNames: themeClasses("validationMessage"),
+    slotProps: props.slotProps?.validationMessage,
+    internalProps: { id: validationMessageId },
+    ownedProps: ["id"],
+  });
+  const listboxProps = mergeMiaixzSlotProps({
+    ownerState,
+    defaultProps: { className: "miaixz-select-surface" },
+    themeClassNames: themeClasses("listbox"),
+    slotProps: props.slotProps?.listbox,
+    internalRef: surfaceRef,
+    internalProps: {
+      id: listboxId,
+      role: "listbox",
+      popover: "manual",
+      ...(props["aria-label"] === undefined ? {} : { "aria-label": props["aria-label"] }),
+      ...(fieldProps["aria-labelledby"] === undefined
+        ? {}
+        : { "aria-labelledby": fieldProps["aria-labelledby"] }),
+    },
+    ownedProps: ["id", "role", "popover", "aria-labelledby"],
+  });
+
+  return (
+    <span {...rootProps}>
+      <input {...hiddenInputProps} />
+      <button {...triggerProps}>
+        <span {...valueProps}>{selected?.label ?? "\u00a0"}</span>
+        <span {...iconProps}>
+          <Icon name="ChevronDown" size="control" />
+        </span>
       </button>
+      {validationInvalid && <span {...validationProps}>{t("ui.select.required")}</span>}
       {open &&
         portalTarget !== null &&
         createPortal(
-          <div
-            ref={surfaceRef}
-            popover="manual"
-            id={listboxId}
-            role="listbox"
-            className="miaixz-select-surface"
-            aria-label={ariaLabel}
-            aria-labelledby={resolvedLabelledby}
-          >
-            {options.map((option, index) => {
-              const selected = option.value === selectedValue;
-              return (
-                <div
-                  key={`${option.value}-${index}`}
-                  id={`${optionIdPrefix}-${index}`}
-                  role="option"
-                  aria-selected={selected}
-                  aria-disabled={option.disabled || undefined}
-                  className="miaixz-select-option"
-                  data-state={index === activeIndex ? "active" : "idle"}
-                  data-disabled={option.disabled || undefined}
-                  onPointerMove={() => {
-                    if (!option.disabled) setActiveIndex(index);
-                  }}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => selectOption(option)}
-                >
-                  <span className="miaixz-select-option-label">{option.label}</span>
-                  {selected && <Icon name="Check" size="control" />}
-                </div>
-              );
-            })}
+          <div {...listboxProps}>
+            {renderSelectEntries(
+              items,
+              valueState.value,
+              activeId,
+              optionIdPrefix,
+              readOnly,
+              ownerState,
+              props,
+              themeClasses,
+              setActiveId,
+              choose,
+            )}
           </div>,
           portalTarget,
         )}
     </span>
   );
 });
-
-/**
- * Normalizes every native select value shape into a single string.
- *
- * @param value - Native controlled or default select value.
- * @returns Normalized single string value.
- */
-function normalizeSelectValue(value: SelectProps["value"] | SelectProps["defaultValue"]): string {
-  if (Array.isArray(value)) return value.length > 0 ? String(value[0]) : "";
-  return value === undefined || value === null ? "" : String(value);
-}
-
-/**
- * Extracts a flat option model from native option and optgroup children.
- *
- * @param children - Native select child nodes.
- * @returns Ordered flat options for the Miaixz listbox.
- */
-function collectMiaixzSelectOptions(children: ReactNode): MiaixzSelectOption[] {
-  const options: MiaixzSelectOption[] = [];
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child)) return;
-    if (child.type === "option") {
-      const option = child as ReactElement<OptionHTMLAttributes<HTMLOptionElement>>;
-      const label = option.props.label ?? getTextContent(option.props.children);
-      options.push({
-        value: option.props.value === undefined ? label : String(option.props.value),
-        label,
-        disabled: option.props.disabled === true,
-      });
-      return;
-    }
-    if (child.type === "optgroup") {
-      const group = child as ReactElement<MiaixzSelectOptionGroup>;
-      options.push(...collectMiaixzSelectOptions(group.props.children));
-    }
-  });
-  return options;
-}
-
-/**
- * Converts an option's renderable label content to its accessible text.
- *
- * @param node - Renderable option content.
- * @returns Flattened label text.
- */
-function getTextContent(node: ReactNode): string {
-  if (typeof node === "string" || typeof node === "number") return String(node);
-  return Children.toArray(node).map(getTextContent).join("");
-}
-
-/**
- * Finds the next enabled option while wrapping through the option set.
- *
- * @param options - Ordered option collection.
- * @param start - Candidate index used for the first lookup.
- * @param direction - Navigation direction.
- * @returns Enabled option index or `-1` when none is available.
- */
-function findEnabledOption(
-  options: readonly MiaixzSelectOption[],
-  start: number,
-  direction: 1 | -1,
-): number {
-  if (options.length === 0) return -1;
-  for (let offset = 0; offset < options.length; offset += 1) {
-    const index = (start + offset * direction + options.length) % options.length;
-    if (options[index]?.disabled === false) return index;
-  }
-  return -1;
-}

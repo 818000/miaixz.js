@@ -18,81 +18,49 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ReactNode } from "react";
-import type { ToastTone } from "../toast/index.js";
-
-/**
- * Configures a notification submitted to the toaster. @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed toaster slots are self-describing.
  */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+import type { ToastAction, ToastCloseReason, ToastTone } from "../toast/toast.types.js";
+
 export interface ToastOptions {
-  /**
-   * Reuses a stable identifier or allows one to be generated.
-   */
-  id?: string;
-  /**
-   * Supplies the notification title.
-   */
-  title: ReactNode;
-  /**
-   * Supplies supporting notification content.
-   */
-  message?: ReactNode;
-  /**
-   * Displays an optional action.
-   */
-  action?: ReactNode;
-  /**
-   * Selects the semantic visual treatment.
-   */
-  tone?: ToastTone;
-  /**
-   * Sets the automatic dismissal delay in milliseconds.
-   */
-  duration?: number;
-  /**
-   * Provides the dismiss button's accessible label.
-   */
-  dismissLabel?: string;
+  readonly id?: string;
+  readonly title: ReactNode;
+  readonly message?: ReactNode;
+  readonly action?: ToastAction;
+  readonly tone?: ToastTone;
+  readonly duration?: number;
+  readonly dismissLabel?: string;
 }
-
-/**
- * Represents a toast with its assigned identifier. @public
- */
 export interface ToastRecord extends ToastOptions {
-  /**
-   * Stores the assigned toast identifier.
-   */
-  id: string;
+  readonly id: string;
 }
-
-/**
- * Configures the application toast queue. @public
- */
+export type ToasterSlot = "root" | "politeRegion" | "assertiveRegion";
+export interface ToasterOwnerState {
+  readonly visibleCount: number;
+  readonly queuedCount: number;
+  readonly maxVisible: number;
+}
+export interface ToasterSlotProps {
+  readonly root?: MiaixzSlotProps<
+    ToasterOwnerState,
+    HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>
+  >;
+  readonly politeRegion?: MiaixzSlotProps<ToasterOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly assertiveRegion?: MiaixzSlotProps<ToasterOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
 export interface ToasterProps {
-  /**
-   * Supplies the application subtree that can access the queue.
-   */
-  children: ReactNode;
-  /**
-   * Sets the default automatic dismissal delay in milliseconds.
-   */
-  defaultDuration?: number;
+  readonly children: ReactNode;
+  readonly defaultDuration?: number;
+  readonly maxVisible?: number;
+  readonly onClose?: (id: string, reason: ToastCloseReason) => void;
+  readonly slotProps?: ToasterSlotProps;
 }
-
-/**
- * Exposes imperative operations for the nearest toast queue. @public
- */
 export interface ToastContextValue {
-  /**
-   * Adds or replaces a notification and returns its identifier.
-   */
-  notify: (options: ToastOptions) => string;
-  /**
-   * Removes one notification by identifier.
-   */
-  dismiss: (id: string) => void;
-  /**
-   * Removes all queued notifications.
-   */
-  dismissAll: () => void;
+  readonly notify: (options: ToastOptions) => string;
+  readonly dismiss: (id: string) => void;
+  readonly dismissAll: () => void;
 }
+/* eslint-enable jsdoc/require-jsdoc
+ */

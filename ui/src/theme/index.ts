@@ -20,11 +20,13 @@
 
 export { Theme, resolveMiaixzColorMode } from "./theme.js";
 export { useTheme } from "./context.js";
+export type { ComponentTheme, ThemeComponents } from "./components.js";
 export { defineTheme } from "./define.js";
 export { parseTheme } from "./parse.js";
 export { createThemeScript } from "./script.js";
 export { createThemeStyles } from "./styles.js";
 export { MiaixzThemeError } from "./errors.js";
+export type { MiaixzThemeErrorCode } from "./error-types.js";
 export { miaixzTheme } from "./miaixz.js";
 export { neutralTheme } from "./neutral.js";
 export { contrastTheme } from "./contrast.js";
@@ -34,7 +36,6 @@ export type {
   ThemeProps,
   MiaixzThemeDefinition,
   MiaixzThemeDescriptor,
-  MiaixzThemeErrorCode,
   MiaixzThemeLoader,
   MiaixzThemeScriptOptions,
 } from "./types.js";

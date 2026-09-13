@@ -18,135 +18,65 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
+/* eslint-disable jsdoc/require-jsdoc -- Closed adaptive rail models and slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { NavigationEntry } from "./navigation.types.js";
 
-/**
- * Identifies the styleable regions of an application navigation rail.
- *
- * @public
- */
-export type NavigationRailSlot = "root" | "header" | "toggle" | "brand" | "body" | "utility";
-
-/**
- * Supplies classes for individual navigation rail regions.
- *
- * @public
- */
-export type NavigationRailClassNames = Partial<Readonly<Record<NavigationRailSlot, string>>>;
-
-/**
- * Selects the visual treatment of an application navigation rail.
- *
- * @public
- */
 export type NavigationRailVariant = "default" | "brand";
-
-/**
- * Selects how a navigation rail handles destinations that do not fit.
- *
- * @public
- */
-export type NavigationRailOverflowMode = "scroll" | "adaptive";
-
-/**
- * Adds stable identity and overflow policy to one rail destination.
- *
- * @public
- */
+export type NavigationRailDensity = "compact" | "standard" | "comfortable";
 export type NavigationRailItem = NavigationEntry & {
-  /**
-   * Stable identity used while destinations move in and out of overflow.
-   */
-  readonly id: string;
-  /**
-   * Keeps the destination in the rail whenever a usable row remains.
-   */
   readonly overflow?: "auto" | "never";
-  /**
-   * Keeps higher-priority destinations visible before lower-priority ones.
-   */
   readonly priority?: number;
 };
-
-/**
- * Describes one labeled group in an adaptive navigation rail.
- *
- * @public
- */
 export interface NavigationRailGroupModel {
-  /**
-   * Stable group identity.
-   */
   readonly id: string;
-  /**
-   * Group label revealed in expanded rails and overflow menus.
-   */
   readonly label: ReactNode;
-  /**
-   * Direct destinations belonging to this group.
-   */
   readonly items: readonly NavigationRailItem[];
-  /**
-   * Places persistent context-switching destinations next to rail utility content.
-   */
   readonly placement?: "start" | "end";
 }
-
-/**
- * Configures a single-level application navigation rail.
- *
- * @public
- */
-export interface NavigationRailProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Adds classes to the rail regions without depending on internal selectors.
-   */
-  readonly classNames?: NavigationRailClassNames;
-  /**
-   * Supplies the brand destination revealed beside the toggle when expanded.
-   */
-  readonly brand: ReactNode;
-  /**
-   * Supplies the control that expands or collapses the rail.
-   */
-  readonly toggle: ReactNode;
-  /**
-   * Supplies the direct, single-level navigation content.
-   */
-  readonly navigation?: ReactNode;
-  /**
-   * Supplies structured destinations for adaptive overflow handling.
-   * When present, this replaces `navigation`.
-   */
-  readonly groups?: readonly NavigationRailGroupModel[];
-  /**
-   * Selects legacy scrolling or height-aware overflow collection.
-   * Structured `groups` default to adaptive mode; opaque `navigation` defaults to scrolling.
-   *
-   * @defaultValue `"adaptive"` for `groups`, otherwise `"scroll"`
-   */
-  readonly overflowMode?: NavigationRailOverflowMode;
-  /**
-   * Labels the disclosure that contains destinations which do not fit.
-   */
-  readonly overflowLabel?: string;
-  /**
-   * Reveals the brand and navigation labels without adding another menu level.
-   *
-   * @defaultValue `false`
-   */
-  readonly expanded?: boolean;
-  /**
-   * Selects the rail's visual treatment.
-   *
-   * @defaultValue `"default"`
-   */
-  readonly variant?: NavigationRailVariant;
-  /**
-   * Supplies optional account or utility actions at the bottom of the rail.
-   * The utility stays in the compact icon column when the rail expands.
-   */
-  readonly utility?: ReactNode;
+export type NavigationRailSlot =
+  "root" | "header" | "toggle" | "brand" | "body" | "groups" | "utility" | "overflow";
+export interface NavigationRailOwnerState {
+  readonly expanded: boolean;
+  readonly variant: NavigationRailVariant;
+  readonly density: NavigationRailDensity;
+  readonly measured: boolean;
 }
+export type NavigationRailRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & {
+    readonly "data-expanded"?: boolean;
+    readonly "data-variant"?: NavigationRailVariant;
+    readonly "data-density"?: NavigationRailDensity;
+    readonly "data-measured"?: boolean;
+  };
+export type NavigationRailOverflowAttributes = HTMLAttributes<HTMLDivElement> & {
+  readonly "data-measuring"?: boolean;
+};
+export interface NavigationRailSlotProps {
+  readonly root?: MiaixzSlotProps<NavigationRailOwnerState, NavigationRailRootAttributes>;
+  readonly header?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly toggle?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly brand?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly body?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly groups?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly utility?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly overflow?: MiaixzSlotProps<NavigationRailOwnerState, NavigationRailOverflowAttributes>;
+}
+export interface MiaixzNavigationRailOwnProps {
+  readonly brand: ReactNode;
+  readonly toggle: ReactNode;
+  readonly groups: readonly NavigationRailGroupModel[];
+  readonly overflowLabel?: string;
+  readonly expanded?: boolean;
+  readonly variant?: NavigationRailVariant;
+  readonly density?: NavigationRailDensity;
+  readonly utility?: ReactNode;
+  readonly slotProps?: NavigationRailSlotProps;
+}
+/*
+ * Configures one adaptive application navigation rail. @public
+ */
+export type NavigationRailProps = MiaixzNavigationRailOwnProps &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzNavigationRailOwnProps | "children">;

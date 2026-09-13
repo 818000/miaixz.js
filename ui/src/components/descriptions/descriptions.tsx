@@ -18,58 +18,90 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { Fragment, forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import type { DescriptionsProps } from "./types.js";
-
-/**
- * Renders a semantic, divided list of facts with bounded column and density options.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Descriptions contracts are defined by the component type module.
  */
-export const Descriptions = forwardRef<HTMLDListElement, DescriptionsProps>(function Descriptions(
-  {
-    items,
-    children,
-    className,
-    columns = 1,
-    density = "default",
-    variant = "default",
-    valueSize = "default",
-    ...props
-  },
-  ref,
-) {
-  return (
-    <dl
-      {...props}
-      ref={ref}
-      data-columns={columns}
-      data-density={density}
-      className={classNames(
-        "miaixz-descriptions",
-        `miaixz-descriptions-${variant}`,
-        density === "compact" && "miaixz-descriptions-compact",
-        valueSize === "compact" && "miaixz-descriptions-value-compact",
-        className,
-      )}
-    >
-      {items === undefined
-        ? children
-        : items.map((item, index) =>
-            variant === "matrix" ? (
-              <Fragment key={item.id ?? index}>
-                <dt>{item.label}</dt>
-                <dd>{item.value}</dd>
-              </Fragment>
-            ) : (
-              <div key={item.id ?? index}>
-                <dt>{item.label}</dt>
-                <dd>{item.value}</dd>
-              </div>
-            ),
-          )}
-    </dl>
-  );
-});
+import { forwardRef } from "react";
+
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { DescriptionsOwnerState, DescriptionsProps } from "./descriptions.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Renders one invariant semantic definition-list structure. @public
+ */
+export const Descriptions = withMiaixzThemeComponent(
+  "Descriptions",
+  forwardRef<HTMLDListElement, DescriptionsProps>(function Descriptions(
+    { items, layout = "grid", columns = 1, density = "standard", slotProps, ...props },
+    ref,
+  ) {
+    const ids = new Set<string>();
+    for (const item of items) {
+      if (ids.has(item.id)) {
+        throw new MiaixzUiError({
+          code: "UI_COLLECTION_DUPLICATE_ID",
+          details: { id: item.id },
+        });
+      }
+      ids.add(item.id);
+    }
+    const rootState: DescriptionsOwnerState = {
+      layout,
+      columns,
+      density,
+      itemId: undefined,
+    };
+    return (
+      <dl
+        {...mergeMiaixzSlotProps({
+          ownerState: rootState,
+          defaultProps: { className: "miaixz-descriptions" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-layout": layout,
+            "data-columns": columns,
+            "data-density": density,
+          },
+          ownedProps: ["data-layout", "data-columns", "data-density"],
+        })}
+      >
+        {items.map((item) => {
+          const ownerState: DescriptionsOwnerState = { layout, columns, density, itemId: item.id };
+          return (
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-descriptions-item" },
+                slotProps: slotProps?.item,
+              })}
+              key={item.id}
+            >
+              <dt
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-descriptions-term" },
+                  slotProps: slotProps?.term,
+                })}
+              >
+                {item.label}
+              </dt>
+              <dd
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-descriptions-definition" },
+                  slotProps: slotProps?.definition,
+                })}
+              >
+                {item.value}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    );
+  }),
+);

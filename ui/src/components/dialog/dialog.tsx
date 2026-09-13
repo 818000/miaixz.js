@@ -18,116 +18,340 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useId, useRef } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Internal helpers have narrow local contracts.
+ */
+
+import {
+  createElement,
+  forwardRef,
+  useId,
+  useLayoutEffect,
+  useRef,
+  type DialogHTMLAttributes,
+  type MouseEvent,
+} from "react";
 import { createPortal } from "react-dom";
 
 import { FocusScope } from "../../accessibility/focus-scope.js";
-import { classNames } from "../../shared/class-names.js";
-import { useMiaixzNativeModal, useMiaixzPortalTarget } from "../../shared/overlay/index.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { IconButton } from "../action/index.js";
-import type { DialogProps } from "./dialog.types.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { useMiaixzNativeModal } from "../../shared/overlay/native-modal.js";
+import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
+import { useMiaixzThemeComponent } from "../../theme/context.js";
+import { Icon } from "../icon/icon.js";
+import type {
+  DialogCloseReason,
+  DialogOwnerState,
+  DialogProps,
+  DialogRootAttributes,
+  DialogSlot,
+  DialogSlotProps,
+} from "./dialog.types.js";
 
-/**
- * Controls a native modal dialog with localized dismissal and focus-safe lifecycle.
- *
- * @public
+const focusableSelector = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled]):not([type='hidden'])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[contenteditable='true']",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+/*
+ * Removes component-owned fields before root native properties are merged.
  */
-export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog(
-  {
-    open,
-    onOpenChange,
-    title,
-    description,
-    footer,
-    size = "medium",
-    closeLabel,
-    showClose = true,
-    closeOnBackdrop = true,
-    className,
-    children,
-    onCancel,
-    onClose,
-    onClick,
-    ...props
-  },
-  forwardedRef,
-) {
-  const { t } = useMiaixzLocale();
-  const resolvedCloseLabel = closeLabel ?? t("ui.dialog.close");
-  const internalRef = useRef<HTMLDialogElement>(null);
-  const ref = useMergedRef(internalRef, forwardedRef);
-  const titleId = `miaixz-dialog-title-${useId()}`;
-  const generatedDescriptionId = `miaixz-dialog-description-${useId()}`;
-  const descriptionId = description ? generatedDescriptionId : undefined;
-  const portalTarget = useMiaixzPortalTarget();
-  const restoreFocusRef = useMiaixzNativeModal(internalRef, open, portalTarget, () =>
-    onOpenChange(false),
-  );
+function getDialogNativeProps(props: Partial<DialogProps>): Partial<DialogRootAttributes> {
+  const {
+    open: _open,
+    onOpenChange: _onOpenChange,
+    title: _title,
+    description: _description,
+    children: _children,
+    footer: _footer,
+    headingLevel: _headingLevel,
+    size: _size,
+    scroll: _scroll,
+    showClose: _showClose,
+    closeOnBackdrop: _closeOnBackdrop,
+    closeLabel: _closeLabel,
+    initialFocusRef: _initialFocusRef,
+    slots: _slots,
+    slotProps: _slotProps,
+    ...nativeProps
+  } = props;
+  return nativeProps;
+}
 
-  if (portalTarget === null) return null;
-  return createPortal(
-    <FocusScope active={open} containerRef={internalRef} restoreFocusRef={restoreFocusRef}>
-      <dialog
-        {...props}
-        ref={ref}
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        className={classNames(
-          "miaixz-dialog",
-          size !== "medium" && `miaixz-dialog-${size}`,
-          className,
-        )}
-        onCancel={(event) => {
-          onCancel?.(event);
-          if (!event.defaultPrevented) {
-            event.preventDefault();
-            onOpenChange(false);
+/*
+ * Returns whether an element is an eligible explicit modal focus target.
+ */
+function isEligibleInitialFocus(element: HTMLElement, paper: HTMLElement): boolean {
+  return (
+    element.isConnected &&
+    paper.contains(element) &&
+    !element.hasAttribute("disabled") &&
+    element.closest("[inert]") === null &&
+    element.matches(focusableSelector)
+  );
+}
+
+/*
+ * Resolves Theme default slot props against the same effective owner state.
+ */
+function resolveThemeSlotProps<Key extends keyof DialogSlotProps>(
+  slotProps: DialogSlotProps | undefined,
+  key: Key,
+  ownerState: DialogOwnerState,
+): Exclude<DialogSlotProps[Key], Function> | undefined {
+  const value = slotProps?.[key];
+  return (typeof value === "function" ? value(ownerState) : value) as
+    Exclude<DialogSlotProps[Key], Function> | undefined;
+}
+
+/*
+ * Renders a controlled native modal dialog with a single focus and dismissal model.
+ */
+export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
+  function Dialog(props, forwardedRef) {
+    const theme = useMiaixzThemeComponent("Dialog");
+    const defaults = theme?.defaultProps;
+    const open = props.open;
+    const title = props.title ?? defaults?.title;
+    const description = props.description ?? defaults?.description;
+    const children = props.children ?? defaults?.children;
+    const footer = props.footer ?? defaults?.footer;
+    const headingLevel = props.headingLevel ?? defaults?.headingLevel ?? 2;
+    const size = props.size ?? defaults?.size ?? "medium";
+    const scroll = props.scroll ?? defaults?.scroll ?? "paper";
+    const showClose = props.showClose ?? defaults?.showClose ?? true;
+    const closeOnBackdrop = props.closeOnBackdrop ?? defaults?.closeOnBackdrop ?? true;
+    const onOpenChange = props.onOpenChange ?? defaults?.onOpenChange;
+    const { t } = useMiaixzLocale();
+    const closeLabel = props.closeLabel ?? defaults?.closeLabel ?? t("ui.dialog.close");
+    const initialFocusRef = props.initialFocusRef ?? defaults?.initialFocusRef;
+    const slots = props.slots ?? defaults?.slots;
+    const slotProps = props.slotProps;
+    const themeSlotProps = defaults?.slotProps;
+    const ownerState: DialogOwnerState = { size, scroll, open, showClose };
+    const themeClasses = (slot: DialogSlot) =>
+      getMiaixzThemeSlotClassNames(theme, ownerState, slot);
+    const dialogRef = useRef<HTMLDialogElement>(null);
+    const paperRef = useRef<HTMLDivElement>(null);
+    const closeButtonRef = useRef<HTMLButtonElement>(null);
+    const resolvedInitialFocusRef = useRef<HTMLElement>(null);
+    const titleId = useId();
+    const descriptionId = useId();
+    const portalTarget = useMiaixzPortalTarget();
+
+    const requestClose = (reason: DialogCloseReason): void => onOpenChange(false, reason);
+    const restoreFocusRef = useMiaixzNativeModal(dialogRef, open, portalTarget);
+
+    useLayoutEffect(() => {
+      if (!open) return;
+      const paper = paperRef.current;
+      if (paper === null) return;
+      const requested = initialFocusRef?.current;
+      if (
+        requested !== null &&
+        requested !== undefined &&
+        isEligibleInitialFocus(requested, paper)
+      ) {
+        resolvedInitialFocusRef.current = requested;
+        return;
+      }
+      const closeButton = closeButtonRef.current;
+      if (closeButton !== null && isEligibleInitialFocus(closeButton, paper)) {
+        resolvedInitialFocusRef.current = closeButton;
+        return;
+      }
+      resolvedInitialFocusRef.current =
+        paper.querySelector<HTMLElement>(focusableSelector) ?? paper;
+    }, [initialFocusRef, open, showClose]);
+
+    const rootProps = mergeMiaixzSlotProps<
+      DialogOwnerState,
+      DialogRootAttributes,
+      HTMLDialogElement
+    >({
+      ownerState,
+      defaultProps: { className: "miaixz-dialog" },
+      componentProps: getDialogNativeProps(props),
+      themeClassNames: themeClasses("root"),
+      themeDefaultProps: {
+        ...getDialogNativeProps(defaults ?? {}),
+        ...resolveThemeSlotProps(themeSlotProps, "root", ownerState),
+      },
+      slotProps: slotProps?.root,
+      internalRef: dialogRef,
+      forwardedRef,
+      internalProps: {
+        "aria-labelledby": titleId,
+        ...(description === undefined ? {} : { "aria-describedby": descriptionId }),
+        "data-size": size,
+        "data-scroll": scroll,
+        onCancel: (event) => {
+          event.preventDefault();
+          requestClose("escape");
+        },
+        onClose: () => {
+          if (props.open) requestClose("nativeClose");
+        },
+        onClick: (event) => {
+          if (
+            closeOnBackdrop &&
+            event.target === event.currentTarget &&
+            isBackdropPoint(event, event.currentTarget)
+          ) {
+            requestClose("backdrop");
           }
-        }}
-        onClose={(event) => {
-          onClose?.(event);
-          if (open) onOpenChange(false);
-        }}
-        onClick={(event) => {
-          onClick?.(event);
-          if (!event.defaultPrevented && closeOnBackdrop && event.target === event.currentTarget) {
-            onOpenChange(false);
-          }
-        }}
+        },
+      },
+      ownedProps: ["aria-labelledby", "aria-describedby", "data-size", "data-scroll"],
+    });
+    const paperProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-dialog-paper" },
+      themeDefaultProps: resolveThemeSlotProps(themeSlotProps, "paper", ownerState),
+      themeClassNames: themeClasses("paper"),
+      slotProps: slotProps?.paper,
+      internalRef: paperRef,
+      internalProps: { tabIndex: -1 },
+      ownedProps: ["tabIndex"],
+    });
+    const Description = slots?.description ?? "div";
+
+    if (portalTarget === null) return null;
+    return createPortal(
+      <FocusScope
+        active={open}
+        containerRef={dialogRef}
+        initialFocusRef={resolvedInitialFocusRef}
+        restoreFocusRef={restoreFocusRef}
       >
-        <header className="miaixz-dialog-header">
-          <div>
-            <h2 id={titleId} className="miaixz-dialog-title">
-              {title}
-            </h2>
-            {description !== undefined && (
-              <p id={descriptionId} className="miaixz-dialog-description">
-                {description}
-              </p>
+        <dialog
+          {...rootProps}
+          onCancel={(event) => {
+            rootProps.onCancel?.(event);
+            event.stopPropagation();
+          }}
+          onClose={(event) => {
+            rootProps.onClose?.(event);
+            event.stopPropagation();
+          }}
+        >
+          <div {...paperProps}>
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-dialog-header" },
+                themeDefaultProps: resolveThemeSlotProps(themeSlotProps, "header", ownerState),
+                themeClassNames: themeClasses("header"),
+                slotProps: slotProps?.header,
+              })}
+            >
+              <div className="miaixz-dialog-heading">
+                {createElement(
+                  `h${headingLevel}`,
+                  mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-dialog-title" },
+                    themeDefaultProps: resolveThemeSlotProps(themeSlotProps, "title", ownerState),
+                    themeClassNames: themeClasses("title"),
+                    slotProps: slotProps?.title,
+                    internalProps: { id: titleId },
+                    ownedProps: ["id"],
+                  }),
+                  title,
+                )}
+                {description !== undefined && (
+                  <Description
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: { className: "miaixz-dialog-description" },
+                      themeDefaultProps: resolveThemeSlotProps(
+                        themeSlotProps,
+                        "description",
+                        ownerState,
+                      ),
+                      themeClassNames: themeClasses("description"),
+                      slotProps: slotProps?.description,
+                      internalProps: { id: descriptionId },
+                      ownedProps: ["id"],
+                    })}
+                  >
+                    {description}
+                  </Description>
+                )}
+              </div>
+              {showClose && (
+                <button
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-dialog-close" },
+                    themeDefaultProps: resolveThemeSlotProps(
+                      themeSlotProps,
+                      "closeButton",
+                      ownerState,
+                    ),
+                    themeClassNames: themeClasses("closeButton"),
+                    slotProps: slotProps?.closeButton,
+                    internalRef: closeButtonRef,
+                    internalProps: {
+                      type: "button",
+                      "aria-label": closeLabel,
+                      onClick: () => requestClose("closeButton"),
+                    },
+                    ownedProps: ["type", "aria-label"],
+                  })}
+                >
+                  <Icon name="X" size="control" />
+                </button>
+              )}
+            </div>
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-dialog-body" },
+                themeDefaultProps: resolveThemeSlotProps(themeSlotProps, "content", ownerState),
+                themeClassNames: themeClasses("content"),
+                slotProps: slotProps?.content,
+              })}
+            >
+              {children}
+            </div>
+            {footer !== undefined && (
+              <div
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-dialog-footer" },
+                  themeDefaultProps: resolveThemeSlotProps(themeSlotProps, "actions", ownerState),
+                  themeClassNames: themeClasses("actions"),
+                  slotProps: slotProps?.actions,
+                })}
+              >
+                {footer}
+              </div>
             )}
           </div>
-          {showClose && (
-            <IconButton
-              action={{
-                id: "close-dialog",
-                intent: "close",
-                label: resolvedCloseLabel,
-                icon: "X",
-                tone: "neutral",
-                size: "compact",
-                confirm: "none",
-                placement: "icon",
-                onAction: () => onOpenChange(false),
-              }}
-            />
-          )}
-        </header>
-        <div className="miaixz-dialog-body">{children}</div>
-        {footer !== undefined && <footer className="miaixz-dialog-footer">{footer}</footer>}
-      </dialog>
-    </FocusScope>,
-    portalTarget,
+        </dialog>
+      </FocusScope>,
+      portalTarget,
+    );
+  },
+);
+
+/*
+ * Distinguishes the rendered paper from the native dialog backdrop hit area.
+ */
+function isBackdropPoint(event: MouseEvent<HTMLDialogElement>, dialog: HTMLDialogElement): boolean {
+  const paper = dialog.firstElementChild?.getBoundingClientRect();
+  return (
+    paper === undefined ||
+    event.clientX < paper.left ||
+    event.clientX > paper.right ||
+    event.clientY < paper.top ||
+    event.clientY > paper.bottom
   );
-});
+}

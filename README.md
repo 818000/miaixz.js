@@ -37,7 +37,7 @@ npm install @miaixz/sdk
 Install the design system and its peers:
 
 ```bash
-npm install @miaixz/ui @miaixz/sdk react react-dom lucide-react
+npm install @miaixz/ui @miaixz/sdk react react-dom
 ```
 
 Both packages are ESM-only and do not expose CommonJS `require` entry points.
@@ -67,7 +67,7 @@ console.log(response.data);
 Use the shared React components and styles:
 
 ```tsx
-import "@miaixz/ui/themes.css";
+import "@miaixz/ui/styles.css";
 import { Button, Field, Input, Theme } from "@miaixz/ui";
 
 import { sdk } from "./sdk.js";
@@ -88,10 +88,14 @@ export function CreateSpaceForm() {
 
 Choose one public CSS entry at the application root:
 
-- `@miaixz/ui/miaixz.css`, `neutral.css`, or `contrast.css` for one built-in theme.
-- `@miaixz/ui/themes.css` for all three built-in themes.
-- `@miaixz/ui/core.css` when themes are supplied as registered definitions or loaded data.
-- `@miaixz/ui/styles.css` as the compatibility alias for `miaixz.css`.
+- `@miaixz/ui/styles.css` for the default Miaixz theme with all foundation and component styles.
+- `@miaixz/ui/theme.css` for all built-in themes.
+- `@miaixz/ui/neutral.css` or `@miaixz/ui/contrast.css` for one alternative built-in theme.
+- `@miaixz/ui/foundation.css`, `@miaixz/ui/components.css`, `@miaixz/ui/core.css`, and `@miaixz/ui/reset.css` for explicitly layered integrations.
+
+For selective delivery, load the chosen theme/foundation entry and then each DOM module's sole
+`@miaixz/ui/<subpath>/styles.css` entry. For example, Button uses
+`@miaixz/ui/button/styles.css` and Graph uses `@miaixz/ui/diagram/graph/styles.css`.
 
 The SDK persists `theme`, `colorMode`, `density`, and mode-specific color overrides. The UI
 `Theme` component validates and applies them atomically. Applications own their page root background
@@ -101,7 +105,9 @@ through the public Page Surface variables; the library intentionally does not se
 See the package documentation for authentication modes, API envelopes, service clients, permissions, cross-tab events, appearance synchronization, internationalization, component contracts, and microfrontend integration:
 
 - [SDK documentation](./sdk/README.md)
+- [SDK changelog](./sdk/CHANGELOG.md) and [migration guide](./sdk/MIGRATION.md)
 - [UI documentation](./ui/README.md)
+- [UI changelog](./ui/CHANGELOG.md) and [migration guide](./ui/MIGRATION.md)
 
 ## Repository layout
 
@@ -118,10 +124,10 @@ The workspace root is private and is never published. Only `@miaixz/sdk` and `@m
 
 ## Development
 
-Install dependencies without creating a lockfile:
+Install dependencies and update the committed root lockfile:
 
 ```bash
-npm install --no-package-lock
+npm install
 ```
 
 Run the standard repository checks:
@@ -136,24 +142,24 @@ Build every workspace:
 npm run build
 ```
 
-Validate the exact package contents and public type surface before release:
+Run an individual package validation phase only while diagnosing a failure:
 
 ```bash
-npm run pack:check
+npm run check:package
 ```
 
 Additional root commands:
 
-| Command                | Purpose                                              |
-| ---------------------- | ---------------------------------------------------- |
-| `npm run build:sdk`    | Build the SDK before dependent workspace operations. |
-| `npm run typecheck`    | Build the SDK and type-check all workspaces.         |
-| `npm run lint`         | Run workspace linters.                               |
-| `npm run lint:fix`     | Apply supported lint fixes.                          |
-| `npm run format`       | Format workspace source files.                       |
-| `npm run format:check` | Verify formatting without modifying files.           |
-| `npm run check`        | Run the complete workspace validation suite.         |
-| `npm run pack:check`   | Build and inspect both publishable packages.         |
+| Command                 | Purpose                                                |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run build`         | Build SDK then UI exactly once.                        |
+| `npm run typecheck`     | Type-check both workspaces without building.           |
+| `npm run lint`          | Run workspace linters.                                 |
+| `npm run lint:fix`      | Apply supported lint fixes.                            |
+| `npm run format`        | Format workspace source files.                         |
+| `npm run format:check`  | Verify formatting without modifying files.             |
+| `npm run check`         | Run static, browser, package, and clean-tree checks.   |
+| `npm run check:package` | Diagnose packed package and consumer fixture failures. |
 
 ## Version management
 

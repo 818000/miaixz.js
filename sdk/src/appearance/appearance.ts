@@ -18,10 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzSdkError } from "../api/errors.js";
-import type { MiaixzEventBus, MiaixzSdkEventMap } from "../events/index.js";
-import { translateMiaixzDefaultMessage } from "../i18n/default-translator.js";
-import type { MiaixzTranslator } from "../i18n/index.js";
+import { MiaixzSdkError } from "../errors/errors.js";
+import type { MiaixzEventBusPort, MiaixzSdkEventMap } from "../events/event-types.js";
 import {
   createMiaixzStorageKey,
   getMiaixzBrowserStorage,
@@ -29,19 +27,16 @@ import {
   type MiaixzKeyValueStorage,
   type MiaixzStorageMigration,
   type MiaixzStorageScope,
-} from "../storage/index.js";
+} from "../storage/storage.js";
 import type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
   MiaixzColorMode,
   MiaixzDensity,
   MiaixzThemeOverrides,
-} from "../types/index.js";
+} from "../types/appearance.js";
 import { miaixzAppearanceMigrationV1ToV2 } from "./migration.js";
-import {
-  miaixzDefaultAppearance,
-  parseMiaixzAppearanceSettingsWithTranslator,
-} from "./validation.js";
+import { miaixzDefaultAppearance, parseMiaixzAppearanceSettings } from "./validation.js";
 
 /**
  * Identifies the current Appearance persistence and event schema.
@@ -84,12 +79,7 @@ export interface MiaixzAppearanceManagerOptions {
   /**
    * Supplies an optional event bus for local or cross-context synchronization.
    */
-  readonly events?: MiaixzEventBus<MiaixzSdkEventMap>;
-
-  /**
-   * Supplies the translator used for Appearance failures.
-   */
-  readonly translate?: MiaixzTranslator;
+  readonly events?: MiaixzEventBusPort<MiaixzSdkEventMap>;
 }
 
 /**
@@ -101,8 +91,7 @@ export class MiaixzAppearanceManager {
   readonly #appId: string;
   readonly #storage: MiaixzKeyValueStorage | undefined;
   readonly #migrations: readonly MiaixzStorageMigration[];
-  readonly #events: MiaixzEventBus<MiaixzSdkEventMap> | undefined;
-  readonly #translate: MiaixzTranslator;
+  readonly #events: MiaixzEventBusPort<MiaixzSdkEventMap> | undefined;
   readonly #listeners = new Set<(appearance: Readonly<MiaixzAppearanceSettings>) => void>();
   #tenantId: string | undefined;
   #appearance: MiaixzAppearanceSettings;
@@ -125,7 +114,6 @@ export class MiaixzAppearanceManager {
       miaixzAppearanceMigrationV1ToV2,
     ]);
     this.#events = options.events;
-    this.#translate = options.translate ?? translateMiaixzDefaultMessage;
 
     const scope = this.#createScope(this.#tenantId);
     this.#validateStorageConfiguration(scope);
@@ -133,7 +121,7 @@ export class MiaixzAppearanceManager {
     this.#appearance =
       options.initialAppearance === undefined
         ? (persisted ?? miaixzDefaultAppearance)
-        : parseMiaixzAppearanceSettingsWithTranslator(options.initialAppearance, this.#translate);
+        : parseMiaixzAppearanceSettings(options.initialAppearance);
     this.#stopEventListener = this.#events?.on("appearance:changed", (payload) => {
       if (this.#publishingEvent) return;
       try {
@@ -163,7 +151,7 @@ export class MiaixzAppearanceManager {
    * @throws MiaixzSdkError When validation or persistence fails.
    */
   set(appearance: MiaixzAppearanceSettings): void {
-    this.#commit(parseMiaixzAppearanceSettingsWithTranslator(appearance, this.#translate), true);
+    this.#commit(parseMiaixzAppearanceSettings(appearance), true);
   }
 
   /**
@@ -303,7 +291,7 @@ export class MiaixzAppearanceManager {
       kind: "appearance",
       schemaVersion: miaixzAppearanceSchemaVersion,
       migrations: this.#migrations,
-      parse: (value) => parseMiaixzAppearanceSettingsWithTranslator(value, this.#translate),
+      parse: parseMiaixzAppearanceSettings,
     });
   }
 
@@ -320,7 +308,7 @@ export class MiaixzAppearanceManager {
       kind: "appearance",
       schemaVersion: miaixzAppearanceSchemaVersion,
       migrations: this.#migrations,
-      parse: (value) => parseMiaixzAppearanceSettingsWithTranslator(value, this.#translate),
+      parse: parseMiaixzAppearanceSettings,
     });
   }
 
@@ -343,7 +331,7 @@ export class MiaixzAppearanceManager {
       return undefined;
     }
     try {
-      return parseMiaixzAppearanceSettingsWithTranslator(record.value, this.#translate);
+      return parseMiaixzAppearanceSettings(record.value);
     } catch {
       return undefined;
     }
@@ -393,7 +381,7 @@ export class MiaixzAppearanceManager {
       };
       this.#storage.setItem(key, JSON.stringify(payload));
     } catch (cause) {
-      throw new MiaixzSdkError(this.#translate("sdk.error.appearance.invalid"), {
+      throw new MiaixzSdkError({
         code: "APPEARANCE_PERSIST_FAILED",
         cause,
       });

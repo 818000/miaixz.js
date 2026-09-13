@@ -18,22 +18,54 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Brand contracts are defined by the component type module.
+ */
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import type { BrandProps } from "./brand.types.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { BrandOwnerState, BrandProps } from "./brand.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Displays a configured platform name on the same baseline as its logo. @public
+const ownerState: BrandOwnerState = {};
+
+/*
+ * Displays a platform name and optional logo without owning navigation. @public
  */
-export const Brand = forwardRef<HTMLSpanElement, BrandProps>(function Brand(
-  { name, logo, className, title = name, ...props },
-  ref,
-) {
-  return (
-    <span {...props} ref={ref} title={title} className={classNames("miaixz-brand", className)}>
-      {logo !== undefined && <span className="miaixz-brand-logo">{logo}</span>}
-      <span className="miaixz-brand-name">{name}</span>
-    </span>
-  );
-});
+export const Brand = withMiaixzThemeComponent(
+  "Brand",
+  forwardRef<HTMLSpanElement, BrandProps>(function Brand({ name, logo, slotProps, ...props }, ref) {
+    return (
+      <span
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-brand" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+        })}
+      >
+        {logo !== undefined && (
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-brand-logo" },
+              slotProps: slotProps?.logo,
+            })}
+          >
+            {logo}
+          </span>
+        )}
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-brand-name" },
+            slotProps: slotProps?.name,
+          })}
+        >
+          {name}
+        </span>
+      </span>
+    );
+  }),
+);

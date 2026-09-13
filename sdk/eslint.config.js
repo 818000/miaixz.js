@@ -129,6 +129,12 @@ const configuration = [
       ],
     },
   },
+  {
+    files: ["tests/**/*.ts"],
+    rules: {
+      "jsdoc/require-jsdoc": "off",
+    },
+  },
   prettier,
 ];
 

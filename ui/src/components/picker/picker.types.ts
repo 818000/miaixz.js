@@ -18,48 +18,71 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
-
-import type { ComboboxProps } from "../combobox/index.js";
-
-/**
- * Defines Miaixz-owned Picker properties before native div attributes are merged.
- *
- * @typeParam Value - Stable string value type selected by the control.
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed public models are self-describing native mappings.
  */
-export interface MiaixzPickerOwnProps<Value extends string = string> extends Omit<
-  ComboboxProps<Value>,
-  "value" | "defaultValue" | "onValueChange"
-> {
-  /**
-   * Controls the ordered selected-value collection.
-   */
-  value?: readonly Value[];
 
-  /**
-   * Sets the initial uncontrolled selected-value collection.
-   */
-  defaultValue?: readonly Value[];
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
-  /**
-   * Receives requested selected-value changes.
-   */
-  onValueChange?: (value: readonly Value[]) => void;
+import type {
+  ComboboxOwnerState,
+  ComboboxProps,
+  ComboboxSlotProps,
+  MiaixzComboboxInputState,
+  MiaixzOption,
+  MiaixzOptionSource,
+} from "../combobox/combobox.types.js";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-  /**
-   * Limits the number of simultaneously selected values.
-   */
-  selectionLimit?: number;
+export type PickerValueState<Value extends string = string> =
+  | {
+      readonly value: readonly MiaixzOption<Value>[];
+      readonly defaultValue?: never;
+      readonly onValueChange?: (value: readonly MiaixzOption<Value>[]) => void;
+    }
+  | {
+      readonly value?: never;
+      readonly defaultValue?: readonly MiaixzOption<Value>[];
+      readonly onValueChange?: (value: readonly MiaixzOption<Value>[]) => void;
+    };
+
+export interface PickerRenderValueState<Value extends string = string> {
+  readonly remove: (option: MiaixzOption<Value>) => void;
+  readonly disabled: boolean;
+  readonly readOnly: boolean;
 }
 
-/**
- * Configures a searchable multiple-value WAI-ARIA combobox.
- *
- * @typeParam Value - Stable string value type selected by the control.
- * @public
+export interface PickerSlotProps extends ComboboxSlotProps {
+  readonly values?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly value?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly valueLabel?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly remove?: MiaixzSlotProps<ComboboxOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly count?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLOutputElement>>;
+}
+
+export interface MiaixzPickerOwnProps<Value extends string = string> extends Omit<
+  ComboboxProps<Value>,
+  "value" | "defaultValue" | "onValueChange" | "slotProps"
+> {
+  readonly selectionLimit?: number;
+  readonly removeMessage?: string;
+  readonly searchMessage?: string;
+  readonly renderValue?: (
+    selected: readonly MiaixzOption<Value>[],
+    state: PickerRenderValueState<Value>,
+  ) => ReactNode;
+  readonly slotProps?: PickerSlotProps;
+}
+
+/*
+ * Configures a searchable multiple-selection picker.
  */
-export interface PickerProps<Value extends string = string>
-  extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzPickerOwnProps<Value>>,
-    MiaixzPickerOwnProps<Value> {}
+export type PickerProps<Value extends string = string> = MiaixzOptionSource<Value> &
+  PickerValueState<Value> &
+  MiaixzComboboxInputState &
+  Omit<
+    MiaixzPickerOwnProps<Value>,
+    keyof MiaixzOptionSource<Value> | keyof MiaixzComboboxInputState
+  >;
+
+/* eslint-enable jsdoc/require-jsdoc
+ */

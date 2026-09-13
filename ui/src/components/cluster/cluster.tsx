@@ -22,20 +22,24 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { ClusterProps } from "./cluster.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
  * Arranges wrapping inline content with controlled alignment and spacing. @public
  */
-export const Cluster = forwardRef<HTMLDivElement, ClusterProps>(function Cluster(
-  { justify = "start", gap = "default", className, ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      data-justify={justify}
-      className={classNames("miaixz-cluster", `miaixz-cluster-gap-${gap}`, className)}
-    />
-  );
-});
+export const Cluster = withMiaixzThemeComponent(
+  "Cluster",
+  forwardRef<HTMLDivElement, ClusterProps>(function Cluster(
+    { justify = "start", gap = "default", className, ...props },
+    ref,
+  ) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        data-justify={justify}
+        className={classNames("miaixz-cluster", `miaixz-cluster-gap-${gap}`, className)}
+      />
+    );
+  }),
+);

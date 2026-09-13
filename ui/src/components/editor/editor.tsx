@@ -18,275 +18,447 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Public editor contracts live in editor.types.
+ */
+import { createContext, createElement, forwardRef, useContext } from "react";
 
 import { classNames } from "../../shared/class-names.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Grid } from "../grid/grid.js";
+import { Panel } from "../panel/panel.js";
+import { Scroll } from "../scroll/scroll.js";
+import { Status } from "../status/status.js";
 import type {
-  EditorPart,
-  EditorFieldsProps,
   EditorActionsProps,
   EditorBoxProps,
+  EditorFieldsProps,
   EditorFieldsetProps,
-  EditorStatusProps,
+  EditorGroupOwnerState,
   EditorGroupProps,
+  EditorLayoutOwnerState,
   EditorLayoutProps,
+  EditorOverviewOwnerState,
   EditorOverviewProps,
   EditorPickerProps,
+  EditorSectionOwnerState,
   EditorSectionProps,
+  EditorStatusProps,
+  EditorSummaryOwnerState,
   EditorSummaryProps,
 } from "./editor.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Provides one shared native editor recipe without introducing content wrappers.
- *
- * @param part - Public editor part whose class recipe is required.
- * @param className - Optional consumer class appended to the recipe.
- * @returns A complete native editor class name.
- * @public
- */
-export function getEditorClassName(part: EditorPart, className?: string): string {
-  return classNames(`miaixz-editor-plain-${part}`, className);
-}
+const EditorSectionHeadingContext = createContext<1 | 2 | 3 | 4 | 5 | 6 | null>(null);
 
-/**
- * Renders an accessible compact group of fields.
- *
- * @public
- */
-export const EditorFieldset = forwardRef<HTMLFieldSetElement, EditorFieldsetProps>(
-  function EditorFieldset({ legend, emphasis = "default", className, children, ...props }, ref) {
+export const EditorFieldset = withMiaixzThemeComponent(
+  "EditorFieldset",
+  forwardRef<HTMLFieldSetElement, EditorFieldsetProps>(function EditorFieldset(
+    { legend, emphasis = "default", className, children, ...props },
+    ref,
+  ) {
     return (
       <fieldset
         {...props}
         ref={ref}
-        className={classNames(
-          "miaixz-editor-fieldset",
-          emphasis === "strong" && "miaixz-editor-fieldset-strong",
-          className,
-        )}
+        className={classNames("miaixz-editor-fieldset", className)}
+        data-emphasis={emphasis}
       >
         <legend>{legend}</legend>
         {children}
       </fieldset>
     );
-  },
+  }),
 );
 
-/**
- * Renders the status strip beneath editor content.
- *
- * @public
- */
-export const EditorStatus = forwardRef<HTMLElement, EditorStatusProps>(function EditorStatus(
-  { className, ...props },
-  ref,
-) {
-  return <footer {...props} ref={ref} className={classNames("miaixz-editor-status", className)} />;
-});
-
-/**
- * Creates a summary-and-form editor layout. @public
- */
-export const EditorLayout = forwardRef<HTMLDivElement, EditorLayoutProps>(function EditorLayout(
-  { summary, variant = "default", className, children, ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      className={classNames(
-        "miaixz-editor-layout",
-        variant === "divided" && "miaixz-editor-layout-divided",
-        className,
-      )}
-    >
-      {summary}
-      <div className="miaixz-editor-form">{children}</div>
-    </div>
-  );
-});
-
-/**
- * Renders the sticky identity summary for an editor. @public
- */
-export const EditorSummary = forwardRef<HTMLElement, EditorSummaryProps>(function EditorSummary(
-  { avatar, title, subtitle, status, items, footer, className, ...props },
-  ref,
-) {
-  return (
-    <aside {...props} ref={ref} className={classNames("miaixz-editor-summary", className)}>
-      <div className="miaixz-editor-summary-avatar">{avatar}</div>
-      <div className="miaixz-editor-summary-name">
-        <h3>{title}</h3>
-        <p>{subtitle}</p>
-        {status}
-      </div>
-      <dl>
-        {items.map((item, index) => (
-          <div key={index}>
-            <dt>{item.label}</dt>
-            <dd>{item.value}</dd>
-          </div>
-        ))}
-      </dl>
-      {footer !== undefined && <div className="miaixz-editor-summary-footer">{footer}</div>}
-    </aside>
-  );
-});
-
-/**
- * Renders a titled form section with a reusable field grid. @public
- */
-export const EditorSection = forwardRef<HTMLElement, EditorSectionProps>(function EditorSection(
-  {
-    title,
-    description,
-    accessory,
-    layout = "default",
-    variant = "default",
-    className,
-    children,
-    ...props
-  },
-  ref,
-) {
-  return (
-    <section
-      {...props}
-      ref={ref}
-      className={classNames(
-        variant === "default" ? "miaixz-editor-section" : `miaixz-editor-${variant}`,
-        className,
-      )}
-    >
-      <header>
-        <div>
-          <h3>{title}</h3>
-          {description !== undefined && <p>{description}</p>}
+export const EditorLayout = withMiaixzThemeComponent(
+  "EditorLayout",
+  forwardRef<HTMLDivElement, EditorLayoutProps>(function EditorLayout(
+    { summary, layout = "split", divided = false, slotProps, className, children, ...props },
+    ref,
+  ) {
+    const ownerState: EditorLayoutOwnerState = { layout, divided };
+    return (
+      <div
+        {...props}
+        ref={ref}
+        className={classNames("miaixz-editor-layout", className)}
+        data-layout={layout}
+        data-divided={divided || undefined}
+      >
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-layout-summary" },
+            slotProps: slotProps?.summary,
+          })}
+        >
+          {summary}
         </div>
-        {accessory}
-      </header>
-      {variant !== "default" ? (
-        children
-      ) : (
-        <div className={classNames("miaixz-editor-section-body", `miaixz-editor-${layout}`)}>
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-layout-content" },
+            slotProps: slotProps?.content,
+          })}
+        >
           {children}
         </div>
-      )}
-    </section>
-  );
-});
-
-/**
- * Groups fields without imposing business column counts.
- *
- * @public
- */
-export const EditorFields = forwardRef<HTMLDivElement, EditorFieldsProps>(function EditorFields(
-  { className, ...props },
-  ref,
-) {
-  return <div {...props} ref={ref} className={classNames("miaixz-editor-fields", className)} />;
-});
-
-/**
- * Groups footer actions without changing their order or wrapping.
- *
- * @public
- */
-export const EditorActions = forwardRef<HTMLDivElement, EditorActionsProps>(function EditorActions(
-  { className, ...props },
-  ref,
-) {
-  return <div {...props} ref={ref} className={classNames("miaixz-editor-actions", className)} />;
-});
-
-/**
- * Frames a control or short guidance text.
- *
- * @public
- */
-export const EditorBox = forwardRef<HTMLDivElement, EditorBoxProps>(function EditorBox(
-  { className, variant = "default", ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      className={classNames(
-        "miaixz-editor-box",
-        variant === "guidance" && "miaixz-editor-guidance",
-        className,
-      )}
-    />
-  );
-});
-
-/**
- * Renders one bordered association group. @public
- */
-export const EditorGroup = forwardRef<HTMLElement, EditorGroupProps>(function EditorGroup(
-  { title, description, accessory, className, children, ...props },
-  ref,
-) {
-  return (
-    <section {...props} ref={ref} className={classNames("miaixz-editor-group", className)}>
-      <header>
-        <div>
-          <h4>{title}</h4>
-          {description !== undefined && <p>{description}</p>}
-        </div>
-        {accessory}
-      </header>
-      <div className="miaixz-editor-group-options">{children}</div>
-    </section>
-  );
-});
-
-/**
- * Renders a compact set of editor headline values. @public
- */
-export const EditorOverview = forwardRef<HTMLDivElement, EditorOverviewProps>(
-  function EditorOverview({ items, className, variant = "default", ...props }, ref) {
-    if (variant === "detailed") {
-      return (
-        <div
-          {...props}
-          ref={ref}
-          className={classNames("miaixz-editor-overview-detailed", className)}
-        >
-          {items.map((item, index) => (
-            <article key={index}>
-              <span>{item.label}</span>
-              {item.value}
-              {item.description !== undefined && <small>{item.description}</small>}
-            </article>
-          ))}
-        </div>
-      );
-    }
-    return (
-      <div {...props} ref={ref} className={classNames("miaixz-editor-overview", className)}>
-        {items.map((item, index) => (
-          <div key={index}>
-            <span>{item.label}</span>
-            <strong>{item.value}</strong>
-            {item.description !== undefined && <small>{item.description}</small>}
-          </div>
-        ))}
       </div>
     );
-  },
+  }),
 );
 
-/**
- * Renders a bordered, scrollable option collection. @public
- */
-export const EditorPicker = forwardRef<HTMLDivElement, EditorPickerProps>(function EditorPicker(
-  { className, ...props },
-  ref,
-) {
-  return <div {...props} ref={ref} className={classNames("miaixz-editor-picker", className)} />;
-});
+export const EditorSummary = withMiaixzThemeComponent(
+  "EditorSummary",
+  forwardRef<HTMLElement, EditorSummaryProps>(function EditorSummary(
+    {
+      avatar,
+      title,
+      subtitle,
+      status,
+      items,
+      footer,
+      headingLevel = 3,
+      slotProps,
+      className,
+      ...props
+    },
+    ref,
+  ) {
+    const ownerState: EditorSummaryOwnerState = { headingLevel };
+    return (
+      <aside {...props} ref={ref} className={classNames("miaixz-editor-summary", className)}>
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-summary-avatar" },
+            slotProps: slotProps?.avatar,
+          })}
+        >
+          {avatar}
+        </div>
+        {createElement(
+          `h${headingLevel}`,
+          mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-summary-title" },
+            slotProps: slotProps?.title,
+          }),
+          title,
+        )}
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-summary-subtitle" },
+            slotProps: slotProps?.subtitle,
+          })}
+        >
+          {subtitle}
+        </div>
+        {status !== undefined && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-editor-summary-status" },
+              slotProps: slotProps?.status,
+            })}
+          >
+            {status}
+          </div>
+        )}
+        <dl
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-summary-facts" },
+            slotProps: slotProps?.facts,
+          })}
+        >
+          {items.map((item) => (
+            <div key={item.id}>
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+        {footer !== undefined && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-editor-summary-footer" },
+              slotProps: slotProps?.footer,
+            })}
+          >
+            {footer}
+          </div>
+        )}
+      </aside>
+    );
+  }),
+);
+
+export const EditorSection = withMiaixzThemeComponent(
+  "EditorSection",
+  forwardRef<HTMLElement, EditorSectionProps>(function EditorSection(
+    {
+      title,
+      description,
+      accessory,
+      headingLevel = 2,
+      surface = "plain",
+      layout = "single",
+      slotProps,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const ownerState: EditorSectionOwnerState = { surface, layout, headingLevel };
+    return (
+      <section
+        {...props}
+        ref={ref}
+        className={classNames("miaixz-editor-section", className)}
+        data-surface={surface}
+        data-layout={layout}
+      >
+        <header
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-section-header" },
+            slotProps: slotProps?.header,
+          })}
+        >
+          <div>
+            {createElement(`h${headingLevel}`, {}, title)}
+            {description !== undefined && (
+              <div
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-editor-section-description" },
+                  slotProps: slotProps?.description,
+                })}
+              >
+                {description}
+              </div>
+            )}
+          </div>
+          {accessory}
+        </header>
+        <EditorSectionHeadingContext.Provider value={headingLevel}>
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-editor-section-body" },
+              slotProps: slotProps?.body,
+            })}
+          >
+            {children}
+          </div>
+        </EditorSectionHeadingContext.Provider>
+      </section>
+    );
+  }),
+);
+
+export const EditorFields = withMiaixzThemeComponent(
+  "EditorFields",
+  forwardRef<HTMLDivElement, EditorFieldsProps>(function EditorFields(props, ref) {
+    return <Grid {...props} ref={ref} />;
+  }),
+);
+
+export const EditorActions = withMiaixzThemeComponent(
+  "EditorActions",
+  forwardRef<HTMLDivElement, EditorActionsProps>(function EditorActions(
+    { className, ...props },
+    ref,
+  ) {
+    return <div {...props} ref={ref} className={classNames("miaixz-editor-actions", className)} />;
+  }),
+);
+
+export const EditorBox = withMiaixzThemeComponent(
+  "EditorBox",
+  forwardRef<HTMLElement, EditorBoxProps>(function EditorBox({ className, ...props }, ref) {
+    return (
+      <Panel
+        {...props}
+        ref={ref}
+        as="div"
+        className={classNames("miaixz-editor-box", className)}
+        surface="filled"
+        frame="outlined"
+        density="compact"
+      />
+    );
+  }),
+);
+
+export const EditorGroup = withMiaixzThemeComponent(
+  "EditorGroup",
+  forwardRef<HTMLElement, EditorGroupProps>(function EditorGroup(
+    {
+      title,
+      description,
+      accessory,
+      headingLevel: explicitLevel,
+      slotProps,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const sectionLevel = useContext(EditorSectionHeadingContext);
+    const headingLevel =
+      explicitLevel ?? (sectionLevel === null ? 3 : Math.min(6, sectionLevel + 1));
+    const ownerState: EditorGroupOwnerState = {
+      headingLevel: headingLevel as 1 | 2 | 3 | 4 | 5 | 6,
+    };
+    return (
+      <section {...props} ref={ref} className={classNames("miaixz-editor-group", className)}>
+        <header
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-group-header" },
+            slotProps: slotProps?.header,
+          })}
+        >
+          <div>
+            {createElement(`h${ownerState.headingLevel}`, {}, title)}
+            {description !== undefined && (
+              <div
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-editor-group-description" },
+                  slotProps: slotProps?.description,
+                })}
+              >
+                {description}
+              </div>
+            )}
+          </div>
+          {accessory}
+        </header>
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-editor-group-options" },
+            slotProps: slotProps?.options,
+          })}
+        >
+          {children}
+        </div>
+      </section>
+    );
+  }),
+);
+
+export const EditorOverview = withMiaixzThemeComponent(
+  "EditorOverview",
+  forwardRef<HTMLDivElement, EditorOverviewProps>(function EditorOverview(
+    { items, density = "compact", slotProps, className, ...props },
+    ref,
+  ) {
+    const rootState: EditorOverviewOwnerState = { density, itemId: undefined };
+    return (
+      <div
+        {...props}
+        ref={ref}
+        className={classNames("miaixz-editor-overview", className)}
+        data-density={density}
+      >
+        {items.map((item) => {
+          const ownerState = { ...rootState, itemId: item.id };
+          return (
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-editor-overview-item" },
+                slotProps: slotProps?.item,
+              })}
+              key={item.id}
+            >
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-editor-overview-label" },
+                  slotProps: slotProps?.label,
+                })}
+              >
+                {item.label}
+              </span>
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-editor-overview-value" },
+                  slotProps: slotProps?.value,
+                })}
+              >
+                {item.value}
+              </span>
+              {item.description !== undefined && (
+                <div
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-editor-overview-description" },
+                    slotProps: slotProps?.description,
+                  })}
+                >
+                  {item.description}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }),
+);
+
+export const EditorPicker = withMiaixzThemeComponent(
+  "EditorPicker",
+  forwardRef<HTMLElement, EditorPickerProps>(function EditorPicker(
+    { children, className, "aria-label": ariaLabel, "aria-labelledby": ariaLabelledBy, ...props },
+    ref,
+  ) {
+    return (
+      <Panel
+        {...props}
+        ref={ref}
+        as="div"
+        className={classNames("miaixz-editor-picker", className)}
+        surface="plain"
+        frame="outlined"
+        density="compact"
+      >
+        <Scroll
+          focusable="auto"
+          {...(ariaLabel === undefined
+            ? { "aria-labelledby": ariaLabelledBy! }
+            : { "aria-label": ariaLabel })}
+          className="miaixz-editor-picker-scroll"
+        >
+          {children}
+        </Scroll>
+      </Panel>
+    );
+  }),
+);
+
+export const EditorStatus = withMiaixzThemeComponent(
+  "EditorStatus",
+  forwardRef<HTMLDivElement, EditorStatusProps>(function EditorStatus(
+    { tone, label, className, children, ...props },
+    ref,
+  ) {
+    return (
+      <div {...props} ref={ref} className={classNames("miaixz-editor-status", className)}>
+        <Status tone={tone} label={label}>
+          {children}
+        </Status>
+      </div>
+    );
+  }),
+);

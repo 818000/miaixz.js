@@ -1,98 +1,71 @@
-import { readFileSync } from "node:fs";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ */
+
+import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { List } from "../src/components/list/index.js";
 
-describe.each(["overview", "alert"] as const)(
-  "%s list effects without row navigation",
-  (variant) => {
-    afterEach(cleanup);
-    it("keeps only the supplied title interactive, not descriptions or outer icons", () => {
-      const navigate = vi.fn();
-      const { container } = render(
-        <List
-          variant={variant}
-          items={[
-            {
-              tone: "brand",
-              content: (
-                <span>
-                  <i>Icon</i>
-                  <strong>
-                    <a href="#title" onClick={navigate}>
-                      Title
-                    </a>
-                    <em>Category</em>
-                  </strong>
-                  <small>Description</small>
-                  <time>10:24</time>
-                </span>
-              ),
-            },
-          ]}
-        />,
-      );
-      const row = screen.getByRole("listitem");
-      expect(row.querySelectorAll("a")).toHaveLength(1);
-      expect(row.hasAttribute("tabindex")).toBe(false);
-      expect(container.querySelector(".miaixz-list-item-control")).toBeNull();
-      for (const label of ["Icon", "Category", "Description", "10:24"]) {
-        fireEvent.mouseEnter(screen.getByText(label));
-        fireEvent.click(screen.getByText(label));
-        expect(screen.getByText(label).closest("a, button")).toBeNull();
-      }
-      expect(navigate).not.toHaveBeenCalled();
-      fireEvent.click(screen.getByRole("link", { name: "Title" }));
-      expect(navigate).toHaveBeenCalledOnce();
-    });
+afterEach(cleanup);
 
-    it("retains disabled static rows and existing full-row links", () => {
-      const { container } = render(
-        <List
-          variant={variant}
-          items={[
-            { disabled: true, content: <span>Unavailable</span> },
-            { href: "#existing", content: <span>Existing</span> },
-          ]}
-        />,
-      );
-      const rows = screen.getAllByRole("listitem");
-      expect(rows[0]?.getAttribute("aria-disabled")).toBe("true");
-      expect(rows[0]?.querySelector("a, button, [tabindex]")).toBeNull();
-      expect(container.querySelectorAll(".miaixz-list-item-control")).toHaveLength(1);
-      expect(screen.getByRole("link", { name: "Existing" }).getAttribute("href")).toBe("#existing");
-    });
+describe("List", () => {
+  it("renders static, navigation and command rows from one item model", () => {
+    const onAction = vi.fn();
+    const { container } = render(
+      <List
+        bordered
+        dividers
+        items={[
+          { id: "static", kind: "static", title: "静态", description: "说明" },
+          { id: "link", kind: "navigation", title: "文档", href: "/docs" },
+          { id: "command", kind: "command", title: "刷新", onAction },
+        ]}
+        surface="panel"
+      />,
+    );
 
-    it("shares the original effects and excludes disabled surfaces", () => {
-      const css = readFileSync("src/styles/components/list.css", "utf8");
-      expect(css).toContain(
-        `.miaixz-list-${variant} .miaixz-list-item:not(.miaixz-list-item-interactive) > :only-child`,
-      );
-      expect(css).toContain(
-        `.miaixz-list-${variant}\n  .miaixz-list-item:not(.miaixz-list-item-interactive, [aria-disabled="true"])\n  > :only-child:is(:hover, :has(:focus-visible))`,
-      );
-      expect(css).toContain(
-        '.miaixz-list-item:not(.miaixz-list-item-interactive, [aria-disabled="true"])',
-      );
-      expect(css).toContain("> :only-child:is(:hover, :has(:focus-visible))");
-      expect(css).toContain("background: var(--miaixz-list-interaction-background)");
-      expect(css).toContain("box-shadow: inset 2px 0 0 var(--miaixz-list-tone)");
-      expect(css).toContain("transform: translateX(3px)");
-      expect(css).toContain(
-        "transition-duration: var(--miaixz-list-composition-interaction-duration)",
-      );
-    });
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
+    expect(screen.getByRole("link", { name: "文档" })).toHaveAttribute("href", "/docs");
+    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(onAction).toHaveBeenCalledOnce();
+    expect(container.querySelector(".miaixz-list")).toHaveAttribute("data-bordered", "true");
+  });
 
-    it("opts into an item-tone-derived interaction surface", () => {
-      render(<List variant={variant} interactionSurface="tone" items={[]} />);
-      expect(screen.getByRole("list").classList.contains("miaixz-list-interaction-tone")).toBe(
-        true,
-      );
+  it("owns disabled command semantics without making static rows interactive", () => {
+    render(
+      <List
+        items={[
+          { id: "static", kind: "static", content: <strong>只读</strong> },
+          {
+            id: "disabled",
+            kind: "command",
+            title: "不可用",
+            disabled: true,
+            onAction: () => undefined,
+          },
+        ]}
+      />,
+    );
 
-      const css = readFileSync("src/styles/components/list.css", "utf8");
-      expect(css).toContain(".miaixz-list-interaction-tone > .miaixz-list-item");
-      expect(css).toContain("var(--miaixz-list-tone) 8%");
-    });
-  },
-);
+    expect(screen.queryByRole("button", { name: "只读" })).toBeNull();
+    expect(screen.getByRole("button", { name: "不可用" })).toBeDisabled();
+  });
+});

@@ -18,588 +18,272 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- Closed upload presentation records are self-describing.
+ */
 
-import { createMiaixzUiError, type MiaixzUiError } from "../../errors/index.js";
-import { classNames } from "../../shared/class-names.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { RowActions, type ActionDescriptor } from "../action/index.js";
-import { Dropzone } from "../dropzone/index.js";
-import { Icon } from "../icon/index.js";
-import { Progress } from "../progress/index.js";
-import type { UploadProps, MiaixzUploadContext } from "./upload.types.js";
+import { forwardRef, useMemo, useState, type ReactElement } from "react";
 
-const miaixzUploadConcurrency = 3;
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { UploadFileRecord } from "../../shared/upload/types.js";
+import { useUploadQueue } from "../../shared/upload/use-upload-queue.js";
+import { IconButton } from "../action/icon-button.js";
+import { Confirm } from "../confirm/confirm.js";
+import { Dropzone, getDropzoneFileSignature, validateDropzoneFiles } from "../dropzone/dropzone.js";
+import { type DropzoneRejection } from "../dropzone/dropzone.types.js";
+import { Icon } from "../icon/icon.js";
+import { Progress } from "../progress/progress.js";
+import type { UploadOwnerState, UploadProps } from "./upload.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+const defaultRetryPolicy = Object.freeze({ maxRetries: 0, delayMs: 0 });
 
 /**
- * Defines the complete internal upload state machine.
+ * Renders the file-selection surface and the sole upload queue presentation.
  */
-type MiaixzUploadStatus = "queued" | "uploading" | "success" | "error" | "cancelled";
-
-/**
- * Stores one accepted file and its request-independent presentation state.
- */
-interface MiaixzUploadItem {
-  /**
-   * Identifies this selection occurrence within one component instance.
-   */
-  readonly id: string;
-
-  /**
-   * Retains the original browser File object across cancellation and retry.
-   */
-  readonly file: File;
-
-  /**
-   * Indicates the current upload lifecycle state.
-   */
-  readonly status: MiaixzUploadStatus;
-
-  /**
-   * Contains the most recently accepted progress percentage.
-   */
-  readonly progress: number;
-
-  /**
-   * Prevents duplicate completion callbacks for one accepted item.
-   */
-  readonly completed: boolean;
-}
-
-/**
- * Represents one recognized runtime accept rule.
- */
-interface MiaixzAcceptRule {
-  /**
-   * Identifies the extension, exact MIME, or MIME family matcher.
-   */
-  readonly kind: "extension" | "mime" | "mime-family";
-
-  /**
-   * Contains the normalized comparison value.
-   */
-  readonly value: string;
-}
-
-/**
- * Parses recognized HTML accept segments while leaving unknown segments to the browser.
- *
- * @param accept - Comma-separated native accept expression.
- * @returns Runtime rules used for deterministic drag-and-drop validation.
- */
-function parseMiaixzAcceptRules(accept: string | undefined): readonly MiaixzAcceptRule[] {
-  if (accept === undefined) return [];
-  const rules: MiaixzAcceptRule[] = [];
-  for (const rawSegment of accept.split(",")) {
-    const segment = rawSegment.trim().toLowerCase();
-    if (/^\.[^./,\s]+$/.test(segment)) {
-      rules.push({ kind: "extension", value: segment });
-    } else if (/^[a-z0-9!#$&^_.+-]+\/\*$/.test(segment)) {
-      rules.push({ kind: "mime-family", value: segment.slice(0, -1) });
-    } else if (/^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/.test(segment)) {
-      rules.push({ kind: "mime", value: segment });
-    }
-  }
-  return Object.freeze(rules);
-}
-
-/**
- * Reports whether one file matches at least one recognized runtime accept rule.
- *
- * @param file - Browser File selected through input or drag-and-drop.
- * @param rules - Parsed recognized accept rules.
- * @returns Whether the file is accepted, including permissive behavior when no rule is recognized.
- */
-function isMiaixzFileAccepted(file: File, rules: readonly MiaixzAcceptRule[]): boolean {
-  if (rules.length === 0) return true;
-  const fileName = file.name.toLowerCase();
-  const mimeType = file.type.toLowerCase();
-  return rules.some((rule) => {
-    if (rule.kind === "extension") return fileName.endsWith(rule.value);
-    if (rule.kind === "mime-family") return mimeType.startsWith(rule.value);
-    return mimeType === rule.value;
-  });
-}
-
-/**
- * Resolves and validates the frozen maximum-file contract.
- *
- * @param multiple - Whether multiple files are permitted.
- * @param maxFiles - Optional consumer-supplied maximum.
- * @param createError - Localized UI error factory.
- * @returns Effective maximum number of retained files.
- */
-function resolveMiaixzMaximumFiles(
-  multiple: boolean,
-  maxFiles: number | undefined,
-  createError: (details: Readonly<Record<string, unknown>>) => MiaixzUiError,
-): number {
-  if (!multiple) {
-    if (maxFiles !== undefined && maxFiles !== 1) throw createError({ maxFiles, multiple });
-    return 1;
-  }
-  const resolved = maxFiles ?? 10;
-  if (!Number.isInteger(resolved) || resolved <= 0)
-    throw createError({ maxFiles: resolved, multiple });
-  return resolved;
-}
-
-/**
- * Maps an upload state to its frozen built-in translation key.
- *
- * @param status - Current upload lifecycle state.
- * @returns Built-in UI message key for the visible and announced status.
- */
-function getMiaixzUploadStatusKey(status: MiaixzUploadStatus): string {
-  return `ui.upload.${status}`;
-}
-
-/**
- * Maps an upload state to a frozen Lucide icon name.
- *
- * @param status - Current upload lifecycle state.
- * @returns Registered icon representing the state without relying on color alone.
- */
-function getMiaixzUploadStatusIcon(
-  status: MiaixzUploadStatus,
-): "File" | "LoaderCircle" | "CircleCheck" | "CircleAlert" | "X" {
-  if (status === "uploading") return "LoaderCircle";
-  if (status === "success") return "CircleCheck";
-  if (status === "error") return "CircleAlert";
-  if (status === "cancelled") return "X";
-  return "File";
-}
-
-/**
- * Renders validated uploads with FIFO scheduling and consumer-owned requests.
- *
- * @public
- */
-export const Upload = forwardRef<HTMLDivElement, UploadProps>(function Upload(
-  {
-    accept,
-    multiple = false,
-    maxFiles,
-    maxSizeBytes,
-    disabled = false,
-    label,
-    dropLabel,
-    browseLabel,
-    upload,
-    onFilesChange,
-    onComplete,
-    onError,
-    className,
-    ...props
-  },
-  ref,
-): ReactElement {
-  const { t } = useMiaixzLocale();
-  const [items, setItems] = useState<readonly MiaixzUploadItem[]>([]);
-  const [validationMessages, setValidationMessages] = useState<readonly string[]>([]);
-  const itemsRef = useRef(items);
-  const nextIdRef = useRef(0);
-  const mountedRef = useRef(true);
-  const activeIdsRef = useRef(new Set<string>());
-  const controllersRef = useRef(new Map<string, AbortController>());
-  const acceptRules = parseMiaixzAcceptRules(accept);
-
-  /**
-   * Creates the frozen invalid maximum-file error with sanitized details.
-   *
-   * @param details - Non-sensitive configuration values that caused the failure.
-   * @returns Localized UI contract error.
-   */
-  function createMaximumFilesError(details: Readonly<Record<string, unknown>>): MiaixzUiError {
-    return createMiaixzUiError(t, {
-      code: "UI_FILE_MAX_FILES_INVALID",
-      messageKey: "ui.error.file.maxFilesInvalid",
-      details,
+export const Upload = withMiaixzThemeComponent(
+  "Upload",
+  forwardRef<HTMLDivElement, UploadProps>(function Upload(props, ref): ReactElement {
+    const {
+      accept,
+      multiple = false,
+      maxFiles,
+      maxSizeBytes,
+      disabled = false,
+      label,
+      dropLabel,
+      browseLabel,
+      upload,
+      files,
+      defaultFiles,
+      onFilesChange,
+      onComplete,
+      onError,
+      concurrency = 3,
+      retryPolicy = defaultRetryPolicy,
+      removePolicy = "confirm",
+      getRemoveConfirmation,
+      slotProps,
+      ...rootNativeProps
+    } = props;
+    const { t } = useMiaixzLocale();
+    const queue = useUploadQueue({
+      ...(files === undefined ? {} : { files }),
+      ...(defaultFiles === undefined ? {} : { defaultFiles }),
+      ...(onFilesChange === undefined ? {} : { onFilesChange }),
+      upload,
+      onComplete,
+      onError,
+      concurrency,
+      retryPolicy,
     });
-  }
-
-  const resolvedMaximumFiles = resolveMiaixzMaximumFiles(
-    multiple,
-    maxFiles,
-    createMaximumFilesError,
-  );
-  if (maxSizeBytes !== undefined && (!Number.isInteger(maxSizeBytes) || maxSizeBytes <= 0)) {
-    throw createMiaixzUiError(t, {
-      code: "UI_FILE_MAX_SIZE_INVALID",
-      messageKey: "ui.error.file.maxSizeInvalid",
-      details: { maxSizeBytes },
-    });
-  }
-
-  /**
-   * Commits an immutable item list and optionally publishes its File objects.
-   *
-   * @param nextItems - Complete replacement item list.
-   * @param notify - Whether the frozen onFilesChange condition was met.
-   */
-  const replaceItems = useCallback(
-    (nextItems: readonly MiaixzUploadItem[], notify: boolean): void => {
-      const frozenItems = Object.freeze([...nextItems]);
-      itemsRef.current = frozenItems;
-      setItems(frozenItems);
-      if (notify) onFilesChange?.(Object.freeze(frozenItems.map((item) => item.file)));
-    },
-    [onFilesChange],
-  );
-
-  /**
-   * Replaces one item by ID while preserving the current list order.
-   *
-   * @param id - Internal accepted-item identifier.
-   * @param update - Pure item transformation.
-   * @param notify - Whether to publish the unchanged or changed File list.
-   */
-  const updateItem = useCallback(
-    (
-      id: string,
-      update: (item: Readonly<MiaixzUploadItem>) => MiaixzUploadItem,
-      notify = false,
-    ): void => {
-      replaceItems(
-        itemsRef.current.map((item) => (item.id === id ? update(item) : item)),
-        notify,
-      );
-    },
-    [replaceItems],
-  );
-
-  /**
-   * Runs one upload attempt and settles only the matching active item.
-   *
-   * @param item - Queued item captured when its FIFO slot became available.
-   */
-  const runUpload = useCallback(
-    async (item: Readonly<MiaixzUploadItem>): Promise<void> => {
-      const controller = new AbortController();
-      controllersRef.current.set(item.id, controller);
-      let invalidProgressError: MiaixzUiError | undefined;
-
-      /**
-       * Validates and commits one upload progress report.
-       *
-       * @param value - Consumer-reported upload percentage.
-       */
-      function reportProgress(value: number): void {
-        if (!Number.isFinite(value) || value < 0 || value > 100) {
-          invalidProgressError = createMiaixzUiError(t, {
-            code: "UI_UPLOAD_PROGRESS_INVALID",
-            messageKey: "ui.error.upload.progressInvalid",
-            details: { value },
-          });
-          throw invalidProgressError;
-        }
-        if (!mountedRef.current || controller.signal.aborted) return;
-        updateItem(item.id, (current) =>
-          current.status === "uploading" ? { ...current, progress: value } : current,
-        );
-      }
-
-      const context: MiaixzUploadContext = Object.freeze({
-        signal: controller.signal,
-        reportProgress,
-      });
-      let shouldComplete = false;
-      try {
-        await upload(item.file, context);
-        if (invalidProgressError !== undefined) throw invalidProgressError;
-        if (!mountedRef.current || controller.signal.aborted) return;
-        const current = itemsRef.current.find((candidate) => candidate.id === item.id);
-        if (current?.status !== "uploading") return;
-        updateItem(item.id, (candidate) => ({
-          ...candidate,
-          status: "success",
-          progress: 100,
-          completed: true,
-        }));
-        shouldComplete = !current.completed;
-      } catch (error) {
-        if (!mountedRef.current || controller.signal.aborted) return;
-        const current = itemsRef.current.find((candidate) => candidate.id === item.id);
-        if (current?.status !== "uploading") return;
-        const resolvedError = invalidProgressError ?? error;
-        updateItem(item.id, (candidate) => ({ ...candidate, status: "error" }));
-        onError?.(item.file, resolvedError);
-      } finally {
-        if (controllersRef.current.get(item.id) === controller) {
-          controllersRef.current.delete(item.id);
-          activeIdsRef.current.delete(item.id);
-        }
-      }
-      if (shouldComplete && mountedRef.current) onComplete?.(item.file);
-    },
-    [onComplete, onError, t, updateItem, upload],
-  );
-
-  useEffect(() => {
-    const availableSlots = miaixzUploadConcurrency - activeIdsRef.current.size;
-    if (availableSlots <= 0) return;
-    const queuedItems = itemsRef.current
-      .filter((item) => item.status === "queued" && !activeIdsRef.current.has(item.id))
-      .slice(0, availableSlots);
-    if (queuedItems.length === 0) return;
-    for (const item of queuedItems) activeIdsRef.current.add(item.id);
-    const queuedIds = new Set(queuedItems.map((item) => item.id));
-    replaceItems(
-      itemsRef.current.map((item) =>
-        queuedIds.has(item.id) ? { ...item, status: "uploading" } : item,
-      ),
-      false,
-    );
-    for (const item of queuedItems) void runUpload(item).catch(() => undefined);
-  }, [items, replaceItems, runUpload]);
-
-  useEffect(() => {
-    const controllers = controllersRef.current;
-    const activeIds = activeIdsRef.current;
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-      for (const controller of controllers.values()) controller.abort();
-      controllers.clear();
-      activeIds.clear();
+    const [validationErrors, setValidationErrors] = useState<readonly MiaixzUiError[]>([]);
+    const [pendingRemoval, setPendingRemoval] = useState<UploadFileRecord>();
+    const effectiveMaxFiles = multiple ? (maxFiles ?? 10) : 1;
+    const ownerState: UploadOwnerState = {
+      disabled,
+      fileCount: queue.files.length,
+      hasError: validationErrors.length > 0,
     };
-  }, []);
+    const rootProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-upload" },
+      componentProps: rootNativeProps,
+      slotProps: slotProps?.root,
+      forwardedRef: ref,
+      internalProps: { ...(disabled ? { "data-disabled": true } : {}) },
+      ownedProps: ["data-disabled"],
+    });
+    const dropzoneProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-upload-dropzone" },
+      slotProps: slotProps?.dropzone,
+    });
+    const validationProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-upload-validation" },
+      slotProps: slotProps?.validation,
+      internalProps: { role: "alert" },
+      ownedProps: ["role"],
+    });
+    const listProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-upload-list" },
+      slotProps: slotProps?.list,
+    });
+    const itemProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-upload-item" },
+      slotProps: slotProps?.item,
+    });
+    const statusProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-upload-status" },
+      slotProps: slotProps?.status,
+    });
+    const actionsProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-upload-actions" },
+      slotProps: slotProps?.actions,
+    });
+    const signatures = useMemo(
+      () =>
+        new Set(
+          queue.files.map((record) =>
+            record.source.kind === "local"
+              ? getDropzoneFileSignature(record.source.file)
+              : `${record.name}\u0000${record.size}\u0000${record.lastModified ?? 0}`,
+          ),
+        ),
+      [queue.files],
+    );
 
-  /**
-   * Creates a localized validation error without retaining file names or content.
-   *
-   * @param code - Frozen file validation machine code.
-   * @param messageKey - Frozen built-in translation key.
-   * @param details - Safe size, MIME, or count diagnostics.
-   * @returns Localized and sanitized UI error.
-   */
-  function createValidationError(
-    code: "UI_FILE_TYPE_NOT_ACCEPTED" | "UI_FILE_TOO_LARGE" | "UI_FILE_COUNT_EXCEEDED",
-    messageKey:
-      "ui.error.file.typeNotAccepted" | "ui.error.file.tooLarge" | "ui.error.file.countExceeded",
-    details: Readonly<Record<string, unknown>>,
-  ): MiaixzUiError {
-    return createMiaixzUiError(t, { code, messageKey, details });
-  }
-
-  /**
-   * Validates one selection operation, accepts available files, and reports rejections.
-   *
-   * @param files - Files selected through the public Dropzone primitive.
-   */
-  function handleFiles(files: readonly File[]): void {
-    if (disabled) return;
-    const acceptedItems: MiaixzUploadItem[] = [];
-    const errors: MiaixzUiError[] = [];
-    for (const file of files) {
-      let error: MiaixzUiError | undefined;
-      if (!isMiaixzFileAccepted(file, acceptRules)) {
-        error = createValidationError(
-          "UI_FILE_TYPE_NOT_ACCEPTED",
-          "ui.error.file.typeNotAccepted",
-          { accept, mimeType: file.type },
-        );
-      } else if (maxSizeBytes !== undefined && file.size > maxSizeBytes) {
-        error = createValidationError("UI_FILE_TOO_LARGE", "ui.error.file.tooLarge", {
-          maxSizeBytes,
-          sizeBytes: file.size,
-        });
-      } else if (itemsRef.current.length + acceptedItems.length >= resolvedMaximumFiles) {
-        error = createValidationError("UI_FILE_COUNT_EXCEEDED", "ui.error.file.countExceeded", {
-          maxFiles: resolvedMaximumFiles,
-        });
+    const reportRejections = (rejections: readonly DropzoneRejection[]): void => {
+      const errors = rejections.map(createRejectionError);
+      setValidationErrors(Object.freeze(errors));
+      rejections.forEach((rejection, index) => onError(rejection.file, errors[index]));
+    };
+    const handleFiles = (selected: readonly File[]): void => {
+      const availableCount = Math.max(0, effectiveMaxFiles - queue.files.length);
+      if (availableCount === 0) {
+        reportRejections(selected.map((file) => ({ file, reason: "count" })));
+        return;
       }
-      if (error !== undefined) {
-        errors.push(error);
-        onError?.(file, error);
-        continue;
-      }
-      nextIdRef.current += 1;
-      acceptedItems.push({
-        id: `upload-${nextIdRef.current}`,
-        file,
-        status: "queued",
-        progress: 0,
-        completed: false,
-      });
-    }
-    setValidationMessages(Object.freeze([...new Set(errors.map((error) => error.message))]));
-    if (acceptedItems.length > 0) {
-      replaceItems([...itemsRef.current, ...acceptedItems], true);
-    }
-  }
+      const result = validateDropzoneFiles(
+        selected,
+        {
+          ...(accept === undefined ? {} : { accept }),
+          maxFiles: availableCount,
+          ...(maxSizeBytes === undefined ? {} : { maxSizeBytes }),
+        },
+        signatures,
+      );
+      setValidationErrors([]);
+      if (result.accepted.length > 0) queue.add(result.accepted);
+      if (result.rejections.length > 0) reportRejections(result.rejections);
+    };
+    const requestRemove = (record: UploadFileRecord): void => {
+      if (disabled) return;
+      if (removePolicy === "immediate") queue.remove(record.id);
+      else setPendingRemoval(record);
+    };
+    const confirmation =
+      pendingRemoval === undefined || getRemoveConfirmation === undefined
+        ? undefined
+        : getRemoveConfirmation(pendingRemoval);
 
-  /**
-   * Cancels one queued or active item while retaining its original File for retry.
-   *
-   * @param id - Internal accepted-item identifier.
-   */
-  function handleCancel(id: string): void {
-    if (disabled) return;
-    controllersRef.current.get(id)?.abort();
-    controllersRef.current.delete(id);
-    activeIdsRef.current.delete(id);
-    updateItem(
-      id,
-      (item) =>
-        item.status === "queued" || item.status === "uploading"
-          ? { ...item, status: "cancelled" }
-          : item,
-      true,
-    );
-  }
-
-  /**
-   * Returns one failed or cancelled item to the FIFO queue.
-   *
-   * @param id - Internal accepted-item identifier.
-   */
-  function handleRetry(id: string): void {
-    if (disabled) return;
-    setValidationMessages([]);
-    updateItem(
-      id,
-      (item) =>
-        item.status === "error" || item.status === "cancelled"
-          ? { ...item, status: "queued", progress: 0, completed: false }
-          : item,
-      true,
-    );
-  }
-
-  /**
-   * Removes one item and aborts any request still associated with it.
-   *
-   * @param id - Internal accepted-item identifier.
-   */
-  function handleRemove(id: string): void {
-    if (disabled) return;
-    controllersRef.current.get(id)?.abort();
-    controllersRef.current.delete(id);
-    activeIdsRef.current.delete(id);
-    replaceItems(
-      itemsRef.current.filter((item) => item.id !== id),
-      true,
-    );
-  }
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role="group"
-      aria-label={label}
-      data-disabled={disabled || undefined}
-      className={classNames("miaixz-upload", className)}
-    >
-      <span className="miaixz-upload-label">{label}</span>
-      <Dropzone
-        {...(accept === undefined ? {} : { accept })}
-        multiple={multiple}
-        disabled={disabled}
-        label={dropLabel}
-        onFiles={handleFiles}
-      >
-        <span className="miaixz-upload-drop-label">{dropLabel}</span>
-        <span className="miaixz-upload-browse-label">{browseLabel}</span>
-      </Dropzone>
-
-      {validationMessages.length > 0 && (
-        <div className="miaixz-upload-validation" role="alert">
-          <Icon name="CircleAlert" size="inline" />
-          <ul className="miaixz-upload-validation-list">
-            {validationMessages.map((message) => (
-              <li key={message}>{message}</li>
-            ))}
-          </ul>
+    return (
+      <div {...rootProps}>
+        <div {...dropzoneProps}>
+          <Dropzone
+            disabled={disabled}
+            label={label}
+            onFiles={handleFiles}
+            onReject={reportRejections}
+            {...(accept === undefined ? {} : { accept })}
+            {...(maxSizeBytes === undefined ? {} : { maxSizeBytes })}
+            {...(multiple ? { multiple: true as const, maxFiles: effectiveMaxFiles } : {})}
+          >
+            <span className="miaixz-upload-label">{dropLabel}</span>
+            <span className="miaixz-upload-browse-label">{browseLabel}</span>
+          </Dropzone>
         </div>
-      )}
-
-      {items.length > 0 && (
-        <ul className="miaixz-upload-list">
-          {items.map((item) => {
-            const statusLabel = t(getMiaixzUploadStatusKey(item.status));
-            return (
-              <li key={item.id} data-state={item.status} className="miaixz-upload-item">
+        {validationErrors.length > 0 ? (
+          <div {...validationProps}>
+            <Icon aria-hidden="true" name="CircleAlert" size="inline" />
+            <ul className="miaixz-upload-validation-list">
+              {[...new Set(validationErrors.map((error) => error.message))].map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {queue.files.length > 0 ? (
+          <ul {...listProps}>
+            {queue.files.map((record) => (
+              <li {...itemProps} key={record.id} data-state={record.status}>
                 <Icon
-                  name={getMiaixzUploadStatusIcon(item.status)}
-                  size="control"
+                  aria-hidden="true"
                   className="miaixz-upload-status-icon"
+                  name={getStatusIcon(record.status)}
+                  size="control"
                 />
                 <div className="miaixz-upload-details">
-                  <span className="miaixz-upload-name">{item.file.name}</span>
-                  <span className="miaixz-upload-status" role="status">
-                    {statusLabel}
-                  </span>
-                  {item.status === "uploading" && (
-                    <Progress
-                      value={item.progress}
-                      label={`${item.file.name}: ${statusLabel}`}
-                      showValue
-                    />
-                  )}
+                  <span className="miaixz-upload-name">{record.name}</span>
+                  <span {...statusProps}>{t(getStatusKey(record.status))}</span>
+                  {record.source.kind === "local" && record.status === "uploading" ? (
+                    <Progress label={t("ui.upload.uploading")} value={record.progress} />
+                  ) : null}
                 </div>
-                <div className="miaixz-upload-actions">
-                  <RowActions
-                    actions={[
-                      ...(item.status === "queued" || item.status === "uploading"
-                        ? [
-                            {
-                              id: `cancel-upload-${item.id}`,
-                              intent: "cancel",
-                              label: t("ui.action.cancel"),
-                              icon: "X",
-                              tone: "neutral",
-                              size: "compact",
-                              confirm: "none",
-                              placement: "visible",
-                              disabled,
-                              onAction: () => handleCancel(item.id),
-                            } satisfies ActionDescriptor,
-                          ]
-                        : []),
-                      ...(item.status === "error" || item.status === "cancelled"
-                        ? [
-                            {
-                              id: `retry-upload-${item.id}`,
-                              intent: "refresh",
-                              label: t("ui.action.retry"),
-                              icon: "RotateCcw",
-                              tone: "neutral",
-                              size: "compact",
-                              confirm: "none",
-                              placement: "visible",
-                              disabled,
-                              onAction: () => handleRetry(item.id),
-                            } satisfies ActionDescriptor,
-                          ]
-                        : []),
-                      ...(item.status === "success" ||
-                      item.status === "error" ||
-                      item.status === "cancelled"
-                        ? [
-                            {
-                              id: `remove-upload-${item.id}`,
-                              intent: "delete",
-                              label: t("ui.action.remove"),
-                              icon: "Trash2",
-                              tone: "danger",
-                              size: "compact",
-                              confirm: "danger",
-                              placement: "overflow",
-                              disabled,
-                              onAction: () => handleRemove(item.id),
-                            } satisfies ActionDescriptor,
-                          ]
-                        : []),
-                    ]}
+                <div {...actionsProps}>
+                  {record.source.kind === "local" && record.status === "failed" ? (
+                    <IconButton
+                      disabled={disabled}
+                      icon="RefreshCw"
+                      label={t("ui.action.retry")}
+                      onClick={() => queue.retry(record.id)}
+                      size="small"
+                    />
+                  ) : null}
+                  <IconButton
+                    disabled={disabled}
+                    icon="Trash2"
+                    label={t("ui.action.remove")}
+                    onClick={() => requestRemove(record)}
+                    size="small"
+                    tone="danger"
                   />
                 </div>
               </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
-});
+            ))}
+          </ul>
+        ) : null}
+        {confirmation !== undefined ? (
+          <Confirm
+            cancelLabel={confirmation.cancelLabel}
+            confirmLabel={confirmation.confirmLabel}
+            description={confirmation.description}
+            onConfirm={() => {
+              if (pendingRemoval !== undefined) queue.remove(pendingRemoval.id);
+            }}
+            onOpenChange={(open) => {
+              if (!open) setPendingRemoval(undefined);
+            }}
+            open
+            title={confirmation.title}
+            tone="danger"
+          />
+        ) : null}
+      </div>
+    );
+  }),
+);
+
+function createRejectionError(rejection: DropzoneRejection): MiaixzUiError {
+  if (rejection.reason === "type") {
+    return new MiaixzUiError({ code: "UI_FILE_TYPE_NOT_ACCEPTED" });
+  }
+  if (rejection.reason === "size") {
+    return new MiaixzUiError({ code: "UI_FILE_TOO_LARGE" });
+  }
+  if (rejection.reason === "count") {
+    return new MiaixzUiError({ code: "UI_FILE_COUNT_EXCEEDED" });
+  }
+  return new MiaixzUiError({ code: "UI_UPLOAD_DUPLICATE_FILE_ID" });
+}
+
+function getStatusKey(status: UploadFileRecord["status"]): string {
+  if (status === "succeeded") return "ui.upload.success";
+  if (status === "failed") return "ui.upload.error";
+  return `ui.upload.${status}`;
+}
+
+function getStatusIcon(
+  status: UploadFileRecord["status"],
+): "File" | "LoaderCircle" | "CircleCheck" | "CircleAlert" {
+  if (status === "uploading") return "LoaderCircle";
+  if (status === "succeeded") return "CircleCheck";
+  if (status === "failed") return "CircleAlert";
+  return "File";
+}

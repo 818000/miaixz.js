@@ -1,167 +1,128 @@
-import { readFileSync } from "node:fs";
-import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { useState } from "react";
-import { afterEach, describe, expect, it } from "vitest";
-
-import { ModuleFrame } from "../src/components/module-frame/index.js";
-import { Tabs } from "../src/components/tabs/index.js";
-
-/**
- * Renders the controlled route tabs used by ModuleFrame consumers.
- *
- * @returns A module frame with route-level navigation.
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  */
-function ModuleTabsFixture() {
-  const [value, setValue] = useState("overview");
-  return (
-    <ModuleFrame
-      aria-label="空间模块"
-      navigation={{
-        label: "空间导航",
-        value,
-        onValueChange: setValue,
-        items: [
-          { id: "overview", label: "概览" },
-          { id: "dataset", label: "数据集" },
-          { id: "disabled", label: "已禁用", disabled: true },
-        ],
-      }}
-      title="客户增长空间"
-    >
-      <p>模块业务内容</p>
-    </ModuleFrame>
-  );
-}
+
+import "@testing-library/jest-dom/vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { Tabs } from "../src/components/tabs/index.js";
 
 afterEach(cleanup);
 
+const items = [
+  { value: "details", label: "详情", content: <p>详情内容</p> },
+  { value: "source", label: "源码", content: <p>源码内容</p> },
+] as const;
+
 describe("Tabs", () => {
-  it("keeps density-aware spacing below navigation tabs unless explicitly removed", () => {
-    const css = readFileSync("src/styles/components/tabs.css", "utf8");
-    const panelRule = css.match(/\.miaixz-tab-panel\s*\{([^}]*)\}/u)?.[1];
-    const flushPanelRule = css.match(
-      /\.miaixz-tabs-panel-padding-none\s*>\s*\.miaixz-tab-panel\s*\{([^}]*)\}/u,
-    )?.[1];
+  it("renders one data-driven tablist and changes the uncontrolled value with the keyboard", () => {
+    render(<Tabs defaultValue="details" items={items} label="内容" activationMode="automatic" />);
+    const details = screen.getByRole("tab", { name: "详情" });
+    const source = screen.getByRole("tab", { name: "源码" });
 
-    expect(panelRule).toContain("padding-block-start: var(--miaixz-density-panel-padding)");
-    expect(flushPanelRule).toContain("padding-block-start: 0");
-    expect(css).not.toMatch(/\.miaixz-tabs-navigation\s*>\s*\.miaixz-tab-panel\s*\{[^}]*padding/u);
+    details.focus();
+    fireEvent.keyDown(details, { key: "ArrowRight" });
+
+    expect(source).toHaveFocus();
+    expect(source).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel", { name: "源码" })).toHaveTextContent("源码内容");
   });
 
-  it("preserves controlled navigation state and keyboard behavior inside ModuleFrame", async () => {
-    render(<ModuleTabsFixture />);
-    const tabs = screen.getAllByRole("tab");
-    expect(screen.getByRole("tablist", { name: "空间导航" })).toHaveAttribute(
-      "aria-orientation",
-      "horizontal",
+  it("reports controlled changes and rejects an unavailable explicit value", () => {
+    const onValueChange = vi.fn();
+    render(<Tabs items={items} label="内容" value="details" onValueChange={onValueChange} />);
+    fireEvent.click(screen.getByRole("tab", { name: "源码" }));
+    expect(onValueChange).toHaveBeenCalledWith("source");
+
+    expect(() => render(<Tabs items={items} label="无效" value="missing" />)).toThrowError(
+      expect.objectContaining({ code: "UI_TABS_VALUE_INVALID" }),
     );
-    expect(tabs).toHaveLength(3);
-    expect(screen.getByRole("tab", { name: "概览" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: "已禁用" })).toBeDisabled();
-    expect(screen.getByText("模块业务内容")).toBeVisible();
-
-    const user = userEvent.setup();
-    screen.getByRole("tab", { name: "概览" }).focus();
-    await user.keyboard("{ArrowRight}");
-    expect(screen.getByRole("tab", { name: "数据集" })).toHaveFocus();
-    expect(screen.getByRole("tab", { name: "数据集" })).toHaveAttribute("aria-selected", "true");
-    await user.keyboard("{ArrowRight}");
-    expect(screen.getByRole("tab", { name: "概览" })).toHaveFocus();
-    expect(screen.getByRole("tab", { name: "概览" })).toHaveAttribute("aria-selected", "true");
-
-    const css = readFileSync("src/styles/components/tabs.css", "utf8");
-    const selectedRule = css.match(
-      /\.miaixz-tabs-navigation[\s\S]*?\.miaixz-tab\[aria-selected="true"\]\s*\{([^}]*)\}/u,
-    )?.[1];
-    expect(selectedRule).toContain("color: var(--miaixz-color-brand)");
-    expect(selectedRule).toContain("background: transparent");
-    expect(selectedRule).not.toMatch(/#[0-9a-f]{3,8}|rgb\(/iu);
   });
 
-  it("keeps header actions outside the tablist and preserves tab panels", () => {
-    render(
+  it("covers vertical manual navigation, disabled tabs, counts, and slot owner state", () => {
+    const onValueChange = vi.fn();
+    const verticalItems = [
+      { value: "one", label: "One", content: "One content", count: 1, panelTabIndex: 0 },
+      { value: "disabled", label: "Disabled", content: "Disabled content", disabled: true },
+      { value: "three", label: "Three", content: "Three content", count: 3 },
+    ] as const;
+    const { container } = render(
       <Tabs
-        label="内容"
-        actions={<button type="button">搜索</button>}
-        items={[{ value: "a", label: "A", content: <p>内容 A</p> }]}
+        activationMode="manual"
+        items={verticalItems}
+        label="Vertical"
+        onValueChange={onValueChange}
+        orientation="vertical"
+        slotProps={{
+          root: { className: "tabs-root" },
+          list: { className: "tabs-list" },
+          tab: ({ selected }) => ({ className: selected ? "tab-selected" : "tab-idle" }),
+          label: { className: "tab-label" },
+          count: { className: "tab-count" },
+          panel: ({ selected }) => ({ className: selected ? "panel-selected" : "panel-idle" }),
+        }}
       />,
     );
-    const action = screen.getByRole("button", { name: "搜索" });
-    expect(action.closest(".miaixz-tabs-header")?.getAttribute("data-actions-placement")).toBe(
-      "end",
+    const one = screen.getByRole("tab", { name: "One1" });
+    const three = screen.getByRole("tab", { name: "Three3" });
+    expect(screen.getByRole("tab", { name: "Disabled" })).toBeDisabled();
+    expect(container.querySelector(".tabs-list")).toHaveAttribute("aria-orientation", "vertical");
+    one.focus();
+    fireEvent.keyDown(one, { key: "ArrowDown" });
+    expect(three).toHaveFocus();
+    expect(onValueChange).not.toHaveBeenCalled();
+    fireEvent.keyDown(three, { key: "Enter" });
+    expect(onValueChange).toHaveBeenCalledWith("three");
+    fireEvent.keyDown(three, { key: "Home" });
+    expect(one).toHaveFocus();
+    fireEvent.keyDown(one, { key: "End" });
+    expect(three).toHaveFocus();
+    fireEvent.keyDown(three, { key: "ArrowUp" });
+    expect(one).toHaveFocus();
+    fireEvent.keyDown(one, { key: "Unidentified" });
+    expect(one).toHaveFocus();
+    expect(container.querySelector('.miaixz-tab-panel[tabindex="0"]')).toHaveTextContent(
+      "One content",
     );
-    expect(action.closest('[role="tablist"]')).toBeNull();
-    expect(screen.getByRole("tabpanel", { name: "A" }).textContent).toBe("内容 A");
-
-    const css = readFileSync("src/styles/components/tabs.css", "utf8");
-    const headerListRule = css.match(
-      /(?:^|\n)\.miaixz-tabs-header\s*>\s*\.miaixz-tabs-list\s*\{([^}]*)\}/u,
-    )?.[1];
-    expect(headerListRule).toContain("align-self: stretch");
-    expect(headerListRule).toContain("border-bottom: 0");
-  });
-  it("supports adjacent actions without adding them to tab keyboard navigation", async () => {
-    render(
-      <Tabs
-        actionsPlacement="adjacent"
-        headerInset
-        label="编辑模式"
-        actions={<button type="button">版本对比</button>}
-        items={[
-          { value: "keys", label: "Key-Value", content: <p>键值内容</p> },
-          { value: "source", label: "源码", content: <p>源码内容</p> },
-        ]}
-      />,
-    );
-    const action = screen.getByRole("button", { name: "版本对比" });
-    expect(action.closest(".miaixz-tabs-header")?.getAttribute("data-actions-placement")).toBe(
-      "adjacent",
-    );
-    expect(action.closest('[role="tablist"]')).toBeNull();
-    expect(screen.getAllByRole("tab")).toHaveLength(2);
-    expect(action.closest(".miaixz-tabs-header")?.getAttribute("data-inset")).toBe("true");
-    const user = userEvent.setup();
-    screen.getByRole("tab", { name: "Key-Value" }).focus();
-    await user.keyboard("{ArrowRight}");
-    expect(document.activeElement).toBe(screen.getByRole("tab", { name: "源码" }));
-    expect(screen.getByRole("tabpanel", { name: "源码" }).textContent).toBe("源码内容");
-    await user.tab();
-    expect(document.activeElement).toBe(action);
-  });
-  it("keeps interactive panels out of the sequential focus order by default", () => {
-    render(
-      <Tabs
-        items={[
-          {
-            content: <input aria-label="密码" />,
-            label: "密码登录",
-            value: "password",
-          },
-        ]}
-        label="登录方式"
-      />,
-    );
-
-    expect(screen.getByRole("tabpanel", { name: "密码登录" }).hasAttribute("tabindex")).toBe(false);
   });
 
-  it("supports an explicitly focusable panel", () => {
-    render(
-      <Tabs
-        items={[
-          {
-            content: <p>静态说明</p>,
-            label: "说明",
-            panelTabIndex: 0,
-            value: "description",
-          },
-        ]}
-        label="内容"
-      />,
-    );
+  it("keeps readonly controlled tabs fixed and validates duplicates and disabled initial values", () => {
+    const readonly = render(<Tabs items={items} label="Readonly" value="details" />);
+    const source = screen.getByRole("tab", { name: "源码" });
+    expect(source).toBeDisabled();
+    fireEvent.keyDown(screen.getByRole("tab", { name: "详情" }), { key: "ArrowRight" });
+    fireEvent.click(source);
+    expect(screen.getByRole("tab", { name: "详情" })).toHaveAttribute("aria-selected", "true");
+    readonly.unmount();
 
-    expect(screen.getByRole("tabpanel", { name: "说明" }).getAttribute("tabindex")).toBe("0");
+    expect(() => render(<Tabs items={[items[0], items[0]]} label="Duplicate" />)).toThrowError(
+      expect.objectContaining({ code: "UI_TABS_DUPLICATE_VALUE" }),
+    );
+    expect(() =>
+      render(
+        <Tabs
+          defaultValue="disabled"
+          items={[{ value: "disabled", label: "Disabled", content: "Content", disabled: true }]}
+          label="Disabled initial"
+        />,
+      ),
+    ).toThrowError(expect.objectContaining({ code: "UI_TABS_VALUE_INVALID" }));
   });
 });

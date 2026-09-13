@@ -19,4 +19,11 @@
 */
 
 export { Confirm } from "./confirm.js";
-export type { ConfirmProps, ConfirmTone } from "./confirm.types.js";
+export type {
+  ConfirmCloseReason,
+  ConfirmOwnerState,
+  ConfirmProps,
+  ConfirmSlot,
+  ConfirmSlotProps,
+  ConfirmTone,
+} from "./confirm.types.js";

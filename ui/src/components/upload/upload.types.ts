@@ -18,109 +18,96 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
-
-/**
- * Supplies cancellation and progress reporting to one consumer-owned upload request.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed public unions and slots are self-describing.
  */
-export interface MiaixzUploadContext {
-  /**
-   * Aborts when the file is cancelled, removed, or the component unmounts.
-   */
-  readonly signal: AbortSignal;
 
-  /**
-   * Reports a finite upload percentage from zero through one hundred.
-   *
-   * @param value - Current upload percentage.
-   */
-  reportProgress(value: number): void;
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+import type { UploadFileRecord } from "../../shared/upload/types.js";
+
+export type {
+  LocalUploadFileRecord,
+  MiaixzUploadContext,
+  MiaixzUploadHandler,
+  RemoteUploadFileRecord,
+  UploadFileBase,
+  UploadFileRecord,
+  UploadRetryPolicy,
+} from "../../shared/upload/types.js";
+import type { MiaixzUploadHandler, UploadRetryPolicy } from "../../shared/upload/types.js";
+
+export interface UploadRemoveConfirmation {
+  readonly title: ReactNode;
+  readonly description: ReactNode;
+  readonly confirmLabel: string;
+  readonly cancelLabel: string;
 }
 
-/**
- * Defines the consumer-owned asynchronous request for one file.
- *
- * @public
- */
-export type MiaixzUploadHandler = (file: File, context: MiaixzUploadContext) => Promise<void>;
+export type UploadRemovePolicy =
+  | { readonly removePolicy: "immediate"; readonly getRemoveConfirmation?: never }
+  | {
+      readonly removePolicy?: "confirm";
+      readonly getRemoveConfirmation: (file: UploadFileRecord) => UploadRemoveConfirmation;
+    };
 
-/**
- * Defines properties owned by the Miaixz Upload contract.
- *
- * @public
- */
+export type UploadFilesState =
+  | {
+      readonly files: readonly UploadFileRecord[];
+      readonly defaultFiles?: never;
+      readonly onFilesChange: (files: readonly UploadFileRecord[]) => void;
+    }
+  | {
+      readonly files?: never;
+      readonly defaultFiles?: readonly UploadFileRecord[];
+      readonly onFilesChange?: (files: readonly UploadFileRecord[]) => void;
+    };
+
+export type UploadMultiplicity =
+  | { readonly multiple?: false; readonly maxFiles?: never }
+  | { readonly multiple: true; readonly maxFiles?: number };
+
+export type UploadSlot =
+  "root" | "dropzone" | "validation" | "list" | "item" | "status" | "actions";
+
+export interface UploadOwnerState {
+  readonly disabled: boolean;
+  readonly fileCount: number;
+  readonly hasError: boolean;
+}
+
+export interface UploadRootAttributes
+  extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
+  readonly "data-disabled"?: boolean;
+}
+
+export interface UploadSlotProps {
+  readonly root?: MiaixzSlotProps<UploadOwnerState, UploadRootAttributes>;
+  readonly dropzone?: MiaixzSlotProps<UploadOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly validation?: MiaixzSlotProps<UploadOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly list?: MiaixzSlotProps<UploadOwnerState, HTMLAttributes<HTMLUListElement>>;
+  readonly item?: MiaixzSlotProps<UploadOwnerState, HTMLAttributes<HTMLLIElement>>;
+  readonly status?: MiaixzSlotProps<UploadOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly actions?: MiaixzSlotProps<UploadOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+
 export interface MiaixzUploadOwnProps {
-  /**
-   * Supplies the HTML file accept expression used by native and runtime validation.
-   */
   readonly accept?: string;
-
-  /**
-   * Allows multiple files to remain in the upload list.
-   *
-   * @defaultValue `false`
-   */
-  readonly multiple?: boolean;
-
-  /**
-   * Limits accepted files, defaulting to one for single mode and ten for multiple mode.
-   */
-  readonly maxFiles?: number;
-
-  /**
-   * Limits each accepted file to a positive integer byte size.
-   */
   readonly maxSizeBytes?: number;
-
-  /**
-   * Prevents new file selection and upload actions.
-   *
-   * @defaultValue `false`
-   */
   readonly disabled?: boolean;
-
-  /**
-   * Supplies the required localized group label.
-   */
   readonly label: string;
-
-  /**
-   * Supplies the localized drag-and-drop instruction.
-   */
   readonly dropLabel: string;
-
-  /**
-   * Supplies the localized file picker action label.
-   */
   readonly browseLabel: string;
-
-  /**
-   * Performs the consumer-owned network request for each accepted file.
-   */
   readonly upload: MiaixzUploadHandler;
-
-  /**
-   * Receives the current file list after acceptance, removal, cancellation, or retry.
-   */
-  readonly onFilesChange?: (files: readonly File[]) => void;
-
-  /**
-   * Runs once after each file completes successfully.
-   */
-  readonly onComplete?: (file: File) => void;
-
-  /**
-   * Receives validation and upload failures without exposing server text in the UI.
-   */
-  readonly onError?: (file: File, error: unknown) => void;
+  readonly onComplete: (file: File) => void;
+  readonly onError: (file: File, error: unknown) => void;
+  readonly concurrency?: number;
+  readonly retryPolicy?: UploadRetryPolicy;
+  readonly slotProps?: UploadSlotProps;
 }
 
-/**
- * Configures validated, concurrent, request-independent file uploads.
- *
- * @public
- */
-export interface UploadProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzUploadOwnProps>, MiaixzUploadOwnProps {}
+export type UploadProps = MiaixzUploadOwnProps &
+  UploadFilesState &
+  UploadRemovePolicy &
+  UploadMultiplicity &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzUploadOwnProps | "children">;

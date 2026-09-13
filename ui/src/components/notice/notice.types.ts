@@ -18,33 +18,32 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
+/* eslint-disable jsdoc/require-jsdoc -- Closed feedback slots are self-describing.
+ */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzFeedbackLive } from "../feedback/feedback.types.js";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 
-/**
- * Defines properties owned by the Miaixz Notice contract.
- *
- * @public
- */
-export interface MiaixzNoticeOwnProps {
-  /**
-   * Selects the semantic feedback tone.
-   *
-   * @defaultValue `"neutral"`
-   */
-  readonly tone?: MiaixzFeedbackTone;
-
-  /**
-   * Supplies the required compact message content.
-   */
-  readonly children: ReactNode;
+export type NoticeSlot = "root" | "icon" | "content";
+export interface NoticeOwnerState {
+  readonly tone: MiaixzFeedbackTone;
+  readonly live: MiaixzFeedbackLive;
 }
-
-/**
- * Configures a compact semantic feedback message.
- *
- * @public
- */
-export interface NoticeProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzNoticeOwnProps>, MiaixzNoticeOwnProps {}
+export interface NoticeSlotProps {
+  readonly root?: MiaixzSlotProps<
+    NoticeOwnerState,
+    HTMLAttributes<HTMLDivElement> &
+      RefAttributes<HTMLDivElement> & { readonly "data-tone"?: MiaixzFeedbackTone }
+  >;
+  readonly icon?: MiaixzSlotProps<NoticeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<NoticeOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface MiaixzNoticeOwnProps {
+  readonly tone?: MiaixzFeedbackTone;
+  readonly live?: MiaixzFeedbackLive;
+  readonly children: ReactNode;
+  readonly slotProps?: NoticeSlotProps;
+}
+export type NoticeProps = MiaixzNoticeOwnProps &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzNoticeOwnProps | "role" | "aria-live">;

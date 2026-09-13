@@ -12,7 +12,13 @@
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "exactOptionalPropertyTypes": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "types": ["node"]
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "tests/unit/**/*.test.ts",
+    "tests/runtime/**/*.test.ts",
+    "tests/types/**/*.test-d.ts"
+  ]
 }

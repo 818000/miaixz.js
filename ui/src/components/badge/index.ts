@@ -19,4 +19,11 @@
 */
 
 export { Badge } from "./badge.js";
-export type { BadgeProps, BadgeTone } from "./badge.types.js";
+export type {
+  BadgeOwnerState,
+  BadgeProps,
+  BadgeSlot,
+  BadgeSlotProps,
+  BadgeTone,
+  BadgeVariant,
+} from "./badge.types.js";

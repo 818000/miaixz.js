@@ -18,32 +18,46 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc -- The closed progress-state union is self-describing.
+ */
 import type { HTMLAttributes } from "react";
 
-/**
- * Defines properties owned by the Miaixz loading bar contract. @public
- */
-export interface MiaixzBarOwnProps {
-  /**
-   * Controls whether the bar is visible.
-   */
-  readonly active: boolean;
-  /**
-   * Plays the completion transition before hiding.
-   */
-  readonly complete?: boolean;
-  /**
-   * Uses the continuous indeterminate animation.
-   */
-  readonly indeterminate?: boolean;
-  /**
-   * Sets determinate completion from zero to one.
-   */
-  readonly progress?: number;
-}
+type BarNativeProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  | "aria-hidden"
+  | "aria-label"
+  | "aria-labelledby"
+  | "aria-valuemax"
+  | "aria-valuemin"
+  | "aria-valuenow"
+  | "aria-valuetext"
+  | "children"
+  | "role"
+>;
 
-/**
- * Configures fixed page and navigation loading progress. @public
+type BarAccessibleName =
+  | { readonly decorative: true; readonly label?: never }
+  | { readonly decorative?: false; readonly label: string };
+
+type BarProgress =
+  | { readonly value?: never; readonly max?: never }
+  | { readonly value: number; readonly max: number };
+
+type ActiveBarProps = BarNativeProps &
+  BarAccessibleName &
+  BarProgress & {
+    readonly active: true;
+  };
+
+type InactiveBarProps = BarNativeProps & {
+  readonly active: false;
+  readonly decorative?: never;
+  readonly label?: never;
+  readonly value?: never;
+  readonly max?: never;
+};
+
+/*
+ * Configures fixed page-level loading progress. @public
  */
-export interface BarProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzBarOwnProps>, MiaixzBarOwnProps {}
+export type BarProps = ActiveBarProps | InactiveBarProps;

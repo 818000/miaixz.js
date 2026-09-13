@@ -34,10 +34,6 @@ if (
 ) {
   throw new Error("MIAIXZ_UI_BASE_URL must be local HTTP and match MIAIXZ_UI_PORT");
 }
-const browserName = process.env.MIAIXZ_UI_BROWSER ?? "chromium";
-if (!new Set(["chromium", "webkit", "firefox"]).has(browserName)) {
-  throw new Error("Invalid MIAIXZ_UI_BROWSER");
-}
 const packageStage = process.env.MIAIXZ_UI_PACKAGE_STAGE ?? "source";
 if (!new Set(["source", "packed"]).has(packageStage)) {
   throw new Error("Invalid MIAIXZ_UI_PACKAGE_STAGE");
@@ -59,16 +55,37 @@ if (outputDir !== artifactsRoot && !outputDir.startsWith(`${artifactsRoot}${path
  */
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["theme.spec.ts", "action-visual.spec.ts"],
+  testMatch: "**/*.spec.ts",
   snapshotPathTemplate: path.resolve("tests/visual-baselines/action-system/v1/{arg}{ext}"),
   outputDir,
   metadata: { packageStage, runId },
   fullyParallel: false,
   retries: 0,
   workers: 1,
+  projects: [
+    {
+      name: "chromium-visual",
+      testMatch: "**/action-visual.spec.ts",
+      use: { browserName: "chromium" },
+    },
+    {
+      name: "chromium-contracts",
+      testIgnore: "**/action-visual.spec.ts",
+      use: { browserName: "chromium" },
+    },
+    {
+      name: "firefox-contracts",
+      testIgnore: "**/action-visual.spec.ts",
+      use: { browserName: "firefox" },
+    },
+    {
+      name: "webkit-contracts",
+      testIgnore: "**/action-visual.spec.ts",
+      use: { browserName: "webkit" },
+    },
+  ],
   use: {
     baseURL,
-    browserName: browserName as "chromium" | "firefox" | "webkit",
     deviceScaleFactor: 1,
     contextOptions: {
       reducedMotion: "reduce",

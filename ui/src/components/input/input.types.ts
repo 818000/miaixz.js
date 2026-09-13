@@ -18,42 +18,60 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { InputHTMLAttributes, ReactNode } from "react";
-
-import type { MiaixzFormPreviewProps } from "../shared.types.js";
-
-/**
- * Defines the supported single-line input sizes.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Slot contracts are a direct native-element mapping.
  */
+
+import type { HTMLAttributes, InputHTMLAttributes, ReactNode, RefAttributes } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
 export type InputSize = "small" | "medium" | "large";
 
+export type InputSlot = "root" | "input" | "startAdornment" | "endAdornment";
+
+export interface InputOwnerState {
+  readonly size: InputSize;
+  readonly invalid: boolean;
+  readonly disabled: boolean;
+  readonly readOnly: boolean;
+  readonly filled: boolean;
+}
+
+export interface InputRootAttributes
+  extends HTMLAttributes<HTMLSpanElement>, RefAttributes<HTMLSpanElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-filled"?: boolean;
+  readonly "data-invalid"?: boolean;
+  readonly "data-readonly"?: boolean;
+  readonly "data-size"?: InputSize;
+}
+
+export interface InputSlotProps {
+  readonly root?: MiaixzSlotProps<InputOwnerState, InputRootAttributes>;
+  readonly input?: MiaixzSlotProps<
+    InputOwnerState,
+    InputHTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>
+  >;
+  readonly startAdornment?: MiaixzSlotProps<InputOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly endAdornment?: MiaixzSlotProps<InputOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+
 /**
- * Configures a single-line native input wrapper.
+ * Configures a single-line native input with a separate styled root.
  *
  * @public
  */
-export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size">, MiaixzFormPreviewProps {
-  /**
-   * Selects the control size.
-   *
-   * @defaultValue `"medium"`
-   */
-  size?: InputSize;
-  /**
-   * Applies the invalid state independently of `aria-invalid`.
-   *
-   * @defaultValue `false`
-   */
-  invalid?: boolean;
-  /**
-   * Displays content before the native input.
-   */
-  startAdornment?: ReactNode;
-  /**
-   * Displays content after the native input.
-   */
-  endAdornment?: ReactNode;
+export interface InputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "children" | "size" | "style"
+> {
+  readonly size?: InputSize;
+  readonly invalid?: boolean;
+  readonly startAdornment?: ReactNode;
+  readonly endAdornment?: ReactNode;
+  readonly style?: React.CSSProperties;
+  readonly slotProps?: InputSlotProps;
 }
+
+/* eslint-enable jsdoc/require-jsdoc
+ */

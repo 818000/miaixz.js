@@ -5,6 +5,7 @@ import { URL, fileURLToPath } from "node:url";
 import { inspectComponentColors } from "../color-policy.mjs";
 
 const packageDirectory = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+const sourceDirectory = resolve(packageDirectory, "src");
 const stylesDirectory = resolve(packageDirectory, "src/styles");
 const themeDirectory = resolve(packageDirectory, "src/theme");
 const files = [
@@ -15,6 +16,14 @@ const componentSourceFiles = await collectFiles(
   resolve(packageDirectory, "src/components"),
   ".tsx",
 );
+const publicContractFiles = [
+  ...(await collectFiles(sourceDirectory, ".ts")),
+  ...(await collectFiles(sourceDirectory, ".tsx")),
+  ...files,
+  resolve(packageDirectory, "package.json"),
+  resolve(packageDirectory, "README.md"),
+  resolve(packageDirectory, "../README.md"),
+];
 const componentIndex = await readFile(resolve(packageDirectory, "src/components/index.ts"), "utf8");
 const packageManifest = await readFile(resolve(packageDirectory, "package.json"), "utf8");
 const actionTypes = await readFile(
@@ -47,6 +56,34 @@ const requiredGeneratedThemeVariables = new Set([
   "--miaixz-text-compact-metric-line-height",
   "--miaixz-radius-summary",
 ]);
+const removedPublicNames =
+  /\b(?:ConfirmDialog(?:Props)?|InlineMessage(?:Props)?|FormField(?:Props)?|SearchInput(?:Props)?|LoadingOverlay(?:Props)?|MultiSelect(?:Props)?|DataTable(?:Props)?|PageLayout(?:Props)?|FileUpload(?:Props)?|TreeView(?:Props)?|StatusIndicator(?:Props)?|EmptyState(?:Props)?|VisuallyHidden(?:Props)?|AppShell|PageHeader|PageToolbar|SplitLayout|SidebarLayout|LocalePicker(?:OwnerState|RootAttributes|SlotProps|Props|Slot)?|MetricGroup(?:Props)?|ModuleFrame(?:Density|Mode(?:Props)?|OwnerState|Props|RootAttributes|Slot(?:Props)?|Surface)?|GroupedList(?:Group|Item|Layout|OwnerState|Props|RootAttributes|Slot(?:Props)?)?|MiaixzGroupedListOwnProps|ui\.groupedList(?:\.[a-zA-Z0-9]+)*|Sticky(?:Props)?|DropzonePanel(?:Props)?|ListDistributionItem(?:Props)?|ListEntry|DrawerSize|NavigationRailOverflowMode|MiaixzFormPreview(?:Props|State)|getEditorClassName|EditorPart|getPanelClassName|PanelStyleOptions|getListClassName|ListPart|getMetricClassName|MetricPart|getNoticeClassName|RelationMap(?:Props)?|applyMiaixzAppearance|validateMiaixzThemeContrast|miaixzLightThemeColors|miaixzDarkThemeColors|legacyApplications)\b/g;
+const removedBodyContract =
+  /\bBodyProps\b|\b(?:export|import)\b[^;\n]*\bBody\b|<Body(?:\s|\/?>)|["'](?:\.\.?\/)*(?:components\/)?body(?:\/index)?\.js["']/g;
+const removedThemeVariables =
+  /--miaixz-(?:app-(?:border|divider|selected|title-size|section-size|body-size|meta-size|metric-size)|module-(?:border|divider|soft|soft-strong|type-section|type-region|type-body|type-meta|type-auxiliary|type-metric))\b/g;
+const removedCssContracts =
+  /(?:\.miaixz-(?:body|visually-hidden)(?![a-z0-9-])|\.miaixz-(?:sticky|relation-map|locale-picker|metric-group|avatar-(?:account|profile|fill)|popover-(?:trigger-avatar|picker)|dropdown-(?:plain|compact)|badge-dot)\b|\bmiaixz-(?:grouped-list|module-frame)(?:-[a-z0-9-]+)*\b|--miaixz-(?:metric-group-(?:[a-z0-9-]+)|sparkline-(?:metric|trend)-height)\b)/g;
+const removedPackageSubpaths =
+  /["']\.\/(?:confirm-dialog|inline-message|form-field|search-input|loading-overlay|multi-select|data-table|page-layout|file-upload|tree-view|status-indicator|empty-state|visually-hidden|body(?:\/styles\.css)?|locale-picker(?:\/styles\.css)?|metric(?:-group)?(?:\/styles\.css)?|module-frame(?:\/styles\.css)?|grouped-list(?:\/styles\.css)?|sticky|relation-map|diagram|miaixz\.css|themes\.css)["']/g;
+
+for (const file of publicContractFiles) {
+  const source = await readFile(file, "utf8");
+  const fileName = relative(packageDirectory, file);
+  inspect(fileName, source, removedPublicNames, "REMOVED_PUBLIC_NAME");
+  inspect(fileName, source, removedBodyContract, "REMOVED_BODY_CONTRACT");
+  inspect(fileName, source, removedThemeVariables, "REMOVED_THEME_VARIABLE");
+  inspect(fileName, source, removedCssContracts, "REMOVED_CSS_CONTRACT");
+  inspect(
+    fileName,
+    source,
+    /data-miaixz-theme-runtime\s*=\s*["']legacy["']/g,
+    "REMOVED_THEME_RUNTIME",
+  );
+  if (fileName === "package.json") {
+    inspect(fileName, source, removedPackageSubpaths, "REMOVED_PACKAGE_SUBPATH");
+  }
+}
 
 for (const file of files) {
   const source = await readFile(file, "utf8");
@@ -144,7 +181,7 @@ if (!/readonly\s+icon\s*:\s*MiaixzIconName\b/.test(actionTypes)) {
   );
 }
 
-for (const entry of ["action-text.tsx", "icon-button.tsx"]) {
+for (const entry of ["action-text.tsx"]) {
   const file = resolve(packageDirectory, "src/components/action", entry);
   const source = await readFile(file, "utf8");
   inspect(
@@ -164,14 +201,27 @@ for (const entry of ["action-text.tsx", "icon-button.tsx"]) {
     "PRESSABLE_RIPPLE_SCOPE_LEAK",
   );
 }
-if ((buttonSource.match(/data-miaixz-ripple="true"/g) ?? []).length !== 2) {
+if ((buttonSource.match(/"data-miaixz-ripple": "true"/g) ?? []).length !== 2) {
   addFinding(
     "src/components/button/button.tsx",
     buttonSource,
     0,
     "BUTTON_RIPPLE_HOOK_MISSING",
-    'data-miaixz-ripple="true"',
+    '"data-miaixz-ripple": "true"',
   );
+}
+{
+  const file = resolve(packageDirectory, "src/components/action/icon-button.tsx");
+  const source = await readFile(file, "utf8");
+  if ((source.match(/"data-miaixz-ripple": "true"/g) ?? []).length !== 1) {
+    addFinding(
+      "src/components/action/icon-button.tsx",
+      source,
+      0,
+      "ICON_BUTTON_RIPPLE_HOOK_MISSING",
+      '"data-miaixz-ripple": "true"',
+    );
+  }
 }
 for (const broadSelector of [
   /button:not\(\[data-miaixz-ripple/g,
@@ -317,7 +367,7 @@ function inspectLiteralFontSizes(fileName, source) {
     const value = match[1];
     if (
       value === "0" ||
-      (fileName === "src/styles/components/relation-map.css" && allowedSvgGeometry.has(value))
+      (fileName === "src/styles/components/diagram/graph.css" && allowedSvgGeometry.has(value))
     ) {
       continue;
     }

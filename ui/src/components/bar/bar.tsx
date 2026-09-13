@@ -18,38 +18,70 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-import type { CSSProperties } from "react";
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Bar contracts are defined by the component type module.
+ */
+import { forwardRef, type CSSProperties } from "react";
 
+import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
 import type { BarProps } from "./bar.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/**
- * Renders fixed page and navigation progress at the top of the viewport. @public
+interface BarStyle extends CSSProperties {
+  readonly "--miaixz-bar-progress"?: number;
+}
+
+/*
+ * Renders fixed page-level determinate or indeterminate loading progress. @public
  */
-export const Bar = forwardRef<HTMLDivElement, BarProps>(function Bar(
-  { active, complete = false, indeterminate = false, progress = 0, className, style, ...props },
-  ref,
-) {
-  const clampedProgress = Math.min(1, Math.max(0, progress));
-  const progressStyle = {
-    ...style,
-    "--miaixz-bar-progress": clampedProgress,
-  } as CSSProperties;
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      aria-hidden="true"
-      className={classNames("miaixz-bar", className)}
-      data-active={active}
-      data-complete={complete}
-      data-indeterminate={indeterminate}
-      data-miaixz-bar=""
-      style={progressStyle}
-    >
-      <span className="miaixz-bar-fill" />
-    </div>
-  );
-});
+export const Bar = withMiaixzThemeComponent(
+  "Bar",
+  forwardRef<HTMLDivElement, BarProps>(function Bar(props, ref) {
+    const {
+      active,
+      decorative = false,
+      label,
+      value,
+      max,
+      className,
+      style,
+      ...nativeProps
+    } = props;
+    if (!active) return null;
+    const determinate = value !== undefined;
+    if (determinate && (!Number.isFinite(max) || max <= 0)) {
+      throw new MiaixzUiError({
+        code: "UI_PROGRESS_MAX_INVALID",
+        details: { max },
+      });
+    }
+    if (determinate && (!Number.isFinite(value) || value < 0 || value > max)) {
+      throw new MiaixzUiError({
+        code: "UI_PROGRESS_VALUE_INVALID",
+        details: { max, value },
+      });
+    }
+    const resolvedStyle: BarStyle = {
+      ...style,
+      ...(determinate ? { "--miaixz-bar-progress": value / max } : {}),
+    };
+    return (
+      <div
+        {...nativeProps}
+        ref={ref}
+        aria-hidden={decorative || undefined}
+        aria-label={decorative ? undefined : label}
+        aria-valuemin={decorative || !determinate ? undefined : 0}
+        aria-valuemax={decorative || !determinate ? undefined : max}
+        aria-valuenow={decorative || !determinate ? undefined : value}
+        className={classNames("miaixz-bar", className)}
+        data-state={determinate ? "determinate" : "indeterminate"}
+        role={decorative ? undefined : "progressbar"}
+        style={resolvedStyle}
+      >
+        <span aria-hidden="true" className="miaixz-bar-fill" />
+      </div>
+    );
+  }),
+);

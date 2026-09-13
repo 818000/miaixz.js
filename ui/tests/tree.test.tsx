@@ -1,10 +1,18 @@
-import { readFileSync } from "node:fs";
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 
 import { Tree, type TreeNode } from "../src/components/tree/index.js";
+import { useTreeAsyncLoader } from "../src/components/tree/tree-async-loader.js";
 import { MiaixzLocaleProvider, miaixzUiMessages } from "../src/i18n/index.js";
 
 afterEach(cleanup);
@@ -13,12 +21,13 @@ const nodes: readonly TreeNode[] = [
   {
     id: "platform",
     label: "平台",
+    textValue: "平台",
     children: [
-      { id: "services", label: "服务" },
-      { id: "settings", label: "设置" },
+      { id: "services", label: "服务", textValue: "服务" },
+      { id: "settings", label: "设置", textValue: "设置" },
     ],
   },
-  { id: "audit", label: "审计" },
+  { id: "audit", label: "审计", textValue: "审计" },
 ];
 
 describe("Tree", () => {
@@ -61,23 +70,6 @@ describe("Tree", () => {
     expect(platform).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("uses the registered medium weight for outline roots", () => {
-    const css = readFileSync("src/styles/components/tree.css", "utf8");
-    const defaultSelector = ".miaixz-tree-label {";
-    const defaultStart = css.indexOf(defaultSelector);
-    const defaultRule = css.slice(defaultStart, css.indexOf("}", defaultStart));
-    const selector =
-      ".miaixz-tree-outline > .miaixz-tree-item > .miaixz-tree-row .miaixz-tree-label";
-    const start = css.indexOf(selector);
-    const rule = css.slice(start, css.indexOf("}", start));
-    expect(defaultStart).toBeGreaterThan(-1);
-    expect(defaultRule).toContain("font-weight: var(--miaixz-font-weight-regular)");
-    expect(defaultRule).not.toContain("font-family");
-    expect(start).toBeGreaterThan(-1);
-    expect(rule).toContain("font-weight: var(--miaixz-font-weight-medium)");
-    expect(css).not.toContain("--miaixz-font-weight-semibold");
-  });
-
   it("keeps long nested labels reachable while preserving outline hierarchy", () => {
     const longLabel = "这是一个需要在窄目录中截断显示但仍保留完整可访问名称的超长节点标签";
     render(
@@ -90,13 +82,14 @@ describe("Tree", () => {
             {
               id: "root",
               label: "根节点",
-              children: [{ id: "long", label: longLabel }],
+              textValue: "根节点",
+              children: [{ id: "long", label: longLabel, textValue: longLabel }],
             },
           ]}
           defaultExpandedIds={["root"]}
           defaultSelectedIds={["long"]}
-          showLevelIndicator
-          variant="outline"
+          connectors
+          surface="plain"
         />
       </MiaixzLocaleProvider>,
     );
@@ -118,7 +111,7 @@ describe("Tree", () => {
       >
         <Tree
           label="受控目录"
-          nodes={[...nodes, { id: "locked", label: "锁定", disabled: true }]}
+          nodes={[...nodes, { id: "locked", label: "锁定", textValue: "锁定", disabled: true }]}
           onSelectedIdsChange={onSelectedIdsChange}
           selectedIds={["audit"]}
           selectionMode="multiple"
@@ -134,5 +127,82 @@ describe("Tree", () => {
     fireEvent.click(locked.firstElementChild!);
     expect(locked).toHaveAttribute("aria-disabled", "true");
     expect(onSelectedIdsChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("Tree async loader", () => {
+  const parent: TreeNode<string> = {
+    id: "remote",
+    label: "Remote",
+    textValue: "Remote",
+    value: "remote",
+  };
+
+  it("does nothing without a loader and for disabled nodes", () => {
+    const withoutLoader = renderHook(() => useTreeAsyncLoader<string>(undefined));
+    expect(withoutLoader.result.current.load(parent)).toBeUndefined();
+    withoutLoader.unmount();
+
+    const loader = vi.fn();
+    const withLoader = renderHook(() => useTreeAsyncLoader(loader));
+    expect(withLoader.result.current.load({ ...parent, disabled: true })).toBeUndefined();
+    expect(loader).not.toHaveBeenCalled();
+    withLoader.unmount();
+  });
+
+  it("deduplicates pending work and caches a successful child list", async () => {
+    let resolveLoad: ((nodes: readonly TreeNode<string>[]) => void) | undefined;
+    const loader = vi.fn(
+      (_node: Readonly<TreeNode<string>>, signal: AbortSignal) =>
+        new Promise<readonly TreeNode<string>[]>((resolve) => {
+          expect(signal.aborted).toBe(false);
+          resolveLoad = resolve;
+        }),
+    );
+    const { result, unmount } = renderHook(() => useTreeAsyncLoader(loader));
+    let first: Promise<readonly TreeNode<string>[]> | undefined;
+    act(() => {
+      first = result.current.load(parent);
+      expect(result.current.load(parent)).toBe(first);
+    });
+    expect(result.current.loadingIds.has("remote")).toBe(true);
+    await act(async () => {
+      resolveLoad?.([{ id: "child", label: "Child", textValue: "Child", value: "child" }]);
+      await first;
+    });
+    expect(result.current.childCache.get("remote")?.[0]?.id).toBe("child");
+    expect(result.current.loadingIds.has("remote")).toBe(false);
+    expect(result.current.errorIds.has("remote")).toBe(false);
+    unmount();
+  });
+
+  it("records failures, clears them on retry, and aborts pending work on unmount", async () => {
+    const failure = new Error("offline");
+    const loader = vi
+      .fn()
+      .mockRejectedValueOnce(failure)
+      .mockImplementationOnce(
+        (_node: Readonly<TreeNode<string>>, signal: AbortSignal) =>
+          new Promise<readonly TreeNode<string>[]>((_resolve) => {
+            signal.addEventListener("abort", () => undefined);
+          }),
+      );
+    const { result, unmount } = renderHook(() => useTreeAsyncLoader(loader));
+    let failed: Promise<readonly TreeNode<string>[]> | undefined;
+    act(() => {
+      failed = result.current.load(parent);
+    });
+    await expect(failed).rejects.toBe(failure);
+    await waitFor(() => expect(result.current.errorIds.has("remote")).toBe(true));
+
+    let pending: Promise<readonly TreeNode<string>[]> | undefined;
+    act(() => {
+      pending = result.current.load(parent);
+    });
+    expect(pending).toBeDefined();
+    expect(result.current.errorIds.has("remote")).toBe(false);
+    const signal = loader.mock.calls[1]?.[1] as AbortSignal;
+    unmount();
+    expect(signal.aborted).toBe(true);
   });
 });

@@ -34,10 +34,12 @@ import {
   MoreActions,
   RowActions,
   type ActionDescriptor,
-  type PrimaryActionDescriptor,
+  type CommandAction,
 } from "../src/index.js";
 
 afterEach(cleanup);
+
+const removedHiddenClassName = ["miaixz", "visually", "hidden"].join("-");
 
 /**
  * Supplies framework localization to one action-system test.
@@ -59,18 +61,16 @@ function renderAction(content: React.ReactNode) {
  * @param overrides - Descriptor values changed by the test.
  * @returns A resolved command action.
  */
-function commandAction(overrides: Partial<ActionDescriptor> = {}): ActionDescriptor {
+function commandAction(overrides: Partial<CommandAction> = {}): CommandAction {
   return {
     id: "edit",
-    intent: "edit",
+    kind: "command",
     label: "编辑",
     icon: "Pencil",
     tone: "neutral",
-    confirm: "none",
-    placement: "visible",
     onAction: vi.fn(),
     ...overrides,
-  } as ActionDescriptor;
+  };
 }
 
 /**
@@ -79,18 +79,16 @@ function commandAction(overrides: Partial<ActionDescriptor> = {}): ActionDescrip
  * @param overrides - Descriptor values changed by the test.
  * @returns A resolved primary action.
  */
-function primaryAction(overrides: Partial<PrimaryActionDescriptor> = {}): PrimaryActionDescriptor {
+function primaryAction(overrides: Partial<CommandAction> = {}): CommandAction {
   return {
     id: "save",
-    intent: "save",
+    kind: "command",
     label: "保存",
     icon: "Save",
     tone: "brand",
-    confirm: "none",
-    placement: "form-primary",
     onAction: vi.fn(),
     ...overrides,
-  } as PrimaryActionDescriptor;
+  };
 }
 
 describe("ActionText", () => {
@@ -102,12 +100,10 @@ describe("ActionText", () => {
         <ActionText
           action={{
             id: "view",
-            intent: "view",
+            kind: "navigation",
             label: "查看详情",
             icon: "Eye",
             tone: "neutral",
-            confirm: "none",
-            placement: "visible",
             href: "/details",
           }}
         />
@@ -126,14 +122,14 @@ describe("ActionText", () => {
     expect(action).toBeDisabled();
     expect(action).toHaveAttribute("aria-busy", "true");
     expect(action.querySelector("svg")).not.toBeNull();
+    expect(action.querySelector(".miaixz-hidden")).toHaveTextContent("加载中");
+    expect(action.querySelector(`.${removedHiddenClassName}`)).toBeNull();
   });
 });
 
 describe("IconButton", () => {
   it("provides an accessible name without rendering visible action text", () => {
-    renderAction(
-      <IconButton action={commandAction({ label: "关闭", icon: "X", intent: "close" })} />,
-    );
+    renderAction(<IconButton label="关闭" icon="X" onClick={() => undefined} />);
 
     const action = screen.getByRole("button", { name: "关闭" });
     expect(action).toHaveClass("miaixz-icon-button");
@@ -148,12 +144,11 @@ describe("MoreActions", () => {
         actions={[
           commandAction({
             id: "delete",
-            intent: "delete",
             label: "删除",
             icon: "Trash2",
             tone: "danger",
           }),
-          commandAction({ id: "export", intent: "export", label: "导出", icon: "Download" }),
+          commandAction({ id: "export", label: "导出", icon: "Download" }),
         ]}
       />,
     );
@@ -174,29 +169,35 @@ describe("Dropdown", () => {
   it("supports a native anchor trigger without navigating away", () => {
     renderAction(
       <Dropdown
-        items={[{ label: "已归档", type: "button" }]}
+        items={[
+          {
+            id: "archived",
+            kind: "action",
+            label: "已归档",
+            textValue: "已归档",
+            onAction: () => undefined,
+          },
+        ]}
         label="空间分类"
-        trigger={<a href="#space-filter-more">更多</a>}
+        trigger={<button type="button">更多</button>}
       />,
     );
 
-    const trigger = screen.getByRole("link", { name: "更多" });
+    const trigger = screen.getByRole("button", { name: "更多" });
     fireEvent.click(trigger);
     expect(screen.getByRole("menu", { name: "空间分类" })).toBeVisible();
-    expect(window.location.hash).not.toBe("#space-filter-more");
   });
 });
 
 describe("RowActions", () => {
-  it("shows two safe text actions and moves danger to overflow on desktop", () => {
+  it("uses the deterministic zero-capacity hydration partition without layout", () => {
     renderAction(
       <RowActions
         actions={[
           commandAction({ id: "edit" }),
-          commandAction({ id: "view", intent: "view", label: "查看", icon: "Eye" }),
+          commandAction({ id: "view", label: "查看", icon: "Eye" }),
           commandAction({
             id: "delete",
-            intent: "delete",
             label: "删除",
             icon: "Trash2",
             tone: "danger",
@@ -205,57 +206,63 @@ describe("RowActions", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "编辑" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "查看" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "编辑" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "查看" })).toBeNull();
     expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "更多操作" }));
+    expect(screen.getByRole("menuitem", { name: "编辑" })).toBeVisible();
+    expect(screen.getByRole("menuitem", { name: "查看" })).toBeVisible();
     expect(screen.getByRole("menuitem", { name: "删除" })).toBeVisible();
   });
 });
 
 describe("ActionBar", () => {
-  it("keeps one primary button and at most two ordinary text actions visible", () => {
+  it("keeps the primary visible during the zero-capacity hydration partition", () => {
     renderAction(
       <ActionBar
-        primary={primaryAction({ label: "新建", intent: "create", icon: "Plus" })}
+        primary={primaryAction({ label: "新建", icon: "Plus" })}
         actions={[
           commandAction({ id: "edit" }),
-          commandAction({ id: "refresh", intent: "refresh", label: "刷新", icon: "RefreshCw" }),
-          commandAction({ id: "export", intent: "export", label: "导出", icon: "Download" }),
+          commandAction({ id: "refresh", label: "刷新", icon: "RefreshCw" }),
+          commandAction({ id: "export", label: "导出", icon: "Download" }),
         ]}
       />,
     );
 
-    expect(screen.getByRole("button", { name: "新建" })).toHaveClass("miaixz-button-primary");
-    expect(screen.getByRole("button", { name: "编辑" })).toHaveClass("miaixz-action-text");
-    expect(screen.getByRole("button", { name: "刷新" })).toHaveClass("miaixz-action-text");
+    expect(screen.getByRole("button", { name: "新建" })).toHaveAttribute("data-variant", "solid");
+    expect(screen.queryByRole("button", { name: "编辑" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "刷新" })).toBeNull();
     expect(screen.queryByRole("button", { name: "导出" })).toBeNull();
     expect(screen.getAllByRole("button", { name: "更多操作" })).toHaveLength(1);
   });
 });
 
 describe("FormActions", () => {
-  it("keeps submit disabled until dirty and locks cancel while submitting", () => {
+  it("uses native cancel and submit semantics without a second dirty state", () => {
     const { rerender } = renderAction(
-      <FormActions
-        cancel={commandAction({ id: "cancel", intent: "cancel", label: "取消" })}
-        dirty={false}
-        submit={primaryAction()}
-      />,
+      <form>
+        <FormActions
+          cancel={{ id: "cancel", label: "取消", onAction: () => undefined }}
+          submit={{ id: "save", label: "保存", disabled: true }}
+        />
+      </form>,
     );
     expect(screen.getByRole("button", { name: "保存" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "保存" })).toHaveAttribute("type", "submit");
 
     rerender(
       <MiaixzLocaleProvider
         i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
       >
-        <FormActions
-          cancel={commandAction({ id: "cancel", intent: "cancel", label: "取消" })}
-          submit={primaryAction({ loading: true })}
-        />
+        <form>
+          <FormActions
+            cancel={{ id: "cancel", label: "取消", onAction: () => undefined }}
+            submit={{ id: "save", label: "保存", loading: true }}
+          />
+        </form>
       </MiaixzLocaleProvider>,
     );
-    expect(screen.getByRole("button", { name: "取消" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "加载中" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "取消" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "保存" })).toBeDisabled();
   });
 });

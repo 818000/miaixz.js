@@ -7,6 +7,8 @@ import { Alert, IconButton, MiaixzLocaleProvider, Search } from "../src/index.js
 
 afterEach(cleanup);
 
+const removedHiddenClassName = ["miaixz", "visually", "hidden"].join("-");
+
 interface IconActionFixtureProps {
   /**
    * Visible and accessible action label.
@@ -39,18 +41,11 @@ interface IconActionFixtureProps {
 function iconAction(properties: IconActionFixtureProps) {
   return (
     <IconButton
-      action={{
-        id: properties.label,
-        intent: "close",
-        label: properties.label,
-        icon: "X",
-        tone: "neutral",
-        confirm: "none",
-        placement: "icon",
-        ...(properties.disabled === undefined ? {} : { disabled: properties.disabled }),
-        ...(properties.loading === undefined ? {} : { loading: properties.loading }),
-        onAction: properties.onAction ?? (() => undefined),
-      }}
+      label={properties.label}
+      icon="X"
+      {...(properties.disabled === undefined ? {} : { disabled: properties.disabled })}
+      {...(properties.loading === undefined ? {} : { loading: properties.loading })}
+      onClick={properties.onAction ?? (() => undefined)}
     />
   );
 }
@@ -67,8 +62,8 @@ describe("shared icon actions", () => {
     const button = screen.getByRole("button", { name: "展开主菜单" });
     expect(button).toHaveAttribute("type", "button");
     expect(button).toHaveClass("miaixz-icon-button");
-    expect(button).not.toHaveClass("miaixz-interactive");
-    expect(button).not.toHaveAttribute("data-miaixz-ripple");
+    expect(button).toHaveClass("miaixz-interactive");
+    expect(button).toHaveAttribute("data-miaixz-ripple", "true");
     expect(button).toHaveAttribute("aria-describedby");
     fireEvent.click(button);
     expect(click).toHaveBeenCalledOnce();
@@ -88,7 +83,10 @@ describe("shared icon actions", () => {
       fireEvent.click(button);
     }
     expect(click).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "加载中" })).toHaveAttribute("aria-busy", "true");
+    const loadingButton = screen.getByRole("button", { name: "加载中" });
+    expect(loadingButton).toHaveAttribute("aria-busy", "true");
+    expect(loadingButton.querySelector(".miaixz-hidden")).not.toBeNull();
+    expect(loadingButton.querySelector(`.${removedHiddenClassName}`)).toBeNull();
   });
 
   it("covers composed dismiss and search-clear controls", () => {
@@ -108,6 +106,6 @@ describe("shared icon actions", () => {
       fireEvent.click(button);
     }
     expect(dismiss).toHaveBeenCalledOnce();
-    expect(clear).toHaveBeenCalledExactlyOnceWith("");
+    expect(clear).toHaveBeenCalledExactlyOnceWith("", "clear");
   });
 });

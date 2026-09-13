@@ -19,4 +19,12 @@
 */
 
 export { Breadcrumb } from "./breadcrumb.js";
-export type { BreadcrumbEntry, BreadcrumbProps } from "./breadcrumb.types.js";
+export type {
+  BreadcrumbEntry,
+  BreadcrumbOwnerState,
+  BreadcrumbProps,
+  BreadcrumbRootAttributes,
+  BreadcrumbSlot,
+  BreadcrumbSlotProps,
+  MiaixzBreadcrumbOwnProps,
+} from "./breadcrumb.types.js";

@@ -1,125 +1,105 @@
-import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ */
+
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import {
-  Input,
-  Search,
-  Textarea,
-  Select,
-  Combobox,
-  EditorSummary,
-  FormField,
-  Picker,
-  MiaixzLocaleProvider,
-} from "../src/index.js";
-
-type State = Pick<import("../src/index.js").InputProps, "disabled" | "readOnly" | "invalid">;
-const options = [{ value: "string", label: "string" }];
-const fields: Record<string, (state: State) => ReactNode> = {
-  Input: (state) => <Input aria-label="文本" {...state} />,
-  Search: (state) => <Search aria-label="搜索" {...state} />,
-  Textarea: (state) => <Textarea aria-label="说明" {...state} />,
-  Select: (state) => (
-    <Select aria-label="选择" {...state}>
-      <option>string</option>
-    </Select>
-  ),
-  Combobox: (state) => <Combobox label="类型" options={options} {...state} />,
-  Picker: (state) => <Picker label="多选" options={options} {...state} />,
-};
+import { Combobox } from "../src/components/combobox/index.js";
+import { Field } from "../src/components/field/index.js";
+import { Input } from "../src/components/input/index.js";
+import { Picker } from "../src/components/picker/index.js";
+import { Select } from "../src/components/select/index.js";
+import { renderWithLocale } from "./test-utils.js";
 
 afterEach(cleanup);
 
-describe("shared field focus state ownership", () => {
-  for (const [name, field] of Object.entries(fields)) {
-    for (const state of ["normal", "disabled", "readonly", "invalid"] as const) {
-      it(`${name} exposes ${state} on the shared focus shell`, () => {
-        const props = {
-          disabled: state === "disabled",
-          readOnly: state === "readonly",
-          invalid: state === "invalid",
-        };
-        const { container } = render(
-          <MiaixzLocaleProvider i18n={createMiaixzI18n()}>{field(props)}</MiaixzLocaleProvider>,
-        );
-        const shell = container.querySelector<HTMLElement>(".miaixz-control")!;
-        expect(shell).not.toBeNull();
-        for (const key of ["disabled", "readonly", "invalid"]) {
-          expect(shell.getAttribute(`data-${key}`)).toBe(state === key ? "true" : null);
-        }
-        const editor = shell.querySelector<HTMLElement>("input, textarea, button")!;
-        expect(editor).not.toBeNull();
-        if (state === "disabled") {
-          expect(editor).toBeDisabled();
-        } else {
-          editor.focus();
-          expect(document.activeElement).toBe(editor);
-        }
-        if (state === "readonly") {
-          expect(
-            editor.hasAttribute("readonly") || editor.getAttribute("aria-readonly") === "true",
-          ).toBe(true);
-        }
-        if (state === "invalid") expect(editor).toHaveAttribute("aria-invalid", "true");
-        else expect(editor).not.toHaveAttribute("aria-invalid");
-      });
-    }
-  }
+const removedHiddenClassName = ["miaixz", "visually", "hidden"].join("-");
 
-  it("keeps field labels, guidance, errors and editor summary values reachable", () => {
-    render(
-      <>
-        <FormField errorText="名称不能为空" helperText="用于成员列表展示" label="显示名称" required>
-          <Input />
-        </FormField>
-        <EditorSummary
-          items={[
-            { label: "状态", value: "待完善" },
-            { label: "账号", value: "kimi.liu" },
-          ]}
-          subtitle="用户档案"
-          title="Kimi Liu"
-        />
-      </>,
+const options = [
+  { value: "alpha", label: "Alpha", textValue: "Alpha" },
+  { value: "beta", label: "Beta", textValue: "Beta" },
+] as const;
+const selectItems = options.map((option) => ({
+  ...option,
+  id: option.value,
+  kind: "option" as const,
+}));
+
+describe("field and collection controls", () => {
+  it("connects a native Input to one Field label, description and error", () => {
+    renderWithLocale(
+      <Field errorText="必填" helperText="输入名称" invalid label="名称" required>
+        <Input />
+      </Field>,
     );
-
-    const input = screen.getByRole("textbox", { name: "显示名称" });
+    const input = screen.getByRole("textbox", { name: /名称/u });
     expect(input).toBeRequired();
-    expect(input).toBeInvalid();
-    expect(input).toHaveAccessibleDescription("用于成员列表展示 名称不能为空");
-    expect(screen.getByRole("alert")).toHaveTextContent("名称不能为空");
-    expect(screen.getByRole("heading", { name: "Kimi Liu" })).toBeInTheDocument();
-    expect(screen.getByText("账号").closest("dl")).toHaveTextContent("kimi.liu");
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input.getAttribute("aria-describedby")).toBeTruthy();
+    expect(screen.getByRole("alert")).toHaveTextContent("必填");
   });
 
-  it("connects a Select trigger to its Field label, guidance and required state", () => {
-    render(
-      <FormField helperText="选择租户后载入订阅" label="租户" required>
-        <Select defaultValue="tenant-001">
-          <option value="tenant-001">Miaixz</option>
-        </Select>
-      </FormField>,
+  it("connects Select to Field and selects through one explicit item collection", () => {
+    renderWithLocale(
+      <Field helperText="选择环境" label="环境" required>
+        <Select items={selectItems} />
+      </Field>,
     );
-
-    const select = screen.getByRole("combobox", { name: "租户" });
-    expect(select).toHaveAccessibleDescription("选择租户后载入订阅");
-    expect(select).toHaveAttribute("aria-required", "true");
-    expect(select.id).not.toBe("");
-    expect(document.querySelector(`label[for="${select.id}"]`)).toHaveTextContent("租户");
+    const trigger = screen.getByRole("combobox", { name: /环境/u });
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole("option", { name: "Beta" }));
+    expect(trigger).toHaveTextContent("Beta");
   });
 
-  it("reflects a control validation state on its field container", () => {
-    const { container } = render(
-      <FormField label="显示名称">
-        <Input invalid />
-      </FormField>,
+  it("uses the canonical hidden class for Select validation feedback", () => {
+    renderWithLocale(
+      <form aria-label="环境表单">
+        <Field label="环境" required>
+          <Select items={selectItems} />
+        </Field>
+        <button type="submit">提交</button>
+      </form>,
     );
 
-    const field = container.querySelector(".miaixz-field");
-    expect(field).toHaveClass("miaixz-field-invalid");
-    expect(field).toHaveAttribute("data-invalid", "true");
+    fireEvent.submit(screen.getByRole("form", { name: "环境表单" }));
+
+    const feedback = screen.getByText("请选择一个选项");
+    expect(feedback).toHaveClass("miaixz-hidden");
+    expect(feedback).not.toHaveClass(removedHiddenClassName);
+    expect(screen.getByRole("combobox", { name: /环境/u })).toHaveAttribute(
+      "aria-describedby",
+      feedback.id,
+    );
+  });
+
+  it("keeps Combobox readonly state on its single control owner", () => {
+    renderWithLocale(<Combobox label="项目" options={options} readOnly value={options[0]} />);
+    const input = screen.getByRole("combobox", { name: "项目" });
+    expect(input).toHaveAttribute("aria-readonly", "true");
+    expect(input.closest(".miaixz-combobox")).toHaveAttribute("data-readonly", "true");
+  });
+
+  it("renders Picker values from its controlled option collection", () => {
+    renderWithLocale(<Picker label="成员" options={options} value={[options[0]!]} />);
+    expect(screen.getByRole("combobox", { name: "成员" })).toBeVisible();
+    expect(screen.getByText("Alpha")).toBeVisible();
   });
 });

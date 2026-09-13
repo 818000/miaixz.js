@@ -1,123 +1,89 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { createMiaixzI18n } from "@miaixz/sdk/i18n";
-import { describe, expect, it, vi } from "vitest";
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ */
 
-import { MiaixzLocaleProvider } from "../src/i18n/index.js";
-import {
-  Navigation,
-  NavigationRail,
-  NavigationRailGroup,
-} from "../src/components/navigation/index.js";
+import "@testing-library/jest-dom/vitest";
+import { cleanup, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+
+import { Navigation, NavigationRail } from "../src/components/navigation/index.js";
+import { renderWithLocale } from "./test-utils.js";
+
+afterEach(cleanup);
 
 describe("Navigation", () => {
-  it("renders an icon-only category selector with an accessible label", () => {
-    render(
+  it("renders the sole structured link model with current and icon semantics", () => {
+    renderWithLocale(
       <Navigation
         items={[
           {
-            active: true,
+            id: "workbench",
+            current: "page",
             href: "/workbench",
-            icon: <span aria-hidden="true">W</span>,
+            icon: "LayoutDashboard",
             label: "工作空间",
+            textValue: "工作空间",
           },
         ]}
         label="主导航"
-        variant="icon"
+        surface="filled"
       />,
     );
 
-    expect(screen.getByRole("navigation", { name: "主导航" }).getAttribute("data-variant")).toBe(
-      "icon",
+    expect(screen.getByRole("navigation", { name: "主导航" })).toHaveAttribute(
+      "data-surface",
+      "filled",
     );
-    expect(screen.getByRole("link", { name: "工作空间" }).getAttribute("aria-current")).toBe(
-      "page",
-    );
+    expect(screen.getByRole("link", { name: "工作空间" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("reveals a brand without introducing a second navigation level", () => {
-    render(
+  it("renders rail groups from data without the removed opaque navigation path", () => {
+    const { container } = renderWithLocale(
       <NavigationRail
         brand={<a href="/">Miaixz</a>}
-        classNames={{ body: "product-navigation-body", utility: "product-navigation-utility" }}
         expanded
-        navigation={
-          <NavigationRailGroup label="平台底座" separated>
-            <a href="/workbench">工作台</a>
-          </NavigationRailGroup>
-        }
+        groups={[
+          {
+            id: "primary",
+            label: "平台底座",
+            items: [
+              {
+                id: "workbench",
+                current: "page",
+                href: "/workbench",
+                label: "工作台",
+                textValue: "工作台",
+                overflow: "never",
+              },
+            ],
+          },
+        ]}
         toggle={<button type="button">收起菜单</button>}
         utility={<button type="button">账户</button>}
         variant="brand"
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Miaixz" })).not.toBeNull();
-    expect(screen.getByRole("link", { name: "工作台" })).not.toBeNull();
-    expect(screen.getByText("平台底座").className).toContain(
-      "miaixz-navigation-rail-group-marker-label",
-    );
-    expect(screen.queryByRole("region")).toBeNull();
-    expect(screen.getByRole("button", { name: "账户" })).not.toBeNull();
-    expect(
-      screen.getByRole("link", { name: "工作台" }).closest(".product-navigation-body"),
-    ).not.toBeNull();
-    expect(screen.getByRole("button", { name: "账户" }).parentElement?.className).toContain(
-      "product-navigation-utility",
-    );
-    expect(
-      screen.getByRole("button", { name: "收起菜单" }).closest("[data-variant='brand']"),
-    ).not.toBeNull();
-  });
-
-  it("collects lower-priority links without scrolling the adaptive rail", async () => {
-    const user = userEvent.setup();
-    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(160);
-    const { container } = render(
-      <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
-        <NavigationRail
-          brand={<a href="/">Miaixz</a>}
-          expanded
-          groups={[
-            {
-              id: "primary",
-              label: "主要功能",
-              items: [
-                { id: "active", active: true, href: "/active", label: "当前页面" },
-                { id: "optional", href: "/optional", label: "可收纳页面" },
-                { id: "optional-two", href: "/optional-two", label: "另一收纳页面" },
-              ],
-            },
-            {
-              id: "context",
-              label: "上下文",
-              placement: "end",
-              items: [
-                {
-                  id: "persistent",
-                  href: "/persistent",
-                  label: "固定页面",
-                  overflow: "never",
-                },
-              ],
-            },
-          ]}
-          overflowLabel="更多"
-          overflowMode="adaptive"
-          toggle={<button type="button">收起菜单</button>}
-        />
-      </MiaixzLocaleProvider>,
-    );
-
-    await waitFor(() => expect(screen.getByRole("button", { name: "更多" })).not.toBeNull());
-    expect(screen.getByRole("link", { name: "当前页面" })).not.toBeNull();
-    expect(screen.getByRole("link", { name: "固定页面" })).not.toBeNull();
-    expect(screen.queryByRole("link", { name: "可收纳页面" })).toBeNull();
-    expect(
-      container.querySelector(".miaixz-navigation-rail-frame")?.getAttribute("data-overflow-mode"),
-    ).toBe("adaptive");
-
-    await user.click(screen.getByRole("button", { name: "更多" }));
-    expect(screen.getByRole("menuitem", { name: "可收纳页面" }).tagName).toBe("A");
+    expect(screen.getByRole("link", { name: "工作台" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByText("平台底座")).toBeVisible();
+    expect(container.querySelector("[data-overflow-mode]")).toBeNull();
+    expect(container.querySelector(".miaixz-navigation-rail")).toBeNull();
+    expect(container.querySelector(".miaixz-navigation-rail-frame")).not.toBeNull();
   });
 });

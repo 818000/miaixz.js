@@ -18,48 +18,102 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import type { HeaderProps } from "./header.types.js";
-
-/**
- * Renders a page title area with description, metadata, and actions. @public
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Header contracts are defined by the component type module.
  */
-export const Header = forwardRef<HTMLElement, HeaderProps>(function Header(
-  {
-    title,
-    eyebrow,
-    description,
-    actions,
-    headingLevel = 1,
-    className,
-    children,
-    variant = "default",
-    spacing = "default",
-    ...props
-  },
-  ref,
-) {
-  const Heading = `h${headingLevel}` as "h1" | "h2" | "h3";
-  return (
-    <header
-      {...props}
-      ref={ref}
-      className={classNames(
-        "miaixz-header",
-        variant === "compact" && "miaixz-header-compact",
-        spacing === "none" && "miaixz-header-unspaced",
-        className,
-      )}
-    >
-      <div className="miaixz-header-content">
-        {eyebrow !== undefined && <div className="miaixz-header-eyebrow">{eyebrow}</div>}
-        <Heading className="miaixz-header-title">{title}</Heading>
-        {description !== undefined && <p className="miaixz-header-description">{description}</p>}
-        {children}
-      </div>
-      {actions !== undefined && <div className="miaixz-header-actions">{actions}</div>}
-    </header>
-  );
-});
+import { createElement, forwardRef } from "react";
+
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { HeaderOwnerState, HeaderProps } from "./header.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Renders a page title area with configurable structure slots. @public
+ */
+export const Header = withMiaixzThemeComponent(
+  "Header",
+  forwardRef<HTMLElement, HeaderProps>(function Header(
+    {
+      title,
+      eyebrow,
+      description,
+      actions,
+      headingLevel = 1,
+      density = "standard",
+      spacing = "default",
+      slots,
+      slotProps,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const ownerState: HeaderOwnerState = { density, spacing };
+    const Description = slots?.description ?? "div";
+    return (
+      <header
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-header" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-density": density, "data-spacing": spacing },
+          ownedProps: ["data-density", "data-spacing"],
+        })}
+      >
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-header-content" },
+            slotProps: slotProps?.content,
+          })}
+        >
+          {eyebrow !== undefined && (
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-header-eyebrow" },
+                slotProps: slotProps?.eyebrow,
+              })}
+            >
+              {eyebrow}
+            </div>
+          )}
+          {createElement(
+            `h${headingLevel}`,
+            mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-header-title" },
+              slotProps: slotProps?.title,
+            }),
+            title,
+          )}
+          {description !== undefined && (
+            <Description
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-header-description" },
+                slotProps: slotProps?.description,
+              })}
+            >
+              {description}
+            </Description>
+          )}
+          {children}
+        </div>
+        {actions !== undefined && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-header-actions" },
+              slotProps: slotProps?.actions,
+            })}
+          >
+            {actions}
+          </div>
+        )}
+      </header>
+    );
+  }),
+);

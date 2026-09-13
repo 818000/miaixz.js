@@ -18,36 +18,77 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import type { EntryProps } from "./entry.types.js";
-
-/**
- * Renders a full-viewport entry layout without product-specific content.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc --
+ * Public Entry contracts are defined by the component type module.
  */
-export const Entry = forwardRef<HTMLDivElement, EntryProps>(function Entry(
-  { variant, aside, className, children, ...props },
-  ref,
-) {
-  const hasAside = aside !== undefined && aside !== null && aside !== false;
+import { createElement, forwardRef } from "react";
 
-  return (
-    <div
-      {...props}
-      ref={ref}
-      data-variant={variant}
-      data-has-aside={hasAside || undefined}
-      className={classNames("miaixz-entry", className)}
-    >
-      {hasAside && (
-        <aside className="miaixz-entry-aside">
-          <div className="miaixz-entry-aside-content">{aside}</div>
-        </aside>
-      )}
-      <main className="miaixz-entry-main">{children}</main>
-    </div>
-  );
-});
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { EntryOwnerState, EntryProps } from "./entry.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Renders an entry layout without implicitly creating a main landmark. @public
+ */
+export const Entry = withMiaixzThemeComponent(
+  "Entry",
+  forwardRef<HTMLDivElement, EntryProps>(function Entry(
+    {
+      layout = "centered",
+      contentComponent = "div",
+      aside,
+      slotProps,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const hasAside = aside !== undefined && aside !== null && aside !== false;
+    const ownerState: EntryOwnerState = { layout, contentComponent, hasAside };
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-entry" },
+          componentProps: { ...props, className },
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            ...(hasAside ? { "data-has-aside": true } : {}),
+            "data-layout": layout,
+          },
+        })}
+      >
+        {hasAside && (
+          <aside
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-entry-aside" },
+              slotProps: slotProps?.aside,
+            })}
+          >
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-entry-aside-content" },
+                slotProps: slotProps?.asideContent,
+              })}
+            >
+              {aside}
+            </div>
+          </aside>
+        )}
+        {createElement(
+          contentComponent,
+          mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-entry-content" },
+            slotProps: slotProps?.content,
+          }),
+          children,
+        )}
+      </div>
+    );
+  }),
+);

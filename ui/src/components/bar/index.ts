@@ -19,4 +19,4 @@
 */
 
 export { Bar } from "./bar.js";
-export type { BarProps, MiaixzBarOwnProps } from "./bar.types.js";
+export type { BarProps } from "./bar.types.js";

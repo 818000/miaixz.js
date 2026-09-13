@@ -449,8 +449,9 @@ Modules must not obtain context through shared globals or direct access to the h
 ```bash
 npm install
 npm run check
-npm run pack:check
 ```
+
+Run `npm run check:package` from the repository root to validate both packed packages.
 
 Publishing is coordinated by the repository release workflow. Both npm packages must share the exact version and are published together from an unprefixed semantic-version tag. Stable releases use the `latest` dist-tag, while prereleases use `next`.
 

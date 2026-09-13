@@ -20,36 +20,117 @@
 
 import { forwardRef } from "react";
 
-import { Icon } from "../icon/index.js";
-import { Tooltip } from "../tooltip/index.js";
-import { ActionTarget } from "./action-target.js";
-import type { IconButtonProps } from "./action.types.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { classNames } from "../../shared/class-names.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Icon } from "../icon/icon.js";
+import { Tooltip } from "../tooltip/tooltip.js";
+import type {
+  IconButtonOwnerState,
+  IconButtonProps,
+  IconButtonRootAttributes,
+} from "./action.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
- * Renders one accessible icon-only action with package-owned tooltip behavior.
+ * Renders one accessible icon-only command.
  *
  * @public
  */
-export const IconButton = forwardRef<HTMLElement, IconButtonProps>(function IconButton(
-  { action, pressed, id, ...accessibility },
-  ref,
-) {
-  const loading = "loading" in action && action.loading === true;
-  const target = (
-    <ActionTarget
-      ref={ref}
-      {...(id === undefined ? {} : { id })}
-      action={{
-        ...action,
-        ...accessibility,
-        "aria-label": action["aria-label"] ?? action.label,
-      }}
-      className={`miaixz-icon-button miaixz-action-${action.size ?? "default"}`}
-      {...(pressed === undefined ? {} : { pressed })}
-    >
-      <Icon name={loading ? "LoaderCircle" : action.icon} size="control" />
-    </ActionTarget>
-  );
-
-  return <Tooltip content={action.label}>{target}</Tooltip>;
-});
+export const IconButton = withMiaixzThemeComponent(
+  "IconButton",
+  forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(props, ref) {
+    const { t } = useMiaixzLocale();
+    const {
+      label,
+      icon,
+      tone = "neutral",
+      size = "medium",
+      loading = false,
+      tooltip = true,
+      pressed,
+      disabled: disabledProp,
+      type = "button",
+      slotProps,
+      ...nativeProps
+    } = props;
+    const disabled = disabledProp === true || loading;
+    const ownerState: IconButtonOwnerState = {
+      tone,
+      size,
+      loading,
+      disabled,
+      ...(pressed === undefined ? {} : { pressed }),
+    };
+    const rootProps = mergeMiaixzSlotProps<
+      IconButtonOwnerState,
+      IconButtonRootAttributes,
+      HTMLButtonElement
+    >({
+      ownerState,
+      defaultProps: {
+        className: classNames(
+          "miaixz-interactive",
+          "miaixz-control",
+          "miaixz-button",
+          "miaixz-icon-button",
+          `miaixz-control-${size}`,
+        ),
+      },
+      componentProps: nativeProps,
+      slotProps: slotProps?.root,
+      forwardedRef: ref,
+      internalProps: {
+        type,
+        disabled,
+        "aria-label": label,
+        ...(loading ? { "aria-busy": true, "data-loading": true } : {}),
+        ...(pressed === undefined ? {} : { "aria-pressed": pressed }),
+        "data-miaixz-ripple": "true",
+        "data-size": size,
+        "data-tone": tone,
+        "data-variant": "plain",
+      },
+      ownedProps: [
+        "type",
+        "disabled",
+        "aria-label",
+        "aria-busy",
+        "aria-pressed",
+        "data-loading",
+        "data-miaixz-ripple",
+        "data-size",
+        "data-tone",
+        "data-variant",
+      ],
+    });
+    const iconProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-icon-button-icon" },
+      slotProps: slotProps?.icon,
+    });
+    const indicatorProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-icon-button-loading-indicator" },
+      slotProps: slotProps?.loadingIndicator,
+      internalProps: { "aria-hidden": true },
+      ownedProps: ["aria-hidden"],
+    });
+    const target = (
+      <button {...rootProps}>
+        <span {...iconProps} data-loading={loading || undefined}>
+          <Icon name={icon} size="control" />
+        </span>
+        {loading && (
+          <>
+            <span {...indicatorProps}>
+              <Icon className="miaixz-button-spinner" name="LoaderCircle" size="control" />
+            </span>
+            <span className="miaixz-hidden">{t("ui.loading")}</span>
+          </>
+        )}
+      </button>
+    );
+    return tooltip ? <Tooltip content={label}>{target}</Tooltip> : target;
+  }),
+);

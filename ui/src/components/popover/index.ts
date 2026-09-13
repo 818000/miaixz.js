@@ -18,5 +18,14 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./popover.js";
-export type * from "./popover.types.js";
+export { Popover } from "./popover.js";
+export type {
+  PopoverChangeReason,
+  PopoverOpenState,
+  PopoverOwnerState,
+  PopoverPopupRole,
+  PopoverProps,
+  PopoverSlot,
+  PopoverSlotProps,
+  PopoverTriggerProps,
+} from "./popover.types.js";

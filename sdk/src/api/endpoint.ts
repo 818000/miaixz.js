@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzEnvironment } from "../types/index.js";
+import type { MiaixzEnvironment } from "../types/config.js";
 
 const miaixzEnvironments = new Set<MiaixzEnvironment>([
   "development",

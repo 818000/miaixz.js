@@ -18,10 +18,9 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzApiClient } from "../api/index.js";
-import { MiaixzSdkError, isMiaixzSdkError } from "../api/errors.js";
-import { miaixzDefaultI18n, type MiaixzTranslator } from "../i18n/index.js";
-import type { MiaixzFileDescriptor, MiaixzUploadResult } from "../types/index.js";
+import type { MiaixzApiClient } from "../api/client.js";
+import { isMiaixzSdkError, MiaixzSdkError } from "../errors/errors.js";
+import type { MiaixzFileDescriptor, MiaixzUploadResult } from "../types/file.js";
 
 /**
  * Configures a multipart file upload.
@@ -95,18 +94,6 @@ export interface MiaixzDownloadedFile {
 }
 
 /**
- * Configures a high-level Miaixz file client.
- *
- * @public
- */
-export interface MiaixzFileClientOptions {
-  /**
-   * Optional translator used for file-operation errors.
-   */
-  translate?: MiaixzTranslator;
-}
-
-/**
  * Normalizes a single upload blob to the multi-file representation.
  *
  * @param files - Single blob or immutable blob collection.
@@ -143,8 +130,6 @@ export function getMiaixzDownloadFilename(headers: Headers): string | undefined 
  * @public
  */
 export class MiaixzFileClient {
-  readonly #translate: MiaixzTranslator;
-
   /**
    * Configured API client used for file requests.
    */
@@ -154,11 +139,9 @@ export class MiaixzFileClient {
    * Creates a high-level file client.
    *
    * @param api - Configured API client.
-   * @param options - File-specific adapters.
    */
-  constructor(api: MiaixzApiClient, options: MiaixzFileClientOptions = {}) {
+  constructor(api: MiaixzApiClient) {
     this.api = api;
-    this.#translate = options.translate ?? miaixzDefaultI18n.t;
   }
 
   /**
@@ -214,7 +197,7 @@ export class MiaixzFileClient {
       };
     } catch (cause) {
       if (isMiaixzSdkError(cause)) throw cause;
-      throw new MiaixzSdkError(this.#translate("sdk.error.file.download"), {
+      throw new MiaixzSdkError({
         code: "FILE_DOWNLOAD_FAILED",
         cause,
       });
@@ -226,15 +209,11 @@ export class MiaixzFileClient {
  * Creates a high-level file client around an existing API client.
  *
  * @param api - Configured API client used for file requests.
- * @param options - Optional file-client adapters.
  * @returns Configured high-level file client.
  * @public
  */
-export function createMiaixzFileClient(
-  api: MiaixzApiClient,
-  options?: MiaixzFileClientOptions,
-): MiaixzFileClient {
-  return new MiaixzFileClient(api, options);
+export function createMiaixzFileClient(api: MiaixzApiClient): MiaixzFileClient {
+  return new MiaixzFileClient(api);
 }
 
 /**

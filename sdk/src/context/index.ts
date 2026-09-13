@@ -18,4 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./context.js";
+export {
+  createMiaixzContextStore,
+  isMiaixzRuntimeContext,
+  MiaixzContextStore,
+  miaixzContextToHeaders,
+} from "./context.js";
+export type { MiaixzContextStoreOptions } from "./context.js";

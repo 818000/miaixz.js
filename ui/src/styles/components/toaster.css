@@ -37,3 +37,13 @@
   background: transparent;
   border: 0;
 }
+
+.miaixz-toaster-region {
+  display: flex;
+  flex-direction: column;
+  gap: var(--miaixz-space-8);
+}
+
+.miaixz-toaster-region:empty {
+  display: none;
+}

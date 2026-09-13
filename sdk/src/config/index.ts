@@ -18,4 +18,12 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./config.js";
+export {
+  defineMiaixzConfig,
+  getMiaixzFeature,
+  getMiaixzServiceEndpoint,
+  isMiaixzSdkConfig,
+  loadMiaixzConfig,
+  MiaixzConfigStore,
+} from "./config.js";
+export type { MiaixzLoadConfigOptions } from "./config.js";

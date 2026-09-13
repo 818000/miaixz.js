@@ -21,24 +21,8 @@
 import type { ButtonHTMLAttributes } from "react";
 
 /**
- * Configures a semantic button with only shared interaction behavior.
- *
- * Use this for custom list rows, navigation labels and other composite
- * surfaces whose visual layout belongs to the consuming product.
+ * Configures a native button with only shared interaction behavior.
  *
  * @public
  */
-export interface PressableProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /**
-   * Selects a reusable selection or composite interaction surface.
-   */
-  variant?: "default" | "row" | "pill" | "card";
-  /**
-   * Selects a shared row density.
-   */
-  density?: "compact" | "standard" | "comfortable";
-  /**
-   * Selects a row separator without business-owned control CSS.
-   */
-  separator?: "solid" | "dashed" | "none";
-}
+export interface PressableProps extends ButtonHTMLAttributes<HTMLButtonElement> {}

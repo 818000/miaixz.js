@@ -82,42 +82,34 @@
  */
 /* stylelint-disable no-descending-specificity
  */
-.miaixz-control:where([data-filled="true"], [data-preview-state="filled"]) {
+.miaixz-control[data-filled="true"] {
   border-color: var(--miaixz-color-border);
 }
 
-.miaixz-control:where(
-  :hover:not(:disabled, [aria-disabled="true"], [data-disabled="true"]),
-  [data-preview-state="hover"]
-) {
+.miaixz-control:hover:not(:disabled, [aria-disabled="true"], [data-disabled="true"]) {
   border-color: var(--miaixz-color-border-strong);
 }
 
-.miaixz-control:where(:focus-visible, :focus-within, [data-preview-state="focus"]) {
+.miaixz-control:where(:focus-visible, :focus-within) {
   outline: 0;
   border-color: var(--miaixz-color-border-strong);
   box-shadow: var(--miaixz-control-focus-shadow);
 }
 
-.miaixz-control:where([readonly], [data-readonly="true"], [data-preview-state="readonly"]) {
+.miaixz-control:where([readonly], [data-readonly="true"]) {
   color: var(--miaixz-color-text-secondary);
   border-color: var(--miaixz-color-border);
   box-shadow: none;
 }
 
-.miaixz-control:where(
-  [aria-invalid="true"],
-  [data-invalid="true"],
-  [data-preview-state="invalid"]
-) {
+.miaixz-control:where([aria-invalid="true"], [data-invalid="true"]) {
   border-color: var(--miaixz-color-danger);
   box-shadow: var(--miaixz-control-invalid-shadow);
 }
 
 .miaixz-control:disabled,
 .miaixz-control[aria-disabled="true"],
-.miaixz-control[data-disabled="true"],
-.miaixz-control[data-preview-state="disabled"] {
+.miaixz-control[data-disabled="true"] {
   color: var(--miaixz-color-text-disabled);
   cursor: not-allowed;
   border-color: var(--miaixz-color-border);
@@ -166,11 +158,7 @@
     .miaixz-select,
     .miaixz-combobox-control,
     .miaixz-picker-control
-  ):where(:focus-within, [data-preview-state="focus"]):not(
-    [data-invalid="true"],
-    [data-disabled="true"],
-    [data-readonly="true"]
-  ) {
+  ):focus-within:not([data-invalid="true"], [data-disabled="true"], [data-readonly="true"]) {
   box-shadow: none;
 }
 
@@ -180,11 +168,7 @@
     .miaixz-select,
     .miaixz-combobox-control,
     .miaixz-picker-control
-  ):where(:focus-within, [data-preview-state="focus"]):not(
-    [data-invalid="true"],
-    [data-disabled="true"],
-    [data-readonly="true"]
-  )::after {
+  ):focus-within:not([data-invalid="true"], [data-disabled="true"], [data-readonly="true"])::after {
   transform: scaleX(1);
   transition: transform 420ms cubic-bezier(0.2, 0.72, 0.2, 1);
 }

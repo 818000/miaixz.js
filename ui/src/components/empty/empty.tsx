@@ -18,53 +18,98 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { classNames } from "../../shared/class-names.js";
-import type { EmptyProps } from "./empty.types.js";
-
-/**
- * Presents an empty, missing, or filtered state with optional icon and actions.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
  */
-export const Empty = forwardRef<HTMLDivElement, EmptyProps>(function Empty(
-  {
-    title,
-    description,
-    icon,
-    actions,
-    compact = false,
-    headingLevel = 3,
-    variant = "default",
-    className,
-    ...props
-  },
-  ref,
-) {
-  const Heading = `h${headingLevel}` as "h2" | "h3" | "h4" | "h5" | "h6";
-  if (variant === "plain") {
+import { createElement, forwardRef } from "react";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { EmptyOwnerState, EmptyProps } from "./empty.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+
+/*
+ * Presents a structurally stable empty state.
+ */
+export const Empty = withMiaixzThemeComponent(
+  "Empty",
+  forwardRef<HTMLDivElement, EmptyProps>(function Empty(
+    {
+      title,
+      description,
+      icon,
+      actions,
+      compact = false,
+      headingLevel = 3,
+      variant = "framed",
+      slots,
+      slotProps,
+      ...props
+    },
+    ref,
+  ) {
+    const ownerState: EmptyOwnerState = { variant, compact };
+    const Description = slots?.description ?? "div";
     return (
-      <div {...props} ref={ref} className={classNames("miaixz-empty-plain", className)}>
-        {title}
-        {description}
-        {actions}
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-empty" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-variant": variant, ...(compact ? { "data-compact": true } : {}) },
+          ownedProps: ["data-variant", "data-compact"],
+        })}
+      >
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-empty-content" },
+            slotProps: slotProps?.content,
+          })}
+        >
+          {icon !== undefined && (
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-empty-icon" },
+                slotProps: slotProps?.icon,
+              })}
+            >
+              {icon}
+            </div>
+          )}
+          {createElement(
+            `h${headingLevel}`,
+            mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-empty-title" },
+              slotProps: slotProps?.title,
+            }),
+            title,
+          )}
+          {description !== undefined && (
+            <Description
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-empty-description" },
+                slotProps: slotProps?.description,
+              })}
+            >
+              {description}
+            </Description>
+          )}
+          {actions !== undefined && (
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-empty-actions" },
+                slotProps: slotProps?.actions,
+              })}
+            >
+              {actions}
+            </div>
+          )}
+        </div>
       </div>
     );
-  }
-
-  return (
-    <div
-      {...props}
-      ref={ref}
-      className={classNames("miaixz-empty", compact && "miaixz-empty-compact", className)}
-    >
-      <div className="miaixz-empty-content">
-        {icon !== undefined && <div className="miaixz-empty-icon">{icon}</div>}
-        <Heading className="miaixz-empty-title">{title}</Heading>
-        {description !== undefined && <p className="miaixz-empty-description">{description}</p>}
-        {actions !== undefined && <div className="miaixz-empty-actions">{actions}</div>}
-      </div>
-    </div>
-  );
-});
+  }),
+);

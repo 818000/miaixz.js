@@ -19,4 +19,10 @@
 */
 
 export { Overlay } from "./overlay.js";
-export type { OverlayProps, MiaixzOverlayOwnProps } from "./overlay.types.js";
+export type {
+  MiaixzOverlayOwnProps,
+  OverlayOwnerState,
+  OverlayProps,
+  OverlaySlot,
+  OverlaySlotProps,
+} from "./overlay.types.js";

@@ -18,44 +18,45 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
-/**
- * Configures an empty, missing, or filtered state.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed empty-state slots are self-describing.
  */
-export interface EmptyProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
-  /**
-   * Selects the composed empty state or a plain text-only message.
-   */
-  variant?: "default" | "plain";
-  /**
-   * Supplies the empty heading.
-   */
-  title: ReactNode;
-  /**
-   * Supplies supporting explanatory content.
-   */
-  description?: ReactNode;
-  /**
-   * Displays optional illustrative icon content.
-   */
-  icon?: ReactNode;
-  /**
-   * Displays optional recovery or creation actions.
-   */
-  actions?: ReactNode;
-  /**
-   * Reduces the component spacing for constrained regions.
-   *
-   * @defaultValue `false`
-   */
-  compact?: boolean;
-  /**
-   * Selects the semantic heading level.
-   *
-   * @defaultValue `3`
-   */
-  headingLevel?: 2 | 3 | 4 | 5 | 6;
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
+
+export type EmptyVariant = "framed" | "plain";
+export type EmptySlot = "root" | "content" | "icon" | "title" | "description" | "actions";
+export interface EmptyOwnerState {
+  readonly variant: EmptyVariant;
+  readonly compact: boolean;
 }
+export interface EmptySlots {
+  readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
+}
+export type EmptyRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & {
+    readonly "data-variant"?: EmptyVariant;
+    readonly "data-compact"?: boolean;
+  };
+export interface EmptySlotProps {
+  readonly root?: MiaixzSlotProps<EmptyOwnerState, EmptyRootAttributes>;
+  readonly content?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly icon?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLHeadingElement>>;
+  readonly description?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export interface MiaixzEmptyOwnProps {
+  readonly variant?: EmptyVariant;
+  readonly title: ReactNode;
+  readonly description?: ReactNode;
+  readonly icon?: ReactNode;
+  readonly actions?: ReactNode;
+  readonly compact?: boolean;
+  readonly headingLevel?: 2 | 3 | 4 | 5 | 6;
+  readonly slots?: EmptySlots;
+  readonly slotProps?: EmptySlotProps;
+}
+export type EmptyProps = MiaixzEmptyOwnProps &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzEmptyOwnProps | "children">;
+/* eslint-enable jsdoc/require-jsdoc
+ */

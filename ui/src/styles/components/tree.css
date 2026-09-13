@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* stylelint-disable no-descending-specificity --
+ * Divider and connector dimensions independently specialize tree rows.
+ */
+
 .miaixz-tree {
   width: 100%;
   min-width: 0;
@@ -26,6 +30,28 @@
   background: var(--miaixz-surface-role-panel-background);
   border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-tree[data-surface="plain"] {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.miaixz-tree[data-density="compact"] {
+  --miaixz-tree-row-height: calc(var(--miaixz-density-list-item-height) - var(--miaixz-space-8));
+  --miaixz-tree-row-padding: var(--miaixz-space-2);
+}
+
+.miaixz-tree[data-density="standard"] {
+  --miaixz-tree-row-height: var(--miaixz-density-list-item-height);
+  --miaixz-tree-row-padding: var(--miaixz-space-4);
+}
+
+.miaixz-tree[data-density="comfortable"] {
+  --miaixz-tree-row-height: calc(var(--miaixz-density-list-item-height) + var(--miaixz-space-8));
+  --miaixz-tree-row-padding: var(--miaixz-space-8);
 }
 
 .miaixz-tree-item,
@@ -46,8 +72,8 @@
   gap: var(--miaixz-space-8);
   align-items: center;
   min-width: 0;
-  min-height: var(--miaixz-density-list-item-height);
-  padding: var(--miaixz-space-4) var(--miaixz-space-8);
+  min-height: var(--miaixz-tree-row-height);
+  padding: var(--miaixz-tree-row-padding) var(--miaixz-space-8);
   cursor: pointer;
   border-radius: var(--miaixz-radius-control);
   transition-timing-function: var(--miaixz-motion-interaction-easing);
@@ -133,52 +159,26 @@
   color: var(--miaixz-color-text-muted);
 }
 
-/* stylelint-disable no-descending-specificity
-
- */
-.miaixz-tree-directory {
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-}
-
-.miaixz-tree-directory .miaixz-tree-group {
-  padding-inline-start: var(--miaixz-space-16);
-}
-
-.miaixz-tree-directory .miaixz-tree-row {
-  min-height: 42px;
-  padding-block: 0;
+.miaixz-tree[data-divider-style="dashed"] .miaixz-tree-row {
   border-bottom: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
   border-radius: 0;
 }
 
-.miaixz-tree-directory .miaixz-tree-item:last-child > .miaixz-tree-row {
+.miaixz-tree[data-divider-style="dashed"] .miaixz-tree-item:last-child > .miaixz-tree-row {
   border-bottom: 0;
 }
 
-.miaixz-tree-outline {
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-}
-
-.miaixz-tree-outline .miaixz-tree-group {
+.miaixz-tree[data-connectors] .miaixz-tree-group {
   padding-inline-start: var(--miaixz-space-16);
   margin-inline-start: var(--miaixz-space-16);
   border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
-.miaixz-tree-outline .miaixz-tree-row {
+.miaixz-tree[data-connectors] .miaixz-tree-row {
   position: relative;
-  min-height: 48px;
-  padding-inline: var(--miaixz-space-4);
-  border-radius: 0;
 }
 
-.miaixz-tree-outline .miaixz-tree-group > .miaixz-tree-item > .miaixz-tree-row::before {
+.miaixz-tree[data-connectors] .miaixz-tree-group > .miaixz-tree-item > .miaixz-tree-row::before {
   position: absolute;
   inset-block-start: 50%;
   inset-inline-start: calc(-1 * var(--miaixz-space-16));
@@ -187,15 +187,10 @@
   border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
-.miaixz-tree-outline > .miaixz-tree-item > .miaixz-tree-row .miaixz-tree-label {
-  font-weight: var(--miaixz-font-weight-medium);
-}
-
-.miaixz-tree-outline .miaixz-tree-item[aria-selected="true"] > .miaixz-tree-row::before {
+.miaixz-tree[data-connectors] .miaixz-tree-item[aria-selected="true"] > .miaixz-tree-row::before {
   border-block-start-color: var(--miaixz-color-brand);
 }
-/* stylelint-enable no-descending-specificity
- */
+
 .miaixz-tree-selection {
   flex: none;
   color: var(--miaixz-color-brand);

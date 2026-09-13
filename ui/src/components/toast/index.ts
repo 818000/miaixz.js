@@ -19,4 +19,13 @@
 */
 
 export { Toast } from "./toast.js";
-export type { ToastProps, ToastTone } from "./toast.types.js";
+export type {
+  ToastAction,
+  ToastCloseReason,
+  ToastOwnerState,
+  ToastProps,
+  ToastSlot,
+  ToastSlotProps,
+  ToastSlots,
+  ToastTone,
+} from "./toast.types.js";

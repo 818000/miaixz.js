@@ -18,13 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-.miaixz-empty-plain {
-  padding: var(--miaixz-space-24);
-  font-size: var(--miaixz-text-body-size);
-  color: var(--miaixz-color-text-muted);
-  text-align: center;
-}
-
 /**
  * Miaixz empty state component
  */
@@ -49,6 +42,17 @@
   container-type: inline-size;
   color: var(--miaixz-color-text-primary);
   text-align: center;
+}
+
+.miaixz-empty[data-variant="plain"] {
+  padding: var(--miaixz-space-24);
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-empty[data-variant="framed"] {
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
+  border-radius: var(--miaixz-radius-panel);
 }
 
 .miaixz-empty-content {
@@ -98,7 +102,7 @@
   margin-block-start: var(--miaixz-space-4);
 }
 
-.miaixz-empty-compact {
+.miaixz-empty[data-compact="true"] {
   --miaixz-empty-padding-block: var(--miaixz-space-24);
   --miaixz-empty-icon-container-size: var(--miaixz-icon-size-40);
 }

@@ -18,47 +18,84 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useMiaixzCompactActions } from "../../shared/responsive/index.js";
-import { Button, ButtonLink } from "../button/index.js";
+import { createRef, useMemo, useRef, type HTMLAttributes } from "react";
+
+import {
+  assertUniqueActionIds,
+  partitionActions,
+  useActionCapacity,
+} from "../../shared/responsive/action-capacity.js";
+import { useMergedSlotProps } from "../../shared/slots.js";
+import { Button, ButtonLink } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
 import { ActionText } from "./action-text.js";
-import type { ActionBarProps, PrimaryActionDescriptor } from "./action.types.js";
+import type { ActionBarOwnerState, ActionBarProps, ActionDescriptor } from "./action.types.js";
 import { MoreActions } from "./more-actions.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 interface PrimaryActionProps {
   /**
-   * Resolved primary action contract.
+   * Supplies the resolved primary action.
    */
-  readonly action: PrimaryActionDescriptor;
+  readonly action: ActionDescriptor;
+}
+
+interface ActionMeasurementProps {
+  /**
+   * Supplies the action whose intrinsic width is measured.
+   */
+  readonly action: ActionDescriptor;
 }
 
 /**
- * Renders the single primary action permitted in an action bar.
+ * Renders an inert action measurement using the visible text-action recipe.
  *
- * @param root0 - Primary action properties.
- * @param root0.action - Resolved primary action contract.
+ * @param properties - Action measurement properties.
+ * @returns The inert action recipe.
+ */
+function ActionMeasurement(properties: ActionMeasurementProps) {
+  const { action } = properties;
+  return (
+    <span className="miaixz-action-text">
+      {action.icon !== undefined && (
+        <span className="miaixz-button-icon">
+          <Icon name={action.icon} size="control" />
+        </span>
+      )}
+      <span className="miaixz-button-label">{action.label}</span>
+    </span>
+  );
+}
+
+/**
+ * Renders the primary action using the locked solid mapping.
+ *
+ * @param properties - Primary action properties.
  * @returns The primary command or navigation control.
  */
-function PrimaryAction({ action }: PrimaryActionProps) {
-  if ("href" in action && action.href !== undefined) {
+function PrimaryAction(properties: PrimaryActionProps) {
+  const { action } = properties;
+  const icon = action.icon === undefined ? undefined : <Icon name={action.icon} size="control" />;
+  const common = {
+    size: action.size ?? "medium",
+    tone: action.tone ?? "brand",
+    variant: "solid" as const,
+    ...(icon === undefined ? {} : { startIcon: icon }),
+  };
+  if (action.kind === "navigation") {
     return (
-      <ButtonLink
-        href={action.href}
-        rel={action.rel}
-        startIcon={action.icon}
-        target={action.target}
-        variant="primary"
-      >
+      <ButtonLink {...action.anchorProps} {...common} href={action.href}>
         {action.label}
       </ButtonLink>
     );
   }
   return (
     <Button
+      {...action.buttonProps}
+      {...common}
       {...(action.disabled === undefined ? {} : { disabled: action.disabled })}
       {...(action.loading === undefined ? {} : { loading: action.loading })}
       onClick={action.onAction}
-      startIcon={action.icon}
-      variant="primary"
     >
       {action.label}
     </Button>
@@ -66,29 +103,74 @@ function PrimaryAction({ action }: PrimaryActionProps) {
 }
 
 /**
- * Organizes one primary action and a restrained set of ordinary actions.
+ * Organizes one primary action and ordinary actions using measured available width.
  *
- * @param root0 - Action bar properties.
- * @param root0.primary - Optional single primary action.
- * @param root0.actions - Ordered ordinary actions.
+ * @param properties - Action bar properties.
  * @returns The responsive action bar.
  * @public
  */
-export function ActionBar({ primary, actions }: ActionBarProps) {
-  const compact = useMiaixzCompactActions();
-  const visibleLimit = compact ? (primary === undefined ? 1 : 0) : 2;
-  const safe = actions.filter((action) => action.tone !== "danger");
-  const visible = safe.slice(0, visibleLimit);
-  const visibleIds = new Set(visible.map((action) => action.id));
-  const overflow = actions.filter((action) => !visibleIds.has(action.id));
+function ActionBar(properties: ActionBarProps) {
+  const { primary, actions, slotProps } = properties;
+  assertUniqueActionIds(primary === undefined ? actions : [...actions, primary]);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const overflowMeasureRef = useRef<HTMLSpanElement>(null);
+  const primaryMeasureRef = useRef<HTMLSpanElement>(null);
+  const actionMeasureRefs = useMemo(
+    () => actions.map(() => createRef<HTMLSpanElement>()),
+    [actions],
+  );
+  const capacity = useActionCapacity({
+    rootRef,
+    actionMeasureRefs,
+    primaryMeasureRef: primary === undefined ? undefined : primaryMeasureRef,
+    overflowMeasureRef,
+  });
+  const partition = partitionActions(actions, capacity);
+  const ownerState: ActionBarOwnerState = {
+    hasPrimary: primary !== undefined,
+    overflow: partition.overflow.length > 0,
+  };
+  const rootProps = useMergedSlotProps<
+    ActionBarOwnerState,
+    HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
+  >({
+    ownerState,
+    defaultProps: { className: "miaixz-action-bar" },
+    slotProps: slotProps?.root,
+    internalRef: (element) => {
+      rootRef.current = element;
+    },
+  });
 
   return (
-    <div className="miaixz-action-bar">
-      {visible.map((action) => (
+    <div {...rootProps}>
+      <span className="miaixz-action-measurements" aria-hidden="true" inert>
+        {actions.map((action, index) => (
+          <span key={action.id} ref={actionMeasureRefs[index]}>
+            <ActionMeasurement action={action} />
+          </span>
+        ))}
+        <span ref={overflowMeasureRef} className="miaixz-icon-button" />
+        {primary !== undefined && (
+          <span
+            ref={primaryMeasureRef}
+            className="miaixz-button miaixz-control-medium"
+            data-tone={primary.tone ?? "brand"}
+            data-variant="solid"
+          >
+            <ActionMeasurement action={primary} />
+          </span>
+        )}
+      </span>
+      {partition.visible.map((action) => (
         <ActionText key={action.id} action={action} />
       ))}
-      <MoreActions actions={overflow} />
+      <MoreActions actions={partition.overflow} />
       {primary !== undefined && <PrimaryAction action={primary} />}
     </div>
   );
 }
+
+const ThemedActionBar = withMiaixzThemeComponent("ActionBar", ActionBar);
+export { ThemedActionBar as ActionBar };

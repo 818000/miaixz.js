@@ -18,141 +18,113 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/* eslint-disable jsdoc/require-jsdoc -- Closed tree models and slots are self-describing.
+ */
 import type { HTMLAttributes, ReactNode } from "react";
 
-/**
- * Describes one business-neutral node rendered by Tree.
- *
- * @typeParam Value - Optional consumer-owned value attached to the node.
- * @public
- */
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
 export interface TreeNode<Value = unknown> {
-  /**
-   * Supplies the globally unique node identifier within one tree.
-   */
   readonly id: string;
-
-  /**
-   * Supplies the visible node label.
-   */
   readonly label: ReactNode;
-
-  /**
-   * Supplies supporting hierarchy context below the primary label.
-   */
+  readonly textValue: string;
   readonly description?: ReactNode;
-
-  /**
-   * Supplies optional metadata aligned to the far edge of the row.
-   */
   readonly trailing?: ReactNode;
-
-  /**
-   * Supplies optional consumer-owned node data.
-   */
   readonly value?: Value;
-
-  /**
-   * Supplies already loaded child nodes.
-   */
   readonly children?: readonly TreeNode<Value>[];
-
-  /**
-   * Indicates that children can be loaded when no child collection is present.
-   */
   readonly hasChildren?: boolean;
-
-  /**
-   * Prevents node selection and expansion.
-   */
   readonly disabled?: boolean;
 }
 
-/**
- * Defines Miaixz-owned Tree properties before native div attributes are merged.
- *
- * @typeParam Value - Optional consumer-owned value attached to each node.
- * @public
- */
-export interface MiaixzTreeOwnProps<Value = unknown> {
-  /**
-   * Supplies the complete root node collection.
-   */
-  nodes: readonly TreeNode<Value>[];
+export type TreeSelectionProps =
+  | {
+      readonly selectionMode: "none";
+      readonly selectedIds?: never;
+      readonly defaultSelectedIds?: never;
+      readonly onSelectedIdsChange?: never;
+    }
+  | ({ readonly selectionMode?: "single" | "multiple" } & (
+      | {
+          readonly selectedIds: readonly string[];
+          readonly defaultSelectedIds?: never;
+          readonly onSelectedIdsChange?: (ids: readonly string[]) => void;
+        }
+      | {
+          readonly selectedIds?: never;
+          readonly defaultSelectedIds?: readonly string[];
+          readonly onSelectedIdsChange?: (ids: readonly string[]) => void;
+        }
+    ));
 
-  /**
-   * Selects whether nodes are not selectable, singly selectable, or multiply selectable.
-   *
-   * @defaultValue `"single"`
-   */
-  selectionMode?: "none" | "single" | "multiple";
+export type TreeExpansionProps =
+  | {
+      readonly expandedIds: readonly string[];
+      readonly defaultExpandedIds?: never;
+      readonly onExpandedIdsChange?: (ids: readonly string[]) => void;
+    }
+  | {
+      readonly expandedIds?: never;
+      readonly defaultExpandedIds?: readonly string[];
+      readonly onExpandedIdsChange?: (ids: readonly string[]) => void;
+    };
 
-  /**
-   * Controls the ordered selected-node identifier collection.
-   */
-  selectedIds?: readonly string[];
+export type TreeSurface = "framed" | "plain";
+export type TreeDividerStyle = "none" | "dashed";
+export type TreeDensity = "compact" | "standard" | "comfortable";
 
-  /**
-   * Sets the initial uncontrolled selected-node identifier collection.
-   */
-  defaultSelectedIds?: readonly string[];
+export interface TreeOwnerState {
+  readonly surface: TreeSurface;
+  readonly connectors: boolean;
+  readonly dividerStyle: TreeDividerStyle;
+  readonly density: TreeDensity;
+  readonly selectionMode: "none" | "single" | "multiple";
+  readonly itemId: string;
+  readonly level: number;
+  readonly expanded: boolean;
+  readonly selected: boolean;
+  readonly disabled: boolean;
+  readonly loading: boolean;
+  readonly error: boolean;
+}
 
-  /**
-   * Receives requested selected-node identifier changes.
-   */
-  onSelectedIdsChange?: (ids: readonly string[]) => void;
+export interface TreeItemAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-state"?: "leaf" | "collapsed" | "expanded" | "loading" | "error";
+  readonly "data-disabled"?: boolean;
+}
 
-  /**
-   * Controls the ordered expanded-node identifier collection.
-   */
-  expandedIds?: readonly string[];
+export interface TreeIconAttributes extends HTMLAttributes<HTMLSpanElement> {
+  readonly "data-state"?: "leaf" | "collapsed" | "expanded";
+}
 
-  /**
-   * Sets the initial uncontrolled expanded-node identifier collection.
-   */
-  defaultExpandedIds?: readonly string[];
+export interface TreeSlotProps {
+  readonly item?: MiaixzSlotProps<TreeOwnerState, TreeItemAttributes>;
+  readonly label?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly icon?: MiaixzSlotProps<TreeOwnerState, TreeIconAttributes>;
+  readonly childrenGroup?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly loadingIndicator?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly error?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
 
-  /**
-   * Receives requested expanded-node identifier changes.
-   */
-  onExpandedIdsChange?: (ids: readonly string[]) => void;
-
-  /**
-   * Loads children for nodes that declare children without supplying them.
-   */
-  loadChildren?: (
+export interface MiaixzTreeBaseProps<Value = unknown> {
+  readonly nodes: readonly TreeNode<Value>[];
+  readonly label: string;
+  readonly loadChildren?: (
     node: Readonly<TreeNode<Value>>,
     signal: AbortSignal,
   ) => Promise<readonly TreeNode<Value>[]>;
-
-  /**
-   * Supplies the accessible tree label.
-   */
-  label: string;
-
-  /**
-   * Selects a framed tree, an edge-to-edge directory, or a connected hierarchy outline.
-   */
-  variant?: "default" | "directory" | "outline";
-
-  /**
-   * Controls the selected-row check mark while preserving selection semantics.
-   */
-  showSelectionIndicator?: boolean;
-
-  /**
-   * Displays the computed hierarchy depth without increasing deep-level indentation.
-   */
-  showLevelIndicator?: boolean;
+  readonly surface?: TreeSurface;
+  readonly connectors?: boolean;
+  readonly dividerStyle?: TreeDividerStyle;
+  readonly density?: TreeDensity;
+  readonly slotProps?: TreeSlotProps;
 }
 
-/**
- * Configures a business-neutral WAI-ARIA tree view.
- *
- * @typeParam Value - Optional consumer-owned value attached to each node.
- * @public
+export type MiaixzTreeOwnProps<Value = unknown> = MiaixzTreeBaseProps<Value> &
+  TreeSelectionProps &
+  TreeExpansionProps;
+
+/*
+ * Configures a business-neutral WAI-ARIA tree. @public
  */
-export interface TreeProps<Value = unknown>
-  extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzTreeOwnProps<Value>>,
-    MiaixzTreeOwnProps<Value> {}
+export type TreeProps<Value = unknown> = MiaixzTreeOwnProps<Value> &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzTreeOwnProps<Value> | "children">;

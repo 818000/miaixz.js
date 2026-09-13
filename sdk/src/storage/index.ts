@@ -18,4 +18,20 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./storage.js";
+export {
+  createMiaixzStorageKey,
+  getMiaixzBrowserStorage,
+  MiaixzMemoryStorage,
+  MiaixzNamespacedStorage,
+  readMiaixzJson,
+  readMiaixzVersionedValue,
+  writeMiaixzJson,
+  writeMiaixzVersionedValue,
+} from "./storage.js";
+export type {
+  MiaixzKeyValueStorage,
+  MiaixzStorageMigration,
+  MiaixzStorageScope,
+  MiaixzVersionedStorageOptions,
+  MiaixzVersionedValue,
+} from "./storage.js";

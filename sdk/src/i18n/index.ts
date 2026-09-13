@@ -18,4 +18,31 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./i18n.js";
+export {
+  createMiaixzI18n,
+  createMiaixzMessageLoader,
+  defineLocale,
+  getMiaixzBrowserLocale,
+  miaixzBuiltInLocales,
+  MiaixzI18n,
+  MiaixzI18nLoadError,
+  MiaixzLocaleCatalog,
+  miaixzSdkMessages,
+} from "./i18n.js";
+export type {
+  MiaixzI18nOptions,
+  MiaixzI18nSnapshot,
+  MiaixzLocale,
+  MiaixzLocaleDefinition,
+  MiaixzLocaleDescriptor,
+  MiaixzLocaleDirection,
+  MiaixzMessageCatalog,
+  MiaixzMessageLoader,
+  MiaixzMessageLoaderMap,
+  MiaixzMessageLoaderResult,
+  MiaixzMessageModule,
+  MiaixzMessageParams,
+  MiaixzMessages,
+  MiaixzMessageSource,
+  MiaixzTranslator,
+} from "./i18n.js";

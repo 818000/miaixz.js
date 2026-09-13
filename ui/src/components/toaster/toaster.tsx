@@ -18,128 +18,223 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+/* eslint-disable jsdoc/require-jsdoc, react-hooks/refs -- Timer and portal refs are local to the queue implementation.
+ */
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FocusEvent,
+} from "react";
 import { createPortal } from "react-dom";
 
-import { createMiaixzUiError } from "../../errors/index.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { useMiaixzManualPopover, useMiaixzPortalTarget } from "../../shared/overlay/index.js";
-import { Toast } from "../toast/index.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
+import { useMiaixzManualPopover } from "../../shared/overlay/top-layer.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Toast } from "../toast/toast.js";
+import { type ToastCloseReason } from "../toast/toast.types.js";
 import type {
   ToastContextValue,
-  ToastOptions,
+  ToasterOwnerState,
   ToasterProps,
+  ToastOptions,
   ToastRecord,
 } from "./toaster.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
-const maximumVisibleToasts = 5;
 let toastSequence = 0;
 
-/**
- * Creates a unique toast identifier.
- *
- * @returns The generated identifier.
- * @internal
- */
 function createToastId(): string {
   toastSequence += 1;
   return `miaixz-toast-${Date.now()}-${toastSequence}`;
 }
 
 interface ManagedToastProps {
-  /**
-   * Supplies the queued toast record.
-   */
   readonly toast: ToastRecord;
-  /**
-   * Removes the toast from its queue.
-   */
-  readonly dismiss: (id: string) => void;
+  readonly close: (id: string, reason: ToastCloseReason) => void;
 }
 
-/**
- * Manages automatic dismissal for one toast.
- *
- * @param properties - Managed toast properties.
- * @returns The rendered toast.
- * @internal
- */
-function ManagedToast(properties: ManagedToastProps) {
-  const { toast, dismiss } = properties;
+function ManagedToast({ toast, close }: ManagedToastProps) {
+  const remainingRef = useRef(toast.duration ?? 0);
+  const startedAtRef = useRef(0);
+  const [pointerPaused, setPointerPaused] = useState(false);
+  const [focusPaused, setFocusPaused] = useState(false);
+  const [documentPaused, setDocumentPaused] = useState(false);
+
   useEffect(() => {
-    if (!toast.duration || toast.duration <= 0) return;
-    const timer = window.setTimeout(() => dismiss(toast.id), toast.duration);
-    return () => window.clearTimeout(timer);
-  }, [dismiss, toast.duration, toast.id]);
-  return <Toast {...toast} onDismiss={dismiss} />;
+    remainingRef.current = toast.duration ?? 0;
+  }, [toast]);
+  useEffect(() => {
+    const ownerDocument = document;
+    const update = (): void => setDocumentPaused(ownerDocument.hidden);
+    update();
+    ownerDocument.addEventListener("visibilitychange", update);
+    return () => ownerDocument.removeEventListener("visibilitychange", update);
+  }, []);
+  useEffect(() => {
+    if (pointerPaused || focusPaused || documentPaused || remainingRef.current <= 0) return;
+    startedAtRef.current = performance.now();
+    const timer = window.setTimeout(() => close(toast.id, "timeout"), remainingRef.current);
+    return () => {
+      window.clearTimeout(timer);
+      remainingRef.current = Math.max(
+        0,
+        remainingRef.current - (performance.now() - startedAtRef.current),
+      );
+    };
+  }, [close, documentPaused, focusPaused, pointerPaused, toast]);
+
+  const handleBlur = (event: FocusEvent<HTMLDivElement>): void => {
+    if (!event.currentTarget.contains(event.relatedTarget)) setFocusPaused(false);
+  };
+  return (
+    <Toast
+      {...toast}
+      onClose={close}
+      onPointerEnter={() => setPointerPaused(true)}
+      onPointerLeave={() => setPointerPaused(false)}
+      onFocusCapture={() => setFocusPaused(true)}
+      onBlurCapture={handleBlur}
+    />
+  );
 }
 
-/**
- * Owns the application toast queue and renders its portal.
- *
- * @param properties - Toaster properties.
- * @returns The provider subtree and notification portal.
- * @public
+/*
+ * Owns the single FIFO toast queue and its two announcement priorities.
  */
-export function Toaster(properties: ToasterProps) {
-  const { children, defaultDuration = 5000 } = properties;
+function Toaster({
+  children,
+  defaultDuration = 5000,
+  maxVisible = 5,
+  onClose,
+  slotProps,
+}: ToasterProps) {
+  if (!Number.isFinite(defaultDuration)) {
+    throw new MiaixzUiError({
+      code: "UI_TOAST_DURATION_INVALID",
+      details: { duration: defaultDuration },
+    });
+  }
+  if (!Number.isInteger(maxVisible) || maxVisible <= 0) {
+    throw new MiaixzUiError({
+      code: "UI_TOASTER_MAX_VISIBLE_INVALID",
+      details: { maxVisible },
+    });
+  }
   const [toasts, setToasts] = useState<ToastRecord[]>([]);
+  const queueRef = useRef(toasts);
   const regionRef = useRef<HTMLDivElement>(null);
   const portalTarget = useMiaixzPortalTarget(null, true);
-  const hasVisibleToasts = toasts.length > 0;
-  const visibleToasts = toasts.slice(0, maximumVisibleToasts);
-  useMiaixzManualPopover(regionRef, hasVisibleToasts, portalTarget);
+  const visibleToasts = toasts.slice(0, maxVisible);
+  const ownerState: ToasterOwnerState = {
+    visibleCount: visibleToasts.length,
+    queuedCount: Math.max(0, toasts.length - visibleToasts.length),
+    maxVisible,
+  };
+  useMiaixzManualPopover(regionRef, visibleToasts.length > 0, portalTarget);
+
+  const replaceQueue = useCallback((next: ToastRecord[]): void => {
+    queueRef.current = next;
+    setToasts(next);
+  }, []);
+  const closeToast = useCallback(
+    (id: string, reason: ToastCloseReason): void => {
+      if (!queueRef.current.some((toast) => toast.id === id)) return;
+      replaceQueue(queueRef.current.filter((toast) => toast.id !== id));
+      onClose?.(id, reason);
+    },
+    [onClose, replaceQueue],
+  );
   const context = useMemo<ToastContextValue>(
     () => ({
-      /**
-       * Adds or replaces a toast notification.
-       *
-       * @param options - Toast content and display options.
-       * @returns The toast identifier.
-       */
-      notify(options) {
+      notify(options: ToastOptions): string {
+        const duration = options.duration ?? defaultDuration;
+        if (!Number.isFinite(duration)) {
+          throw new MiaixzUiError({
+            code: "UI_TOAST_DURATION_INVALID",
+            details: { duration },
+          });
+        }
         const id = options.id ?? createToastId();
-        setToasts((current) => [
-          ...current.filter((toast) => toast.id !== id),
-          { ...options, id, duration: options.duration ?? defaultDuration },
-        ]);
+        const record: ToastRecord = { ...options, id, duration };
+        const current = queueRef.current;
+        const index = current.findIndex((toast) => toast.id === id);
+        const next = [...current];
+        if (index === -1) next.push(record);
+        else next[index] = record;
+        replaceQueue(next);
         return id;
       },
-      /**
-       * Removes one toast notification.
-       *
-       * @param id - Identifier of the toast to remove.
-       */
-      dismiss(id) {
-        setToasts((current) => current.filter((toast) => toast.id !== id));
+      dismiss(id: string): void {
+        closeToast(id, "programmatic");
       },
-      /**
-       * Removes every toast notification.
-       */
-      dismissAll() {
-        setToasts([]);
+      dismissAll(): void {
+        for (const toast of queueRef.current) onClose?.(toast.id, "programmatic");
+        replaceQueue([]);
       },
     }),
-    [defaultDuration],
+    [closeToast, defaultDuration, onClose, replaceQueue],
   );
 
+  const politeToasts = visibleToasts.filter((toast) => toast.tone !== "danger");
+  const assertiveToasts = visibleToasts.filter((toast) => toast.tone === "danger");
   return (
     <ToastContext.Provider value={context}>
       {children}
-      {hasVisibleToasts &&
+      {visibleToasts.length > 0 &&
         portalTarget !== null &&
         createPortal(
           <div
-            ref={regionRef}
-            popover="manual"
-            className="miaixz-toaster"
-            aria-live="polite"
-            aria-relevant="additions removals"
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-toaster" },
+              slotProps: slotProps?.root,
+              internalRef: regionRef,
+              internalProps: { popover: "manual" },
+              ownedProps: ["popover"],
+            })}
           >
-            {visibleToasts.map((toast) => (
-              <ManagedToast key={toast.id} toast={toast} dismiss={context.dismiss} />
-            ))}
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-toaster-region" },
+                slotProps: slotProps?.politeRegion,
+                internalProps: {
+                  "aria-live": "polite",
+                  "aria-atomic": false,
+                  "aria-relevant": "additions",
+                },
+                ownedProps: ["aria-live", "aria-atomic", "aria-relevant"],
+              })}
+            >
+              {politeToasts.map((toast) => (
+                <ManagedToast key={toast.id} toast={toast} close={closeToast} />
+              ))}
+            </div>
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-toaster-region" },
+                slotProps: slotProps?.assertiveRegion,
+                internalProps: {
+                  "aria-live": "assertive",
+                  "aria-atomic": false,
+                  "aria-relevant": "additions",
+                },
+                ownedProps: ["aria-live", "aria-atomic", "aria-relevant"],
+              })}
+            >
+              {assertiveToasts.map((toast) => (
+                <ManagedToast key={toast.id} toast={toast} close={closeToast} />
+              ))}
+            </div>
           </div>,
           portalTarget,
         )}
@@ -147,20 +242,14 @@ export function Toaster(properties: ToasterProps) {
   );
 }
 
-/**
- * Returns the nearest toast controller.
- *
- * @returns The nearest toast queue controller.
- * @public
+/*
+ * Returns the nearest toast queue controller.
  */
 export function useToast(): ToastContextValue {
-  const { t } = useMiaixzLocale();
   const context = useContext(ToastContext);
-  if (!context) {
-    throw createMiaixzUiError(t, {
-      code: "UI_TOAST_PROVIDER_MISSING",
-      messageKey: "ui.error.toast.providerMissing",
-    });
-  }
-  return context;
+  if (context !== undefined) return context;
+  throw new MiaixzUiError({ code: "UI_TOAST_PROVIDER_MISSING" });
 }
+
+const ThemedToaster = withMiaixzThemeComponent("Toaster", Toaster);
+export { ThemedToaster as Toaster };

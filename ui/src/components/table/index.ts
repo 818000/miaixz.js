@@ -20,17 +20,22 @@
 
 export {
   Table,
-  TableContainer,
   TableHeader,
   TableBody,
-  TableFooter,
   TableRow,
   TableHead,
   TableCell,
+  TableContainer,
+  TableFooter,
   TableCaption,
 } from "./table.js";
 export type {
   TableProps,
+  TableDensity,
+  TableDividerStyle,
+  TableOwnerState,
+  TableRootAttributes,
+  TableSlot,
   TableContainerProps,
   TableHeaderProps,
   TableBodyProps,

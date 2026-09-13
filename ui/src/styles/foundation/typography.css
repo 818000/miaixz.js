@@ -98,23 +98,6 @@
     var(--miaixz-line-height-18)
   );
 
-  /* application roles. Feature modules consume these aliases instead
-   * of maintaining private type scales. */
-  --miaixz-app-title-size: var(--miaixz-text-page-title-size, var(--miaixz-font-size-20));
-  --miaixz-app-section-size: var(--miaixz-text-section-title-size, var(--miaixz-font-size-16));
-  --miaixz-app-body-size: var(--miaixz-text-body-size, var(--miaixz-font-size-14));
-  --miaixz-app-meta-size: var(--miaixz-text-caption-size, var(--miaixz-font-size-12));
-  --miaixz-app-metric-size: var(--miaixz-text-metric-size, var(--miaixz-font-size-24));
-
-  /* Compatibility aliases for modules authored before the application roles
-   * were promoted into the component library. */
-  --miaixz-module-type-section: var(--miaixz-app-title-size);
-  --miaixz-module-type-region: var(--miaixz-app-section-size);
-  --miaixz-module-type-body: var(--miaixz-app-body-size);
-  --miaixz-module-type-meta: var(--miaixz-app-meta-size);
-  --miaixz-module-type-auxiliary: var(--miaixz-app-meta-size);
-  --miaixz-module-type-metric: var(--miaixz-app-metric-size);
-
   /*
 
    * Letter spacing

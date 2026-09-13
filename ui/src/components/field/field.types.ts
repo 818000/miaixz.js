@@ -18,34 +18,75 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactElement, ReactNode } from "react";
+import type { HTMLAttributes, LabelHTMLAttributes, ReactNode } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export type { FieldControlProps } from "../../shared/field-context.js";
 
 /**
- * Describes control properties injected by a form field wrapper.
+ * Lists the fixed Field slot names.
  *
  * @public
  */
-export interface FieldControlProps {
+export type FieldSlot = "root" | "label" | "control" | "description" | "error";
+
+/**
+ * Describes the immutable state exposed to Field slots.
+ */
+export interface FieldOwnerState {
   /**
-   * Identifies the form control and connects it to its label.
+   * Reports whether the control is required.
    */
-  id?: string;
+  readonly required: boolean;
   /**
-   * Marks the form control as required.
+   * Reports whether the control is invalid.
    */
-  required?: boolean;
+  readonly invalid: boolean;
   /**
-   * Applies the component's invalid visual state.
+   * Reports whether the control is disabled.
    */
-  invalid?: boolean;
+  readonly disabled: boolean;
+}
+
+/**
+ * Describes Field root data attributes derived from owner state.
+ */
+export interface FieldRootSlotProps extends HTMLAttributes<HTMLDivElement> {
   /**
-   * Communicates the validation state to assistive technology.
+   * Mirrors the effective invalid state.
    */
-  "aria-invalid"?: boolean | "false" | "true" | "grammar" | "spelling";
+  "data-invalid"?: boolean;
   /**
-   * References helper and error descriptions.
+   * Mirrors the effective disabled state.
    */
-  "aria-describedby"?: string;
+  "data-disabled"?: boolean;
+}
+
+/**
+ * Configures native properties for each Field slot.
+ */
+export interface FieldSlotProps {
+  /**
+   * Configures the root div.
+   */
+  root?: MiaixzSlotProps<FieldOwnerState, FieldRootSlotProps>;
+  /**
+   * Configures the native label.
+   */
+  label?: MiaixzSlotProps<FieldOwnerState, LabelHTMLAttributes<HTMLLabelElement>>;
+  /**
+   * Configures the control wrapper.
+   */
+  control?: MiaixzSlotProps<FieldOwnerState, HTMLAttributes<HTMLDivElement>>;
+  /**
+   * Configures the helper description.
+   */
+  description?: MiaixzSlotProps<FieldOwnerState, HTMLAttributes<HTMLDivElement>>;
+  /**
+   * Configures the error message.
+   */
+  error?: MiaixzSlotProps<FieldOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
 /**
@@ -53,7 +94,10 @@ export interface FieldControlProps {
  *
  * @public
  */
-export interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface FieldProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "children" | "aria-invalid"
+> {
   /**
    * Supplies the visible control label.
    */
@@ -61,7 +105,7 @@ export interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, "childr
   /**
    * Supplies the single form control enhanced by the wrapper.
    */
-  children: ReactElement<FieldControlProps>;
+  children: ReactNode;
   /**
    * Displays supporting guidance for the control.
    */
@@ -81,7 +125,19 @@ export interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, "childr
    */
   required?: boolean;
   /**
+   * Applies the invalid state. Defaults to the presence of errorText.
+   */
+  invalid?: boolean;
+  /**
+   * Disables the single main control.
+   */
+  disabled?: boolean;
+  /**
    * Overrides the generated control identifier.
    */
   controlId?: string;
+  /**
+   * Supplies native properties for the Field's fixed semantic nodes.
+   */
+  slotProps?: FieldSlotProps;
 }

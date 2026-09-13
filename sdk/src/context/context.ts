@@ -18,18 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { miaixzHeaders } from "../consts/index.js";
-import { MiaixzSdkError } from "../api/errors.js";
-import type { MiaixzEventBus, MiaixzSdkEventMap } from "../events/index.js";
-import { miaixzDefaultI18n, type MiaixzTranslator } from "../i18n/index.js";
+import { miaixzHeaders } from "../consts/constants.js";
+import { MiaixzSdkError } from "../errors/errors.js";
+import type { MiaixzEventBusPort, MiaixzSdkEventMap } from "../events/event-types.js";
 import {
   getMiaixzBrowserStorage,
   readMiaixzVersionedValue,
   writeMiaixzVersionedValue,
   type MiaixzKeyValueStorage,
   type MiaixzStorageMigration,
-} from "../storage/index.js";
-import type { MiaixzRuntimeContext } from "../types/index.js";
+} from "../storage/storage.js";
+import type { MiaixzRuntimeContext } from "../types/context.js";
 import { isRecord } from "../utils/object.js";
 
 /**
@@ -68,12 +67,7 @@ export interface MiaixzContextStoreOptions {
   /**
    * Optional event bus used to synchronize service instances.
    */
-  readonly events?: MiaixzEventBus<MiaixzSdkEventMap>;
-
-  /**
-   * Optional translator used for context errors.
-   */
-  readonly translate?: MiaixzTranslator;
+  readonly events?: MiaixzEventBusPort<MiaixzSdkEventMap>;
 }
 
 const miaixzContextSchemaVersion = 1;
@@ -94,13 +88,12 @@ export function isMiaixzRuntimeContext(value: unknown): value is MiaixzRuntimeCo
  * Parses and canonicalizes a runtime context by removing undefined fields.
  *
  * @param value - Runtime value to validate and normalize.
- * @param translate - Translator used for explicit invalid Context errors.
  * @returns A canonical runtime context containing only defined string values.
  * @throws MiaixzSdkError When the value is not a valid runtime context.
  */
-function parseRuntimeContext(value: unknown, translate: MiaixzTranslator): MiaixzRuntimeContext {
+function parseRuntimeContext(value: unknown): MiaixzRuntimeContext {
   if (!isMiaixzRuntimeContext(value)) {
-    throw new MiaixzSdkError(translate("sdk.error.context.invalid"), {
+    throw new MiaixzSdkError({
       code: "CONTEXT_INVALID",
     });
   }
@@ -114,20 +107,18 @@ function parseRuntimeContext(value: unknown, translate: MiaixzTranslator): Miaix
  *
  * @param persisted - Canonical persisted Context state.
  * @param initial - Valid explicit Context fields supplied by the host.
- * @param translate - Translator used to normalize the merged state.
  * @returns Canonical merged Context state.
  */
 function mergeInitialContext(
   persisted: Readonly<MiaixzRuntimeContext>,
   initial: Readonly<MiaixzRuntimeContext>,
-  translate: MiaixzTranslator,
 ): MiaixzRuntimeContext {
   const merged: Record<string, string | undefined> = { ...persisted };
   for (const [key, value] of Object.entries(initial)) {
     if (value === undefined) delete merged[key];
     else merged[key] = value;
   }
-  return parseRuntimeContext(merged, translate);
+  return parseRuntimeContext(merged);
 }
 
 /**
@@ -184,8 +175,7 @@ export class MiaixzContextStore {
   readonly #persist: boolean;
   readonly #migrations: readonly MiaixzStorageMigration[] | undefined;
   readonly #listeners = new Set<(context: Readonly<MiaixzRuntimeContext>) => void>();
-  readonly #events: MiaixzEventBus<MiaixzSdkEventMap> | undefined;
-  readonly #translate: MiaixzTranslator;
+  readonly #events: MiaixzEventBusPort<MiaixzSdkEventMap> | undefined;
   #context: MiaixzRuntimeContext;
   #stopEventListener: (() => void) | undefined;
 
@@ -196,16 +186,15 @@ export class MiaixzContextStore {
    * @throws MiaixzSdkError When app, migration, or explicit Context configuration is invalid.
    */
   constructor(options: MiaixzContextStoreOptions) {
-    this.#translate = options.translate ?? miaixzDefaultI18n.t;
     readMiaixzVersionedValue({
       scope: { appId: options.appId },
       kind: "context",
       schemaVersion: miaixzContextSchemaVersion,
       ...(options.migrations === undefined ? {} : { migrations: options.migrations }),
-      parse: (value) => parseRuntimeContext(value, this.#translate),
+      parse: parseRuntimeContext,
     });
     if (options.initialContext !== undefined) {
-      parseRuntimeContext(options.initialContext, this.#translate);
+      parseRuntimeContext(options.initialContext);
     }
     this.#storage = options.storage ?? getMiaixzBrowserStorage();
     this.#appId = options.appId;
@@ -219,13 +208,13 @@ export class MiaixzContextStore {
           kind: "context",
           schemaVersion: miaixzContextSchemaVersion,
           ...(this.#migrations === undefined ? {} : { migrations: this.#migrations }),
-          parse: (value) => parseRuntimeContext(value, this.#translate),
+          parse: parseRuntimeContext,
         })
       : undefined;
     this.#context =
       options.initialContext === undefined
         ? { ...persisted }
-        : mergeInitialContext(persisted ?? {}, options.initialContext, this.#translate);
+        : mergeInitialContext(persisted ?? {}, options.initialContext);
     if (this.#persist && options.initialContext !== undefined) this.#persistSnapshot();
     this.#stopEventListener = this.#events?.on("context:changed", (context) => {
       if (isMiaixzRuntimeContext(context)) this.#set(context, false);
@@ -258,7 +247,7 @@ export class MiaixzContextStore {
    * @param broadcast - Whether to publish the change through the event bus.
    */
   #set(context: MiaixzRuntimeContext, broadcast: boolean): void {
-    const normalized = parseRuntimeContext(context, this.#translate);
+    const normalized = parseRuntimeContext(context);
     if (contextsEqual(this.#context, normalized)) return;
     this.#context = normalized;
     this.#commit();

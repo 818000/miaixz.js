@@ -165,7 +165,7 @@ function serializeResponsive(breakpoints, mediaQueries, containers) {
     "    grid-template-columns: minmax(0, 1fr);",
     "  }",
     "",
-    "  .miaixz-sidebar > .miaixz-sticky {",
+    "  .miaixz-sidebar > .miaixz-sidebar-aside[data-sticky] {",
     "    position: static;",
     "  }",
     "}",

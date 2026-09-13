@@ -18,4 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./auth.js";
+export {
+  createMiaixzAuthManager,
+  createMiaixzPersistentAuthStorage,
+  isMiaixzAuthSession,
+  isMiaixzSessionExpired,
+  MiaixzAuthManager,
+} from "./auth.js";
+export type {
+  MiaixzAuthManagerOptions,
+  MiaixzAuthSession,
+  MiaixzAuthStatus,
+  MiaixzPersistentAuthStorage,
+  MiaixzSessionRefresher,
+} from "./auth.js";

@@ -20,8 +20,21 @@
 
 export { Upload } from "./upload.js";
 export type {
-  UploadProps,
+  LocalUploadFileRecord,
   MiaixzUploadOwnProps,
   MiaixzUploadContext,
   MiaixzUploadHandler,
+  RemoteUploadFileRecord,
+  UploadFileBase,
+  UploadFileRecord,
+  UploadFilesState,
+  UploadMultiplicity,
+  UploadOwnerState,
+  UploadProps,
+  UploadRemoveConfirmation,
+  UploadRemovePolicy,
+  UploadRetryPolicy,
+  UploadRootAttributes,
+  UploadSlot,
+  UploadSlotProps,
 } from "./upload.types.js";

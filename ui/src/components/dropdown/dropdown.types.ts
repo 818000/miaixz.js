@@ -18,114 +18,138 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
+/* eslint-disable jsdoc/require-jsdoc -- The public menu union mirrors its WAI-ARIA item kinds.
+ */
 
-import type { PopoverProps } from "../popover/index.js";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, MouseEvent, ReactNode } from "react";
 
-interface DropdownBase {
-  /**
-   * Emphasizes an action without changing its semantic color.
-   *
-   * @defaultValue `false`
-   */
-  emphasis?: boolean;
-  /**
-   * Displays leading icon content.
-   */
-  icon?: ReactNode;
-  /**
-   * Displays supporting text below the label.
-   */
-  description?: ReactNode;
-  /**
-   * Applies the destructive-action treatment.
-   *
-   * @defaultValue `false`
-   */
-  danger?: boolean;
-  /**
-   * Marks the item as selected.
-   *
-   * @defaultValue `false`
-   */
-  selected?: boolean;
+import type { PopoverChangeReason, PopoverProps } from "../popover/popover.types.js";
+
+export type DropdownTone = "neutral" | "danger";
+
+export type DropdownButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "aria-checked" | "children" | "disabled" | "id" | "onClick" | "role" | "tabIndex" | "type"
+>;
+
+export type DropdownAnchorProps = Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  "aria-checked" | "children" | "href" | "id" | "role" | "tabIndex"
+>;
+
+export interface DropdownPresentation {
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly textValue: string;
+  readonly icon?: ReactNode;
+  readonly description?: ReactNode;
+  readonly tone?: DropdownTone;
 }
 
-type DropdownLink = DropdownBase &
-  Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children" | "href"> & {
-    /**
-     * Identifies a selectable item row.
-     */
-    kind?: "item";
-    /**
-     * Supplies the visible item label.
-     */
-    label: ReactNode;
-    /**
-     * Navigates to this location when selected.
-     */
-    href: string;
-  };
+export interface DropdownActionEntry extends DropdownPresentation {
+  readonly kind: "action";
+  readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
+  readonly disabled?: boolean;
+  readonly buttonProps?: DropdownButtonProps;
+  readonly href?: never;
+  readonly checked?: never;
+  readonly items?: never;
+}
 
-type DropdownButton = DropdownBase &
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
-    /**
-     * Identifies a selectable item row.
-     */
-    kind?: "item";
-    /**
-     * Supplies the visible item label.
-     */
-    label: ReactNode;
-    /**
-     * Distinguishes button items from link items.
-     */
-    href?: undefined;
-  };
+export interface DropdownLinkEntry extends DropdownPresentation {
+  readonly kind: "link";
+  readonly href: string;
+  readonly anchorProps?: DropdownAnchorProps;
+  readonly onAction?: never;
+  readonly disabled?: never;
+  readonly checked?: never;
+  readonly items?: never;
+}
 
-/**
- * Defines one declarative dropdown row. @public
- */
-export type DropdownEntry =
-  | DropdownLink
-  | DropdownButton
+export interface DropdownCheckboxEntry extends DropdownPresentation {
+  readonly kind: "checkbox";
+  readonly checked: boolean;
+  readonly onCheckedChange: (checked: boolean, event: MouseEvent<HTMLButtonElement>) => void;
+  readonly disabled?: boolean;
+  readonly buttonProps?: DropdownButtonProps;
+  readonly href?: never;
+  readonly onAction?: never;
+  readonly items?: never;
+}
+
+export interface DropdownRadioOption {
+  readonly id: string;
+  readonly value: string;
+  readonly label: ReactNode;
+  readonly textValue: string;
+  readonly disabled?: boolean;
+}
+
+export interface DropdownRadioGroupEntry {
+  readonly kind: "radioGroup";
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly value: string;
+  readonly options: readonly DropdownRadioOption[];
+  readonly onValueChange: (value: string, event: MouseEvent<HTMLButtonElement>) => void;
+}
+
+export interface DropdownLabelEntry {
+  readonly kind: "label";
+  readonly id: string;
+  readonly label: ReactNode;
+}
+
+export interface DropdownDividerEntry {
+  readonly kind: "divider";
+  readonly id: string;
+}
+
+export type DropdownSubmenuItem =
+  | DropdownActionEntry
+  | DropdownLinkEntry
+  | DropdownCheckboxEntry
+  | DropdownRadioGroupEntry
+  | DropdownLabelEntry
+  | DropdownDividerEntry;
+
+export interface DropdownSubmenuEntry extends DropdownPresentation {
+  readonly kind: "submenu";
+  readonly items: readonly DropdownSubmenuItem[];
+  readonly disabled?: boolean;
+  readonly href?: never;
+  readonly onAction?: never;
+  readonly checked?: never;
+}
+
+export type DropdownEntry = DropdownSubmenuItem | DropdownSubmenuEntry;
+
+export type DropdownChangeReason = PopoverChangeReason | "selection";
+
+export type DropdownOpenState =
   | {
-      /**
-       * Identifies a non-interactive group label.
-       */
-      kind: "label";
-      /**
-       * Supplies the group label content.
-       */
-      label: ReactNode;
+      readonly open: boolean;
+      readonly defaultOpen?: never;
+      readonly onOpenChange: (open: boolean, reason: DropdownChangeReason) => void;
     }
   | {
-      /**
-       * Identifies a visual separator.
-       */
-      kind: "divider";
+      readonly open?: never;
+      readonly defaultOpen?: boolean;
+      readonly onOpenChange?: (open: boolean, reason: DropdownChangeReason) => void;
     };
 
 /**
- * Configures a disclosure-based dropdown menu. @public
+ * Configures a disclosure-based menu generated only from stable entry data.
+ *
+ * @public
  */
-export interface DropdownProps extends Omit<PopoverProps, "contentClassName"> {
-  /**
-   * Selects the original disclosure menu or a neutral action-list density.
-   *
-   * @defaultValue `"default"`
-   */
-  variant?: "default" | "plain" | "compact";
-  /**
-   * Adds a class to the rendered dropdown surface.
-   */
-  contentClassName?: string;
-  /**
-   * Provides the menu's accessible name.
-   */
-  label?: string;
-  /**
-   * Supplies declarative menu rows.
-   */
-  items?: readonly DropdownEntry[];
-}
+export type DropdownProps = DropdownOpenState &
+  Omit<PopoverProps, "children" | "onOpenChange" | "open" | "defaultOpen" | "popupRole"> & {
+    readonly items: readonly DropdownEntry[];
+    readonly label?: string;
+    readonly surface?: "framed" | "plain";
+    readonly density?: "compact" | "standard" | "comfortable";
+  };
+
+/* eslint-enable jsdoc/require-jsdoc
+ */

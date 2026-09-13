@@ -18,13 +18,16 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
-
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { classNames } from "../../shared/class-names.js";
-import { IconButton } from "../action/index.js";
-import { Icon } from "../icon/index.js";
-import type { ToastProps, ToastTone } from "./toast.types.js";
+/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
+ */
+import { forwardRef, useId } from "react";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { IconButton } from "../action/icon-button.js";
+import { Button } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
+import type { ToastOwnerState, ToastProps, ToastTone } from "./toast.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const toneIcons: Record<ToastTone, "Info" | "CircleCheck" | "TriangleAlert" | "CircleAlert"> = {
   neutral: "Info",
@@ -34,49 +37,141 @@ const toneIcons: Record<ToastTone, "Info" | "CircleCheck" | "TriangleAlert" | "C
   info: "Info",
 };
 
-/**
- * Renders one localized live-region notification. @public
+/*
+ * Renders one notification without owning live-region semantics.
  */
-export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast(
-  { id, title, message, action, tone = "neutral", dismissLabel, onDismiss, className, ...props },
-  ref,
-) {
-  const { t } = useMiaixzLocale();
-  const resolvedDismissLabel = dismissLabel ?? t("ui.notification.dismiss");
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role={tone === "danger" ? "alert" : "status"}
-      className={classNames(
-        "miaixz-toast",
-        tone !== "neutral" && `miaixz-toast-${tone}`,
-        className,
-      )}
-    >
-      <Icon name={toneIcons[tone]} size="control" className="miaixz-toast-icon" />
-      <div className="miaixz-toast-content">
-        <p className="miaixz-toast-title">{title}</p>
-        {message !== undefined && <p className="miaixz-toast-message">{message}</p>}
-        {action !== undefined && <div className="miaixz-toast-actions">{action}</div>}
-      </div>
-      {onDismiss && (
-        <span className="miaixz-toast-dismiss">
-          <IconButton
-            action={{
-              id: `dismiss-toast-${id}`,
-              intent: "close",
-              label: resolvedDismissLabel,
-              icon: "X",
-              tone: "neutral",
-              size: "compact",
-              confirm: "none",
-              placement: "icon",
-              onAction: () => onDismiss(id),
-            }}
-          />
+export const Toast = withMiaixzThemeComponent(
+  "Toast",
+  forwardRef<HTMLDivElement, ToastProps>(function Toast(
+    {
+      id,
+      title,
+      message,
+      action,
+      tone = "neutral",
+      dismissLabel,
+      onClose,
+      slots,
+      slotProps,
+      ...props
+    },
+    ref,
+  ) {
+    const { t } = useMiaixzLocale();
+    const contentId = useId();
+    const titleId = `${contentId}-title`;
+    const messageId = `${contentId}-message`;
+    const ownerState: ToastOwnerState = {
+      tone,
+      actionable: action !== undefined,
+      dismissible: onClose !== undefined,
+    };
+    const Title = slots?.title ?? "div";
+    const Message = slots?.message ?? "div";
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-toast" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-tone": tone,
+            "aria-labelledby": titleId,
+            ...(message === undefined ? {} : { "aria-describedby": messageId }),
+          },
+          ownedProps: ["data-tone", "aria-labelledby", "aria-describedby"],
+        })}
+      >
+        <span
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-toast-icon" },
+            slotProps: slotProps?.icon,
+            internalProps: { "aria-hidden": true },
+            ownedProps: ["aria-hidden"],
+          })}
+        >
+          <Icon name={toneIcons[tone]} size="control" />
         </span>
-      )}
-    </div>
-  );
-});
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-toast-content" },
+            slotProps: slotProps?.content,
+          })}
+        >
+          <Title
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-toast-title" },
+              slotProps: slotProps?.title,
+              internalProps: { id: titleId },
+              ownedProps: ["id"],
+            })}
+          >
+            {title}
+          </Title>
+          {message !== undefined && (
+            <Message
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-toast-message" },
+                slotProps: slotProps?.message,
+                internalProps: { id: messageId },
+                ownedProps: ["id"],
+              })}
+            >
+              {message}
+            </Message>
+          )}
+          {action !== undefined && (
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-toast-actions" },
+                slotProps: slotProps?.actions,
+              })}
+            >
+              <Button
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  slotProps: slotProps?.action,
+                  internalProps: {
+                    variant: "plain",
+                    tone: "neutral",
+                    size: "small",
+                    onClick: (event) => {
+                      action.onAction(event);
+                      if (!event.defaultPrevented) onClose?.(id, "action");
+                    },
+                  },
+                  ownedProps: ["variant", "tone", "size"],
+                })}
+              >
+                {action.label}
+              </Button>
+            </div>
+          )}
+        </div>
+        {onClose !== undefined && (
+          <IconButton
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-toast-dismiss" },
+              slotProps: slotProps?.dismiss,
+              internalProps: {
+                icon: "X",
+                label: dismissLabel ?? t("ui.notification.dismiss"),
+                size: "small",
+                onClick: () => onClose(id, "dismiss"),
+              },
+              ownedProps: ["icon", "label", "size"],
+            })}
+          />
+        )}
+      </div>
+    );
+  }),
+);

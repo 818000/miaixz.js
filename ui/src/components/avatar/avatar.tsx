@@ -20,8 +20,9 @@
 
 import { forwardRef, useState } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import type { AvatarProps } from "./avatar.types.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { AvatarOwnerState, AvatarProps, AvatarRootAttributes } from "./avatar.types.js";
+import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 /**
  * Derives the first two visible Unicode graphemes from a display name.
@@ -45,33 +46,56 @@ function createAvatarFallback(name: string): string {
  *
  * @public
  */
-export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
-  { src, alt, name, size = "medium", className, ...props },
-  ref,
-) {
-  const [failedSource, setFailedSource] = useState<string>();
-  const displaysImage = src !== undefined && src.length > 0 && failedSource !== src;
+export const Avatar = withMiaixzThemeComponent(
+  "Avatar",
+  forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
+    { src, alt, name, size = "medium", slotProps, ...rootNativeProps },
+    ref,
+  ) {
+    const [failedSource, setFailedSource] = useState<string>();
+    const displaysImage = src !== undefined && src.length > 0 && failedSource !== src;
+    const ownerState: AvatarOwnerState = {
+      size,
+      state: displaysImage ? "image" : "fallback",
+      decorative: alt.length === 0,
+    };
+    const rootProps = mergeMiaixzSlotProps<AvatarOwnerState, AvatarRootAttributes, HTMLSpanElement>(
+      {
+        ownerState,
+        defaultProps: { className: `miaixz-avatar miaixz-avatar-${size}` },
+        componentProps: rootNativeProps,
+        slotProps: slotProps?.root,
+        forwardedRef: ref,
+        internalProps: { "data-size": size, "data-state": ownerState.state },
+        ownedProps: ["data-size", "data-state"],
+      },
+    );
+    const imageProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-avatar-image" },
+      slotProps: slotProps?.image,
+      internalProps: {
+        src,
+        alt,
+        onError: () => setFailedSource(src),
+      },
+      ownedProps: ["src", "alt"],
+    });
+    const fallbackProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-avatar-fallback" },
+      slotProps: slotProps?.fallback,
+      internalProps: {
+        children: createAvatarFallback(name),
+        ...(alt.length === 0 ? { "aria-hidden": true } : { role: "img", "aria-label": alt }),
+      },
+      ownedProps: ["children", "role", "aria-label", "aria-hidden"],
+    });
 
-  return (
-    <span
-      {...props}
-      ref={ref}
-      data-size={size}
-      data-state={displaysImage ? "image" : "fallback"}
-      className={classNames("miaixz-avatar", `miaixz-avatar-${size}`, className)}
-    >
-      {displaysImage ? (
-        <img
-          className="miaixz-avatar-image"
-          src={src}
-          alt={alt}
-          onError={() => setFailedSource(src)}
-        />
-      ) : (
-        <span className="miaixz-avatar-fallback" role="img" aria-label={alt}>
-          {createAvatarFallback(name)}
-        </span>
-      )}
-    </span>
-  );
-});
+    return (
+      <span {...rootProps}>
+        {displaysImage ? <img {...imageProps} /> : <span {...fallbackProps} />}
+      </span>
+    );
+  }),
+);

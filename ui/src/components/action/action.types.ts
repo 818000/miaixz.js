@@ -18,98 +18,183 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- The frozen public contract is documented by its exported component interfaces.
+/* eslint-disable jsdoc/require-jsdoc -- Exported action contracts are concise discriminated unions.
  */
 
-import type { HTMLAttributeAnchorTarget, MouseEvent } from "react";
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  MouseEvent,
+  RefAttributes,
+} from "react";
 
-import type { MiaixzIconName } from "../../icons/index.js";
-import type { ActionIntent } from "./action-intent.js";
+import type { MiaixzIconName } from "../../icons/icon-name.generated.js";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+import type { ButtonLinkSlotProps, ButtonSlotProps, ButtonTone } from "../button/button.types.js";
 
-export type ActionTone = "neutral" | "brand" | "danger";
-export type ActionSize = "compact" | "default";
-export type ActionConfirm = "none" | "normal" | "danger";
-export type ActionPlacement = "visible" | "overflow" | "form-primary" | "form-secondary" | "icon";
+export interface ActionBase {
+  readonly id: string;
+  readonly label: string;
+  readonly icon?: MiaixzIconName;
+  readonly tone?: "neutral" | "brand" | "danger";
+  readonly size?: "small" | "medium" | "large";
+  readonly description?: string;
+}
 
-export interface ActionCommandTarget {
-  readonly href?: never;
+export interface CommandAction extends ActionBase {
+  readonly kind: "command";
   readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
   readonly disabled?: boolean;
   readonly loading?: boolean;
+  readonly buttonProps?: Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    "aria-busy" | "children" | "disabled" | "onClick" | "type"
+  >;
+  readonly href?: never;
 }
 
-export interface ActionNavigationTarget {
+export interface NavigationAction extends ActionBase {
+  readonly kind: "navigation";
   readonly href: string;
+  readonly anchorProps?: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children" | "href">;
   readonly onAction?: never;
   readonly disabled?: never;
   readonly loading?: never;
-  readonly target?: HTMLAttributeAnchorTarget;
-  readonly rel?: string;
 }
 
-export interface ActionPresentation {
-  readonly id: string;
-  readonly intent: ActionIntent;
-  readonly label: string;
-  readonly icon: MiaixzIconName;
-  readonly tone: ActionTone;
-  readonly size?: ActionSize;
-  readonly confirm: ActionConfirm;
-  readonly placement: ActionPlacement;
-  readonly description?: string;
-  readonly selected?: boolean;
-  readonly "aria-label"?: string;
-  readonly "aria-controls"?: string;
-  readonly "aria-expanded"?: boolean;
-  readonly "aria-haspopup"?: "menu" | "dialog" | "listbox" | "tree" | "grid" | true | false;
-  readonly "aria-current"?: "page" | "step" | "location" | "date" | "time" | true | false;
-  readonly "data-testid"?: string;
+export type ActionDescriptor = CommandAction | NavigationAction;
+
+export interface ActionTextSlotProps {
+  readonly root?: ButtonSlotProps["root"] | ButtonLinkSlotProps["root"];
+  readonly label?: ButtonSlotProps["label"];
+  readonly startIcon?: ButtonSlotProps["startIcon"];
 }
-
-export type ActionDescriptor = ActionPresentation & (ActionCommandTarget | ActionNavigationTarget);
-
-export type PrimaryActionIntent = "create" | "save" | "submit" | "publish";
-
-export type PrimaryActionDescriptor = ActionDescriptor & {
-  readonly intent: PrimaryActionIntent;
-  readonly tone: "brand";
-};
 
 export interface ActionTextProps {
   readonly action: ActionDescriptor;
-  readonly collapseLabelAt?: "compact";
-  readonly id?: string;
-  readonly "aria-controls"?: string;
-  readonly "aria-expanded"?: boolean;
-  readonly "aria-haspopup"?: "menu" | "dialog" | "listbox" | "tree" | "grid" | true | false;
+  readonly slotProps?: ActionTextSlotProps;
 }
 
-export interface IconButtonProps {
-  readonly action: ActionDescriptor;
+export interface IconButtonOwnerState {
+  readonly tone: ButtonTone;
+  readonly size: "small" | "medium" | "large";
+  readonly loading: boolean;
+  readonly disabled: boolean;
   readonly pressed?: boolean;
-  readonly id?: string;
-  readonly "aria-controls"?: string;
-  readonly "aria-expanded"?: boolean;
-  readonly "aria-haspopup"?: "menu" | "dialog" | "listbox" | "tree" | "grid" | true | false;
+}
+
+export interface IconButtonSlotProps {
+  readonly root?: MiaixzSlotProps<IconButtonOwnerState, IconButtonRootAttributes>;
+  readonly icon?: MiaixzSlotProps<IconButtonOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly loadingIndicator?: MiaixzSlotProps<
+    IconButtonOwnerState,
+    HTMLAttributes<HTMLSpanElement>
+  >;
+}
+
+export interface IconButtonRootAttributes
+  extends ButtonHTMLAttributes<HTMLButtonElement>, RefAttributes<HTMLButtonElement> {
+  readonly "data-loading"?: boolean;
+  readonly "data-miaixz-ripple"?: string;
+  readonly "data-size"?: "small" | "medium" | "large";
+  readonly "data-tone"?: "neutral" | "brand" | "danger";
+  readonly "data-variant"?: "plain";
+}
+
+export interface IconButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "aria-label" | "children"
+> {
+  readonly label: string;
+  readonly icon: MiaixzIconName;
+  readonly tone?: "neutral" | "brand" | "danger";
+  readonly size?: "small" | "medium" | "large";
+  readonly loading?: boolean;
+  readonly tooltip?: boolean;
+  readonly pressed?: boolean;
+  readonly slotProps?: IconButtonSlotProps;
 }
 
 export interface MoreActionsProps {
   readonly actions: readonly ActionDescriptor[];
 }
 
+export interface RowActionsOwnerState {
+  readonly overflow: boolean;
+}
+
+export interface RowActionsSlotProps {
+  readonly root?: MiaixzSlotProps<RowActionsOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+
 export interface RowActionsProps {
   readonly actions: readonly ActionDescriptor[];
+  readonly overflowLabel?: string;
+  readonly slotProps?: RowActionsSlotProps;
+}
+
+export interface ActionBarOwnerState {
+  readonly hasPrimary: boolean;
+  readonly overflow: boolean;
+}
+
+export interface ActionBarSlotProps {
+  readonly root?: MiaixzSlotProps<ActionBarOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
 export interface ActionBarProps {
-  readonly primary?: PrimaryActionDescriptor;
+  readonly primary?: ActionDescriptor;
   readonly actions: readonly ActionDescriptor[];
+  readonly slotProps?: ActionBarSlotProps;
+}
+
+export interface FormCancelAction {
+  readonly id: string;
+  readonly label: string;
+  readonly icon?: MiaixzIconName;
+  readonly disabled?: boolean;
+  readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
+  readonly buttonProps?: Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    "children" | "disabled" | "onClick" | "type"
+  >;
+}
+
+export interface FormSubmitAction {
+  readonly id: string;
+  readonly label: string;
+  readonly icon?: MiaixzIconName;
+  readonly tone?: "brand" | "danger";
+  readonly disabled?: boolean;
+  readonly loading?: boolean;
+  readonly buttonProps?: Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    "aria-busy" | "children" | "disabled" | "onClick" | "type"
+  >;
+}
+
+export interface FormActionsOwnerState {
+  readonly fixed: boolean;
+  readonly loading: boolean;
+}
+
+export interface FormActionsSlotProps {
+  readonly root?: MiaixzSlotProps<FormActionsOwnerState, FormActionsRootAttributes>;
+  readonly cancel?: ButtonSlotProps;
+  readonly submit?: ButtonSlotProps;
+}
+
+export interface FormActionsRootAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-fixed"?: string;
 }
 
 export interface FormActionsProps {
-  readonly cancel: ActionDescriptor;
-  readonly submit: PrimaryActionDescriptor;
-  readonly dirty?: boolean;
+  readonly cancel?: FormCancelAction;
+  readonly submit: FormSubmitAction;
   readonly fixed?: boolean;
-  readonly danger?: boolean;
+  readonly slotProps?: FormActionsSlotProps;
 }
+
+/* eslint-enable jsdoc/require-jsdoc
+ */

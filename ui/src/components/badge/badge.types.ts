@@ -18,41 +18,39 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
-
-/**
- * Defines the semantic color treatment of a badge.
- *
- * @public
+/* eslint-disable jsdoc/require-jsdoc -- Closed badge slots are self-describing.
  */
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
 export type BadgeTone = "neutral" | "brand" | "success" | "warning" | "danger" | "info";
-
-/**
- * Configures a compact semantic badge.
- *
- * @public
- */
-export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  /**
-   * Selects the semantic color treatment.
-   *
-   * @defaultValue `"neutral"`
-   */
-  tone?: BadgeTone;
-  /**
-   * Uses an outlined rather than filled presentation.
-   *
-   * @defaultValue `false`
-   */
-  outline?: boolean;
-  /**
-   * Displays a leading status dot.
-   *
-   * @defaultValue `false`
-   */
-  dot?: boolean;
-  /**
-   * Displays optional leading icon content.
-   */
-  icon?: ReactNode;
+export type BadgeVariant = "filled" | "outlined";
+export type BadgeSlot = "root" | "marker" | "icon" | "label";
+export interface BadgeOwnerState {
+  readonly tone: BadgeTone;
+  readonly variant: BadgeVariant;
+  readonly marker: boolean;
 }
+export type BadgeRootAttributes = HTMLAttributes<HTMLSpanElement> &
+  RefAttributes<HTMLSpanElement> & {
+    readonly "data-tone"?: BadgeTone;
+    readonly "data-variant"?: BadgeVariant;
+  };
+export interface BadgeSlotProps {
+  readonly root?: MiaixzSlotProps<BadgeOwnerState, BadgeRootAttributes>;
+  readonly marker?: MiaixzSlotProps<BadgeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly icon?: MiaixzSlotProps<BadgeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<BadgeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzBadgeOwnProps {
+  readonly children: ReactNode;
+  readonly tone?: BadgeTone;
+  readonly variant?: BadgeVariant;
+  readonly marker?: boolean;
+  readonly icon?: ReactNode;
+  readonly slotProps?: BadgeSlotProps;
+}
+export type BadgeProps = MiaixzBadgeOwnProps &
+  Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzBadgeOwnProps | "children">;
+/* eslint-enable jsdoc/require-jsdoc
+ */

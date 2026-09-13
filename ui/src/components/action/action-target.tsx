@@ -18,110 +18,82 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ReactNode, Ref } from "react";
+import type { ReactElement, ReactNode, Ref } from "react";
 
-import type { ActionDescriptor } from "./action.types.js";
+import { Button, ButtonLink } from "../button/button.js";
+import { type ButtonLinkSlotProps, type ButtonSlotProps } from "../button/button.types.js";
+import type { ActionDescriptor, ActionTextSlotProps } from "./action.types.js";
 
 interface ActionTargetProps {
   /**
-   * Resolved action contract.
+   * Resolved command or navigation action.
    */
   readonly action: ActionDescriptor;
   /**
-   * Framework-owned visual content.
+   * Visible content.
    */
   readonly children: ReactNode;
   /**
-   * Framework-owned class recipe.
+   * Canonical presentation class.
    */
   readonly className: string;
   /**
-   * Framework-owned responsive label behavior.
+   * Optional leading element.
    */
-  readonly dataLabelCollapse?: "compact";
+  readonly startIcon?: ReactElement;
   /**
-   * Native DOM id supplied by an owning composite.
+   * Fixed ActionText slot properties.
    */
-  readonly id?: string;
+  readonly slotProps?: ActionTextSlotProps;
   /**
-   * Tooltip or supporting-description relation supplied by an owning composite.
+   * Final button or anchor reference.
    */
-  readonly "aria-describedby"?: string;
-  /**
-   * Optional pressed state for icon toggles.
-   */
-  readonly pressed?: boolean;
-  /**
-   * Forwarded native element ref.
-   */
-  readonly ref?: Ref<HTMLElement>;
+  readonly ref?: Ref<HTMLButtonElement | HTMLAnchorElement>;
 }
 
 /**
- * Renders the semantic element selected by an action target.
+ * Renders the semantic target selected by the action discriminator.
  *
- * @param properties - Internal semantic action properties.
- * @returns A native anchor for navigation or native button for commands.
+ * @param properties - Resolved action target properties.
+ * @returns A Button for commands or ButtonLink for navigation.
  * @internal
  */
 export function ActionTarget(properties: ActionTargetProps) {
-  const {
-    action,
-    children,
-    className,
-    dataLabelCollapse,
-    id,
-    pressed,
-    ref,
-    "aria-describedby": ariaDescribedBy,
-  } = properties;
-  const accessibility = {
-    "aria-label": action["aria-label"],
-    "aria-controls": action["aria-controls"],
-    "aria-expanded": action["aria-expanded"],
-    "aria-haspopup": action["aria-haspopup"],
-    "aria-current": action["aria-current"],
-    "aria-describedby": ariaDescribedBy,
-    "data-testid": action["data-testid"],
-  };
-
-  if ("href" in action && action.href !== undefined) {
+  const { action, children, className, startIcon, slotProps, ref } = properties;
+  const tone = action.tone ?? "neutral";
+  const size = action.size ?? "medium";
+  if (action.kind === "navigation") {
     return (
-      <a
-        {...accessibility}
+      <ButtonLink
+        {...action.anchorProps}
         ref={ref as Ref<HTMLAnchorElement>}
-        id={id}
         className={className}
-        data-action-intent={action.intent}
-        data-action-tone={action.tone}
-        data-label-collapse={dataLabelCollapse}
         href={action.href}
-        rel={action.rel}
-        target={action.target}
+        size={size}
+        {...(slotProps === undefined ? {} : { slotProps: slotProps as ButtonLinkSlotProps })}
+        {...(startIcon === undefined ? {} : { startIcon })}
+        tone={tone}
+        variant="plain"
       >
         {children}
-      </a>
+      </ButtonLink>
     );
   }
-
-  const unavailable = action.disabled === true || action.loading === true;
   return (
-    <button
-      {...accessibility}
+    <Button
+      {...action.buttonProps}
       ref={ref as Ref<HTMLButtonElement>}
-      id={id}
-      aria-busy={action.loading || undefined}
-      aria-pressed={pressed}
       className={className}
-      data-action-intent={action.intent}
-      data-action-tone={action.tone}
-      data-label-collapse={dataLabelCollapse}
-      data-loading={action.loading || undefined}
-      disabled={unavailable}
+      {...(action.disabled === undefined ? {} : { disabled: action.disabled })}
+      {...(action.loading === undefined ? {} : { loading: action.loading })}
       onClick={action.onAction}
-      type="button"
+      size={size}
+      {...(slotProps === undefined ? {} : { slotProps: slotProps as ButtonSlotProps })}
+      {...(startIcon === undefined ? {} : { startIcon })}
+      tone={tone}
+      variant="plain"
     >
       {children}
-    </button>
+    </Button>
   );
 }
