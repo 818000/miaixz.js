@@ -26,7 +26,9 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
  * @public
  */
 export interface ImageViewLabels {
-  /** Labels the image toolbar. */
+  /**
+   * Labels the image toolbar.
+   */
   readonly toolbar: string;
   /**
    * Labels the zoom-in command.
@@ -46,12 +48,13 @@ export interface ImageViewLabels {
   readonly rotateRight: string;
 }
 
-/** Defines native properties for stable ImageView slots. @public */
+/**
+ * Defines native properties for stable ImageView slots.
+ *
+ * @public
+ */
 export interface ImageViewSlotProps {
-  readonly toolbar?: Omit<
-    ComponentPropsWithoutRef<"div">,
-    "children" | "role" | "aria-label"
-  >;
+  readonly toolbar?: Omit<ComponentPropsWithoutRef<"div">, "children" | "role" | "aria-label">;
   readonly stage?: Omit<ComponentPropsWithoutRef<"div">, "children">;
   readonly image?: Omit<ComponentPropsWithoutRef<"img">, "children" | "src" | "alt">;
 }
@@ -108,6 +111,8 @@ export interface ImageViewProps extends Omit<ComponentPropsWithoutRef<"div">, "c
    * Adds application-owned actions without assigning security meaning to their visibility.
    */
   readonly actions?: ReactNode;
-  /** Passes native properties to stable internal slots. */
+  /**
+   * Passes native properties to stable internal slots.
+   */
   readonly slotProps?: ImageViewSlotProps;
 }

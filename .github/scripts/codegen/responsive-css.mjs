@@ -1,3 +1,23 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import process from "node:process";
@@ -8,18 +28,30 @@ import { repositoryRoot } from "../miaixz.mjs";
 
 const packageDirectory = resolve(repositoryRoot, "ui");
 const checkOnly = process.argv.slice(2).includes("--check");
-const sourceHeader = (await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"))
+const sourceHeader = (
+  await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8")
+)
   .replaceAll("\r\n", "\n")
   .trim();
 const builtTokensPath = resolve(packageDirectory, "dist/design/breakpoints.js");
-const outputPath = resolve(packageDirectory, "src/styles/foundation/responsive.css");
-const { miaixzBreakpoints, miaixzContainerQueries, miaixzMediaQueries } = await import(
-  pathToFileURL(builtTokensPath).href
+const outputPath = resolve(
+  packageDirectory,
+  "src/styles/foundation/responsive.css",
 );
+const { miaixzBreakpoints, miaixzContainerQueries, miaixzMediaQueries } =
+  await import(pathToFileURL(builtTokensPath).href);
 
-assertBreakpointContract(miaixzBreakpoints, miaixzMediaQueries, miaixzContainerQueries);
+assertBreakpointContract(
+  miaixzBreakpoints,
+  miaixzMediaQueries,
+  miaixzContainerQueries,
+);
 const expected = await format(
-  serializeResponsive(miaixzBreakpoints, miaixzMediaQueries, miaixzContainerQueries),
+  serializeResponsive(
+    miaixzBreakpoints,
+    miaixzMediaQueries,
+    miaixzContainerQueries,
+  ),
   {
     ...prettierConfiguration,
     parser: "css",
@@ -66,7 +98,9 @@ function assertBreakpointContract(breakpoints, mediaQueries, containers) {
     throw new Error("Viewport media-query contract has drifted.");
   }
   if (Object.keys(containers).length !== 9) {
-    throw new Error("Container-query contract must contain exactly nine entries.");
+    throw new Error(
+      "Container-query contract must contain exactly nine entries.",
+    );
   }
 }
 

@@ -14,17 +14,32 @@ const imageSlots: ImageViewSlotProps = { image: { decoding: "async" } };
 const pdfSlots: PdfViewSlotProps = { canvas: { className: "canvas" } };
 const officeSlots: OfficeViewSlotProps = { editor: { className: "editor" } };
 const code: MiaixzViewErrorCode = "VIEW_PDF_SCALE_INVALID";
-void [FileView, ImageView, OfficeView, PdfView, MiaixzViewError, imageSlots, pdfSlots, officeSlots, code];
+void [
+  FileView,
+  ImageView,
+  OfficeView,
+  PdfView,
+  MiaixzViewError,
+  imageSlots,
+  pdfSlots,
+  officeSlots,
+  code,
+];
 
-/** @ts-expect-error ImageView owns image source semantics. */
+/**
+ * @ts-expect-error ImageView owns image source semantics. */
 const invalidImageSlots: ImageViewSlotProps = { image: { src: "other.png" } };
-/** @ts-expect-error PdfView owns canvas role semantics. */
+/**
+ * @ts-expect-error PdfView owns canvas role semantics. */
 const invalidPdfSlots: PdfViewSlotProps = { canvas: { role: "presentation" } };
-/** @ts-expect-error OfficeView owns editor id semantics. */
+/**
+ * @ts-expect-error OfficeView owns editor id semantics. */
 const invalidOfficeSlots: OfficeViewSlotProps = { editor: { id: "other" } };
-/** @ts-expect-error FileView requires an explicit supported kind. */
+/**
+ * @ts-expect-error FileView requires an explicit supported kind. */
 const automaticFileView = <FileView src="file.bin" />;
-/** @ts-expect-error The preview package does not export a bare View component. */
+/**
+ * @ts-expect-error The preview package does not export a bare View component. */
 type RemovedView = import("../src/index.js").View;
 
 void [invalidImageSlots, invalidPdfSlots, invalidOfficeSlots, automaticFileView];

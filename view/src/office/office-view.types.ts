@@ -79,7 +79,9 @@ export type OnlyOfficeEditorConfig = Readonly<Record<string, unknown>> & {
  * @public
  */
 export interface OfficeViewLabels {
-  /** Labels the Office toolbar. */
+  /**
+   * Labels the Office toolbar.
+   */
   readonly toolbar: string;
   /**
    * Announces editor loading.
@@ -91,17 +93,15 @@ export interface OfficeViewLabels {
   readonly error: string;
 }
 
-/** Defines native properties for stable OfficeView slots. @public */
+/**
+ * Defines native properties for stable OfficeView slots.
+ *
+ * @public
+ */
 export interface OfficeViewSlotProps {
-  readonly toolbar?: Omit<
-    ComponentPropsWithoutRef<"div">,
-    "children" | "role" | "aria-label"
-  >;
+  readonly toolbar?: Omit<ComponentPropsWithoutRef<"div">, "children" | "role" | "aria-label">;
   readonly editor?: Omit<ComponentPropsWithoutRef<"div">, "children" | "id">;
-  readonly status?: Omit<
-    ComponentPropsWithoutRef<"div">,
-    "children" | "role" | "aria-live"
-  >;
+  readonly status?: Omit<ComponentPropsWithoutRef<"div">, "children" | "role" | "aria-live">;
 }
 
 /**
@@ -133,7 +133,9 @@ export interface OfficeViewProps extends Omit<
    * Adds application-owned actions without assigning security meaning to their visibility.
    */
   readonly actions?: ReactNode;
-  /** Passes native properties to stable internal slots. */
+  /**
+   * Passes native properties to stable internal slots.
+   */
   readonly slotProps?: OfficeViewSlotProps;
   /**
    * Runs after the editor instance is created.

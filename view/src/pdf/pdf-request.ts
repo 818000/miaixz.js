@@ -55,7 +55,9 @@ export function usePdfRequest(
         ? undefined
         : Object.freeze(
             Object.fromEntries(
-              Object.entries(httpHeaders).sort(([left], [right]) => left.localeCompare(right, "en")),
+              Object.entries(httpHeaders).sort(([left], [right]) =>
+                left.localeCompare(right, "en"),
+              ),
             ),
           );
     current.current = {
@@ -67,16 +69,28 @@ export function usePdfRequest(
   return current.current;
 }
 
-/** Compares source values using the public request identity contract. */
+/**
+ * Compares source values using the public request identity contract.
+ *
+ * @param left - Existing source identity.
+ * @param right - Candidate source identity.
+ * @returns Whether both values identify the same source.
+ */
 function sameSource(left: PdfViewSource, right: PdfViewSource): boolean {
   if (typeof left === "string" || left instanceof URL) {
-    return (typeof right === "string" || right instanceof URL) && left.toString() === right.toString();
+    return (
+      (typeof right === "string" || right instanceof URL) && left.toString() === right.toString()
+    );
   }
   return left === right;
 }
 
 /**
  * Compares header maps without serializing or exposing their values.
+ *
+ * @param left - Existing immutable header map.
+ * @param right - Candidate header map.
+ * @returns Whether both maps contain the same keys and values.
  */
 function sameHeaders(
   left: Readonly<Record<string, string>> | undefined,

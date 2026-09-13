@@ -1,6 +1,11 @@
 import { vi } from "vitest";
 import type { OnlyOfficeApi } from "../src/office/office-loader.js";
 
+/**
+ * Reloads the Office integration module after each module reset.
+ *
+ * @returns Fresh Office loader module.
+ */
 async function getLoader() {
   return import("../src/office/office-loader.js");
 }

@@ -29,7 +29,8 @@ const requireStrictComments = {
   meta: {
     type: "layout",
     docs: {
-      description: "Require non-license source comments to use multiline JSDoc blocks.",
+      description:
+        "Require non-license source comments to use multiline JSDoc blocks.",
     },
     fixable: "whitespace",
     schema: [],
@@ -87,7 +88,11 @@ const requireStrictComments = {
               messageId: "finalLineText",
             });
           }
-          if (comment.type === "Block" && !raw.startsWith("/**") && !isRepositoryHeader) {
+          if (
+            comment.type === "Block" &&
+            !raw.startsWith("/**") &&
+            !isRepositoryHeader
+          ) {
             context.report({
               loc: comment.loc,
               messageId: "nonJsdoc",
@@ -120,9 +125,11 @@ const requireStrictComments = {
              */
             fix(fixer) {
               const source = sourceCode.getText();
-              const lineStart = source.lastIndexOf("\n", comment.range[0] - 1) + 1;
+              const lineStart =
+                source.lastIndexOf("\n", comment.range[0] - 1) + 1;
               const indentation =
-                source.slice(lineStart, comment.range[0]).match(/^\s*/)?.[0] ?? "";
+                source.slice(lineStart, comment.range[0]).match(/^\s*/)?.[0] ??
+                "";
               const content =
                 comment.type === "Line"
                   ? raw.replace(/^\/\/\/?\s?/, "").trimEnd()
@@ -168,16 +175,26 @@ async function processSourceHeaders(mode) {
   }
 
   const rootDirectory = repositoryRoot;
-  const sourceDirectories = loadWorkspaceRepository(rootDirectory)
-    .workspaces.map(({ rootPath }) => resolve(rootPath, "src"))
-    .filter(existsSync);
+  const sourceDirectories = [
+    ...loadWorkspaceRepository(rootDirectory).workspaces.map(({ rootPath }) =>
+      resolve(rootPath, "src"),
+    ),
+    resolve(rootDirectory, ".github/scripts"),
+  ].filter(existsSync);
   const header = normalizeHeader(
-    await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"),
+    await readFile(
+      resolve(repositoryRoot, ".github/scripts/miaixz.org"),
+      "utf8",
+    ),
   );
   const files = (
-    await Promise.all(sourceDirectories.map((directory) => collectSourceFiles(directory)))
+    await Promise.all(
+      sourceDirectories.map((directory) => collectSourceFiles(directory)),
+    )
   ).flat();
-  const scriptFiles = await collectScriptFiles(resolve(rootDirectory, ".github/scripts"));
+  const scriptFiles = await collectScriptFiles(
+    resolve(rootDirectory, ".github/scripts"),
+  );
   const changedFiles = [];
 
   for (const file of files) {
@@ -194,7 +211,9 @@ async function processSourceHeaders(mode) {
     const source = await readFile(file, "utf8");
     for (const [index, line] of source.split(/\r?\n/u).entries()) {
       if (/\p{Script=Han}/u.test(line)) {
-        scriptLanguageFailures.push(`${file.slice(rootDirectory.length + 1)}:${index + 1}`);
+        scriptLanguageFailures.push(
+          `${file.slice(rootDirectory.length + 1)}:${index + 1}`,
+        );
       }
     }
   }
@@ -202,19 +221,26 @@ async function processSourceHeaders(mode) {
   if (changedFiles.length === 0) {
     process.stdout.write(`Verified source headers in ${files.length} files.\n`);
   } else if (mode === "--write") {
-    process.stdout.write(`Updated source headers in ${changedFiles.length} files.\n`);
+    process.stdout.write(
+      `Updated source headers in ${changedFiles.length} files.\n`,
+    );
   } else {
     for (const file of changedFiles) {
       process.stderr.write(`${file.slice(rootDirectory.length + 1)}\n`);
     }
-    process.stderr.write(`Source header check failed for ${changedFiles.length} files.\n`);
+    process.stderr.write(
+      `Source header check failed for ${changedFiles.length} files.\n`,
+    );
     process.exitCode = 1;
   }
 
   if (scriptLanguageFailures.length === 0) {
-    process.stdout.write(`Verified English-only content in ${scriptFiles.length} script files.\n`);
+    process.stdout.write(
+      `Verified English-only content in ${scriptFiles.length} script files.\n`,
+    );
   } else {
-    for (const location of scriptLanguageFailures) process.stderr.write(`${location}\n`);
+    for (const location of scriptLanguageFailures)
+      process.stderr.write(`${location}\n`);
     process.stderr.write(
       `Script language check found Han characters in ${scriptLanguageFailures.length} lines.\n`,
     );
@@ -229,13 +255,22 @@ async function processSourceHeaders(mode) {
  * @returns {Promise<string[]>} Stable absolute source file paths.
  */
 async function collectSourceFiles(directory) {
-  const supportedExtensions = new Set([".cjs", ".css", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
+  const supportedExtensions = new Set([
+    ".cjs",
+    ".css",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".ts",
+    ".tsx",
+  ]);
   const entries = await readdir(directory, { withFileTypes: true });
   const nestedFiles = await Promise.all(
     entries.map(async (entry) => {
       const path = resolve(directory, entry.name);
       if (entry.isDirectory()) return collectSourceFiles(path);
-      if (entry.isFile() && supportedExtensions.has(extname(entry.name))) return [path];
+      if (entry.isFile() && supportedExtensions.has(extname(entry.name)))
+        return [path];
       return [];
     }),
   );
@@ -268,7 +303,8 @@ async function collectScriptFiles(directory) {
       if (entry.isDirectory() && !localizedDirectories.has(entry.name)) {
         return collectScriptFiles(path);
       }
-      if (entry.isFile() && supportedExtensions.has(extname(entry.name))) return [path];
+      if (entry.isFile() && supportedExtensions.has(extname(entry.name)))
+        return [path];
       return [];
     }),
   );
@@ -286,7 +322,10 @@ async function collectScriptFiles(directory) {
 function normalizeHeader(source) {
   const header = source.replaceAll("\r\n", "\n").trim();
 
-  if (!/^\/\*\n[\s\S]+\n\s*\*\/$/u.test(header) || !header.includes("miaixz.org")) {
+  if (
+    !/^\/\*\n[\s\S]+\n\s*\*\/$/u.test(header) ||
+    !header.includes("miaixz.org")
+  ) {
     throw new Error(
       "miaixz.org must contain one multiline block comment with miaixz.org branding.",
     );
@@ -314,7 +353,8 @@ function applyHeader(source, header) {
   }
 
   const leadingComment = body.match(/^\/\*[\s\S]*?\*\/(?:\r?\n)*/u)?.[0];
-  if (leadingComment?.includes("miaixz.org")) body = body.slice(leadingComment.length);
+  if (leadingComment?.includes("miaixz.org"))
+    body = body.slice(leadingComment.length);
   body = body.replace(/^(?:[ \t]*\r?\n)+/u, "");
   const prefix = shebang ? `${shebang}\n\n` : "";
 

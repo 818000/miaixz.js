@@ -67,7 +67,13 @@ function toDocumentSource(
   return { data };
 }
 
-/** Rejects invalid public PDF navigation values on every render. */
+/**
+ * Rejects invalid public PDF navigation values on every render.
+ *
+ * @param initialPage - Requested initial one-based page number.
+ * @param initialScale - Requested initial positive scale.
+ * @returns Nothing after both values are validated.
+ */
 function validatePdfConfiguration(initialPage: number, initialScale: number): void {
   if (!Number.isInteger(initialPage) || initialPage <= 0) {
     throw new MiaixzViewError("VIEW_PDF_PAGE_INVALID");

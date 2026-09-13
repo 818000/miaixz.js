@@ -49,7 +49,9 @@ export interface PdfDocumentInfo {
  * @public
  */
 export interface PdfViewLabels {
-  /** Labels the PDF toolbar. */
+  /**
+   * Labels the PDF toolbar.
+   */
   readonly toolbar: string;
   /**
    * Announces document loading.
@@ -85,21 +87,16 @@ export interface PdfViewLabels {
   readonly page: (current: number, total: number) => string;
 }
 
-/** Defines native properties for stable PdfView slots. @public */
+/**
+ * Defines native properties for stable PdfView slots.
+ *
+ * @public
+ */
 export interface PdfViewSlotProps {
-  readonly toolbar?: Omit<
-    ComponentPropsWithoutRef<"div">,
-    "children" | "role" | "aria-label"
-  >;
+  readonly toolbar?: Omit<ComponentPropsWithoutRef<"div">, "children" | "role" | "aria-label">;
   readonly stage?: Omit<ComponentPropsWithoutRef<"div">, "children">;
-  readonly canvas?: Omit<
-    ComponentPropsWithoutRef<"canvas">,
-    "children" | "role" | "aria-label"
-  >;
-  readonly status?: Omit<
-    ComponentPropsWithoutRef<"div">,
-    "children" | "role" | "aria-live"
-  >;
+  readonly canvas?: Omit<ComponentPropsWithoutRef<"canvas">, "children" | "role" | "aria-label">;
+  readonly status?: Omit<ComponentPropsWithoutRef<"div">, "children" | "role" | "aria-live">;
 }
 
 /**
@@ -145,7 +142,9 @@ export interface PdfViewProps extends Omit<
    * Adds application-owned actions without assigning security meaning to their visibility.
    */
   readonly actions?: ReactNode;
-  /** Passes native properties to stable internal slots. */
+  /**
+   * Passes native properties to stable internal slots.
+   */
   readonly slotProps?: PdfViewSlotProps;
   /**
    * Receives serializable document metadata after loading.
