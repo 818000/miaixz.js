@@ -10,7 +10,7 @@ import { validateResolvedTheme } from "../src/theme/validate.js";
 /*
  * @ts-expect-error The audit entry point is a plain JavaScript module.
  */
-import { inspectComponentColors } from "./color-policy.mjs";
+import { inspectComponentColors } from "../../.github/scripts/quality/ui-color-policy.mjs";
 
 describe("color ownership", () => {
   it("keeps brand and link colors while filled green controls share accessible foregrounds", () => {

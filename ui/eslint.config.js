@@ -24,7 +24,7 @@ import prettier from "eslint-config-prettier";
 import jsdoc from "eslint-plugin-jsdoc";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
-import multilineComments from "../.github/scripts/enforce.js";
+import multilineComments from "../.github/scripts/quality/enforce-source-policy.mjs";
 
 const typeScriptFiles = ["**/*.ts", "**/*.tsx"];
 
@@ -39,6 +39,13 @@ const configuration = [
   },
   eslint.configs.recommended,
   {
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.es2022,
+        ...globals.node,
+      },
+    },
     plugins: {
       miaixz: multilineComments,
     },

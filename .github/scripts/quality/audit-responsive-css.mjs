@@ -3,7 +3,8 @@ import { extname, relative, resolve } from "node:path";
 import process from "node:process";
 import { URL, fileURLToPath } from "node:url";
 
-const packageDirectory = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
+const packageDirectory = resolve(repositoryRoot, "ui");
 const styleFiles = [
   ...(await collectFiles(resolve(packageDirectory, "src/styles"), new Set([".css"]))),
   ...(await collectFiles(resolve(packageDirectory, "src/theme"), new Set([".css"]))),

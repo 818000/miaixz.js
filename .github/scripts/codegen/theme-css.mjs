@@ -21,17 +21,17 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import process from "node:process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { URL, fileURLToPath, pathToFileURL } from "node:url";
 import { format } from "prettier";
-import prettierConfiguration from "../../prettier.config.js";
+import prettierConfiguration from "../../../ui/prettier.config.js";
 
-const scriptDirectory = dirname(fileURLToPath(import.meta.url));
-const packageDirectory = resolve(scriptDirectory, "../..");
+const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
+const packageDirectory = resolve(repositoryRoot, "ui");
 const parameters = process.argv.slice(2);
 const checkOnly = parameters.includes("--check");
-const sourceHeader = (
-  await readFile(resolve(packageDirectory, "../.github/scripts/miaixz.org"), "utf8")
-).trim();
+const sourceHeader = (await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"))
+  .replaceAll("\r\n", "\n")
+  .trim();
 const option = (name, fallback) => {
   const inline = parameters.find((value) => value.startsWith(name + "="));
   if (inline) return resolve(inline.slice(name.length + 1));

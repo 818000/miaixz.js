@@ -72,7 +72,7 @@ jobs:
             echo "::error::Checked-out HEAD does not equal the peeled tag commit"
             exit 1
           fi
-          node .github/scripts/check-release-metadata.mjs "$RELEASE_VERSION"
+          node .github/scripts/release/check-release-metadata.mjs "$RELEASE_VERSION"
           npm run check:clean
 
       - name: Confirm Both npm Packages
@@ -95,7 +95,7 @@ jobs:
         run: |
           set -euo pipefail
           body_path="$RUNNER_TEMP/release-notes-${RELEASE_VERSION}.md"
-          node .github/scripts/create-release-notes.mjs "$RELEASE_VERSION" "$body_path"
+          node .github/scripts/release/create-release-notes.mjs "$RELEASE_VERSION" "$body_path"
           echo "body_path=$body_path" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
