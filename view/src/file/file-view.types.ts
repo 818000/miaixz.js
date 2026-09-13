@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,35 +18,36 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Appearance } from "./patterns/appearance/appearance.js";
-export type {
-  AppearanceBaseProps,
-  AppearanceOwnerState,
-  AppearancePosition,
-  AppearanceProps,
-  AppearanceRootAttributes,
-  AppearanceScope,
-  AppearanceSlot,
-  AppearanceSlotProps,
-} from "./patterns/appearance/appearance.types.js";
-export {
-  isMiaixzAppearanceSettings,
-  isMiaixzColorMode,
-  isMiaixzDensity,
-  miaixzColorModes,
-  miaixzDefaultAppearance,
-  miaixzDensities,
-  miaixzThemeColorTokens,
-  parseMiaixzAppearanceSettings,
-  watchMiaixzSystemColorMode,
-} from "./theme/appearance.js";
-export type {
-  MiaixzAppearancePayload,
-  MiaixzAppearanceSettings,
-  MiaixzColorMode,
-  MiaixzDensity,
-  MiaixzResolvedColorMode,
-  MiaixzThemeColorOverrides,
-  MiaixzThemeColorToken,
-  MiaixzThemeOverrides,
-} from "./theme/appearance.js";
+import type { ImageViewProps } from "../image/image-view.types.js";
+import type { OfficeViewProps } from "../office/office-view.types.js";
+import type { PdfViewProps } from "../pdf/pdf-view.types.js";
+
+interface ImageFileViewProps extends ImageViewProps {
+  /**
+   * Selects image preview rendering.
+   */
+  readonly kind: "image";
+}
+
+interface PdfFileViewProps extends PdfViewProps {
+  /**
+   * Selects PDF preview rendering.
+   */
+  readonly kind: "pdf";
+}
+
+interface OfficeFileViewProps extends OfficeViewProps {
+  /**
+   * Selects ONLYOFFICE preview rendering.
+   */
+  readonly kind: "office";
+}
+
+/**
+ * Defines an explicitly classified preview request.
+ *
+ * Signed URLs may not preserve useful extensions, so the caller selects the viewer kind.
+ *
+ * @public
+ */
+export type FileViewProps = ImageFileViewProps | PdfFileViewProps | OfficeFileViewProps;

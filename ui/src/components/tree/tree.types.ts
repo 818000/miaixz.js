@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed tree models and slots are self-describing.
- */
 import type { HTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
@@ -123,7 +121,7 @@ export type MiaixzTreeOwnProps<Value = unknown> = MiaixzTreeBaseProps<Value> &
   TreeSelectionProps &
   TreeExpansionProps;
 
-/*
+/**
  * Configures a business-neutral WAI-ARIA tree. @public
  */
 export type TreeProps<Value = unknown> = MiaixzTreeOwnProps<Value> &

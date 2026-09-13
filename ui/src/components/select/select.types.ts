@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Slot contracts are a direct native-element mapping.
- */
 
 import type {
   ButtonHTMLAttributes,
@@ -153,6 +150,3 @@ export type SelectProps = SelectOwnProps &
     | "aria-required"
     | "aria-readonly"
   >;
-
-/* eslint-enable jsdoc/require-jsdoc
- */

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc, react-hooks/refs --
- * Slot ref composition is centralized and public contracts live in the type module.
- */
 import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -35,7 +32,7 @@ import type {
 } from "./navigation.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders a labeled, link-only navigation region from one declarative item source. @public
  */
 export const Navigation = withMiaixzThemeComponent(
@@ -94,6 +91,12 @@ export const Navigation = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders one navigation entry with effective orientation, density, surface, and slots.
+ *
+ * @param props - Navigation entry and inherited presentation configuration.
+ * @returns Semantic navigation link for the entry.
+ */
 function NavigationEntryView({
   entry,
   orientation,
@@ -167,6 +170,13 @@ function NavigationEntryView({
   );
 }
 
+/**
+ * Validates navigation entry identifiers and text values.
+ *
+ * @param items - Navigation entries to validate.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when identifiers are duplicated or text values are empty.
+ */
 function validateItems(items: readonly NavigationEntry[]): void {
   const ids = new Set<string>();
   for (const item of items) {

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
- */
 import { forwardRef, useId } from "react";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
@@ -37,7 +35,7 @@ const toneIcons: Record<ToastTone, "Info" | "CircleCheck" | "TriangleAlert" | "C
   info: "Info",
 };
 
-/*
+/**
  * Renders one notification without owning live-region semantics.
  */
 export const Toast = withMiaixzThemeComponent(

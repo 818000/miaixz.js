@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -16,10 +16,6 @@
  ~ limitations under the License.                                            ~
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
- */
-
-/* eslint-disable jsdoc/require-jsdoc --
- * Test-only Theme probes remain local to this file.
  */
 
 import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
@@ -62,6 +58,12 @@ const remoteTheme = defineTheme({
   },
 });
 
+/**
+ * Creates an isolated appearance manager for theme runtime tests.
+ *
+ * @param theme - Initial theme name.
+ * @returns Appearance manager backed by deterministic in-memory storage.
+ */
 function createAppearance(theme = "miaixz") {
   const values = new Map<string, string>();
   return createMiaixzAppearanceManager({
@@ -75,6 +77,11 @@ function createAppearance(theme = "miaixz") {
   });
 }
 
+/**
+ * Renders controls that expose the current theme runtime state and transitions.
+ *
+ * @returns Interactive theme runtime probe.
+ */
 function ThemeProbe() {
   const theme = useTheme();
   return (
@@ -126,6 +133,13 @@ interface SlotThemeProbeProps extends HTMLAttributes<HTMLDivElement> {
   readonly children?: ReactNode;
 }
 
+/**
+ * Resolves a static or owner-state-driven slot used by theme runtime probes.
+ *
+ * @param slot - Probe slot properties or resolver callback.
+ * @param ownerState - Effective probe owner state.
+ * @returns Resolved probe slot properties.
+ */
 function resolveProbeSlot(
   slot: ProbeSlot | undefined,
   ownerState: Readonly<Record<string, unknown>>,

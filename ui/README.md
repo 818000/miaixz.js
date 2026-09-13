@@ -132,6 +132,25 @@ Frequently used icons render synchronously and the rest load on demand. Business
 import Lucide components directly or pass icon components into `Icon`; this keeps call sites stable
 if the underlying icon provider changes. Do not import from `dist` or from internal source paths.
 
+Product intent definitions are available only from their dedicated subpath:
+
+```ts
+import {
+  getIntentDefinition,
+  intentDefinitions,
+  type Intent,
+  type IntentDefinition,
+} from "@miaixz/ui/intents";
+
+const intent: Intent = "delete";
+const definition: IntentDefinition = getIntentDefinition(intent);
+
+definition === intentDefinitions[intent];
+```
+
+Each definition supplies the stable message key, icon name, and semantic tone for one product
+intent. The intents API is intentionally absent from the package root and does not execute actions.
+
 ## Height-aware application navigation
 
 Use structured `groups` when a shell rail must remain scrollbar-free at every viewport height.

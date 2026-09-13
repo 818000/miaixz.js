@@ -4,12 +4,11 @@ import { describe, expect, it } from "vitest";
 import { miaixzTheme } from "../src/theme/miaixz.js";
 import { ThemeCatalog } from "../src/theme/catalog.js";
 import { validateResolvedTheme } from "../src/theme/validate.js";
-/*
+/**
  * Shared with the standalone CSS audit.
  */
-/*
- * @ts-expect-error The audit entry point is a plain JavaScript module.
- */
+/**
+ * @ts-expect-error The audit entry point is a plain JavaScript module. */
 import { inspectComponentColors } from "../../.github/scripts/quality/ui-color-policy.mjs";
 
 describe("color ownership", () => {

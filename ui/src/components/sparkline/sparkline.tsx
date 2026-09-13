@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public Sparkline contract lives in its type module.
- */
 import { forwardRef, useId } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
@@ -38,6 +36,11 @@ const dimensions = {
   large: { width: 360, height: 82, padding: 8 },
 } as const;
 
+/**
+ * Renders a compact accessible line or area trend visualization.
+ *
+ * @public
+ */
 export const Sparkline = withMiaixzThemeComponent(
   "Sparkline",
   forwardRef<SVGSVGElement, SparklineProps>(function Sparkline(

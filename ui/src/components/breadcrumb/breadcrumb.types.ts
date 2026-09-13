@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed breadcrumb entries and slots are self-describing.
- */
 import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -59,7 +57,7 @@ export interface MiaixzBreadcrumbOwnProps {
   readonly items: readonly BreadcrumbEntry[];
   readonly slotProps?: BreadcrumbSlotProps;
 }
-/*
+/**
  * Configures a breadcrumb navigation landmark. @public
  */
 export type BreadcrumbProps = MiaixzBreadcrumbOwnProps &

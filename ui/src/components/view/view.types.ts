@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed view modes and slots are self-describing.
- */
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { NavigationEntry } from "../navigation/navigation.types.js";
@@ -82,7 +80,7 @@ type ViewTabsMode = {
   readonly children?: never;
 } & TabsValueState;
 export type ViewModeProps = ViewContentMode | ViewNavigationMode | ViewTabsMode;
-/*
+/**
  * Configures a structured route-level view. @public
  */
 export type ViewProps = ViewBaseProps &

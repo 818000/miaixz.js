@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -21,11 +21,18 @@
 import { parse } from "@babel/parser";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
 
-const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
-const sdkSourceRoot = path.join(repositoryRoot, "sdk", "src");
-const uiSourceRoot = path.join(repositoryRoot, "ui", "src");
+const workspaceRepository = loadWorkspaceRepository(repositoryRoot);
+const sourceRoots = workspaceRepository.workspaces
+  .map(({ rootPath }) => path.join(rootPath, "src"))
+  .filter(existsSync);
+const sourceRootByPackageName = new Map(
+  workspaceRepository.workspaces.map(({ name, rootPath }) => [name, path.join(rootPath, "src")]),
+);
+const sdkSourceRoot = requireSourceRoot("@miaixz/sdk");
+const uiSourceRoot = requireSourceRoot("@miaixz/ui");
+const viewSourceRoot = requireSourceRoot("@miaixz/view");
 const violations = [];
 const componentRanks = new Map(
   Object.entries({
@@ -39,8 +46,26 @@ const componentRanks = new Map(
   }).flatMap(([rank, names]) => names.split(" ").map((name) => [name, Number(rank)])),
 );
 
-/*
+/**
+ * Returns the required source root for a named workspace package.
+ *
+ * @param {string} packageName Workspace package name.
+ * @returns {string} Absolute source directory for the package.
+ * @throws {Error} If the package is unknown or its source directory is missing.
+ */
+function requireSourceRoot(packageName) {
+  const sourceRoot = sourceRootByPackageName.get(packageName);
+  if (sourceRoot === undefined || !existsSync(sourceRoot)) {
+    throw new Error(`${packageName} must provide a source directory for boundary enforcement.`);
+  }
+  return sourceRoot;
+}
+
+/**
  * Returns every TypeScript source below a directory in stable order.
+ *
+ * @param {string} directory Absolute directory to traverse.
+ * @returns {string[]} Absolute TypeScript source paths.
  */
 function listSourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true })
@@ -52,8 +77,12 @@ function listSourceFiles(directory) {
     .sort();
 }
 
-/*
+/**
  * Resolves the repository's NodeNext-style relative `.js` source imports.
+ *
+ * @param {string} specifier Import specifier found in source.
+ * @param {string} importer Absolute path to the importing source file.
+ * @returns {string | undefined} Resolved TypeScript source path when one exists.
  */
 function resolveSourceImport(specifier, importer) {
   if (!specifier.startsWith(".") || !specifier.endsWith(".js")) return undefined;
@@ -61,8 +90,11 @@ function resolveSourceImport(specifier, importer) {
   return [`${target}.ts`, `${target}.tsx`, `${target}.d.ts`].find(existsSync);
 }
 
-/*
+/**
  * Returns all static relative import and re-export edges in one source file.
+ *
+ * @param {string} file Absolute source path to parse.
+ * @returns {Array<{ specifier: string, target: string | undefined, typeOnly: boolean }>} Static module dependency edges.
  */
 function readEdges(file) {
   const program = parse(readFileSync(file, "utf8"), {
@@ -95,15 +127,21 @@ function readEdges(file) {
   return edges;
 }
 
-/*
+/**
  * Produces a stable repository-relative path for diagnostics.
+ *
+ * @param {string} file Absolute repository file path.
+ * @returns {string} Portable repository-relative path.
  */
 function relative(file) {
   return path.relative(repositoryRoot, file).replaceAll(path.sep, "/");
 }
 
-/*
+/**
  * Classifies one UI source according to the sole D0/D1/C0-C6/P0 table.
+ *
+ * @param {string} file Absolute UI source path.
+ * @returns {{ kind: string, component?: string, rank?: number }} Layer classification.
  */
 function classifyUi(file) {
   const source = relative(file).replace(/^ui\/src\//, "");
@@ -124,7 +162,9 @@ function classifyUi(file) {
   ) {
     return { kind: "D1" };
   }
-  if (source.startsWith("patterns/")) return { kind: "P0" };
+  if (source.startsWith("appearance/") || source.startsWith("intents/")) {
+    return { kind: "P0" };
+  }
   if (source.startsWith("components/diagram/graph/")) {
     return { kind: "component", component: "graph", rank: 3 };
   }
@@ -136,19 +176,18 @@ function classifyUi(file) {
       ? { kind: "unclassified", component }
       : { kind: "component", component, rank };
   }
-  if (
-    source === "index.ts" ||
-    source === "appearance.ts" ||
-    source === "design/index.ts" ||
-    source === "icons/index.ts"
-  ) {
+  if (source === "index.ts" || source === "design/index.ts" || source === "icons/index.ts") {
     return { kind: "entry" };
   }
   return { kind: "unclassified", component: source.split("/")[0] };
 }
 
-/*
+/**
  * Records package and UI layer violations for a single dependency edge.
+ *
+ * @param {string} source Absolute importing source path.
+ * @param {{ specifier: string, target: string | undefined, typeOnly: boolean }} edge Dependency edge to audit.
+ * @returns {void}
  */
 function auditEdge(source, edge) {
   if (edge.target === undefined) {
@@ -159,10 +198,18 @@ function auditEdge(source, edge) {
     ) {
       violations.push(`${relative(source)} imports forbidden SDK dependency ${edge.specifier}`);
     }
+    if (source.startsWith(viewSourceRoot) && /^@miaixz\/sdk(?:\/|$)/.test(edge.specifier)) {
+      violations.push(`${relative(source)} imports forbidden preview dependency ${edge.specifier}`);
+    }
     return;
   }
   if (path.basename(source) !== "index.ts" && path.basename(edge.target) === "index.ts") {
     violations.push(`${relative(source)} imports internal barrel ${relative(edge.target)}`);
+  }
+  if (source.startsWith(viewSourceRoot) && !edge.target.startsWith(viewSourceRoot)) {
+    violations.push(
+      `${relative(source)} reaches outside the preview package through a relative import`,
+    );
   }
   if (!source.startsWith(uiSourceRoot) || !edge.target.startsWith(uiSourceRoot)) return;
   const from = classifyUi(source);
@@ -188,14 +235,18 @@ function auditEdge(source, edge) {
   if (from.kind === "D1" && to.kind === "P0") {
     const allowed =
       relative(source) === "ui/src/theme/components.ts" &&
-      relative(edge.target) === "ui/src/patterns/appearance/appearance.types.ts" &&
+      relative(edge.target) === "ui/src/appearance/appearance.types.ts" &&
       edge.typeOnly;
     if (!allowed) {
-      violations.push(`${relative(source)} (D1) cannot depend on pattern ${relative(edge.target)}`);
+      violations.push(
+        `${relative(source)} (D1) cannot depend on P0 source ${relative(edge.target)}`,
+      );
     }
   }
   if (from.kind === "component" && to.kind === "P0") {
-    violations.push(`${relative(source)} cannot depend upward on pattern ${relative(edge.target)}`);
+    violations.push(
+      `${relative(source)} cannot depend upward on P0 source ${relative(edge.target)}`,
+    );
   }
   if (
     from.kind === "component" &&
@@ -209,8 +260,11 @@ function auditEdge(source, edge) {
   }
 }
 
-/*
+/**
  * Returns strongly connected components containing more than one file.
+ *
+ * @param {Map<string, Set<string>>} graph Directed source dependency graph.
+ * @returns {string[][]} Stable lists of source files participating in cycles.
  */
 function findCycles(graph) {
   let nextIndex = 0;
@@ -219,6 +273,13 @@ function findCycles(graph) {
   const stack = [];
   const stacked = new Set();
   const cycles = [];
+
+  /**
+   * Visits one graph node using Tarjan's strongly connected component algorithm.
+   *
+   * @param {string} node Absolute source path represented by the graph node.
+   * @returns {void}
+   */
   function visit(node) {
     indices.set(node, nextIndex);
     lowLinks.set(node, nextIndex);
@@ -247,7 +308,7 @@ function findCycles(graph) {
   return cycles;
 }
 
-const sourceFiles = [...listSourceFiles(sdkSourceRoot), ...listSourceFiles(uiSourceRoot)];
+const sourceFiles = sourceRoots.flatMap(listSourceFiles);
 const graph = new Map(sourceFiles.map((file) => [file, new Set()]));
 for (const source of sourceFiles) {
   const classification = source.startsWith(uiSourceRoot) ? classifyUi(source) : undefined;

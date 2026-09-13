@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public Metric contract lives in metric.types.
- */
 import {
   forwardRef,
   useContext,
@@ -36,6 +34,11 @@ import { MetricVariantContext } from "./context.js";
 import type { MetricOwnerState, MetricProps } from "./metric.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
+/**
+ * Renders one metric as static content, navigation, or an action control.
+ *
+ * @public
+ */
 export const Metric = withMiaixzThemeComponent(
   "Metric",
   forwardRef<HTMLElement | HTMLAnchorElement | HTMLButtonElement, MetricProps>(function Metric(

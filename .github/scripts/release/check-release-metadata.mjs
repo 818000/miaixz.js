@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -19,49 +19,66 @@
  */
 
 import { readFileSync } from "node:fs";
-import { getSdkPeerRange } from "../version.mjs";
+import { join, relative } from "node:path";
+import { getWorkspacePeerRange, loadWorkspaceRepository } from "../miaixz.mjs";
 
 const requestedVersion = process.argv[2]?.trim();
-const version = readFileSync("VERSION", "utf8").trim();
+const repository = loadWorkspaceRepository();
+const version = readFileSync(join(repository.root, "VERSION"), "utf8").trim();
 if (requestedVersion && requestedVersion !== version) {
   throw new Error(`Requested version '${requestedVersion}' does not match VERSION '${version}'.`);
 }
 
 const manifests = [
-  ["package.json", JSON.parse(readFileSync("package.json", "utf8")), "miaixz.js"],
-  ["sdk/package.json", JSON.parse(readFileSync("sdk/package.json", "utf8")), "@miaixz/sdk"],
-  ["ui/package.json", JSON.parse(readFileSync("ui/package.json", "utf8")), "@miaixz/ui"],
+  ["package.json", repository.rootManifest],
+  ...repository.workspaces.map(({ manifest, manifestPath }) => [
+    relative(repository.root, manifestPath),
+    manifest,
+  ]),
 ];
 
-for (const [path, manifest, expectedName] of manifests) {
-  if (manifest.name !== expectedName) {
-    throw new Error(`${path} must be named '${expectedName}'.`);
-  }
+if (repository.rootManifest.name !== "miaixz.js") {
+  throw new Error("The root package must be named 'miaixz.js'.");
+}
+for (const [path, manifest] of manifests) {
   if (manifest.version !== version) {
     throw new Error(`${path} version '${manifest.version ?? ""}' does not match '${version}'.`);
   }
 }
 
-const [, root] = manifests[0];
-const [, sdk] = manifests[1];
-const [, ui] = manifests[2];
-if (
-  root.private !== true ||
-  !root.workspaces?.includes("sdk") ||
-  !root.workspaces?.includes("ui")
-) {
-  throw new Error("The private workspace root must contain sdk and ui.");
+if (repository.rootManifest.private !== true) {
+  throw new Error("The workspace root must be private.");
 }
-if (ui.peerDependencies?.["@miaixz/sdk"] !== getSdkPeerRange(version)) {
-  throw new Error(`ui @miaixz/sdk peer range must be '${getSdkPeerRange(version)}'.`);
+
+const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
+const expectedPeerRange = getWorkspacePeerRange(version);
+for (const { directory, manifest } of repository.workspaces) {
+  for (const dependencyName of Object.keys(manifest.peerDependencies ?? {})) {
+    if (!workspaceNames.has(dependencyName)) continue;
+    if (manifest.peerDependencies[dependencyName] !== expectedPeerRange) {
+      throw new Error(
+        `${directory} peer range for ${dependencyName} must be '${expectedPeerRange}'.`,
+      );
+    }
+    if (manifest.devDependencies?.[dependencyName] !== version) {
+      throw new Error(
+        `${directory} development version for ${dependencyName} must be '${version}'.`,
+      );
+    }
+  }
+  for (const field of ["dependencies", "devDependencies", "optionalDependencies"]) {
+    for (const [dependencyName, dependencyVersion] of Object.entries(manifest[field] ?? {})) {
+      if (workspaceNames.has(dependencyName) && dependencyVersion !== version) {
+        throw new Error(
+          `${directory} ${field} version for ${dependencyName} must be '${version}'.`,
+        );
+      }
+    }
+  }
 }
-if (ui.devDependencies?.["@miaixz/sdk"] !== version) {
-  throw new Error(`ui @miaixz/sdk development version must be '${version}'.`);
-}
-for (const [path, manifest] of [
-  ["sdk/package.json", sdk],
-  ["ui/package.json", ui],
-]) {
+
+for (const { directory, manifest } of repository.publicWorkspaces) {
+  const path = `${directory}/package.json`;
   if (
     manifest.private === true ||
     manifest.publishConfig?.access !== "public" ||
@@ -71,4 +88,6 @@ for (const [path, manifest] of [
   }
 }
 
-console.log(`Release metadata is valid for ${version}.`);
+console.log(
+  `Release metadata is valid for ${version} across ${repository.workspaces.length} workspaces.`,
+);

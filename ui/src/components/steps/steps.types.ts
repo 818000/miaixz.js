@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed workflow models and slots are self-describing.
- */
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -70,7 +68,7 @@ export interface MiaixzStepsOwnProps {
   readonly connector?: boolean;
   readonly slotProps?: StepsSlotProps;
 }
-/*
+/**
  * Configures a labeled workflow. @public
  */
 export type StepsProps = MiaixzStepsOwnProps &

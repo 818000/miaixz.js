@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -16,10 +16,6 @@
  ~ limitations under the License.                                            ~
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
- */
-
-/* eslint-disable jsdoc/require-jsdoc --
- * Test-only fixtures remain local to this file.
  */
 
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
@@ -50,6 +46,15 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
+/**
+ * Creates a deterministic browser file for dropzone and upload tests.
+ *
+ * @param name - File name.
+ * @param type - MIME type.
+ * @param content - Text content used as file bytes.
+ * @param lastModified - Stable modification timestamp.
+ * @returns Browser file with the requested metadata.
+ */
 function makeFile(name: string, type: string, content = "content", lastModified = 10): File {
   return new File([content], name, { type, lastModified });
 }

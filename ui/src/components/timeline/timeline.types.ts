@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed timeline models and slots are self-describing.
- */
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
@@ -63,7 +61,7 @@ export interface MiaixzTimelineOwnProps {
   readonly renderItem?: (item: MiaixzTimelineItem, defaultBody: ReactNode) => ReactNode;
   readonly slotProps?: TimelineSlotProps;
 }
-/*
+/**
  * Configures an ordered timeline from one item source. @public
  */
 export type TimelineProps = MiaixzTimelineOwnProps &

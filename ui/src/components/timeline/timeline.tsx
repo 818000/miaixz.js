@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Timeline contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -28,7 +25,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { TimelineOwnerState, TimelineProps } from "./timeline.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders invariant ol/li timeline semantics with customizable item bodies. @public
  */
 export const Timeline = withMiaixzThemeComponent(

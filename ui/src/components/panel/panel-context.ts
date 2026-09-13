@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,16 +18,22 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This internal context has no public API surface.
- */
 import { createContext, useContext } from "react";
 import type { PanelDensity } from "./panel.types.js";
 
 const PanelContext = createContext<PanelDensity | undefined>(undefined);
 
+/**
+ * Provides inherited panel density to nested panel primitives.
+ */
 export const PanelDensityProvider = PanelContext.Provider;
 
+/**
+ * Resolves explicit panel density before inherited and default density values.
+ *
+ * @param explicit - Density supplied directly by the panel owner.
+ * @returns Effective panel density.
+ */
 export function usePanelDensity(explicit: PanelDensity | undefined): PanelDensity {
   const contextual = useContext(PanelContext);
   return explicit ?? contextual ?? "standard";

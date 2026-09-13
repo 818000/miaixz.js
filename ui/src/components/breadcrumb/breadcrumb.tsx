@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc, react-hooks/refs --
- * Slot ref composition is centralized and public contracts live in the type module.
- */
 import { forwardRef } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
@@ -36,7 +33,7 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const ownerState: BreadcrumbOwnerState = {};
 
-/*
+/**
  * Renders localized hierarchical navigation from one declarative item source. @public
  */
 export const Breadcrumb = withMiaixzThemeComponent(
@@ -84,6 +81,12 @@ export const Breadcrumb = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders one breadcrumb entry as the current page or a navigable link.
+ *
+ * @param props - Breadcrumb entry and shared slot configuration.
+ * @returns Semantic breadcrumb list item.
+ */
 function BreadcrumbEntryView({
   entry,
   slotProps,

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -45,8 +45,9 @@
   text-decoration-color: currentcolor;
 }
 
-/* Regions can opt into inherited anchor text without changing link interactions,
- * semantic children, filled primary buttons or links elsewhere in the app. */
+/** Regions can opt into inherited anchor text without changing link interactions,
+ * semantic children, filled primary buttons or links elsewhere in the app.
+ */
 [data-miaixz-theme]
   :where(
     [data-miaixz-link-tone="inherit"]
@@ -60,7 +61,7 @@
   color: inherit;
 }
 
-/* Apply these mutually exclusive classes directly to the link/action, not its
+/** Apply these mutually exclusive classes directly to the link/action, not its
  * wrapper: ancestor text decorations cannot be cancelled by a child. */
 [data-miaixz-theme] :where(.miaixz-link-underline),
 [data-miaixz-theme] :where(.miaixz-link-underline):is(:hover, :focus-visible) {
@@ -70,7 +71,7 @@
   text-underline-offset: 0.18em;
 }
 
-/*
+/**
 
  * If both classes are supplied accidentally, the no-underline variant wins.
 

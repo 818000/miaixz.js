@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed header slots are self-describing.
- */
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -56,7 +54,7 @@ export interface MiaixzHeaderOwnProps {
   readonly slots?: HeaderSlots;
   readonly slotProps?: HeaderSlotProps;
 }
-/*
+/**
  * Configures a page title and action region. @public
  */
 export type HeaderProps = MiaixzHeaderOwnProps &

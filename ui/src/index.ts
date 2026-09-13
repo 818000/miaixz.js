@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -634,7 +634,7 @@ export type {
   ViewSurface,
   VisualizationGroupMotionOptions,
 } from "./components/index.js";
-export { Appearance } from "./patterns/appearance/index.js";
+export { Appearance } from "./appearance/index.js";
 export type {
   AppearanceBaseProps,
   AppearanceOwnerState,
@@ -644,7 +644,7 @@ export type {
   AppearanceScope,
   AppearanceSlot,
   AppearanceSlotProps,
-} from "./patterns/appearance/index.js";
+} from "./appearance/index.js";
 export {
   MiaixzUiError,
   miaixzUiErrorMessageKeys,
@@ -694,7 +694,7 @@ export {
   miaixzThemeColorTokens,
   parseMiaixzAppearanceSettings,
   watchMiaixzSystemColorMode,
-} from "./theme/appearance.js";
+} from "./appearance/index.js";
 export type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
@@ -704,7 +704,7 @@ export type {
   MiaixzThemeColorOverrides,
   MiaixzThemeColorToken,
   MiaixzThemeOverrides,
-} from "./theme/appearance.js";
+} from "./appearance/index.js";
 export {
   contrastTheme,
   createThemeScript,

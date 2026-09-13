@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Fixed tree DOM renderer is internal.
- */
 import type { KeyboardEvent, MouseEvent, RefObject } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
@@ -57,6 +55,13 @@ export interface TreeRendererProps<Value> {
   readonly onKeyDown: (event: KeyboardEvent<HTMLDivElement>, record: TreeRecord<Value>) => void;
 }
 
+/**
+ * Recursively renders indexed tree nodes with their effective interaction state.
+ *
+ * @typeParam Value - Application value stored by each tree node.
+ * @param props - Indexed tree state, slots, labels, references, and event callbacks.
+ * @returns Nested accessible tree item elements.
+ */
 export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
   const renderNodes = (nodes: readonly TreeNode<Value>[]) =>
     nodes.map((node) => {

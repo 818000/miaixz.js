@@ -22,8 +22,6 @@ interface LayerFixtureProps {
   readonly cancelEscape?: boolean;
 }
 
-/* eslint-disable jsdoc/check-param-names, jsdoc/require-param -- Props are documented by LayerFixtureProps.
- */
 /**
  * Renders a mounted trigger and content pair for dismiss-layer tests.
  *
@@ -55,9 +53,6 @@ function LayerFixture({ label, onDismiss, cancelEscape = false }: LayerFixturePr
     </section>
   );
 }
-/* eslint-enable jsdoc/check-param-names, jsdoc/require-param
- */
-
 describe("shared overlay infrastructure", () => {
   it("dismisses only layers above the pointer-owned nested branch", () => {
     const parentDismiss = vi.fn();

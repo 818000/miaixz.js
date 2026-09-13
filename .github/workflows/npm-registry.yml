@@ -92,13 +92,12 @@ jobs:
           name: packages-${{ env.RELEASE_TAG }}
           path: ${{ runner.temp }}/packages
 
-      - name: Publish Both Packages to npm
+      - name: Publish All Packages to npm
         uses: ./.github/actions/npm-registry
         with:
           version: ${{ steps.release.outputs.version }}
           registry: ${{ env.NPM_REGISTRY }}
-          sdk-tarball: ${{ runner.temp }}/packages/miaixz-sdk-${{ steps.release.outputs.version }}.tgz
-          ui-tarball: ${{ runner.temp }}/packages/miaixz-ui-${{ steps.release.outputs.version }}.tgz
+          package-directory: ${{ runner.temp }}/packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

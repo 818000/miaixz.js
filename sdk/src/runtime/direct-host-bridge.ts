@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -299,7 +299,7 @@ class MiaixzDirectHostBridge implements MiaixzHostBridge {
         try {
           await cancel();
         } catch {
-          /*
+          /**
            * Cleanup failures cannot replace the deterministic disposed result.
            */
         }

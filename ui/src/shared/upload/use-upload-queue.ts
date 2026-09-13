@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,11 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Closed upload state records are self-describing.
- */
-/* eslint-disable react-hooks/refs -- Refs mirror queue state for asynchronous request callbacks.
- */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -102,6 +97,14 @@ export function useUploadQueue(options: UseUploadQueueOptions): UploadQueueContr
       });
       const context: MiaixzUploadContext = Object.freeze({
         signal: controller.signal,
+
+        /**
+         * Records validated progress for the active upload attempt.
+         *
+         * @param value - Completion percentage from zero through one hundred.
+         * @returns Nothing after updating the active record.
+         * @throws MiaixzUiError when the percentage is non-finite or outside the range.
+         */
         reportProgress(value: number) {
           if (!Number.isFinite(value) || value < 0 || value > 100) {
             throw new MiaixzUiError({
@@ -243,6 +246,15 @@ export function useUploadQueue(options: UseUploadQueueOptions): UploadQueueContr
   };
 }
 
+/**
+ * Validates externally visible upload records and their relationship to active attempts.
+ *
+ * @param records - Upload records to validate.
+ * @param initial - Whether records are being accepted as initial controlled state.
+ * @param activeIds - Identifiers with an active upload attempt.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when a record violates identity, metadata, or progress invariants.
+ */
 export function validateUploadRecords(
   records: readonly UploadFileRecord[],
   initial: boolean,
@@ -288,6 +300,14 @@ export function validateUploadRecords(
   }
 }
 
+/**
+ * Validates upload concurrency and retry policy limits.
+ *
+ * @param concurrency - Maximum simultaneous upload attempts.
+ * @param retryPolicy - Retry count and delay strategy.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when concurrency or retry configuration is invalid.
+ */
 function validateQueueConfiguration(concurrency: number, retryPolicy: UploadRetryPolicy): void {
   if (!Number.isInteger(concurrency) || concurrency <= 0) {
     throw new MiaixzUiError({
@@ -303,6 +323,13 @@ function validateQueueConfiguration(concurrency: number, retryPolicy: UploadRetr
   if (typeof retryPolicy.delayMs === "number") validateRetryDelay(retryPolicy.delayMs);
 }
 
+/**
+ * Validates a concrete retry delay.
+ *
+ * @param delay - Delay in milliseconds.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when the delay is negative or non-finite.
+ */
 function validateRetryDelay(delay: number): void {
   if (!Number.isFinite(delay) || delay < 0) {
     throw new MiaixzUiError({
@@ -312,6 +339,13 @@ function validateRetryDelay(delay: number): void {
   }
 }
 
+/**
+ * Throws the stable upload state error for a specific record.
+ *
+ * @param id - Identifier of the invalid upload record.
+ * @returns Never returns because invalid state is always rejected.
+ * @throws MiaixzUiError containing the invalid record identifier.
+ */
 function throwFileStateError(id: string): never {
   throw new MiaixzUiError({
     code: "UI_UPLOAD_FILE_STATE_INVALID",
@@ -319,10 +353,22 @@ function throwFileStateError(id: string): never {
   });
 }
 
+/**
+ * Determines whether an unknown failure represents an aborted browser operation.
+ *
+ * @param error - Failure value to inspect.
+ * @returns Whether the value is an AbortError DOM exception.
+ */
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
 }
 
+/**
+ * Narrows an upload record to one backed by a local browser file.
+ *
+ * @param record - Upload record to inspect.
+ * @returns Whether the record has a local file source.
+ */
 function isLocalRecord(record: UploadFileRecord): record is LocalUploadFileRecord {
   return record.source.kind === "local";
 }

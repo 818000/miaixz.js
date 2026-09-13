@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Closed upload presentation records are self-describing.
- */
 
 import { forwardRef, useMemo, useState, type ReactElement } from "react";
 
@@ -260,6 +257,12 @@ export const Upload = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Converts a dropzone rejection into its stable public UI error.
+ *
+ * @param rejection - Rejected file and normalized rejection reason.
+ * @returns UI error corresponding to the rejection reason.
+ */
 function createRejectionError(rejection: DropzoneRejection): MiaixzUiError {
   if (rejection.reason === "type") {
     return new MiaixzUiError({ code: "UI_FILE_TYPE_NOT_ACCEPTED" });
@@ -273,12 +276,24 @@ function createRejectionError(rejection: DropzoneRejection): MiaixzUiError {
   return new MiaixzUiError({ code: "UI_UPLOAD_DUPLICATE_FILE_ID" });
 }
 
+/**
+ * Maps an upload state to its localized status message key.
+ *
+ * @param status - Current upload record state.
+ * @returns Translation key for the state.
+ */
 function getStatusKey(status: UploadFileRecord["status"]): string {
   if (status === "succeeded") return "ui.upload.success";
   if (status === "failed") return "ui.upload.error";
   return `ui.upload.${status}`;
 }
 
+/**
+ * Maps an upload state to the icon that represents it.
+ *
+ * @param status - Current upload record state.
+ * @returns Stable icon name for the state.
+ */
 function getStatusIcon(
   status: UploadFileRecord["status"],
 ): "File" | "LoaderCircle" | "CircleCheck" | "CircleAlert" {

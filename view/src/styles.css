@@ -1,0 +1,129 @@
+/**
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-block-size: 240px;
+  overflow: hidden;
+  color: var(--miaixz-color-text-primary, #1d2433);
+  background: var(--miaixz-color-surface-secondary, #f5f7fa);
+  border: 1px solid var(--miaixz-color-border, #d8dee8);
+  border-radius: var(--miaixz-radius-panel, 12px);
+}
+
+.miaixz-view-toolbar {
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-block-size: 40px;
+  padding: 6px 8px;
+  background: var(--miaixz-color-surface, #fff);
+  border-block-end: 1px solid var(--miaixz-color-border, #d8dee8);
+}
+
+.miaixz-view-command {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 32px;
+  min-block-size: 32px;
+  padding: 4px 8px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--miaixz-color-surface, #fff);
+  border: 1px solid var(--miaixz-color-border, #d8dee8);
+  border-radius: var(--miaixz-radius-control, 8px);
+}
+
+.miaixz-view-command:focus-visible {
+  outline: 2px solid var(--miaixz-color-focus, #3867d6);
+  outline-offset: 2px;
+}
+
+.miaixz-view-command:disabled {
+  color: var(--miaixz-color-text-disabled, #98a2b3);
+  cursor: not-allowed;
+}
+
+.miaixz-view-command:hover:not(:disabled) {
+  background: var(--miaixz-color-surface-hover, #eef2f7);
+}
+
+.miaixz-view-value {
+  min-inline-size: 56px;
+  font-size: var(--miaixz-text-caption-size, 13px);
+  line-height: var(--miaixz-text-caption-line-height, 20px);
+  color: var(--miaixz-color-text-secondary, #475467);
+  text-align: center;
+}
+
+.miaixz-view-stage {
+  position: relative;
+  display: grid;
+  flex: 1;
+  place-items: center;
+  min-block-size: 0;
+  overflow: auto;
+}
+
+.miaixz-view-image-content {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  object-fit: contain;
+  transform-origin: center;
+  transition: transform 160ms ease;
+}
+
+.miaixz-view-pdf-canvas {
+  display: block;
+  margin: 24px;
+  background: #fff;
+  box-shadow: var(--miaixz-shadow-medium, 0 8px 24px rgb(16 24 40 / 16%));
+}
+
+.miaixz-view-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--miaixz-color-text-secondary, #475467);
+  text-align: center;
+  background: var(--miaixz-color-surface-secondary, #f5f7fa);
+}
+
+.miaixz-view-office {
+  min-block-size: 480px;
+}
+
+.miaixz-view-office-editor {
+  flex: 1;
+  min-block-size: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-view-image-content {
+    transition: none;
+  }
+}

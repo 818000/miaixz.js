@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -267,7 +267,7 @@ export class MiaixzI18n {
         try {
           this.#onLoadError?.(error);
         } catch {
-          /*
+          /**
            * Host callbacks cannot replace the deterministic loader failure.
            */
         }

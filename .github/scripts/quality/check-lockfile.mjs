@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -20,8 +20,10 @@
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
+import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
 
-const root = process.cwd();
+const root = repositoryRoot;
+const { rootManifest, workspaces } = loadWorkspaceRepository(root);
 const failures = [];
 const forbiddenLockfiles = new Set([
   "pnpm-lock.yaml",
@@ -49,11 +51,8 @@ for (const file of walk(root)) {
 const commandPattern = /\b(?:pnpm|yarn|bun)\s+(?:add|ci|exec|install|run)\b/u;
 const scanFiles = [
   "package.json",
-  "sdk/package.json",
-  "ui/package.json",
   "README.md",
-  "sdk/README.md",
-  "ui/README.md",
+  ...workspaces.flatMap(({ directory }) => [`${directory}/package.json`, `${directory}/README.md`]),
   ...walk(join(root, ".github"))
     .map((file) => relative(root, file))
     .filter((file) => /\.(?:md|ya?ml)$/u.test(file)),
@@ -63,8 +62,7 @@ for (const path of scanFiles) {
   if (commandPattern.test(contents)) failures.push(`non-npm command: ${path}`);
 }
 
-const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-if (manifest.packageManager !== "npm@10.9.3") {
+if (rootManifest.packageManager !== "npm@10.9.3") {
   failures.push("packageManager must be npm@10.9.3");
 }
 
@@ -75,6 +73,12 @@ if (failures.length > 0) {
   console.log("The root npm lockfile and npm-only command policy are valid.");
 }
 
+/**
+ * Recursively lists files while excluding repository metadata and dependency artifacts.
+ *
+ * @param {string} directory Absolute directory to traverse.
+ * @returns {string[]} Absolute file paths below the directory.
+ */
 function walk(directory) {
   if (!existsSync(directory)) return [];
   const files = [];

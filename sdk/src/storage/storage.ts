@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -270,7 +270,7 @@ function safelyRemoveStorageValue(storage: MiaixzKeyValueStorage, key: string): 
   try {
     storage.removeItem(key);
   } catch {
-    /*
+    /**
      * Persistence failures never change the caller's in-memory state.
      */
   }
@@ -366,7 +366,7 @@ export function writeMiaixzVersionedValue<T>(
     };
     options.storage.setItem(key, JSON.stringify(envelope));
   } catch {
-    /*
+    /**
      * Serialization and adapter failures intentionally degrade to non-persistence.
      */
   }

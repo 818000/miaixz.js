@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -19,11 +19,11 @@
 */
 
 /**
- * Identifies one framework-owned action meaning.
+ * Identifies one framework-owned product intent.
  *
  * @public
  */
-export type ActionIntent =
+export type Intent =
   | "create"
   | "edit"
   | "view"

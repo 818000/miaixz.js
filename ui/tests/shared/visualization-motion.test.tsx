@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,10 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  */
 
-/* eslint-disable jsdoc/require-jsdoc, react-hooks/refs --
- * Test fixtures deliberately expose hook results through rendered controls.
- */
-
 import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -30,7 +26,7 @@ import {
   clampPosition,
   numericCssValue,
   useAppearancePosition,
-} from "../../src/patterns/appearance/use-appearance-position.js";
+} from "../../src/appearance/use-appearance-position.js";
 import {
   useVisualizationGroupMotion,
   useVisualizationMotion,
@@ -58,6 +54,12 @@ beforeEach(() => {
   });
 });
 
+/**
+ * Installs a deterministic reduced-motion media query stub.
+ *
+ * @param reduced - Whether the stub should report reduced motion.
+ * @returns Nothing after installing the browser stub.
+ */
 function installMatchMedia(reduced: boolean) {
   vi.stubGlobal(
     "matchMedia",
@@ -69,6 +71,12 @@ function installMatchMedia(reduced: boolean) {
   );
 }
 
+/**
+ * Renders a single visualization wired to the shared motion controller.
+ *
+ * @param props - Optional pointer-enter callback.
+ * @returns Visualization motion fixture.
+ */
 function Visualization({ onEnter = () => undefined }: { readonly onEnter?: () => void }) {
   const motion = useVisualizationMotion<HTMLDivElement>({
     forwardedRef: null,
@@ -91,6 +99,11 @@ function Visualization({ onEnter = () => undefined }: { readonly onEnter?: () =>
   );
 }
 
+/**
+ * Renders visualization children controlled by group intersection motion.
+ *
+ * @returns Visualization group fixture.
+ */
 function VisualizationGroup() {
   const ref = useVisualizationGroupMotion<HTMLDivElement>({
     selector: ".chart",
@@ -163,9 +176,20 @@ describe("visualization motion", () => {
     );
     render(<VisualizationGroup />);
     const first = screen.getByTestId("group").querySelector<HTMLElement>(".chart")!;
+    const bounds = first.getBoundingClientRect();
     act(() =>
       callback?.(
-        [{ isIntersecting: true, target: first } as IntersectionObserverEntry],
+        [
+          {
+            boundingClientRect: bounds,
+            intersectionRatio: 1,
+            intersectionRect: bounds,
+            isIntersecting: true,
+            rootBounds: null,
+            target: first,
+            time: 0,
+          } satisfies IntersectionObserverEntry,
+        ],
         {} as IntersectionObserver,
       ),
     );
@@ -174,6 +198,12 @@ describe("visualization motion", () => {
   });
 });
 
+/**
+ * Renders a controlled or uncontrolled appearance position hook fixture.
+ *
+ * @param props - Position value and activation or change callbacks.
+ * @returns Draggable appearance-position fixture.
+ */
 function PositionFixture({
   controlled,
   onActivate,

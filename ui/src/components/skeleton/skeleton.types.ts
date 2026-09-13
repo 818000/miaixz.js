@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- The fixed Skeleton root slot is self-describing.
- */
 import type { HTMLAttributes, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -41,5 +39,3 @@ export interface MiaixzSkeletonOwnProps {
 }
 export type SkeletonProps = MiaixzSkeletonOwnProps &
   Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzSkeletonOwnProps | "children" | "aria-hidden">;
-/* eslint-enable jsdoc/require-jsdoc
- */

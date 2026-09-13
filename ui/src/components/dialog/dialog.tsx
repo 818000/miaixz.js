@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Internal helpers have narrow local contracts.
- */
 
 import {
   createElement,
@@ -59,8 +56,11 @@ const focusableSelector = [
   "[tabindex]:not([tabindex='-1'])",
 ].join(",");
 
-/*
+/**
  * Removes component-owned fields before root native properties are merged.
+ *
+ * @param props - Dialog properties to separate.
+ * @returns Native dialog root attributes.
  */
 function getDialogNativeProps(props: Partial<DialogProps>): Partial<DialogRootAttributes> {
   const {
@@ -84,8 +84,12 @@ function getDialogNativeProps(props: Partial<DialogProps>): Partial<DialogRootAt
   return nativeProps;
 }
 
-/*
+/**
  * Returns whether an element is an eligible explicit modal focus target.
+ *
+ * @param element - Candidate initial-focus element.
+ * @param paper - Dialog paper that must contain the candidate.
+ * @returns Whether the candidate is connected, enabled, visible to focus, and inside the dialog.
  */
 function isEligibleInitialFocus(element: HTMLElement, paper: HTMLElement): boolean {
   return (
@@ -97,8 +101,14 @@ function isEligibleInitialFocus(element: HTMLElement, paper: HTMLElement): boole
   );
 }
 
-/*
+/**
  * Resolves Theme default slot props against the same effective owner state.
+ *
+ * @typeParam Key - Dialog slot key being resolved.
+ * @param slotProps - Dialog slot properties or callbacks.
+ * @param key - Slot key to resolve.
+ * @param ownerState - Effective dialog owner state.
+ * @returns Resolved non-callback slot properties when configured.
  */
 function resolveThemeSlotProps<Key extends keyof DialogSlotProps>(
   slotProps: DialogSlotProps | undefined,
@@ -110,7 +120,7 @@ function resolveThemeSlotProps<Key extends keyof DialogSlotProps>(
     Exclude<DialogSlotProps[Key], Function> | undefined;
 }
 
-/*
+/**
  * Renders a controlled native modal dialog with a single focus and dismissal model.
  */
 export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
@@ -342,8 +352,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
   },
 );
 
-/*
+/**
  * Distinguishes the rendered paper from the native dialog backdrop hit area.
+ *
+ * @param event - Pointer event received by the native dialog.
+ * @param dialog - Native dialog element containing the paper.
+ * @returns Whether the pointer coordinates fall outside the rendered paper.
  */
 function isBackdropPoint(event: MouseEvent<HTMLDialogElement>, dialog: HTMLDialogElement): boolean {
   const paper = dialog.firstElementChild?.getBoundingClientRect();

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -19,10 +19,6 @@
 */
 
 import type { ThemeComponents } from "../../src/theme/components.js";
-
-/* eslint-disable miaixz/require-multiline --
- * TypeScript error directives must remain line comments immediately before their target.
- */
 
 type ExpectedComponentName =
   | "Pressable"
@@ -149,19 +145,22 @@ const buttonTheme: NonNullable<ThemeComponents["Button"]> = {
 };
 
 const invalidComponent: ThemeComponents = {
-  // @ts-expect-error Unknown component names are not accepted.
+  /**
+   * @ts-expect-error Unknown component names are not accepted. */
   Unknown: {},
 };
 
 const invalidSlot: NonNullable<ThemeComponents["Button"]> = {
-  // @ts-expect-error Unknown component slots are not accepted.
+  /**
+   * @ts-expect-error Unknown component slots are not accepted. */
   slotClassNames: { content: "content" },
 };
 
 const invalidOwnerState: NonNullable<ThemeComponents["Button"]> = {
   variants: [
     {
-      // @ts-expect-error React nodes are not owner-state variant selectors.
+      /**
+       * @ts-expect-error React nodes are not owner-state variant selectors. */
       props: { children: "invalid" },
       slotClassNames: { root: "invalid" },
     },

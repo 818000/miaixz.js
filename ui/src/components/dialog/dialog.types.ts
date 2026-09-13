@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Closed dialog slots and state are self-describing.
- */
 
 import type {
   ButtonHTMLAttributes,
@@ -92,6 +89,3 @@ export interface MiaixzDialogOwnProps {
 
 export type DialogProps = MiaixzDialogOwnProps &
   Omit<DialogHTMLAttributes<HTMLDialogElement>, keyof MiaixzDialogOwnProps | "role">;
-
-/* eslint-enable jsdoc/require-jsdoc
- */

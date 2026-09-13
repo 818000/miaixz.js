@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public ListItem contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
@@ -37,7 +34,7 @@ type InternalListItemRootAttributes = ListItemRootAttributes &
     readonly "data-kind"?: string;
   };
 
-/*
+/**
  * Renders the sole public list row structure. @public
  */
 export const ListItem = withMiaixzThemeComponent(

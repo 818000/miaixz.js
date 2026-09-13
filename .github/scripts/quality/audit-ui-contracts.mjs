@@ -1,10 +1,9 @@
 import { readFile, readdir } from "node:fs/promises";
 import { extname, relative, resolve } from "node:path";
 import process from "node:process";
-import { URL, fileURLToPath } from "node:url";
+import { repositoryRoot } from "../miaixz.mjs";
 import { inspectComponentColors } from "./ui-color-policy.mjs";
 
-const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const packageDirectory = resolve(repositoryRoot, "ui");
 const sourceDirectory = resolve(packageDirectory, "src");
 const stylesDirectory = resolve(packageDirectory, "src/styles");
@@ -58,7 +57,7 @@ const requiredGeneratedThemeVariables = new Set([
   "--miaixz-radius-summary",
 ]);
 const removedPublicNames =
-  /\b(?:ConfirmDialog(?:Props)?|InlineMessage(?:Props)?|FormField(?:Props)?|SearchInput(?:Props)?|LoadingOverlay(?:Props)?|MultiSelect(?:Props)?|DataTable(?:Props)?|PageLayout(?:Props)?|FileUpload(?:Props)?|TreeView(?:Props)?|StatusIndicator(?:Props)?|EmptyState(?:Props)?|VisuallyHidden(?:Props)?|AppShell|PageHeader|PageToolbar|SplitLayout|SidebarLayout|LocalePicker(?:OwnerState|RootAttributes|SlotProps|Props|Slot)?|MetricGroup(?:Props)?|ModuleFrame(?:Density|Mode(?:Props)?|OwnerState|Props|RootAttributes|Slot(?:Props)?|Surface)?|GroupedList(?:Group|Item|Layout|OwnerState|Props|RootAttributes|Slot(?:Props)?)?|MiaixzGroupedListOwnProps|ui\.groupedList(?:\.[a-zA-Z0-9]+)*|Sticky(?:Props)?|DropzonePanel(?:Props)?|ListDistributionItem(?:Props)?|ListEntry|DrawerSize|NavigationRailOverflowMode|MiaixzFormPreview(?:Props|State)|getEditorClassName|EditorPart|getPanelClassName|PanelStyleOptions|getListClassName|ListPart|getMetricClassName|MetricPart|getNoticeClassName|RelationMap(?:Props)?|applyMiaixzAppearance|validateMiaixzThemeContrast|miaixzLightThemeColors|miaixzDarkThemeColors|legacyApplications)\b/g;
+  /\b(?:ConfirmDialog(?:Props)?|InlineMessage(?:Props)?|FormField(?:Props)?|SearchInput(?:Props)?|LoadingOverlay(?:Props)?|MultiSelect(?:Props)?|DataTable(?:Props)?|PageLayout(?:Props)?|FileUpload(?:Props)?|TreeView(?:Props)?|StatusIndicator(?:Props)?|EmptyState(?:Props)?|VisuallyHidden(?:Props)?|AppShell|PageHeader|PageToolbar|SplitLayout|SidebarLayout|LocalePicker(?:OwnerState|RootAttributes|SlotProps|Props|Slot)?|MetricGroup(?:Props)?|ModuleFrame(?:Density|Mode(?:Props)?|OwnerState|Props|RootAttributes|Slot(?:Props)?|Surface)?|GroupedList(?:Group|Item|Layout|OwnerState|Props|RootAttributes|Slot(?:Props)?)?|MiaixzGroupedListOwnProps|ui\.groupedList(?:\.[a-zA-Z0-9]+)*|Sticky(?:Props)?|DropzonePanel(?:Props)?|ListDistributionItem(?:Props)?|ListEntry|DrawerSize|NavigationRailOverflowMode|MiaixzFormPreview(?:Props|State)|getEditorClassName|EditorPart|getPanelClassName|PanelStyleOptions|getListClassName|ListPart|getMetricClassName|MetricPart|getNoticeClassName|RelationMap(?:Props)?|applyMiaixzAppearance|validateMiaixzThemeContrast|miaixzLightThemeColors|miaixzDarkThemeColors|legacyApplications|ActionCatalogEntry|ActionIntent|actionCatalog|getActionCatalogEntry)\b/g;
 const removedBodyContract =
   /\bBodyProps\b|\b(?:export|import)\b[^;\n]*\bBody\b|<Body(?:\s|\/?>)|["'](?:\.\.?\/)*(?:components\/)?body(?:\/index)?\.js["']/g;
 const removedThemeVariables =
@@ -66,7 +65,7 @@ const removedThemeVariables =
 const removedCssContracts =
   /(?:\.miaixz-(?:body|visually-hidden)(?![a-z0-9-])|\.miaixz-(?:sticky|relation-map|locale-picker|metric-group|avatar-(?:account|profile|fill)|popover-(?:trigger-avatar|picker)|dropdown-(?:plain|compact)|badge-dot)\b|\bmiaixz-(?:grouped-list|module-frame)(?:-[a-z0-9-]+)*\b|--miaixz-(?:metric-group-(?:[a-z0-9-]+)|sparkline-(?:metric|trend)-height)\b)/g;
 const removedPackageSubpaths =
-  /["']\.\/(?:confirm-dialog|inline-message|form-field|search-input|loading-overlay|multi-select|data-table|page-layout|file-upload|tree-view|status-indicator|empty-state|visually-hidden|body(?:\/styles\.css)?|locale-picker(?:\/styles\.css)?|metric(?:-group)?(?:\/styles\.css)?|module-frame(?:\/styles\.css)?|grouped-list(?:\/styles\.css)?|sticky|relation-map|diagram|miaixz\.css|themes\.css)["']/g;
+  /["']\.\/(?:confirm-dialog|inline-message|form-field|search-input|loading-overlay|multi-select|data-table|page-layout|file-upload|tree-view|status-indicator|empty-state|visually-hidden|body(?:\/styles\.css)?|locale-picker(?:\/styles\.css)?|metric(?:-group)?(?:\/styles\.css)?|module-frame(?:\/styles\.css)?|grouped-list(?:\/styles\.css)?|sticky|relation-map|diagram|patterns\/action-catalog|miaixz\.css|themes\.css)["']/g;
 
 for (const file of publicContractFiles) {
   const source = await readFile(file, "utf8");
@@ -315,6 +314,13 @@ for (const entry of [
 for (const finding of findings) process.stderr.write(`${finding}\n`);
 if (findings.length > 0) process.exitCode = 1;
 
+/**
+ * Identifies the single registered typography fallback form allowed by the theme contract.
+ *
+ * @param {string} fileName Package-relative stylesheet name.
+ * @param {string} value CSS declaration value to inspect.
+ * @returns {boolean} Whether the value matches the allowed fallback form.
+ */
 function isAllowedTypographyFallback(fileName, value) {
   return (
     fileName === "src/styles/foundation/typography.css" &&
@@ -324,15 +330,38 @@ function isAllowedTypographyFallback(fileName, value) {
   );
 }
 
+/**
+ * Records every regular-expression match as a UI contract finding.
+ *
+ * @param {string} fileName Package-relative file name.
+ * @param {string} source Complete source text.
+ * @param {RegExp} pattern Global pattern that identifies violations.
+ * @param {string} code Stable policy diagnostic code.
+ * @returns {void}
+ */
 function inspect(fileName, source, pattern, code) {
   for (const match of source.matchAll(pattern))
     addFinding(fileName, source, match.index, code, match[0]);
 }
 
+/**
+ * Detects removed action component APIs in public contract files.
+ *
+ * @param {string} fileName Package-relative file name.
+ * @param {string} source Complete source text.
+ * @returns {void}
+ */
 function inspectRemovedActionApi(fileName, source) {
   inspect(fileName, source, /\b(?:ButtonGroup|getButtonClassName)\b/g, "ACTION_REMOVED_EXPORT");
 }
 
+/**
+ * Detects global document background declarations owned outside the theme scope.
+ *
+ * @param {string} fileName Package-relative stylesheet name.
+ * @param {string} source Complete stylesheet source.
+ * @returns {void}
+ */
 function inspectGlobalBackground(fileName, source) {
   for (const rule of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     const selector = rule[1].trim();
@@ -344,6 +373,13 @@ function inspectGlobalBackground(fileName, source) {
   }
 }
 
+/**
+ * Detects unregistered image and gradient assets in generated themes.
+ *
+ * @param {string} fileName Package-relative stylesheet name.
+ * @param {string} source Complete stylesheet source.
+ * @returns {void}
+ */
 function inspectThemeBackgroundAssets(fileName, source) {
   const pattern =
     /background(?:-image)?\s*:\s*(?:url\(|(?:repeating-)?(?:linear|radial|conic)-gradient\()[^;}]*[;}]/gi;
@@ -360,6 +396,13 @@ function inspectThemeBackgroundAssets(fileName, source) {
   }
 }
 
+/**
+ * Detects literal font sizes outside the small registered SVG geometry exception.
+ *
+ * @param {string} fileName Package-relative stylesheet name.
+ * @param {string} source Complete stylesheet source.
+ * @returns {void}
+ */
 function inspectLiteralFontSizes(fileName, source) {
   const allowedSvgGeometry = new Set(["2.5px", "2.8px"]);
   for (const match of source.matchAll(
@@ -376,11 +419,28 @@ function inspectLiteralFontSizes(fileName, source) {
   }
 }
 
+/**
+ * Appends a normalized, line-addressable UI contract finding.
+ *
+ * @param {string} fileName Package-relative file name.
+ * @param {string} source Complete source text.
+ * @param {number} index Character offset of the violation.
+ * @param {string} code Stable policy diagnostic code.
+ * @param {unknown} value Source value that triggered the diagnostic.
+ * @returns {void}
+ */
 function addFinding(fileName, source, index, code, value) {
   const line = source.slice(0, index).split("\n").length;
   findings.push(`${fileName}:${line}: ${code}: ${String(value).trim()}`);
 }
 
+/**
+ * Recursively collects files with an exact extension.
+ *
+ * @param {string} directory Absolute directory to traverse.
+ * @param {string} extension File extension to include.
+ * @returns {Promise<string[]>} Stable absolute file paths.
+ */
 async function collectFiles(directory, extension) {
   const entries = await readdir(directory, { withFileTypes: true });
   const nested = await Promise.all(
@@ -394,6 +454,13 @@ async function collectFiles(directory, extension) {
   return nested.flat().sort();
 }
 
+/**
+ * Collects files from an optional directory while preserving other I/O failures.
+ *
+ * @param {string} directory Absolute directory to traverse when present.
+ * @param {string} extension File extension to include.
+ * @returns {Promise<string[]>} Stable absolute file paths, or an empty list when absent.
+ */
 async function collectFilesIfPresent(directory, extension) {
   return collectFiles(directory, extension).catch((error) => {
     if (error?.code === "ENOENT") return [];

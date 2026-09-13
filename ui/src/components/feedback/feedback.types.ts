@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -21,10 +21,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzFeedbackTone } from "../shared.types.js";
-
-/* eslint-disable jsdoc/require-jsdoc --
- * The private structural feedback properties are self-describing.
- */
 
 /**
  * Defines feedback announcement priority independently from visual tone.

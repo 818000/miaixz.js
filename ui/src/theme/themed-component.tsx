@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -30,10 +30,6 @@ import { classNames } from "../shared/class-names.js";
 import type { MiaixzThemeComponentRegistry } from "./components.js";
 import { useMiaixzThemeComponent } from "./context.js";
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Private structural runtime types are self-describing.
- */
-
 interface UntypedThemeComponent {
   readonly defaultProps?: Readonly<Record<string, unknown>>;
   readonly slotClassNames?: Readonly<Record<string, string>>;
@@ -46,9 +42,6 @@ interface UntypedThemeComponent {
 type UntypedSlotProps =
   | Readonly<Record<string, unknown>>
   | ((ownerState: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>>);
-
-/* eslint-enable jsdoc/require-jsdoc
- */
 
 /**
  * Applies the canonical Theme defaults and slot classes to one public DOM component.

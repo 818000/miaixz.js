@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -508,7 +508,7 @@ export class MiaixzEventBus<Events extends object = MiaixzSdkEventMap> {
       try {
         listener(payload);
       } catch {
-        /*
+        /**
          * One event observer cannot prevent delivery to later observers.
          */
       }

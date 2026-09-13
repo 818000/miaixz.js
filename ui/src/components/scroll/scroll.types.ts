@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- The focus and naming union is self-describing.
- */
 import type { HTMLAttributes } from "react";
 
 type ScrollNativeProps = Omit<
@@ -35,7 +33,7 @@ type UnfocusableScrollProps = ScrollNativeProps & {
   readonly "aria-label"?: never;
   readonly "aria-labelledby"?: never;
 };
-/*
+/**
  * Configures a bounded overflow region. @public
  */
 export type ScrollProps = NamedScrollProps | UnfocusableScrollProps;

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -170,14 +170,31 @@ class TestChannel extends EventTarget {
   readonly posted: unknown[] = [];
   closeCount = 0;
 
+  /**
+   * Records a value posted through the test channel.
+   *
+   * @param value - Value to record.
+   * @returns Nothing after recording.
+   */
   postMessage(value: unknown): void {
     this.posted.push(value);
   }
 
+  /**
+   * Records that the test channel was closed.
+   *
+   * @returns Nothing after updating the close counter.
+   */
   close(): void {
     this.closeCount += 1;
   }
 
+  /**
+   * Delivers a value as a synthetic message event.
+   *
+   * @param value - Message payload to dispatch.
+   * @returns Nothing after dispatching the event.
+   */
   receive(value: unknown): void {
     this.dispatchEvent(new MessageEvent("message", { data: value }));
   }

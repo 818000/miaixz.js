@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Steps contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -28,7 +25,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { StepsOwnerState, StepsProps } from "./steps.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders a workflow whose visual dimensions never change its ol/li semantics. @public
  */
 export const Steps = withMiaixzThemeComponent(

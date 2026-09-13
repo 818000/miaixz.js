@@ -20,7 +20,6 @@
   },
   "keywords": [
     "miaixz",
-    "design-system",
     "ui",
     "theme",
     "css"
@@ -29,9 +28,7 @@
     "dist",
     "README.md",
     "LICENSE",
-    "NOTICE",
-    "CHANGELOG.md",
-    "MIGRATION.md"
+    "NOTICE"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -47,8 +44,8 @@
     "./foundation.css": "./dist/styles/foundation.css",
     "./components.css": "./dist/styles/components.css",
     "./appearance": {
-      "types": "./dist/appearance.d.ts",
-      "import": "./dist/appearance.js"
+      "types": "./dist/appearance/index.d.ts",
+      "import": "./dist/appearance/index.js"
     },
     "./icons": {
       "types": "./dist/icons/index.d.ts",
@@ -166,9 +163,9 @@
       "types": "./dist/components/action/index.d.ts",
       "import": "./dist/components/action/index.js"
     },
-    "./patterns/action-catalog": {
-      "types": "./dist/patterns/action-catalog/index.d.ts",
-      "import": "./dist/patterns/action-catalog/index.js"
+    "./intents": {
+      "types": "./dist/intents/index.d.ts",
+      "import": "./dist/intents/index.js"
     },
     "./avatar": {
       "types": "./dist/components/avatar/index.d.ts",
@@ -447,8 +444,8 @@
     "responsive:check": "node ../.github/scripts/codegen/responsive-css.mjs --check",
     "build": "npm run icons:check && npm run clean && tsc -p tsconfig.build.json && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
     "typecheck": "tsc -p tsconfig.json",
-    "lint": "eslint src tests *.config.js",
-    "lint:fix": "eslint src tests *.config.js --fix",
+    "lint": "eslint src tests *.config.js && npm run lint:css",
+    "lint:fix": "eslint src tests *.config.js --fix && npm run lint:css:fix",
     "lint:css": "stylelint \"src/{styles,theme}/**/*.css\"",
     "lint:css:fix": "stylelint \"src/{styles,theme}/**/*.css\" --fix",
     "audit:css": "node ../.github/scripts/quality/audit-ui-contracts.mjs && node ../.github/scripts/quality/audit-responsive-css.mjs",

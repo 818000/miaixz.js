@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -16,24 +16,13 @@
  ~ limitations under the License.                                            ~
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
- */
+*/
 
-const semanticVersionPattern =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$/u;
-
-export function assertReleaseVersion(version) {
-  const match = semanticVersionPattern.exec(version);
-  if (!match) {
-    throw new Error(`'${version}' must be a complete semantic version without build metadata.`);
-  }
-  return {
-    major: Number(match[1]),
-    minor: Number(match[2]),
-  };
-}
-
-export function getSdkPeerRange(version) {
-  const { major, minor } = assertReleaseVersion(version);
-  const upperBound = major === 0 ? `0.${minor + 1}.0` : `${major + 1}.0.0`;
-  return `>=${version} <${upperBound}`;
-}
+export { OfficeView } from "./office-view.js";
+export type {
+  OfficeViewLabels,
+  OfficeViewProps,
+  OnlyOfficeDocument,
+  OnlyOfficeDocumentType,
+  OnlyOfficeEditorConfig,
+} from "./office-view.types.js";

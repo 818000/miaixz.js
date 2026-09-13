@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Closed public models are self-describing native mappings.
- */
 
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
@@ -73,7 +70,7 @@ export interface MiaixzPickerOwnProps<Value extends string = string> extends Omi
   readonly slotProps?: PickerSlotProps;
 }
 
-/*
+/**
  * Configures a searchable multiple-selection picker.
  */
 export type PickerProps<Value extends string = string> = MiaixzOptionSource<Value> &
@@ -83,6 +80,3 @@ export type PickerProps<Value extends string = string> = MiaixzOptionSource<Valu
     MiaixzPickerOwnProps<Value>,
     keyof MiaixzOptionSource<Value> | keyof MiaixzComboboxInputState
   >;
-
-/* eslint-enable jsdoc/require-jsdoc
- */

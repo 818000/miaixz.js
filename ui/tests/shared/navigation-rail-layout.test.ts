@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,10 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Test-only data builders remain local to this file.
- */
-
 import { describe, expect, it } from "vitest";
 
 import {
@@ -35,6 +31,13 @@ import type {
   NavigationRailItem,
 } from "../../src/components/navigation/navigation-rail.types.js";
 
+/**
+ * Creates a navigation rail item with deterministic defaults.
+ *
+ * @param id - Item identifier and default label value.
+ * @param options - Item properties that override the defaults.
+ * @returns Complete navigation rail item.
+ */
 function item(id: string, options: Partial<NavigationRailItem> = {}): NavigationRailItem {
   return {
     id,
@@ -69,6 +72,12 @@ const groups: readonly NavigationRailGroupModel[] = [
   },
 ];
 
+/**
+ * Creates one deterministic navigation rail measurement snapshot.
+ *
+ * @param available - Available block size for visible items.
+ * @returns Measurement maps used by layout resolution tests.
+ */
 function measurements(available: number) {
   return {
     available,

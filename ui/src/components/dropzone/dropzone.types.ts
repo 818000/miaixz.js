@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,10 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc --
- * The closed file and slot contracts are self-describing.
- */
 
 import type {
   ButtonHTMLAttributes,
@@ -85,7 +81,7 @@ export interface MiaixzDropzoneOwnProps {
   readonly slotProps?: DropzoneSlotProps;
 }
 
-/*
+/**
  * Configures a request-independent file selection dropzone.
  */
 export type DropzoneProps = MiaixzDropzoneOwnProps &

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -87,8 +87,6 @@ export function isMiaixzApiEnvelope<T = unknown>(value: unknown): value is Miaix
   );
 }
 
-/* eslint-disable jsdoc/check-param-names, jsdoc/require-param -- TSDoc documents the inline field on its TypeScript property.
- */
 /**
  * Determines whether an API result code represents success.
  *
@@ -104,9 +102,6 @@ export function isMiaixzApiSuccess(value: {
 }): boolean {
   return String(value.errcode) === "0";
 }
-/* eslint-enable jsdoc/check-param-names, jsdoc/require-param
- */
-
 /**
  * Returns an envelope's `data` value and leaves non-envelope values unchanged.
  *

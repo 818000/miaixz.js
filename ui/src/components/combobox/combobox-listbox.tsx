@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -29,11 +29,7 @@ import type {
   MiaixzOptionRenderState,
 } from "./combobox.types.js";
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This module exposes implementation-only composition contracts.
- */
-
-/*
+/**
  * Configures the common listbox used by Combobox and Picker.
  */
 export interface ComboboxListboxProps<Value extends string> {
@@ -132,7 +128,7 @@ export function ComboboxListbox<Value extends string>(props: ComboboxListboxProp
   );
 }
 
-/*
+/**
  * Represents one first-seen option group.
  */
 interface MiaixzOptionSection<Value extends string> {
@@ -141,8 +137,12 @@ interface MiaixzOptionSection<Value extends string> {
   readonly options: MiaixzOption<Value>[];
 }
 
-/*
+/**
  * Groups options once by first group occurrence while preserving option order within each group.
+ *
+ * @typeParam Value - String value represented by the options.
+ * @param options - Options to group in their original order.
+ * @returns First-seen option groups with stable option ordering.
  */
 function groupMiaixzOptions<Value extends string>(
   options: readonly MiaixzOption<Value>[],

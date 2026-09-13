@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- The renderer and landmark union is self-describing.
- */
 import type { HTMLAttributes } from "react";
 
 type PageBaseProps = { readonly fullWidth?: boolean };
@@ -34,7 +32,7 @@ type SectionPageProps = PageBaseProps &
     readonly "aria-label"?: never;
     readonly "aria-labelledby": string;
   };
-/*
+/**
  * Configures a standard width and spacing container. @public
  */
 export type PageProps = DivPageProps | SectionPageProps;

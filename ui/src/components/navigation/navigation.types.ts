@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed navigation entries and slots are self-describing.
- */
 import type {
   AnchorHTMLAttributes,
   AriaAttributes,
@@ -86,7 +84,7 @@ export interface MiaixzNavigationOwnProps {
   readonly slots?: NavigationSlots;
   readonly slotProps?: NavigationSlotProps;
 }
-/*
+/**
  * Configures a labeled, link-only navigation region. @public
  */
 export type NavigationProps = MiaixzNavigationOwnProps &

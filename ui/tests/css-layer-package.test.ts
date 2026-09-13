@@ -70,7 +70,7 @@ const stylelessCodeExports = new Set([
   ".",
   "./errors",
   "./i18n",
-  "./patterns/action-catalog",
+  "./intents",
   "./theme",
   "./visualization-motion",
 ]);
@@ -121,6 +121,14 @@ describe("CSS package ownership contract", () => {
     expect(packageManifest.exports["./miaixz.css"]).toBeUndefined();
     expect(packageManifest.exports["./themes.css"]).toBeUndefined();
     expect(() => readFileSync(resolve(packageDirectory, "src/theme/themes.css"))).toThrow();
+  });
+
+  it("publishes intent definitions through their sole scoped entry", () => {
+    expect(packageManifest.exports["./intents"]).toEqual({
+      types: "./dist/intents/index.d.ts",
+      import: "./dist/intents/index.js",
+    });
+    expect(packageManifest.exports["./patterns/action-catalog"]).toBeUndefined();
   });
 
   it("exports every supported aggregate from the packed dist directory", () => {

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -25,11 +25,7 @@ import { Icon } from "../icon/icon.js";
 import type { MiaixzComboboxLoadState } from "./combobox-controller.js";
 import type { ComboboxOwnerState, ComboboxSlotProps } from "./combobox.types.js";
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This module exposes implementation-only composition contracts.
- */
-
-/*
+/**
  * Configures the shared popup surface and finite message states.
  */
 export interface ComboboxPopupProps {

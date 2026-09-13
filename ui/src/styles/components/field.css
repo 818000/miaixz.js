@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -85,7 +85,7 @@
   --miaixz-field-control-height: var(--miaixz-control-height-large);
 }
 
-/* Input-like controls use a compact outlined label treatment. Labels stay
+/** Input-like controls use a compact outlined label treatment. Labels stay
  * visible at every point: empty controls rest the label inside the frame,
  * while focus, content, and validation lift it onto the outline.
  */

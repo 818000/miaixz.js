@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public Datagrid contract lives in datagrid.types.
- */
 import { forwardRef, useId, useMemo, type ReactElement, type RefAttributes } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -52,6 +50,13 @@ interface DatagridRow<Row> {
   readonly value: Row;
 }
 
+/**
+ * Validates an optional percentage used by datagrid column geometry.
+ *
+ * @param value - Percentage to validate when present.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when the percentage is non-finite or outside the supported range.
+ */
 function validatePercent(value: number | undefined): void {
   if (value !== undefined && (!Number.isFinite(value) || value <= 0 || value > 100)) {
     throw new MiaixzUiError({
@@ -60,6 +65,14 @@ function validatePercent(value: number | undefined): void {
   }
 }
 
+/**
+ * Validates column identifiers and optional percentage widths.
+ *
+ * @typeParam Row - Row value represented by the columns.
+ * @param columns - Column definitions to validate.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when a column identifier is duplicated or a width is invalid.
+ */
 function validateColumns<Row>(columns: readonly DatagridColumn<Row>[]): void {
   const ids = new Set<string>();
   for (const column of columns) {
@@ -74,6 +87,15 @@ function validateColumns<Row>(columns: readonly DatagridColumn<Row>[]): void {
   }
 }
 
+/**
+ * Resolves stable row identifiers while preserving source row order.
+ *
+ * @typeParam Row - Row value type.
+ * @param rows - Source rows to normalize.
+ * @param getRowId - Callback that returns each row's stable identifier.
+ * @returns Datagrid rows paired with unique identifiers.
+ * @throws MiaixzUiError when multiple rows resolve to the same identifier.
+ */
 function resolveRows<Row>(
   rows: readonly Row[],
   getRowId: (row: Readonly<Row>) => string,
@@ -92,12 +114,26 @@ function resolveRows<Row>(
   });
 }
 
+/**
+ * Advances a column through ascending, descending, and unsorted states.
+ *
+ * @param columnId - Column selected for sorting.
+ * @param current - Current datagrid sort state.
+ * @returns Next sort state, or undefined after descending order.
+ */
 function getNextSort(columnId: string, current: DatagridSort | undefined) {
   if (current?.columnId !== columnId) return { columnId, direction: "ascending" as const };
   if (current.direction === "ascending") return { columnId, direction: "descending" as const };
   return undefined;
 }
 
+/**
+ * Resolves the active sort direction for one column.
+ *
+ * @param columnId - Column whose direction should be resolved.
+ * @param sort - Current datagrid sort state.
+ * @returns Active direction for the column, or undefined when another column is sorted.
+ */
 function getSortDirection(
   columnId: string,
   sort: DatagridSort | undefined,
@@ -105,6 +141,14 @@ function getSortDirection(
   return sort?.columnId === columnId ? sort.direction : undefined;
 }
 
+/**
+ * Implements the generic, ref-forwarding datagrid component.
+ *
+ * @typeParam Row - Row value rendered by the datagrid.
+ * @param properties - Datagrid data, state, behavior, and slot configuration.
+ * @param reference - Forwarded datagrid root reference.
+ * @returns Semantic datagrid element tree.
+ */
 function DatagridImplementation<Row>(
   properties: DatagridProps<Row>,
   reference: React.ForwardedRef<HTMLDivElement>,
@@ -329,7 +373,7 @@ function DatagridImplementation<Row>(
   );
 }
 
-/*
+/**
  * Renders a semantic server-side data table. @public
  */
 export const Datagrid = withMiaixzThemeComponent(

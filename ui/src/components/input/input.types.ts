@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Slot contracts are a direct native-element mapping.
- */
 
 import type { HTMLAttributes, InputHTMLAttributes, ReactNode, RefAttributes } from "react";
 
@@ -72,6 +69,3 @@ export interface InputProps extends Omit<
   readonly style?: React.CSSProperties;
   readonly slotProps?: InputSlotProps;
 }
-
-/* eslint-enable jsdoc/require-jsdoc
- */

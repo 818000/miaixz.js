@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -294,9 +294,6 @@ function PickerImplementation<Value extends string = string>(
     onDismiss: () => close(true),
   });
 
-  /* eslint-disable react-hooks/refs --
-   * Canonical slot merging only composes the forwarded and slot refs; it does not inspect them.
-   */
   const rootProps = mergeMiaixzSlotProps<
     ComboboxOwnerState,
     ComboboxRootAttributes,
@@ -321,9 +318,7 @@ function PickerImplementation<Value extends string = string>(
     },
     ownedProps: ["data-state", "data-disabled", "data-readonly", "data-invalid", "data-filled"],
   });
-  /* eslint-enable react-hooks/refs --
-   * Resume ref access validation after the canonical merge boundary.
-   */
+
   const labelProps = mergeMiaixzSlotProps({
     ownerState,
     defaultProps: { className: "miaixz-picker-label" },

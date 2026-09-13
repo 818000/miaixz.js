@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Tabs contracts are defined by the component type module.
- */
 import { forwardRef, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -29,7 +26,7 @@ import { useControlled } from "../../shared/use-controlled.js";
 import type { TabsOwnerState, TabsProps } from "./tabs.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders a complete accessible tabs collection from one declarative source. @public
  */
 export const Tabs = withMiaixzThemeComponent(
@@ -248,6 +245,13 @@ export const Tabs = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Validates that every tab uses a unique controlled value.
+ *
+ * @param items - Tab items to validate.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when a tab value is duplicated.
+ */
 function validateTabs(items: TabsProps["items"]): void {
   const values = new Set<string>();
   for (const item of items) {

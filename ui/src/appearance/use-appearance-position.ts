@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -79,7 +79,7 @@ interface AppearancePositionOptions {
 }
 
 /**
- * Owns Appearance pointer, keyboard, and viewport position state.
+ * Owns the Appearance pointer, keyboard, and viewport position state.
  *
  * @param options - Position control and activation callbacks.
  * @returns Root state and trigger handlers used by Appearance.

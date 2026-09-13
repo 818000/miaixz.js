@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed empty-state slots are self-describing.
- */
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -58,5 +56,3 @@ export interface MiaixzEmptyOwnProps {
 }
 export type EmptyProps = MiaixzEmptyOwnProps &
   Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzEmptyOwnProps | "children">;
-/* eslint-enable jsdoc/require-jsdoc
- */

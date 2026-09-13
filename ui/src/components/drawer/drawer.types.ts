@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Closed drawer slots and state are self-describing.
- */
 
 import type {
   ButtonHTMLAttributes,
@@ -112,6 +109,3 @@ export type DrawerProps = DrawerSharedProps &
     DialogHTMLAttributes<HTMLDialogElement>,
     keyof DrawerSharedProps | "children" | "open" | "role" | "title" | "width"
   >;
-
-/* eslint-enable jsdoc/require-jsdoc
- */

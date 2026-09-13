@@ -60,14 +60,16 @@ jobs:
       - name: Run Static Checks
         run: npm run check:static
 
+      - name: Stage Workspace Build Output
+        if: matrix.node == '24.21.0'
+        run: node .github/scripts/package/stage-workspace-builds.mjs "${{ runner.temp }}/workspace-dist"
+
       - name: Upload Node 24 Build
         if: matrix.node == '24.21.0'
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: dist-${{ env.ARTIFACT_KEY }}
-          path: |
-            sdk/dist
-            ui/dist
+          path: ${{ runner.temp }}/workspace-dist
           if-no-files-found: error
 
       - name: Verify Clean Workspace
@@ -144,7 +146,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: packages-${{ env.ARTIFACT_KEY }}
-          path: ${{ runner.temp }}/packages/*.tgz
+          path: ${{ runner.temp }}/packages
           if-no-files-found: error
 
       - name: Verify Clean Workspace

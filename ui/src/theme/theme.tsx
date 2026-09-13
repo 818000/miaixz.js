@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -339,7 +339,7 @@ export function Theme(props: ThemeProps) {
       try {
         appearance.setTheme(fallback);
       } catch {
-        /*
+        /**
          * The fallback remains visually applied even if persistence is unavailable.
          */
       }

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -21,18 +21,18 @@
 import type { MiaixzColorMode, MiaixzDensity } from "@miaixz/sdk/appearance";
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 
-import { MiaixzUiError } from "../../errors/ui-error.js";
-import { useMiaixzLocale } from "../../i18n/i18n.js";
-import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { useTheme } from "../../theme/context.js";
-import { ActionText } from "../../components/action/action-text.js";
-import { Drawer } from "../../components/drawer/drawer.js";
-import { Icon } from "../../components/icon/icon.js";
-import { Locale } from "../../components/locale/locale.js";
-import { Radio } from "../../components/radio/radio.js";
+import { MiaixzUiError } from "../errors/ui-error.js";
+import { useMiaixzLocale } from "../i18n/i18n.js";
+import { mergeMiaixzSlotProps } from "../shared/slots.js";
+import { useTheme } from "../theme/context.js";
+import { ActionText } from "../components/action/action-text.js";
+import { Drawer } from "../components/drawer/drawer.js";
+import { Icon } from "../components/icon/icon.js";
+import { Locale } from "../components/locale/locale.js";
+import { Radio } from "../components/radio/radio.js";
 import type { AppearanceOwnerState, AppearanceProps } from "./appearance.types.js";
 import { useAppearancePosition } from "./use-appearance-position.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../theme/themed-component.js";
 
 const colorModes: readonly MiaixzColorMode[] = ["light", "dark", "system"];
 const densities: readonly MiaixzDensity[] = ["compact", "standard", "comfortable"];

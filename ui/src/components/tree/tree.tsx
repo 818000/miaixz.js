@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public Tree composes the dedicated controllers.
- */
 import {
   forwardRef,
   useCallback,
@@ -51,6 +49,14 @@ import { TreeRenderer } from "./tree-renderer.js";
 import type { TreeNode, TreeProps } from "./tree.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
+/**
+ * Implements the generic, ref-forwarding tree state and interaction controller.
+ *
+ * @typeParam Value - Application value stored by each tree node.
+ * @param props - Tree data, controlled state, behavior, and slots.
+ * @param forwardedRef - Forwarded tree root reference.
+ * @returns Accessible interactive tree.
+ */
 function TreeImplementation<Value = unknown>(
   props: TreeProps<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -246,7 +252,7 @@ function TreeImplementation<Value = unknown>(
   );
 }
 
-/*
+/**
  * Renders a business-neutral WAI-ARIA tree view. @public
  */
 export const Tree = withMiaixzThemeComponent(

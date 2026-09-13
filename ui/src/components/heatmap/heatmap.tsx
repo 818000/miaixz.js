@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public Heatmap contract lives in its type module.
- */
 import { forwardRef, useId } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -30,6 +28,11 @@ import { HeatmapLegend } from "./heatmap-legend.js";
 import type { HeatmapCellContext, HeatmapOwnerState, HeatmapProps } from "./heatmap.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
+/**
+ * Renders an accessible matrix heatmap with semantic labels and optional legend.
+ *
+ * @public
+ */
 export const Heatmap = withMiaixzThemeComponent(
   "Heatmap",
   forwardRef<HTMLDivElement, HeatmapProps>(function Heatmap(

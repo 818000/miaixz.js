@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -29,56 +29,52 @@ import type {
   MiaixzOptionRenderState,
 } from "./combobox.types.js";
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This module exposes implementation-only composition contracts.
- */
-
-/*
+/**
  * Configures one shared listbox option.
  */
 export interface ComboboxOptionProps<Value extends string> {
-  /*
+  /**
    * Selects the CSS namespace.
    */
   readonly component: "combobox" | "picker";
-  /*
+  /**
    * Supplies the option data.
    */
   readonly option: MiaixzOption<Value>;
-  /*
+  /**
    * Supplies the stable option DOM id.
    */
   readonly id: string;
-  /*
+  /**
    * Reports whether the option is selected.
    */
   readonly selected: boolean;
-  /*
+  /**
    * Reports whether the option is keyboard-active.
    */
   readonly active: boolean;
-  /*
+  /**
    * Reports whether activation is unavailable.
    */
   readonly disabled: boolean;
-  /*
+  /**
    * Supplies the shared owner state.
    */
   readonly ownerState: ComboboxOwnerState;
-  /*
+  /**
    * Supplies optional slot property customizations.
    */
   readonly slotProps: ComboboxSlotProps | undefined;
-  /*
+  /**
    * Replaces the option's fixed default content.
    */
   readonly renderOption:
     ((option: MiaixzOption<Value>, state: MiaixzOptionRenderState) => React.ReactNode) | undefined;
-  /*
+  /**
    * Moves pointer activity to this option.
    */
   readonly onActivate: () => void;
-  /*
+  /**
    * Requests selection of this option.
    */
   readonly onSelect: () => void;

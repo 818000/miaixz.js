@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -23,9 +23,9 @@ import { useEffect, useRef } from "react";
 import { MiaixzUiError } from "../errors/ui-error.js";
 import { useMiaixzLocale } from "./i18n.js";
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed internal ownership records are self-describing.
+/**
+ * Tracks the active locale provider owner for each controlled document.
  */
-
 const documentLocaleOwners = new WeakMap<Document, symbol>();
 
 interface ControlledDocumentLocale {

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,15 +18,19 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Test-only rendering helpers are intentionally compact.
- */
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { render, type RenderOptions, type RenderResult } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 import { MiaixzLocaleProvider, miaixzUiMessages } from "../src/i18n/index.js";
 
+/**
+ * Renders test content with the deterministic Simplified Chinese locale provider.
+ *
+ * @param children - React content to render.
+ * @param options - Testing Library render options excluding provider ownership.
+ * @returns Testing Library render result.
+ */
 export function renderWithLocale(
   children: ReactNode,
   options?: Omit<RenderOptions, "wrapper">,

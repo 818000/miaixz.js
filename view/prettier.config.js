@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,14 +18,4 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Appearance } from "./appearance.js";
-export type {
-  AppearanceBaseProps,
-  AppearanceOwnerState,
-  AppearancePosition,
-  AppearanceProps,
-  AppearanceRootAttributes,
-  AppearanceScope,
-  AppearanceSlot,
-  AppearanceSlotProps,
-} from "./appearance.types.js";
+export { default } from "../ui/prettier.config.js";

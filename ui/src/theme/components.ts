@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- The registry is an internal compile-time contract.
- */
 
 import type {
   ActionBarOwnerState,
@@ -187,10 +184,7 @@ import type { TooltipOwnerState, TooltipProps } from "../components/tooltip/tool
 import type { TreeOwnerState, TreeProps } from "../components/tree/tree.types.js";
 import type { UploadOwnerState, UploadProps } from "../components/upload/upload.types.js";
 import type { ViewOwnerState, ViewProps } from "../components/view/view.types.js";
-import type {
-  AppearanceOwnerState,
-  AppearanceProps,
-} from "../patterns/appearance/appearance.types.js";
+import type { AppearanceOwnerState, AppearanceProps } from "../appearance/appearance.types.js";
 import { classNames } from "../shared/class-names.js";
 
 type MiaixzPrimitive = string | number | boolean | null | undefined;
@@ -208,7 +202,7 @@ type MiaixzThemeEntry<Props, OwnerState> = {
 };
 type MiaixzEmptyOwnerState = Readonly<Record<never, never>>;
 
-/*
+/**
  * Registers the closed set of public DOM component theme contracts. @internal
  */
 export interface MiaixzThemeComponentRegistry {
@@ -411,7 +405,7 @@ export interface MiaixzThemeComponentRegistry {
   readonly HeatmapLegend: MiaixzThemeEntry<HeatmapLegendProps, HeatmapLegendOwnerState>;
 }
 
-/*
+/**
  * Configures defaults and class-only variants for one themed component. @public
  */
 export interface ComponentTheme<Props, OwnerState, Slot extends string> {
@@ -423,7 +417,7 @@ export interface ComponentTheme<Props, OwnerState, Slot extends string> {
   }[];
 }
 
-/*
+/**
  * Defines component-level runtime configuration supported by Theme. @public
  */
 export type ThemeComponents = {
@@ -434,15 +428,19 @@ export type ThemeComponents = {
   >;
 };
 
-/*
+/**
  * Resolves one concrete component theme from the registry. @internal
  */
 export type MiaixzThemeComponent<Name extends keyof MiaixzThemeComponentRegistry> = NonNullable<
   ThemeComponents[Name]
 >;
 
-/*
+/**
  * Merges parent and child runtime components without component-specific branches. @internal
+ *
+ * @param parent - Inherited component theme registry.
+ * @param child - Locally supplied component theme registry.
+ * @returns Frozen merged registry with child values taking precedence.
  */
 export function mergeMiaixzThemeComponents(
   parent: Readonly<ThemeComponents>,
@@ -461,8 +459,16 @@ export function mergeMiaixzThemeComponents(
   return Object.freeze(result) as Readonly<ThemeComponents>;
 }
 
-/*
+/**
  * Returns base and matching variant classes for one slot in declaration order. @internal
+ *
+ * @typeParam Props - Component public property contract.
+ * @typeParam OwnerState - Effective component owner-state contract.
+ * @typeParam Slot - Component slot name union.
+ * @param theme - Component theme containing base and variant class names.
+ * @param ownerState - Effective owner state used to match variants.
+ * @param slot - Slot whose class names are requested.
+ * @returns Base class followed by matching variant classes in declaration order.
  */
 export function getMiaixzThemeSlotClassNames<Props, OwnerState extends object, Slot extends string>(
   theme: ComponentTheme<Props, OwnerState, Slot>,
@@ -488,6 +494,13 @@ interface UntypedComponentTheme {
   }[];
 }
 
+/**
+ * Merges two untyped component theme definitions at the registry boundary.
+ *
+ * @param parent - Inherited component theme definition.
+ * @param child - Locally supplied component theme definition.
+ * @returns Merged definition, or the single defined input.
+ */
 function mergeComponentTheme(
   parent: UntypedComponentTheme | undefined,
   child: UntypedComponentTheme | undefined,
@@ -509,6 +522,3 @@ function mergeComponentTheme(
     variants: [...(parent.variants ?? []), ...(child.variants ?? [])],
   };
 }
-
-/* eslint-enable jsdoc/require-jsdoc
- */

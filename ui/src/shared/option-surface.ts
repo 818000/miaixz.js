@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -68,7 +68,7 @@ function revealMiaixzOption(surface: HTMLElement, activeOptionId: string | undef
   const row = option.getBoundingClientRect();
   const top = panel.top + surface.clientTop;
   const bottom = top + surface.clientHeight;
-  /*
+  /**
    * Scroll this panel only; scrollIntoView would also move the page or drawer.
    */
   if (row.top < top) surface.scrollTop -= top - row.top;
@@ -107,7 +107,7 @@ export function useMiaixzOptionSurface(
       surface.style.maxBlockSize =
         height === undefined ? "" : `min(${height}px, var(--miaixz-responsive-overlay-block-size))`;
       surface.toggleAttribute("data-scrollable", height !== undefined);
-      /*
+      /**
        * Theme/font/layout changes can apply the height cap after the panel first opens.
        */
       revealMiaixzOption(surface, activeOptionRef.current);
@@ -131,7 +131,7 @@ export function useMiaixzOptionSurface(
     };
   }, [open, portalTarget, surfaceRef, triggerRef]);
 
-  /*
+  /**
    * Resolve the final top-layer geometry before revealing the active row.
    */
   useMiaixzFloatingPosition(triggerRef, surfaceRef, open, "bottom-start", portalTarget);

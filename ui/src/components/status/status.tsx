@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,14 +18,12 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
- */
 import { forwardRef } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { StatusOwnerState, StatusProps } from "./status.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders one stable marker, optional content, and status label structure.
  */
 export const Status = withMiaixzThemeComponent(

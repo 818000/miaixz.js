@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -24,11 +24,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Icon } from "../icon/icon.js";
 import type { ComboboxOwnerState, ComboboxSlotProps } from "./combobox.types.js";
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This module exposes implementation-only composition contracts.
- */
-
-/*
+/**
  * Configures the fixed input/control structure shared by both option pickers.
  */
 export interface ComboboxInputProps {

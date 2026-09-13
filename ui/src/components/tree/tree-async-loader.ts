@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Internal lazy-loading state is covered through Tree.
- */
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { TreeNode } from "./tree.types.js";
@@ -33,6 +31,13 @@ export interface TreeAsyncLoader<Value> {
   ) => Promise<readonly TreeNode<Value>[]> | undefined;
 }
 
+/**
+ * Coordinates cancellable, deduplicated loading and caching of asynchronous tree children.
+ *
+ * @typeParam Value - Application value stored by each tree node.
+ * @param loadChildren - Optional asynchronous child loader.
+ * @returns Child cache, pending and error identifiers, and the stable load function.
+ */
 export function useTreeAsyncLoader<Value>(
   loadChildren:
     | ((

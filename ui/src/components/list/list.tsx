@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public List contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -31,7 +28,7 @@ import { ListItem } from "./list-item.js";
 import type { ListCounterProps, ListMarkerProps, ListOwnerState, ListProps } from "./list.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders a semantic list from one required declarative item source. @public
  */
 export const List = withMiaixzThemeComponent(
@@ -94,7 +91,7 @@ export const List = withMiaixzThemeComponent(
   }),
 );
 
-/*
+/**
  * Renders a compact visual count inside a list row. @public
  */
 export const ListCounter = withMiaixzThemeComponent(
@@ -116,7 +113,7 @@ export const ListCounter = withMiaixzThemeComponent(
   }),
 );
 
-/*
+/**
  * Renders a visual marker without assigning business meaning. @public
  */
 export const ListMarker = withMiaixzThemeComponent(

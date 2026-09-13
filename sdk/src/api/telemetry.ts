@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -319,7 +319,7 @@ export async function invokeTelemetryHook<T>(
     try {
       telemetry?.onHookError?.(error, hookName);
     } catch {
-      /*
+      /**
        * Telemetry is observational; a secondary hook failure is intentionally ignored.
        */
     }

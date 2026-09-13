@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,14 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This internal renderer has no public API surface.
- */
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ListItemOwnerState, ListItemProps, ListItemSlotProps } from "./list.types.js";
 
+/**
+ * Renders a list item's semantic navigation, action, or static control wrapper.
+ *
+ * @param props - Item contract, owner state, slots, and visible content.
+ * @returns Element that implements the item's discriminated behavior.
+ */
 export function ListItemControl({
   item,
   ownerState,

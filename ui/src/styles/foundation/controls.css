@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -27,7 +27,7 @@
  */
 
 [data-miaixz-theme] {
-  /*
+  /**
    * Control geometry
    */
   --miaixz-control-height-small: var(--miaixz-geometry-compact-control-height);
@@ -75,13 +75,6 @@
   transition-property: color, background-color, border-color, box-shadow, transform, opacity;
 }
 
-/*
-
- * State order below is intentional: disabled > invalid > readonly > focus > hover > filled.
-
- */
-/* stylelint-disable no-descending-specificity
- */
 .miaixz-control[data-filled="true"] {
   border-color: var(--miaixz-color-border);
 }
@@ -115,10 +108,8 @@
   border-color: var(--miaixz-color-border);
   box-shadow: none;
 }
-/* stylelint-enable no-descending-specificity
- */
 
-/* Editable field shells share one animated brand underline. Keeping this state
+/** Editable field shells share one animated brand underline. Keeping this state
  * on the shell makes native inputs, composite pickers and multiline editors
  * visually identical without adding a second focus ring to their editors.
  */
@@ -173,7 +164,7 @@
   transition: transform 420ms cubic-bezier(0.2, 0.72, 0.2, 1);
 }
 
-/* Field shells own the focus indicator; internal editors must not add a second ring.
+/** Field shells own the focus indicator; internal editors must not add a second ring.
  * Match the theme fallback's specificity without raising border/shadow state priority.
  * Independent buttons and links are intentionally outside this contract.
  */
@@ -198,7 +189,7 @@
   outline-offset: 0;
 }
 
-/*
+/**
 
  * Readonly fields have no editable bottom line, but remain keyboard discoverable.
 
@@ -244,7 +235,7 @@
   }
 }
 
-/*
+/**
 
  * Forced colors suppress shadows/backgrounds, so expose one system focus ring.
 

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,10 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable react-hooks/refs -- Menu lifecycle uses Popover-owned DOM refs.
- */
-/* eslint-disable jsdoc/require-jsdoc -- Closed internal menu render records are self-describing.
- */
 import {
   cloneElement,
   forwardRef,
@@ -116,6 +112,12 @@ interface DropdownMenuBehaviorProps {
   readonly children: ReactNode;
 }
 
+/**
+ * Installs menu focus, keyboard navigation, and typeahead behavior inside a popover.
+ *
+ * @param props - Initial focus preference and rendered menu content.
+ * @returns Dropdown menu behavior wrapper.
+ */
 function DropdownMenuBehavior({ initialFocusRef, children }: DropdownMenuBehaviorProps) {
   const popover = useMiaixzPopoverContext();
   const typeaheadRef = useRef({ value: "", time: 0 });
@@ -141,6 +143,12 @@ function DropdownMenuBehavior({ initialFocusRef, children }: DropdownMenuBehavio
   return <>{children}</>;
 }
 
+/**
+ * Renders one normalized dropdown entry according to its discriminated kind.
+ *
+ * @param props - Dropdown entry to render.
+ * @returns Menu item, group, divider, label, or submenu content.
+ */
 function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
   const popover = useMiaixzPopoverContext();
   const close = (): void => popover?.requestClose("selection");
@@ -263,6 +271,12 @@ function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
   );
 }
 
+/**
+ * Renders the shared icon, label, description, and trailing content for an entry.
+ *
+ * @param props - Presentational dropdown entry.
+ * @returns Shared dropdown entry content.
+ */
 function DropdownEntryContent({ entry }: { readonly entry: DropdownPresentation }) {
   return (
     <>
@@ -279,6 +293,12 @@ function DropdownEntryContent({ entry }: { readonly entry: DropdownPresentation 
   );
 }
 
+/**
+ * Renders and coordinates one nested dropdown submenu.
+ *
+ * @param props - Submenu entry and its nested items.
+ * @returns Interactive submenu trigger and nested menu.
+ */
 function DropdownSubmenu({ entry }: { readonly entry: DropdownSubmenuEntry }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -346,6 +366,15 @@ function DropdownSubmenu({ entry }: { readonly entry: DropdownSubmenuEntry }) {
   );
 }
 
+/**
+ * Applies directional navigation, dismissal, and typeahead to a menu key event.
+ *
+ * @param event - Keyboard event received by the active menu.
+ * @param menu - Menu element that owns the active items.
+ * @param typeaheadRef - Mutable typeahead buffer and timestamp.
+ * @param close - Callback used to request menu dismissal.
+ * @returns Nothing after handling or ignoring the event.
+ */
 function handleMenuKeyDown(
   event: globalThis.KeyboardEvent,
   menu: HTMLElement,
@@ -392,6 +421,12 @@ function handleMenuKeyDown(
   }
 }
 
+/**
+ * Returns enabled menu items owned directly by the supplied menu.
+ *
+ * @param menu - Menu element to inspect, or null before mounting.
+ * @returns Enabled direct menu items in document order.
+ */
 function getMenuItems(menu: HTMLElement | null): HTMLElement[] {
   if (menu === null) return [];
   return Array.from(
@@ -406,6 +441,13 @@ function getMenuItems(menu: HTMLElement | null): HTMLElement[] {
   );
 }
 
+/**
+ * Validates top-level dropdown identifiers, values, and nested collections.
+ *
+ * @param entries - Dropdown entries to validate.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when a collection identifier or controlled value is invalid.
+ */
 function validateDropdownEntries(entries: readonly DropdownEntry[]): void {
   validateMiaixzCollectionItems(
     entries.map((entry) => ({
@@ -437,6 +479,12 @@ function validateDropdownEntries(entries: readonly DropdownEntry[]): void {
   }
 }
 
+/**
+ * Validates entries belonging to a nested submenu.
+ *
+ * @param entries - Submenu entries to validate.
+ * @returns Nothing after validation.
+ */
 function validateDropdownSubmenuItems(entries: readonly DropdownSubmenuItem[]): void {
   validateDropdownEntries(entries);
 }

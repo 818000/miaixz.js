@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public Donut contract lives in its type module.
- */
 import { forwardRef, useEffect, useId, useRef, useState, type CSSProperties } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -33,6 +31,11 @@ interface DonutSegmentStyle extends CSSProperties {
   readonly "--miaixz-donut-offset": string;
 }
 
+/**
+ * Renders an accessible segmented donut or pie visualization.
+ *
+ * @public
+ */
 export const Donut = withMiaixzThemeComponent(
   "Donut",
   forwardRef<HTMLDivElement, DonutProps>(function Donut(

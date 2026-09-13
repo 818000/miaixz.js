@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Panel contracts are defined by the component type module.
- */
 import { createElement, forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -38,7 +35,7 @@ import type {
 } from "./panel.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders a non-interactive content surface with one stable structure. @public
  */
 export const Panel = withMiaixzThemeComponent(
@@ -127,7 +124,7 @@ export const Panel = withMiaixzThemeComponent(
   }),
 );
 
-/*
+/**
  * Renders a neutral panel title region. @public
  */
 export const PanelHeader = withMiaixzThemeComponent(
@@ -221,7 +218,7 @@ export const PanelHeader = withMiaixzThemeComponent(
   }),
 );
 
-/*
+/**
  * Renders a density-aware panel action footer. @public
  */
 export const PanelFooter = withMiaixzThemeComponent(
@@ -253,7 +250,7 @@ export const PanelFooter = withMiaixzThemeComponent(
   }),
 );
 
-/*
+/**
  * Renders a non-interactive density-aware row scoped to Panel. @public
  */
 export const PanelRow = withMiaixzThemeComponent(
@@ -279,6 +276,14 @@ export const PanelRow = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Resolves static or owner-state-driven panel slot properties.
+ *
+ * @typeParam Props - Native properties accepted by the slot.
+ * @param slot - Static slot properties or resolver callback.
+ * @param ownerState - Effective panel owner state.
+ * @returns Resolved slot properties when configured.
+ */
 function resolveSlot<Props extends object>(
   slot: ((state: Readonly<PanelOwnerState>) => Partial<Props>) | Partial<Props> | undefined,
   ownerState: PanelOwnerState,

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Test-only fixtures remain local.
- */
 import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -118,6 +115,11 @@ describe("modal feedback components", () => {
     vi.useFakeTimers();
     const onClose = vi.fn();
 
+    /**
+     * Exposes toast queue actions through deterministic test controls.
+     *
+     * @returns Test controls connected to the current toast provider.
+     */
     function Controls() {
       const toast = useToast();
       return (

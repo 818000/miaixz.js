@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -244,7 +244,7 @@ export class PostMessageChildBridge implements MiaixzHostBridge {
     try {
       this.#post(createEnvelope(this.#moduleId, "request", "bridge.dispose", createMessageId()));
     } catch {
-      /*
+      /**
        * Best-effort remote disposal cannot delay deterministic local cleanup.
        */
     }
@@ -308,7 +308,7 @@ export class PostMessageChildBridge implements MiaixzHostBridge {
     try {
       registered.listener(envelope.payload.payload);
     } catch {
-      /*
+      /**
        * Consumer listener failures cannot corrupt the Bridge transport state.
        */
     }
@@ -351,7 +351,7 @@ export class PostMessageChildBridge implements MiaixzHostBridge {
     try {
       this.#post(createEnvelope(this.#moduleId, "cancel", pending.method, messageId));
     } catch {
-      /*
+      /**
        * Cancellation is best-effort after the local result is already deterministic.
        */
     }

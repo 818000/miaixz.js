@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -179,9 +179,6 @@ a.miaixz-metric {
   --miaixz-metric-tone: var(--miaixz-color-data-8);
 }
 
-/* stylelint-disable no-descending-specificity --
- * Layout and density independently specialize direct Metric descendants.
- */
 .miaixz-metrics {
   min-width: 0;
   container: miaixz-metrics / inline-size;

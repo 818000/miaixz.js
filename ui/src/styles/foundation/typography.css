@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -31,7 +31,7 @@
  */
 
 [data-miaixz-theme] {
-  /*
+  /**
    * Font families
    */
   --miaixz-font-family-sans:
@@ -39,7 +39,7 @@
     "Microsoft YaHei", system-ui, sans-serif;
   --miaixz-font-family-mono: "SFMono-Regular", menlo, consolas, "Liberation Mono", monospace;
 
-  /*
+  /**
      * Primitive font-size scale
      * These are the only literal font-size values allowed in the system.
      */
@@ -53,7 +53,7 @@
   --miaixz-font-size-24: 24px;
   --miaixz-font-size-32: 32px;
 
-  /*
+  /**
 
    * Primitive line-height scale
 
@@ -68,7 +68,7 @@
   --miaixz-line-height-32: 32px;
   --miaixz-line-height-40: 40px;
 
-  /*
+  /**
 
    * Primitive font weights
 
@@ -77,7 +77,7 @@
   --miaixz-font-weight-medium: 600;
   --miaixz-font-weight-bold: 700;
 
-  /*
+  /**
      * Semantic typography scale
      * caption: helper text, table headers, status, time and pagination
      * body: navigation, tabs, controls, form fields, tables and body copy
@@ -98,7 +98,7 @@
     var(--miaixz-line-height-18)
   );
 
-  /*
+  /**
 
    * Letter spacing
 

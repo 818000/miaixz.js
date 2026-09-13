@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public contract is declared in the adjacent type module.
- */
 import { forwardRef, type CSSProperties } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
@@ -30,14 +28,18 @@ interface ProgressIndicatorStyle extends CSSProperties {
   readonly "--miaixz-progress-value"?: string;
 }
 
-/*
+/**
  * Formats determinate progress as a rounded percentage.
+ *
+ * @param value - Current progress value.
+ * @param max - Maximum progress value.
+ * @returns Rounded percentage label.
  */
 function defaultValueFormatter(value: number, max: number): string {
   return `${Math.round((value / max) * 100)}%`;
 }
 
-/*
+/**
  * Renders validated determinate or indeterminate progress.
  */
 export const Progress = withMiaixzThemeComponent(

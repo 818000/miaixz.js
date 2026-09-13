@@ -1,11 +1,11 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import process from "node:process";
-import { URL, fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { format } from "prettier";
 import prettierConfiguration from "../../../ui/prettier.config.js";
+import { repositoryRoot } from "../miaixz.mjs";
 
-const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const packageDirectory = resolve(repositoryRoot, "ui");
 const checkOnly = process.argv.slice(2).includes("--check");
 const sourceHeader = (await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"))
@@ -35,6 +35,15 @@ if (current !== expected) {
   }
 }
 
+/**
+ * Verifies that compiled responsive tokens preserve the frozen public breakpoint contract.
+ *
+ * @param {Record<string, number>} breakpoints Compiled viewport breakpoints.
+ * @param {Record<string, string>} mediaQueries Compiled viewport media queries.
+ * @param {Record<string, { name: string, maxWidth: number }>} containers Compiled container queries.
+ * @returns {void}
+ * @throws {Error} If a compiled responsive token differs from the required contract.
+ */
 function assertBreakpointContract(breakpoints, mediaQueries, containers) {
   const expectedBreakpoints = {
     mobile: 0,
@@ -61,6 +70,14 @@ function assertBreakpointContract(breakpoints, mediaQueries, containers) {
   }
 }
 
+/**
+ * Serializes compiled responsive tokens into the generated foundation stylesheet.
+ *
+ * @param {Record<string, number>} breakpoints Compiled viewport breakpoints.
+ * @param {Record<string, string>} mediaQueries Compiled viewport media queries.
+ * @param {Record<string, { name: string, maxWidth: number }>} containers Compiled container queries.
+ * @returns {string} Complete responsive CSS source.
+ */
 function serializeResponsive(breakpoints, mediaQueries, containers) {
   const containerRules = Object.values(containers)
     .map(
@@ -71,7 +88,7 @@ function serializeResponsive(breakpoints, mediaQueries, containers) {
   return [
     sourceHeader,
     "",
-    "/*\n * Generated from ui/src/design/breakpoints.ts; do not edit.\n */",
+    "/**\n * Generated from ui/src/design/breakpoints.ts; do not edit.\n */",
     "",
     "[data-miaixz-theme] {",
     `  --miaixz-breakpoint-tablet: ${breakpoints.tablet}px;`,

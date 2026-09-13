@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc, react-hooks/refs -- Slot ref composition is render-safe.
- */
-
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
@@ -33,8 +30,11 @@ import { Notice } from "../notice/notice.js";
 import type { ConfirmCloseReason, ConfirmOwnerState, ConfirmProps } from "./confirm.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders a confirmation state machine with visible asynchronous failure handling.
+ *
+ * @param props - Confirmation behavior, content, and slot configuration.
+ * @returns Controlled confirmation dialog.
  */
 function Confirm({
   open,

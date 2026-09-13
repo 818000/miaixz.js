@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Closed native table slots and dimensions are self-describing.
- */
 import type {
   HTMLAttributes,
   TableHTMLAttributes,
@@ -77,7 +74,7 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
    * @defaultValue `"default"`
    */
   density?: TableDensity;
-  /*
+  /**
    * Selects row divider rendering independently from density.
    */
   dividerStyle?: TableDividerStyle;

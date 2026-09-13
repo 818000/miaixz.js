@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -128,7 +128,7 @@ export class MiaixzAppearanceManager {
         const appearance = this.#parsePayload(payload);
         if (appearance !== undefined) this.#commit(appearance, false);
       } catch {
-        /*
+        /**
          * Invalid external events and local adapter failures never escape the event boundary.
          */
       }
@@ -357,7 +357,7 @@ export class MiaixzAppearanceManager {
     try {
       this.#events?.emit("appearance:changed", payload);
     } catch {
-      /*
+      /**
        * The committed transaction is not rolled back by observer or transport failures.
        */
     } finally {
@@ -396,7 +396,7 @@ export class MiaixzAppearanceManager {
       try {
         listener(this.#appearance);
       } catch {
-        /*
+        /**
          * One consumer cannot prevent delivery to later consumers.
          */
       }

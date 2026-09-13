@@ -1,9 +1,8 @@
 import { readFile, readdir } from "node:fs/promises";
 import { extname, relative, resolve } from "node:path";
 import process from "node:process";
-import { URL, fileURLToPath } from "node:url";
+import { repositoryRoot } from "../miaixz.mjs";
 
-const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const packageDirectory = resolve(repositoryRoot, "ui");
 const styleFiles = [
   ...(await collectFiles(resolve(packageDirectory, "src/styles"), new Set([".css"]))),
@@ -87,11 +86,28 @@ for (const file of sourceFiles) {
 for (const finding of findings) process.stderr.write(`${finding}\n`);
 if (findings.length > 0) process.exitCode = 1;
 
+/**
+ * Records every regular-expression match as a policy finding.
+ *
+ * @param {string} fileName Repository-relative file name.
+ * @param {string} source Complete source text.
+ * @param {RegExp} pattern Global pattern that identifies violations.
+ * @param {string} code Stable policy diagnostic code.
+ * @returns {void}
+ */
 function inspect(fileName, source, pattern, code) {
   for (const match of source.matchAll(pattern))
     addFinding(fileName, source, match.index, code, match[0]);
 }
 
+/**
+ * Counts dimension declarations by their owning design-system layer.
+ *
+ * @param {string} fileName Package-relative stylesheet name.
+ * @param {string} source Complete stylesheet source.
+ * @param {{ isFoundation: boolean, isGeneratedTheme: boolean }} classification Stylesheet ownership flags.
+ * @returns {void}
+ */
 function classifyDimensionDeclarations(fileName, source, { isFoundation, isGeneratedTheme }) {
   const declaration =
     /(?:^|[;{]\s*)((?:min-|max-)?(?:inline-size|block-size|width|height)|padding(?:-[a-z]+)?|margin(?:-[a-z]+)?|gap|inset(?:-[a-z]+)?)\s*:\s*([^;{}]+)/gim;
@@ -113,6 +129,13 @@ function classifyDimensionDeclarations(fileName, source, { isFoundation, isGener
   }
 }
 
+/**
+ * Detects content hidden only at responsive breakpoints.
+ *
+ * @param {string} fileName Package-relative stylesheet name.
+ * @param {string} source Complete stylesheet source.
+ * @returns {void}
+ */
 function inspectResponsiveHiddenContent(fileName, source) {
   for (const match of source.matchAll(/@media\s*([^{]+){/gi)) {
     const condition = match[1].trim();
@@ -135,6 +158,13 @@ function inspectResponsiveHiddenContent(fileName, source) {
   }
 }
 
+/**
+ * Finds the closing brace for a CSS block while respecting nested blocks.
+ *
+ * @param {string} source Complete stylesheet source.
+ * @param {number} bodyStart Offset immediately after the opening brace.
+ * @returns {number} Closing-brace offset, or -1 when the block is incomplete.
+ */
 function findBlockEnd(source, bodyStart) {
   let depth = 1;
   for (let index = bodyStart; index < source.length; index += 1) {
@@ -145,11 +175,28 @@ function findBlockEnd(source, bodyStart) {
   return -1;
 }
 
+/**
+ * Appends a normalized, line-addressable responsive policy finding.
+ *
+ * @param {string} fileName Package-relative file name.
+ * @param {string} source Complete source text.
+ * @param {number} index Character offset of the violation.
+ * @param {string} code Stable policy diagnostic code.
+ * @param {unknown} value Source value that triggered the diagnostic.
+ * @returns {void}
+ */
 function addFinding(fileName, source, index, code, value) {
   const line = source.slice(0, Math.max(index, 0)).split("\n").length;
   findings.push(`${fileName}:${line}: ${code}: ${String(value).trim()}`);
 }
 
+/**
+ * Recursively collects files whose extensions are included in the supplied set.
+ *
+ * @param {string} directory Absolute directory to traverse.
+ * @param {Set<string>} extensions File extensions to include.
+ * @returns {Promise<string[]>} Stable absolute file paths.
+ */
 async function collectFiles(directory, extensions) {
   const entries = await readdir(directory, { withFileTypes: true });
   const nested = await Promise.all(

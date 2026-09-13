@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed editor compositions and slots are self-describing.
- */
 import type { FieldsetHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
@@ -97,14 +95,14 @@ export interface EditorSectionProps extends Omit<HTMLAttributes<HTMLElement>, "t
   readonly slotProps?: EditorSectionSlotProps;
 }
 
-/*
+/**
  * Reuses Grid without introducing editor-specific layout dimensions. @public
  */
 export type EditorFieldsProps = GridProps;
 export interface EditorActionsProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   readonly children: ReactNode;
 }
-/*
+/**
  * Scopes the filled, outlined compact Panel recipe to editor compositions. @public
  */
 export interface EditorBoxProps extends Omit<

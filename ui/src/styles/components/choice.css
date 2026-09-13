@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -69,12 +69,8 @@
   border-radius: 50%;
 }
 
-/*
-
+/**
  * State order is intentional so semantic invalid and disabled states always win.
-
- */
-/* stylelint-disable no-descending-specificity
  */
 .miaixz-choice:where(:hover:not(.miaixz-choice-disabled)) .miaixz-choice-mark {
   border-color: var(--miaixz-color-border-strong);
@@ -152,5 +148,3 @@
   border-color: var(--miaixz-color-border);
   box-shadow: none;
 }
-/* stylelint-enable no-descending-specificity
- */

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Pagination contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -30,13 +27,18 @@ import { Icon } from "../icon/icon.js";
 import type { PaginationOwnerState, PaginationProps } from "./pagination.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Represents a visible page number or a directional pagination ellipsis. @public
  */
 export type MiaixzPaginationEntry = number | "ellipsis-start" | "ellipsis-end";
 
-/*
+/**
  * Builds validated visible page numbers and ellipses around the active page. @public
+ *
+ * @param page - Active one-based page, or zero when there are no pages.
+ * @param pageCount - Total number of pages.
+ * @param siblingCount - Visible neighboring pages on either side of the active page.
+ * @returns Ordered page numbers and directional ellipses.
  */
 export function getPaginationEntries(
   page: number,
@@ -59,7 +61,7 @@ export function getPaginationEntries(
   return entries;
 }
 
-/*
+/**
  * Renders one invariant pagination control set for every surface variant. @public
  */
 export const Pagination = withMiaixzThemeComponent(
@@ -203,6 +205,15 @@ export const Pagination = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Validates the page, page count, and sibling count as a coherent pagination state.
+ *
+ * @param page - Active page value.
+ * @param pageCount - Total page count.
+ * @param siblingCount - Number of visible siblings on each side.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when any pagination value violates the public contract.
+ */
 function validatePagination(page: number, pageCount: number, siblingCount: number): void {
   if (!Number.isInteger(pageCount) || pageCount < 0) {
     throw new MiaixzUiError({

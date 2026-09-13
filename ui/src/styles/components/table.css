@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -151,9 +151,6 @@
   background: var(--miaixz-surface-role-selected-background);
 }
 
-/* stylelint-disable no-descending-specificity
-
- */
 .miaixz-table-container-transparent {
   scrollbar-width: auto;
   background: transparent;
@@ -191,7 +188,3 @@
 .miaixz-table-body > .miaixz-table-row:hover {
   background: var(--miaixz-color-surface-hover);
 }
-
-/* stylelint-enable no-descending-specificity
-
- */

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Scroll contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { assertMiaixzAccessibleName } from "../../accessibility/assert-accessible-name.js";
@@ -30,7 +27,7 @@ import type { ScrollProps } from "./scroll.types.js";
 import { useOverflowFocus } from "./use-overflow-focus.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Creates a bounded overflow region that is focusable only when configured or overflowing. @public
  */
 export const Scroll = withMiaixzThemeComponent(

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc
- */
 
 import type { MiaixzApiClient } from "./client.js";
 import { MiaixzApiError, MiaixzSdkError } from "../errors/errors.js";
@@ -276,11 +273,25 @@ export class RestGatewayClient {
   }
 }
 
+/**
+ * Creates a stable SDK error for a REST signature contract violation.
+ *
+ * @param code - Public SDK error code.
+ * @param message - Internal diagnostic context intentionally excluded from the public error.
+ * @returns SDK error containing the stable public code.
+ */
 function signatureError(code: string, message: string): MiaixzSdkError {
   void message;
   return new MiaixzSdkError({ code });
 }
 
+/**
+ * Normalizes and validates an HTTP method supported by the REST signing protocol.
+ *
+ * @param method - HTTP method supplied by the caller.
+ * @returns Normalized uppercase HTTP method.
+ * @throws MiaixzSdkError when the method is unsupported.
+ */
 function normalizeHttpMethod(method: MiaixzHttpMethod): MiaixzHttpMethod {
   const normalized = typeof method === "string" ? method.toUpperCase() : "";
   if (!SUPPORTED_HTTP_METHODS.has(normalized as MiaixzHttpMethod)) {
@@ -292,6 +303,13 @@ function normalizeHttpMethod(method: MiaixzHttpMethod): MiaixzHttpMethod {
   return normalized as MiaixzHttpMethod;
 }
 
+/**
+ * Produces the deterministic parameter string consumed by the signature algorithm.
+ *
+ * @param parameters - REST gateway parameters to canonicalize.
+ * @returns RFC 3986-encoded parameter names and values in stable name order.
+ * @throws MiaixzSdkError when a parameter violates the signing contract.
+ */
 function canonicalize(parameters: RestGatewayParameters): string {
   if (!isPlainObject(parameters)) {
     throw signatureError(
@@ -362,6 +380,14 @@ function canonicalize(parameters: RestGatewayParameters): string {
     .join("");
 }
 
+/**
+ * Converts one REST parameter value to its canonical string representation.
+ *
+ * @param value - Parameter value to normalize.
+ * @param seen - Complex values currently being checked for cycles.
+ * @returns Canonical string value, or undefined for an omitted empty string.
+ * @throws MiaixzSdkError when the value is not supported by the gateway contract.
+ */
 function normalizeParameterValue(value: unknown, seen: WeakSet<object>): string | undefined {
   if (value === null || value === undefined) {
     throw signatureError(
@@ -394,6 +420,14 @@ function normalizeParameterValue(value: unknown, seen: WeakSet<object>): string 
   );
 }
 
+/**
+ * Validates a nested value as finite, cycle-free JSON data without accessors or symbol keys.
+ *
+ * @param value - Nested value to validate.
+ * @param seen - Objects currently present in the traversal path.
+ * @returns Nothing after the value has been validated.
+ * @throws MiaixzSdkError when the value is not valid REST JSON data.
+ */
 function validateJsonValue(value: unknown, seen: WeakSet<object>): void {
   if (value === null || value === undefined) {
     throw signatureError(
@@ -458,6 +492,13 @@ function validateJsonValue(value: unknown, seen: WeakSet<object>): void {
   seen.delete(value);
 }
 
+/**
+ * Encodes text using the RFC 3986 percent-encoding rules required by the gateway.
+ *
+ * @param value - Text to encode.
+ * @returns RFC 3986-encoded text.
+ * @throws MiaixzSdkError when the input contains invalid Unicode text.
+ */
 function encodeRfc3986(value: string): string {
   try {
     return encodeURIComponent(value).replace(
@@ -472,6 +513,13 @@ function encodeRfc3986(value: string): string {
   }
 }
 
+/**
+ * Derives the HMAC key for the selected REST authentication mode.
+ *
+ * @param auth - Authentication material selected for the request.
+ * @param parameters - Request parameters containing the method and timestamp.
+ * @returns Derived signing key bytes.
+ */
 async function deriveSigningKey(
   auth: RestSignatureAuth,
   parameters: RestGatewayParameters,
@@ -489,6 +537,13 @@ async function deriveSigningKey(
   return sha256(encoder.encode(`v1\n${credentialMode}\n${credential}\n${method}\n${timestamp}\n`));
 }
 
+/**
+ * Validates and normalizes authentication material for REST signing.
+ *
+ * @param auth - Authentication material supplied by the caller.
+ * @returns Normalized authentication material.
+ * @throws MiaixzSdkError when the mode or credential is invalid.
+ */
 function normalizeAuth(auth: RestSignatureAuth): RestSignatureAuth {
   if (auth.mode === "legacy") {
     return auth;
@@ -508,6 +563,15 @@ function normalizeAuth(auth: RestSignatureAuth): RestSignatureAuth {
   );
 }
 
+/**
+ * Normalizes and validates one printable REST credential.
+ *
+ * @param value - Credential supplied by the caller.
+ * @param maximumLength - Maximum accepted credential length.
+ * @param jwtLike - Whether the credential must use the three-part token form.
+ * @returns Trimmed credential.
+ * @throws MiaixzSdkError when the credential is empty or malformed.
+ */
 function normalizeCredential(value: string, maximumLength: number, jwtLike: boolean): string {
   const normalized = typeof value === "string" ? value.trim() : "";
   if (normalized.length === 0) {
@@ -529,6 +593,14 @@ function normalizeCredential(value: string, maximumLength: number, jwtLike: bool
   return normalized;
 }
 
+/**
+ * Reads a required non-empty string from REST gateway parameters.
+ *
+ * @param parameters - Request parameters to inspect.
+ * @param name - Required parameter name.
+ * @returns Required parameter value.
+ * @throws MiaixzSdkError when the value is absent or not a string.
+ */
 function readRequiredStringParameter(parameters: RestGatewayParameters, name: string): string {
   const value = parameters[name];
   if (typeof value !== "string" || value.length === 0) {
@@ -540,6 +612,13 @@ function readRequiredStringParameter(parameters: RestGatewayParameters, name: st
   return value;
 }
 
+/**
+ * Calculates a SHA-256 digest through the Web Crypto API.
+ *
+ * @param value - Bytes to digest.
+ * @returns Digest bytes.
+ * @throws MiaixzSdkError when Web Crypto is unavailable.
+ */
 async function sha256(value: Uint8Array): Promise<Uint8Array> {
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) {
@@ -551,6 +630,14 @@ async function sha256(value: Uint8Array): Promise<Uint8Array> {
   return new Uint8Array(await subtle.digest("SHA-256", copyToArrayBuffer(value)));
 }
 
+/**
+ * Calculates an HMAC-SHA256 signature through the Web Crypto API.
+ *
+ * @param key - Raw HMAC key bytes.
+ * @param value - Bytes to sign.
+ * @returns Signature bytes.
+ * @throws MiaixzSdkError when Web Crypto is unavailable.
+ */
 async function hmacSha256(key: Uint8Array, value: Uint8Array): Promise<Uint8Array> {
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) {
@@ -569,12 +656,24 @@ async function hmacSha256(key: Uint8Array, value: Uint8Array): Promise<Uint8Arra
   return new Uint8Array(await subtle.sign("HMAC", cryptoKey, copyToArrayBuffer(value)));
 }
 
+/**
+ * Copies a typed byte view into an exact standalone array buffer.
+ *
+ * @param value - Bytes to copy.
+ * @returns Array buffer containing only the supplied bytes.
+ */
 function copyToArrayBuffer(value: Uint8Array): ArrayBuffer {
   const copy = new Uint8Array(value.byteLength);
   copy.set(value);
   return copy.buffer;
 }
 
+/**
+ * Encodes bytes using the standard padded Base64 alphabet.
+ *
+ * @param bytes - Bytes to encode.
+ * @returns Base64 text.
+ */
 function encodeBase64(bytes: Uint8Array): string {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   let encoded = "";
@@ -591,6 +690,12 @@ function encodeBase64(bytes: Uint8Array): string {
   return encoded;
 }
 
+/**
+ * Builds transport authentication headers for the selected credential mode.
+ *
+ * @param auth - Normalized REST authentication material.
+ * @returns Immutable request headers, or an empty record for legacy signing.
+ */
 function createAuthenticationHeaders(auth: RestSignatureAuth): Readonly<Record<string, string>> {
   if (auth.mode === "v1-token") {
     return { Authorization: `Bearer ${auth.token}` };
@@ -601,6 +706,13 @@ function createAuthenticationHeaders(auth: RestSignatureAuth): Readonly<Record<s
   return {};
 }
 
+/**
+ * Rejects parameters whose values are owned by the request adapter.
+ *
+ * @param parameters - Caller-supplied REST gateway parameters.
+ * @returns Nothing after all parameter names have been checked.
+ * @throws MiaixzSdkError when timestamp or sign is supplied by the caller.
+ */
 function rejectAdapterReservedParameters(parameters: RestGatewayParameters): void {
   for (const name of Object.keys(parameters)) {
     const normalized = name.toLowerCase();
@@ -613,6 +725,13 @@ function rejectAdapterReservedParameters(parameters: RestGatewayParameters): voi
   }
 }
 
+/**
+ * Clones and validates caller parameters before adapter-owned values are added.
+ *
+ * @param parameters - Caller-supplied REST gateway parameters.
+ * @returns Safe JSON parameter snapshot.
+ * @throws MiaixzSdkError when a value is unsupported, cyclic, or accessor-backed.
+ */
 function prepareAdapterParameters(parameters: RestGatewayParameters): RestGatewayParameters {
   if (!isPlainObject(parameters)) {
     throw signatureError(
@@ -650,6 +769,14 @@ function prepareAdapterParameters(parameters: RestGatewayParameters): RestGatewa
   return clone;
 }
 
+/**
+ * Clones one JSON-compatible value while rejecting cycles and observable accessors.
+ *
+ * @param value - Value to clone.
+ * @param seen - Previously cloned objects keyed to their clones.
+ * @returns Deep-cloned REST JSON value.
+ * @throws MiaixzSdkError when the value is not safe JSON data.
+ */
 function cloneJsonValue(value: unknown, seen: WeakMap<object, unknown>): RestJsonValue {
   if (value === null || value === undefined) {
     throw signatureError(
@@ -717,6 +844,12 @@ function cloneJsonValue(value: unknown, seen: WeakMap<object, unknown>): RestJso
   return clone;
 }
 
+/**
+ * Converts REST parameters into primitive query values accepted by the API client.
+ *
+ * @param parameters - Signed REST gateway parameters.
+ * @returns Query parameter record with complex values serialized as JSON.
+ */
 function toQueryParameters(
   parameters: RestGatewayParameters,
 ): Readonly<Record<string, string | number | boolean | null | undefined>> {
@@ -731,6 +864,12 @@ function toQueryParameters(
   return query;
 }
 
+/**
+ * Determines whether a value is an object with the default or null prototype.
+ *
+ * @param value - Runtime value to inspect.
+ * @returns Whether the value is a plain object.
+ */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object") {
     return false;

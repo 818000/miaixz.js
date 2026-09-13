@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Internal geometry is locally typed.
- */
 
 import {
   createElement,
@@ -60,8 +57,14 @@ interface DrawerFrame {
 
 const useDrawerLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
-/*
+/**
  * Rejects invalid public drawer geometry without normalizing it.
+ *
+ * @param value - Optional drawer dimension to validate.
+ * @param positive - Whether zero must also be rejected.
+ * @param code - Public error code used for the invalid dimension.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when the dimension is non-finite or outside its allowed range.
  */
 function validateDrawerDimension(
   value: number | undefined,
@@ -73,8 +76,11 @@ function validateDrawerDimension(
   throw new MiaixzUiError({ code, details: { value } });
 }
 
-/*
+/**
  * Removes component-owned properties before the native root merge.
+ *
+ * @param props - Drawer properties to separate.
+ * @returns Native dialog root attributes.
  */
 function getDrawerNativeProps(props: DrawerProps): Partial<DrawerRootAttributes> {
   const {
@@ -101,14 +107,18 @@ function getDrawerNativeProps(props: DrawerProps): Partial<DrawerRootAttributes>
   return nativeProps;
 }
 
-/*
+/**
  * Compares immutable geometry snapshots without triggering redundant renders.
+ *
+ * @param previous - Previously observed drawer frame.
+ * @param next - Newly measured drawer frame.
+ * @returns Whether every frame coordinate and viewport dimension is unchanged.
  */
 function drawerFramesEqual(previous: DrawerFrame, next: DrawerFrame): boolean {
   return (Object.keys(next) as (keyof DrawerFrame)[]).every((key) => previous[key] === next[key]);
 }
 
-/*
+/**
  * Renders the sole modal drawer contract.
  */
 export const Drawer = withMiaixzThemeComponent(
@@ -396,8 +406,12 @@ export const Drawer = withMiaixzThemeComponent(
   }),
 );
 
-/*
+/**
  * Distinguishes the drawer paper from its native backdrop hit area.
+ *
+ * @param event - Pointer event received by the native dialog.
+ * @param dialog - Native dialog element containing the drawer paper.
+ * @returns Whether the pointer coordinates fall outside the rendered paper.
  */
 function isDrawerBackdropPoint(
   event: MouseEvent<HTMLDialogElement>,

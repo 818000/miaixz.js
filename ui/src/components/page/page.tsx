@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Page contracts are defined by the component type module.
- */
 import { createElement, forwardRef, useCallback, useLayoutEffect, useRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -28,7 +25,7 @@ import { classNames } from "../../shared/class-names.js";
 import type { PageProps } from "./page.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Establishes page content width and spacing without implicitly creating a landmark. @public
  */
 export const Page = withMiaixzThemeComponent(

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Brand contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
@@ -29,7 +26,7 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const ownerState: BrandOwnerState = {};
 
-/*
+/**
  * Displays a platform name and optional logo without owning navigation. @public
  */
 export const Brand = withMiaixzThemeComponent(

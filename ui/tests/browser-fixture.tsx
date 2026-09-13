@@ -1,8 +1,5 @@
 import type {} from "vite/client";
 
-/* eslint-disable jsdoc/require-jsdoc -- Browser fixtures use compact deterministic callbacks.
- */
-
 import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { createRoot } from "react-dom/client";

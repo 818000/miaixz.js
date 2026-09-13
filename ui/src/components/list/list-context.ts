@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This internal context has no public API surface.
- */
 import { createContext, useContext } from "react";
 import type { ListDensity, ListSurface } from "./list.types.js";
 
@@ -31,7 +28,16 @@ interface ListContextValue {
 
 const ListContext = createContext<ListContextValue>({ density: "standard", surface: "plain" });
 
+/**
+ * Provides effective list density and surface to nested entries.
+ */
 export const ListProvider = ListContext.Provider;
+
+/**
+ * Reads the effective density and surface inherited by nested list entries.
+ *
+ * @returns Current internal list context value.
+ */
 export function useListContext(): ListContextValue {
   return useContext(ListContext);
 }

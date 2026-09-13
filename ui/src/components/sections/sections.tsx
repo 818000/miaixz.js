@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Sections contracts are defined by the component type module.
- */
 import { createElement, forwardRef, useId } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -29,7 +26,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { SectionsOwnerState, SectionsProps } from "./sections.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Displays named read-only collections with invariant list semantics. @public
  */
 export const Sections = withMiaixzThemeComponent(
@@ -180,6 +177,13 @@ export const Sections = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Validates unique section identifiers and item identifiers within each section.
+ *
+ * @param sections - Section collection to validate.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when an identifier is duplicated in its collection.
+ */
 function validateSections(sections: SectionsProps["sections"]): void {
   const sectionIds = new Set<string>();
   for (const section of sections) {
@@ -193,6 +197,13 @@ function validateSections(sections: SectionsProps["sections"]): void {
   }
 }
 
+/**
+ * Throws the stable collection error for a duplicated identifier.
+ *
+ * @param id - Duplicated section or item identifier.
+ * @returns Never returns because the duplicate is always rejected.
+ * @throws MiaixzUiError with the duplicated identifier.
+ */
 function throwDuplicate(id: string): never {
   throw new MiaixzUiError({
     code: "UI_COLLECTION_DUPLICATE_ID",

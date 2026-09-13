@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc, react-hooks/refs -- Timer and portal refs are local to the queue implementation.
- */
 import {
   createContext,
   useCallback,
@@ -51,6 +49,11 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 let toastSequence = 0;
 
+/**
+ * Creates a process-local toast identifier with a monotonic collision suffix.
+ *
+ * @returns Unique toast identifier.
+ */
 function createToastId(): string {
   toastSequence += 1;
   return `miaixz-toast-${Date.now()}-${toastSequence}`;
@@ -61,6 +64,12 @@ interface ManagedToastProps {
   readonly close: (id: string, reason: ToastCloseReason) => void;
 }
 
+/**
+ * Renders one managed toast and pauses its timeout while interaction requires it.
+ *
+ * @param props - Toast record and queue close callback.
+ * @returns Toast with pointer, focus, visibility, and timeout behavior.
+ */
 function ManagedToast({ toast, close }: ManagedToastProps) {
   const remainingRef = useRef(toast.duration ?? 0);
   const startedAtRef = useRef(0);
@@ -106,8 +115,11 @@ function ManagedToast({ toast, close }: ManagedToastProps) {
   );
 }
 
-/*
+/**
  * Owns the single FIFO toast queue and its two announcement priorities.
+ *
+ * @param props - Queue limits, defaults, lifecycle callback, children, and slots.
+ * @returns Toast context provider and rendered live regions.
  */
 function Toaster({
   children,
@@ -154,6 +166,12 @@ function Toaster({
   );
   const context = useMemo<ToastContextValue>(
     () => ({
+      /**
+       * Adds or replaces one toast in the managed queue.
+       *
+       * @param options - Toast content, behavior, and optional identifier.
+       * @returns Identifier of the queued toast.
+       */
       notify(options: ToastOptions): string {
         const duration = options.duration ?? defaultDuration;
         if (!Number.isFinite(duration)) {
@@ -172,9 +190,22 @@ function Toaster({
         replaceQueue(next);
         return id;
       },
+
+      /**
+       * Dismisses one queued toast programmatically.
+       *
+       * @param id - Identifier of the toast to dismiss.
+       * @returns Nothing after the dismissal request.
+       */
       dismiss(id: string): void {
         closeToast(id, "programmatic");
       },
+
+      /**
+       * Dismisses every queued toast programmatically.
+       *
+       * @returns Nothing after clearing the queue.
+       */
       dismissAll(): void {
         for (const toast of queueRef.current) onClose?.(toast.id, "programmatic");
         replaceQueue([]);
@@ -242,8 +273,11 @@ function Toaster({
   );
 }
 
-/*
+/**
  * Returns the nearest toast queue controller.
+ *
+ * @returns Toast queue controller supplied by the nearest Toaster.
+ * @throws MiaixzUiError when no Toaster provider is mounted.
  */
 export function useToast(): ToastContextValue {
   const context = useContext(ToastContext);

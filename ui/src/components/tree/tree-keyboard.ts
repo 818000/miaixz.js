@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Pure tree keyboard functions are self-describing.
- */
 import type { TreeRecord } from "./tree-controller.js";
 
 export type TreeNavigationAction =
@@ -29,6 +27,17 @@ export type TreeNavigationAction =
   | { readonly kind: "select"; readonly id: string }
   | { readonly kind: "none" };
 
+/**
+ * Resolves one keyboard key into a deterministic tree navigation action.
+ *
+ * @typeParam Value - Application value stored by each tree node.
+ * @param key - Keyboard key to interpret.
+ * @param current - Currently focused tree record.
+ * @param visible - Visible tree records in display order.
+ * @param expandedIds - Identifiers of expanded nodes.
+ * @param expandable - Whether the current node can expand.
+ * @returns Navigation action for the tree controller.
+ */
 export function resolveTreeNavigation<Value>(
   key: string,
   current: TreeRecord<Value>,
@@ -62,6 +71,15 @@ export function resolveTreeNavigation<Value>(
   return { kind: "none" };
 }
 
+/**
+ * Finds the next cyclic tree record whose text begins with a typeahead query.
+ *
+ * @typeParam Value - Application value stored by each tree node.
+ * @param visible - Visible tree records in display order.
+ * @param currentId - Identifier from which cyclic search begins.
+ * @param query - Normalized lowercase typeahead text.
+ * @returns Matching record, or undefined when no visible record matches.
+ */
 export function findTreeTypeaheadMatch<Value>(
   visible: readonly TreeRecord<Value>[],
   currentId: string,

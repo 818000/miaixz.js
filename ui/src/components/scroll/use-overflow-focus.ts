@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,10 +18,14 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Internal overflow measurement is shared by scroll owners.
- */
 import { useLayoutEffect, useRef, useState } from "react";
 
+/**
+ * Tracks whether a scroll owner overflows so it can become keyboard-focusable only when useful.
+ *
+ * @param enabled - Whether overflow measurement and focus behavior are active.
+ * @returns Root element reference and current overflow state.
+ */
 export function useOverflowFocus(enabled: boolean) {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [overflowing, setOverflowing] = useState(false);

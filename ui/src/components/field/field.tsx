@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -28,8 +28,6 @@ import { useStableId } from "../../shared/use-stable-id.js";
 import type { FieldOwnerState, FieldProps, FieldRootSlotProps } from "./field.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/* eslint-disable jsdoc/check-param-names, jsdoc/require-param -- Props are documented by FieldProps.
- */
 /**
  * Connects one nested main control to a label, description, required state, and error.
  *
@@ -173,8 +171,5 @@ function Field({
     </div>
   );
 }
-/* eslint-enable jsdoc/check-param-names, jsdoc/require-param
- */
-
 const ThemedField = withMiaixzThemeComponent("Field", Field);
 export { ThemedField as Field };

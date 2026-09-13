@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -21,17 +21,26 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import process from "node:process";
-import { URL, fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { format } from "prettier";
 import prettierConfiguration from "../../../ui/prettier.config.js";
+import { repositoryRoot } from "../miaixz.mjs";
 
-const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const packageDirectory = resolve(repositoryRoot, "ui");
 const parameters = process.argv.slice(2);
 const checkOnly = parameters.includes("--check");
 const sourceHeader = (await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"))
   .replaceAll("\r\n", "\n")
   .trim();
+
+/**
+ * Resolves a named command-line path option or returns its default path.
+ *
+ * @param {string} name Command-line option name, including its leading dashes.
+ * @param {string} fallback Absolute fallback path.
+ * @returns {string} Resolved absolute option path.
+ * @throws {Error} If the option is present without a value.
+ */
 const option = (name, fallback) => {
   const inline = parameters.find((value) => value.startsWith(name + "="));
   if (inline) return resolve(inline.slice(name.length + 1));
@@ -72,6 +81,13 @@ if (
 const outputs = new Map();
 const imports =
   '@import url("../styles/foundation.css");\n@import url("../styles/components.css");\n';
+
+/**
+ * Renders one or more compiled theme definitions inside the shared theme layer.
+ *
+ * @param {object[]} values Compiled theme definitions to serialize.
+ * @returns {string} Complete generated theme stylesheet source.
+ */
 const render = (values) =>
   sourceHeader +
   "\n\n" +
@@ -110,8 +126,18 @@ for (const [outputPath, source] of outputs) {
 
 if (checkOnly && different) process.exitCode = 1;
 
+/**
+ * Serializes one compiled theme across its light and dark color modes.
+ *
+ * @param {object} theme Compiled theme definition.
+ * @param {object} order Frozen theme serialization order.
+ * @param {string[]} typographyOrder Ordered typography token fields.
+ * @param {Set<string>} familyFields Typography fields that contain font families.
+ * @param {Record<string, { unit: string }>} geometryRanges Layout geometry metadata.
+ * @returns {string} CSS source for the supplied theme.
+ */
 function serializeTheme(theme, order, typographyOrder, familyFields, geometryRanges) {
-  const blocks = ["/*\n * Generated from ui/src/theme; do not edit.\n */", ""];
+  const blocks = ["/**\n * Generated from ui/src/theme; do not edit.\n */", ""];
   for (const modeName of ["light", "dark"]) {
     const mode = theme.modes[modeName];
     const declarations = [`color-scheme: ${modeName};`];
@@ -166,6 +192,11 @@ function serializeTheme(theme, order, typographyOrder, familyFields, geometryRan
   return blocks.join("\n");
 }
 
+/**
+ * Serializes the generated browser reset stylesheet.
+ *
+ * @returns {string} Complete reset CSS source.
+ */
 function serializeReset() {
   return [
     sourceHeader,
@@ -190,6 +221,12 @@ function serializeReset() {
   ].join("\n");
 }
 
+/**
+ * Converts a camelCase token field into its kebab-case CSS suffix.
+ *
+ * @param {string} value Token field to convert.
+ * @returns {string} Kebab-case token field.
+ */
 function toKebab(value) {
   return value.replaceAll(/[A-Z]/g, (character) => `-${character.toLowerCase()}`);
 }

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public View contracts are defined by the component type module.
- */
 import { forwardRef, type ReactNode } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
@@ -32,7 +29,7 @@ import type { TabsEntry } from "../tabs/tabs.types.js";
 import type { ViewOwnerState, ViewProps } from "./view.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Renders one explicit content, route-navigation, or tabs view composition. @public
  */
 export const View = withMiaixzThemeComponent(
@@ -158,6 +155,14 @@ export const View = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Resolves static or owner-state-driven view slot properties.
+ *
+ * @typeParam Props - Native properties accepted by the slot.
+ * @param slot - Static slot properties or resolver callback.
+ * @param ownerState - Effective view owner state.
+ * @returns Resolved slot properties when configured.
+ */
 function resolveSlot<Props extends object>(
   slot: ((state: Readonly<ViewOwnerState>) => Partial<Props>) | Partial<Props> | undefined,
   ownerState: ViewOwnerState,

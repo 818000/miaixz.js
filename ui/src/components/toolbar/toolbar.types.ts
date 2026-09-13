@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- The behavior and naming union is self-describing.
- */
 import type { HTMLAttributes, ReactNode } from "react";
 
 export type ToolbarSurface = "plain" | "filled";
@@ -45,7 +43,7 @@ type ToolbarNativeProps = Omit<
 type SemanticToolbarProps = ToolbarNativeProps & ToolbarName & { readonly behavior: "toolbar" };
 type GroupToolbarProps = ToolbarNativeProps &
   (ToolbarName | ToolbarNoName) & { readonly behavior?: "group" };
-/*
+/**
  * Configures a visual control group or a keyboard-managed ARIA toolbar. @public
  */
 export type ToolbarProps = SemanticToolbarProps | GroupToolbarProps;

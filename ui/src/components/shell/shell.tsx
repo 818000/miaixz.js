@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Shell contracts are defined by the component type module.
- */
 import { forwardRef, useEffect, useState } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
@@ -30,7 +27,7 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const mobileQuery = "(max-width: 1023px)";
 
-/*
+/**
  * Provides the sole page-level main and navigation layout owner. @public
  */
 export const Shell = withMiaixzThemeComponent(

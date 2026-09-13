@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed toast slots are self-describing.
- */
 import type { HTMLAttributes, MouseEvent, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 import type { ButtonProps } from "../button/button.types.js";
@@ -70,5 +68,3 @@ export type ToastProps = MiaixzToastOwnProps &
     HTMLAttributes<HTMLDivElement>,
     keyof MiaixzToastOwnProps | "children" | "role" | "aria-live" | "aria-atomic"
   >;
-/* eslint-enable jsdoc/require-jsdoc
- */

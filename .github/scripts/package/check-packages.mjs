@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -22,57 +22,57 @@ import { execFileSync } from "node:child_process";
 import { createServer } from "node:http";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
+import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
 
-const root = process.cwd();
+const root = repositoryRoot;
 const temporaryDirectory = mkdtempSync(join(tmpdir(), "miaixz-packed-"));
 const requestedOutputDirectory = process.env.MIAIXZ_PACKAGE_OUTPUT?.trim();
 const packageOutputDirectory = requestedOutputDirectory
   ? resolve(root, requestedOutputDirectory)
   : temporaryDirectory;
-const packageFiles = ["dist", "README.md", "LICENSE", "NOTICE", "CHANGELOG.md", "MIGRATION.md"];
+const packageFiles = ["dist", "README.md", "LICENSE", "NOTICE"];
 const reactMatrix = JSON.parse(
   readFileSync(resolve(root, ".github/scripts/package/react-matrix.json"), "utf8"),
 );
+const { publicWorkspaces } = loadWorkspaceRepository(root);
 const manifests = Object.fromEntries(
-  ["sdk", "ui"].map((directory) => [
-    directory,
-    JSON.parse(readFileSync(resolve(root, directory, "package.json"), "utf8")),
-  ]),
+  publicWorkspaces.map(({ directory, manifest }) => [directory, manifest]),
 );
 
 try {
   mkdirSync(packageOutputDirectory, { recursive: true });
-  for (const directory of ["sdk", "ui"]) validateManifest(directory);
-  for (const directory of ["sdk", "ui"]) {
-    run("npm", ["exec", "--", "publint"], resolve(root, directory));
-    run("npm", ["exec", "--", "attw", "--pack", "."], resolve(root, directory));
+  for (const workspace of publicWorkspaces) validateManifest(workspace);
+  for (const { rootPath } of publicWorkspaces) {
+    run("npm", ["exec", "--", "publint"], rootPath);
+    run("npm", ["exec", "--", "attw", "--pack", "."], rootPath);
   }
 
-  const sdkTarball = pack("sdk");
-  const uiTarball = pack("ui");
-  createConsumer("react18", reactMatrix.react18, sdkTarball, uiTarball, false);
-  const react19Directory = createConsumer(
-    "react19",
-    reactMatrix.react19,
-    sdkTarball,
-    uiTarball,
-    true,
-  );
+  const tarballs = new Map(publicWorkspaces.map((workspace) => [workspace.name, pack(workspace)]));
+  writePackageIndex(tarballs);
+  createConsumer("react18", reactMatrix.react18, tarballs, false);
+  const react19Directory = createConsumer("react19", reactMatrix.react19, tarballs, true);
   await runBrowserSmoke(react19Directory);
-  console.log("Packed SDK/UI exports and React 18/19 SSR/browser consumers are valid.");
+  console.log(
+    `Packed ${publicWorkspaces.map(({ name }) => name).join(", ")} exports and React 18/19 SSR/browser consumers are valid.`,
+  );
 } finally {
   rmSync(temporaryDirectory, { recursive: true, force: true });
 }
 
-function validateManifest(directory) {
-  const packageRoot = resolve(root, directory);
-  const manifest = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8"));
+/**
+ * Validates the files and export targets required for a publishable workspace.
+ *
+ * @param {{ directory: string, manifest: object, rootPath: string }} workspace Workspace metadata.
+ * @returns {void}
+ * @throws {Error} If required files or public export targets are invalid.
+ */
+function validateManifest({ directory, manifest, rootPath }) {
   if (JSON.stringify(manifest.files) !== JSON.stringify(packageFiles)) {
-    throw new Error(`${directory}/package.json must contain the six exact package files`);
+    throw new Error(`${directory}/package.json files must equal ${JSON.stringify(packageFiles)}`);
   }
   for (const file of packageFiles) {
-    const stats = statSync(join(packageRoot, file));
+    const stats = statSync(join(rootPath, file));
     if (file === "dist" ? !stats.isDirectory() : !stats.isFile()) {
       throw new Error(`${directory}/${file} has the wrong file type`);
     }
@@ -80,7 +80,7 @@ function validateManifest(directory) {
   for (const [subpath, target] of Object.entries(manifest.exports)) {
     const targets = typeof target === "string" ? [target] : Object.values(target);
     for (const candidate of targets) {
-      const path = join(packageRoot, candidate.replace(/^\.\//u, ""));
+      const path = join(rootPath, candidate.replace(/^\.\//u, ""));
       try {
         readFileSync(path);
       } catch {
@@ -90,7 +90,14 @@ function validateManifest(directory) {
   }
 }
 
-function pack(directory) {
+/**
+ * Packs a workspace and verifies that repository-level policy files are not duplicated.
+ *
+ * @param {{ directory: string }} workspace Workspace metadata to package.
+ * @returns {string} Absolute path to the generated package tarball.
+ * @throws {Error} If npm returns an invalid result or the tarball contains forbidden files.
+ */
+function pack({ directory }) {
   const output = execFileSync(
     "npm",
     ["pack", "--json", "--pack-destination", packageOutputDirectory, `./${directory}`],
@@ -110,7 +117,35 @@ function pack(directory) {
   return join(packageOutputDirectory, result[0].filename);
 }
 
-function createConsumer(name, matrix, sdkTarball, uiTarball, browser) {
+/**
+ * Writes the machine-readable index for all generated workspace tarballs.
+ *
+ * @param {Map<string, string>} tarballs Tarball paths keyed by package name.
+ * @returns {void}
+ */
+function writePackageIndex(tarballs) {
+  const packages = publicWorkspaces.map(({ directory, manifest, name }) => ({
+    directory,
+    name,
+    tarball: basename(tarballs.get(name)),
+    version: manifest.version,
+  }));
+  writeFileSync(
+    join(packageOutputDirectory, "workspace-packages.json"),
+    `${JSON.stringify({ packages }, null, 2)}\n`,
+  );
+}
+
+/**
+ * Creates and validates an isolated React consumer for the packed workspaces.
+ *
+ * @param {string} name Temporary consumer directory name.
+ * @param {object} matrix React and TypeScript dependency versions for the consumer.
+ * @param {Map<string, string>} tarballs Tarball paths keyed by package name.
+ * @param {boolean} browser Whether to add and build the browser smoke application.
+ * @returns {string} Absolute path to the validated consumer directory.
+ */
+function createConsumer(name, matrix, tarballs, browser) {
   const directory = join(temporaryDirectory, name);
   mkdirSync(directory);
   writeFileSync(
@@ -120,8 +155,9 @@ function createConsumer(name, matrix, sdkTarball, uiTarball, browser) {
         private: true,
         type: "module",
         dependencies: {
-          "@miaixz/sdk": `file:${sdkTarball}`,
-          "@miaixz/ui": `file:${uiTarball}`,
+          ...Object.fromEntries(
+            [...tarballs].map(([packageName, tarball]) => [packageName, `file:${tarball}`]),
+          ),
           react: matrix.react,
           "react-dom": matrix.reactDom,
         },
@@ -173,15 +209,17 @@ function createConsumer(name, matrix, sdkTarball, uiTarball, browser) {
   return directory;
 }
 
+/**
+ * Generates a consumer source module that verifies every public package export.
+ *
+ * @returns {string} TypeScript source for the public export smoke test.
+ */
 function createPublicExportSource() {
   const imports = [];
   const bindings = [];
   const specifiers = [];
   let index = 0;
-  for (const [directory, packageName] of [
-    ["sdk", "@miaixz/sdk"],
-    ["ui", "@miaixz/ui"],
-  ]) {
+  for (const { directory, name: packageName } of publicWorkspaces) {
     for (const [subpath, target] of Object.entries(manifests[directory].exports)) {
       if (typeof target === "string") continue;
       const specifier = subpath === "." ? packageName : `${packageName}${subpath.slice(1)}`;
@@ -220,6 +258,7 @@ function createPublicExportSource() {
     "@miaixz/ui/grouped-list/styles.css",
     "@miaixz/ui/relation-map",
     "@miaixz/ui/diagram",
+    "@miaixz/ui/patterns/action-catalog",
     "@miaixz/ui/miaixz.css",
     "@miaixz/ui/themes.css",
   ];
@@ -264,6 +303,9 @@ for (const name of ${JSON.stringify([
     "ListDistributionItem",
     "ListItemControl",
     "actionCatalog",
+    "getActionCatalogEntry",
+    "intentDefinitions",
+    "getIntentDefinition",
     "PanelRow",
     "EditorFields",
     "EditorActions",
@@ -279,6 +321,13 @@ for (const name of ${JSON.stringify([
 `;
 }
 
+/**
+ * Serves the built browser consumer and verifies its critical runtime interactions.
+ *
+ * @param {string} directory Absolute consumer directory containing the browser build.
+ * @returns {Promise<void>} Promise that resolves after all browser assertions pass.
+ * @throws {Error} If the local server cannot start or a browser assertion fails.
+ */
 async function runBrowserSmoke(directory) {
   const distribution = resolve(directory, "dist");
   const server = createServer((request, response) => {
@@ -348,6 +397,15 @@ async function runBrowserSmoke(directory) {
   }
 }
 
+/**
+ * Asserts strict equality for a named package-consumer contract.
+ *
+ * @param {unknown} actual Observed value.
+ * @param {unknown} expected Required value.
+ * @param {string} contract Human-readable contract name.
+ * @returns {void}
+ * @throws {Error} If the observed value differs from the required value.
+ */
 function assertEqual(actual, expected, contract) {
   if (actual !== expected) {
     throw new Error(
@@ -356,15 +414,30 @@ function assertEqual(actual, expected, contract) {
   }
 }
 
+/**
+ * Executes a command synchronously in the requested working directory.
+ *
+ * @param {string} command Executable name.
+ * @param {string[]} parameters Command-line parameters.
+ * @param {string} directory Absolute working directory.
+ * @returns {void}
+ * @throws {Error} If the child process exits unsuccessfully.
+ */
 function run(command, parameters, directory) {
   execFileSync(command, parameters, { cwd: directory, stdio: "inherit" });
 }
 
+/**
+ * Generates the server-rendering consumer smoke-test source.
+ *
+ * @returns {string} TypeScript and JSX source for the server consumer.
+ */
 function createConsumerSource() {
   return `
 import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { Button, Dialog, Field, Graph, Input, MiaixzLocaleProvider, Select, Theme } from "@miaixz/ui";
+import { ImageView } from "@miaixz/view/image";
 import { renderToString } from "react-dom/server";
 
 const appearance = createMiaixzAppearanceManager({ appId: "packed-smoke" });
@@ -380,19 +453,27 @@ const html = renderToString(
       </form>
       <Dialog open={false} onOpenChange={() => {}} title="Dialog">Content</Dialog>
       <Graph aria-label="Graph" edges={[]} nodes={[{ id: "one", label: "One", x: 50, y: 50, tone: "neutral" }]} tableCaption="Graph data" />
+      <ImageView alt="Preview" controls={false} src="https://example.test/image.png" />
     </Theme>
   </MiaixzLocaleProvider>,
 );
-if (!html.includes("miaixz-button") || !html.includes("Graph data")) throw new Error("Packed SSR output is incomplete");
+if (!html.includes("miaixz-button") || !html.includes("Graph data") || !html.includes("miaixz-view-image")) throw new Error("Packed SSR output is incomplete");
 `;
 }
 
+/**
+ * Generates the interactive browser consumer smoke-test source.
+ *
+ * @returns {string} TypeScript and JSX source for the browser consumer.
+ */
 function createBrowserSource() {
   return `
 import "@miaixz/ui/styles.css";
+import "@miaixz/view/styles.css";
 import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { Button, Dialog, Field, Graph, Input, MiaixzLocaleProvider, Select, Theme } from "@miaixz/ui";
+import { ImageView } from "@miaixz/view/image";
 import { useState, type FormEvent } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -435,6 +516,7 @@ function App() {
           ]}
           tableCaption="Graph data"
         />
+        <ImageView alt="Packed preview" controls={false} src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
       </Theme>
     </MiaixzLocaleProvider>
   );

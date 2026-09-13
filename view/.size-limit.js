@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,6 +18,33 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { actionCatalog, getActionCatalogEntry } from "./catalog.js";
-export type { ActionCatalogEntry } from "./catalog.js";
-export type { ActionIntent } from "./types.js";
+/**
+ * Preserves ESM semantics while Size Limit bundles an entry for measurement.
+ *
+ * @param configuration - Generated esbuild configuration.
+ * @returns ESM-compatible esbuild configuration.
+ */
+function useEsmFormat(configuration) {
+  return { ...configuration, format: "esm" };
+}
+
+export default [
+  {
+    name: "Image preview entry",
+    path: "dist/image/index.js",
+    limit: "8 kB",
+    modifyEsbuildConfig: useEsmFormat,
+  },
+  {
+    name: "Office preview entry",
+    path: "dist/office/index.js",
+    limit: "10 kB",
+    modifyEsbuildConfig: useEsmFormat,
+  },
+  {
+    name: "PDF preview entry",
+    path: "dist/pdf/index.js",
+    limit: "110 kB",
+    modifyEsbuildConfig: useEsmFormat,
+  },
+];

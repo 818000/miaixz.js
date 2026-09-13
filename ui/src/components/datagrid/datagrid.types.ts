@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed server-table models are self-describing.
- */
 import type { HTMLAttributes, ReactNode } from "react";
 
 export type DatagridSortDirection = "ascending" | "descending";
@@ -75,7 +73,7 @@ export interface MiaixzDatagridBaseProps<Row> {
 }
 
 export type MiaixzDatagridOwnProps<Row> = MiaixzDatagridBaseProps<Row> & DatagridSelectionProps;
-/*
+/**
  * Configures a semantic server-owned data table, not an ARIA grid. @public
  */
 export type DatagridProps<Row> = MiaixzDatagridOwnProps<Row> &

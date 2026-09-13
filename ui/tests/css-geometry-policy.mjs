@@ -1,5 +1,7 @@
-/*
+/**
  * Exact intrinsic geometry exceptions; public typography and density never bypass tokens.
+ *
+ * @type {ReadonlyArray<readonly [string, string, string, string, string]>}
  */
 export const CSS_GEOMETRY_EXCEPTIONS = Object.freeze([
   ["bar.css", ".miaixz-bar", "height", "2px", "Decorative progress hairline"],
@@ -106,6 +108,12 @@ export const CSS_GEOMETRY_EXCEPTIONS = Object.freeze([
   ],
 ]);
 
+/**
+ * Resolves the reason registered for an exact intrinsic geometry declaration.
+ *
+ * @param {{ fileName: string, selector: string, property: string, value: string }} declaration CSS declaration identity.
+ * @returns {string | undefined} Exception reason when the declaration is registered.
+ */
 export function geometryException({ fileName, selector, property, value }) {
   const file = fileName.split("/").at(-1);
   const normalize = (text) => text.trim().replace(/\s+/gu, " ");

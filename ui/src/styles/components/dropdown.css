@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -42,12 +42,8 @@
   border-radius: var(--miaixz-radius-control);
 }
 
-/*
-
+/**
  * Variant and state order is intentional so disabled treatment always wins.
-
- */
-/* stylelint-disable no-descending-specificity
  */
 .miaixz-dropdown-item:hover:not(:disabled, [aria-disabled="true"]),
 .miaixz-dropdown-item:focus-visible:not([aria-disabled="true"]),
@@ -152,5 +148,3 @@
   cursor: not-allowed;
   background: transparent;
 }
-/* stylelint-enable no-descending-specificity
- */

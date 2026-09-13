@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -25,8 +25,7 @@ import { parse } from "@babel/parser";
 const plan = readFileSync("docs/ui-component-adjustment-plan.md", "utf8");
 const registrySource = readFileSync("ui/src/theme/components.ts", "utf8");
 const failures = [];
-const tableSection =
-  plan.split("#### 3.7.1 Theme registry 最终 key 与批次")[1]?.split("### 3.8")[0] ?? "";
+const tableSection = readMarkdownSection(plan, 4, "3.7.1");
 const assignments = new Map();
 
 for (const match of tableSection.matchAll(/^\| (B[1-5]|C[1-8])\s+\|([^\n]+)$/gmu)) {
@@ -59,12 +58,11 @@ for (const name of registryNames)
 for (const name of assignments.keys())
   if (!registryNames.includes(name)) failures.push(`plan key is absent from registry: ${name}`);
 
-const stageSection =
-  plan
-    .split("### 阶段 B：完成 P0 纵向切片及其直接依赖")[1]
-    ?.split("### 阶段 D：收口公共出口、样式和文档")[0] ?? "";
 const batches = new Map();
-for (const match of stageSection.matchAll(/^\d+\. \*\*(B[1-5]|C[1-8])[^\n]*\*\*：([^\n]*)$/gmu)) {
+for (const match of plan.matchAll(
+  /^\d+\.\s+\*\*(B[1-5]|C[1-8])\b[^\n]*?\*\*\s*\p{P}\s*([^\n]*)$/gmu,
+)) {
+  if (batches.has(match[1])) failures.push(`duplicate implementation batch: ${match[1]}`);
   batches.set(match[1], match[2]);
 }
 for (const [name, batch] of assignments) {
@@ -100,9 +98,37 @@ if (failures.length > 0) {
   console.log(`Adjustment plan and ${registryNames.length} Theme registry consumers are aligned.`);
 }
 
+/**
+ * Recursively lists every file below a directory.
+ *
+ * @param {string} directory Absolute directory to traverse.
+ * @returns {string[]} Absolute file paths in the traversed directory tree.
+ */
 function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
     return entry.isDirectory() ? walk(path) : [path];
   });
+}
+
+/**
+ * Extracts a numbered Markdown section without depending on its translated title.
+ *
+ * @param {string} markdown Complete Markdown document source.
+ * @param {number} headingLevel Heading level used by the requested section.
+ * @param {string} sectionNumber Numeric section identifier such as 3.7.1.
+ * @returns {string} Section body, or an empty string when the heading is absent.
+ */
+function readMarkdownSection(markdown, headingLevel, sectionNumber) {
+  const escapedSectionNumber = sectionNumber.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const heading = new RegExp(
+    `^#{${headingLevel}}\\s+${escapedSectionNumber}(?:\\s[^\\n]*)?$`,
+    "mu",
+  ).exec(markdown);
+  if (heading === null) return "";
+
+  const contentStart = heading.index + heading[0].length;
+  const remainder = markdown.slice(contentStart);
+  const nextHeading = new RegExp(`^#{1,${headingLevel}}\\s+`, "mu").exec(remainder);
+  return remainder.slice(0, nextHeading?.index ?? remainder.length);
 }

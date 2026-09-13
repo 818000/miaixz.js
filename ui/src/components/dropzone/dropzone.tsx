@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- The closed validation records are self-describing.
- */
-
 import {
   forwardRef,
   useRef,
@@ -36,15 +33,15 @@ import { Icon } from "../icon/icon.js";
 import type { DropzoneOwnerState, DropzoneProps, DropzoneRejection } from "./dropzone.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Describes one deterministic file-validation result.
  */
 export interface DropzoneValidationResult {
-  /*
+  /**
    * Contains accepted files in original order.
    */
   readonly accepted: readonly File[];
-  /*
+  /**
    * Contains one highest-priority rejection per rejected file.
    */
   readonly rejections: readonly DropzoneRejection[];
@@ -245,8 +242,13 @@ export const Dropzone = withMiaixzThemeComponent(
   }),
 );
 
-/*
+/**
  * Validates the two positive integer limits.
+ *
+ * @param maxFiles - Maximum number of accepted files.
+ * @param maxSizeBytes - Optional maximum size for one file.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when either limit is not a positive integer.
  */
 function validateLimits(maxFiles: number, maxSizeBytes: number | undefined): void {
   if (!Number.isInteger(maxFiles) || maxFiles <= 0) {
@@ -261,8 +263,11 @@ function validateLimits(maxFiles: number, maxSizeBytes: number | undefined): voi
   }
 }
 
-/*
+/**
  * Parses one accept expression into normalized non-empty tokens.
+ *
+ * @param accept - Native file accept expression.
+ * @returns Lowercase extension and MIME tokens.
  */
 function parseAccept(accept: string | undefined): readonly string[] {
   return (accept ?? "")
@@ -271,8 +276,12 @@ function parseAccept(accept: string | undefined): readonly string[] {
     .filter(Boolean);
 }
 
-/*
+/**
  * Applies extension, MIME wildcard, and exact MIME accept rules.
+ *
+ * @param file - Browser file to inspect.
+ * @param tokens - Normalized accept tokens.
+ * @returns Whether the file matches at least one token, or no restriction was supplied.
  */
 function matchesAccept(file: File, tokens: readonly string[]): boolean {
   if (tokens.length === 0) return true;

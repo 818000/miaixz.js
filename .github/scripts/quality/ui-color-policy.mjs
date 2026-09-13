@@ -1,4 +1,4 @@
-/*
+/**
  * Fixed data-encoding recipes; this is not a file-wide bypass for new colors.
  */
 const recipes = {
@@ -17,6 +17,13 @@ const recipes = {
   ],
 };
 
+/**
+ * Inspects a component stylesheet for paint values that bypass the theme token contract.
+ *
+ * @param {string} fileName Package-relative stylesheet name used by recipe exceptions.
+ * @param {string} source Complete component stylesheet source.
+ * @returns {string[]} Human-readable color policy findings.
+ */
 export function inspectComponentColors(fileName, source) {
   const clean = source.replace(/\/\*[\s\S]*?\*\//gu, "");
   const findings = [];
@@ -35,7 +42,7 @@ export function inspectComponentColors(fileName, source) {
   );
   if (/#[\da-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\s*\(/iu.test(clean))
     findings.push("literal or relative color outside theme");
-  /*
+  /**
    * Paint values may contain tokens and CSS geometry, but not named color values.
    */
   for (const match of clean.matchAll(

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Closed metrics item modes and slots are self-describing.
- */
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -79,7 +77,7 @@ export type MetricActionProps = MetricContentProps &
     readonly href?: never;
     readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
   };
-/*
+/**
  * Configures one static, link, or action metric. @public
  */
 export type MetricProps = MetricStaticProps | MetricLinkProps | MetricActionProps;

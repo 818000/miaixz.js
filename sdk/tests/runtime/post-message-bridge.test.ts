@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -45,14 +45,35 @@ class LoopbackWindow {
   readonly listeners = new Set<(event: MessageEvent) => void>();
   readonly posted: MiaixzBridgeEnvelope[] = [];
 
+  /**
+   * Registers a message listener with the loopback window.
+   *
+   * @param type - Event type to register.
+   * @param listener - Listener or listener object supplied by the bridge.
+   * @returns Nothing after registration.
+   */
   addEventListener(type: string, listener: EventListenerOrEventListenerObject): void {
     if (type === "message") this.listeners.add(listener as (event: MessageEvent) => void);
   }
 
+  /**
+   * Removes a message listener from the loopback window.
+   *
+   * @param type - Event type to remove.
+   * @param listener - Previously registered listener or listener object.
+   * @returns Nothing after removal.
+   */
   removeEventListener(type: string, listener: EventListenerOrEventListenerObject): void {
     if (type === "message") this.listeners.delete(listener as (event: MessageEvent) => void);
   }
 
+  /**
+   * Posts an envelope back to registered listeners on the next microtask.
+   *
+   * @param data - Bridge envelope to deliver.
+   * @param targetOrigin - Origin associated with the synthetic message event.
+   * @returns Nothing after scheduling delivery.
+   */
   postMessage = (data: MiaixzBridgeEnvelope, targetOrigin: string): void => {
     this.posted.push(data);
     queueMicrotask(() => {
@@ -65,6 +86,14 @@ class LoopbackWindow {
     });
   };
 
+  /**
+   * Dispatches an arbitrary synthetic message to registered listeners immediately.
+   *
+   * @param data - Message payload to deliver.
+   * @param eventOrigin - Origin associated with the synthetic message.
+   * @param source - Window reported as the message source.
+   * @returns Nothing after delivery.
+   */
   dispatch(data: unknown, eventOrigin = origin, source: Window = this as unknown as Window): void {
     const event = { data, origin: eventOrigin, source } as MessageEvent;
     for (const listener of [...this.listeners]) listener(event);

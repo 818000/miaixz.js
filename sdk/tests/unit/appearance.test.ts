@@ -14,6 +14,11 @@ const testConfig = Object.freeze({
   environment: "test",
 });
 
+/**
+ * Creates an isolated in-memory storage implementation for appearance tests.
+ *
+ * @returns Storage adapter together with its observable backing map.
+ */
 function createMemoryStorage() {
   const values = new Map<string, string>();
   return {

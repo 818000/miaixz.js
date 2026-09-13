@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -24,53 +24,49 @@ import { MiaixzUiError } from "../../errors/ui-error.js";
 import { MiaixzCollectionController } from "../../shared/collection/controller.js";
 import type { MiaixzOption, MiaixzOptionSource } from "./combobox.types.js";
 
-/* eslint-disable jsdoc/require-jsdoc --
- * This module exposes implementation-only controller contracts.
- */
-
 const maximumVisibleOptions = 500;
 const queryDebounceMilliseconds = 200;
 
-/*
+/**
  * Describes the finite option-source state rendered by both public pickers.
  */
 export type MiaixzComboboxLoadState = "ready" | "loading" | "error" | "limit";
 
-/*
+/**
  * Configures the shared option data adapter.
  */
 export interface MiaixzComboboxControllerOptions<Value extends string> {
-  /*
+  /**
    * Supplies the only static or asynchronous data source.
    */
   readonly source: MiaixzOptionSource<Value>;
-  /*
+  /**
    * Supplies the current search query.
    */
   readonly query: string;
-  /*
+  /**
    * Enables asynchronous loading while the popup is visible.
    */
   readonly open: boolean;
 }
 
-/*
+/**
  * Contains validated visible options and pagination actions.
  */
 export interface MiaixzComboboxControllerResult<Value extends string> {
-  /*
+  /**
    * Contains the complete currently visible page set.
    */
   readonly options: readonly MiaixzOption<Value>[];
-  /*
+  /**
    * Reports the active loading or message state.
    */
   readonly state: MiaixzComboboxLoadState;
-  /*
+  /**
    * Reports whether another asynchronous page can be requested.
    */
   readonly hasNextPage: boolean;
-  /*
+  /**
    * Requests the next page once, when one is available.
    */
   readonly loadNextPage: () => void;

@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,13 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public HeatmapLegend contract lives in its type module.
- */
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { HeatmapLegendProps } from "./heatmap.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
+/**
+ * Renders the localized six-level legend for a heatmap tone.
+ *
+ * @param props - Heatmap tone, level labels, and slot configuration.
+ * @returns Accessible heatmap legend.
+ */
 function HeatmapLegend({ tone, levelLabels, slotProps, ...props }: HeatmapLegendProps) {
   const { t } = useMiaixzLocale();
   const ownerState = { tone };

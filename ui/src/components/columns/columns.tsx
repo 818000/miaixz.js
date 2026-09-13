@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public Columns contract lives in its type module.
- */
 import { forwardRef, type CSSProperties } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -34,6 +32,11 @@ interface ColumnsBarStyle extends CSSProperties {
   readonly "--miaixz-columns-offset": string;
 }
 
+/**
+ * Renders a normalized, accessible categorical column chart.
+ *
+ * @public
+ */
 export const Columns = withMiaixzThemeComponent(
   "Columns",
   forwardRef<HTMLDivElement, ColumnsProps>(function Columns(

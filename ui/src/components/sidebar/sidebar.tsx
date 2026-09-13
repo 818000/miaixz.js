@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Sidebar contracts are defined by the component type module.
- */
 import { forwardRef } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
@@ -28,7 +25,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { SidebarOwnerState, SidebarProps } from "./sidebar.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
-/*
+/**
  * Creates a local sidebar layout without owning viewport or expanded state. @public
  */
 export const Sidebar = withMiaixzThemeComponent(

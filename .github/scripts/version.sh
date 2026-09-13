@@ -43,44 +43,48 @@ import { pathToFileURL } from "node:url";
 
 const root = process.argv[2];
 const version = process.argv[3];
-const { assertReleaseVersion, getSdkPeerRange } = await import(
-  pathToFileURL(join(root, ".github/scripts/version.mjs"))
+const { assertReleaseVersion, getWorkspacePeerRange, loadWorkspaceRepository } = await import(
+  pathToFileURL(join(root, ".github/scripts/miaixz.mjs"))
 );
 assertReleaseVersion(version);
 
 const paths = {
   version: join(root, "VERSION"),
   rootPackage: join(root, "package.json"),
-  sdkPackage: join(root, "sdk/package.json"),
-  uiPackage: join(root, "ui/package.json"),
 };
-const readPackage = (path) => JSON.parse(readFileSync(path, "utf8"));
-const rootPackage = readPackage(paths.rootPackage);
-const sdkPackage = readPackage(paths.sdkPackage);
-const uiPackage = readPackage(paths.uiPackage);
+const repository = loadWorkspaceRepository(root);
+const rootPackage = repository.rootManifest;
 const currentVersion = readFileSync(paths.version, "utf8").trim();
 
 if (rootPackage.name !== "miaixz.js") {
   throw new Error("Unexpected root package name; refusing to update versions.");
 }
-if (sdkPackage.name !== "@miaixz/sdk" || uiPackage.name !== "@miaixz/ui") {
-  throw new Error("Both @miaixz/sdk and @miaixz/ui manifests are required.");
-}
 
 rootPackage.version = version;
-sdkPackage.version = version;
-uiPackage.version = version;
-
-uiPackage.peerDependencies ??= {};
-uiPackage.devDependencies ??= {};
-uiPackage.peerDependencies["@miaixz/sdk"] = getSdkPeerRange(version);
-uiPackage.devDependencies["@miaixz/sdk"] = version;
+const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
+const peerRange = getWorkspacePeerRange(version);
+for (const { manifest } of repository.workspaces) {
+  manifest.version = version;
+  for (const dependencyName of Object.keys(manifest.peerDependencies ?? {})) {
+    if (!workspaceNames.has(dependencyName)) continue;
+    manifest.peerDependencies[dependencyName] = peerRange;
+    manifest.devDependencies ??= {};
+    manifest.devDependencies[dependencyName] = version;
+  }
+  for (const field of ["dependencies", "devDependencies", "optionalDependencies"]) {
+    for (const dependencyName of Object.keys(manifest[field] ?? {})) {
+      if (workspaceNames.has(dependencyName)) manifest[field][dependencyName] = version;
+    }
+  }
+}
 
 const updates = [
   [paths.version, `${version}\n`],
   [paths.rootPackage, `${JSON.stringify(rootPackage, null, 2)}\n`],
-  [paths.sdkPackage, `${JSON.stringify(sdkPackage, null, 2)}\n`],
-  [paths.uiPackage, `${JSON.stringify(uiPackage, null, 2)}\n`],
+  ...repository.workspaces.map(({ manifest, manifestPath }) => [
+    manifestPath,
+    `${JSON.stringify(manifest, null, 2)}\n`,
+  ]),
 ];
 
 for (const [path, contents] of updates) {
@@ -90,23 +94,44 @@ for (const [path] of updates) {
   renameSync(`${path}.tmp`, path);
 }
 
-const verifiedRoot = readPackage(paths.rootPackage);
-const verifiedSdk = readPackage(paths.sdkPackage);
-const verifiedUi = readPackage(paths.uiPackage);
-const expectedPeerRange = getSdkPeerRange(version);
+const verifiedRepository = loadWorkspaceRepository(root);
+const verifiedRoot = verifiedRepository.rootManifest;
+const expectedPeerRange = getWorkspacePeerRange(version);
+const verifiedWorkspaceNames = new Set(
+  verifiedRepository.workspaces.map(({ name }) => name),
+);
+const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest }) => {
+  const peersMatch = Object.entries(manifest.peerDependencies ?? {}).every(
+    ([name, range]) =>
+      !verifiedWorkspaceNames.has(name) ||
+      (range === expectedPeerRange && manifest.devDependencies?.[name] === version),
+  );
+  const otherDependenciesMatch = [
+    "dependencies",
+    "devDependencies",
+    "optionalDependencies",
+  ].every((field) =>
+    Object.entries(manifest[field] ?? {}).every(
+      ([name, range]) => !verifiedWorkspaceNames.has(name) || range === version,
+    ),
+  );
+  return peersMatch && otherDependenciesMatch;
+});
 const versionsMatch =
   readFileSync(paths.version, "utf8").trim() === version &&
   verifiedRoot.version === version &&
-  verifiedSdk.version === version &&
-  verifiedUi.version === version &&
-  verifiedUi.peerDependencies?.["@miaixz/sdk"] === expectedPeerRange &&
-  verifiedUi.devDependencies?.["@miaixz/sdk"] === version;
+  verifiedRepository.workspaces.every(({ manifest }) => manifest.version === version) &&
+  internalVersionsMatch;
 
 if (!versionsMatch) {
   throw new Error("Version verification failed after writing release metadata.");
 }
 
 console.log(`Version: ${currentVersion || "<empty>"} -> ${version}`);
-console.log("Updated: VERSION, package.json, sdk/package.json, ui/package.json");
-console.log(`UI SDK peer range: ${expectedPeerRange}`);
+console.log(
+  `Updated: VERSION, package.json, ${repository.workspaces
+    .map(({ directory }) => `${directory}/package.json`)
+    .join(", ")}`,
+);
+console.log(`Internal workspace peer range: ${expectedPeerRange}`);
 NODE

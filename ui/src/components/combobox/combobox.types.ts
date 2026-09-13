@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -17,9 +17,6 @@
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
-
-/* eslint-disable jsdoc/require-jsdoc -- Closed public models are self-describing native mappings.
- */
 
 import type {
   ButtonHTMLAttributes,
@@ -191,7 +188,7 @@ export interface MiaixzComboboxOwnProps<Value extends string = string> {
   readonly slotProps?: ComboboxSlotProps;
 }
 
-/*
+/**
  * Configures a searchable single-value WAI-ARIA combobox.
  */
 export type ComboboxProps<Value extends string = string> = MiaixzOptionSource<Value> &
@@ -211,6 +208,3 @@ export type ComboboxProps<Value extends string = string> = MiaixzOptionSource<Va
     readonly "aria-labelledby"?: string;
     readonly "aria-describedby"?: string;
   };
-
-/* eslint-enable jsdoc/require-jsdoc
- */

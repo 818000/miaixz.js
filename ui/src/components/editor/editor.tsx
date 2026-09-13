@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,8 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc -- Public editor contracts live in editor.types.
- */
 import { createContext, createElement, forwardRef, useContext } from "react";
 
 import { classNames } from "../../shared/class-names.js";
@@ -50,6 +48,11 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const EditorSectionHeadingContext = createContext<1 | 2 | 3 | 4 | 5 | 6 | null>(null);
 
+/**
+ * Renders a semantic fieldset for one related editor control group.
+ *
+ * @public
+ */
 export const EditorFieldset = withMiaixzThemeComponent(
   "EditorFieldset",
   forwardRef<HTMLFieldSetElement, EditorFieldsetProps>(function EditorFieldset(
@@ -70,6 +73,11 @@ export const EditorFieldset = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Arranges an editor summary and its editable content in a declared layout.
+ *
+ * @public
+ */
 export const EditorLayout = withMiaixzThemeComponent(
   "EditorLayout",
   forwardRef<HTMLDivElement, EditorLayoutProps>(function EditorLayout(
@@ -108,6 +116,11 @@ export const EditorLayout = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders the identity, status, metadata, and footer summary for an editor.
+ *
+ * @public
+ */
 export const EditorSummary = withMiaixzThemeComponent(
   "EditorSummary",
   forwardRef<HTMLElement, EditorSummaryProps>(function EditorSummary(
@@ -196,6 +209,11 @@ export const EditorSummary = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders a titled editor section and provides its heading level to nested groups.
+ *
+ * @public
+ */
 export const EditorSection = withMiaixzThemeComponent(
   "EditorSection",
   forwardRef<HTMLElement, EditorSectionProps>(function EditorSection(
@@ -261,6 +279,11 @@ export const EditorSection = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders the responsive field grid used by editor forms.
+ *
+ * @public
+ */
 export const EditorFields = withMiaixzThemeComponent(
   "EditorFields",
   forwardRef<HTMLDivElement, EditorFieldsProps>(function EditorFields(props, ref) {
@@ -268,6 +291,11 @@ export const EditorFields = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders the action row used to submit or dismiss editor work.
+ *
+ * @public
+ */
 export const EditorActions = withMiaixzThemeComponent(
   "EditorActions",
   forwardRef<HTMLDivElement, EditorActionsProps>(function EditorActions(
@@ -278,6 +306,11 @@ export const EditorActions = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders a compact filled panel for a bounded editor region.
+ *
+ * @public
+ */
 export const EditorBox = withMiaixzThemeComponent(
   "EditorBox",
   forwardRef<HTMLElement, EditorBoxProps>(function EditorBox({ className, ...props }, ref) {
@@ -295,6 +328,11 @@ export const EditorBox = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders a labeled nested group of related editor options.
+ *
+ * @public
+ */
 export const EditorGroup = withMiaixzThemeComponent(
   "EditorGroup",
   forwardRef<HTMLElement, EditorGroupProps>(function EditorGroup(
@@ -355,6 +393,11 @@ export const EditorGroup = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders a compact list of labeled editor overview values.
+ *
+ * @public
+ */
 export const EditorOverview = withMiaixzThemeComponent(
   "EditorOverview",
   forwardRef<HTMLDivElement, EditorOverviewProps>(function EditorOverview(
@@ -417,6 +460,11 @@ export const EditorOverview = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders a scrollable outlined panel for selecting editor values.
+ *
+ * @public
+ */
 export const EditorPicker = withMiaixzThemeComponent(
   "EditorPicker",
   forwardRef<HTMLElement, EditorPickerProps>(function EditorPicker(
@@ -447,6 +495,11 @@ export const EditorPicker = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Renders a labeled status value inside an editor surface.
+ *
+ * @public
+ */
 export const EditorStatus = withMiaixzThemeComponent(
   "EditorStatus",
   forwardRef<HTMLDivElement, EditorStatusProps>(function EditorStatus(

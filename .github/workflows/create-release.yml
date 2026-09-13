@@ -75,28 +75,10 @@ jobs:
           node .github/scripts/release/check-release-metadata.mjs "$RELEASE_VERSION"
           npm run check:clean
 
-      - name: Confirm Both npm Packages
+      - name: Confirm All npm Packages
         env:
           RELEASE_VERSION: ${{ inputs.version }}
-        run: |
-          set -euo pipefail
-          for package_name in @miaixz/sdk @miaixz/ui; do
-            published="$(npm view "${package_name}@${RELEASE_VERSION}" version --json --prefer-online | tr -d '"[:space:]')"
-            if [ "$published" != "$RELEASE_VERSION" ]; then
-              echo "::error::${package_name}@${RELEASE_VERSION} is not visible on npm"
-              exit 1
-            fi
-          done
-
-      - name: Resolve Release Notes
-        id: notes
-        env:
-          RELEASE_VERSION: ${{ inputs.version }}
-        run: |
-          set -euo pipefail
-          body_path="$RUNNER_TEMP/release-notes-${RELEASE_VERSION}.md"
-          node .github/scripts/release/create-release-notes.mjs "$RELEASE_VERSION" "$body_path"
-          echo "body_path=$body_path" >> "$GITHUB_OUTPUT"
+        run: node .github/scripts/release/check-published-packages.mjs "$RELEASE_VERSION"
 
       - name: Create Release
         uses: ./.github/actions/create-release
@@ -104,6 +86,5 @@ jobs:
           tag: ${{ inputs.tag }}
           version: ${{ inputs.version }}
           prerelease: ${{ inputs.prerelease }}
-          body_path: ${{ steps.notes.outputs.body_path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

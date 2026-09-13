@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,9 +18,6 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-/* eslint-disable jsdoc/require-jsdoc --
- * Public Bar contracts are defined by the component type module.
- */
 import { forwardRef, type CSSProperties } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -32,7 +29,7 @@ interface BarStyle extends CSSProperties {
   readonly "--miaixz-bar-progress"?: number;
 }
 
-/*
+/**
  * Renders fixed page-level determinate or indeterminate loading progress. @public
  */
 export const Bar = withMiaixzThemeComponent(

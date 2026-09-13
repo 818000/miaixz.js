@@ -1,4 +1,4 @@
-/*
+/**
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  ~                                                                           ~
  ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
@@ -18,17 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzIconName } from "../../icons/icon-name.generated.js";
-import type { ActionIntent } from "./types.js";
+import type { MiaixzIconName } from "../icons/icon-name.generated.js";
+import type { Intent } from "./types.js";
 
 /**
- * Defines one immutable entry in the shared action catalog.
+ * Defines the presentation metadata for one product intent.
  */
-export interface ActionCatalogEntry {
+export interface IntentDefinition {
   /**
    * Localized message key.
    */
-  readonly labelKey: `ui.action.${ActionIntent}`;
+  readonly labelKey: `ui.action.${Intent}`;
   /**
    * Framework icon name.
    */
@@ -40,11 +40,11 @@ export interface ActionCatalogEntry {
 }
 
 /**
- * Freezes labels, icons, and tones for shared product actions.
+ * Freezes labels, icons, and tones for product intents.
  *
  * @public
  */
-export const actionCatalog: Readonly<Record<ActionIntent, ActionCatalogEntry>> = Object.freeze({
+export const intentDefinitions: Readonly<Record<Intent, IntentDefinition>> = Object.freeze({
   create: {
     labelKey: "ui.action.create",
     icon: "Plus",
@@ -183,12 +183,12 @@ export const actionCatalog: Readonly<Record<ActionIntent, ActionCatalogEntry>> =
 });
 
 /**
- * Reads one immutable action presentation recipe.
+ * Reads one immutable intent definition.
  *
- * @param intent - Shared action meaning.
- * @returns The matching catalog entry.
+ * @param intent - Shared product intent.
+ * @returns The matching intent definition.
  * @public
  */
-export function getActionCatalogEntry(intent: ActionIntent): ActionCatalogEntry {
-  return actionCatalog[intent];
+export function getIntentDefinition(intent: Intent): IntentDefinition {
+  return intentDefinitions[intent];
 }
