@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useRef } from "react";
+import { useState } from "react";
 import type { PdfViewSource } from "./pdf-view.types.js";
 
 /**
@@ -43,30 +43,49 @@ export function usePdfRequest(
   httpHeaders: Readonly<Record<string, string>> | undefined,
   withCredentials: boolean,
 ): PdfRequest {
-  const current = useRef<PdfRequest | undefined>(undefined);
+  const [request, setRequest] = useState<PdfRequest>(() =>
+    createRequest(source, httpHeaders, withCredentials),
+  );
   if (
-    current.current === undefined ||
-    !sameSource(current.current.source, source) ||
-    current.current.withCredentials !== withCredentials ||
-    !sameHeaders(current.current.httpHeaders, httpHeaders)
+    !sameSource(request.source, source) ||
+    request.withCredentials !== withCredentials ||
+    !sameHeaders(request.httpHeaders, httpHeaders)
   ) {
-    const sortedHeaders =
-      httpHeaders === undefined
-        ? undefined
-        : Object.freeze(
-            Object.fromEntries(
-              Object.entries(httpHeaders).sort(([left], [right]) =>
-                left.localeCompare(right, "en"),
-              ),
-            ),
-          );
-    current.current = {
-      source,
-      withCredentials,
-      ...(sortedHeaders === undefined ? {} : { httpHeaders: sortedHeaders }),
-    };
+    const nextRequest = createRequest(source, httpHeaders, withCredentials);
+    setRequest(nextRequest);
+    return nextRequest;
   }
-  return current.current;
+  return request;
+}
+
+/**
+ * Creates an immutable PDF request without serializing sensitive header values.
+ *
+ * @param source - Remote or in-memory PDF source.
+ * @param httpHeaders - Optional request headers copied in stable key order.
+ * @param withCredentials - Whether remote requests include credentials.
+ * @returns Immutable request snapshot.
+ */
+function createRequest(
+  source: PdfViewSource,
+  httpHeaders: Readonly<Record<string, string>> | undefined,
+  withCredentials: boolean,
+): PdfRequest {
+  const normalizedSource =
+    typeof source === "string" || source instanceof URL ? source.toString() : source;
+  const normalizedHeaders =
+    httpHeaders === undefined
+      ? undefined
+      : Object.freeze(
+          Object.fromEntries(
+            Object.entries(httpHeaders).sort(([left], [right]) => left.localeCompare(right, "en")),
+          ),
+        );
+  return {
+    source: normalizedSource,
+    withCredentials,
+    ...(normalizedHeaders === undefined ? {} : { httpHeaders: normalizedHeaders }),
+  };
 }
 
 /**

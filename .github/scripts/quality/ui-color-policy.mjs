@@ -30,12 +30,8 @@ const recipes = {
     "color-mix(in srgb, var(--miaixz-columns-tone) 36%, var(--miaixz-surface-role-panel-background))",
     "color-mix(in srgb, var(--miaixz-columns-tone) 45%, var(--miaixz-color-surface))",
   ],
-  "sparkline.css": [
-    "color-mix(in srgb, var(--miaixz-sparkline-tone) 8%, transparent)",
-  ],
-  "list.css": [
-    "color-mix(in srgb, var(--miaixz-list-tone) 8%, var(--miaixz-color-surface))",
-  ],
+  "sparkline.css": ["color-mix(in srgb, var(--miaixz-sparkline-tone) 8%, transparent)"],
+  "list.css": ["color-mix(in srgb, var(--miaixz-list-tone) 8%, var(--miaixz-color-surface))"],
   "appearance.css": [
     "color-mix(in srgb, var(--miaixz-appearance-preview-brand) 18%, var(--miaixz-appearance-preview-surface))",
   ],
@@ -64,11 +60,7 @@ export function inspectComponentColors(fileName, source) {
       return [match.index, end];
     },
   );
-  if (
-    /#[\da-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\s*\(/iu.test(
-      clean,
-    )
-  )
+  if (/#[\da-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\s*\(/iu.test(clean))
     findings.push("literal or relative color outside theme");
   /**
    * Paint values may contain tokens and CSS geometry, but not named color values.
@@ -119,11 +111,7 @@ export function inspectComponentColors(fileName, source) {
       "in",
       "srgb",
     ]);
-    if (
-      forcedRanges.some(
-        ([start, end]) => match.index >= start && match.index < end,
-      )
-    ) {
+    if (forcedRanges.some(([start, end]) => match.index >= start && match.index < end)) {
       for (const systemColor of ["canvas", "canvastext", "highlight", "mark"]) {
         allowed.add(systemColor);
       }
@@ -133,8 +121,7 @@ export function inspectComponentColors(fileName, source) {
         .toLowerCase()
         .match(/[a-z][a-z-]*/gu)
         ?.filter((word) => !allowed.has(word)) ?? [];
-    if (unknown.length)
-      findings.push(`non-token paint outside theme: ${unknown.join(", ")}`);
+    if (unknown.length) findings.push(`non-token paint outside theme: ${unknown.join(", ")}`);
   }
   for (const match of clean.matchAll(/\bcolor-mix\(/gu)) {
     let depth = 1;
@@ -152,11 +139,7 @@ export function inspectComponentColors(fileName, source) {
     if (!(recipes[fileName] ?? []).includes(value))
       findings.push(`unregistered color recipe: ${value}`);
   }
-  if (
-    /\b(?:saturate|brightness|hue-rotate|sepia|invert|light-dark)\(/u.test(
-      clean,
-    )
-  )
+  if (/\b(?:saturate|brightness|hue-rotate|sepia|invert|light-dark)\(/u.test(clean))
     findings.push("color-changing filter or mode recipe");
   if (
     /(?:background(?:-color)?|border(?:-color)?)\s*:[^;{}]*var\(--miaixz-color-brand-strong\)/u.test(

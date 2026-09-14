@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useRef, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 /**
  * Retains the latest render value without changing resource-effect identity.
@@ -28,6 +28,8 @@ import { useRef, type RefObject } from "react";
  */
 export function useLatestRef<T>(value: T): RefObject<T> {
   const ref = useRef(value);
-  ref.current = value;
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
   return ref;
 }

@@ -19,14 +19,7 @@
 */
 
 import { execFileSync } from "node:child_process";
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,22 +33,16 @@ const manifestsByDirectory = new Map(
   repository.workspaces.map(({ directory, manifest }) => [directory, manifest]),
 );
 const rootScripts = rootManifest.scripts ?? {};
-const registrySource = readFileSync(
-  resolve(repositoryRoot, "ui/src/theme/components.ts"),
-  "utf8",
-);
+const registrySource = readFileSync(resolve(repositoryRoot, "ui/src/theme/components.ts"), "utf8");
 const failures = [];
 const readmes = new Map(
-  ["README.md", "sdk/README.md", "ui/README.md", "view/README.md"].map(
-    (file) => [file, readFileSync(resolve(repositoryRoot, file), "utf8")],
-  ),
+  ["README.md", "sdk/README.md", "ui/README.md", "view/README.md"].map((file) => [
+    file,
+    readFileSync(resolve(repositoryRoot, file), "utf8"),
+  ]),
 );
 
-if (
-  Object.values(rootScripts).some((script) =>
-    /--workspaces\s+--if-present/u.test(script),
-  )
-) {
+if (Object.values(rootScripts).some((script) => /--workspaces\s+--if-present/u.test(script))) {
   failures.push("root package scripts must not use --workspaces --if-present");
 }
 for (const removedScript of ["build:sdk", "lint:css"]) {
@@ -87,9 +74,7 @@ if (declaration?.type !== "TSInterfaceDeclaration") {
 const registryNames =
   declaration?.type === "TSInterfaceDeclaration"
     ? declaration.body.body.map((member) =>
-        member.key.type === "Identifier"
-          ? member.key.name
-          : String(member.key.value),
+        member.key.type === "Identifier" ? member.key.name : String(member.key.value),
       )
     : [];
 
@@ -98,9 +83,7 @@ for (const file of walk(resolve(repositoryRoot, "ui/src")).filter((path) =>
   path.endsWith(".tsx"),
 )) {
   const source = readFileSync(file, "utf8");
-  for (const match of source.matchAll(
-    /withMiaixzThemeComponent\(\s*"([A-Z][A-Za-z0-9]+)"/gu,
-  )) {
+  for (const match of source.matchAll(/withMiaixzThemeComponent\(\s*"([A-Z][A-Za-z0-9]+)"/gu)) {
     calls.set(match[1], (calls.get(match[1]) ?? 0) + 1);
   }
   for (const match of source.matchAll(
@@ -111,49 +94,31 @@ for (const file of walk(resolve(repositoryRoot, "ui/src")).filter((path) =>
 }
 for (const name of registryNames) {
   const count = calls.get(name) ?? 0;
-  if (count !== 1)
-    failures.push(
-      `${name} must have exactly one Theme consumer; found ${count}`,
-    );
+  if (count !== 1) failures.push(`${name} must have exactly one Theme consumer; found ${count}`);
 }
 for (const name of calls.keys())
-  if (!registryNames.includes(name))
-    failures.push(`unregistered Theme consumer: ${name}`);
+  if (!registryNames.includes(name)) failures.push(`unregistered Theme consumer: ${name}`);
 
 const protocolSource = readFileSync(
   resolve(repositoryRoot, "sdk/src/contracts/module-manifest.ts"),
   "utf8",
 );
-const protocolVersion = /MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*"([^"]+)"/u.exec(
-  protocolSource,
-)?.[1];
+const protocolVersion = /MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*"([^"]+)"/u.exec(protocolSource)?.[1];
 if (
   protocolVersion === undefined ||
-  !readmes
-    .get("sdk/README.md")
-    ?.includes(`Host Bridge protocol version is \`${protocolVersion}\``)
+  !readmes.get("sdk/README.md")?.includes(`Host Bridge protocol version is \`${protocolVersion}\``)
 ) {
-  failures.push(
-    "SDK README Host Bridge protocol version is not aligned with its constant",
-  );
+  failures.push("SDK README Host Bridge protocol version is not aligned with its constant");
 }
-if (
-  /\b\d+\.\d+\.x\b[^\n]*development line/iu.test(
-    readmes.get("sdk/README.md") ?? "",
-  )
-) {
+if (/\b\d+\.\d+\.x\b[^\n]*development line/iu.test(readmes.get("sdk/README.md") ?? "")) {
   failures.push("SDK README must not hard-code a development-line version");
 }
 const uiReadme = readmes.get("ui/README.md") ?? "";
 if (/\bselected\s*:/u.test(uiReadme)) {
-  failures.push(
-    "UI README NavigationRail examples must use current and textValue, not selected",
-  );
+  failures.push("UI README NavigationRail examples must use current and textValue, not selected");
 }
 if (!/\bcurrent:\s*"page"/u.test(uiReadme) || !/\btextValue:/u.test(uiReadme)) {
-  failures.push(
-    "UI README NavigationRail examples must show current and textValue",
-  );
+  failures.push("UI README NavigationRail examples must show current and textValue");
 }
 if (/--no-package-lock/u.test(readmes.get("README.md") ?? "")) {
   failures.push("root README must use the committed npm package lock");
@@ -178,9 +143,7 @@ if (
   !viewReadme.includes("<Theme") ||
   !viewReadme.includes("<FileView")
 ) {
-  failures.push(
-    "View README must show the complete locale, Theme, and FileView structure",
-  );
+  failures.push("View README must show the complete locale, Theme, and FileView structure");
 }
 for (const directory of ["sdk", "ui", "view"]) {
   const manifest = manifestsByDirectory.get(directory);
@@ -188,12 +151,7 @@ for (const directory of ["sdk", "ui", "view"]) {
     failures.push(`workspace manifest is missing: ${directory}`);
     continue;
   }
-  auditPublicEntryTable(
-    directory,
-    manifest,
-    readmes.get(`${directory}/README.md`) ?? "",
-    failures,
-  );
+  auditPublicEntryTable(directory, manifest, readmes.get(`${directory}/README.md`) ?? "", failures);
 }
 auditReadmeCompileBlocks(readmes, failures);
 
@@ -227,10 +185,9 @@ function walk(directory) {
  * @returns {void}
  */
 function auditPublicEntryTable(directory, manifest, readme, findings) {
-  const section =
-    /## Public entries\n([\s\S]*?)(?=\n## |$)/u.exec(readme)?.[1] ?? "";
+  const section = /## Public entries\n([\s\S]*?)(?=\n## |$)/u.exec(readme)?.[1] ?? "";
   const documented = new Map(
-    [...section.matchAll(/^\| `([^`]+)` \| (JavaScript|CSS) \|$/gmu)].map(
+    [...section.matchAll(/^\|[ \t]*`([^`]+)`[ \t]*\|[ \t]*(JavaScript|CSS)[ \t]*\|$/gmu)].map(
       (match) => [match[1], match[2]],
     ),
   );
@@ -241,9 +198,7 @@ function auditPublicEntryTable(directory, manifest, readme, findings) {
     ]),
   );
   if (JSON.stringify([...documented]) !== JSON.stringify([...expected])) {
-    findings.push(
-      `${directory}/README.md public entry table does not match package exports`,
-    );
+    findings.push(`${directory}/README.md public entry table does not match package exports`);
   }
 }
 
@@ -256,33 +211,26 @@ function auditPublicEntryTable(directory, manifest, readme, findings) {
  */
 function auditReadmeCompileBlocks(sources, findings) {
   const temporaryRoot = mkdtempSync(join(tmpdir(), "miaixz-readme-"));
+  const workspaceDeclarations = ["sdk", "ui", "view"].flatMap((directory) =>
+    walk(resolve(repositoryRoot, directory, "src")).filter((path) => path.endsWith(".d.ts")),
+  );
   try {
     let blockIndex = 0;
     for (const [readmePath, source] of sources) {
-      for (const match of source.matchAll(
-        /^```(ts|tsx) compile\n([\s\S]*?)^```$/gmu,
-      )) {
+      for (const match of source.matchAll(/^```(ts|tsx) compile\n([\s\S]*?)^```$/gmu)) {
         const extension = match[1];
         const blockDirectory = join(temporaryRoot, String(blockIndex));
         const sourcePath = join(blockDirectory, `example.${extension}`);
         const configPath = join(blockDirectory, "tsconfig.json");
         mkdirSync(blockDirectory, { recursive: true });
         writeFileSync(sourcePath, match[2]);
-        writeFileSync(
-          join(blockDirectory, "styles.d.ts"),
-          'declare module "*.css";\n',
-        );
-        const owningDirectory =
-          readmePath === "README.md" ? "ui" : readmePath.split("/")[0];
+        writeFileSync(join(blockDirectory, "styles.d.ts"), 'declare module "*.css";\n');
+        const owningDirectory = readmePath === "README.md" ? "ui" : readmePath.split("/")[0];
         writeFileSync(
           configPath,
           `${JSON.stringify(
             {
-              extends: resolve(
-                repositoryRoot,
-                owningDirectory,
-                "tsconfig.json",
-              ),
+              extends: resolve(repositoryRoot, owningDirectory, "tsconfig.json"),
               compilerOptions: {
                 noEmit: true,
                 module: "ESNext",
@@ -290,11 +238,7 @@ function auditReadmeCompileBlocks(sources, findings) {
                 types: ["node"],
                 typeRoots: [
                   resolve(repositoryRoot, "node_modules/@types"),
-                  resolve(
-                    repositoryRoot,
-                    owningDirectory,
-                    "node_modules/@types",
-                  ),
+                  resolve(repositoryRoot, owningDirectory, "node_modules/@types"),
                 ],
                 paths: {
                   react: [
@@ -305,30 +249,20 @@ function auditReadmeCompileBlocks(sources, findings) {
                     ),
                   ],
                   "react/*": [
-                    resolve(
-                      repositoryRoot,
-                      owningDirectory,
-                      "node_modules/@types/react/*",
-                    ),
+                    resolve(repositoryRoot, owningDirectory, "node_modules/@types/react/*"),
                   ],
                   "@miaixz/sdk": [resolve(repositoryRoot, "sdk/src/index.ts")],
-                  "@miaixz/sdk/*": [
-                    resolve(repositoryRoot, "sdk/src/*/index.ts"),
-                  ],
+                  "@miaixz/sdk/*": [resolve(repositoryRoot, "sdk/src/*/index.ts")],
                   "@miaixz/ui": [resolve(repositoryRoot, "ui/src/index.ts")],
                   "@miaixz/ui/*": [
                     resolve(repositoryRoot, "ui/src/components/*/index.ts"),
                     resolve(repositoryRoot, "ui/src/*/index.ts"),
                   ],
-                  "@miaixz/view": [
-                    resolve(repositoryRoot, "view/src/index.ts"),
-                  ],
-                  "@miaixz/view/*": [
-                    resolve(repositoryRoot, "view/src/*/index.ts"),
-                  ],
+                  "@miaixz/view": [resolve(repositoryRoot, "view/src/index.ts")],
+                  "@miaixz/view/*": [resolve(repositoryRoot, "view/src/*/index.ts")],
                 },
               },
-              files: [sourcePath, join(blockDirectory, "styles.d.ts")],
+              files: [sourcePath, join(blockDirectory, "styles.d.ts"), ...workspaceDeclarations],
               include: [],
               exclude: [],
             },
@@ -342,9 +276,7 @@ function auditReadmeCompileBlocks(sources, findings) {
             stdio: "pipe",
           });
         } catch {
-          findings.push(
-            `${readmePath} compile block ${blockIndex + 1} does not type-check`,
-          );
+          findings.push(`${readmePath} compile block ${blockIndex + 1} does not type-check`);
         }
         blockIndex += 1;
       }

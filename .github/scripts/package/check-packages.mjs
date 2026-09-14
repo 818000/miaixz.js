@@ -444,7 +444,7 @@ async function runBrowserSmoke(directory) {
       "Dialog focus restoration",
     );
 
-    const leftNode = page.getByRole("button", { name: "Left" });
+    const leftNode = page.getByRole("button", { name: "Left", exact: true });
     await leftNode.focus();
     await page.keyboard.press("ArrowRight");
     assertEqual(
@@ -453,11 +453,14 @@ async function runBrowserSmoke(directory) {
       "Graph directional keyboard navigation",
     );
 
-    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page
+      .getByRole("toolbar", { name: "Image preview controls" })
+      .getByRole("button", { name: "Zoom in", exact: true })
+      .click();
     assertEqual(await page.getByText("125%").textContent(), "125%", "Image zoom output");
     await page.getByRole("img", { name: "1 / 1" }).waitFor();
     await page.waitForFunction(() => window.__miaixzPackedOfficeCreated === 1);
-    await page.getByRole("button", { name: "Remove Office preview" }).click();
+    await page.getByRole("button", { name: "Remove Office", exact: true }).click();
     await page.waitForFunction(() => window.__miaixzPackedOfficeDestroyed === 1);
     if (browserErrors.length > 0) {
       throw new Error(`Packed browser emitted errors:\n${browserErrors.join("\n")}`);
@@ -563,6 +566,7 @@ import { createRoot } from "react-dom/client";
 const appearance = createMiaixzAppearanceManager({ appId: "packed-browser" });
 const i18n = createMiaixzI18n();
 const option = { kind: "option" as const, id: "one", value: "one", label: "One", textValue: "One" };
+const officeConfig = { documentType: "word", document: { fileType: "docx", key: "one", title: "One", url: "http://127.0.0.1/one.docx" } } as const;
 
 function App() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -604,12 +608,12 @@ function App() {
         <FileView kind="pdf" src={Uint8Array.from(atob("${onePagePdfBase64}"), character => character.charCodeAt(0))} />
         {showOffice && (
           <FileView
-            config={{ documentType: "word", document: { fileType: "docx", key: "one", title: "One", url: "http://127.0.0.1/one.docx" } }}
+            config={officeConfig}
             documentServerUrl={window.location.origin}
             kind="office"
           />
         )}
-        <Button aria-label="Remove Office preview" onClick={() => setShowOffice(false)}>Remove Office</Button>
+        <Button onClick={() => setShowOffice(false)}>Remove Office</Button>
       </Theme>
     </MiaixzLocaleProvider>
   );

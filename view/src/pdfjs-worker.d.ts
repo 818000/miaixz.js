@@ -18,9 +18,9 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useEffect, useLayoutEffect } from "react";
-
-/**
- * Uses layout timing in browsers and passive timing during server rendering.
- */
-export const useMiaixzLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
+declare module "pdfjs-dist/build/pdf.worker.min.mjs" {
+  /**
+   * Provides the PDF.js worker-side message handler.
+   */
+  export const WorkerMessageHandler: unknown;
+}

@@ -16,6 +16,10 @@ vi.mock("pdfjs-dist", () => ({
   GlobalWorkerOptions: pdf.workerOptions,
 }));
 
+vi.mock("pdfjs-dist/build/pdf.worker.min.mjs", () => ({
+  WorkerMessageHandler: {},
+}));
+
 import { FileView } from "../src/file/file-view.js";
 import { PdfView } from "../src/pdf/pdf-view.js";
 
@@ -95,7 +99,7 @@ describe("PdfView", () => {
         src={new URL("a.pdf", "https://example.test")}
       />,
     );
-    expect(pdf.getDocument).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(pdf.getDocument).toHaveBeenCalledTimes(2));
   });
 
   it("does not reload for equivalent URL values or callback identity changes", async () => {
@@ -118,7 +122,7 @@ describe("PdfView", () => {
     expect(pdf.getDocument).not.toHaveBeenCalled();
   });
 
-  it("validates navigation inputs and protects semantic slot ownership", async () => {
+  it("validates navigation inputs and merges public canvas slot props", async () => {
     expect(() => render(<PdfView initialPage={0} src="invalid.pdf" />)).toThrow(
       "[VIEW_PDF_PAGE_INVALID]",
     );
@@ -128,12 +132,13 @@ describe("PdfView", () => {
     render(
       <PdfView
         labels={{ toolbar: "Document commands" }}
-        slotProps={{ canvas: { "aria-label": "ignored", className: "canvas-slot" } }}
+        slotProps={{ canvas: { className: "canvas-slot", title: "Rendered page" } }}
         src="valid.pdf"
       />,
     );
     expect(screen.getByRole("toolbar", { name: "Document commands" })).toBeInTheDocument();
     expect(await screen.findByRole("img", { name: /\/ 2/u })).toHaveClass("canvas-slot");
+    expect(screen.getByRole("img", { name: /\/ 2/u })).toHaveAttribute("title", "Rendered page");
   });
 
   it("copies in-memory data and routes PDF requests through FileView", async () => {

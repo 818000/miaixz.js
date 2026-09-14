@@ -28,30 +28,18 @@ import { repositoryRoot } from "../miaixz.mjs";
 
 const packageDirectory = resolve(repositoryRoot, "ui");
 const checkOnly = process.argv.slice(2).includes("--check");
-const sourceHeader = (
-  await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8")
-)
+const sourceHeader = (await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"))
   .replaceAll("\r\n", "\n")
   .trim();
 const builtTokensPath = resolve(packageDirectory, "dist/design/breakpoints.js");
-const outputPath = resolve(
-  packageDirectory,
-  "src/styles/foundation/responsive.css",
+const outputPath = resolve(packageDirectory, "src/styles/foundation/responsive.css");
+const { miaixzBreakpoints, miaixzContainerQueries, miaixzMediaQueries } = await import(
+  pathToFileURL(builtTokensPath).href
 );
-const { miaixzBreakpoints, miaixzContainerQueries, miaixzMediaQueries } =
-  await import(pathToFileURL(builtTokensPath).href);
 
-assertBreakpointContract(
-  miaixzBreakpoints,
-  miaixzMediaQueries,
-  miaixzContainerQueries,
-);
+assertBreakpointContract(miaixzBreakpoints, miaixzMediaQueries, miaixzContainerQueries);
 const expected = await format(
-  serializeResponsive(
-    miaixzBreakpoints,
-    miaixzMediaQueries,
-    miaixzContainerQueries,
-  ),
+  serializeResponsive(miaixzBreakpoints, miaixzMediaQueries, miaixzContainerQueries),
   {
     ...prettierConfiguration,
     parser: "css",
@@ -98,9 +86,7 @@ function assertBreakpointContract(breakpoints, mediaQueries, containers) {
     throw new Error("Viewport media-query contract has drifted.");
   }
   if (Object.keys(containers).length !== 9) {
-    throw new Error(
-      "Container-query contract must contain exactly nine entries.",
-    );
+    throw new Error("Container-query contract must contain exactly nine entries.");
   }
 }
 

@@ -42,7 +42,10 @@ describe("OfficeView", () => {
 
     expect(screen.getByRole("status")).toHaveTextContent("Loading Office document");
     await waitFor(() => expect(onReady).toHaveBeenCalledOnce());
-    expect(DocEditor).toHaveBeenCalledWith(expect.stringMatching(/^miaixz-preview-office-/u), config);
+    expect(DocEditor).toHaveBeenCalledWith(
+      expect.stringMatching(/^miaixz-preview-office-/u),
+      config,
+    );
     expect(screen.getByRole("toolbar", { name: "Office preview controls" })).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
     cleanup();
@@ -77,13 +80,7 @@ describe("OfficeView", () => {
     );
     expect(DocEditor).toHaveBeenCalledOnce();
     cleanup();
-    render(
-      <FileView
-        config={config}
-        documentServerUrl="https://office.example"
-        kind="office"
-      />,
-    );
+    render(<FileView config={config} documentServerUrl="https://office.example" kind="office" />);
     await waitFor(() => expect(DocEditor).toHaveBeenCalledTimes(2));
   });
 

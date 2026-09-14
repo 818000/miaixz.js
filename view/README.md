@@ -16,14 +16,14 @@ npm install @miaixz/view @miaixz/ui react react-dom
 
 This table is checked directly against the package export map.
 
-| Entry | Kind |
-| ----- | ---- |
-| `.` | JavaScript |
-| `./image` | JavaScript |
-| `./pdf` | JavaScript |
-| `./office` | JavaScript |
-| `./errors` | JavaScript |
-| `./styles.css` | CSS |
+| Entry          | Kind       |
+| -------------- | ---------- |
+| `.`            | JavaScript |
+| `./image`      | JavaScript |
+| `./pdf`        | JavaScript |
+| `./office`     | JavaScript |
+| `./errors`     | JavaScript |
+| `./styles.css` | CSS        |
 
 Import the Miaixz UI theme before the preview styles. A preview tree is supported only inside the
 UI `Theme` scope; it also uses the shared locale provider for surrounding application copy:

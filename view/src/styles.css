@@ -41,9 +41,8 @@
   padding: calc(var(--miaixz-space-4) + var(--miaixz-space-2)) var(--miaixz-space-8);
   color: var(--miaixz-surface-role-header-foreground);
   background: var(--miaixz-surface-role-header-background);
-  border-block-end-color: var(--miaixz-surface-role-header-border);
-  border-block-end-style: solid;
-  border-block-end-width: var(--miaixz-border-width-default);
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-header-border);
 }
 
 .miaixz-preview-command {

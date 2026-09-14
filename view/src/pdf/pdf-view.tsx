@@ -134,8 +134,8 @@ export const PdfView = forwardRef<HTMLDivElement, PdfViewProps>(function PdfView
     setDocument(undefined);
     setStatus("loading");
 
-    void import("pdfjs-dist")
-      .then(async (pdfjs) => {
+    void Promise.all([import("pdfjs-dist"), import("pdfjs-dist/build/pdf.worker.min.mjs")])
+      .then(async ([pdfjs]) => {
         pdfjs.GlobalWorkerOptions.workerSrc = new URL(
           "./pdf.worker.min.mjs",
           import.meta.url,

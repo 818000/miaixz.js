@@ -25,19 +25,10 @@ import { repositoryRoot } from "../miaixz.mjs";
 
 const packageDirectory = resolve(repositoryRoot, "ui");
 const styleFiles = [
-  ...(await collectFiles(
-    resolve(packageDirectory, "src/styles"),
-    new Set([".css"]),
-  )),
-  ...(await collectFiles(
-    resolve(packageDirectory, "src/theme"),
-    new Set([".css"]),
-  )),
+  ...(await collectFiles(resolve(packageDirectory, "src/styles"), new Set([".css"]))),
+  ...(await collectFiles(resolve(packageDirectory, "src/theme"), new Set([".css"]))),
 ];
-const sourceFiles = await collectFiles(
-  resolve(packageDirectory, "src"),
-  new Set([".ts", ".tsx"]),
-);
+const sourceFiles = await collectFiles(resolve(packageDirectory, "src"), new Set([".ts", ".tsx"]));
 const findings = [];
 const dimensionOwnership = {
   componentGeometry: 0,
@@ -49,10 +40,8 @@ const dimensionOwnership = {
 for (const file of styleFiles) {
   const source = await readFile(file, "utf8");
   const fileName = relative(packageDirectory, file);
-  const isFoundation =
-    fileName.includes("/foundation/") || fileName.endsWith("foundation.css");
-  const isGeneratedTheme =
-    /^src\/theme\/(?:miaixz|neutral|contrast|theme)\.css$/.test(fileName);
+  const isFoundation = fileName.includes("/foundation/") || fileName.endsWith("foundation.css");
+  const isGeneratedTheme = /^src\/theme\/(?:miaixz|neutral|contrast|theme)\.css$/.test(fileName);
   const isResponsive = fileName.endsWith("/foundation/responsive.css");
   if (!isResponsive) {
     inspect(
@@ -63,13 +52,7 @@ for (const file of styleFiles) {
     );
   }
   if (source.includes("100vh") && !source.includes("100dvh")) {
-    addFinding(
-      fileName,
-      source,
-      source.indexOf("100vh"),
-      "RESPONSIVE_VH_WITHOUT_DVH",
-      "100vh",
-    );
+    addFinding(fileName, source, source.indexOf("100vh"), "RESPONSIVE_VH_WITHOUT_DVH", "100vh");
   }
   inspect(
     fileName,
@@ -83,26 +66,16 @@ for (const file of styleFiles) {
   });
   for (const match of source.matchAll(/@container\s+([a-z0-9-]+)/g)) {
     const name = match[1];
-    if (
-      !new RegExp(`container(?:-name)?\\s*:\\s*${name}(?:\\s*\\/|\\b)`).test(
-        source,
-      )
-    ) {
-      addFinding(
-        fileName,
-        source,
-        match.index,
-        "RESPONSIVE_CONTAINER_UNDECLARED",
-        name,
-      );
+    if (!new RegExp(`container(?:-name)?\\s*:\\s*${name}(?:\\s*\\/|\\b)`).test(source)) {
+      addFinding(fileName, source, match.index, "RESPONSIVE_CONTAINER_UNDECLARED", name);
     }
   }
   inspectResponsiveHiddenContent(fileName, source);
 }
 
-const combinedStyles = (
-  await Promise.all(styleFiles.map((file) => readFile(file, "utf8")))
-).join("\n");
+const combinedStyles = (await Promise.all(styleFiles.map((file) => readFile(file, "utf8")))).join(
+  "\n",
+);
 if (!/@media\s*\(pointer:\s*coarse\)[\s\S]*44px/.test(combinedStyles)) {
   addFinding(
     "src/styles",
@@ -114,17 +87,9 @@ if (!/@media\s*\(pointer:\s*coarse\)[\s\S]*44px/.test(combinedStyles)) {
 }
 if (
   /\b(?:img|svg|canvas|video)\b/.test(combinedStyles) &&
-  !/:is\(img, svg, video, canvas\)[\s\S]*max-inline-size\s*:\s*100%/.test(
-    combinedStyles,
-  )
+  !/:is\(img, svg, video, canvas\)[\s\S]*max-inline-size\s*:\s*100%/.test(combinedStyles)
 ) {
-  addFinding(
-    "src/styles",
-    combinedStyles,
-    0,
-    "RESPONSIVE_MEDIA_MAX_SIZE",
-    "media elements",
-  );
+  addFinding("src/styles", combinedStyles, 0, "RESPONSIVE_MEDIA_MAX_SIZE", "media elements");
 }
 
 for (const file of sourceFiles) {
@@ -163,18 +128,14 @@ function inspect(fileName, source, pattern, code) {
  * @param {{ isFoundation: boolean, isGeneratedTheme: boolean }} classification Stylesheet ownership flags.
  * @returns {void}
  */
-function classifyDimensionDeclarations(
-  fileName,
-  source,
-  { isFoundation, isGeneratedTheme },
-) {
+function classifyDimensionDeclarations(fileName, source, { isFoundation, isGeneratedTheme }) {
   const declaration =
     /(?:^|[;{]\s*)((?:min-|max-)?(?:inline-size|block-size|width|height)|padding(?:-[a-z]+)?|margin(?:-[a-z]+)?|gap|inset(?:-[a-z]+)?)\s*:\s*([^;{}]+)/gim;
   for (const match of source.matchAll(declaration)) {
     const value = match[2].trim();
-    const dimensions = [
-      ...value.matchAll(/-?(?:\d*\.)?\d+(?:px|rem|em|ch|vw|vh|vi|dvh)\b/gi),
-    ].map(([dimension]) => dimension.toLowerCase());
+    const dimensions = [...value.matchAll(/-?(?:\d*\.)?\d+(?:px|rem|em|ch|vw|vh|vi|dvh)\b/gi)].map(
+      ([dimension]) => dimension.toLowerCase(),
+    );
     if (dimensions.length === 0) continue;
     if (/var\(--miaixz-(?:density|geometry)-/u.test(value)) {
       dimensionOwnership.densityGeometry += 1;
@@ -198,10 +159,7 @@ function classifyDimensionDeclarations(
 function inspectResponsiveHiddenContent(fileName, source) {
   for (const match of source.matchAll(/@media\s*([^{]+){/gi)) {
     const condition = match[1].trim();
-    if (
-      /\bprint\b/i.test(condition) ||
-      !/(?:width|orientation|pointer|hover)/i.test(condition)
-    ) {
+    if (/\bprint\b/i.test(condition) || !/(?:width|orientation|pointer|hover)/i.test(condition)) {
       continue;
     }
     const bodyStart = match.index + match[0].length;

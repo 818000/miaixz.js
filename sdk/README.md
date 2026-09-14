@@ -18,26 +18,26 @@ npm install @miaixz/sdk
 
 This table is checked directly against the package export map.
 
-| Entry | Kind |
-| ----- | ---- |
-| `.` | JavaScript |
-| `./api` | JavaScript |
-| `./auth` | JavaScript |
-| `./context` | JavaScript |
-| `./config` | JavaScript |
+| Entry           | Kind       |
+| --------------- | ---------- |
+| `.`             | JavaScript |
+| `./api`         | JavaScript |
+| `./auth`        | JavaScript |
+| `./context`     | JavaScript |
+| `./config`      | JavaScript |
 | `./permissions` | JavaScript |
-| `./runtime` | JavaScript |
-| `./events` | JavaScript |
-| `./storage` | JavaScript |
-| `./appearance` | JavaScript |
-| `./files` | JavaScript |
-| `./i18n` | JavaScript |
-| `./consts` | JavaScript |
-| `./contracts` | JavaScript |
-| `./errors` | JavaScript |
-| `./formatters` | JavaScript |
-| `./types` | JavaScript |
-| `./utils` | JavaScript |
+| `./runtime`     | JavaScript |
+| `./events`      | JavaScript |
+| `./storage`     | JavaScript |
+| `./appearance`  | JavaScript |
+| `./files`       | JavaScript |
+| `./i18n`        | JavaScript |
+| `./consts`      | JavaScript |
+| `./contracts`   | JavaScript |
+| `./errors`      | JavaScript |
+| `./formatters`  | JavaScript |
+| `./types`       | JavaScript |
+| `./utils`       | JavaScript |
 
 ## One-time setup
 
