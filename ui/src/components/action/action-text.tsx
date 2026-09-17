@@ -24,6 +24,7 @@ import { Icon } from "../icon/icon.js";
 import { ActionTarget } from "./action-target.js";
 import type { ActionTextProps } from "./action.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
 
 /**
  * Renders an always-labeled low-emphasis command or navigation action.
@@ -33,15 +34,26 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const ActionText = withMiaixzThemeComponent(
   "ActionText",
   forwardRef<HTMLButtonElement | HTMLAnchorElement, ActionTextProps>(function ActionText(
-    { action, slotProps },
+    { action, labelVisibility = "always", priority = "default", slotProps },
     ref,
   ) {
+    if (labelVisibility !== "always" && action.icon === undefined) {
+      throw new MiaixzUiError({
+        code: "UI_ACTION_LABEL_VISIBILITY_REQUIRES_ICON",
+        details: { id: action.id, labelVisibility },
+      });
+    }
     const startIcon = action.icon === undefined ? undefined : <Icon name={action.icon} size={12} />;
     return (
       <ActionTarget
         ref={ref}
         action={action}
         className="miaixz-action-text"
+        rootAttributes={{
+          "data-label-visibility": labelVisibility,
+          "data-priority": priority,
+        }}
+        variant={priority === "primary" ? "solid" : "plain"}
         {...(slotProps === undefined ? {} : { slotProps })}
         {...(startIcon === undefined ? {} : { startIcon })}
       >

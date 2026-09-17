@@ -124,6 +124,7 @@ export const Donut = withMiaixzThemeComponent(
           slotProps: slotProps?.root,
           forwardedRef: ref,
           internalProps: {
+            "data-ui": "donut",
             role: "group",
             "aria-label": ariaLabel,
             ...(description === undefined ? {} : { "aria-describedby": descriptionId }),
@@ -165,6 +166,7 @@ export const Donut = withMiaixzThemeComponent(
                       },
                       slotProps: slotProps?.segment,
                       internalProps: {
+                        "data-ui": "donut-segment",
                         cx: 50,
                         cy: 50,
                         r: 40,

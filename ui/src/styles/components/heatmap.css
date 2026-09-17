@@ -41,6 +41,57 @@
   --miaixz-heatmap-cell-gap: var(--miaixz-space-8);
 }
 
+.miaixz-heatmap[data-density="workbench"] {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  contain: paint;
+  overflow: hidden;
+}
+
+.miaixz-heatmap[data-density="workbench"] > .miaixz-heatmap-viewport,
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-table {
+  width: 100%;
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-table {
+  min-width: 390px;
+  table-layout: fixed;
+  border-spacing: 3px 4px;
+}
+
+.miaixz-heatmap[data-density="workbench"] :is(.miaixz-heatmap-corner, .miaixz-heatmap-row-label) {
+  width: 26px;
+}
+
+.miaixz-heatmap[data-density="workbench"]
+  :is(.miaixz-heatmap-column-label, .miaixz-heatmap-row-label) {
+  padding: 0;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: 1.4;
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-column-label {
+  padding-block-end: 3px;
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-cell {
+  min-width: 0;
+  height: 18px;
+  padding: 0;
+  font-size: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.miaixz-heatmap[data-caption-visibility="hidden"] .miaixz-heatmap-caption {
+  display: none;
+}
+
 .miaixz-heatmap-viewport {
   width: auto;
   max-width: 100%;

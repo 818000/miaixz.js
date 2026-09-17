@@ -43,6 +43,7 @@ export const Heatmap = withMiaixzThemeComponent(
       levelLabels,
       tone,
       density = "standard",
+      captionVisibility = "visible",
       getCellLabel,
       slotProps,
       "aria-label": ariaLabel,
@@ -68,7 +69,7 @@ export const Heatmap = withMiaixzThemeComponent(
       });
     }
     const state = rowLabels.length === 0 || columnLabels.length === 0 ? "empty" : "ready";
-    const ownerState: HeatmapOwnerState = { density, tone, state };
+    const ownerState: HeatmapOwnerState = { density, captionVisibility, tone, state };
     const { elementRef: viewportRef, overflowing } = useOverflowFocus(true);
     const formatCell = (context: HeatmapCellContext) =>
       getCellLabel?.(context) ??
@@ -87,7 +88,13 @@ export const Heatmap = withMiaixzThemeComponent(
           componentProps: props,
           slotProps: slotProps?.root,
           forwardedRef: ref,
-          internalProps: { "data-tone": tone, "data-density": density, "data-state": state },
+          internalProps: {
+            "data-ui": "heatmap",
+            "data-tone": tone,
+            "data-density": density,
+            "data-caption-visibility": captionVisibility,
+            "data-state": state,
+          },
         })}
       >
         <div
@@ -97,6 +104,7 @@ export const Heatmap = withMiaixzThemeComponent(
             slotProps: slotProps?.viewport,
             internalRef: viewportRef,
             internalProps: {
+              "data-ui": "heatmap-viewport",
               role: "region",
               "aria-label": ariaLabel,
               "aria-describedby": legendId,
@@ -138,7 +146,7 @@ export const Heatmap = withMiaixzThemeComponent(
                       ownerState,
                       defaultProps: { className: "miaixz-heatmap-column-label" },
                       slotProps: slotProps?.columnHeader,
-                      internalProps: { scope: "col" },
+                      internalProps: { "data-ui": "heatmap-column-label", scope: "col" },
                       ownedProps: ["scope"],
                     })}
                     key={`${index}-${label}`}
@@ -156,7 +164,7 @@ export const Heatmap = withMiaixzThemeComponent(
                       ownerState,
                       defaultProps: { className: "miaixz-heatmap-row-label" },
                       slotProps: slotProps?.rowHeader,
-                      internalProps: { scope: "row" },
+                      internalProps: { "data-ui": "heatmap-row-label", scope: "row" },
                       ownedProps: ["scope"],
                     })}
                   >
@@ -176,7 +184,7 @@ export const Heatmap = withMiaixzThemeComponent(
                           ownerState,
                           defaultProps: { className: "miaixz-heatmap-cell" },
                           slotProps: slotProps?.cell,
-                          internalProps: { "data-level": level },
+                          internalProps: { "data-ui": "heatmap-cell", "data-level": level },
                         })}
                         key={columnIndex}
                       >

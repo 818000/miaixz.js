@@ -97,6 +97,14 @@ export interface DropdownLabelEntry {
   readonly label: ReactNode;
 }
 
+export interface DropdownIdentityEntry {
+  readonly kind: "identity";
+  readonly id: string;
+  readonly avatar: ReactNode;
+  readonly title: ReactNode;
+  readonly meta?: ReactNode;
+}
+
 export interface DropdownDividerEntry {
   readonly kind: "divider";
   readonly id: string;
@@ -108,6 +116,7 @@ export type DropdownSubmenuItem =
   | DropdownCheckboxEntry
   | DropdownRadioGroupEntry
   | DropdownLabelEntry
+  | DropdownIdentityEntry
   | DropdownDividerEntry;
 
 export interface DropdownSubmenuEntry extends DropdownPresentation {
@@ -146,4 +155,6 @@ export type DropdownProps = DropdownOpenState &
     readonly label?: string;
     readonly surface?: "framed" | "plain";
     readonly density?: "compact" | "standard" | "comfortable";
+    readonly presentation?: "default" | "account";
+    readonly closing?: boolean;
   };

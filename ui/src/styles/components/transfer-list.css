@@ -1,0 +1,119 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-transfer-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.miaixz-transfer-list[data-target-size="compact"] {
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+}
+
+.miaixz-transfer-list-source,
+.miaixz-transfer-list-target {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--miaixz-space-16);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--miaixz-space-24);
+}
+
+.miaixz-transfer-list-target {
+  background: var(--miaixz-color-surface-secondary);
+  border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-transfer-list-header {
+  min-width: 0;
+}
+
+.miaixz-transfer-list-header[data-layout="stack"] {
+  display: grid;
+  gap: var(--miaixz-space-16);
+}
+
+.miaixz-transfer-list-header[data-layout="between"] {
+  display: flex;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--miaixz-control-height-medium);
+}
+
+.miaixz-transfer-list-header h3 {
+  margin: 0;
+  font-size: var(--miaixz-text-section-title-size);
+  color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-transfer-list [data-ui="transfer-list-summary"] {
+  display: flex;
+  gap: var(--miaixz-space-12);
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--miaixz-control-height-small);
+}
+
+.miaixz-transfer-list [data-ui="transfer-list-summary"] > span {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+  white-space: nowrap;
+}
+
+.miaixz-transfer-list-body {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (width <= 760px) {
+  .miaixz-transfer-list,
+  .miaixz-transfer-list[data-target-size] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .miaixz-transfer-list-target {
+    min-height: 360px;
+    border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+    border-inline-start: 0;
+  }
+
+  .miaixz-transfer-list[data-mobile-pane-size="compact"] .miaixz-transfer-list-target {
+    min-height: 320px;
+  }
+
+  .miaixz-transfer-list-source,
+  .miaixz-transfer-list-target {
+    padding: var(--miaixz-space-16);
+  }
+
+  .miaixz-transfer-list [data-ui="transfer-list-summary"] {
+    flex-direction: column;
+    gap: var(--miaixz-space-4);
+    align-items: flex-start;
+  }
+}

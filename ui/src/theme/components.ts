@@ -72,6 +72,7 @@ import type {
   EditorBoxProps,
   EditorFieldsetProps,
   EditorFieldsProps,
+  EditorFormProps,
   EditorGroupOwnerState,
   EditorGroupProps,
   EditorLayoutOwnerState,
@@ -185,6 +186,10 @@ import type { TimelineOwnerState, TimelineProps } from "../components/timeline/t
 import type { ToastOwnerState, ToastProps } from "../components/toast/toast.types.js";
 import type { ToasterOwnerState, ToasterProps } from "../components/toaster/toaster.types.js";
 import type { ToolbarProps } from "../components/toolbar/toolbar.types.js";
+import type {
+  TransferListOwnerState,
+  TransferListProps,
+} from "../components/transfer-list/transfer-list.types.js";
 import type { TooltipOwnerState, TooltipProps } from "../components/tooltip/tooltip.types.js";
 import type { TreeOwnerState, TreeProps } from "../components/tree/tree.types.js";
 import type { UploadOwnerState, UploadProps } from "../components/upload/upload.types.js";
@@ -269,6 +274,7 @@ export interface MiaixzThemeComponentRegistry {
       readonly wrap: boolean;
     }
   >;
+  readonly TransferList: MiaixzThemeEntry<TransferListProps, TransferListOwnerState>;
   readonly Tabs: MiaixzThemeEntry<TabsProps, TabsOwnerState>;
   readonly View: MiaixzThemeEntry<ViewProps, ViewOwnerState>;
   readonly ViewSwitch: MiaixzThemeEntry<ViewSwitchProps, ViewSwitchOwnerState>;
@@ -390,6 +396,10 @@ export interface MiaixzThemeComponentRegistry {
   readonly Steps: MiaixzThemeEntry<StepsProps, StepsOwnerState>;
   readonly Timeline: MiaixzThemeEntry<TimelineProps, TimelineOwnerState>;
   readonly EditorLayout: MiaixzThemeEntry<EditorLayoutProps, EditorLayoutOwnerState>;
+  readonly EditorForm: MiaixzThemeEntry<
+    EditorFormProps,
+    { readonly presentation: NonNullable<EditorFormProps["presentation"]> }
+  >;
   readonly EditorSummary: MiaixzThemeEntry<EditorSummaryProps, EditorSummaryOwnerState>;
   readonly EditorSection: MiaixzThemeEntry<EditorSectionProps, EditorSectionOwnerState>;
   readonly EditorFieldset: MiaixzThemeEntry<

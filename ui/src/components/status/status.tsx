@@ -29,10 +29,19 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const Status = withMiaixzThemeComponent(
   "Status",
   forwardRef<HTMLSpanElement, StatusProps>(function Status(
-    { tone, label, children, size = "medium", layout = "inline", slotProps, ...props },
+    {
+      tone,
+      label,
+      children,
+      size = "medium",
+      layout = "inline",
+      presentation = "default",
+      slotProps,
+      ...props
+    },
     ref,
   ) {
-    const ownerState: StatusOwnerState = { tone, size, layout };
+    const ownerState: StatusOwnerState = { tone, size, layout, presentation };
     return (
       <span
         {...mergeMiaixzSlotProps({
@@ -41,8 +50,13 @@ export const Status = withMiaixzThemeComponent(
           componentProps: props,
           slotProps: slotProps?.root,
           forwardedRef: ref,
-          internalProps: { "data-tone": tone, "data-size": size, "data-layout": layout },
-          ownedProps: ["data-tone", "data-size", "data-layout"],
+          internalProps: {
+            "data-tone": tone,
+            "data-size": size,
+            "data-layout": layout,
+            "data-presentation": presentation,
+          },
+          ownedProps: ["data-tone", "data-size", "data-layout", "data-presentation"],
         })}
       >
         <span

@@ -110,6 +110,10 @@ dialog.miaixz-drawer[open]::backdrop {
   --miaixz-drawer-width: 1000px;
 }
 
+.miaixz-drawer[data-width="content"] {
+  --miaixz-drawer-width: 760px;
+}
+
 .miaixz-drawer[data-width="wide"] {
   --miaixz-drawer-width: calc(100vi - 24px);
 }

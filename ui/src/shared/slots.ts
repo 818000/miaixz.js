@@ -44,6 +44,13 @@ interface MiaixzSlotEvent {
   readonly defaultPrevented: boolean;
 }
 
+interface MiaixzInternalAttributes {
+  /**
+   * Stable public selector owned by the component implementation.
+   */
+  readonly "data-ui"?: string;
+}
+
 /**
  * Configures the one slot-property merge path used by all multi-node components.
  */
@@ -81,12 +88,12 @@ export interface MiaixzMergedSlotPropsOptions<OwnerState, Props extends object, 
   /**
    * Supplies fixed component-owned semantics and internal event behavior.
    */
-  readonly internalProps?: Partial<Props> | undefined;
+  readonly internalProps?: (Partial<Props> & MiaixzInternalAttributes) | undefined;
 
   /**
    * Lists semantics whose value is owned by the component.
    */
-  readonly ownedProps?: readonly (keyof Props)[] | undefined;
+  readonly ownedProps?: readonly (keyof Props | keyof MiaixzInternalAttributes)[] | undefined;
 
   /**
    * Supplies the implementation ref that must receive the instance first.

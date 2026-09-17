@@ -34,12 +34,14 @@ export interface DescriptionsOwnerState {
   readonly columns: 1 | 2 | 3;
   readonly density: DescriptionsDensity;
   readonly itemId: string | undefined;
+  readonly presentation: "default" | "status-grid";
 }
 export type DescriptionsRootAttributes = HTMLAttributes<HTMLDListElement> &
   RefAttributes<HTMLDListElement> & {
     readonly "data-layout"?: DescriptionsLayout;
     readonly "data-columns"?: 1 | 2 | 3;
     readonly "data-density"?: DescriptionsDensity;
+    readonly "data-presentation"?: DescriptionsOwnerState["presentation"];
   };
 export interface DescriptionsSlotProps {
   readonly root?: MiaixzSlotProps<DescriptionsOwnerState, DescriptionsRootAttributes>;
@@ -52,6 +54,7 @@ export interface MiaixzDescriptionsOwnProps {
   readonly layout?: DescriptionsLayout;
   readonly columns?: 1 | 2 | 3;
   readonly density?: DescriptionsDensity;
+  readonly presentation?: DescriptionsOwnerState["presentation"];
   readonly slotProps?: DescriptionsSlotProps;
 }
 /**

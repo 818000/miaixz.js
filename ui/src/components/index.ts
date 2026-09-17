@@ -229,9 +229,16 @@ export type {
   DropdownSubmenuItem,
   DropdownTone,
 } from "./dropdown/index.js";
-export { EditorFieldset, EditorLayout, EditorSection, EditorSummary } from "./editor/index.js";
+export {
+  EditorFieldset,
+  EditorForm,
+  EditorLayout,
+  EditorSection,
+  EditorSummary,
+} from "./editor/index.js";
 export type {
   EditorFieldsetProps,
+  EditorFormProps,
   EditorLayoutProps,
   EditorSectionProps,
   EditorSummaryItem,
@@ -673,6 +680,15 @@ export type {
   ToolbarSurface,
   ToolbarVariant,
 } from "./toolbar/index.js";
+export { TransferList } from "./transfer-list/index.js";
+export type {
+  TransferListMobilePaneSize,
+  TransferListOwnerState,
+  TransferListProps,
+  TransferListRootAttributes,
+  TransferListSlotProps,
+  TransferListTargetSize,
+} from "./transfer-list/index.js";
 export { Tree } from "./tree/index.js";
 export type {
   MiaixzTreeOwnProps,

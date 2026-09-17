@@ -50,6 +50,7 @@ export const Columns = withMiaixzThemeComponent(
       layout = "grouped",
       density = "standard",
       size = "standard",
+      presentation = "default",
       categoryFormatter = (label) => label,
       seriesFormatter = (item) => item.label,
       valueFormatter,
@@ -116,6 +117,7 @@ export const Columns = withMiaixzThemeComponent(
       layout,
       density,
       size,
+      presentation,
       tone,
       state: empty ? "empty" : "ready",
     };
@@ -128,6 +130,7 @@ export const Columns = withMiaixzThemeComponent(
           slotProps: slotProps?.root,
           forwardedRef: ref,
           internalProps: {
+            "data-ui": "columns",
             role: "group",
             "aria-label": ariaLabel,
             ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
@@ -135,6 +138,7 @@ export const Columns = withMiaixzThemeComponent(
             "data-layout": layout,
             "data-density": density,
             "data-size": size,
+            "data-presentation": presentation,
             "data-tone": tone,
             "data-state": empty ? "empty" : "ready",
           },
@@ -204,6 +208,7 @@ export const Columns = withMiaixzThemeComponent(
                             defaultProps: { className: "miaixz-columns-bar" },
                             slotProps: slotProps?.bar,
                             internalProps: {
+                              "data-ui": "columns-bar",
                               "data-series": seriesIndex,
                               style: {
                                 "--miaixz-columns-value": `${valuePercent}%`,
@@ -223,6 +228,7 @@ export const Columns = withMiaixzThemeComponent(
                       ownerState,
                       defaultProps: { className: "miaixz-columns-label" },
                       slotProps: slotProps?.categoryLabel,
+                      internalProps: { "data-ui": "columns-label" },
                     })}
                   >
                     {categoryFormatter(label, categoryIndex)}

@@ -32,12 +32,14 @@ export interface ShellOwnerState {
   readonly mobileNavigation: ShellMobileNavigation;
   readonly headerBehavior: "fixed" | "scroll";
   readonly sidebarOverflow: ShellSidebarOverflow;
+  readonly presentation: "default" | "workspace";
 }
 export type ShellRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-desktop-navigation"?: "sidebar" | "rail";
     readonly "data-navigation-expanded"?: boolean;
     readonly "data-header-behavior"?: "fixed" | "scroll";
+    readonly "data-presentation"?: "default" | "workspace";
   };
 export type ShellSidebarAttributes = HTMLAttributes<HTMLElement> & {
   readonly "data-overflow"?: ShellSidebarOverflow;
@@ -58,6 +60,7 @@ export interface MiaixzShellOwnProps {
   readonly headerBehavior?: "fixed" | "scroll";
   readonly desktopNavigation?: ShellDesktopNavigation;
   readonly mobileNavigation?: ShellMobileNavigation;
+  readonly presentation?: "default" | "workspace";
   readonly slotProps?: ShellSlotProps;
 }
 /**

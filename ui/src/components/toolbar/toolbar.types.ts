@@ -24,7 +24,16 @@ export type ToolbarSurface = "plain" | "filled";
 export type ToolbarDensity = "compact" | "standard" | "comfortable";
 export type ToolbarOrientation = "horizontal" | "vertical";
 export type ToolbarVariant =
-  "default" | "panel" | "directory" | "sticky" | "filter" | "inline" | "batch" | "editor" | "grid";
+  | "default"
+  | "actions"
+  | "panel"
+  | "directory"
+  | "sticky"
+  | "filter"
+  | "inline"
+  | "batch"
+  | "editor"
+  | "grid";
 type ToolbarName =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
@@ -37,6 +46,9 @@ type ToolbarNativeProps = Omit<
   "aria-label" | "aria-labelledby" | "aria-orientation" | "children" | "role"
 > & {
   readonly children: ReactNode;
+  readonly search?: ReactNode;
+  readonly filters?: ReactNode;
+  readonly actions?: ReactNode;
   readonly surface?: ToolbarSurface;
   readonly density?: ToolbarDensity;
   readonly orientation?: ToolbarOrientation;

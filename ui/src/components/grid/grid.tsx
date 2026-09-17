@@ -30,13 +30,14 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const Grid = withMiaixzThemeComponent(
   "Grid",
   forwardRef<HTMLDivElement, GridProps>(function Grid(
-    { minItemWidth = "standard", className, ...props },
+    { columns = "auto", minItemWidth = "standard", className, ...props },
     ref,
   ) {
     return (
       <div
         {...props}
         ref={ref}
+        data-columns={columns}
         className={classNames(
           "miaixz-grid",
           minItemWidth === "wide" && "miaixz-grid-wide",

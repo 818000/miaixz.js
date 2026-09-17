@@ -29,12 +29,14 @@ export interface StatusOwnerState {
   readonly tone: MiaixzFeedbackTone | "brand";
   readonly size: StatusSize;
   readonly layout: StatusLayout;
+  readonly presentation: "default" | "workbench";
 }
 export type StatusRootAttributes = HTMLAttributes<HTMLSpanElement> &
   RefAttributes<HTMLSpanElement> & {
     readonly "data-tone"?: MiaixzFeedbackTone | "brand";
     readonly "data-size"?: StatusSize;
     readonly "data-layout"?: StatusLayout;
+    readonly "data-presentation"?: StatusOwnerState["presentation"];
   };
 export interface StatusSlotProps {
   readonly root?: MiaixzSlotProps<StatusOwnerState, StatusRootAttributes>;
@@ -48,6 +50,7 @@ export interface MiaixzStatusOwnProps {
   readonly children?: ReactNode;
   readonly size?: StatusSize;
   readonly layout?: StatusLayout;
+  readonly presentation?: StatusOwnerState["presentation"];
   readonly slotProps?: StatusSlotProps;
 }
 export type StatusProps = MiaixzStatusOwnProps &

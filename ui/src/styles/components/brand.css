@@ -49,3 +49,36 @@
   color: var(--miaixz-color-text-primary);
   white-space: nowrap;
 }
+
+[data-ui="shell-brand-link"] {
+  display: inline-flex;
+  flex: 0 1 auto;
+  width: fit-content;
+  min-width: 0;
+  max-width: calc(100% - 34px);
+  height: auto;
+  margin-inline: var(--miaixz-space-12);
+  margin-inline-start: calc(var(--miaixz-space-12) + 10px);
+  text-decoration: none;
+  outline: 0;
+}
+
+[data-ui="shell-brand-link"] [data-color-mode] {
+  object-fit: contain;
+}
+
+[data-ui="shell-brand-link"] [data-color-mode="dark"] {
+  display: none;
+}
+
+html[data-miaixz-color-mode="dark"] [data-ui="shell-brand-link"] [data-color-mode="light"] {
+  display: none;
+}
+
+html[data-miaixz-color-mode="dark"] [data-ui="shell-brand-link"] [data-color-mode="dark"] {
+  display: block;
+}
+
+[data-ui="shell-brand-link"]:focus-visible {
+  box-shadow: inset 0 0 0 var(--miaixz-control-focus-width) var(--miaixz-color-focus);
+}

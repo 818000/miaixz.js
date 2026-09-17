@@ -30,6 +30,7 @@ import type {
   EditorActionsProps,
   EditorBoxProps,
   EditorFieldsProps,
+  EditorFormProps,
   EditorFieldsetProps,
   EditorGroupOwnerState,
   EditorGroupProps,
@@ -47,6 +48,28 @@ import type {
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 const EditorSectionHeadingContext = createContext<1 | 2 | 3 | 4 | 5 | 6 | null>(null);
+
+/**
+ * Renders the semantic form root shared by editor surfaces.
+ *
+ * @public
+ */
+export const EditorForm = withMiaixzThemeComponent(
+  "EditorForm",
+  forwardRef<HTMLFormElement, EditorFormProps>(function EditorForm(
+    { presentation = "default", className, ...props },
+    ref,
+  ) {
+    return (
+      <form
+        {...props}
+        ref={ref}
+        className={classNames("miaixz-editor-form", className)}
+        data-presentation={presentation}
+      />
+    );
+  }),
+);
 
 /**
  * Renders a semantic fieldset for one related editor control group.
@@ -230,6 +253,7 @@ export const EditorSection = withMiaixzThemeComponent(
       headingLevel = 2,
       surface = "plain",
       layout = "single",
+      span = "auto",
       slotProps,
       className,
       children,
@@ -237,7 +261,7 @@ export const EditorSection = withMiaixzThemeComponent(
     },
     ref,
   ) {
-    const ownerState: EditorSectionOwnerState = { surface, layout, headingLevel };
+    const ownerState: EditorSectionOwnerState = { surface, layout, span, headingLevel };
     return (
       <section
         {...props}
@@ -245,6 +269,7 @@ export const EditorSection = withMiaixzThemeComponent(
         className={classNames("miaixz-editor-section", className)}
         data-surface={surface}
         data-layout={layout}
+        data-grid-span={span === "full" ? "full" : undefined}
       >
         <header
           {...mergeMiaixzSlotProps({

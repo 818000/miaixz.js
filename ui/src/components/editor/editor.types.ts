@@ -18,11 +18,15 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { FieldsetHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import type { FieldsetHTMLAttributes, FormHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { GridProps } from "../grid/grid.types.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
+
+export interface EditorFormProps extends FormHTMLAttributes<HTMLFormElement> {
+  readonly presentation?: "default" | "drawer";
+}
 
 export interface EditorFieldsetProps extends FieldsetHTMLAttributes<HTMLFieldSetElement> {
   readonly legend: ReactNode;
@@ -80,6 +84,7 @@ export interface EditorSummaryProps extends Omit<
 export interface EditorSectionOwnerState {
   readonly surface: "plain" | "framed" | "card";
   readonly layout: "single" | "two-column";
+  readonly span: "auto" | "full";
   readonly headingLevel: 1 | 2 | 3 | 4 | 5 | 6;
 }
 export interface EditorSectionSlotProps {
@@ -94,6 +99,7 @@ export interface EditorSectionProps extends Omit<HTMLAttributes<HTMLElement>, "t
   readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   readonly surface?: "plain" | "framed" | "card";
   readonly layout?: "single" | "two-column";
+  readonly span?: "auto" | "full";
   readonly slotProps?: EditorSectionSlotProps;
 }
 

@@ -70,10 +70,17 @@ export const TableContainer = withMiaixzThemeComponent(
 export const Table = withMiaixzThemeComponent(
   "Table",
   forwardRef<HTMLTableElement, TableProps>(function Table(
-    { stickyHeader = false, density = "standard", dividerStyle = "solid", slotProps, ...props },
+    {
+      stickyHeader = false,
+      density = "standard",
+      dividerStyle = "solid",
+      presentation = "default",
+      slotProps,
+      ...props
+    },
     ref,
   ) {
-    const ownerState = { stickyHeader, density, dividerStyle };
+    const ownerState = { stickyHeader, density, dividerStyle, presentation };
     return (
       <table
         {...mergeMiaixzSlotProps({
@@ -85,9 +92,15 @@ export const Table = withMiaixzThemeComponent(
           internalProps: {
             "data-density": density,
             "data-divider-style": dividerStyle,
+            "data-presentation": presentation,
             ...(stickyHeader ? { "data-sticky-header": true } : {}),
           },
-          ownedProps: ["data-density", "data-divider-style", "data-sticky-header"],
+          ownedProps: [
+            "data-density",
+            "data-divider-style",
+            "data-presentation",
+            "data-sticky-header",
+          ],
         })}
       />
     );

@@ -28,7 +28,7 @@ import type {
 
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
-export type DrawerWidth = "small" | "medium" | "large" | "xlarge" | "wide" | number;
+export type DrawerWidth = "small" | "medium" | "large" | "xlarge" | "wide" | "content" | number;
 export type DrawerDensity = "compact" | "standard" | "comfortable";
 export type DrawerPlacement = "left" | "right" | "bottom";
 export type DrawerCloseReason = "escape" | "backdrop" | "closeButton" | "nativeClose";

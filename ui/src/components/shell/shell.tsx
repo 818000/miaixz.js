@@ -37,6 +37,7 @@ export const Shell = withMiaixzThemeComponent(
       headerBehavior = "fixed",
       desktopNavigation = { mode: "sidebar" },
       mobileNavigation = { mode: "none" },
+      presentation = "default",
       slotProps,
       mainRef,
       children,
@@ -49,6 +50,7 @@ export const Shell = withMiaixzThemeComponent(
       mobileNavigation,
       headerBehavior,
       sidebarOverflow,
+      presentation,
     };
     const expanded = desktopNavigation.mode === "rail" && desktopNavigation.expanded;
     return (
@@ -63,11 +65,13 @@ export const Shell = withMiaixzThemeComponent(
             "data-desktop-navigation": desktopNavigation.mode,
             ...(expanded ? { "data-navigation-expanded": true } : {}),
             "data-header-behavior": headerBehavior,
+            "data-presentation": presentation,
           },
           ownedProps: [
             "data-desktop-navigation",
             "data-navigation-expanded",
             "data-header-behavior",
+            "data-presentation",
           ],
         })}
       >

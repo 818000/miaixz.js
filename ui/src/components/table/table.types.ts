@@ -66,12 +66,14 @@ export interface TableOwnerState {
   readonly density: TableDensity;
   readonly dividerStyle: TableDividerStyle;
   readonly stickyHeader: boolean;
+  readonly presentation: "default" | "resource-tree";
 }
 export type TableRootAttributes = TableHTMLAttributes<HTMLTableElement> &
   RefAttributes<HTMLTableElement> & {
     readonly "data-density"?: TableDensity;
     readonly "data-divider-style"?: TableDividerStyle;
     readonly "data-sticky-header"?: boolean;
+    readonly "data-presentation"?: TableOwnerState["presentation"];
   };
 export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   /**
@@ -90,6 +92,7 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
    * @defaultValue `false`
    */
   stickyHeader?: boolean;
+  readonly presentation?: TableOwnerState["presentation"];
   readonly slotProps?: { readonly root?: MiaixzSlotProps<TableOwnerState, TableRootAttributes> };
 }
 

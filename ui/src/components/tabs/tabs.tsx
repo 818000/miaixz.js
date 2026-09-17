@@ -224,6 +224,7 @@ export const Tabs = withMiaixzThemeComponent(
           slotProps: slotProps?.root,
           forwardedRef: ref,
           internalProps: {
+            "data-ui": "tabs",
             "data-orientation": orientation,
             "data-variant": variant,
             "data-panel-padding": panelPadding,

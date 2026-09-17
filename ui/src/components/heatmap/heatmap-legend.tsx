@@ -47,7 +47,7 @@ function HeatmapLegend({ tone, levelLabels, slotProps, ...props }: HeatmapLegend
         defaultProps: { className: "miaixz-heatmap-legend" },
         componentProps: props,
         slotProps: slotProps?.root,
-        internalProps: { "data-tone": tone },
+        internalProps: { "data-ui": "heatmap-legend", "data-tone": tone },
       })}
     >
       <span

@@ -31,7 +31,15 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const Descriptions = withMiaixzThemeComponent(
   "Descriptions",
   forwardRef<HTMLDListElement, DescriptionsProps>(function Descriptions(
-    { items, layout = "grid", columns = 1, density = "standard", slotProps, ...props },
+    {
+      items,
+      layout = "grid",
+      columns = 1,
+      density = "standard",
+      presentation = "default",
+      slotProps,
+      ...props
+    },
     ref,
   ) {
     const ids = new Set<string>();
@@ -49,6 +57,7 @@ export const Descriptions = withMiaixzThemeComponent(
       columns,
       density,
       itemId: undefined,
+      presentation,
     };
     return (
       <dl
@@ -62,12 +71,19 @@ export const Descriptions = withMiaixzThemeComponent(
             "data-layout": layout,
             "data-columns": columns,
             "data-density": density,
+            "data-presentation": presentation,
           },
-          ownedProps: ["data-layout", "data-columns", "data-density"],
+          ownedProps: ["data-layout", "data-columns", "data-density", "data-presentation"],
         })}
       >
         {items.map((item) => {
-          const ownerState: DescriptionsOwnerState = { layout, columns, density, itemId: item.id };
+          const ownerState: DescriptionsOwnerState = {
+            layout,
+            columns,
+            density,
+            itemId: item.id,
+            presentation,
+          };
           return (
             <div
               {...mergeMiaixzSlotProps({

@@ -39,6 +39,7 @@ export interface MetricOwnerState {
   readonly interactive: boolean;
 }
 export interface MetricSlotProps {
+  readonly icon?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly label?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly value?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly hint?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -52,6 +53,7 @@ interface MetricContentProps {
   readonly tone?: MiaixzVisualTone;
   readonly emphasized?: boolean;
   readonly label: ReactNode;
+  readonly icon?: ReactNode;
   readonly value: ReactNode;
   readonly hint?: ReactNode;
   readonly status?: ReactNode;

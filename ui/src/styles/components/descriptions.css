@@ -35,6 +35,40 @@
   --miaixz-descriptions-columns: 3;
 }
 
+.miaixz-descriptions[data-presentation="status-grid"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 18.4px 0 20px;
+  overflow: hidden;
+}
+
+.miaixz-descriptions[data-presentation="status-grid"] > .miaixz-descriptions-item {
+  display: block;
+  min-width: 0;
+  padding: 11px 12px;
+  border-block-end: 0;
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-panel-border);
+}
+
+.miaixz-descriptions[data-presentation="status-grid"] > .miaixz-descriptions-item:last-child {
+  border-inline-end: 0;
+}
+
+.miaixz-descriptions[data-presentation="status-grid"] .miaixz-descriptions-term {
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: 1.45;
+  color: var(--miaixz-color-text-muted);
+}
+
+.miaixz-descriptions[data-presentation="status-grid"] .miaixz-descriptions-definition {
+  margin: 5px 0 0;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-bold);
+  line-height: 1.2;
+  color: var(--miaixz-color-text-primary);
+}
+
 .miaixz-descriptions-item {
   display: flex;
   gap: var(--miaixz-space-16);

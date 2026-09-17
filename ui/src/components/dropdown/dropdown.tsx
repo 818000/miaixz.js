@@ -50,7 +50,17 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const Dropdown = withMiaixzThemeComponent(
   "Dropdown",
   forwardRef<HTMLButtonElement, DropdownProps>(function Dropdown(
-    { label, items, trigger, surface = "framed", density = "standard", slotProps, ...props },
+    {
+      label,
+      items,
+      trigger,
+      surface = "framed",
+      density = "standard",
+      presentation = "default",
+      closing = false,
+      slotProps,
+      ...props
+    },
     ref,
   ) {
     validateDropdownEntries(items);
@@ -58,6 +68,7 @@ export const Dropdown = withMiaixzThemeComponent(
     const originalKeyDown = trigger.props.onKeyDown;
     const originalClick = trigger.props.onClick;
     const preparedTrigger = cloneElement(trigger, {
+      "data-dropdown-presentation": presentation,
       onClick: (event: MouseEvent<HTMLButtonElement>) => {
         originalClick?.(event);
         if (!event.defaultPrevented) initialFocusRef.current = "first";
@@ -92,6 +103,8 @@ export const Dropdown = withMiaixzThemeComponent(
                 `miaixz-dropdown-density-${density}`,
                 supplied?.className,
               ),
+              "data-presentation": presentation,
+              ...(closing ? { "data-closing": true } : {}),
               ...(label === undefined ? {} : { "aria-label": label }),
             };
           },
@@ -156,6 +169,19 @@ function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
     return (
       <div id={entry.id} className="miaixz-dropdown-label">
         {entry.label}
+      </div>
+    );
+  }
+  if (entry.kind === "identity") {
+    return (
+      <div id={entry.id} className="miaixz-dropdown-identity">
+        {entry.avatar}
+        <span className="miaixz-dropdown-identity-copy">
+          <strong className="miaixz-dropdown-identity-title">{entry.title}</strong>
+          {entry.meta === undefined ? null : (
+            <span className="miaixz-dropdown-identity-meta">{entry.meta}</span>
+          )}
+        </span>
       </div>
     );
   }
@@ -456,7 +482,9 @@ function validateDropdownEntries(entries: readonly DropdownEntry[]): void {
       disabled:
         entry.kind === "label" || entry.kind === "divider" || entry.kind === "radioGroup"
           ? true
-          : entry.disabled,
+          : entry.kind === "identity"
+            ? true
+            : entry.disabled,
     })),
   );
   for (const entry of entries) {

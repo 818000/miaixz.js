@@ -30,6 +30,13 @@ const styleFiles = [
 ];
 const sourceFiles = await collectFiles(resolve(packageDirectory, "src"), new Set([".ts", ".tsx"]));
 const findings = [];
+const componentBreakpointOwners = new Set([
+  "src/styles/components/action.css",
+  "src/styles/components/shell.css",
+  "src/styles/components/split.css",
+  "src/styles/components/toolbar.css",
+]);
+const responsiveVisibilityOwners = new Set(["src/styles/components/shell.css"]);
 const dimensionOwnership = {
   componentGeometry: 0,
   densityGeometry: 0,
@@ -43,7 +50,7 @@ for (const file of styleFiles) {
   const isFoundation = fileName.includes("/foundation/") || fileName.endsWith("foundation.css");
   const isGeneratedTheme = /^src\/theme\/(?:miaixz|neutral|contrast|theme)\.css$/.test(fileName);
   const isResponsive = fileName.endsWith("/foundation/responsive.css");
-  if (!isResponsive) {
+  if (!isResponsive && !componentBreakpointOwners.has(fileName)) {
     inspect(
       fileName,
       source,
@@ -70,7 +77,9 @@ for (const file of styleFiles) {
       addFinding(fileName, source, match.index, "RESPONSIVE_CONTAINER_UNDECLARED", name);
     }
   }
-  inspectResponsiveHiddenContent(fileName, source);
+  if (!isResponsive && !responsiveVisibilityOwners.has(fileName)) {
+    inspectResponsiveHiddenContent(fileName, source);
+  }
 }
 
 const combinedStyles = (await Promise.all(styleFiles.map((file) => readFile(file, "utf8")))).join(

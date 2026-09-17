@@ -44,6 +44,7 @@ export const Metric = withMiaixzThemeComponent(
   forwardRef<HTMLElement | HTMLAnchorElement | HTMLButtonElement, MetricProps>(function Metric(
     {
       label,
+      icon,
       value,
       hint,
       status,
@@ -67,11 +68,24 @@ export const Metric = withMiaixzThemeComponent(
     const ownerState: MetricOwnerState = { variant, density, tone, emphasized, interactive };
     const content: ReactNode = (
       <>
+        {icon !== undefined && (
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-metric-icon" },
+              slotProps: slotProps?.icon,
+              internalProps: { "data-ui": "metric-icon" },
+            })}
+          >
+            {icon}
+          </span>
+        )}
         <span
           {...mergeMiaixzSlotProps({
             ownerState,
             defaultProps: { className: "miaixz-metric-label" },
             slotProps: slotProps?.label,
+            internalProps: { "data-ui": "metric-label" },
           })}
         >
           {label}
@@ -81,6 +95,7 @@ export const Metric = withMiaixzThemeComponent(
             ownerState,
             defaultProps: { className: "miaixz-metric-value" },
             slotProps: slotProps?.value,
+            internalProps: { "data-ui": "metric-value" },
           })}
         >
           {value}
@@ -91,6 +106,7 @@ export const Metric = withMiaixzThemeComponent(
               ownerState,
               defaultProps: { className: "miaixz-metric-hint" },
               slotProps: slotProps?.hint,
+              internalProps: { "data-ui": "metric-hint" },
             })}
           >
             {hint}
@@ -102,6 +118,7 @@ export const Metric = withMiaixzThemeComponent(
               ownerState,
               defaultProps: { className: "miaixz-metric-status" },
               slotProps: slotProps?.status,
+              internalProps: { "data-ui": "metric-status" },
             })}
           >
             {status}
@@ -113,6 +130,7 @@ export const Metric = withMiaixzThemeComponent(
               ownerState,
               defaultProps: { className: "miaixz-metric-trend" },
               slotProps: slotProps?.trend,
+              internalProps: { "data-ui": "metric-trend" },
             })}
           >
             {trend}
@@ -124,6 +142,7 @@ export const Metric = withMiaixzThemeComponent(
               ownerState,
               defaultProps: { className: "miaixz-metric-visual" },
               slotProps: slotProps?.visual,
+              internalProps: { "data-ui": "metric-visual" },
             })}
           >
             {visual}
@@ -134,6 +153,7 @@ export const Metric = withMiaixzThemeComponent(
     const rootProps = {
       ...props,
       className: classNames("miaixz-metric", className),
+      "data-ui": "metric",
       "data-variant": variant,
       "data-density": density,
       "data-tone": tone,

@@ -27,6 +27,7 @@ export interface MetricsOwnerState {
   readonly responsive: "default" | "mobile" | "none";
   readonly surface: "filled" | "plain";
   readonly density: "compact" | "standard" | "comfortable";
+  readonly presentation: "default" | "summary-strip";
 }
 
 export type MetricsScrollAttributes = Omit<
@@ -51,6 +52,7 @@ export type MetricsProps = Omit<
     readonly responsive?: "default" | "mobile" | "none";
     readonly surface?: "filled" | "plain";
     readonly density?: "compact" | "standard" | "comfortable";
+    readonly presentation?: "default" | "summary-strip";
     readonly spacingAfter?: "none" | "compact";
     readonly slotProps?: MetricsSlotProps;
   };

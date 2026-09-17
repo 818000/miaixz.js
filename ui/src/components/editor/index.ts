@@ -20,6 +20,7 @@
 
 export {
   EditorFields,
+  EditorForm,
   EditorActions,
   EditorBox,
   EditorFieldset,
@@ -33,6 +34,7 @@ export {
 } from "./editor.js";
 export type {
   EditorFieldsProps,
+  EditorFormProps,
   EditorActionsProps,
   EditorBoxProps,
   EditorFieldsetProps,

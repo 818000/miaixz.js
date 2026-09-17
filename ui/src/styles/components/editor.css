@@ -25,6 +25,13 @@
   container-type: inline-size;
 }
 
+.miaixz-editor-form[data-presentation="drawer"] {
+  display: block;
+  min-height: 100%;
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-primary);
+}
+
 .miaixz-editor-layout[data-layout="split"] {
   grid-template-columns: 272px minmax(0, 1fr);
 }

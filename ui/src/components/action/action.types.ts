@@ -70,13 +70,15 @@ export interface ActionTextSlotProps {
 
 export interface ActionTextProps {
   readonly action: ActionDescriptor;
+  readonly labelVisibility?: "always" | "responsive" | "hidden";
+  readonly priority?: "default" | "primary";
   readonly slotProps?: ActionTextSlotProps;
 }
 
 export interface IconButtonOwnerState {
   readonly tone: ButtonTone;
   readonly size: "small" | "medium" | "large";
-  readonly appearance: "control" | "glyph";
+  readonly appearance: "control" | "glyph" | "favorite";
   readonly loading: boolean;
   readonly disabled: boolean;
   readonly pressed?: boolean;
@@ -98,7 +100,7 @@ export interface IconButtonRootAttributes
   readonly "data-size"?: "small" | "medium" | "large";
   readonly "data-tone"?: "neutral" | "brand" | "danger";
   readonly "data-variant"?: "plain";
-  readonly "data-appearance"?: "control" | "glyph";
+  readonly "data-appearance"?: "control" | "glyph" | "favorite";
 }
 
 export interface IconButtonProps extends Omit<
@@ -109,7 +111,7 @@ export interface IconButtonProps extends Omit<
   readonly icon: MiaixzIconName;
   readonly tone?: "neutral" | "brand" | "danger";
   readonly size?: "small" | "medium" | "large";
-  readonly appearance?: "control" | "glyph";
+  readonly appearance?: "control" | "glyph" | "favorite";
   readonly loading?: boolean;
   readonly tooltip?: boolean;
   readonly pressed?: boolean;

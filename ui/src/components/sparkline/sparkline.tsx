@@ -109,6 +109,7 @@ export const Sparkline = withMiaixzThemeComponent(
           slotProps: slotProps?.root,
           forwardedRef: ref,
           internalProps: {
+            "data-ui": "sparkline",
             role: "img",
             "aria-labelledby": titleId,
             "aria-describedby": descriptionId,
@@ -149,6 +150,7 @@ export const Sparkline = withMiaixzThemeComponent(
               defaultProps: { className: "miaixz-sparkline-grid" },
               slotProps: slotProps?.grid,
               internalProps: {
+                "data-ui": "sparkline-grid",
                 d: gridY.map((y) => `M0 ${y}H${width}`).join(" "),
                 "aria-hidden": true,
               },
@@ -172,6 +174,7 @@ export const Sparkline = withMiaixzThemeComponent(
                       defaultProps: { className: "miaixz-sparkline-area" },
                       slotProps: slotProps?.area,
                       internalProps: {
+                        "data-ui": "sparkline-area",
                         points: `${points} ${last.x.toFixed(2)},${height - padding} ${first.x.toFixed(2)},${height - padding}`,
                         "aria-hidden": true,
                       },
@@ -185,7 +188,12 @@ export const Sparkline = withMiaixzThemeComponent(
                     ownerState,
                     defaultProps: { className: "miaixz-sparkline-line" },
                     slotProps: slotProps?.line,
-                    internalProps: { points, pathLength: 1, "aria-hidden": true },
+                    internalProps: {
+                      "data-ui": "sparkline-line",
+                      points,
+                      pathLength: 1,
+                      "aria-hidden": true,
+                    },
                     ownedProps: ["points", "pathLength", "aria-hidden"],
                   })}
                 />
@@ -195,7 +203,7 @@ export const Sparkline = withMiaixzThemeComponent(
                   ownerState,
                   defaultProps: { className: "miaixz-sparkline-points" },
                   slotProps: slotProps?.points,
-                  internalProps: { "aria-hidden": true },
+                  internalProps: { "data-ui": "sparkline-points", "aria-hidden": true },
                   ownedProps: ["aria-hidden"],
                 })}
               >

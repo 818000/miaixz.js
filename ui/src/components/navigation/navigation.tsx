@@ -127,8 +127,12 @@ function NavigationEntryView({
         defaultProps: { className: "miaixz-navigation-item" },
         componentProps: entry.anchorProps,
         slotProps: slotProps?.item,
-        internalProps: { href: entry.href, "aria-current": entry.current },
-        ownedProps: ["href", "aria-current"],
+        internalProps: {
+          "data-ui": "navigation-item",
+          href: entry.href,
+          "aria-current": entry.current,
+        },
+        ownedProps: ["data-ui", "href", "aria-current"],
       })}
     >
       {entry.icon !== undefined && (

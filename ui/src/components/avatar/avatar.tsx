@@ -117,11 +117,12 @@ export const Avatar = withMiaixzThemeComponent(
         slotProps: slotProps?.root,
         forwardedRef: ref,
         internalProps: {
+          "data-ui": "avatar",
           "data-size": size,
           "data-state": ownerState.state,
           "data-variant": variant,
         },
-        ownedProps: ["data-size", "data-state", "data-variant"],
+        ownedProps: ["data-ui", "data-size", "data-state", "data-variant"],
       },
     );
     const imageProps = mergeMiaixzSlotProps({

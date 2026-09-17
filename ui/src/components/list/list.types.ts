@@ -34,7 +34,7 @@ type WithoutInteractionHandlers<Props> = {
 };
 export type ListItemRootAttributes = Omit<
   WithoutInteractionHandlers<HTMLAttributes<HTMLLIElement>>,
-  "aria-current" | "aria-disabled" | "children" | "id" | "role" | "tabIndex" | "title"
+  "aria-current" | "aria-disabled" | "children" | "content" | "id" | "role" | "tabIndex" | "title"
 >;
 export type StaticListControlAttributes = Omit<
   WithoutInteractionHandlers<HTMLAttributes<HTMLDivElement>>,
@@ -91,7 +91,7 @@ export type ListItemProps = ListItemContent &
   };
 
 export type ListLayout = "list" | "grid";
-export type ListVariant = "default" | "overview";
+export type ListVariant = "default" | "overview" | "accent" | "transfer";
 export type ListDensity = "compact" | "standard" | "comfortable";
 export type ListSurface = "plain" | "panel";
 export type ListSlot = "root";

@@ -325,12 +325,12 @@ void descriptions.children;
 
 declare const toolbar: ToolbarProps;
 void toolbar.label;
+void toolbar.search;
+void toolbar.filters;
+void toolbar.actions;
 /**
  * @ts-expect-error Toolbar has one ordered children source. */
 void toolbar.leading;
-/**
- * @ts-expect-error Toolbar has one ordered children source. */
-void toolbar.actions;
 /**
  * @ts-expect-error Sticky positioning belongs to an outer layout owner. */
 void toolbar.sticky;

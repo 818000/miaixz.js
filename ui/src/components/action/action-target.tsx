@@ -37,6 +37,8 @@ interface ActionTargetProps {
    * Canonical presentation class.
    */
   readonly className: string;
+  readonly rootAttributes?: Readonly<Record<`data-${string}`, string>>;
+  readonly variant?: "plain" | "solid";
   /**
    * Optional leading element.
    */
@@ -59,13 +61,23 @@ interface ActionTargetProps {
  * @internal
  */
 export function ActionTarget(properties: ActionTargetProps) {
-  const { action, children, className, startIcon, slotProps, ref } = properties;
+  const {
+    action,
+    children,
+    className,
+    rootAttributes,
+    variant = "plain",
+    startIcon,
+    slotProps,
+    ref,
+  } = properties;
   const tone = action.tone ?? "neutral";
   const size = action.size ?? "medium";
   if (action.kind === "navigation") {
     return (
       <ButtonLink
         {...action.anchorProps}
+        {...rootAttributes}
         ref={ref as Ref<HTMLAnchorElement>}
         className={className}
         href={action.href}
@@ -73,7 +85,7 @@ export function ActionTarget(properties: ActionTargetProps) {
         {...(slotProps === undefined ? {} : { slotProps: slotProps as ButtonLinkSlotProps })}
         {...(startIcon === undefined ? {} : { startIcon })}
         tone={tone}
-        variant="plain"
+        variant={variant}
       >
         {children}
       </ButtonLink>
@@ -82,6 +94,7 @@ export function ActionTarget(properties: ActionTargetProps) {
   return (
     <Button
       {...action.buttonProps}
+      {...rootAttributes}
       ref={ref as Ref<HTMLButtonElement>}
       className={className}
       {...(action.disabled === undefined ? {} : { disabled: action.disabled })}
@@ -91,7 +104,7 @@ export function ActionTarget(properties: ActionTargetProps) {
       {...(slotProps === undefined ? {} : { slotProps: slotProps as ButtonSlotProps })}
       {...(startIcon === undefined ? {} : { startIcon })}
       tone={tone}
-      variant="plain"
+      variant={variant}
     >
       {children}
     </Button>

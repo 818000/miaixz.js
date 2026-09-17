@@ -51,7 +51,7 @@ export function ListItemControl({
             ListItemOwnerState,
             AnchorHTMLAttributes<HTMLAnchorElement>
           >,
-          internalProps: { href: item.href },
+          internalProps: { "data-ui": "list-item-primary", href: item.href },
           ownedProps: ["href"],
         })}
       >
@@ -71,6 +71,7 @@ export function ListItemControl({
             ButtonHTMLAttributes<HTMLButtonElement>
           >,
           internalProps: {
+            "data-ui": "list-item-primary",
             type: "button",
             disabled: item.disabled,
             onClick: item.onAction,
@@ -92,6 +93,7 @@ export function ListItemControl({
           ListItemOwnerState,
           HTMLAttributes<HTMLDivElement>
         >,
+        internalProps: { "data-ui": "list-item-primary" },
       })}
     >
       {children}

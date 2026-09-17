@@ -126,6 +126,7 @@ function Toaster({
   defaultDuration = 5000,
   maxVisible = 5,
   onClose,
+  presentation = "default",
   slotProps,
 }: ToasterProps) {
   if (!Number.isFinite(defaultDuration)) {
@@ -149,8 +150,13 @@ function Toaster({
     visibleCount: visibleToasts.length,
     queuedCount: Math.max(0, toasts.length - visibleToasts.length),
     maxVisible,
+    presentation,
   };
-  useMiaixzManualPopover(regionRef, visibleToasts.length > 0, portalTarget);
+  useMiaixzManualPopover(
+    regionRef,
+    presentation === "default" && visibleToasts.length > 0,
+    portalTarget,
+  );
 
   const replaceQueue = useCallback((next: ToastRecord[]): void => {
     queueRef.current = next;
@@ -219,7 +225,8 @@ function Toaster({
   return (
     <ToastContext.Provider value={context}>
       {children}
-      {visibleToasts.length > 0 &&
+      {presentation === "default" &&
+        visibleToasts.length > 0 &&
         portalTarget !== null &&
         createPortal(
           <div

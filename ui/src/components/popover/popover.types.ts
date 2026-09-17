@@ -41,7 +41,9 @@ export type PopoverOpenState =
       readonly onOpenChange?: (open: boolean, reason: PopoverChangeReason) => void;
     };
 export type PopoverTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> &
-  RefAttributes<HTMLButtonElement>;
+  RefAttributes<HTMLButtonElement> & {
+    readonly "data-dropdown-presentation"?: "default" | "account";
+  };
 export type PopoverSlot = "trigger" | "content";
 export interface PopoverOwnerState {
   readonly open: boolean;

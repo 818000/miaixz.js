@@ -30,7 +30,7 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const Split = withMiaixzThemeComponent(
   "Split",
   forwardRef<HTMLDivElement, SplitProps>(function Split(
-    { ratio = "equal", className, ...props },
+    { ratio = "equal", collapseAt = "container", className, ...props },
     ref,
   ) {
     return (
@@ -38,6 +38,7 @@ export const Split = withMiaixzThemeComponent(
         {...props}
         ref={ref}
         data-ratio={ratio}
+        data-collapse-at={collapseAt}
         className={classNames("miaixz-split", className)}
       />
     );

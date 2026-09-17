@@ -40,6 +40,7 @@ export const Metrics = withMiaixzThemeComponent(
       responsive = "default",
       surface = "filled",
       density = "standard",
+      presentation = "default",
       spacingAfter = "none",
       slotProps,
       "aria-label": ariaLabel,
@@ -52,7 +53,7 @@ export const Metrics = withMiaixzThemeComponent(
     const named =
       (ariaLabel !== undefined && ariaLabel.trim() !== "") ||
       (ariaLabelledBy !== undefined && ariaLabelledBy.trim() !== "");
-    const ownerState = { layout, columns, responsive, surface, density };
+    const ownerState = { layout, columns, responsive, surface, density, presentation };
     return (
       <div
         {...props}
@@ -66,6 +67,7 @@ export const Metrics = withMiaixzThemeComponent(
         data-responsive={responsive}
         data-surface={surface}
         data-density={density}
+        data-presentation={presentation}
         data-spacing-after={spacingAfter}
       >
         <Scroll

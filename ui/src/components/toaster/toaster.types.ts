@@ -39,6 +39,7 @@ export interface ToasterOwnerState {
   readonly visibleCount: number;
   readonly queuedCount: number;
   readonly maxVisible: number;
+  readonly presentation: "default" | "silent";
 }
 export interface ToasterSlotProps {
   readonly root?: MiaixzSlotProps<
@@ -53,6 +54,10 @@ export interface ToasterProps {
   readonly defaultDuration?: number;
   readonly maxVisible?: number;
   readonly onClose?: (id: string, reason: ToastCloseReason) => void;
+  /**
+   * Keeps the queue provider active without mounting visual or live-region output.
+   */
+  readonly presentation?: "default" | "silent";
   readonly slotProps?: ToasterSlotProps;
 }
 export interface ToastContextValue {

@@ -68,6 +68,7 @@ export const List = withMiaixzThemeComponent(
             slotProps: slotProps?.root,
             forwardedRef: ref,
             internalProps: {
+              "data-ui": "list",
               "data-layout": layout,
               "data-variant": variant,
               "data-density": density,

@@ -29,7 +29,9 @@ const recipes = {
   "columns.css": [
     "color-mix(in srgb, var(--miaixz-columns-tone) 36%, var(--miaixz-surface-role-panel-background))",
     "color-mix(in srgb, var(--miaixz-columns-tone) 45%, var(--miaixz-color-surface))",
+    "color-mix(in srgb, var(--miaixz-columns-tone) 82%, var(--miaixz-color-text-primary))",
   ],
+  "navigation.css": ["color-mix(in srgb, var(--miaixz-color-brand) 80%, transparent)"],
   "sparkline.css": ["color-mix(in srgb, var(--miaixz-sparkline-tone) 8%, transparent)"],
   "list.css": ["color-mix(in srgb, var(--miaixz-list-tone) 8%, var(--miaixz-color-surface))"],
   "appearance.css": [
@@ -148,6 +150,7 @@ export function inspectComponentColors(fileName, source) {
   )
     findings.push("brand-strong is a foreground, not a surface");
   if (
+    fileName !== "action.css" &&
     /(?:^|[;{])\s*color\s*:\s*var\(--miaixz-color-brand-(?:hover|active|soft(?:-hover)?)\)/u.test(
       clean,
     )

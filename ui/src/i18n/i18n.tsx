@@ -210,6 +210,8 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.error.slot.ownedPropConflict": "A slot cannot replace component-owned semantics",
     "ui.error.button.linkRendererInvalid": "The button link renderer must resolve to an anchor",
     "ui.error.action.duplicateId": "Action identifiers must be unique",
+    "ui.error.action.labelVisibilityRequiresIcon":
+      "Responsive or hidden action labels require an icon",
     "ui.error.avatarGroup.maxInvalid": "The avatar group maximum must be a positive integer",
     "ui.error.avatarGroup.totalInvalid":
       "The avatar group total must be an integer no smaller than its children",
@@ -411,6 +413,7 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.error.slot.ownedPropConflict": "slot 不能覆盖组件拥有的语义属性",
     "ui.error.button.linkRendererInvalid": "按钮链接 renderer 必须解析为锚点",
     "ui.error.action.duplicateId": "操作标识必须唯一",
+    "ui.error.action.labelVisibilityRequiresIcon": "响应式或隐藏的操作标签必须提供图标",
     "ui.error.avatarGroup.maxInvalid": "头像组最大数量必须是正整数",
     "ui.error.avatarGroup.totalInvalid": "头像组总数必须是不小于子项数量的整数",
     "ui.error.avatarGroup.spacingInvalid": "头像组间距必须是非负有限数",

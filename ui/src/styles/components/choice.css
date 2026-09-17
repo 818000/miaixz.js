@@ -54,6 +54,7 @@
   margin-block-start: calc(
     (var(--miaixz-text-body-line-height) - var(--miaixz-icon-size-control)) / 2
   );
+  pointer-events: none;
   background: var(--miaixz-surface-role-control-background);
   border: var(--miaixz-control-border-width) solid var(--miaixz-color-border-strong);
   transition-timing-function: var(--miaixz-motion-interaction-easing);

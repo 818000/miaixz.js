@@ -24,9 +24,12 @@ import type { MiaixzSlotProps } from "../../shared/slots.js";
 export type PanelSurface = "plain" | "filled";
 export type PanelFrame = "none" | "outlined" | "elevated";
 export type PanelDensity = "compact" | "standard" | "comfortable";
-export type PanelBodyPadding = "default" | "none";
+export type PanelBodyPadding = "default" | "block" | "none";
+export type PanelBodyGap = "default" | "none";
+export type PanelBodyLayout = "content" | "fill";
 export type PanelMinHeight = "default" | "tall";
 export type PanelInteraction = "none" | "lift";
+export type PanelPresentation = "default" | "workbench" | "entity-header";
 type PanelAccessibleName =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
@@ -63,6 +66,10 @@ export interface PanelOwnerState {
   readonly density: PanelDensity;
   readonly minHeight: PanelMinHeight;
   readonly interaction: PanelInteraction;
+  readonly presentation: PanelPresentation;
+  readonly bodyPadding: PanelBodyPadding;
+  readonly bodyGap: PanelBodyGap;
+  readonly bodyLayout: PanelBodyLayout;
   readonly as: "div" | "section" | "article" | "aside" | "header";
 }
 export type PanelRootAttributes = HTMLAttributes<HTMLElement> &
@@ -71,8 +78,11 @@ export type PanelRootAttributes = HTMLAttributes<HTMLElement> &
     readonly "data-frame"?: PanelFrame;
     readonly "data-density"?: PanelDensity;
     readonly "data-body-padding"?: PanelBodyPadding;
+    readonly "data-body-gap"?: PanelBodyGap;
+    readonly "data-body-layout"?: PanelBodyLayout;
     readonly "data-min-height"?: PanelMinHeight;
     readonly "data-interaction"?: PanelInteraction;
+    readonly "data-presentation"?: PanelPresentation;
   };
 export interface PanelSlotProps {
   readonly root?: MiaixzSlotProps<PanelOwnerState, PanelRootAttributes>;
@@ -93,8 +103,11 @@ export type PanelProps = PanelHeaderContent &
     readonly frame?: PanelFrame;
     readonly density?: PanelDensity;
     readonly bodyPadding?: PanelBodyPadding;
+    readonly bodyGap?: PanelBodyGap;
+    readonly bodyLayout?: PanelBodyLayout;
     readonly minHeight?: PanelMinHeight;
     readonly interaction?: PanelInteraction;
+    readonly presentation?: PanelPresentation;
     readonly slotProps?: PanelSlotProps;
   };
 
@@ -137,17 +150,20 @@ export interface PanelFooterOwnerState {
   readonly density: PanelDensity;
   readonly divider: boolean;
   readonly alignment: "start" | "end" | "between";
+  readonly presentation: "default" | "muted";
 }
 export type PanelFooterRootAttributes = HTMLAttributes<HTMLDivElement> & {
   readonly "data-density"?: PanelDensity;
   readonly "data-divider"?: boolean;
   readonly "data-alignment"?: "start" | "end" | "between";
+  readonly "data-presentation"?: PanelFooterOwnerState["presentation"];
 };
 export interface PanelFooterProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   readonly children: ReactNode;
   readonly divider?: boolean;
   readonly alignment?: "start" | "end" | "between";
   readonly density?: PanelDensity;
+  readonly presentation?: PanelFooterOwnerState["presentation"];
   readonly slotProps?: {
     readonly root?: MiaixzSlotProps<PanelFooterOwnerState, PanelFooterRootAttributes>;
   };

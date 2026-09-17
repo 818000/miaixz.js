@@ -85,6 +85,7 @@ export const Progress = withMiaixzThemeComponent(
           slotProps: slotProps?.root,
           forwardedRef: ref,
           internalProps: {
+            "data-ui": "progress",
             role: "progressbar",
             "aria-label": label,
             "aria-valuemin": 0,
@@ -122,7 +123,7 @@ export const Progress = withMiaixzThemeComponent(
               ownerState,
               defaultProps: { className: "miaixz-progress-indicator" },
               slotProps: slotProps?.indicator,
-              internalProps: { style: indicatorStyle },
+              internalProps: { "data-ui": "progress-indicator", style: indicatorStyle },
             })}
           />
         </span>

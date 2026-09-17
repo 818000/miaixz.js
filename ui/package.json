@@ -24,6 +24,357 @@
     "theme",
     "css"
   ],
+  "miaixzUiContract": {
+    "schemaVersion": 1,
+    "version": "0.6.0",
+    "publicDomComponents": [
+      "Button",
+      "ButtonLink",
+      "ActionText",
+      "IconButton",
+      "ActionBar",
+      "MoreActions",
+      "RowActions",
+      "FormActions",
+      "Field",
+      "Input",
+      "Textarea",
+      "Search",
+      "Checkbox",
+      "Radio",
+      "RadioGroup",
+      "Switch",
+      "Range",
+      "Select",
+      "Combobox",
+      "Picker",
+      "Alert",
+      "Notice",
+      "Overlay",
+      "Toast",
+      "Toaster",
+      "Tooltip",
+      "Popover",
+      "Dropdown",
+      "Dialog",
+      "Confirm",
+      "Drawer",
+      "Toolbar",
+      "TransferList",
+      "Tabs",
+      "View",
+      "ViewSwitch",
+      "Panel",
+      "PanelHeader",
+      "PanelFooter",
+      "PanelRow",
+      "List",
+      "ListItem",
+      "ListCounter",
+      "ListMarker",
+      "Metric",
+      "Metrics",
+      "Graph",
+      "Avatar",
+      "AvatarGroup",
+      "Divider",
+      "Spinner",
+      "Icon",
+      "Hidden",
+      "Cluster",
+      "Grid",
+      "Split",
+      "Stack",
+      "Dropzone",
+      "Upload",
+      "Locale",
+      "Appearance",
+      "Badge",
+      "Status",
+      "Progress",
+      "Skeleton",
+      "Empty",
+      "Bar",
+      "Brand",
+      "Scroll",
+      "Entry",
+      "Page",
+      "Header",
+      "Shell",
+      "Sidebar",
+      "Breadcrumb",
+      "Navigation",
+      "NavigationRail",
+      "NavigationRailGroup",
+      "Pagination",
+      "Sections",
+      "Table",
+      "TableHeader",
+      "TableBody",
+      "TableRow",
+      "TableHead",
+      "TableCell",
+      "TableContainer",
+      "TableFooter",
+      "TableCaption",
+      "Datagrid",
+      "Descriptions",
+      "Tree",
+      "Steps",
+      "Timeline",
+      "EditorForm",
+      "EditorLayout",
+      "EditorSummary",
+      "EditorSection",
+      "EditorFieldset",
+      "EditorFields",
+      "EditorActions",
+      "EditorBox",
+      "EditorGroup",
+      "EditorOverview",
+      "EditorPicker",
+      "EditorStatus",
+      "Sparkline",
+      "Donut",
+      "Columns",
+      "Heatmap",
+      "HeatmapLegend"
+    ],
+    "components": {
+      "Shell": {
+        "supportedProps": [
+          "desktopNavigation",
+          "mobileNavigation",
+          "slotProps"
+        ],
+        "deprecatedProps": [
+          "headerClassName",
+          "mainClassName",
+          "mobileNavigationMode",
+          "navigationDismissLabel",
+          "navigationExpanded",
+          "navigationVariant",
+          "onNavigationDismiss",
+          "sidebarClassName"
+        ]
+      },
+      "Tabs": {
+        "supportedProps": [
+          "items",
+          "label",
+          "orientation",
+          "activationMode",
+          "actions",
+          "actionsPlacement",
+          "headerInset",
+          "headerVariant",
+          "panelPadding",
+          "variant",
+          "value",
+          "defaultValue",
+          "onValueChange",
+          "slotProps"
+        ],
+        "deprecatedProps": []
+      },
+      "Panel": {
+        "supportedProps": [
+          "surface",
+          "frame",
+          "density",
+          "bodyPadding",
+          "bodyGap",
+          "bodyLayout",
+          "minHeight",
+          "interaction",
+          "presentation",
+          "title",
+          "description",
+          "leading",
+          "actions",
+          "headingLevel",
+          "footer",
+          "slotProps"
+        ],
+        "deprecatedProps": [
+          "bodyFlush",
+          "bodySize",
+          "headerLayout",
+          "headerSize",
+          "interactive",
+          "raised",
+          "responsiveBodyScroll",
+          "sections",
+          "selected",
+          "variant"
+        ]
+      },
+      "Drawer": {
+        "supportedProps": [
+          "width",
+          "placement",
+          "density",
+          "open",
+          "onOpenChange",
+          "title",
+          "description",
+          "children",
+          "footer",
+          "slotProps"
+        ],
+        "widthValues": [
+          "small",
+          "medium",
+          "large",
+          "xlarge",
+          "wide",
+          "content"
+        ],
+        "deprecatedProps": [
+          "bodyProps",
+          "size"
+        ]
+      },
+      "Toolbar": {
+        "supportedProps": [
+          "behavior",
+          "search",
+          "filters",
+          "actions",
+          "surface",
+          "density",
+          "orientation",
+          "wrap",
+          "variant",
+          "label"
+        ],
+        "deprecatedProps": []
+      },
+      "TransferList": {
+        "supportedProps": [
+          "label",
+          "source",
+          "sourceLabel",
+          "sourceHeader",
+          "target",
+          "targetLabel",
+          "targetHeader",
+          "targetSize",
+          "mobilePaneSize",
+          "sourceHeaderLayout",
+          "targetHeaderLayout",
+          "slotProps"
+        ],
+        "deprecatedProps": []
+      },
+      "List": {
+        "supportedProps": [
+          "items",
+          "variant",
+          "layout",
+          "density",
+          "surface",
+          "dividers",
+          "bordered",
+          "slotProps"
+        ],
+        "deprecatedProps": []
+      },
+      "Tree": {
+        "supportedProps": [
+          "showSelectionIndicator"
+        ],
+        "deprecatedProps": []
+      },
+      "Columns": {
+        "supportedProps": [
+          "size",
+          "presentation"
+        ],
+        "deprecatedProps": []
+      },
+      "Progress": {
+        "supportedProps": [
+          "data-miaixz-progress-group"
+        ],
+        "deprecatedProps": []
+      },
+      "Status": {
+        "supportedProps": [
+          "tone",
+          "label",
+          "children",
+          "size",
+          "layout",
+          "presentation",
+          "slotProps"
+        ],
+        "deprecatedProps": []
+      },
+      "EditorForm": {
+        "supportedProps": [
+          "presentation"
+        ],
+        "deprecatedProps": []
+      }
+    },
+    "stableSelectors": [
+      "avatar",
+      "columns",
+      "columns-bar",
+      "columns-label",
+      "donut",
+      "donut-segment",
+      "heatmap",
+      "heatmap-cell",
+      "heatmap-column-label",
+      "heatmap-legend",
+      "heatmap-row-label",
+      "heatmap-viewport",
+      "list",
+      "list-item",
+      "list-item-primary",
+      "metric",
+      "metric-hint",
+      "metric-icon",
+      "metric-label",
+      "metric-status",
+      "metric-trend",
+      "metric-value",
+      "metric-visual",
+      "navigation-item",
+      "panel",
+      "progress",
+      "progress-indicator",
+      "sparkline",
+      "sparkline-area",
+      "sparkline-grid",
+      "sparkline-line",
+      "sparkline-points",
+      "tabs",
+      "transfer-list",
+      "transfer-list-source",
+      "transfer-list-target"
+    ],
+    "runtimeAttributes": [
+      "data-motion-replay",
+      "data-motion-state"
+    ],
+    "exports": [
+      ".",
+      "./components.css",
+      "./theme",
+      "./themes",
+      "./themes/deepparser",
+      "./themes/recommended",
+      "./themes/traditional",
+      "./themes/traditional-elegance",
+      "./themes/traditional-imperial",
+      "./themes/traditional-nature",
+      "./transfer-list",
+      "./transfer-list/styles.css"
+    ]
+  },
   "files": [
     "dist",
     "README.md",
@@ -279,6 +630,10 @@
       "types": "./dist/components/toolbar/index.d.ts",
       "import": "./dist/components/toolbar/index.js"
     },
+    "./transfer-list": {
+      "types": "./dist/components/transfer-list/index.d.ts",
+      "import": "./dist/components/transfer-list/index.js"
+    },
     "./tooltip": {
       "types": "./dist/components/tooltip/index.d.ts",
       "import": "./dist/components/tooltip/index.js"
@@ -355,6 +710,34 @@
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js"
     },
+    "./themes": {
+      "types": "./dist/themes/index.d.ts",
+      "import": "./dist/themes/index.js"
+    },
+    "./themes/deepparser": {
+      "types": "./dist/themes/deepparser.d.ts",
+      "import": "./dist/themes/deepparser.js"
+    },
+    "./themes/recommended": {
+      "types": "./dist/themes/recommended.d.ts",
+      "import": "./dist/themes/recommended.js"
+    },
+    "./themes/traditional": {
+      "types": "./dist/themes/traditional.d.ts",
+      "import": "./dist/themes/traditional.js"
+    },
+    "./themes/traditional-elegance": {
+      "types": "./dist/themes/traditional-elegance.d.ts",
+      "import": "./dist/themes/traditional-elegance.js"
+    },
+    "./themes/traditional-imperial": {
+      "types": "./dist/themes/traditional-imperial.d.ts",
+      "import": "./dist/themes/traditional-imperial.js"
+    },
+    "./themes/traditional-nature": {
+      "types": "./dist/themes/traditional-nature.d.ts",
+      "import": "./dist/themes/traditional-nature.js"
+    },
     "./appearance/styles.css": "./dist/styles/components/appearance.css",
     "./icons/styles.css": "./dist/styles/components/icon.css",
     "./bar/styles.css": "./dist/styles/components/bar.css",
@@ -410,6 +793,7 @@
     "./dropzone/styles.css": "./dist/styles/components/dropzone.css",
     "./toast/styles.css": "./dist/styles/components/toast.css",
     "./toolbar/styles.css": "./dist/styles/components/toolbar.css",
+    "./transfer-list/styles.css": "./dist/styles/components/transfer-list.css",
     "./tooltip/styles.css": "./dist/styles/components/tooltip.css",
     "./skeleton/styles.css": "./dist/styles/components/skeleton.css",
     "./spinner/styles.css": "./dist/styles/components/spinner.css",

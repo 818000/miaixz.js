@@ -39,6 +39,21 @@
   line-height: var(--miaixz-text-caption-line-height);
 }
 
+.miaixz-status[data-presentation="workbench"] {
+  flex: 1;
+  gap: var(--miaixz-space-8);
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: 1.4;
+  color: var(--miaixz-color-text-secondary);
+  white-space: nowrap;
+}
+
+.miaixz-status[data-presentation="workbench"] .miaixz-status-marker {
+  width: 5px;
+  height: 5px;
+}
+
 .miaixz-status[data-layout="stacked"] {
   display: inline-grid;
   grid-template-columns: auto minmax(0, 1fr);

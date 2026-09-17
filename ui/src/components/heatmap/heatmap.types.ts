@@ -38,13 +38,15 @@ export interface HeatmapCellContext {
   readonly columnIndex: number;
 }
 export interface HeatmapOwnerState {
-  readonly density: "compact" | "standard" | "comfortable";
+  readonly density: "compact" | "standard" | "comfortable" | "workbench";
+  readonly captionVisibility: "visible" | "hidden";
   readonly tone: MiaixzVisualTone;
   readonly state: "empty" | "ready";
 }
 export interface HeatmapRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-tone"?: MiaixzVisualTone;
   readonly "data-density"?: HeatmapOwnerState["density"];
+  readonly "data-caption-visibility"?: HeatmapOwnerState["captionVisibility"];
   readonly "data-state"?: HeatmapOwnerState["state"];
 }
 export interface HeatmapCellAttributes extends TdHTMLAttributes<HTMLTableCellElement> {
@@ -69,7 +71,8 @@ export interface HeatmapProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "children" | "color"
 > {
-  readonly density?: "compact" | "standard" | "comfortable";
+  readonly density?: "compact" | "standard" | "comfortable" | "workbench";
+  readonly captionVisibility?: "visible" | "hidden";
   readonly rowLabels: readonly string[];
   readonly columnLabels: readonly string[];
   readonly levels: readonly (readonly HeatmapLevel[])[];

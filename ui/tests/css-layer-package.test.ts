@@ -72,6 +72,13 @@ const stylelessCodeExports = new Set([
   "./i18n",
   "./intents",
   "./theme",
+  "./themes",
+  "./themes/deepparser",
+  "./themes/recommended",
+  "./themes/traditional",
+  "./themes/traditional-elegance",
+  "./themes/traditional-imperial",
+  "./themes/traditional-nature",
   "./visualization-motion",
 ]);
 
@@ -174,13 +181,7 @@ describe("CSS package ownership contract", () => {
     expect(publicRoot).toContain('from "./components/index.js"');
 
     for (const component of remediatedComponents) {
-      if (component === "editor") {
-        expect(componentRoot).toContain(
-          'export { EditorFieldset, EditorLayout, EditorSection, EditorSummary } from "./editor/index.js"',
-        );
-      } else {
-        expect(componentRoot).toContain(`from "./${component}/index.js"`);
-      }
+      expect(componentRoot).toContain(`from "./${component}/index.js"`);
       expect(() =>
         readFileSync(resolve(packageDirectory, `src/components/${component}/index.ts`), "utf8"),
       ).not.toThrow();

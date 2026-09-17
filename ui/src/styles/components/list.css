@@ -91,6 +91,48 @@
   padding: 0;
 }
 
+.miaixz-list[data-variant="transfer"] {
+  gap: var(--miaixz-space-8);
+}
+
+.miaixz-list[data-variant="transfer"] > .miaixz-list-item {
+  min-width: 0;
+  min-height: var(--miaixz-control-height-large);
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-list[data-variant="transfer"] > .miaixz-list-item[data-selected="true"] {
+  background: var(--miaixz-color-surface-selected);
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-list[data-variant="transfer"] .miaixz-list-item-control {
+  gap: var(--miaixz-space-12);
+  padding: var(--miaixz-space-12);
+}
+
+.miaixz-list[data-variant="transfer"] .miaixz-list-actions {
+  padding-inline-end: var(--miaixz-space-12);
+}
+
+.miaixz-list[data-variant="accent"] > .miaixz-list-item > .miaixz-list-item-control {
+  transition:
+    background-color var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing),
+    box-shadow var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    transform var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-list[data-variant="accent"]
+  > .miaixz-list-item:not(:has([aria-disabled="true"])):where(:hover, :focus-within)
+  > .miaixz-list-item-control {
+  background: color-mix(in srgb, var(--miaixz-list-tone) 8%, var(--miaixz-color-surface));
+  box-shadow: inset 2px 0 0 var(--miaixz-list-tone);
+  transform: translateX(3px);
+}
+
 .miaixz-list-item {
   --miaixz-list-tone: var(--miaixz-color-data-neutral);
 
@@ -250,6 +292,47 @@
   block-size: var(--miaixz-space-8);
   background: currentcolor;
   border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-list-marker-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 29px;
+  block-size: 29px;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: 1.5;
+  color: var(--miaixz-list-tone);
+  background: var(--miaixz-color-surface);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-list-marker-step > i {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  font-size: var(--miaixz-text-caption-size);
+  font-style: normal;
+  font-weight: var(--miaixz-font-weight-bold);
+  color: var(--miaixz-list-tone);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-round);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-list[data-variant="accent"] > .miaixz-list-item > .miaixz-list-item-control {
+    transition-duration: 0s;
+  }
+
+  .miaixz-list[data-variant="accent"]
+    > .miaixz-list-item:where(:hover, :focus-within)
+    > .miaixz-list-item-control {
+    transform: none;
+  }
 }
 
 .miaixz-list-counter,

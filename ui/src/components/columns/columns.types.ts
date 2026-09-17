@@ -38,6 +38,14 @@ export interface ColumnsOwnerState {
   readonly layout: "grouped" | "stacked";
   readonly density: "compact" | "standard" | "comfortable";
   readonly size: "standard" | "large";
+  readonly presentation:
+    | "default"
+    | "agent-resources"
+    | "member-growth"
+    | "permission-security"
+    | "cost-performance"
+    | "dataset"
+    | "resource";
   readonly tone: MiaixzVisualTone;
   readonly state: "empty" | "ready";
 }
@@ -46,6 +54,7 @@ export interface ColumnsRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-layout"?: ColumnsOwnerState["layout"];
   readonly "data-density"?: ColumnsOwnerState["density"];
   readonly "data-size"?: ColumnsOwnerState["size"];
+  readonly "data-presentation"?: ColumnsOwnerState["presentation"];
   readonly "data-tone"?: MiaixzVisualTone;
   readonly "data-state"?: ColumnsOwnerState["state"];
 }
@@ -83,6 +92,7 @@ interface ColumnsBaseProps extends Omit<
   readonly layout?: "grouped" | "stacked";
   readonly density?: "compact" | "standard" | "comfortable";
   readonly size?: "standard" | "large";
+  readonly presentation?: ColumnsOwnerState["presentation"];
   readonly categoryFormatter?: (label: string, index: number) => string;
   readonly seriesFormatter?: (series: ColumnsSeries) => string;
   readonly valueFormatter?: (value: number, series: ColumnsSeries, categoryIndex: number) => string;

@@ -59,6 +59,9 @@ export const Toolbar = withMiaixzThemeComponent(
       label,
       className,
       children,
+      search,
+      filters,
+      actions,
       onFocus,
       onKeyDown,
       ...props
@@ -163,7 +166,10 @@ export const Toolbar = withMiaixzThemeComponent(
         onKeyDown={handleKeyDown}
         role={behavior === "toolbar" ? "toolbar" : hasName ? "group" : undefined}
       >
+        {search !== undefined && <div className="miaixz-toolbar-search">{search}</div>}
+        {filters !== undefined && <div className="miaixz-toolbar-filters">{filters}</div>}
         {children}
+        {actions !== undefined && <div className="miaixz-toolbar-actions">{actions}</div>}
       </div>
     );
   }),

@@ -53,8 +53,11 @@ export const Panel = withMiaixzThemeComponent(
       frame = "outlined",
       density = "standard",
       bodyPadding = "default",
+      bodyGap = "default",
+      bodyLayout = "content",
       minHeight = "default",
       interaction = "none",
+      presentation = "default",
       slotProps,
       children,
       ...props
@@ -73,7 +76,18 @@ export const Panel = withMiaixzThemeComponent(
         code: "UI_PANEL_LABEL_INVALID",
       });
     }
-    const ownerState: PanelOwnerState = { as, surface, frame, density, minHeight, interaction };
+    const ownerState: PanelOwnerState = {
+      as,
+      surface,
+      frame,
+      density,
+      minHeight,
+      interaction,
+      presentation,
+      bodyPadding,
+      bodyGap,
+      bodyLayout,
+    };
     const headerSlot = resolveSlot(slotProps?.header, ownerState);
     const headerCopySlot = resolveSlot(slotProps?.headerCopy, ownerState);
     const headerLeadingSlot = resolveSlot(slotProps?.headerLeading, ownerState);
@@ -91,12 +105,16 @@ export const Panel = withMiaixzThemeComponent(
         slotProps: slotProps?.root,
         forwardedRef: ref,
         internalProps: {
+          "data-ui": "panel",
           "data-surface": surface,
           "data-frame": frame,
           "data-density": density,
           "data-body-padding": bodyPadding,
+          "data-body-gap": bodyGap,
+          "data-body-layout": bodyLayout,
           "data-min-height": minHeight,
           "data-interaction": interaction,
+          "data-presentation": presentation,
           ...(title !== undefined && !hasBody ? { "data-header-only": true } : {}),
           "aria-label": ariaLabel,
           "aria-labelledby": ariaLabelledBy,
@@ -106,8 +124,11 @@ export const Panel = withMiaixzThemeComponent(
           "data-frame",
           "data-density",
           "data-body-padding",
+          "data-body-gap",
+          "data-body-layout",
           "data-min-height",
           "data-interaction",
+          "data-presentation",
           "aria-label",
           "aria-labelledby",
         ],
@@ -253,11 +274,19 @@ export const PanelHeader = withMiaixzThemeComponent(
 export const PanelFooter = withMiaixzThemeComponent(
   "PanelFooter",
   forwardRef<HTMLDivElement, PanelFooterProps>(function PanelFooter(
-    { divider = true, alignment = "end", density: explicitDensity, slotProps, children, ...props },
+    {
+      divider = true,
+      alignment = "end",
+      density: explicitDensity,
+      presentation = "default",
+      slotProps,
+      children,
+      ...props
+    },
     ref,
   ) {
     const density = usePanelDensity(explicitDensity);
-    const ownerState: PanelFooterOwnerState = { density, divider, alignment };
+    const ownerState: PanelFooterOwnerState = { density, divider, alignment, presentation };
     return (
       <div
         {...mergeMiaixzSlotProps({
@@ -269,6 +298,7 @@ export const PanelFooter = withMiaixzThemeComponent(
           internalProps: {
             "data-density": density,
             "data-alignment": alignment,
+            "data-presentation": presentation,
             ...(divider ? { "data-divider": true } : {}),
           },
         })}

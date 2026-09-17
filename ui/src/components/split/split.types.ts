@@ -27,5 +27,9 @@ export interface SplitProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Selects the relative column widths.
    */
-  ratio?: "equal" | "primary" | "secondary";
+  ratio?: "equal" | "primary" | "secondary" | "sidebar-280" | "sidebar-320";
+  /**
+   * Selects the existing container collapse or the page-level 1024px contract.
+   */
+  collapseAt?: "container" | "page" | "page-720";
 }

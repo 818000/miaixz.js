@@ -179,6 +179,14 @@
   background: transparent;
 }
 
+.miaixz-table[data-presentation="resource-tree"] th {
+  height: 42px;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  color: var(--miaixz-color-text-secondary);
+  background: var(--miaixz-color-surface-secondary);
+}
+
 .miaixz-table[data-density="comfortable"] {
   --miaixz-table-row-height: calc(var(--miaixz-density-table-row-height) + var(--miaixz-space-8));
   --miaixz-table-cell-padding-block: var(--miaixz-space-16);
