@@ -31,7 +31,7 @@
 .miaixz-picker-label {
   font-size: var(--miaixz-text-body-size);
   line-height: var(--miaixz-text-body-line-height);
-  color: var(--miaixz-color-text-primary);
+  color: var(--miaixz-color-brand);
 }
 
 .miaixz-combobox-control,
@@ -112,7 +112,7 @@
   min-inline-size: 0;
   max-inline-size: calc(100vi - 2 * var(--miaixz-space-8));
   max-block-size: var(--miaixz-responsive-overlay-block-size);
-  padding: var(--miaixz-space-4) var(--miaixz-space-8) var(--miaixz-space-8);
+  padding: var(--miaixz-space-4);
   margin: 0;
   overflow: hidden auto;
   overscroll-behavior: contain;

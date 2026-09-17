@@ -52,6 +52,10 @@
   background: transparent;
 }
 
+.miaixz-table-container[data-minimum-width="compact"] > .miaixz-table {
+  min-inline-size: calc(var(--miaixz-layout-card-min-width) * 2 - var(--miaixz-space-32));
+}
+
 .miaixz-table-container-plain {
   border: 0;
   border-radius: 0;
@@ -158,10 +162,21 @@
 }
 
 .miaixz-table[data-density="compact"] {
-  --miaixz-table-row-height: calc(var(--miaixz-density-table-row-height) - var(--miaixz-space-8));
-  --miaixz-table-cell-padding-block: var(--miaixz-space-8);
-
   font-size: var(--miaixz-text-caption-size);
+  border-collapse: collapse;
+}
+
+.miaixz-table[data-density="compact"] :is(th, td) {
+  padding: var(--miaixz-space-12);
+  text-align: start;
+  white-space: nowrap;
+  border-block-end-style: dashed;
+}
+
+.miaixz-table[data-density="compact"] th {
+  font-weight: 600;
+  color: var(--miaixz-color-text-muted);
+  background: transparent;
 }
 
 .miaixz-table[data-density="comfortable"] {
@@ -171,6 +186,45 @@
 
 .miaixz-table[data-divider-style="dashed"] :is(th, td) {
   border-block-end-style: dashed;
+}
+
+.miaixz-table[data-density="compact"][data-divider-style="dashed"] {
+  inline-size: 100%;
+  font-size: var(--miaixz-text-caption-size);
+  border-collapse: collapse;
+}
+
+.miaixz-table[data-density="compact"][data-divider-style="dashed"] :is(th, td) {
+  block-size: 48px;
+  padding-block: 1px;
+  padding-inline: 12px;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.miaixz-table[data-density="compact"][data-divider-style="dashed"] th {
+  font-weight: 500;
+  color: var(--miaixz-color-text-muted);
+  background: transparent;
+}
+
+.miaixz-table[data-density="compact"][data-divider-style="dashed"] tr[data-selected="true"] {
+  color: inherit;
+  background: transparent;
+}
+
+.miaixz-table[data-density="compact"][data-divider-style="dashed"] tr[data-selected="true"] td {
+  background: var(--miaixz-color-surface-selected);
+}
+
+.miaixz-table[data-density="compact"][data-divider-style="dashed"] tr[data-selected="true"]:hover {
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-table[data-density="compact"][data-divider-style="dashed"]
+  tr[data-selected="true"]:hover
+  td {
+  background: transparent;
 }
 
 .miaixz-table[data-divider-style="none"] :is(th, td) {

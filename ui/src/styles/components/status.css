@@ -49,6 +49,21 @@
   grid-column: 2;
 }
 
+.miaixz-status[data-layout="split"] {
+  display: grid;
+  grid-template-columns: var(--miaixz-space-8) minmax(0, 1fr) auto;
+  gap: calc(var(--miaixz-space-12) - var(--miaixz-border-width-default));
+  width: 100%;
+}
+
+.miaixz-status[data-layout="split"] .miaixz-status-label {
+  padding: var(--miaixz-space-4) var(--miaixz-space-8);
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-status-tone);
+  background: var(--miaixz-surface-role-selected-background);
+  border-radius: var(--miaixz-radius-control);
+}
+
 .miaixz-status-marker {
   flex: none;
   width: var(--miaixz-status-marker-size);

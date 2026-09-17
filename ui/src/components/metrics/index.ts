@@ -30,5 +30,10 @@ export type {
   MetricStaticProps,
   MetricVariant,
 } from "./metric.types.js";
-export type { MetricsProps } from "./metrics.types.js";
+export type {
+  MetricsOwnerState,
+  MetricsProps,
+  MetricsScrollAttributes,
+  MetricsSlotProps,
+} from "./metrics.types.js";
 export type { MiaixzVisualTone } from "../shared.types.js";

@@ -58,11 +58,13 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
+  animation: none;
 }
 
 .miaixz-sparkline-area {
   fill: color-mix(in srgb, var(--miaixz-sparkline-tone) 8%, transparent);
   stroke: none;
+  transform-origin: center bottom;
 }
 
 .miaixz-sparkline-point {
@@ -70,6 +72,8 @@
   stroke: var(--miaixz-sparkline-tone);
   stroke-width: var(--miaixz-border-width-default);
   vector-effect: non-scaling-stroke;
+  transform-origin: center;
+  transform-box: fill-box;
 }
 
 .miaixz-sparkline[data-tone="neutral"] {
@@ -122,4 +126,119 @@
 
 .miaixz-sparkline[data-tone="data-8"] {
   --miaixz-sparkline-tone: var(--miaixz-color-data-8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-sparkline[data-state="ready"][data-motion-state="enter"] .miaixz-sparkline-line {
+    stroke-dasharray: 1;
+    animation: miaixz-sparkline-draw 1.8s cubic-bezier(0.2, 0.72, 0.2, 1) 120ms both;
+  }
+
+  .miaixz-sparkline[data-state="ready"][data-motion-replay="true"] .miaixz-sparkline-line {
+    stroke-dasharray: 1;
+    animation: miaixz-sparkline-replay 1.55s cubic-bezier(0.2, 0.72, 0.2, 1) both;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"] .miaixz-sparkline-area {
+    animation: miaixz-sparkline-area-enter 1.45s cubic-bezier(0.16, 0.82, 0.25, 1) 200ms both;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"] .miaixz-sparkline-point {
+    animation: miaixz-sparkline-point-enter 520ms cubic-bezier(0.16, 0.82, 0.25, 1.22) 300ms both;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"]
+    .miaixz-sparkline-point:nth-of-type(2) {
+    animation-delay: 480ms;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"]
+    .miaixz-sparkline-point:nth-of-type(3) {
+    animation-delay: 660ms;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"]
+    .miaixz-sparkline-point:nth-of-type(4) {
+    animation-delay: 840ms;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"]
+    .miaixz-sparkline-point:nth-of-type(5) {
+    animation-delay: 1020ms;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"]
+    .miaixz-sparkline-point:nth-of-type(6) {
+    animation-delay: 1200ms;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-state="enter"]
+    .miaixz-sparkline-point:nth-of-type(7) {
+    animation-delay: 1380ms;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-replay="true"] .miaixz-sparkline-area {
+    animation: miaixz-sparkline-area-enter 1.3s cubic-bezier(0.16, 0.82, 0.25, 1) 80ms both;
+  }
+
+  .miaixz-sparkline[data-size="large"][data-motion-replay="true"] .miaixz-sparkline-point {
+    animation: miaixz-sparkline-point-enter 500ms cubic-bezier(0.16, 0.82, 0.25, 1.22) 780ms both;
+  }
+}
+
+@keyframes miaixz-sparkline-draw {
+  from {
+    opacity: 0.2;
+    stroke-dashoffset: 1px;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes miaixz-sparkline-replay {
+  from {
+    opacity: 0.32;
+    stroke-dashoffset: 1px;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes miaixz-sparkline-area-enter {
+  from {
+    opacity: 0;
+    transform: scaleY(0.12);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes miaixz-sparkline-point-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-sparkline-line,
+  .miaixz-sparkline-area,
+  .miaixz-sparkline-point {
+    transform: none;
+    animation: none;
+  }
 }

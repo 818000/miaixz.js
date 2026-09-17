@@ -74,14 +74,14 @@ function revealMiaixzOption(surface: HTMLElement, activeOptionId: string | undef
 /**
  * Synchronizes shared Select, Combobox and Picker panel sizing and keyboard scrolling.
  *
- * @param triggerRef - Control whose border-box width anchors the surface.
+ * @param anchorRef - Control outer border box whose width anchors the surface.
  * @param surfaceRef - Scrollable option surface.
  * @param open - Whether the surface is open.
  * @param portalTarget - Portal destination, including modal-local portals.
  * @param activeOptionId - Keyboard or pointer active option to keep visible.
  */
 export function useMiaixzOptionSurface(
-  triggerRef: RefObject<HTMLElement | null>,
+  anchorRef: RefObject<HTMLElement | null>,
   surfaceRef: RefObject<HTMLElement | null>,
   open: boolean,
   portalTarget: HTMLElement | null,
@@ -93,12 +93,12 @@ export function useMiaixzOptionSurface(
   }, [activeOptionId]);
 
   useMiaixzLayoutEffect(() => {
-    const trigger = triggerRef.current;
+    const anchor = anchorRef.current;
     const surface = surfaceRef.current;
-    if (!open || trigger === null || surface === null) return undefined;
-    const viewport = trigger.ownerDocument.defaultView!;
+    if (!open || anchor === null || surface === null) return undefined;
+    const viewport = anchor.ownerDocument.defaultView!;
     const update = () => {
-      surface.style.width = `${trigger.getBoundingClientRect().width}px`;
+      surface.style.width = `${anchor.getBoundingClientRect().width}px`;
       const height = measureMiaixzOptionSurfaceHeight(surface);
       surface.style.maxBlockSize =
         height === undefined ? "" : `min(${height}px, var(--miaixz-responsive-overlay-block-size))`;
@@ -111,7 +111,7 @@ export function useMiaixzOptionSurface(
     const resize = typeof ResizeObserver === "function" ? new ResizeObserver(update) : undefined;
     const observeRows = () => {
       resize?.disconnect();
-      resize?.observe(trigger);
+      resize?.observe(anchor);
       resize?.observe(surface);
       surface.querySelectorAll('[role="option"]').forEach((option) => resize?.observe(option));
       update();
@@ -125,12 +125,12 @@ export function useMiaixzOptionSurface(
       mutation.disconnect();
       viewport.removeEventListener("resize", update);
     };
-  }, [open, portalTarget, surfaceRef, triggerRef]);
+  }, [anchorRef, open, portalTarget, surfaceRef]);
 
   /**
    * Resolve the final top-layer geometry before revealing the active row.
    */
-  useMiaixzFloatingPosition(triggerRef, surfaceRef, open, "bottom-start", portalTarget);
+  useMiaixzFloatingPosition(anchorRef, surfaceRef, open, "bottom-start", portalTarget);
 
   useMiaixzLayoutEffect(() => {
     const surface = surfaceRef.current;

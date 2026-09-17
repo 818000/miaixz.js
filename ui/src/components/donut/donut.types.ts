@@ -52,7 +52,9 @@ export interface DonutRootAttributes extends HTMLAttributes<HTMLDivElement> {
 export interface DonutSlotProps {
   readonly root?: MiaixzSlotProps<DonutOwnerState, DonutRootAttributes>;
   readonly visual?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly track?: MiaixzSlotProps<DonutOwnerState, SVGAttributes<SVGCircleElement>>;
   readonly segment?: MiaixzSlotProps<DonutOwnerState, SVGAttributes<SVGCircleElement>>;
+  readonly center?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly legend?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLUListElement>>;
   readonly legendItem?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLLIElement>>;
   readonly description?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLDivElement>>;

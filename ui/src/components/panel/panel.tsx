@@ -52,6 +52,9 @@ export const Panel = withMiaixzThemeComponent(
       surface = "filled",
       frame = "outlined",
       density = "standard",
+      bodyPadding = "default",
+      minHeight = "default",
+      interaction = "none",
       slotProps,
       children,
       ...props
@@ -70,10 +73,15 @@ export const Panel = withMiaixzThemeComponent(
         code: "UI_PANEL_LABEL_INVALID",
       });
     }
-    const ownerState: PanelOwnerState = { as, surface, frame, density };
+    const ownerState: PanelOwnerState = { as, surface, frame, density, minHeight, interaction };
     const headerSlot = resolveSlot(slotProps?.header, ownerState);
+    const headerCopySlot = resolveSlot(slotProps?.headerCopy, ownerState);
+    const headerLeadingSlot = resolveSlot(slotProps?.headerLeading, ownerState);
+    const headerTitleSlot = resolveSlot(slotProps?.headerTitle, ownerState);
+    const headerDescriptionSlot = resolveSlot(slotProps?.headerDescription, ownerState);
     const actionsSlot = resolveSlot(slotProps?.actions, ownerState);
     const footerSlot = resolveSlot(slotProps?.footer, ownerState);
+    const hasBody = children !== null && children !== undefined;
     return createElement(
       as,
       mergeMiaixzSlotProps({
@@ -86,10 +94,23 @@ export const Panel = withMiaixzThemeComponent(
           "data-surface": surface,
           "data-frame": frame,
           "data-density": density,
+          "data-body-padding": bodyPadding,
+          "data-min-height": minHeight,
+          "data-interaction": interaction,
+          ...(title !== undefined && !hasBody ? { "data-header-only": true } : {}),
           "aria-label": ariaLabel,
           "aria-labelledby": ariaLabelledBy,
         },
-        ownedProps: ["data-surface", "data-frame", "data-density", "aria-label", "aria-labelledby"],
+        ownedProps: [
+          "data-surface",
+          "data-frame",
+          "data-density",
+          "data-body-padding",
+          "data-min-height",
+          "data-interaction",
+          "aria-label",
+          "aria-labelledby",
+        ],
       }),
       <PanelDensityProvider value={density}>
         {title !== undefined && (
@@ -100,20 +121,28 @@ export const Panel = withMiaixzThemeComponent(
             leading={leading}
             slotProps={{
               ...(headerSlot === undefined ? {} : { root: headerSlot }),
+              ...(headerCopySlot === undefined ? {} : { copy: headerCopySlot }),
+              ...(headerLeadingSlot === undefined ? {} : { leading: headerLeadingSlot }),
+              ...(headerTitleSlot === undefined ? {} : { title: headerTitleSlot }),
+              ...(headerDescriptionSlot === undefined
+                ? {}
+                : { description: headerDescriptionSlot }),
               ...(actionsSlot === undefined ? {} : { actions: actionsSlot }),
             }}
             title={title}
           />
         )}
-        <div
-          {...mergeMiaixzSlotProps({
-            ownerState,
-            defaultProps: { className: "miaixz-panel-body" },
-            slotProps: slotProps?.body,
-          })}
-        >
-          {children}
-        </div>
+        {hasBody && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-panel-body" },
+              slotProps: slotProps?.body,
+            })}
+          >
+            {children}
+          </div>
+        )}
         {footer !== undefined && (
           <PanelFooter {...(footerSlot === undefined ? {} : { slotProps: { root: footerSlot } })}>
             {footer}

@@ -21,9 +21,10 @@
 import "@testing-library/jest-dom/vitest";
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Avatar } from "../../src/components/avatar/index.js";
+import { Avatar, AvatarGroup, AvatarPicker } from "../../src/components/avatar/index.js";
+import { Icon } from "../../src/components/icon/index.js";
 
 afterEach(cleanup);
 
@@ -58,5 +59,124 @@ describe("Avatar", () => {
     expect(fallback).toHaveAttribute("aria-hidden", "true");
     expect(fallback).not.toHaveAttribute("role");
     expect(screen.queryByRole("img")).toBeNull();
+  });
+
+  it("supports responsive images, semantic variants, custom sizes, and content fallbacks", () => {
+    const { container, rerender } = render(
+      <Avatar
+        alt="Remy Sharp"
+        name="Remy Sharp"
+        sizes="(min-width: 600px) 56px, 24px"
+        src="/avatar.png"
+        srcSet="/avatar.png 1x, /avatar@2x.png 2x"
+        style={{ width: 56, height: 56, backgroundColor: "rgb(1, 2, 3)" }}
+        variant="rounded"
+      />,
+    );
+    const image = screen.getByRole("img", { name: "Remy Sharp" });
+    expect(image).toHaveAttribute("srcset", "/avatar.png 1x, /avatar@2x.png 2x");
+    expect(image).toHaveAttribute("sizes", "(min-width: 600px) 56px, 24px");
+    expect(container.firstElementChild).toHaveClass("miaixz-avatar-rounded");
+    expect(container.firstElementChild).toHaveStyle({ width: "56px", height: "56px" });
+    expect(container.firstElementChild).toHaveStyle({ backgroundColor: "rgb(1, 2, 3)" });
+
+    rerender(
+      <Avatar alt="Folder" variant="square">
+        <Icon name="Folder" />
+      </Avatar>,
+    );
+    expect(container.firstElementChild).toHaveClass("miaixz-avatar-square");
+    expect(screen.getByRole("img", { name: "Folder" })).toContainElement(
+      container.querySelector("svg"),
+    );
+  });
+
+  it("renders status and count indicators without changing avatar semantics", () => {
+    const { rerender } = render(
+      <Avatar alt="Kimi, online" indicator="" indicatorLabel="Online" name="Kimi" />,
+    );
+    expect(screen.getByRole("img", { name: "Kimi, online" })).toHaveTextContent("KI");
+    expect(screen.getByRole("img", { name: "Online" })).toHaveClass("miaixz-avatar-indicator");
+
+    rerender(<Avatar alt="Kimi, two unread" indicator={2} name="Kimi" />);
+    expect(screen.getByText("2")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("falls back through children, alt text, and the generic user icon", () => {
+    const { container, rerender } = render(
+      <Avatar alt="Broken image" src="/broken.png">
+        B
+      </Avatar>,
+    );
+    fireEvent.error(screen.getByRole("img", { name: "Broken image" }));
+    expect(screen.getByRole("img", { name: "Broken image" })).toHaveTextContent("B");
+
+    rerender(<Avatar alt="Remy Sharp" src="/broken-again.png" />);
+    fireEvent.error(screen.getByRole("img", { name: "Remy Sharp" }));
+    expect(screen.getByRole("img", { name: "Remy Sharp" })).toHaveTextContent("R");
+
+    rerender(<Avatar src="/broken-final.png" />);
+    fireEvent.error(container.querySelector("img")!);
+    expect(container.querySelector(".miaixz-avatar-fallback svg")).toBeInTheDocument();
+    expect(screen.queryByRole("img")).toBeNull();
+  });
+
+  it("groups avatars with max, total, custom surplus, spacing, and inherited variants", () => {
+    const { container } = render(
+      <AvatarGroup
+        max={4}
+        renderSurplus={(surplus) => `hidden ${surplus}`}
+        spacing={12}
+        total={6}
+        variant="rounded"
+      >
+        <Avatar alt="One" name="One" />
+        <Avatar alt="Two" name="Two" />
+        <Avatar alt="Three" name="Three" />
+        <Avatar alt="Four" name="Four" />
+        <Avatar alt="Five" name="Five" />
+      </AvatarGroup>,
+    );
+
+    const group = container.firstElementChild;
+    expect(group).toHaveClass("miaixz-avatar-group");
+    expect(group).toHaveAttribute("data-spacing", "custom");
+    expect(group).toHaveStyle({ "--miaixz-avatar-group-spacing": "-12px" });
+    expect(group?.querySelectorAll(":scope > .miaixz-avatar")).toHaveLength(4);
+    expect(group?.querySelectorAll(":scope > .miaixz-avatar-rounded")).toHaveLength(4);
+    expect(screen.getByRole("img", { name: "+3" })).toHaveTextContent("hidden 3");
+    expect(screen.queryByRole("img", { name: "Four" })).toBeNull();
+  });
+
+  it("rejects invalid avatar group limits instead of silently normalizing them", () => {
+    expect(() => render(<AvatarGroup max={0} />)).toThrowError(
+      expect.objectContaining({ code: "UI_AVATAR_GROUP_MAX_INVALID" }),
+    );
+    expect(() =>
+      render(
+        <AvatarGroup total={0}>
+          <Avatar alt="One" />
+        </AvatarGroup>,
+      ),
+    ).toThrowError(expect.objectContaining({ code: "UI_AVATAR_GROUP_TOTAL_INVALID" }));
+    expect(() => render(<AvatarGroup spacing={Number.NaN} />)).toThrowError(
+      expect.objectContaining({ code: "UI_AVATAR_GROUP_SPACING_INVALID" }),
+    );
+  });
+
+  it("provides a profile-sized image picker through the existing Miaixz Dropzone", () => {
+    const onFile = vi.fn();
+    const { container } = render(
+      <AvatarPicker label="Choose avatar" onFile={onFile}>
+        <Avatar alt="Current avatar" name="Kimi" size="large" />
+      </AvatarPicker>,
+    );
+    const file = new File(["avatar"], "avatar.png", { type: "image/png" });
+    fireEvent.change(container.querySelector('input[type="file"]')!, {
+      target: { files: [file] },
+    });
+    expect(container.firstElementChild).toHaveClass("miaixz-avatar-picker");
+    expect(container.querySelector(".miaixz-avatar")).toHaveAttribute("data-size", "large");
+    expect(onFile).toHaveBeenCalledWith(file);
   });
 });

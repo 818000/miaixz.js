@@ -32,6 +32,7 @@ type InternalListItemRootAttributes = ListItemRootAttributes &
   Pick<HTMLAttributes<HTMLLIElement>, "id"> & {
     readonly "data-tone"?: string;
     readonly "data-kind"?: string;
+    readonly "data-selected"?: boolean;
   };
 
 /**
@@ -49,6 +50,7 @@ export const ListItem = withMiaixzThemeComponent(
       meta,
       actions,
       tone = "neutral",
+      selected = false,
       slotProps,
       kind: _kind,
       href: _href,
@@ -90,9 +92,25 @@ export const ListItem = withMiaixzThemeComponent(
             content
           ) : (
             <>
-              <div className="miaixz-list-title">{title}</div>
+              <div
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-list-title" },
+                  slotProps: slotProps?.title,
+                })}
+              >
+                {title}
+              </div>
               {description !== undefined && (
-                <div className="miaixz-list-description">{description}</div>
+                <div
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-list-description" },
+                    slotProps: slotProps?.description,
+                  })}
+                >
+                  {description}
+                </div>
               )}
             </>
           )}
@@ -122,8 +140,13 @@ export const ListItem = withMiaixzThemeComponent(
               InternalListItemRootAttributes
             >,
             forwardedRef: ref,
-            internalProps: { id, "data-tone": tone, "data-kind": item.kind },
-            ownedProps: ["id"],
+            internalProps: {
+              id,
+              "data-tone": tone,
+              "data-kind": item.kind,
+              ...(selected ? { "data-selected": true } : {}),
+            },
+            ownedProps: ["id", "data-selected"],
           },
         )}
       >

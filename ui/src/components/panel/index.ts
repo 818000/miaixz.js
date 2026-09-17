@@ -27,6 +27,7 @@ export type {
   PanelFooterSlot,
   PanelFrame,
   PanelHeaderContent,
+  PanelInteraction,
   PanelHeaderOwnerState,
   PanelHeaderProps,
   PanelHeaderSlot,

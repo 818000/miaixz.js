@@ -37,6 +37,7 @@ export interface ColumnsOwnerState {
   readonly orientation: "vertical" | "horizontal";
   readonly layout: "grouped" | "stacked";
   readonly density: "compact" | "standard" | "comfortable";
+  readonly size: "standard" | "large";
   readonly tone: MiaixzVisualTone;
   readonly state: "empty" | "ready";
 }
@@ -44,6 +45,7 @@ export interface ColumnsRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-orientation"?: ColumnsOwnerState["orientation"];
   readonly "data-layout"?: ColumnsOwnerState["layout"];
   readonly "data-density"?: ColumnsOwnerState["density"];
+  readonly "data-size"?: ColumnsOwnerState["size"];
   readonly "data-tone"?: MiaixzVisualTone;
   readonly "data-state"?: ColumnsOwnerState["state"];
 }
@@ -56,6 +58,7 @@ export interface ColumnsSlotProps {
   readonly legendItem?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly plot?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly category?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly bars?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly bar?: MiaixzSlotProps<ColumnsOwnerState, ColumnsBarAttributes>;
   readonly categoryLabel?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly table?: MiaixzSlotProps<ColumnsOwnerState, TableHTMLAttributes<HTMLTableElement>>;
@@ -79,6 +82,7 @@ interface ColumnsBaseProps extends Omit<
   readonly orientation?: "vertical" | "horizontal";
   readonly layout?: "grouped" | "stacked";
   readonly density?: "compact" | "standard" | "comfortable";
+  readonly size?: "standard" | "large";
   readonly categoryFormatter?: (label: string, index: number) => string;
   readonly seriesFormatter?: (series: ColumnsSeries) => string;
   readonly valueFormatter?: (value: number, series: ColumnsSeries, categoryIndex: number) => string;

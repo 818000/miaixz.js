@@ -21,6 +21,7 @@
 import { forwardRef, type CSSProperties } from "react";
 
 import { classNames } from "../../shared/class-names.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Scroll } from "../scroll/scroll.js";
 import { MetricVariantContext } from "./context.js";
 import type { MetricsProps } from "./metrics.types.js";
@@ -40,6 +41,7 @@ export const Metrics = withMiaixzThemeComponent(
       surface = "filled",
       density = "standard",
       spacingAfter = "none",
+      slotProps,
       "aria-label": ariaLabel,
       "aria-labelledby": ariaLabelledBy,
       className,
@@ -50,6 +52,7 @@ export const Metrics = withMiaixzThemeComponent(
     const named =
       (ariaLabel !== undefined && ariaLabel.trim() !== "") ||
       (ariaLabelledBy !== undefined && ariaLabelledBy.trim() !== "");
+    const ownerState = { layout, columns, responsive, surface, density };
     return (
       <div
         {...props}
@@ -71,8 +74,14 @@ export const Metrics = withMiaixzThemeComponent(
               ? { focusable: "auto" as const, "aria-labelledby": ariaLabelledBy! }
               : { focusable: "auto" as const, "aria-label": ariaLabel }
             : { focusable: "never" as const })}
-          className="miaixz-metrics-scroll"
-          style={{ "--miaixz-metrics-columns": columns } as CSSProperties}
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: {
+              className: "miaixz-metrics-scroll",
+              style: { "--miaixz-metrics-columns": columns } as CSSProperties,
+            },
+            slotProps: slotProps?.scroll,
+          })}
         >
           <MetricVariantContext.Provider value={layout === "strip" ? "strip" : "standard"}>
             {children}

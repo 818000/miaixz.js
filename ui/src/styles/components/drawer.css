@@ -124,6 +124,9 @@ dialog.miaixz-drawer[open]::backdrop {
 
 dialog.miaixz-drawer[data-placement="left"] {
   inset: 0 auto 0 0;
+}
+
+dialog.miaixz-drawer[data-placement="left"]:not([open]) {
   transform: translateX(calc(var(--miaixz-drawer-offset) * -1));
 }
 
@@ -132,6 +135,9 @@ dialog.miaixz-drawer[data-placement="bottom"] {
   width: 100%;
   max-block-size: calc(var(--miaixz-viewport-block) - var(--miaixz-shell-header-height));
   height: auto;
+}
+
+dialog.miaixz-drawer[data-placement="bottom"]:not([open]) {
   transform: translateY(var(--miaixz-drawer-offset));
 }
 

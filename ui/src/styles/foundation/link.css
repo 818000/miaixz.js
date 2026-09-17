@@ -27,7 +27,8 @@
  * Framed ButtonLink navigation is excluded and keeps its button foreground.
  */
 
-[data-miaixz-theme] :where(a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button)) {
+[data-miaixz-theme]
+  :where(a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button, .miaixz-navigation-item)) {
   color: var(--miaixz-color-brand);
   text-decoration-line: none;
   text-decoration-thickness: var(--miaixz-border-width-default);
@@ -36,10 +37,9 @@
 }
 
 [data-miaixz-theme]
-  :where(a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button)):is(
-    :hover,
-    :focus-visible
-  ) {
+  :where(
+    a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button, .miaixz-navigation-item)
+  ):is(:hover, :focus-visible) {
   color: var(--miaixz-color-brand);
   text-decoration-line: underline;
   text-decoration-color: currentcolor;
@@ -51,12 +51,12 @@
 [data-miaixz-theme]
   :where(
     [data-miaixz-link-tone="inherit"]
-      a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button)
+      a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button, .miaixz-navigation-item)
   ),
 [data-miaixz-theme]
   :where(
     [data-miaixz-link-tone="inherit"]
-      a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button)
+      a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button, .miaixz-navigation-item)
   ):is(:hover, :focus-visible) {
   color: inherit;
 }

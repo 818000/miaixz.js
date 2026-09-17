@@ -53,7 +53,7 @@
   inline-size: var(--miaixz-layout-appearance-trigger-visual-size);
   block-size: var(--miaixz-layout-appearance-trigger-visual-size);
   padding: 0;
-  color: var(--miaixz-color-on-brand);
+  color: var(--miaixz-color-text-inverse);
   touch-action: none;
   cursor: ns-resize;
   user-select: none;
@@ -70,12 +70,13 @@
 
 .miaixz-appearance-trigger:hover,
 .miaixz-appearance-trigger[aria-expanded="true"] {
-  color: var(--miaixz-color-on-brand);
+  color: var(--miaixz-color-text-inverse);
   background: var(--miaixz-color-brand-hover);
   box-shadow: var(--miaixz-shadow-overlay);
 }
 
 .miaixz-appearance-trigger:active {
+  color: var(--miaixz-color-text-inverse);
   background: var(--miaixz-color-brand-active);
 }
 

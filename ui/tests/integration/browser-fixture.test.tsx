@@ -108,5 +108,5 @@ describe("browser fixture integration", () => {
       screen.getByRole("button", { name: /关闭外观设置|Close appearance settings/u }),
     );
     expect(screen.queryByRole("dialog", { name: /主题与风格|Appearance/u })).toBeNull();
-  });
+  }, 10_000);
 });

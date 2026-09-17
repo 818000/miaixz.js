@@ -34,7 +34,7 @@ type WithoutInteractionHandlers<Props> = {
 };
 export type ListItemRootAttributes = Omit<
   WithoutInteractionHandlers<HTMLAttributes<HTMLLIElement>>,
-  "aria-current" | "aria-disabled" | "children" | "id" | "role" | "tabIndex"
+  "aria-current" | "aria-disabled" | "children" | "id" | "role" | "tabIndex" | "title"
 >;
 export type StaticListControlAttributes = Omit<
   WithoutInteractionHandlers<HTMLAttributes<HTMLDivElement>>,
@@ -49,6 +49,7 @@ interface ListItemPresentation extends ListItemRootAttributes {
   readonly meta?: ReactNode;
   readonly actions?: ReactNode;
   readonly tone?: MiaixzVisualTone;
+  readonly selected?: boolean;
 }
 type StaticListItem = {
   readonly kind: "static";
@@ -90,10 +91,12 @@ export type ListItemProps = ListItemContent &
   };
 
 export type ListLayout = "list" | "grid";
+export type ListVariant = "default" | "overview";
 export type ListDensity = "compact" | "standard" | "comfortable";
 export type ListSurface = "plain" | "panel";
 export type ListSlot = "root";
 export interface ListOwnerState {
+  readonly variant: ListVariant;
   readonly layout: ListLayout;
   readonly density: ListDensity;
   readonly surface: ListSurface;
@@ -103,6 +106,7 @@ export interface ListOwnerState {
 export type ListRootAttributes = HTMLAttributes<HTMLUListElement> &
   RefAttributes<HTMLUListElement> & {
     readonly "data-layout"?: ListLayout;
+    readonly "data-variant"?: ListVariant;
     readonly "data-density"?: ListDensity;
     readonly "data-surface"?: ListSurface;
     readonly "data-dividers"?: boolean;
@@ -110,6 +114,7 @@ export type ListRootAttributes = HTMLAttributes<HTMLUListElement> &
   };
 export interface ListProps extends Omit<HTMLAttributes<HTMLUListElement>, "children"> {
   readonly items: readonly ListItemProps[];
+  readonly variant?: ListVariant;
   readonly layout?: ListLayout;
   readonly density?: ListDensity;
   readonly surface?: ListSurface;
@@ -118,7 +123,8 @@ export interface ListProps extends Omit<HTMLAttributes<HTMLUListElement>, "child
   readonly slotProps?: { readonly root?: MiaixzSlotProps<ListOwnerState, ListRootAttributes> };
 }
 
-export type ListItemSlot = "root" | "primary" | "icon" | "content" | "meta" | "actions";
+export type ListItemSlot =
+  "root" | "primary" | "icon" | "content" | "title" | "description" | "meta" | "actions";
 export interface ListItemOwnerState {
   readonly kind: "static" | "navigation" | "command";
   readonly tone: MiaixzVisualTone;
@@ -130,6 +136,8 @@ export type ListItemSlotProps = {
   readonly primary?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLElement>>;
   readonly icon?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly content?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly description?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly meta?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly actions?: MiaixzSlotProps<ListItemOwnerState, HTMLAttributes<HTMLSpanElement>>;
 };

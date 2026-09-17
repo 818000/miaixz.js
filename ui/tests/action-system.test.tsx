@@ -37,7 +37,10 @@ import {
   type CommandAction,
 } from "../src/index.js";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 const removedHiddenClassName = ["miaixz", "visually", "hidden"].join("-");
 
@@ -122,6 +125,8 @@ describe("ActionText", () => {
     expect(action).toBeDisabled();
     expect(action).toHaveAttribute("aria-busy", "true");
     expect(action.querySelector("svg")).not.toBeNull();
+    expect(action.querySelector("svg")).toHaveAttribute("width", "12");
+    expect(action.querySelector("svg")).toHaveAttribute("height", "12");
     expect(action.querySelector(".miaixz-hidden")).toHaveTextContent("加载中");
     expect(action.querySelector(`.${removedHiddenClassName}`)).toBeNull();
   });
@@ -129,10 +134,12 @@ describe("ActionText", () => {
 
 describe("IconButton", () => {
   it("provides an accessible name without rendering visible action text", () => {
-    renderAction(<IconButton label="关闭" icon="X" onClick={() => undefined} />);
+    renderAction(<IconButton appearance="glyph" label="关闭" icon="X" onClick={() => undefined} />);
 
     const action = screen.getByRole("button", { name: "关闭" });
     expect(action).toHaveClass("miaixz-icon-button");
+    expect(action).toHaveAttribute("data-appearance", "glyph");
+    expect(action).not.toHaveAttribute("data-miaixz-ripple");
     expect(action.querySelector(".miaixz-action-label")).toBeNull();
   });
 });
@@ -153,8 +160,11 @@ describe("MoreActions", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "更多操作" }));
-    const menu = screen.getByRole("menu", { name: "更多操作" });
+    const trigger = screen.getByRole("button", { name: "更多" });
+    expect(trigger).toHaveTextContent("更多");
+    expect(trigger.querySelector("svg")).not.toBeNull();
+    fireEvent.click(trigger);
+    const menu = screen.getByRole("menu", { name: "更多" });
     expect(
       within(menu)
         .getAllByRole("menuitem")
@@ -190,7 +200,41 @@ describe("Dropdown", () => {
 });
 
 describe("RowActions", () => {
-  it("uses the deterministic zero-capacity hydration partition without layout", () => {
+  it("renders a single action directly without an overflow trigger", () => {
+    renderAction(
+      <RowActions
+        actions={[
+          commandAction({
+            id: "delete",
+            label: "删除",
+            icon: "Trash2",
+            tone: "danger",
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "删除" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "更多" })).toBeNull();
+  });
+
+  it("keeps a single compact action direct", () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({
+        matches: true,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+    renderAction(<RowActions actions={[commandAction({ id: "edit" })]} />);
+
+    expect(screen.getByRole("button", { name: "编辑" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "操作" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "更多" })).toBeNull();
+  });
+
+  it("keeps two safe desktop actions visible and moves danger into overflow", () => {
     renderAction(
       <RowActions
         actions={[
@@ -206,13 +250,47 @@ describe("RowActions", () => {
       />,
     );
 
-    expect(screen.queryByRole("button", { name: "编辑" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "查看" })).toBeNull();
+    const edit = screen.getByRole("button", { name: "编辑" });
+    const view = screen.getByRole("button", { name: "查看" });
+    expect(edit).toBeVisible();
+    expect(view).toBeVisible();
+    expect(edit.querySelector("svg")).not.toBeNull();
+    expect(view.querySelector("svg")).not.toBeNull();
     expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "更多操作" }));
-    expect(screen.getByRole("menuitem", { name: "编辑" })).toBeVisible();
-    expect(screen.getByRole("menuitem", { name: "查看" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "更多" }));
     expect(screen.getByRole("menuitem", { name: "删除" })).toBeVisible();
+  });
+
+  it("keeps compact row labels atomic behind one complete action trigger", () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({
+        matches: true,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+    renderAction(
+      <RowActions
+        actions={[
+          commandAction({ id: "edit" }),
+          commandAction({ id: "reset", label: "重置密码", icon: "KeyRound" }),
+          commandAction({ id: "freeze", label: "冻结", icon: "Snowflake", tone: "danger" }),
+        ]}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "编辑" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "更多" })).toBeNull();
+    const trigger = screen.getByRole("button", { name: "操作" });
+    expect(trigger).toHaveTextContent("操作");
+    fireEvent.click(trigger);
+    const menu = screen.getByRole("menu", { name: "操作" });
+    expect(
+      within(menu)
+        .getAllByRole("menuitem")
+        .map((item) => item.textContent),
+    ).toEqual(["编辑", "重置密码", "冻结"]);
   });
 });
 
@@ -233,7 +311,7 @@ describe("ActionBar", () => {
     expect(screen.queryByRole("button", { name: "编辑" })).toBeNull();
     expect(screen.queryByRole("button", { name: "刷新" })).toBeNull();
     expect(screen.queryByRole("button", { name: "导出" })).toBeNull();
-    expect(screen.getAllByRole("button", { name: "更多操作" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "更多" })).toHaveLength(1);
   });
 });
 

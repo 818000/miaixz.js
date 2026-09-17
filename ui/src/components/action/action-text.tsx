@@ -36,8 +36,7 @@ export const ActionText = withMiaixzThemeComponent(
     { action, slotProps },
     ref,
   ) {
-    const startIcon =
-      action.icon === undefined ? undefined : <Icon name={action.icon} size="control" />;
+    const startIcon = action.icon === undefined ? undefined : <Icon name={action.icon} size={12} />;
     return (
       <ActionTarget
         ref={ref}

@@ -19,6 +19,7 @@
 */
 
 import type {
+  AvatarGroupProps,
   AvatarProps,
   ActionDescriptor,
   BadgeProps,
@@ -74,8 +75,6 @@ import type {
 import type { EditorOverviewProps, EditorSummaryProps } from "../../src/components/editor/index.js";
 
 declare const avatar: AvatarProps;
-/**
- * @ts-expect-error Avatar has no caller-owned content branch. */
 void avatar.children;
 /**
  * @ts-expect-error Avatar owns its image semantics. */
@@ -94,6 +93,27 @@ void avatar["aria-hidden"];
  * @ts-expect-error Removed scenario sizes are not component sizes. */
 const invalidAvatarSize: NonNullable<AvatarProps["size"]> = "account";
 void invalidAvatarSize;
+
+const avatarWithContent: AvatarProps = {
+  alt: "Folder",
+  children: "F",
+  srcSet: "/folder.png 1x, /folder@2x.png 2x",
+  sizes: "32px",
+  variant: "rounded",
+};
+const avatarGroup: AvatarGroupProps = {
+  max: 4,
+  spacing: 12,
+  total: 24,
+  variant: "square",
+  renderSurplus: (surplus) => `+${surplus}`,
+};
+void [avatarWithContent, avatarGroup];
+
+/**
+ * @ts-expect-error Avatar accepts only package-owned shape variants. */
+const invalidAvatarVariant: NonNullable<AvatarProps["variant"]> = "pill";
+void invalidAvatarVariant;
 
 declare const bar: BarProps;
 /**
@@ -297,8 +317,6 @@ declare const list: ListProps;
 /**
  * @ts-expect-error List renders only its item model. */
 void list.children;
-/**
- * @ts-expect-error List has no legacy visual recipe. */
 void list.variant;
 declare const descriptions: DescriptionsProps;
 /**
@@ -306,8 +324,6 @@ declare const descriptions: DescriptionsProps;
 void descriptions.children;
 
 declare const toolbar: ToolbarProps;
-/**
- * @ts-expect-error Toolbar naming uses native ARIA attributes. */
 void toolbar.label;
 /**
  * @ts-expect-error Toolbar has one ordered children source. */
@@ -318,8 +334,6 @@ void toolbar.actions;
 /**
  * @ts-expect-error Sticky positioning belongs to an outer layout owner. */
 void toolbar.sticky;
-/**
- * @ts-expect-error Toolbar has no legacy visual recipe. */
 void toolbar.variant;
 
 declare const drawer: DrawerProps;
@@ -484,9 +498,8 @@ declare const columns: ColumnsProps;
 /**
  * @ts-expect-error Columns has no product scenario variant. */
 void columns.variant;
-/**
- * @ts-expect-error Columns has no second geometry vocabulary. */
-void columns.size;
+const largeColumns: NonNullable<ColumnsProps["size"]> = "large";
+void largeColumns;
 
 declare const view: ViewProps;
 /**
@@ -519,7 +532,7 @@ void sections.groups;
 const validPanels: readonly PanelProps[] = [
   { children: "内容" },
   { "aria-label": "状态面板", as: "section", children: "内容" },
-  { as: "article", children: "内容", title: "标题" },
+  { as: "article", children: "内容", interaction: "lift", title: "标题" },
 ];
 /**
  * @ts-expect-error A section Panel requires exactly one accessible name. */

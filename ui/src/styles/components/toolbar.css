@@ -50,3 +50,90 @@
   border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: var(--miaixz-radius-control);
 }
+
+.miaixz-toolbar-panel {
+  min-height: 60px;
+  padding: var(--miaixz-space-12) var(--miaixz-space-16);
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-toolbar-directory {
+  gap: var(--miaixz-space-16);
+  justify-content: space-between;
+  min-height: 60px;
+  padding: var(--miaixz-space-16) var(--miaixz-space-16) var(--miaixz-space-12);
+}
+
+.miaixz-toolbar-sticky {
+  position: sticky;
+  top: var(--miaixz-layout-sticky-offset);
+  z-index: var(--miaixz-z-sticky);
+  padding: var(--miaixz-space-12);
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+  box-shadow: var(--miaixz-shadow-low);
+}
+
+.miaixz-toolbar-filter,
+.miaixz-toolbar-inline {
+  gap: var(--miaixz-space-12);
+  justify-content: space-between;
+  min-height: 60px;
+  padding: 10px 14px;
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-toolbar-batch {
+  min-height: 52px;
+  padding: var(--miaixz-space-8) 14px;
+  background: var(--miaixz-color-surface-secondary);
+  border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-toolbar-editor {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  min-height: 58px;
+  padding: 10px 14px;
+}
+
+.miaixz-toolbar-grid {
+  display: grid;
+  gap: var(--miaixz-space-16);
+  align-items: center;
+  min-height: 68px;
+  padding: var(--miaixz-space-12) var(--miaixz-space-24);
+}
+
+@media (width <= 840px) {
+  .miaixz-toolbar-filter {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--miaixz-space-12);
+  }
+}
+
+@media (width <= 720px) {
+  .miaixz-toolbar-directory,
+  .miaixz-toolbar-editor,
+  .miaixz-toolbar-inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .miaixz-toolbar-directory {
+    padding: var(--miaixz-space-12);
+  }
+
+  .miaixz-toolbar-grid {
+    align-items: stretch;
+    padding-inline: var(--miaixz-space-16);
+  }
+}
+
+@media (width >= 721px) {
+  .miaixz-toolbar-editor {
+    border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  }
+}

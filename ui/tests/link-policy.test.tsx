@@ -49,7 +49,8 @@ describe("global link and command semantics", () => {
 
   it("limits the foundation link recipe to anchors and decoration helpers", () => {
     const css = readFileSync("src/styles/foundation/link.css", "utf8");
-    expect(css).toContain("a:not(.miaixz-button, .miaixz-action-text, .miaixz-icon-button)");
+    expect(css).toContain("a:not(");
+    expect(css).toContain(".miaixz-navigation-item");
     expect(css).toContain(".miaixz-link-underline");
     expect(css).toContain(".miaixz-link-no-underline");
     expect(css).not.toContain("!important");

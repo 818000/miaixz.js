@@ -19,6 +19,23 @@
 */
 
 import type { HTMLAttributes, ReactNode } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+export interface MetricsOwnerState {
+  readonly layout: "strip" | "grid";
+  readonly columns: 3 | 4 | 5;
+  readonly responsive: "default" | "mobile" | "none";
+  readonly surface: "filled" | "plain";
+  readonly density: "compact" | "standard" | "comfortable";
+}
+
+export type MetricsScrollAttributes = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "aria-labelledby" | "children" | "role" | "tabIndex"
+>;
+export type MetricsSlotProps = {
+  readonly scroll?: MiaixzSlotProps<MetricsOwnerState, MetricsScrollAttributes>;
+};
 
 type MetricsName =
   | { readonly "aria-label"?: string; readonly "aria-labelledby"?: never }
@@ -35,4 +52,5 @@ export type MetricsProps = Omit<
     readonly surface?: "filled" | "plain";
     readonly density?: "compact" | "standard" | "comfortable";
     readonly spacingAfter?: "none" | "compact";
+    readonly slotProps?: MetricsSlotProps;
   };

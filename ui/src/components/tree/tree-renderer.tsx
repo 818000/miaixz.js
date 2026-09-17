@@ -40,6 +40,7 @@ export interface TreeRendererProps<Value> {
   readonly errorIds: ReadonlySet<string>;
   readonly focusedId: string | null;
   readonly selectionMode: "none" | "single" | "multiple";
+  readonly showSelectionIndicator: boolean;
   readonly surface: TreeOwnerState["surface"];
   readonly connectors: boolean;
   readonly dividerStyle: TreeOwnerState["dividerStyle"];
@@ -193,7 +194,7 @@ export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
             {node.trailing !== undefined && (
               <span className="miaixz-tree-trailing">{node.trailing}</span>
             )}
-            {selected && props.selectionMode !== "none" && (
+            {selected && props.selectionMode !== "none" && props.showSelectionIndicator && (
               <Icon name="Check" size="control" className="miaixz-tree-selection" />
             )}
           </div>

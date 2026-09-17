@@ -43,7 +43,7 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const TableContainer = withMiaixzThemeComponent(
   "TableContainer",
   forwardRef<HTMLDivElement, TableContainerProps>(function TableContainer(
-    { className, frame = "default", surface = "default", ...props },
+    { className, frame = "default", surface = "default", minimumWidth = "default", ...props },
     ref,
   ) {
     return (
@@ -56,6 +56,7 @@ export const TableContainer = withMiaixzThemeComponent(
           surface === "transparent" && "miaixz-table-container-transparent",
           className,
         )}
+        data-minimum-width={minimumWidth}
       />
     );
   }),

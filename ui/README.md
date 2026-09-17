@@ -489,10 +489,18 @@ The public component collection includes:
 
 - Foundations and forms: Icon, Button, Input, Search, Textarea, Select, Combobox, Picker, Field, Checkbox, Radio, Switch, Dropzone, and Upload.
 - Navigation and layout: Navigation, Breadcrumb, Tabs, Toolbar, Shell, Page, View, Header, Grid, Cluster, Split, Stack, Sidebar, Scroll, and Entry.
-- Data display: Panel, List, Table, Datagrid, Tree, Badge, Pagination, Avatar, Divider, and Status.
+- Data display: Panel, List, Table, Datagrid, Tree, Badge, Pagination, Avatar, AvatarGroup, Divider, and Status.
 - Feedback and overlays: Alert, Notice, Progress, Spinner, Overlay, Tooltip, Popover, Dropdown, Dialog, Confirm, Drawer, Toast, Skeleton, Empty, and Hidden.
 
 Interactive components preserve native semantics, keyboard behavior, and visible focus. Icon-only buttons must provide an accessible name.
+
+### Avatar capability
+
+`Avatar` uses Miaixz tokens and slots while supporting image and responsive image sources, explicit text or icon content, semantic or custom CSS sizes, circular/rounded/square shapes, status or count indicators, and deterministic image fallbacks. Its fallback order is explicit `children`, the existing `name` graphemes, the first `alt` grapheme, then the package `UserRound` icon.
+
+`AvatarGroup` stacks avatars with Miaixz spacing and surface tokens. It supports a visible maximum, a server-provided total, custom surplus content, preset or numeric overlap spacing, inherited shape, root/surplus slots, refs, and Theme defaults/variants.
+
+Avatar interaction remains compositional. Use `Pressable` around an Avatar for commands or menu triggers, and use `Dropzone accept="image/*"` around an Avatar for local image selection. The Avatar itself never changes into a button or performs an upload. This preserves native interaction semantics without duplicating an avatar-specific button or uploader.
 
 ## Local development
 

@@ -176,6 +176,7 @@ describe("Panel", () => {
         surface="plain"
         frame="elevated"
         density="comfortable"
+        interaction="lift"
         slotProps={{
           root: ({ as }) => ({ className: `root-${as}` }),
           header: { className: "header-slot" },
@@ -191,6 +192,7 @@ describe("Panel", () => {
     expect(panel).toHaveClass("root-section");
     expect(panel).toHaveAttribute("data-surface", "plain");
     expect(panel).toHaveAttribute("data-frame", "elevated");
+    expect(panel).toHaveAttribute("data-interaction", "lift");
     expect(screen.getByRole("heading", { name: "Account", level: 4 })).toBeInTheDocument();
     expect(container.querySelector(".header-slot")).toHaveTextContent("Manage account");
     expect(container.querySelector(".actions-slot")).toHaveTextContent("Edit");

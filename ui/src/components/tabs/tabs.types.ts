@@ -42,7 +42,7 @@ export type TabsValueState =
       readonly defaultValue?: string;
       readonly onValueChange?: (value: string) => void;
     };
-export type TabsSlot = "root" | "list" | "tab" | "label" | "count" | "panel";
+export type TabsSlot = "root" | "header" | "list" | "actions" | "tab" | "label" | "count" | "panel";
 export interface TabsOwnerState {
   readonly orientation: TabsOrientation;
   readonly activationMode: TabsActivationMode;
@@ -51,10 +51,20 @@ export interface TabsOwnerState {
   readonly value: string | undefined;
 }
 export type TabsRootAttributes = HTMLAttributes<HTMLDivElement> &
-  RefAttributes<HTMLDivElement> & { readonly "data-orientation"?: TabsOrientation };
+  RefAttributes<HTMLDivElement> & {
+    readonly "data-orientation"?: TabsOrientation;
+    readonly "data-variant"?: "default" | "navigation" | "editor";
+    readonly "data-panel-padding"?: "default" | "none";
+  };
+export type TabsHeaderAttributes = HTMLAttributes<HTMLDivElement> & {
+  readonly "data-actions-placement"?: "end" | "adjacent";
+  readonly "data-inset"?: boolean;
+};
 export interface TabsSlotProps {
   readonly root?: MiaixzSlotProps<TabsOwnerState, TabsRootAttributes>;
+  readonly header?: MiaixzSlotProps<TabsOwnerState, TabsHeaderAttributes>;
   readonly list?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly tab?: MiaixzSlotProps<TabsOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
   readonly label?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly count?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -65,6 +75,12 @@ export interface MiaixzTabsOwnProps {
   readonly label: string;
   readonly orientation?: TabsOrientation;
   readonly activationMode?: TabsActivationMode;
+  readonly actions?: ReactNode;
+  readonly actionsPlacement?: "end" | "adjacent";
+  readonly headerInset?: boolean;
+  readonly headerVariant?: "default" | "toolbar";
+  readonly panelPadding?: "default" | "none";
+  readonly variant?: "default" | "navigation" | "editor";
   readonly slotProps?: TabsSlotProps;
 }
 /**

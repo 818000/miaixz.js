@@ -31,10 +31,6 @@
   width: 100%;
 }
 
-.miaixz-button:where(:active:not(:disabled)) {
-  transform: translateY(var(--miaixz-border-width-default));
-}
-
 .miaixz-button[data-variant="solid"][data-tone="neutral"] {
   color: var(--miaixz-color-text-inverse);
   background: var(--miaixz-color-text-primary);
@@ -52,7 +48,7 @@
 }
 
 .miaixz-button[data-variant="solid"][data-tone="brand"] {
-  color: var(--miaixz-color-on-brand);
+  color: var(--miaixz-color-text-inverse);
   background: var(--miaixz-color-brand);
   border-color: var(--miaixz-color-brand);
 }
@@ -160,7 +156,50 @@
   background: var(--miaixz-color-danger-soft);
 }
 
-.miaixz-button:disabled {
+button.miaixz-icon-button[data-appearance="glyph"][data-variant="plain"] {
+  padding: 0;
+  color: var(--miaixz-color-brand);
+  background: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+button.miaixz-icon-button[data-appearance="glyph"][data-variant="plain"]:is(:hover, :active):not(
+    :disabled
+  ) {
+  color: var(--miaixz-color-brand-strong);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+button.miaixz-icon-button[data-appearance="glyph"][data-variant="plain"]:focus-visible {
+  color: var(--miaixz-color-brand-strong);
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-space-2);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+button.miaixz-icon-button[data-appearance="glyph"][data-variant="plain"]
+  .miaixz-interaction-ripple-layer {
+  display: none;
+}
+
+button.miaixz-button.miaixz-icon-button[data-appearance="glyph"][data-variant="plain"]:disabled {
+  color: var(--miaixz-color-text-disabled);
+  background: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.miaixz-button.miaixz-button:disabled {
   color: var(--miaixz-color-text-disabled);
   cursor: default;
   background: var(--miaixz-color-surface-secondary);
@@ -169,17 +208,18 @@
 }
 
 .miaixz-button-label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: none;
+  min-width: max-content;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
 .miaixz-button-content {
   display: inline-flex;
-  gap: var(--miaixz-control-gap);
+  gap: var(--miaixz-space-2);
   align-items: center;
-  min-width: 0;
+  min-width: max-content;
 }
 
 .miaixz-button-content[data-loading="true"],

@@ -18,14 +18,11 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Drawer } from "../drawer/drawer.js";
 import type { ShellOwnerState, ShellProps } from "./shell.types.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
-
-const mobileQuery = "(max-width: 1023px)";
 
 /**
  * Provides the sole page-level main and navigation layout owner. @public
@@ -47,15 +44,6 @@ export const Shell = withMiaixzThemeComponent(
     },
     ref,
   ) {
-    const [isMobile, setIsMobile] = useState(false);
-    useEffect(() => {
-      if (typeof window.matchMedia !== "function") return;
-      const query = window.matchMedia(mobileQuery);
-      const update = () => setIsMobile(query.matches);
-      update();
-      query.addEventListener("change", update);
-      return () => query.removeEventListener("change", update);
-    }, []);
     const ownerState: ShellOwnerState = {
       desktopNavigation,
       mobileNavigation,
@@ -64,88 +52,67 @@ export const Shell = withMiaixzThemeComponent(
     };
     const expanded = desktopNavigation.mode === "rail" && desktopNavigation.expanded;
     return (
-      <>
-        <div
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-shell" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-desktop-navigation": desktopNavigation.mode,
+            ...(expanded ? { "data-navigation-expanded": true } : {}),
+            "data-header-behavior": headerBehavior,
+          },
+          ownedProps: [
+            "data-desktop-navigation",
+            "data-navigation-expanded",
+            "data-header-behavior",
+          ],
+        })}
+      >
+        <header
           {...mergeMiaixzSlotProps({
             ownerState,
-            defaultProps: { className: "miaixz-shell" },
-            componentProps: props,
-            slotProps: slotProps?.root,
-            forwardedRef: ref,
-            internalProps: {
-              "data-desktop-navigation": desktopNavigation.mode,
-              ...(expanded ? { "data-navigation-expanded": true } : {}),
-              "data-header-behavior": headerBehavior,
-            },
-            ownedProps: [
-              "data-desktop-navigation",
-              "data-navigation-expanded",
-              "data-header-behavior",
-            ],
+            defaultProps: { className: "miaixz-shell-header" },
+            slotProps: slotProps?.header,
           })}
         >
-          <header
+          {header}
+        </header>
+        <aside
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-shell-sidebar" },
+            slotProps: slotProps?.sidebar,
+            internalProps: { "data-overflow": sidebarOverflow },
+            ownedProps: ["data-overflow"],
+          })}
+        >
+          {sidebar}
+        </aside>
+        <main
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-shell-main" },
+            slotProps: slotProps?.main,
+            internalRef: mainRef,
+          })}
+        >
+          {children}
+        </main>
+        {mobileNavigation.mode === "bottom" && (
+          <div
             {...mergeMiaixzSlotProps({
               ownerState,
-              defaultProps: { className: "miaixz-shell-header" },
-              slotProps: slotProps?.header,
+              defaultProps: { className: "miaixz-shell-mobile-navigation" },
+              slotProps: slotProps?.mobileNavigation,
             })}
           >
-            {header}
-          </header>
-          <aside
-            {...mergeMiaixzSlotProps({
-              ownerState,
-              defaultProps: { className: "miaixz-shell-sidebar" },
-              slotProps: slotProps?.sidebar,
-              internalProps: { "data-overflow": sidebarOverflow },
-              ownedProps: ["data-overflow"],
-            })}
-          >
-            {sidebar}
-          </aside>
-          <main
-            {...mergeMiaixzSlotProps({
-              ownerState,
-              defaultProps: { className: "miaixz-shell-main" },
-              slotProps: slotProps?.main,
-              internalRef: mainRef,
-            })}
-          >
-            {children}
-          </main>
-          {mobileNavigation.mode === "bottom" && (
-            <div
-              {...mergeMiaixzSlotProps({
-                ownerState,
-                defaultProps: { className: "miaixz-shell-mobile-navigation" },
-                slotProps: slotProps?.mobileNavigation,
-              })}
-            >
-              {mobileNavigation.content}
-            </div>
-          )}
-        </div>
-        {mobileNavigation.mode === "drawer" && isMobile && (
-          <Drawer
-            closeLabel={mobileNavigation.dismissLabel}
-            onOpenChange={(open) => mobileNavigation.onOpenChange(open)}
-            open={mobileNavigation.open}
-            placement="left"
-            title={mobileNavigation.dismissLabel}
-          >
-            <div
-              {...mergeMiaixzSlotProps({
-                ownerState,
-                defaultProps: { className: "miaixz-shell-mobile-navigation" },
-                slotProps: slotProps?.mobileNavigation,
-              })}
-            >
-              {sidebar}
-            </div>
-          </Drawer>
+            {mobileNavigation.content}
+          </div>
         )}
-      </>
+      </div>
     );
   }),
 );

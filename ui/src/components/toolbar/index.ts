@@ -24,4 +24,5 @@ export type {
   ToolbarOrientation,
   ToolbarProps,
   ToolbarSurface,
+  ToolbarVariant,
 } from "./toolbar.types.js";

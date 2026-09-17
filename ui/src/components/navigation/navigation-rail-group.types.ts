@@ -24,10 +24,12 @@ import type { MiaixzSlotProps } from "../../shared/slots.js";
 export type NavigationRailGroupSlot = "root" | "marker" | "line" | "label";
 export interface NavigationRailGroupOwnerState {
   readonly separated: boolean;
+  readonly labelVisible: boolean;
 }
 export type NavigationRailGroupRootAttributes = HTMLAttributes<HTMLElement> &
   RefAttributes<HTMLElement> & {
     readonly "data-separated"?: boolean;
+    readonly "data-label-hidden"?: boolean;
   };
 export interface NavigationRailGroupSlotProps {
   readonly root?: MiaixzSlotProps<NavigationRailGroupOwnerState, NavigationRailGroupRootAttributes>;
@@ -37,6 +39,7 @@ export interface NavigationRailGroupSlotProps {
 }
 export interface MiaixzNavigationRailGroupOwnProps {
   readonly label: ReactNode;
+  readonly labelVisible?: boolean;
   readonly separated?: boolean;
   readonly slotProps?: NavigationRailGroupSlotProps;
 }

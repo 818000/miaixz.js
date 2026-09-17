@@ -51,6 +51,7 @@ export const NavigationRail = withMiaixzThemeComponent(
       variant = "default",
       density = "standard",
       overflowLabel,
+      overflowBehavior = "menu",
       slotProps,
       ...props
     },
@@ -67,7 +68,16 @@ export const NavigationRail = withMiaixzThemeComponent(
     const [measurements, setMeasurements] = useState(emptyMeasurements);
     const [measured, setMeasured] = useState(false);
     const ownerState: NavigationRailOwnerState = { expanded, variant, density, measured };
-    const layout = useMemo(() => resolveRailLayout(groups, measurements), [groups, measurements]);
+    const layout = useMemo(() => {
+      if (overflowBehavior === "scroll") {
+        return {
+          visibleIds: new Set(groups.flatMap((group) => group.items.map((item) => item.id))),
+          overflowItems: [],
+          protectedOverflow: false,
+        };
+      }
+      return resolveRailLayout(groups, measurements);
+    }, [groups, measurements, overflowBehavior]);
 
     useMiaixzLayoutEffect(() => {
       const body = bodyRef.current;
@@ -178,7 +188,10 @@ export const NavigationRail = withMiaixzThemeComponent(
             slotProps: slotProps?.body,
             internalRef: bodyRef,
             internalProps: {
-              style: { overflowY: layout.protectedOverflow ? "auto" : "hidden" },
+              style: {
+                overflowY:
+                  overflowBehavior === "scroll" || layout.protectedOverflow ? "auto" : "hidden",
+              },
             },
           })}
         >

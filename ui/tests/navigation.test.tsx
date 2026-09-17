@@ -58,6 +58,7 @@ describe("Navigation", () => {
       <NavigationRail
         brand={<a href="/">Miaixz</a>}
         expanded
+        overflowBehavior="scroll"
         groups={[
           {
             id: "primary",
@@ -82,6 +83,9 @@ describe("Navigation", () => {
 
     expect(screen.getByRole("link", { name: "工作台" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByText("平台底座")).toBeVisible();
+    expect(container.querySelector(".miaixz-navigation-rail-body")).toHaveStyle({
+      overflowY: "auto",
+    });
     expect(container.querySelector("[data-overflow-mode]")).toBeNull();
     expect(container.querySelector(".miaixz-navigation-rail")).toBeNull();
     expect(container.querySelector(".miaixz-navigation-rail-frame")).not.toBeNull();

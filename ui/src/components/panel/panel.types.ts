@@ -24,6 +24,9 @@ import type { MiaixzSlotProps } from "../../shared/slots.js";
 export type PanelSurface = "plain" | "filled";
 export type PanelFrame = "none" | "outlined" | "elevated";
 export type PanelDensity = "compact" | "standard" | "comfortable";
+export type PanelBodyPadding = "default" | "none";
+export type PanelMinHeight = "default" | "tall";
+export type PanelInteraction = "none" | "lift";
 type PanelAccessibleName =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
@@ -33,7 +36,7 @@ type PanelNativeProps = Omit<
 >;
 export type PanelSemanticRootProps =
   | (PanelNativeProps & {
-      readonly as?: "div" | "article";
+      readonly as?: "div" | "article" | "header";
       readonly "aria-label"?: never;
       readonly "aria-labelledby"?: never;
     })
@@ -58,17 +61,26 @@ export interface PanelOwnerState {
   readonly surface: PanelSurface;
   readonly frame: PanelFrame;
   readonly density: PanelDensity;
-  readonly as: "div" | "section" | "article" | "aside";
+  readonly minHeight: PanelMinHeight;
+  readonly interaction: PanelInteraction;
+  readonly as: "div" | "section" | "article" | "aside" | "header";
 }
 export type PanelRootAttributes = HTMLAttributes<HTMLElement> &
   RefAttributes<HTMLElement> & {
     readonly "data-surface"?: PanelSurface;
     readonly "data-frame"?: PanelFrame;
     readonly "data-density"?: PanelDensity;
+    readonly "data-body-padding"?: PanelBodyPadding;
+    readonly "data-min-height"?: PanelMinHeight;
+    readonly "data-interaction"?: PanelInteraction;
   };
 export interface PanelSlotProps {
   readonly root?: MiaixzSlotProps<PanelOwnerState, PanelRootAttributes>;
   readonly header?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly headerCopy?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly headerLeading?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly headerTitle?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLHeadingElement>>;
+  readonly headerDescription?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly body?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly footer?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly actions?: MiaixzSlotProps<PanelOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -80,6 +92,9 @@ export type PanelProps = PanelHeaderContent &
     readonly surface?: PanelSurface;
     readonly frame?: PanelFrame;
     readonly density?: PanelDensity;
+    readonly bodyPadding?: PanelBodyPadding;
+    readonly minHeight?: PanelMinHeight;
+    readonly interaction?: PanelInteraction;
     readonly slotProps?: PanelSlotProps;
   };
 

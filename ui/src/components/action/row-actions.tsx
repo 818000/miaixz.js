@@ -18,15 +18,12 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { createRef, useMemo, useRef, type HTMLAttributes } from "react";
+import { type HTMLAttributes } from "react";
 
-import {
-  assertUniqueActionIds,
-  partitionActions,
-  useActionCapacity,
-} from "../../shared/responsive/action-capacity.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { assertUniqueActionIds } from "../../shared/responsive/action-capacity.js";
+import { useMiaixzCompactActions } from "../../shared/responsive/compact-actions.js";
 import { useMergedSlotProps } from "../../shared/slots.js";
-import { Icon } from "../icon/icon.js";
 import { ActionText } from "./action-text.js";
 import type { RowActionsOwnerState, RowActionsProps } from "./action.types.js";
 import { MoreActionsView } from "./more-actions.js";
@@ -41,16 +38,14 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
  */
 function RowActions(properties: RowActionsProps) {
   const { actions, overflowLabel, slotProps } = properties;
+  const { t } = useMiaixzLocale();
   assertUniqueActionIds(actions);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const overflowMeasureRef = useRef<HTMLSpanElement>(null);
-  const actionMeasureRefs = useMemo(
-    () => actions.map(() => createRef<HTMLSpanElement>()),
-    [actions],
-  );
-  const capacity = useActionCapacity({ rootRef, actionMeasureRefs, overflowMeasureRef });
-  const partition = partitionActions(actions, capacity);
-  const ownerState: RowActionsOwnerState = { overflow: partition.overflow.length > 0 };
+  const compact = useMiaixzCompactActions();
+  const safeActions = actions.filter((action) => action.tone !== "danger");
+  const visible = actions.length === 1 ? actions : compact ? [] : safeActions.slice(0, 2);
+  const visibleIds = new Set(visible.map((action) => action.id));
+  const overflow = actions.filter((action) => !visibleIds.has(action.id));
+  const ownerState: RowActionsOwnerState = { overflow: overflow.length > 0 };
   const rootProps = useMergedSlotProps<
     RowActionsOwnerState,
     HTMLAttributes<HTMLDivElement>,
@@ -59,32 +54,20 @@ function RowActions(properties: RowActionsProps) {
     ownerState,
     defaultProps: { className: "miaixz-row-actions" },
     slotProps: slotProps?.root,
-    internalRef: (element) => {
-      rootRef.current = element;
-    },
   });
 
   return (
     <div {...rootProps}>
-      <span className="miaixz-action-measurements" aria-hidden="true" inert>
-        {actions.map((action, index) => (
-          <span key={action.id} ref={actionMeasureRefs[index]} className="miaixz-action-text">
-            {action.icon !== undefined && (
-              <span className="miaixz-button-icon">
-                <Icon name={action.icon} size="control" />
-              </span>
-            )}
-            <span className="miaixz-button-label">{action.label}</span>
-          </span>
-        ))}
-        <span ref={overflowMeasureRef} className="miaixz-icon-button" />
-      </span>
-      {partition.visible.map((action) => (
+      {visible.map((action) => (
         <ActionText key={action.id} action={action} />
       ))}
       <MoreActionsView
-        actions={partition.overflow}
-        {...(overflowLabel === undefined ? {} : { label: overflowLabel })}
+        actions={overflow}
+        {...(overflowLabel === undefined
+          ? compact
+            ? { label: t("ui.action.actions") }
+            : {}
+          : { label: overflowLabel })}
       />
     </div>
   );

@@ -31,6 +31,7 @@ export type NavigationRailItem = NavigationEntry & {
 export interface NavigationRailGroupModel {
   readonly id: string;
   readonly label: ReactNode;
+  readonly labelVisible?: boolean;
   readonly items: readonly NavigationRailItem[];
   readonly placement?: "start" | "end";
 }
@@ -67,6 +68,7 @@ export interface MiaixzNavigationRailOwnProps {
   readonly toggle: ReactNode;
   readonly groups: readonly NavigationRailGroupModel[];
   readonly overflowLabel?: string;
+  readonly overflowBehavior?: "menu" | "scroll";
   readonly expanded?: boolean;
   readonly variant?: NavigationRailVariant;
   readonly density?: NavigationRailDensity;

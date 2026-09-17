@@ -248,7 +248,7 @@ function DatagridImplementation<Row>(
           aria-label={caption}
           className="miaixz-table-container miaixz-table-container-plain miaixz-datagrid-container"
         >
-          <Table density={density} dividerStyle="dashed" stickyHeader={bodyLayout === "fill"}>
+          <Table dividerStyle="dashed" stickyHeader={bodyLayout === "fill"}>
             <TableCaption>{caption}</TableCaption>
             <TableHeader>
               <TableRow>

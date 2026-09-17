@@ -32,7 +32,12 @@ import type {
   RowActionsProps,
 } from "../components/action/action.types.js";
 import type { AlertOwnerState, AlertProps } from "../components/alert/alert.types.js";
-import type { AvatarOwnerState, AvatarProps } from "../components/avatar/avatar.types.js";
+import type {
+  AvatarGroupOwnerState,
+  AvatarGroupProps,
+  AvatarOwnerState,
+  AvatarProps,
+} from "../components/avatar/avatar.types.js";
 import type { BadgeOwnerState, BadgeProps } from "../components/badge/badge.types.js";
 import type { BarProps } from "../components/bar/bar.types.js";
 import type { BrandOwnerState, BrandProps } from "../components/brand/brand.types.js";
@@ -184,6 +189,10 @@ import type { TooltipOwnerState, TooltipProps } from "../components/tooltip/tool
 import type { TreeOwnerState, TreeProps } from "../components/tree/tree.types.js";
 import type { UploadOwnerState, UploadProps } from "../components/upload/upload.types.js";
 import type { ViewOwnerState, ViewProps } from "../components/view/view.types.js";
+import type {
+  ViewSwitchOwnerState,
+  ViewSwitchProps,
+} from "../components/view-switch/view-switch.types.js";
 import type { AppearanceOwnerState, AppearanceProps } from "../appearance/appearance.types.js";
 import { classNames } from "../shared/class-names.js";
 
@@ -262,6 +271,7 @@ export interface MiaixzThemeComponentRegistry {
   >;
   readonly Tabs: MiaixzThemeEntry<TabsProps, TabsOwnerState>;
   readonly View: MiaixzThemeEntry<ViewProps, ViewOwnerState>;
+  readonly ViewSwitch: MiaixzThemeEntry<ViewSwitchProps, ViewSwitchOwnerState>;
   readonly Panel: MiaixzThemeEntry<PanelProps, PanelOwnerState>;
   readonly PanelHeader: MiaixzThemeEntry<PanelHeaderProps, PanelHeaderOwnerState>;
   readonly PanelFooter: MiaixzThemeEntry<PanelFooterProps, PanelFooterOwnerState>;
@@ -284,6 +294,7 @@ export interface MiaixzThemeComponentRegistry {
   >;
   readonly Graph: MiaixzThemeEntry<GraphProps, GraphOwnerState>;
   readonly Avatar: MiaixzThemeEntry<AvatarProps, AvatarOwnerState>;
+  readonly AvatarGroup: MiaixzThemeEntry<AvatarGroupProps, AvatarGroupOwnerState>;
   readonly Divider: MiaixzThemeEntry<DividerProps, MiaixzEmptyOwnerState>;
   readonly Spinner: MiaixzThemeEntry<SpinnerProps, SpinnerOwnerState>;
   readonly Icon: MiaixzThemeEntry<

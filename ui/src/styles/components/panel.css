@@ -44,6 +44,30 @@
   box-shadow: var(--miaixz-shadow-medium);
 }
 
+.miaixz-panel[data-min-height="tall"] {
+  min-height: 650px;
+}
+
+.miaixz-panel[data-interaction="lift"] {
+  transition:
+    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    box-shadow var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    transform var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-panel[data-interaction="lift"]:hover {
+  border-color: var(--miaixz-color-border);
+  box-shadow: var(--miaixz-shadow-low);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-panel[data-interaction="lift"] {
+    transform: none;
+    transition-duration: 0s;
+  }
+}
+
 .miaixz-panel[data-density="compact"] {
   --miaixz-panel-padding: var(--miaixz-space-12);
   --miaixz-panel-gap: var(--miaixz-space-8);
@@ -52,6 +76,19 @@
 .miaixz-panel[data-density="comfortable"] {
   --miaixz-panel-padding: var(--miaixz-space-24);
   --miaixz-panel-gap: var(--miaixz-space-20);
+}
+
+.miaixz-panel[data-density="comfortable"][data-header-only] > .miaixz-panel-header {
+  align-items: center;
+  min-height: 82px;
+  padding: var(--miaixz-space-16) var(--miaixz-space-20);
+}
+
+.miaixz-panel[data-density="comfortable"][data-header-only] .miaixz-panel-leading {
+  width: 38px;
+  height: 38px;
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
 }
 
 .miaixz-panel-header,
@@ -66,6 +103,10 @@
   gap: var(--miaixz-panel-header-gap);
   align-items: flex-start;
   justify-content: space-between;
+}
+
+.miaixz-panel-header:not(:has(.miaixz-panel-description)) {
+  align-items: center;
 }
 
 .miaixz-panel-header[data-alignment="start"] {
@@ -143,6 +184,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--miaixz-panel-gap);
+}
+
+.miaixz-panel[data-body-padding="none"] > .miaixz-panel-body {
+  padding: 0;
 }
 
 .miaixz-panel-header + .miaixz-panel-body {

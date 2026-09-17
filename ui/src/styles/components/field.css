@@ -53,7 +53,7 @@
   font-size: var(--miaixz-text-caption-size);
   font-weight: var(--miaixz-font-weight-medium);
   line-height: var(--miaixz-text-caption-line-height);
-  color: var(--miaixz-color-text-primary);
+  color: var(--miaixz-color-brand);
 }
 
 .miaixz-field-required {
@@ -77,11 +77,15 @@
   color: var(--miaixz-color-danger);
 }
 
-.miaixz-field:has(> .miaixz-control-small) {
+.miaixz-field-control {
+  display: contents;
+}
+
+.miaixz-field:has(> .miaixz-control-small, > .miaixz-field-control > .miaixz-control-small) {
   --miaixz-field-control-height: var(--miaixz-control-height-small);
 }
 
-.miaixz-field:has(> .miaixz-control-large) {
+.miaixz-field:has(> .miaixz-control-large, > .miaixz-field-control > .miaixz-control-large) {
   --miaixz-field-control-height: var(--miaixz-control-height-large);
 }
 
@@ -90,7 +94,9 @@
  * while focus, content, and validation lift it onto the outline.
  */
 .miaixz-field:has(
-  > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+  > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker),
+  > .miaixz-field-control
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
 ) {
   position: relative;
   gap: var(--miaixz-space-4);
@@ -98,7 +104,9 @@
 }
 
 .miaixz-field:has(
-    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker),
+    > .miaixz-field-control
+      > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
   )
   > .miaixz-field-label-row {
   position: absolute;
@@ -115,7 +123,9 @@
 }
 
 .miaixz-field:has(
-    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker),
+    > .miaixz-field-control
+      > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
   )
   > .miaixz-field-label-row
   > :is(.miaixz-field-label, .miaixz-field-optional) {
@@ -135,6 +145,14 @@
         .miaixz-select,
         .miaixz-combobox,
         .miaixz-picker
+      ):is([data-disabled="true"], [data-readonly="true"]),
+    > .miaixz-field-control
+      > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
       ):is([data-disabled="true"], [data-readonly="true"])
   )
   > .miaixz-field-label-row
@@ -144,6 +162,14 @@
 
 .miaixz-field:has(
     > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      ):not([data-filled="true"]),
+    > .miaixz-field-control
+      > :is(
         .miaixz-input,
         .miaixz-textarea-frame,
         .miaixz-select,
@@ -162,16 +188,32 @@
         .miaixz-select,
         .miaixz-combobox,
         .miaixz-picker
+      ):not([data-filled="true"]),
+    > .miaixz-field-control
+      > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
       ):not([data-filled="true"])
   ):not(:focus-within, [data-invalid="true"])
   > .miaixz-field-label-row
   > :is(.miaixz-field-label, .miaixz-field-optional) {
-  padding-inline: 0;
+  padding-inline: var(--miaixz-space-4);
   background: transparent;
 }
 
 .miaixz-field:has(
     > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      ):not([data-filled="true"]),
+    > .miaixz-field-control
+      > :is(
         .miaixz-input,
         .miaixz-textarea-frame,
         .miaixz-select,
@@ -187,6 +229,10 @@
 .miaixz-field:has(
     > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-combobox, .miaixz-picker):not(
         [data-filled="true"]
+      ),
+    > .miaixz-field-control
+      > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-combobox, .miaixz-picker):not(
+        [data-filled="true"]
       )
   ):not(:focus-within, [data-invalid="true"])
   :is(
@@ -199,7 +245,33 @@
 }
 
 .miaixz-field:focus-within > .miaixz-field-label-row > .miaixz-field-label {
-  color: var(--miaixz-color-brand-strong);
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-field:has(
+    > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      )[data-readonly="true"],
+    > .miaixz-field-control
+      > :is(
+        .miaixz-input,
+        .miaixz-textarea-frame,
+        .miaixz-select,
+        .miaixz-combobox,
+        .miaixz-picker
+      )[data-readonly="true"]
+  )
+  > .miaixz-field-label-row
+  > .miaixz-field-label {
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-field[data-disabled="true"] > .miaixz-field-label-row > .miaixz-field-label {
+  color: var(--miaixz-color-text-disabled);
 }
 
 .miaixz-field[data-invalid="true"] > .miaixz-field-label-row > .miaixz-field-label {
@@ -207,7 +279,9 @@
 }
 
 .miaixz-field:has(
-    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
+    > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker),
+    > .miaixz-field-control
+      > :is(.miaixz-input, .miaixz-textarea-frame, .miaixz-select, .miaixz-combobox, .miaixz-picker)
   )
   > :is(.miaixz-field-helper, .miaixz-field-error) {
   padding-inline: var(--miaixz-space-4);

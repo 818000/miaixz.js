@@ -123,7 +123,15 @@ export const Heatmap = withMiaixzThemeComponent(
             </caption>
             <thead>
               <tr>
-                <th className="miaixz-heatmap-corner" aria-hidden="true" />
+                <th
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-heatmap-corner" },
+                    slotProps: slotProps?.corner,
+                    internalProps: { "aria-hidden": true },
+                    ownedProps: ["aria-hidden"],
+                  })}
+                />
                 {columnLabels.map((label, index) => (
                   <th
                     {...mergeMiaixzSlotProps({

@@ -55,6 +55,7 @@ export interface HeatmapSlotProps {
   readonly viewport?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly table?: MiaixzSlotProps<HeatmapOwnerState, TableHTMLAttributes<HTMLTableElement>>;
   readonly caption?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLTableCaptionElement>>;
+  readonly corner?: MiaixzSlotProps<HeatmapOwnerState, ThHTMLAttributes<HTMLTableCellElement>>;
   readonly columnHeader?: MiaixzSlotProps<
     HeatmapOwnerState,
     ThHTMLAttributes<HTMLTableCellElement>

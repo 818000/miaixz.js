@@ -76,6 +76,7 @@ function TreeImplementation<Value = unknown>(
     connectors = false,
     dividerStyle = "none",
     density = "standard",
+    showSelectionIndicator = true,
     slotProps,
     className,
     ...rootProps
@@ -232,6 +233,7 @@ function TreeImplementation<Value = unknown>(
         errorIds={loader.errorIds}
         focusedId={resolvedFocusedId}
         selectionMode={selectionMode}
+        showSelectionIndicator={showSelectionIndicator}
         surface={surface}
         connectors={connectors}
         dividerStyle={dividerStyle}

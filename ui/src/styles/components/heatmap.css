@@ -96,6 +96,14 @@
   background: var(--miaixz-color-surface-secondary);
   border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: var(--miaixz-radius-control);
+  transition:
+    background-color var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing),
+    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-heatmap-cell:hover {
+  border-color: var(--miaixz-heatmap-tone);
 }
 
 .miaixz-heatmap-corner {
@@ -211,4 +219,76 @@
 .miaixz-heatmap[data-tone="data-8"],
 .miaixz-heatmap-legend[data-tone="data-8"] {
   --miaixz-heatmap-tone: var(--miaixz-color-data-8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-heatmap[data-motion-state="enter"] .miaixz-heatmap-cell {
+    transform-origin: center;
+    animation: miaixz-heatmap-enter 720ms var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-heatmap[data-motion-replay="true"] .miaixz-heatmap-cell {
+    animation: miaixz-heatmap-replay 640ms var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(2) .miaixz-heatmap-cell {
+    animation-delay: 44ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(3) .miaixz-heatmap-cell {
+    animation-delay: 88ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(4) .miaixz-heatmap-cell {
+    animation-delay: 132ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(5) .miaixz-heatmap-cell {
+    animation-delay: 176ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(6) .miaixz-heatmap-cell {
+    animation-delay: 220ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(7) .miaixz-heatmap-cell {
+    animation-delay: 264ms;
+  }
+}
+
+@keyframes miaixz-heatmap-enter {
+  from {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes miaixz-heatmap-replay {
+  0% {
+    opacity: 0.28;
+    transform: scale(0.62);
+  }
+
+  74% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-heatmap-cell {
+    transform: none;
+    transition-duration: 0s;
+    animation: none;
+  }
 }

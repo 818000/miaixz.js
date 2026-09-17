@@ -23,7 +23,7 @@ import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 
 export type StatusSize = "small" | "medium";
-export type StatusLayout = "inline" | "stacked";
+export type StatusLayout = "inline" | "stacked" | "split";
 export type StatusSlot = "root" | "marker" | "content" | "label";
 export interface StatusOwnerState {
   readonly tone: MiaixzFeedbackTone | "brand";

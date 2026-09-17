@@ -25,6 +25,7 @@ import {
   partitionActions,
   useActionCapacity,
 } from "../../shared/responsive/action-capacity.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { useMergedSlotProps } from "../../shared/slots.js";
 import { Button, ButtonLink } from "../button/button.js";
 import { Icon } from "../icon/icon.js";
@@ -111,6 +112,7 @@ function PrimaryAction(properties: PrimaryActionProps) {
  */
 function ActionBar(properties: ActionBarProps) {
   const { primary, actions, slotProps } = properties;
+  const { t } = useMiaixzLocale();
   assertUniqueActionIds(primary === undefined ? actions : [...actions, primary]);
   const rootRef = useRef<HTMLDivElement>(null);
   const overflowMeasureRef = useRef<HTMLSpanElement>(null);
@@ -151,7 +153,17 @@ function ActionBar(properties: ActionBarProps) {
             <ActionMeasurement action={action} />
           </span>
         ))}
-        <span ref={overflowMeasureRef} className="miaixz-icon-button" />
+        <span ref={overflowMeasureRef}>
+          <ActionMeasurement
+            action={{
+              id: "more-actions-measurement",
+              kind: "command",
+              label: t("ui.action.more"),
+              icon: "Ellipsis",
+              onAction: () => undefined,
+            }}
+          />
+        </span>
         {primary !== undefined && (
           <span
             ref={primaryMeasureRef}

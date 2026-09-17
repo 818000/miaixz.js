@@ -23,6 +23,8 @@ import type { HTMLAttributes, ReactNode } from "react";
 export type ToolbarSurface = "plain" | "filled";
 export type ToolbarDensity = "compact" | "standard" | "comfortable";
 export type ToolbarOrientation = "horizontal" | "vertical";
+export type ToolbarVariant =
+  "default" | "panel" | "directory" | "sticky" | "filter" | "inline" | "batch" | "editor" | "grid";
 type ToolbarName =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
@@ -39,6 +41,8 @@ type ToolbarNativeProps = Omit<
   readonly density?: ToolbarDensity;
   readonly orientation?: ToolbarOrientation;
   readonly wrap?: boolean;
+  readonly variant?: ToolbarVariant;
+  readonly label?: string;
 };
 type SemanticToolbarProps = ToolbarNativeProps & ToolbarName & { readonly behavior: "toolbar" };
 type GroupToolbarProps = ToolbarNativeProps &

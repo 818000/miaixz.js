@@ -192,7 +192,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
   const activeOptionId = open && activeId !== null ? `${optionIdPrefix}-${activeId}` : undefined;
-  useMiaixzOptionSurface(triggerRef, surfaceRef, open, portalTarget, activeOptionId);
+  useMiaixzOptionSurface(rootRef, surfaceRef, open, portalTarget, activeOptionId);
   useMiaixzDismissibleLayer({
     active: open,
     triggerRef,

@@ -55,6 +55,8 @@ export const Toolbar = withMiaixzThemeComponent(
       density = "standard",
       orientation = "horizontal",
       wrap = true,
+      variant = "default",
+      label,
       className,
       children,
       onFocus,
@@ -66,10 +68,11 @@ export const Toolbar = withMiaixzThemeComponent(
     const rootRef = useRef<HTMLDivElement | null>(null);
     const [elements, setElements] = useState<HTMLElement[]>([]);
     const [direction, setDirection] = useState<"ltr" | "rtl">("ltr");
-    const hasName = props["aria-label"] !== undefined || props["aria-labelledby"] !== undefined;
+    const ariaLabel = props["aria-label"] ?? label;
+    const hasName = ariaLabel !== undefined || props["aria-labelledby"] !== undefined;
     if (behavior === "toolbar" || hasName) {
       assertMiaixzAccessibleName({
-        ...(props["aria-label"] === undefined ? {} : { ariaLabel: props["aria-label"] }),
+        ...(ariaLabel === undefined ? {} : { ariaLabel }),
         ...(props["aria-labelledby"] === undefined
           ? {}
           : { ariaLabelledBy: props["aria-labelledby"] }),
@@ -147,12 +150,14 @@ export const Toolbar = withMiaixzThemeComponent(
       <div
         {...props}
         ref={setRef}
+        aria-label={ariaLabel}
         aria-orientation={behavior === "toolbar" ? orientation : undefined}
-        className={classNames("miaixz-toolbar", className)}
+        className={classNames("miaixz-toolbar", `miaixz-toolbar-${variant}`, className)}
         data-density={density}
         data-miaixz-toolbar-root=""
         data-orientation={orientation}
         data-surface={surface}
+        data-variant={variant}
         data-wrap={wrap}
         onFocus={handleFocus}
         onKeyDown={handleKeyDown}

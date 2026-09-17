@@ -19,12 +19,22 @@
 */
 
 export { Avatar } from "./avatar.js";
+export { AvatarGroup } from "./avatar-group.js";
+export { AvatarPicker } from "./avatar-picker.js";
 export type {
+  AvatarGroupOwnerState,
+  AvatarGroupProps,
+  AvatarGroupRootAttributes,
+  AvatarGroupSlot,
+  AvatarGroupSlotProps,
+  AvatarGroupSpacing,
   AvatarOwnerState,
   AvatarProps,
   AvatarRootAttributes,
   AvatarSlot,
   AvatarSlotProps,
+  AvatarVariant,
   MiaixzAvatarOwnProps,
 } from "./avatar.types.js";
+export type { AvatarPickerProps } from "./avatar-picker.js";
 export type { MiaixzComponentSize } from "../shared.types.js";

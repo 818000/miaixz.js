@@ -52,6 +52,7 @@ export interface EditorSummaryItem {
 }
 export interface EditorSummaryOwnerState {
   readonly headingLevel: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly surface: "plain" | "framed";
 }
 export interface EditorSummarySlotProps {
   readonly avatar?: MiaixzSlotProps<EditorSummaryOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -72,6 +73,7 @@ export interface EditorSummaryProps extends Omit<
   readonly items: readonly EditorSummaryItem[];
   readonly footer?: ReactNode;
   readonly headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly surface?: "plain" | "framed";
   readonly slotProps?: EditorSummarySlotProps;
 }
 

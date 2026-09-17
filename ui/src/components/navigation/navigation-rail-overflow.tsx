@@ -78,6 +78,7 @@ export function StructuredRailGroup(props: StructuredRailGroupProps) {
     <NavigationRailGroup
       data-placement={group.placement ?? "start"}
       label={group.label}
+      {...(group.labelVisible === undefined ? {} : { labelVisible: group.labelVisible })}
       ref={(element) => {
         if (element === null) groupRefs.current.delete(group.id);
         else groupRefs.current.set(group.id, element);

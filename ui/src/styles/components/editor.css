@@ -40,7 +40,7 @@
   align-content: start;
 }
 
-.miaixz-editor-layout[data-layout="split"] .miaixz-editor-layout-content {
+.miaixz-editor-layout[data-layout="split"][data-divided] .miaixz-editor-layout-content {
   padding-inline-start: var(--miaixz-space-24);
 }
 
@@ -61,6 +61,12 @@
   background: var(--miaixz-color-surface);
   border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-radius: var(--miaixz-radius-summary);
+}
+
+.miaixz-editor-summary[data-surface="plain"] {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
 .miaixz-editor-summary-avatar {

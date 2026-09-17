@@ -66,6 +66,7 @@ describe("Drawer widths", () => {
     rerender(fixture("large"));
     expect(screen.getByRole("dialog")).toHaveAttribute("data-width", "large");
     expect(screen.getByRole("dialog").style.getPropertyValue("--miaixz-drawer-width")).toBe("");
+    expect(screen.getByRole("dialog").style.getPropertyValue("--miaixz-drawer-width")).toBe("");
   });
 
   it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])("rejects invalid width %s", (width) => {

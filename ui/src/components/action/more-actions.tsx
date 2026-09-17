@@ -21,11 +21,11 @@
 import { useId } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { Button } from "../button/button.js";
 import { Dropdown } from "../dropdown/dropdown.js";
 import { type DropdownEntry } from "../dropdown/dropdown.types.js";
 import { Icon } from "../icon/icon.js";
 import type { ActionDescriptor, MoreActionsProps } from "./action.types.js";
-import { IconButton } from "./icon-button.js";
 import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 
 interface MoreActionsViewProps extends MoreActionsProps {
@@ -103,7 +103,15 @@ export function MoreActionsView(properties: MoreActionsViewProps) {
       placement="bottom-end"
       surface="plain"
       trigger={
-        <IconButton icon="Ellipsis" label={label} size="small" tone="neutral" tooltip={false} />
+        <Button
+          className="miaixz-action-text"
+          size="small"
+          startIcon={<Icon name="Ellipsis" size="control" />}
+          tone="neutral"
+          variant="plain"
+        >
+          {label}
+        </Button>
       }
     />
   );

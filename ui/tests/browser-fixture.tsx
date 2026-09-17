@@ -189,7 +189,7 @@ function ActionShowcase() {
             <IconButton icon="ArrowLeft" label="返回" onClick={() => undefined} />
             <IconButton icon="Star" label="收藏" pressed onClick={() => undefined} />
             <IconButton icon="X" label="关闭" onClick={() => undefined} />
-            <IconButton icon="Ellipsis" label="更多操作" onClick={() => undefined} />
+            <IconButton icon="Ellipsis" label="更多" onClick={() => undefined} />
           </div>
         }
         description="仅用于空间受限且图标含义明确的操作"
@@ -410,7 +410,7 @@ export function AccessibilityFixture({ name }: { readonly name: AccessibilityFix
               },
             ]}
             label="资源操作"
-            trigger={<button type="button">更多操作</button>}
+            trigger={<button type="button">更多</button>}
           />
         </div>
       );

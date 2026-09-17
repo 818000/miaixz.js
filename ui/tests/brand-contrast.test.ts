@@ -80,10 +80,10 @@ describe("brand foreground semantics", () => {
       "navigation",
       '.miaixz-navigation[data-orientation="horizontal"] > .miaixz-navigation-item[aria-current] {',
     );
-    expect(navigation).toContain("color: var(--miaixz-color-text-primary);");
+    expect(navigation).toContain("color: var(--miaixz-color-brand);");
     expect(navigation).toContain("0 var(--miaixz-color-brand);");
     expect(rule("button", '.miaixz-button[data-variant="solid"][data-tone="brand"] {')).toContain(
-      "color: var(--miaixz-color-on-brand);",
+      "color: var(--miaixz-color-text-inverse);",
     );
   });
 });

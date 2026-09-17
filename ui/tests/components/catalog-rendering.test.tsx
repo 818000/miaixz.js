@@ -34,6 +34,7 @@ import {
   Entry,
   Grid,
   Hidden,
+  Input,
   Notice,
   Page,
   Pagination,
@@ -172,6 +173,24 @@ describe("catalog presentation components", () => {
 });
 
 describe("catalog input components", () => {
+  it("keeps native date and time picker labels floated before a value is selected", () => {
+    renderWithLocale(
+      <>
+        <Input aria-label="Birth date" defaultValue="" type="date" />
+        <Input aria-label="Start time" defaultValue="" type="time" />
+      </>,
+    );
+
+    expect(screen.getByLabelText("Birth date").parentElement).toHaveAttribute(
+      "data-filled",
+      "true",
+    );
+    expect(screen.getByLabelText("Start time").parentElement).toHaveAttribute(
+      "data-filled",
+      "true",
+    );
+  });
+
   it("keeps Checkbox and Range native state, field attributes, refs, and slots on one owner", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

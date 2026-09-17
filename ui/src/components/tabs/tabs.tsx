@@ -21,6 +21,7 @@
 import { forwardRef, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import { classNames } from "../../shared/class-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import type { TabsOwnerState, TabsProps } from "./tabs.types.js";
@@ -40,6 +41,12 @@ export const Tabs = withMiaixzThemeComponent(
       onValueChange,
       orientation = "horizontal",
       activationMode = "manual",
+      actions,
+      actionsPlacement = "end",
+      headerInset = false,
+      headerVariant = "default",
+      panelPadding = "default",
+      variant = "default",
       slotProps,
       ...nativeProps
     } = props;
@@ -119,97 +126,138 @@ export const Tabs = withMiaixzThemeComponent(
         nextTab.focus();
       if (activationMode === "automatic") select(nextValue);
     };
+    const tabList = (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState: rootOwnerState,
+          defaultProps: { className: "miaixz-tabs-list" },
+          slotProps: slotProps?.list,
+          internalRef: listRef,
+          internalProps: {
+            role: "tablist",
+            "aria-label": label,
+            "aria-orientation": orientation,
+          },
+          ownedProps: ["role", "aria-label", "aria-orientation"],
+        })}
+      >
+        {items.map((item, index) => {
+          const selected = effectiveValue === item.value;
+          const disabled = item.disabled === true || (state.readOnly && !selected);
+          const ownerState: TabsOwnerState = {
+            orientation,
+            activationMode,
+            selected,
+            disabled,
+            value: item.value,
+          };
+          return (
+            <button
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-tab" },
+                slotProps: slotProps?.tab,
+                internalProps: {
+                  id: `${baseId}-tab-${index}`,
+                  type: "button",
+                  role: "tab",
+                  "aria-selected": selected,
+                  "aria-controls": `${baseId}-panel-${index}`,
+                  tabIndex: item.value === effectiveFocusedValue ? 0 : -1,
+                  disabled,
+                  onClick: () => {
+                    setFocusedValue(item.value);
+                    select(item.value);
+                  },
+                  onKeyDown: (event) => handleKeyDown(event, item.value),
+                },
+                ownedProps: [
+                  "id",
+                  "type",
+                  "role",
+                  "aria-selected",
+                  "aria-controls",
+                  "tabIndex",
+                  "disabled",
+                ],
+              })}
+              key={item.value}
+            >
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  slotProps: slotProps?.label,
+                })}
+              >
+                {item.label}
+              </span>
+              {item.count !== undefined && (
+                <span
+                  {...mergeMiaixzSlotProps({
+                    ownerState,
+                    defaultProps: { className: "miaixz-tab-count" },
+                    slotProps: slotProps?.count,
+                  })}
+                >
+                  {item.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    );
     return (
       <div
         {...mergeMiaixzSlotProps({
           ownerState: rootOwnerState,
-          defaultProps: { className: "miaixz-tabs" },
+          defaultProps: {
+            className: classNames(
+              "miaixz-tabs",
+              variant === "navigation" && "miaixz-tabs-navigation",
+              variant === "editor" && "miaixz-tabs-editor",
+              panelPadding === "none" && "miaixz-tabs-panel-padding-none",
+              headerVariant === "toolbar" && "miaixz-tabs-header-toolbar",
+            ),
+          },
           componentProps: nativeProps,
           slotProps: slotProps?.root,
           forwardedRef: ref,
-          internalProps: { "data-orientation": orientation },
-          ownedProps: ["data-orientation"],
+          internalProps: {
+            "data-orientation": orientation,
+            "data-variant": variant,
+            "data-panel-padding": panelPadding,
+          },
+          ownedProps: ["data-orientation", "data-variant", "data-panel-padding"],
         })}
       >
-        <div
-          {...mergeMiaixzSlotProps({
-            ownerState: rootOwnerState,
-            defaultProps: { className: "miaixz-tabs-list" },
-            slotProps: slotProps?.list,
-            internalRef: listRef,
-            internalProps: {
-              role: "tablist",
-              "aria-label": label,
-              "aria-orientation": orientation,
-            },
-            ownedProps: ["role", "aria-label", "aria-orientation"],
-          })}
-        >
-          {items.map((item, index) => {
-            const selected = effectiveValue === item.value;
-            const disabled = item.disabled === true || (state.readOnly && !selected);
-            const ownerState: TabsOwnerState = {
-              orientation,
-              activationMode,
-              selected,
-              disabled,
-              value: item.value,
-            };
-            return (
-              <button
-                {...mergeMiaixzSlotProps({
-                  ownerState,
-                  defaultProps: { className: "miaixz-tab" },
-                  slotProps: slotProps?.tab,
-                  internalProps: {
-                    id: `${baseId}-tab-${index}`,
-                    type: "button",
-                    role: "tab",
-                    "aria-selected": selected,
-                    "aria-controls": `${baseId}-panel-${index}`,
-                    tabIndex: item.value === effectiveFocusedValue ? 0 : -1,
-                    disabled,
-                    onClick: () => {
-                      setFocusedValue(item.value);
-                      select(item.value);
-                    },
-                    onKeyDown: (event) => handleKeyDown(event, item.value),
-                  },
-                  ownedProps: [
-                    "id",
-                    "type",
-                    "role",
-                    "aria-selected",
-                    "aria-controls",
-                    "tabIndex",
-                    "disabled",
-                  ],
-                })}
-                key={item.value}
-              >
-                <span
-                  {...mergeMiaixzSlotProps({
-                    ownerState,
-                    slotProps: slotProps?.label,
-                  })}
-                >
-                  {item.label}
-                </span>
-                {item.count !== undefined && (
-                  <span
-                    {...mergeMiaixzSlotProps({
-                      ownerState,
-                      defaultProps: { className: "miaixz-tab-count" },
-                      slotProps: slotProps?.count,
-                    })}
-                  >
-                    {item.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        {actions !== undefined ? (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState: rootOwnerState,
+              defaultProps: { className: "miaixz-tabs-header" },
+              slotProps: slotProps?.header,
+              internalProps: {
+                "data-actions-placement": actionsPlacement,
+                ...(headerInset ? { "data-inset": true } : {}),
+              },
+              ownedProps: ["data-actions-placement", "data-inset"],
+            })}
+          >
+            {tabList}
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState: rootOwnerState,
+                defaultProps: { className: "miaixz-tabs-actions" },
+                slotProps: slotProps?.actions,
+              })}
+            >
+              {actions}
+            </div>
+          </div>
+        ) : (
+          tabList
+        )}
         {items.map((item, index) => {
           const selected = effectiveValue === item.value;
           const ownerState: TabsOwnerState = {

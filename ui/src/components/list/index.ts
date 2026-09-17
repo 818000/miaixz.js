@@ -35,5 +35,6 @@ export type {
   ListRootAttributes,
   ListSlot,
   ListSurface,
+  ListVariant,
   StaticListControlAttributes,
 } from "./list.types.js";

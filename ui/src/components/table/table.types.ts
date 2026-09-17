@@ -46,6 +46,12 @@ export interface TableContainerProps extends HTMLAttributes<HTMLDivElement> {
    * @defaultValue `"default"`
    */
   surface?: "default" | "transparent";
+  /**
+   * Selects the minimum table width used before horizontal scrolling begins.
+   *
+   * @defaultValue `"default"`
+   */
+  minimumWidth?: "default" | "compact";
 }
 
 /**

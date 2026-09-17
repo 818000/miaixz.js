@@ -126,6 +126,7 @@ describe("view foundations", () => {
             avatar={<span>A</span>}
             items={[{ id: "role", label: "角色", value: "管理员" }]}
             subtitle="账号"
+            surface="plain"
             title="Alice"
           />
         }
@@ -135,7 +136,7 @@ describe("view foundations", () => {
         </EditorSection>
       </EditorLayout>,
     );
-    expect(screen.getByText("Alice").closest("aside")).toHaveClass("miaixz-editor-summary");
+    expect(screen.getByText("Alice").closest("aside")).toHaveAttribute("data-surface", "plain");
     expect(screen.getByText("管理员")).toBeVisible();
     expect(screen.getByText("资料").closest("section")).toHaveAttribute("data-surface", "card");
   });

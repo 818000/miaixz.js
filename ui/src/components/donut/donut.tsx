@@ -145,7 +145,15 @@ export const Donut = withMiaixzThemeComponent(
           })}
         >
           <svg className="miaixz-donut-svg" viewBox="0 0 100 100">
-            <circle className="miaixz-donut-track" cx="50" cy="50" r="40" pathLength="100" />
+            <circle
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-donut-track" },
+                slotProps: slotProps?.track,
+                internalProps: { cx: 50, cy: 50, r: 40, pathLength: 100 },
+                ownedProps: ["cx", "cy", "r", "pathLength"],
+              })}
+            />
             {total > 0 &&
               normalized.map(
                 ({ segment, ratio, offset: segmentOffset, valueText, percentageText }) => (
@@ -174,7 +182,17 @@ export const Donut = withMiaixzThemeComponent(
                 ),
               )}
           </svg>
-          {center !== undefined && <span className="miaixz-donut-center">{center}</span>}
+          {center !== undefined && (
+            <span
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-donut-center" },
+                slotProps: slotProps?.center,
+              })}
+            >
+              {center}
+            </span>
+          )}
         </span>
         {legend === "inline" && (
           <ul

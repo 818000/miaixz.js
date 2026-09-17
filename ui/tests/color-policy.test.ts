@@ -52,6 +52,36 @@ describe("color ownership", () => {
     expect(button).toContain('.miaixz-button[data-variant="plain"][data-tone="danger"]');
   });
 
+  it("keeps button labels complete and action colors owned by the theme", () => {
+    const button = readFileSync("src/styles/components/button.css", "utf8");
+    const labelRule = button.match(/\.miaixz-button-label\s*\{([^}]+)\}/u)?.[1] ?? "";
+    const contentRule = button.match(/\.miaixz-button-content\s*\{([^}]+)\}/u)?.[1] ?? "";
+    expect(labelRule).toContain("min-width: max-content;");
+    expect(labelRule).not.toContain("overflow: hidden;");
+    expect(labelRule).not.toContain("text-overflow: ellipsis;");
+    expect(contentRule).toContain("gap: var(--miaixz-space-2);");
+
+    const action = readFileSync("src/styles/components/action.css", "utf8");
+    const actionRule = action.match(/\.miaixz-action-text\s*\{([^}]+)\}/u)?.[1] ?? "";
+    const neutralActionRule =
+      action.match(
+        /\.miaixz-button\.miaixz-action-text\[data-variant="plain"\]\[data-tone="neutral"\]\s*\{([^}]+)\}/u,
+      )?.[1] ?? "";
+    const rowActionRule =
+      action.match(/\.miaixz-row-actions \.miaixz-action-text\s*\{([^}]+)\}/u)?.[1] ?? "";
+    expect(actionRule).toContain("color: var(--miaixz-color-text-primary);");
+    expect(actionRule).toContain("min-width: max-content;");
+    expect(neutralActionRule).toContain("color: var(--miaixz-color-text-primary);");
+    expect(rowActionRule).toContain("flex: none;");
+  });
+
+  it("uses the theme inverse foreground for the floating appearance trigger", () => {
+    const appearance = readFileSync("src/styles/components/appearance.css", "utf8");
+    const triggerRule =
+      appearance.match(/\.miaixz-appearance-trigger\s*\{([^}]+)\}/u)?.[1] ?? "";
+    expect(triggerRule).toContain("color: var(--miaixz-color-text-inverse);");
+  });
+
   it("loads authored brand foregrounds without weakening content contrast validation", () => {
     const theme = new ThemeCatalog().get("miaixz");
     expect(theme.modes.light.colors["on-brand"]).toBe("#10150D");

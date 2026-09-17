@@ -46,6 +46,7 @@ export const IconButton = withMiaixzThemeComponent(
       icon,
       tone = "neutral",
       size = "medium",
+      appearance = "control",
       loading = false,
       tooltip = true,
       pressed,
@@ -58,6 +59,7 @@ export const IconButton = withMiaixzThemeComponent(
     const ownerState: IconButtonOwnerState = {
       tone,
       size,
+      appearance,
       loading,
       disabled,
       ...(pressed === undefined ? {} : { pressed }),
@@ -86,10 +88,11 @@ export const IconButton = withMiaixzThemeComponent(
         "aria-label": label,
         ...(loading ? { "aria-busy": true, "data-loading": true } : {}),
         ...(pressed === undefined ? {} : { "aria-pressed": pressed }),
-        "data-miaixz-ripple": "true",
+        ...(appearance === "control" ? { "data-miaixz-ripple": "true" } : {}),
         "data-size": size,
         "data-tone": tone,
         "data-variant": "plain",
+        "data-appearance": appearance,
       },
       ownedProps: [
         "type",
@@ -102,6 +105,7 @@ export const IconButton = withMiaixzThemeComponent(
         "data-size",
         "data-tone",
         "data-variant",
+        "data-appearance",
       ],
     });
     const iconProps = mergeMiaixzSlotProps({

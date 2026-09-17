@@ -24,11 +24,11 @@ import { describe, expect, it } from "vitest";
 const css = readFileSync("src/styles/components/metrics.css", "utf8");
 
 describe("metric styling contract", () => {
-  it("uses the final data dimensions and low card elevation", () => {
+  it("uses the final data dimensions without card elevation", () => {
     expect(css).toContain('.miaixz-metric[data-variant="summary"]');
     expect(css).toContain('.miaixz-metric[data-variant="strip"]');
     expect(css).toContain('.miaixz-metric[data-variant="card"]');
-    expect(css).toContain("box-shadow: var(--miaixz-shadow-low);");
+    expect(css).toContain("box-shadow: none;");
   });
 
   it("maps semantic tones through one component-owned token", () => {

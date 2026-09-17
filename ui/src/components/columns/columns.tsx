@@ -49,6 +49,7 @@ export const Columns = withMiaixzThemeComponent(
       orientation = "vertical",
       layout = "grouped",
       density = "standard",
+      size = "standard",
       categoryFormatter = (label) => label,
       seriesFormatter = (item) => item.label,
       valueFormatter,
@@ -114,6 +115,7 @@ export const Columns = withMiaixzThemeComponent(
       orientation,
       layout,
       density,
+      size,
       tone,
       state: empty ? "empty" : "ready",
     };
@@ -132,6 +134,7 @@ export const Columns = withMiaixzThemeComponent(
             "data-orientation": orientation,
             "data-layout": layout,
             "data-density": density,
+            "data-size": size,
             "data-tone": tone,
             "data-state": empty ? "empty" : "ready",
           },
@@ -182,7 +185,13 @@ export const Columns = withMiaixzThemeComponent(
                   })}
                   key={`${categoryIndex}-${label}`}
                 >
-                  <div className="miaixz-columns-bars">
+                  <div
+                    {...mergeMiaixzSlotProps({
+                      ownerState,
+                      defaultProps: { className: "miaixz-columns-bars" },
+                      slotProps: slotProps?.bars,
+                    })}
+                  >
                     {series.map((item, seriesIndex) => {
                       const value = item.values[categoryIndex]!;
                       const valuePercent = maximum === 0 ? 0 : (value / maximum) * 100;

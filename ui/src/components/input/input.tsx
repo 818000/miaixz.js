@@ -97,12 +97,20 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
     defaultValue: hasMiaixzControlValue(defaultValue),
     read: (control) => hasMiaixzControlValue(control.value),
   });
+  const inputType = props.type ?? defaults?.type;
+  const usesNativePicker =
+    inputType === "date" ||
+    inputType === "datetime-local" ||
+    inputType === "month" ||
+    inputType === "time" ||
+    inputType === "week";
+  const presentationFilled = filledState.value || usesNativePicker;
   const ownerState: InputOwnerState = {
     size,
     invalid: effectiveInvalid,
     disabled: effectiveDisabled,
     readOnly: readOnly === true,
-    filled: filledState.value,
+    filled: presentationFilled,
   };
   const themeClasses = (slot: InputSlot) => getMiaixzThemeSlotClassNames(theme, ownerState, slot);
   const rootProps = mergeMiaixzSlotProps<InputOwnerState, InputRootAttributes, HTMLSpanElement>({
@@ -131,7 +139,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
       ...(effectiveInvalid ? { "data-invalid": true } : {}),
       ...(effectiveDisabled ? { "data-disabled": true } : {}),
       ...(readOnly ? { "data-readonly": true } : {}),
-      ...(filledState.value ? { "data-filled": true } : {}),
+      ...(presentationFilled ? { "data-filled": true } : {}),
     },
     ownedProps: ["data-size", "data-invalid", "data-disabled", "data-readonly", "data-filled"],
   });

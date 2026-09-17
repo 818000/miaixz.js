@@ -59,13 +59,21 @@ export type {
   RowActionsProps,
   RowActionsSlotProps,
 } from "./action/index.js";
-export { Avatar } from "./avatar/index.js";
+export { Avatar, AvatarGroup, AvatarPicker } from "./avatar/index.js";
 export type {
+  AvatarGroupOwnerState,
+  AvatarGroupProps,
+  AvatarGroupRootAttributes,
+  AvatarGroupSlot,
+  AvatarGroupSlotProps,
+  AvatarGroupSpacing,
   AvatarOwnerState,
+  AvatarPickerProps,
   AvatarProps,
   AvatarRootAttributes,
   AvatarSlot,
   AvatarSlotProps,
+  AvatarVariant,
   MiaixzAvatarOwnProps,
 } from "./avatar/index.js";
 export { Button, ButtonLink } from "./button/index.js";
@@ -344,6 +352,7 @@ export type {
   ListRootAttributes,
   ListSlot,
   ListSurface,
+  ListVariant,
   StaticListControlAttributes,
 } from "./list/index.js";
 export { Locale } from "./locale/index.js";
@@ -362,7 +371,10 @@ export type {
   MetricOwnerState,
   MetricProps,
   MetricSlotProps,
+  MetricsOwnerState,
   MetricsProps,
+  MetricsScrollAttributes,
+  MetricsSlotProps,
   MetricStaticProps,
   MetricVariant,
 } from "./metrics/index.js";
@@ -378,6 +390,13 @@ export type {
   ViewSlotProps,
   ViewSurface,
 } from "./view/index.js";
+export { ViewSwitch } from "./view-switch/index.js";
+export type {
+  ViewSwitchOwnerState,
+  ViewSwitchProps,
+  ViewSwitchRootAttributes,
+  ViewSwitchValue,
+} from "./view-switch/index.js";
 export { Overlay } from "./overlay/index.js";
 export type {
   MiaixzOverlayOwnProps,
@@ -432,6 +451,7 @@ export type {
   PanelFooterProps,
   PanelFrame,
   PanelHeaderProps,
+  PanelInteraction,
   PanelProps,
   PanelSurface,
 } from "./panel/index.js";
@@ -651,6 +671,7 @@ export type {
   ToolbarOrientation,
   ToolbarProps,
   ToolbarSurface,
+  ToolbarVariant,
 } from "./toolbar/index.js";
 export { Tree } from "./tree/index.js";
 export type {

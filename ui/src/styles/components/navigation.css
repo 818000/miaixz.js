@@ -44,9 +44,15 @@
 }
 
 .miaixz-navigation[data-orientation="horizontal"] {
-  align-items: center;
+  --miaixz-navigation-item-height: var(--miaixz-tabs-height);
+  --miaixz-navigation-item-padding-inline: var(--miaixz-tabs-tab-padding-inline);
+  --miaixz-navigation-group-gap: var(--miaixz-tabs-gap);
+
+  align-items: stretch;
+  padding-inline: var(--miaixz-tabs-padding-inline);
   overflow: auto hidden;
   scrollbar-width: none;
+  border-block-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
 .miaixz-navigation[data-orientation="horizontal"]::-webkit-scrollbar {
@@ -102,13 +108,43 @@
 
 .miaixz-navigation[data-orientation="horizontal"] > .miaixz-navigation-item {
   flex: none;
+  min-block-size: var(--miaixz-tabs-height);
+  font-family: var(--miaixz-font-family-sans);
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: var(--miaixz-text-body-line-height);
+  background: transparent;
   border-radius: 0;
 }
 
+.miaixz-navigation[data-orientation="horizontal"]
+  > .miaixz-navigation-item:where(:hover:not([aria-disabled="true"])) {
+  color: var(--miaixz-color-brand);
+  background: transparent;
+}
+
+.miaixz-navigation[data-orientation="horizontal"] > .miaixz-navigation-item:focus-visible {
+  color: var(--miaixz-color-brand);
+  outline: 0;
+  background: transparent;
+  box-shadow: inset 0 calc(var(--miaixz-navigation-indicator-size) * -1) 0 var(--miaixz-color-focus);
+}
+
 .miaixz-navigation[data-orientation="horizontal"] > .miaixz-navigation-item[aria-current] {
-  color: var(--miaixz-color-text-primary);
+  font-weight: var(--miaixz-font-weight-medium);
+  color: var(--miaixz-color-brand);
   background: transparent;
   box-shadow: inset 0 calc(var(--miaixz-navigation-indicator-size) * -1) 0 var(--miaixz-color-brand);
+}
+
+.miaixz-navigation[data-orientation="horizontal"] .miaixz-navigation-meta {
+  margin-inline-start: 0;
+}
+
+.miaixz-navigation[data-orientation="horizontal"]
+  > .miaixz-navigation-item[aria-current]
+  .miaixz-navigation-meta {
+  color: inherit;
 }
 
 .miaixz-navigation-icon {
@@ -187,6 +223,8 @@
   block-size: var(--miaixz-layout-header-height);
   min-block-size: var(--miaixz-layout-header-height);
   overflow: hidden;
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
 }
 
 .miaixz-navigation-rail-toggle {
@@ -220,13 +258,13 @@
   padding-block-end: var(--miaixz-space-8);
 }
 
-.miaixz-navigation-rail-groups > .miaixz-navigation-rail-group[data-placement="end"] {
-  margin-block-start: auto;
-}
-
 .miaixz-navigation-rail-group {
   display: block;
   min-inline-size: 0;
+}
+
+.miaixz-navigation-rail-group[data-label-hidden] > .miaixz-navigation-rail-group-marker {
+  display: none;
 }
 
 .miaixz-navigation-rail-group-marker {
@@ -252,6 +290,12 @@
 }
 
 .miaixz-navigation-rail-group:not([data-separated]) .miaixz-navigation-rail-group-marker-line {
+  display: none;
+}
+
+.miaixz-navigation-rail-frame:not([data-expanded])
+  .miaixz-navigation-rail-group:not([data-separated])
+  > .miaixz-navigation-rail-group-marker {
   display: none;
 }
 
@@ -328,25 +372,21 @@
 }
 
 /**
-
  * Brand pictograms share one primary color; labels remain neutral.
-
  */
-.miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-item .miaixz-icon,
-.miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-rail-toggle .miaixz-icon {
-  color: var(--miaixz-color-brand);
+.miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-item .miaixz-icon {
+  color: color-mix(in srgb, var(--miaixz-color-brand) 80%, transparent);
+  fill: none;
+  transform: scale(1);
+  transform-origin: center;
+  transition:
+    color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    stroke-width var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    transform var(--miaixz-motion-state-duration) var(--miaixz-motion-state-easing);
 }
 
 .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation {
   gap: 0;
-}
-
-.miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-rail-toggle > * {
-  inline-size: var(--miaixz-space-40);
-  min-inline-size: var(--miaixz-space-40);
-  block-size: var(--miaixz-space-40);
-  padding: 0;
-  color: var(--miaixz-color-text-primary);
 }
 
 .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-item {
@@ -359,6 +399,22 @@
   padding: 0;
   color: var(--miaixz-color-text-primary);
   background: transparent;
+  border-radius: 0;
+}
+
+.miaixz-navigation-rail-frame[data-variant="brand"]
+  .miaixz-navigation[data-orientation="vertical"]
+  > .miaixz-navigation-item::before {
+  position: absolute;
+  inset-block: var(--miaixz-space-4);
+  inset-inline-start: 0;
+  inline-size: calc(var(--miaixz-border-width-default) + var(--miaixz-border-width-strong));
+  content: "";
+  background: var(--miaixz-color-brand);
+  border-radius: var(--miaixz-radius-round);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform var(--miaixz-motion-state-duration) var(--miaixz-motion-state-easing);
 }
 
 .miaixz-navigation-rail-overflow-row {
@@ -396,26 +452,64 @@
   background: var(--miaixz-color-surface-hover);
 }
 
+.miaixz-navigation-rail-frame[data-variant="brand"]
+  .miaixz-navigation-item:where(:hover:not([aria-disabled="true"]), :focus-visible)
+  .miaixz-icon {
+  color: var(--miaixz-color-brand);
+}
+
 .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-item[aria-current="page"] {
   font-weight: var(--miaixz-font-weight-medium);
   color: var(--miaixz-color-text-primary);
   background: linear-gradient(270deg, var(--miaixz-color-navigation-selected), transparent);
+  background-repeat: no-repeat;
+  background-position: left top;
+  background-size: var(--miaixz-layout-sidebar-compact-width) 100%;
+  transition-property: color, background-color, background-size, box-shadow;
+}
+
+.miaixz-navigation-rail-frame[data-expanded][data-variant="brand"]
+  .miaixz-navigation-item[aria-current="page"] {
+  background-size: 100% 100%;
 }
 
 .miaixz-navigation-rail-frame[data-variant="brand"]
-  .miaixz-navigation-item[aria-current="page"]::before {
-  inset-block: var(--miaixz-space-8);
-  inset-inline-start: 0;
-  inline-size: calc(var(--miaixz-border-width-default) + var(--miaixz-border-width-strong));
-  background: var(--miaixz-color-brand);
-  border-radius: 0;
+  .miaixz-navigation[data-orientation="vertical"]
+  > .miaixz-navigation-item[aria-current="page"]::before {
+  transform: scaleY(1);
 }
 
 .miaixz-navigation-rail-frame[data-variant="brand"]
   .miaixz-navigation-item[aria-current="page"]
   .miaixz-icon {
   color: var(--miaixz-color-brand);
+  fill: none;
+  stroke: currentcolor;
   stroke-width: var(--miaixz-icon-stroke-strong);
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-navigation-rail-frame[data-variant="brand"]
+    .miaixz-navigation-item[aria-current="page"]
+    .miaixz-icon {
+    animation: miaixz-navigation-icon-select var(--miaixz-motion-state-duration)
+      var(--miaixz-easing-emphasized);
+  }
+}
+
+@keyframes miaixz-navigation-icon-select {
+  0% {
+    transform: scale(0.94);
+  }
+
+  65% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1.06);
+  }
 }
 
 .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-rail-group-marker-label {
@@ -426,6 +520,14 @@
   display: grid;
   place-items: center;
   justify-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-navigation-rail-frame[data-variant="brand"]
+    .miaixz-navigation[data-orientation="vertical"]
+    > .miaixz-navigation-item::before {
+    transition-duration: 0s;
+  }
 }
 
 .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-label,
@@ -452,6 +554,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-item .miaixz-icon,
   .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-label,
   .miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-meta {
     transition-duration: 0s;

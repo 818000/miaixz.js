@@ -132,15 +132,21 @@ export const EditorSummary = withMiaixzThemeComponent(
       items,
       footer,
       headingLevel = 3,
+      surface = "framed",
       slotProps,
       className,
       ...props
     },
     ref,
   ) {
-    const ownerState: EditorSummaryOwnerState = { headingLevel };
+    const ownerState: EditorSummaryOwnerState = { headingLevel, surface };
     return (
-      <aside {...props} ref={ref} className={classNames("miaixz-editor-summary", className)}>
+      <aside
+        {...props}
+        ref={ref}
+        className={classNames("miaixz-editor-summary", className)}
+        data-surface={surface}
+      >
         <div
           {...mergeMiaixzSlotProps({
             ownerState,

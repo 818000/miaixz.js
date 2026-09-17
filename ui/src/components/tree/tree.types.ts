@@ -114,6 +114,7 @@ export interface MiaixzTreeBaseProps<Value = unknown> {
   readonly connectors?: boolean;
   readonly dividerStyle?: TreeDividerStyle;
   readonly density?: TreeDensity;
+  readonly showSelectionIndicator?: boolean;
   readonly slotProps?: TreeSlotProps;
 }
 

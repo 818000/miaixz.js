@@ -33,12 +33,12 @@ import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
 export const NavigationRailGroup = withMiaixzThemeComponent(
   "NavigationRailGroup",
   forwardRef<HTMLElement, NavigationRailGroupProps>(function NavigationRailGroup(
-    { label, separated = false, slotProps, children, ...props },
+    { label, labelVisible = true, separated = false, slotProps, children, ...props },
     ref,
   ) {
     const generatedId = useId();
     const labelId = `${generatedId}-label`;
-    const ownerState: NavigationRailGroupOwnerState = { separated };
+    const ownerState: NavigationRailGroupOwnerState = { separated, labelVisible };
     return (
       <section
         {...mergeMiaixzSlotProps({
@@ -49,9 +49,10 @@ export const NavigationRailGroup = withMiaixzThemeComponent(
           forwardedRef: ref,
           internalProps: {
             "aria-labelledby": labelId,
+            ...(!labelVisible ? { "data-label-hidden": true } : {}),
             ...(separated ? { "data-separated": true } : {}),
           },
-          ownedProps: ["aria-labelledby", "data-separated"],
+          ownedProps: ["aria-labelledby", "data-label-hidden", "data-separated"],
         })}
       >
         <div

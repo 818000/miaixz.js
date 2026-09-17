@@ -37,8 +37,38 @@ body:has(.miaixz-shell) {
   container-type: inline-size;
 }
 
-.miaixz-shell[data-desktop-navigation="rail"]:not([data-navigation-expanded]) {
+.miaixz-shell[data-desktop-navigation="rail"] {
   --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-compact-width);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar {
+  inline-size: var(--miaixz-layout-sidebar-width);
+  transform: translateX(
+    calc(var(--miaixz-layout-sidebar-compact-width) - var(--miaixz-layout-sidebar-width))
+  );
+  transition: transform var(--miaixz-navigation-reveal-duration)
+    var(--miaixz-navigation-reveal-easing);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"]
+  > .miaixz-shell-sidebar
+  > .miaixz-navigation-rail-frame {
+  transform: translateX(
+    calc(var(--miaixz-layout-sidebar-width) - var(--miaixz-layout-sidebar-compact-width))
+  );
+  transition: transform var(--miaixz-navigation-reveal-duration)
+    var(--miaixz-navigation-reveal-easing);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded] > .miaixz-shell-sidebar {
+  z-index: var(--miaixz-z-overlay);
+  transform: translateX(0);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded]
+  > .miaixz-shell-sidebar
+  > .miaixz-navigation-rail-frame {
+  transform: translateX(0);
 }
 
 .miaixz-shell[data-header-behavior="fixed"] {
@@ -113,14 +143,80 @@ body:has(.miaixz-shell) {
     var(--miaixz-surface-role-sidebar-border);
 }
 
-@container miaixz-shell (width < 1024px) {
-  .miaixz-shell {
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar,
+  .miaixz-shell[data-desktop-navigation="rail"]
+    > .miaixz-shell-sidebar
+    > .miaixz-navigation-rail-frame {
+    transition-duration: 0s;
+  }
+}
+
+@media (width < 1024px) {
+  .miaixz-shell[data-desktop-navigation="rail"] {
+    --miaixz-shell-current-navigation-width: 0px;
+
     grid-template:
       "header" var(--miaixz-layout-header-height)
       "main" minmax(0, 1fr) / minmax(0, 1fr);
   }
 
-  .miaixz-shell-sidebar {
+  .miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: var(--miaixz-z-overlay);
+    inline-size: var(--miaixz-layout-sidebar-width);
+    clip-path: inset(
+      0 calc(var(--miaixz-layout-sidebar-width) - var(--miaixz-layout-sidebar-compact-width))
+        calc(100% - var(--miaixz-layout-header-height)) 0
+    );
+    transform: none;
+    transition: clip-path var(--miaixz-navigation-reveal-duration)
+      var(--miaixz-navigation-reveal-easing);
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"]
+    > .miaixz-shell-sidebar
+    > .miaixz-navigation-rail-frame {
+    transform: none;
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar
+    :is(.miaixz-navigation-rail-body, .miaixz-navigation-rail-utility) {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(calc(var(--miaixz-space-16) * -1));
+    transition:
+      visibility 0s var(--miaixz-navigation-reveal-duration),
+      opacity var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing),
+      transform var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing);
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded] > .miaixz-shell-sidebar {
+    clip-path: inset(0);
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded]
+    > .miaixz-shell-sidebar
+    :is(.miaixz-navigation-rail-body, .miaixz-navigation-rail-utility) {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      visibility 0s,
+      opacity var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing),
+      transform var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing);
+  }
+
+  .miaixz-shell:not([data-desktop-navigation="rail"]) {
+    grid-template:
+      "header" var(--miaixz-layout-header-height)
+      "main" minmax(0, 1fr) / minmax(0, 1fr);
+  }
+
+  .miaixz-shell:not([data-desktop-navigation="rail"]) > .miaixz-shell-sidebar {
     display: none;
   }
 
@@ -145,6 +241,15 @@ body:has(.miaixz-shell) {
     padding-block-end: var(--miaixz-safe-area-block-end);
     padding-inline: var(--miaixz-safe-area-inline-start) var(--miaixz-safe-area-inline-end);
     overflow: hidden;
+  }
+}
+
+@media (width < 1024px) and (prefers-reduced-motion: reduce) {
+  .miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar,
+  .miaixz-shell[data-desktop-navigation="rail"]
+    > .miaixz-shell-sidebar
+    :is(.miaixz-navigation-rail-body, .miaixz-navigation-rail-utility) {
+    transition-duration: 0s;
   }
 }
 

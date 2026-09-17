@@ -25,14 +25,7 @@ export type ShellSidebarOverflow = "auto" | "contained";
 export type ShellDesktopNavigation =
   { readonly mode: "sidebar" } | { readonly mode: "rail"; readonly expanded: boolean };
 export type ShellMobileNavigation =
-  | { readonly mode: "none" }
-  | { readonly mode: "bottom"; readonly content: ReactNode }
-  | {
-      readonly mode: "drawer";
-      readonly open: boolean;
-      readonly dismissLabel: string;
-      readonly onOpenChange: (open: boolean) => void;
-    };
+  { readonly mode: "none" } | { readonly mode: "bottom"; readonly content: ReactNode };
 export type ShellSlot = "root" | "header" | "sidebar" | "main" | "mobileNavigation";
 export interface ShellOwnerState {
   readonly desktopNavigation: ShellDesktopNavigation;

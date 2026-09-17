@@ -36,6 +36,7 @@ export const List = withMiaixzThemeComponent(
   forwardRef<HTMLUListElement, ListProps>(function List(
     {
       items,
+      variant = "default",
       layout = "list",
       density = "standard",
       surface = "plain",
@@ -56,7 +57,7 @@ export const List = withMiaixzThemeComponent(
       }
       ids.add(item.id);
     }
-    const ownerState: ListOwnerState = { layout, density, surface, dividers, bordered };
+    const ownerState: ListOwnerState = { variant, layout, density, surface, dividers, bordered };
     return (
       <ListProvider value={{ density, surface }}>
         <ul
@@ -68,6 +69,7 @@ export const List = withMiaixzThemeComponent(
             forwardedRef: ref,
             internalProps: {
               "data-layout": layout,
+              "data-variant": variant,
               "data-density": density,
               "data-surface": surface,
               ...(dividers ? { "data-dividers": true } : {}),
@@ -75,6 +77,7 @@ export const List = withMiaixzThemeComponent(
             },
             ownedProps: [
               "data-layout",
+              "data-variant",
               "data-density",
               "data-surface",
               "data-dividers",
