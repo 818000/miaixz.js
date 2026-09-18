@@ -6,13 +6,38 @@ This is the official Miaixz browser SDK. It gives independently deployed fronten
 
 The SDK has no third-party runtime dependencies and can be built and published independently with npm.
 
-The current `0.5.x` development line uses Host Bridge protocol `1.0.0`.
+The Host Bridge protocol version is `1.0.0`; repository checks keep this statement aligned with the exported protocol constant.
 
 ## Installation
 
 ```bash
 npm install @miaixz/sdk
 ```
+
+## Public entries
+
+This table is checked directly against the package export map.
+
+| Entry           | Kind       |
+| --------------- | ---------- |
+| `.`             | JavaScript |
+| `./api`         | JavaScript |
+| `./auth`        | JavaScript |
+| `./context`     | JavaScript |
+| `./config`      | JavaScript |
+| `./permissions` | JavaScript |
+| `./runtime`     | JavaScript |
+| `./events`      | JavaScript |
+| `./storage`     | JavaScript |
+| `./appearance`  | JavaScript |
+| `./files`       | JavaScript |
+| `./i18n`        | JavaScript |
+| `./consts`      | JavaScript |
+| `./contracts`   | JavaScript |
+| `./errors`      | JavaScript |
+| `./formatters`  | JavaScript |
+| `./types`       | JavaScript |
+| `./utils`       | JavaScript |
 
 ## One-time setup
 
@@ -221,7 +246,7 @@ function AppearanceControls() {
 
 export function Root() {
   return (
-    <Theme appearance={sdk.appearance} fallback="miaixz">
+    <Theme appearance={sdk.appearance}>
       <AppearanceControls />
     </Theme>
   );
@@ -233,6 +258,10 @@ Supported color preferences are `light`, `dark`, and `system`. Supported Density
 record by `appId` and optional tenant ID. For `appId="portal"` without a tenant, the physical key is
 `miaixz:v1:global:portal:appearance`. The stored payload has `schemaVersion: 2`; persisted v1 records
 are migrated to the built-in `miaixz` theme on read.
+
+The composed SDK defaults to `appearanceScope: "tenant"` for tenant-specific preferences. Set
+`appearanceScope: "global"` when theme, color mode, and density are application-wide user interface
+preferences that must remain stable while `context.tenantId` changes.
 
 Applications should switch Appearance through `useTheme()` because the UI runtime validates and
 applies the complete theme before persistence. Calling `sdk.appearance.patch()` is reserved for
@@ -362,7 +391,8 @@ import type { MiaixzSpace } from "@miaixz/sdk/types";
 import { formatMiaixzBytes } from "@miaixz/sdk/formatters";
 ```
 
-Published subpaths include `api`, `auth`, `context`, `config`, `contracts`, `permissions`, `events`, `storage`, `appearance`, `files`, `i18n`, `sdk`, `consts`, `errors`, `formatters`, `models`, `types`, `utils`, and `validators`.
+The **Public entries** table above is the authoritative list of published subpaths and is checked
+directly against `package.json`; no second hand-maintained subpath list is kept here.
 
 ## Microfrontend module manifests
 
@@ -378,7 +408,7 @@ import {
 
 const manifest = {
   protocolVersion: MIAIXZ_MODULE_PROTOCOL_VERSION,
-  id: "spaces-console",
+  id: "spaces",
   version: "1.2.0",
   hostVersion: "^1.0.0",
   kind: "integrated",
@@ -427,7 +457,7 @@ Modules in the same runtime use `createMiaixzDirectHostBridge()`. Cross-origin i
 import { createMiaixzDirectHostBridge } from "@miaixz/sdk/runtime";
 
 const bridge = createMiaixzDirectHostBridge({
-  moduleId: "spaces-console",
+  moduleId: "spaces",
   adapter: {
     getContext: async () => sdk.context.getSnapshot(),
     hasPermissions: async (permissions) => sdk.permissions.canAll(permissions),
@@ -445,8 +475,9 @@ Modules must not obtain context through shared globals or direct access to the h
 ```bash
 npm install
 npm run check
-npm run pack:check
 ```
+
+Run `npm run check:package` from the repository root to validate both packed packages.
 
 Publishing is coordinated by the repository release workflow. Both npm packages must share the exact version and are published together from an unprefixed semantic-version tag. Stable releases use the `latest` dist-tag, while prereleases use `next`.
 

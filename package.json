@@ -1,31 +1,42 @@
 {
   "name": "miaixz.js",
-  "version": "0.6.0",
+  "version": "0.6.5",
   "private": true,
+  "packageManager": "npm@10.9.3",
   "description": "Build with intelligence. Create without limits.",
   "type": "module",
   "engines": {
-    "node": ">=20",
+    "node": ">=20.19",
     "npm": ">=10"
   },
   "workspaces": [
     "sdk",
-    "ui"
+    "ui",
+    "view"
   ],
   "scripts": {
     "version:set": "bash .github/scripts/version.sh",
-    "headers:fix": "node .github/scripts/enforce.js --write",
-    "headers:check": "node .github/scripts/enforce.js --check",
-    "prepare": "npm run build:sdk",
-    "build:sdk": "npm run build --workspace @miaixz/sdk",
-    "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run build:sdk && npm run typecheck --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "version:check": "node .github/scripts/release/check-release-metadata.mjs",
+    "headers:fix": "node .github/scripts/quality/enforce-source-policy.mjs --write",
+    "headers:check": "node .github/scripts/quality/enforce-source-policy.mjs --check",
+    "comments:check": "npm run headers:check && npm run lint",
+    "build": "node .github/scripts/miaixz.mjs build",
+    "typecheck": "node .github/scripts/miaixz.mjs typecheck",
+    "lint": "node .github/scripts/miaixz.mjs lint && npm run lint:scripts",
+    "lint:scripts": "eslint .github/scripts --config ui/eslint.config.js",
+    "lint:boundaries": "node .github/scripts/quality/audit-import-boundaries.mjs",
+    "lint:fix": "node .github/scripts/miaixz.mjs lint:fix && npm run lint:scripts -- --fix",
+    "audit:css": "npm run audit:css --workspace @miaixz/ui",
+    "test:coverage": "node .github/scripts/miaixz.mjs test:coverage",
+    "lockfile:check": "node .github/scripts/quality/check-lockfile.mjs",
+    "plan:check": "node .github/scripts/quality/audit-adjustment-plan.mjs",
     "format": "npm run headers:fix && prettier . --write --ignore-unknown --config ui/prettier.config.js --ignore-path .gitignore",
     "format:check": "prettier . --check --ignore-unknown --config ui/prettier.config.js --ignore-path .gitignore",
-    "check": "npm run headers:check && npm run build:sdk && npm run check --workspaces --if-present && npm run format:check",
-    "pack:check": "npm run build:sdk && npm run pack:check --workspaces --if-present"
+    "check:static": "npm run comments:check && npm run lockfile:check && npm run version:check && npm run plan:check && npm run build && npm run typecheck && npm run lint:boundaries && npm run audit:css && npm run test:coverage && npm run format:check",
+    "check:browser": "npm run test:browser --workspace @miaixz/ui",
+    "check:package": "node .github/scripts/package/check-packages.mjs",
+    "check:clean": "node .github/scripts/quality/check-clean.mjs",
+    "check": "npm run check:static && npm run check:browser && npm run check:package && npm run check:clean"
   },
   "repository": {
     "type": "git",
@@ -36,5 +47,10 @@
   },
   "homepage": "https://github.com/818000/miaixz.js#readme",
   "license": "Apache-2.0",
-  "author": "The Miaixz Team"
+  "author": "The Miaixz Team",
+  "devDependencies": {
+    "@babel/parser": "8.0.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
 }

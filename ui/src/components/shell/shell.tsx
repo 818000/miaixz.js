@@ -20,65 +20,103 @@
 
 import { forwardRef } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import type { ShellProps } from "./shell.types.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type { ShellOwnerState, ShellProps } from "./shell.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
- * Provides the root grid for product navigation, header, and main content. @public
+ * Provides the sole page-level main and navigation layout owner. @public
  */
-export const Shell = forwardRef<HTMLDivElement, ShellProps>(function Shell(
-  {
-    header,
-    sidebar,
-    headerBehavior = "fixed",
-    navigationVariant,
-    navigationExpanded = false,
-    mobileNavigationMode = "bottom",
-    navigationDismissLabel,
-    onNavigationDismiss,
-    mobileNavigation,
-    headerClassName,
-    sidebarClassName,
-    mainClassName,
-    mainRef,
-    mobileNavigationClassName,
-    className,
-    children,
-    ...props
-  },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      data-header-behavior={headerBehavior}
-      data-navigation-variant={navigationVariant}
-      data-navigation-expanded={navigationExpanded || undefined}
-      data-mobile-navigation-mode={mobileNavigationMode}
-      className={classNames("miaixz-shell", className)}
-    >
-      <header className={classNames("miaixz-shell-header", headerClassName)}>{header}</header>
-      <aside className={classNames("miaixz-shell-sidebar", sidebarClassName)}>{sidebar}</aside>
-      <main ref={mainRef} className={classNames("miaixz-shell-main", mainClassName)}>
-        {children}
-      </main>
-      {mobileNavigationMode === "drawer" &&
-        navigationExpanded &&
-        navigationDismissLabel &&
-        onNavigationDismiss && (
-          <button
-            aria-label={navigationDismissLabel}
-            className="miaixz-shell-navigation-backdrop"
-            onClick={onNavigationDismiss}
-            type="button"
-          />
+export const Shell = withMiaixzThemeComponent(
+  "Shell",
+  forwardRef<HTMLDivElement, ShellProps>(function Shell(
+    {
+      header,
+      sidebar,
+      sidebarOverflow = "auto",
+      headerBehavior = "fixed",
+      desktopNavigation = { mode: "sidebar" },
+      mobileNavigation = { mode: "none" },
+      presentation = "default",
+      slotProps,
+      mainRef,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const ownerState: ShellOwnerState = {
+      desktopNavigation,
+      mobileNavigation,
+      headerBehavior,
+      sidebarOverflow,
+      presentation,
+    };
+    const expanded = desktopNavigation.mode === "rail" && desktopNavigation.expanded;
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-shell" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-desktop-navigation": desktopNavigation.mode,
+            ...(expanded ? { "data-navigation-expanded": true } : {}),
+            "data-header-behavior": headerBehavior,
+            "data-presentation": presentation,
+          },
+          ownedProps: [
+            "data-desktop-navigation",
+            "data-navigation-expanded",
+            "data-header-behavior",
+            "data-presentation",
+          ],
+        })}
+      >
+        <header
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-shell-header" },
+            slotProps: slotProps?.header,
+          })}
+        >
+          {header}
+        </header>
+        <aside
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-shell-sidebar" },
+            slotProps: slotProps?.sidebar,
+            internalProps: { "data-overflow": sidebarOverflow },
+            ownedProps: ["data-overflow"],
+          })}
+        >
+          {sidebar}
+        </aside>
+        <main
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-shell-main" },
+            slotProps: slotProps?.main,
+            internalRef: mainRef,
+          })}
+        >
+          {children}
+        </main>
+        {mobileNavigation.mode === "bottom" && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-shell-mobile-navigation" },
+              slotProps: slotProps?.mobileNavigation,
+            })}
+          >
+            {mobileNavigation.content}
+          </div>
         )}
-      {mobileNavigation !== undefined && mobileNavigation !== null && (
-        <div className={classNames("miaixz-shell-mobile-navigation", mobileNavigationClassName)}>
-          {mobileNavigation}
-        </div>
-      )}
-    </div>
-  );
-});
+      </div>
+    );
+  }),
+);

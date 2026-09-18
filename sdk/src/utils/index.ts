@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./date.js";
-export * from "./number.js";
-export * from "./object.js";
-export * from "./string.js";
+export { isValidDate } from "./date.js";
+export { clamp } from "./number.js";
+export { isRecord } from "./object.js";
+export { isNonEmptyString } from "./string.js";

@@ -18,10 +18,26 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Panel, PanelHeader, PanelFooter, PanelRow, getPanelClassName } from "./panel.js";
+export { Panel, PanelHeader, PanelFooter, PanelRow } from "./panel.js";
 export type {
+  PanelDensity,
+  PanelFooterOwnerState,
   PanelProps,
   PanelFooterProps,
+  PanelFooterSlot,
+  PanelFrame,
+  PanelHeaderContent,
+  PanelInteraction,
+  PanelHeaderOwnerState,
+  PanelHeaderProps,
+  PanelHeaderSlot,
+  PanelHeaderSlotProps,
+  PanelOwnerState,
+  PanelRowOwnerState,
   PanelRowProps,
-  PanelStyleOptions,
+  PanelRowSlot,
+  PanelSemanticRootProps,
+  PanelSlot,
+  PanelSlotProps,
+  PanelSurface,
 } from "./panel.types.js";

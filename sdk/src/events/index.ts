@@ -18,4 +18,15 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./events.js";
+export { createMiaixzEventBus, MiaixzEventBus } from "./events.js";
+export type {
+  MiaixzAuthStatusEvent,
+  MiaixzEventBusOptions,
+  MiaixzEventEmitOptions,
+  MiaixzEventEnvelope,
+  MiaixzEventListener,
+  MiaixzEventName,
+  MiaixzEventValidator,
+  MiaixzLocaleChangedEvent,
+  MiaixzSdkEventMap,
+} from "./event-types.js";

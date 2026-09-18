@@ -21,29 +21,110 @@
 import type { HTMLAttributes } from "react";
 
 /**
- * Defines properties owned by the Miaixz loading bar contract. @public
+ * Native root attributes that cannot override progress semantics owned by Bar.
  */
-export interface MiaixzBarOwnProps {
-  /**
-   * Controls whether the bar is visible.
-   */
-  readonly active: boolean;
-  /**
-   * Plays the completion transition before hiding.
-   */
-  readonly complete?: boolean;
-  /**
-   * Uses the continuous indeterminate animation.
-   */
-  readonly indeterminate?: boolean;
-  /**
-   * Sets determinate completion from zero to one.
-   */
-  readonly progress?: number;
-}
+type BarNativeProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  | "aria-hidden"
+  | "aria-label"
+  | "aria-labelledby"
+  | "aria-valuemax"
+  | "aria-valuemin"
+  | "aria-valuenow"
+  | "aria-valuetext"
+  | "children"
+  | "role"
+>;
 
 /**
- * Configures fixed page and navigation loading progress. @public
+ * Requires an accessible name for informative bars and forbids it for decorative bars.
  */
-export interface BarProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzBarOwnProps>, MiaixzBarOwnProps {}
+type BarAccessibleName =
+  | {
+      /**
+       * Marks the bar as decorative and hidden from assistive technology.
+       */
+      readonly decorative: true;
+      /**
+       * Prevents decorative bars from exposing a conflicting accessible label.
+       */
+      readonly label?: never;
+    }
+  | {
+      /**
+       * Keeps the bar informative when omitted or false.
+       */
+      readonly decorative?: false;
+      /**
+       * Supplies the accessible name required by an informative bar.
+       */
+      readonly label: string;
+    };
+
+/**
+ * Couples a determinate progress value with its maximum or omits both values.
+ */
+type BarProgress =
+  | {
+      /**
+       * Omits determinate progress from an indeterminate bar.
+       */
+      readonly value?: never;
+      /**
+       * Omits a maximum when no determinate progress value exists.
+       */
+      readonly max?: never;
+    }
+  | {
+      /**
+       * Current determinate progress value.
+       */
+      readonly value: number;
+      /**
+       * Maximum determinate progress value.
+       */
+      readonly max: number;
+    };
+
+/**
+ * Configures a visible active bar with its accessibility and progress state.
+ */
+type ActiveBarProps = BarNativeProps &
+  BarAccessibleName &
+  BarProgress & {
+    /**
+     * Shows the fixed page-level loading bar.
+     */
+    readonly active: true;
+  };
+
+/**
+ * Configures an inactive bar and forbids inaccessible hidden state values.
+ */
+type InactiveBarProps = BarNativeProps & {
+  /**
+   * Removes the fixed page-level loading bar.
+   */
+  readonly active: false;
+  /**
+   * Prevents decorative state from being supplied while inactive.
+   */
+  readonly decorative?: never;
+  /**
+   * Prevents an inaccessible unused label while inactive.
+   */
+  readonly label?: never;
+  /**
+   * Prevents an unused progress value while inactive.
+   */
+  readonly value?: never;
+  /**
+   * Prevents an unused progress maximum while inactive.
+   */
+  readonly max?: never;
+};
+
+/**
+ * Configures fixed page-level loading progress. @public
+ */
+export type BarProps = ActiveBarProps | InactiveBarProps;

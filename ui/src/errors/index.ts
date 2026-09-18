@@ -18,4 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./ui-error.js";
+export {
+  MiaixzUiError,
+  miaixzUiErrorMessageKeys,
+  miaixzUiWarningMessageKeys,
+  reportMiaixzUiWarning,
+} from "./ui-error.js";
+export type { MiaixzUiErrorCode, MiaixzUiErrorOptions, MiaixzUiWarningCode } from "./ui-error.js";

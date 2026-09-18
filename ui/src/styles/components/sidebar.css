@@ -20,26 +20,37 @@
 
 .miaixz-sidebar {
   display: grid;
-  grid-template-columns: minmax(220px, var(--miaixz-layout-local-sidebar-width)) minmax(0, 1fr);
+  grid-template:
+    "sidebar content" auto
+    "sidebar footer" auto /
+    minmax(220px, var(--miaixz-layout-local-sidebar-width)) minmax(0, 1fr);
   gap: var(--miaixz-layout-grid-gap);
   min-width: 0;
 }
 
-.miaixz-sidebar-main {
-  min-width: 0;
-}
-
-.miaixz-sidebar-wide {
+.miaixz-sidebar[data-size="wide"] {
   grid-template-columns: minmax(280px, 280px) minmax(0, 1fr);
   gap: var(--miaixz-space-12);
 }
 
-@media (width < 80em) {
-  .miaixz-sidebar[data-collapse-at="compactDesktop"] {
-    grid-template-columns: minmax(0, 1fr);
-  }
+.miaixz-sidebar-aside {
+  grid-area: sidebar;
+  min-width: 0;
+}
 
-  .miaixz-sidebar[data-collapse-at="compactDesktop"] > .miaixz-sticky {
-    position: static;
-  }
+.miaixz-sidebar-aside[data-sticky] {
+  position: sticky;
+  top: var(--miaixz-layout-sticky-offset);
+  z-index: var(--miaixz-z-sticky);
+  align-self: start;
+}
+
+.miaixz-sidebar-content {
+  grid-area: content;
+  min-width: 0;
+}
+
+.miaixz-sidebar-footer {
+  grid-area: footer;
+  min-width: 0;
 }

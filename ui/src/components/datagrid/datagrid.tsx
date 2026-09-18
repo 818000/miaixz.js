@@ -18,23 +18,21 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useId, type ReactElement, type RefAttributes } from "react";
+import { forwardRef, useId, useMemo, type ReactElement, type RefAttributes } from "react";
 
-import type { MiaixzTranslator } from "@miaixz/sdk/i18n";
-
-import { createMiaixzUiError } from "../../errors/index.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
-import { Checkbox } from "../checkbox/index.js";
-import { Icon } from "../icon/index.js";
-import { Overlay } from "../overlay/index.js";
-import { Radio } from "../radio/index.js";
+import { Checkbox } from "../checkbox/checkbox.js";
+import { Icon } from "../icon/icon.js";
+import { Overlay } from "../overlay/overlay.js";
+import { Radio } from "../radio/radio.js";
+import { Scroll } from "../scroll/scroll.js";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableContainer,
   TableHead,
   TableHeader,
   TableRow,
@@ -45,144 +43,98 @@ import type {
   DatagridSort,
   DatagridSortDirection,
 } from "./datagrid.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
-/**
- * Associates one immutable row value with its validated identifier.
- *
- * @typeParam Row - Consumer-owned row shape.
- */
-interface MiaixzDatagridRow<Row> {
-  /**
-   * Contains the validated unique row identifier.
-   */
+interface DatagridRow<Row> {
   readonly id: string;
-
-  /**
-   * Contains the original consumer-owned row value.
-   */
   readonly value: Row;
 }
 
 /**
- * Resolves the visual and semantic state exposed by the Datagrid root.
+ * Validates an optional percentage used by datagrid column geometry.
  *
- * @param loading - Whether server data is currently loading.
- * @param error - Project-owned error content.
- * @param rowCount - Current page row count.
- * @returns Stable Datagrid state attribute.
+ * @param value - Percentage to validate when present.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when the percentage is non-finite or outside the supported range.
  */
-function getMiaixzDatagridState(
-  loading: boolean,
-  error: unknown,
-  rowCount: number,
-): "loading" | "error" | "empty" | "ready" {
-  if (loading) return "loading";
-  if (error !== undefined) return "error";
-  if (rowCount === 0) return "empty";
-  return "ready";
-}
-
-/**
- * Validates unique column identifiers before rendering semantic headings.
- *
- * @typeParam Row - Consumer-owned row shape.
- * @param translate - Active localized message resolver.
- * @param columns - Consumer-provided column definitions.
- */
-function validateMiaixzDatagridColumns<Row>(
-  translate: MiaixzTranslator,
-  columns: readonly DatagridColumn<Row>[],
-): void {
-  const identifiers = new Set<string>();
-  for (const column of columns) {
-    if (identifiers.has(column.id)) {
-      throw createMiaixzUiError(translate, {
-        code: "UI_TABLE_DUPLICATE_COLUMN_ID",
-        messageKey: "ui.error.table.duplicateColumnId",
-        details: { duplicateId: column.id },
-      });
-    }
-    identifiers.add(column.id);
-  }
-}
-
-/**
- * Resolves row identifiers once and rejects duplicate values.
- *
- * @typeParam Row - Consumer-owned row shape.
- * @param translate - Active localized message resolver.
- * @param rows - Current server-provided page.
- * @param getRowId - Consumer identifier resolver.
- * @returns Current rows paired with validated identifiers.
- */
-function createMiaixzDatagridRows<Row>(
-  translate: MiaixzTranslator,
-  rows: readonly Row[],
-  getRowId: (row: Readonly<Row>) => string,
-): readonly MiaixzDatagridRow<Row>[] {
-  const identifiers = new Set<string>();
-  return rows.map((row) => {
-    const id = getRowId(row);
-    if (identifiers.has(id)) {
-      throw createMiaixzUiError(translate, {
-        code: "UI_TABLE_DUPLICATE_ROW_ID",
-        messageKey: "ui.error.table.duplicateRowId",
-        details: { duplicateId: id },
-      });
-    }
-    identifiers.add(id);
-    return { id, value: row };
-  });
-}
-
-/**
- * Validates controlled sort and row-selection contracts.
- *
- * @param translate - Active localized message resolver.
- * @param sortControlled - Whether a controlled sort value was supplied.
- * @param hasSortHandler - Whether sort intentions can be observed.
- * @param selectionControlled - Whether controlled selected identifiers were supplied.
- * @param hasSelectionHandler - Whether selection intentions can be observed.
- */
-function validateMiaixzDatagridControls(
-  translate: MiaixzTranslator,
-  sortControlled: boolean,
-  hasSortHandler: boolean,
-  selectionControlled: boolean,
-  hasSelectionHandler: boolean,
-): void {
-  if ((sortControlled && !hasSortHandler) || (selectionControlled && !hasSelectionHandler)) {
-    throw createMiaixzUiError(translate, {
+function validatePercent(value: number | undefined): void {
+  if (value !== undefined && (!Number.isFinite(value) || value <= 0 || value > 100)) {
+    throw new MiaixzUiError({
       code: "UI_CONTROLLED_VALUE_INVALID",
-      messageKey: "ui.error.controlled.valueInvalid",
     });
   }
 }
 
 /**
- * Produces the next sort intent in the frozen three-state cycle.
+ * Validates column identifiers and optional percentage widths.
  *
- * @param columnId - Activated sortable column identifier.
- * @param current - Current controlled server-side sort state.
- * @returns Next sort intent or undefined when the cycle resets.
+ * @typeParam Row - Row value represented by the columns.
+ * @param columns - Column definitions to validate.
+ * @returns Nothing after validation.
+ * @throws MiaixzUiError when a column identifier is duplicated or a width is invalid.
  */
-function getNextMiaixzDatagridSort(
-  columnId: string,
-  current: DatagridSort | undefined,
-): DatagridSort | undefined {
-  if (current?.columnId !== columnId) return { columnId, direction: "ascending" };
-  if (current.direction === "ascending") return { columnId, direction: "descending" };
+function validateColumns<Row>(columns: readonly DatagridColumn<Row>[]): void {
+  const ids = new Set<string>();
+  for (const column of columns) {
+    if (ids.has(column.id)) {
+      throw new MiaixzUiError({
+        code: "UI_TABLE_DUPLICATE_COLUMN_ID",
+        details: { id: column.id },
+      });
+    }
+    validatePercent(column.widthPercent);
+    ids.add(column.id);
+  }
+}
+
+/**
+ * Resolves stable row identifiers while preserving source row order.
+ *
+ * @typeParam Row - Row value type.
+ * @param rows - Source rows to normalize.
+ * @param getRowId - Callback that returns each row's stable identifier.
+ * @returns Datagrid rows paired with unique identifiers.
+ * @throws MiaixzUiError when multiple rows resolve to the same identifier.
+ */
+function resolveRows<Row>(
+  rows: readonly Row[],
+  getRowId: (row: Readonly<Row>) => string,
+): readonly DatagridRow<Row>[] {
+  const ids = new Set<string>();
+  return rows.map((value) => {
+    const id = getRowId(value);
+    if (ids.has(id)) {
+      throw new MiaixzUiError({
+        code: "UI_TABLE_DUPLICATE_ROW_ID",
+        details: { id },
+      });
+    }
+    ids.add(id);
+    return { id, value };
+  });
+}
+
+/**
+ * Advances a column through ascending, descending, and unsorted states.
+ *
+ * @param columnId - Column selected for sorting.
+ * @param current - Current datagrid sort state.
+ * @returns Next sort state, or undefined after descending order.
+ */
+function getNextSort(columnId: string, current: DatagridSort | undefined) {
+  if (current?.columnId !== columnId) return { columnId, direction: "ascending" as const };
+  if (current.direction === "ascending") return { columnId, direction: "descending" as const };
   return undefined;
 }
 
 /**
- * Resolves the sort direction associated with one heading.
+ * Resolves the active sort direction for one column.
  *
- * @param columnId - Column identifier being rendered.
- * @param sort - Current controlled server-side sort state.
- * @returns Active ARIA sort direction when this is the sorted column.
+ * @param columnId - Column whose direction should be resolved.
+ * @param sort - Current datagrid sort state.
+ * @returns Active direction for the column, or undefined when another column is sorted.
  */
-function getMiaixzDatagridColumnSort(
+function getSortDirection(
   columnId: string,
   sort: DatagridSort | undefined,
 ): DatagridSortDirection | undefined {
@@ -190,22 +142,12 @@ function getMiaixzDatagridColumnSort(
 }
 
 /**
- * Creates a logical alignment class shared by a heading and its body cells.
+ * Implements the generic, ref-forwarding datagrid component.
  *
- * @param align - Optional column alignment.
- * @returns Stable alignment class name.
- */
-function getMiaixzDatagridAlignmentClass(align: DatagridColumn<unknown>["align"]): string {
-  return `miaixz-datagrid-align-${align ?? "start"}`;
-}
-
-/**
- * Renders the generic controlled Datagrid implementation.
- *
- * @typeParam Row - Consumer-owned row shape.
- * @param properties - Datagrid properties and inherited div attributes.
- * @param reference - Forwarded Datagrid root reference.
- * @returns Semantic table, async states, and optional pagination slot.
+ * @typeParam Row - Row value rendered by the datagrid.
+ * @param properties - Datagrid data, state, behavior, and slot configuration.
+ * @param reference - Forwarded datagrid root reference.
+ * @returns Semantic datagrid element tree.
  */
 function DatagridImplementation<Row>(
   properties: DatagridProps<Row>,
@@ -226,70 +168,66 @@ function DatagridImplementation<Row>(
     emptyState,
     pagination,
     caption,
-    variant = "default",
+    surface = "plain",
     captionVisibility = "visible",
     layout = "auto",
-    rowSize = "default",
+    density = "standard",
     bodyLayout = "content",
     className,
     ...props
   } = properties;
   const { t } = useMiaixzLocale();
-  const selectionName = useId();
-  validateMiaixzDatagridControls(
-    t,
-    sort !== undefined,
-    onSortChange !== undefined,
-    selectedRowIds !== undefined,
-    onSelectedRowIdsChange !== undefined,
-  );
-  validateMiaixzDatagridColumns(t, columns);
-  const resolvedRows = createMiaixzDatagridRows(t, rows, getRowId);
-  const selectedIds = new Set(selectedRowIds ?? []);
-  const currentIds = new Set(resolvedRows.map((row) => row.id));
-  const selectedCurrentIds = resolvedRows.filter((row) => selectedIds.has(row.id));
-  if (selectionMode === "single" && selectedCurrentIds.length > 1) {
-    throw createMiaixzUiError(t, {
+  const radioName = useId();
+  const resolvedColumns = useMemo(() => {
+    validateColumns(columns);
+    return columns;
+  }, [columns]);
+  const resolvedRows = useMemo(() => resolveRows(rows, getRowId), [getRowId, rows]);
+  validatePercent(selectionWidthPercent);
+  const selectedValues = selectedRowIds ?? [];
+  if (selectionMode === "single" && selectedValues.length > 1) {
+    throw new MiaixzUiError({
       code: "UI_CONTROLLED_VALUE_INVALID",
-      messageKey: "ui.error.controlled.valueInvalid",
     });
   }
+  const selectedIds = new Set(selectedValues);
+  const currentIds = new Set(resolvedRows.map((row) => row.id));
+  const selectedCurrent = resolvedRows.filter((row) => selectedIds.has(row.id));
+  const allCurrentSelected =
+    resolvedRows.length > 0 && selectedCurrent.length === resolvedRows.length;
+  const someCurrentSelected = selectedCurrent.length > 0 && !allCurrentSelected;
+  const hasSelection = selectionMode !== "none";
+  const columnCount = resolvedColumns.length + (hasSelection ? 1 : 0);
+  const state = loading
+    ? "loading"
+    : error !== undefined
+      ? "error"
+      : rows.length === 0
+        ? "empty"
+        : "ready";
 
-  const hasSelectionColumn = selectionMode !== "none";
-  const columnCount = columns.length + (hasSelectionColumn ? 1 : 0);
-  const allCurrentSelected = resolvedRows.length > 0 && selectedCurrentIds.length === rows.length;
-  const someCurrentSelected = selectedCurrentIds.length > 0 && !allCurrentSelected;
-  const state = getMiaixzDatagridState(loading, error, rows.length);
-
-  /**
-   * Reports one current-page row-selection intent without retaining internal state.
-   *
-   * @param rowId - Activated row identifier.
-   * @param selected - Requested native control state.
-   */
-  function changeRowSelection(rowId: string, selected: boolean): void {
+  const changeRowSelection = (rowId: string, checked: boolean) => {
     if (selectionMode === "single") {
-      onSelectedRowIdsChange?.(selected ? [rowId] : []);
+      (onSelectedRowIdsChange as ((ids: readonly [] | readonly [string]) => void) | undefined)?.(
+        checked ? [rowId] : [],
+      );
       return;
     }
-    const nextIds = new Set(selectedIds);
-    if (selected) nextIds.add(rowId);
-    else nextIds.delete(rowId);
-    onSelectedRowIdsChange?.([...nextIds]);
-  }
-
-  /**
-   * Reports a current-page select-all intent while preserving invisible identifiers.
-   */
-  function changePageSelection(): void {
-    const nextIds = new Set(selectedIds);
-    if (allCurrentSelected) {
-      for (const id of currentIds) nextIds.delete(id);
-    } else {
-      for (const id of currentIds) nextIds.add(id);
+    if (selectionMode !== "multiple") return;
+    const next = new Set(selectedIds);
+    if (checked) next.add(rowId);
+    else next.delete(rowId);
+    (onSelectedRowIdsChange as ((ids: readonly string[]) => void) | undefined)?.([...next]);
+  };
+  const changePageSelection = () => {
+    if (selectionMode !== "multiple") return;
+    const next = new Set(selectedIds);
+    for (const id of currentIds) {
+      if (allCurrentSelected) next.delete(id);
+      else next.add(id);
     }
-    onSelectedRowIdsChange?.([...nextIds]);
-  }
+    (onSelectedRowIdsChange as ((ids: readonly string[]) => void) | undefined)?.([...next]);
+  };
 
   return (
     <div
@@ -297,85 +235,65 @@ function DatagridImplementation<Row>(
       ref={reference}
       aria-busy={loading || undefined}
       data-state={state}
-      className={classNames(
-        "miaixz-datagrid",
-        `miaixz-datagrid-body-${bodyLayout}`,
-        `miaixz-datagrid-${variant}`,
-        `miaixz-datagrid-layout-${layout}`,
-        `miaixz-datagrid-rows-${rowSize}`,
-        captionVisibility === "hidden" && "miaixz-datagrid-caption-hidden",
-        className,
-      )}
+      data-surface={surface}
+      data-density={density}
+      data-layout={layout}
+      data-body-layout={bodyLayout}
+      data-caption-visibility={captionVisibility}
+      className={classNames("miaixz-datagrid", className)}
     >
       <Overlay active={loading} label={t("ui.loading")}>
-        <TableContainer
-          frame="plain"
+        <Scroll
+          focusable="auto"
           aria-label={caption}
-          role="region"
-          tabIndex={0}
-          className="miaixz-datagrid-container"
+          className="miaixz-table-container miaixz-table-container-plain miaixz-datagrid-container"
         >
-          <Table>
+          <Table dividerStyle="dashed" stickyHeader={bodyLayout === "fill"}>
             <TableCaption>{caption}</TableCaption>
             <TableHeader>
               <TableRow>
-                {selectionMode === "multiple" && (
+                {hasSelection && (
                   <TableHead
                     className="miaixz-datagrid-selection-cell"
-                    scope="col"
                     style={
                       selectionWidthPercent === undefined
                         ? undefined
                         : { width: `${selectionWidthPercent}%` }
                     }
                   >
-                    <Checkbox
-                      aria-label={t("ui.table.selectPage")}
-                      checked={allCurrentSelected}
-                      indeterminate={someCurrentSelected}
-                      disabled={resolvedRows.length === 0 || onSelectedRowIdsChange === undefined}
-                      onChange={changePageSelection}
-                      className="miaixz-datagrid-selection-control"
-                    />
+                    {selectionMode === "multiple" && (
+                      <Checkbox
+                        aria-label={t("ui.table.selectPage")}
+                        checked={allCurrentSelected}
+                        indeterminate={someCurrentSelected}
+                        disabled={resolvedRows.length === 0 || onSelectedRowIdsChange === undefined}
+                        onChange={changePageSelection}
+                      />
+                    )}
                   </TableHead>
                 )}
-                {selectionMode === "single" && (
-                  <TableHead
-                    className="miaixz-datagrid-selection-cell"
-                    scope="col"
-                    style={
-                      selectionWidthPercent === undefined
-                        ? undefined
-                        : { width: `${selectionWidthPercent}%` }
-                    }
-                  />
-                )}
-                {columns.map((column) => {
-                  const direction = getMiaixzDatagridColumnSort(column.id, sort);
+                {resolvedColumns.map((column) => {
+                  const direction = getSortDirection(column.id, sort);
                   return (
                     <TableHead
                       key={column.id}
+                      aria-sort={direction}
                       style={
                         column.widthPercent === undefined
                           ? undefined
                           : { width: `${column.widthPercent}%` }
                       }
-                      scope="col"
-                      aria-sort={direction}
-                      className={classNames(
-                        "miaixz-datagrid-heading",
-                        getMiaixzDatagridAlignmentClass(column.align),
-                      )}
+                      className={`miaixz-datagrid-align-${column.align ?? "start"}`}
                     >
-                      {column.sortable ? (
+                      {column.sortable === true ? (
                         <button
                           type="button"
                           disabled={onSortChange === undefined}
                           data-state={direction ?? "none"}
                           className="miaixz-datagrid-sort"
-                          onClick={() => onSortChange?.(getNextMiaixzDatagridSort(column.id, sort))}
+                          onClick={() => onSortChange?.(getNextSort(column.id, sort))}
                         >
-                          <span className="miaixz-datagrid-heading-content">{column.header}</span>
+                          <span>{column.header}</span>
                           <Icon
                             name="ChevronDown"
                             size="inline"
@@ -407,10 +325,10 @@ function DatagridImplementation<Row>(
                 </TableRow>
               ) : (
                 resolvedRows.map((row) => {
-                  const selected = selectedIds.has(row.id) && hasSelectionColumn;
+                  const selected = hasSelection && selectedIds.has(row.id);
                   return (
                     <TableRow key={row.id} selected={selected}>
-                      {hasSelectionColumn && (
+                      {hasSelection && (
                         <TableCell className="miaixz-datagrid-selection-cell">
                           {selectionMode === "multiple" ? (
                             <Checkbox
@@ -420,29 +338,24 @@ function DatagridImplementation<Row>(
                               onChange={(event) =>
                                 changeRowSelection(row.id, event.currentTarget.checked)
                               }
-                              className="miaixz-datagrid-selection-control"
                             />
                           ) : (
                             <Radio
                               aria-label={t("ui.table.selectRow")}
-                              name={selectionName}
+                              name={radioName}
                               checked={selected}
                               disabled={onSelectedRowIdsChange === undefined}
                               onChange={(event) =>
                                 changeRowSelection(row.id, event.currentTarget.checked)
                               }
-                              className="miaixz-datagrid-selection-control"
                             />
                           )}
                         </TableCell>
                       )}
-                      {columns.map((column) => (
+                      {resolvedColumns.map((column) => (
                         <TableCell
                           key={column.id}
-                          className={classNames(
-                            "miaixz-datagrid-cell",
-                            getMiaixzDatagridAlignmentClass(column.align),
-                          )}
+                          className={`miaixz-datagrid-align-${column.align ?? "start"}`}
                         >
                           {column.cell(row.value)}
                         </TableCell>
@@ -453,7 +366,7 @@ function DatagridImplementation<Row>(
               )}
             </TableBody>
           </Table>
-        </TableContainer>
+        </Scroll>
       </Overlay>
       {pagination !== undefined && <div className="miaixz-datagrid-pagination">{pagination}</div>}
     </div>
@@ -461,10 +374,11 @@ function DatagridImplementation<Row>(
 }
 
 /**
- * Renders a generic controlled server-side data table.
- *
- * @public
+ * Renders a semantic server-side data table. @public
  */
-export const Datagrid = forwardRef(DatagridImplementation) as <Row>(
-  props: DatagridProps<Row> & RefAttributes<HTMLDivElement>,
-) => ReactElement;
+export const Datagrid = withMiaixzThemeComponent(
+  "Datagrid",
+  forwardRef(DatagridImplementation) as <Row>(
+    props: DatagridProps<Row> & RefAttributes<HTMLDivElement>,
+  ) => ReactElement,
+);

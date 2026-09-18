@@ -30,6 +30,14 @@
   padding: 0;
 }
 
+.miaixz-textarea-count {
+  padding: 0 var(--miaixz-density-control-padding-inline) var(--miaixz-space-4);
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-muted);
+  text-align: end;
+}
+
 .miaixz-textarea {
   display: block;
   width: 100%;

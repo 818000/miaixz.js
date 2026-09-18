@@ -18,15 +18,11 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
+import { useMiaixzLayoutEffect } from "../use-client-layout-effect.js";
 import { lockMiaixzDocumentScroll } from "./document-scroll-lock.js";
 import { registerMiaixzModal } from "./portal-target.js";
-
-/**
- * Uses layout timing in browsers and passive timing during server rendering.
- */
-const useMiaixzClientLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
 /**
  * Selects interactive elements that can initiate a controlled modal transition.
@@ -100,7 +96,7 @@ export function useMiaixzNativeModal(
     return observeMiaixzModalInteractions(ownerDocument);
   }, [portalTarget, ref]);
 
-  useMiaixzClientLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     const dialog = ref.current;
     if (dialog === null) return undefined;
 

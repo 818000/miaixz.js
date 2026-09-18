@@ -18,10 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { miaixzTheme } from "./miaixz.js";
-import { neutralTheme } from "./neutral.js";
-import { contrastTheme } from "./contrast.js";
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
+import { presetBuiltInThemes, presetThemeDescriptors } from "./presets/index.js";
 import { resolveThemeDefinitions } from "./resolve.js";
 import type {
   MiaixzResolvedThemeDefinition,
@@ -31,11 +29,11 @@ import type {
 import { validateThemeDefinition } from "./validate.js";
 
 /**
- * Lists built-in themes in stable public catalog order.
+ * Lists synchronously bundled themes in stable catalog order.
  */
-export const miaixzBuiltInThemes = Object.freeze([miaixzTheme, neutralTheme, contrastTheme]);
+export const miaixzBuiltInThemes = presetBuiltInThemes;
 
-const reservedThemeIds = new Set(["miaixz", "neutral", "contrast"]);
+const reservedThemeIds = new Set(presetThemeDescriptors.map((theme) => theme.name));
 
 /**
  * Maintains one atomic, ordered, instance-local theme catalog.
@@ -44,7 +42,7 @@ export class ThemeCatalog {
   #definitions = new Map<string, Readonly<MiaixzThemeDefinition>>();
   #resolved = new Map<string, Readonly<MiaixzResolvedThemeDefinition>>();
   #sources = new Map<string, MiaixzThemeDescriptor["source"]>();
-  #descriptors: readonly MiaixzThemeDescriptor[] = Object.freeze([]);
+  #descriptors: readonly MiaixzThemeDescriptor[] = presetThemeDescriptors;
 
   /**
    * Creates a catalog containing built-ins followed by trusted registered themes.
@@ -60,7 +58,7 @@ export class ThemeCatalog {
    * Reports whether a resolved theme exists.
    *
    * @param name - Theme identifier.
-   * @returns Whether the theme exists.
+   * @returns Whether the theme is already resolved.
    */
   has(name: string): boolean {
     return this.#resolved.has(name);
@@ -71,7 +69,6 @@ export class ThemeCatalog {
    *
    * @param name - Theme identifier.
    * @returns Complete resolved theme.
-   * @throws MiaixzThemeError When the theme does not exist.
    */
   get(name: string): Readonly<MiaixzResolvedThemeDefinition> {
     const theme = this.#resolved.get(name);
@@ -80,9 +77,9 @@ export class ThemeCatalog {
   }
 
   /**
-   * Returns immutable descriptors in stable registration order.
+   * Returns immutable descriptors in stable catalog order.
    *
-   * @returns Ordered frozen descriptors.
+   * @returns Ordered frozen descriptors, including unloaded presets.
    */
   descriptors(): readonly MiaixzThemeDescriptor[] {
     return this.#descriptors;
@@ -113,7 +110,13 @@ export class ThemeCatalog {
     const sources = new Map(this.#sources);
     for (const candidate of themes) {
       const theme = validateThemeDefinition(candidate);
-      if (definitions.has(theme.name) || (!allowReserved && reservedThemeIds.has(theme.name))) {
+      const advertisedPreset = reservedThemeIds.has(theme.name) && !definitions.has(theme.name);
+      if (
+        definitions.has(theme.name) ||
+        (!allowReserved &&
+          reservedThemeIds.has(theme.name) &&
+          !(source === "loaded" && advertisedPreset))
+      ) {
         throw new MiaixzThemeError("UI_THEME_DUPLICATE", { theme: theme.name });
       }
       if (!allowReserved && theme.extends === undefined) {
@@ -126,33 +129,47 @@ export class ThemeCatalog {
       sources.set(theme.name, source);
     }
     const resolved = resolveThemeDefinitions(definitions);
-    const descriptors = Object.freeze(
+    const resolvedDescriptors = new Map(
       [...definitions.values()].map((theme) => {
         const complete = resolved.get(theme.name);
         if (complete === undefined) {
           throw new MiaixzThemeError("UI_THEME_NOT_FOUND", { theme: theme.name });
         }
-        return Object.freeze({
-          name: theme.name,
-          label: theme.label,
-          version: theme.version,
-          source: sources.get(theme.name) ?? "registered",
-          preview: Object.freeze({
-            light: themePreview(complete, "light"),
-            dark: themePreview(complete, "dark"),
+        return [
+          theme.name,
+          Object.freeze({
+            name: theme.name,
+            label: theme.label,
+            version: theme.version,
+            source: sources.get(theme.name) ?? "registered",
+            preview: Object.freeze({
+              light: themePreview(complete, "light"),
+              dark: themePreview(complete, "dark"),
+            }),
           }),
-        });
+        ] as const;
       }),
     );
+    const descriptors: MiaixzThemeDescriptor[] = presetThemeDescriptors.map((advertised) => {
+      const resolvedDescriptor = resolvedDescriptors.get(advertised.name);
+      if (resolvedDescriptor === undefined) return advertised;
+      resolvedDescriptors.delete(advertised.name);
+      return Object.freeze({
+        ...resolvedDescriptor,
+        ...(advertised.group === undefined ? {} : { group: advertised.group }),
+        source: advertised.source,
+      });
+    });
+    descriptors.push(...resolvedDescriptors.values());
     this.#definitions = definitions;
     this.#resolved = new Map(resolved);
     this.#sources = sources;
-    this.#descriptors = descriptors;
+    this.#descriptors = Object.freeze(descriptors);
   }
 }
 
 /**
- * Selects and freezes the three resolved colors exposed by a descriptor.
+ * Selects the resolved colors exposed by one descriptor preview.
  *
  * @param theme - Complete resolved theme.
  * @param mode - Resolved light or dark mode.

@@ -19,6 +19,7 @@
 */
 
 import { createContext, useContext, type RefObject } from "react";
+import type { MiaixzOverlayChangeReason } from "../../shared/overlay/types.js";
 
 /**
  * Exposes package-internal Popover lifecycle controls to composed surfaces such as Dropdown.
@@ -30,14 +31,19 @@ export interface MiaixzPopoverContextValue {
   readonly open: boolean;
 
   /**
-   * References the native button that owns the surface.
+   * References the native interactive element that owns the surface.
    */
   readonly triggerRef: RefObject<HTMLButtonElement | null>;
 
   /**
+   * References the rendered Portal content element.
+   */
+  readonly contentRef: RefObject<HTMLDivElement | null>;
+
+  /**
    * Requests closure and optionally restores trigger focus after the controlled state commits.
    */
-  readonly requestClose: (restoreFocus: boolean) => void;
+  readonly requestClose: (reason?: MiaixzOverlayChangeReason) => void;
 }
 
 /**

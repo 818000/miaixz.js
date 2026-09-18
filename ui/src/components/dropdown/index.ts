@@ -19,4 +19,20 @@
 */
 
 export { Dropdown } from "./dropdown.js";
-export type { DropdownEntry, DropdownProps } from "./dropdown.types.js";
+export type {
+  DropdownActionEntry,
+  DropdownAnchorProps,
+  DropdownButtonProps,
+  DropdownCheckboxEntry,
+  DropdownDividerEntry,
+  DropdownEntry,
+  DropdownLabelEntry,
+  DropdownLinkEntry,
+  DropdownPresentation,
+  DropdownProps,
+  DropdownRadioGroupEntry,
+  DropdownRadioOption,
+  DropdownSubmenuEntry,
+  DropdownSubmenuItem,
+  DropdownTone,
+} from "./dropdown.types.js";

@@ -18,54 +18,159 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useRef,
+  useState,
+  type FocusEvent,
+  type KeyboardEvent,
+} from "react";
 
+import { assertMiaixzAccessibleName } from "../../accessibility/assert-accessible-name.js";
 import { classNames } from "../../shared/class-names.js";
+import { useRovingFocus } from "../../shared/use-roving-focus.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { ToolbarProps } from "./toolbar.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
+
+const focusableSelector = [
+  "button:not([disabled])",
+  "a[href]",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]",
+].join(",");
 
 /**
- * Renders a labeled toolbar for a related set of controls.
- *
- * @public
+ * Renders a visual control group or a keyboard-managed ARIA toolbar. @public
  */
-export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar(
-  {
-    label,
-    orientation = "horizontal",
-    leading,
-    actions,
-    sticky = false,
-    variant = "default",
-    className,
-    children,
-    ...props
-  },
-  ref,
-) {
-  const structured = leading !== undefined || actions !== undefined;
-  return (
-    <div
-      {...props}
-      ref={ref}
-      role="toolbar"
-      aria-label={label}
-      aria-orientation={orientation}
-      data-orientation={orientation}
-      className={classNames(
-        "miaixz-toolbar",
-        `miaixz-toolbar-${variant}`,
-        sticky && "miaixz-toolbar-sticky",
-        className,
-      )}
-    >
-      {structured ? (
-        <>
-          <div className="miaixz-toolbar-leading">{leading ?? children}</div>
-          {actions !== undefined && <div className="miaixz-toolbar-actions">{actions}</div>}
-        </>
-      ) : (
-        children
-      )}
-    </div>
-  );
-});
+export const Toolbar = withMiaixzThemeComponent(
+  "Toolbar",
+  forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar(
+    {
+      behavior = "group",
+      surface = "plain",
+      density = "standard",
+      orientation = "horizontal",
+      wrap = true,
+      variant = "default",
+      label,
+      className,
+      children,
+      search,
+      filters,
+      actions,
+      onFocus,
+      onKeyDown,
+      ...props
+    },
+    forwardedRef,
+  ) {
+    const rootRef = useRef<HTMLDivElement | null>(null);
+    const [elements, setElements] = useState<HTMLElement[]>([]);
+    const [direction, setDirection] = useState<"ltr" | "rtl">("ltr");
+    const ariaLabel = props["aria-label"] ?? label;
+    const hasName = ariaLabel !== undefined || props["aria-labelledby"] !== undefined;
+    if (behavior === "toolbar" || hasName) {
+      assertMiaixzAccessibleName({
+        ...(ariaLabel === undefined ? {} : { ariaLabel }),
+        ...(props["aria-labelledby"] === undefined
+          ? {}
+          : { ariaLabelledBy: props["aria-labelledby"] }),
+      });
+    }
+    const roving = useRovingFocus({
+      elements,
+      direction,
+      orientation,
+      loop: true,
+      isDisabled: (element) =>
+        element.matches(":disabled") || element.getAttribute("aria-disabled") === "true",
+    });
+    const setRef = useCallback(
+      (element: HTMLDivElement | null) => {
+        rootRef.current = element;
+        if (typeof forwardedRef === "function") forwardedRef(element);
+        else if (forwardedRef !== null) forwardedRef.current = element;
+      },
+      [forwardedRef],
+    );
+    const rebuild = useCallback(() => {
+      const root = rootRef.current;
+      if (root === null) return;
+      const next = Array.from(root.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+        (element) =>
+          element.closest<HTMLElement>("[data-miaixz-toolbar-root]") === root &&
+          !element.hidden &&
+          !element.closest("[hidden], [inert]") &&
+          element.getAttribute("aria-disabled") !== "true" &&
+          !element.matches(":disabled"),
+      );
+      setElements((current) =>
+        current.length === next.length && current.every((element, index) => element === next[index])
+          ? current
+          : next,
+      );
+      setDirection(getComputedStyle(root).direction === "rtl" ? "rtl" : "ltr");
+    }, []);
+    useMiaixzLayoutEffect(() => {
+      if (behavior !== "toolbar") {
+        setElements([]);
+        return;
+      }
+      const root = rootRef.current;
+      if (root === null) return;
+      rebuild();
+      const observer = new MutationObserver(rebuild);
+      observer.observe(root, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ["aria-disabled", "disabled", "hidden", "href", "inert", "tabindex"],
+      });
+      return () => observer.disconnect();
+    }, [behavior, rebuild, children]);
+    useMiaixzLayoutEffect(() => {
+      if (behavior !== "toolbar") return;
+      for (const element of elements) {
+        const tabIndex = roving.getTabIndex(element);
+        if (element.tabIndex !== tabIndex) element.tabIndex = tabIndex;
+      }
+    }, [behavior, elements, roving]);
+    const handleFocus = (event: FocusEvent<HTMLDivElement>) => {
+      onFocus?.(event);
+      if (event.defaultPrevented || behavior !== "toolbar") return;
+      const target = event.target as HTMLElement;
+      if (elements.includes(target)) roving.setActiveElement(target);
+    };
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+      onKeyDown?.(event);
+      if (!event.defaultPrevented && behavior === "toolbar") roving.onKeyDown(event);
+    };
+    return (
+      <div
+        {...props}
+        ref={setRef}
+        aria-label={ariaLabel}
+        aria-orientation={behavior === "toolbar" ? orientation : undefined}
+        className={classNames("miaixz-toolbar", `miaixz-toolbar-${variant}`, className)}
+        data-density={density}
+        data-miaixz-toolbar-root=""
+        data-orientation={orientation}
+        data-surface={surface}
+        data-variant={variant}
+        data-wrap={wrap}
+        onFocus={handleFocus}
+        onKeyDown={handleKeyDown}
+        role={behavior === "toolbar" ? "toolbar" : hasName ? "group" : undefined}
+      >
+        {search !== undefined && <div className="miaixz-toolbar-search">{search}</div>}
+        {filters !== undefined && <div className="miaixz-toolbar-filters">{filters}</div>}
+        {children}
+        {actions !== undefined && <div className="miaixz-toolbar-actions">{actions}</div>}
+      </div>
+    );
+  }),
+);

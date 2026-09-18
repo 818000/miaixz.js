@@ -19,4 +19,13 @@
 */
 
 export { Sidebar } from "./sidebar.js";
-export type { SidebarProps } from "./sidebar.types.js";
+export type {
+  MiaixzSidebarOwnProps,
+  SidebarOwnerState,
+  SidebarAsideAttributes,
+  SidebarProps,
+  SidebarRootAttributes,
+  SidebarSize,
+  SidebarSlot,
+  SidebarSlotProps,
+} from "./sidebar.types.js";

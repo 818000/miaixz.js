@@ -18,12 +18,11 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzSdkError, isMiaixzSdkError } from "../api/errors.js";
 import { normalizeMiaixzApiEndpoint } from "../api/endpoint.js";
-import { isMiaixzAppearanceSettings } from "../appearance/index.js";
-import type { MiaixzEventBus, MiaixzSdkEventMap } from "../events/index.js";
-import { miaixzDefaultI18n, type MiaixzTranslator } from "../i18n/index.js";
-import type { MiaixzEnvironment, MiaixzFeatureValue, MiaixzSdkConfig } from "../types/index.js";
+import { isMiaixzAppearanceSettings } from "../appearance/validation.js";
+import { isMiaixzSdkError, MiaixzSdkError } from "../errors/errors.js";
+import type { MiaixzEventBusPort, MiaixzSdkEventMap } from "../events/event-types.js";
+import type { MiaixzEnvironment, MiaixzFeatureValue, MiaixzSdkConfig } from "../types/config.js";
 import { isRecord } from "../utils/object.js";
 
 /**
@@ -51,11 +50,6 @@ export interface MiaixzLoadConfigOptions {
    * Optional global variable name containing injected configuration.
    */
   globalKey?: string;
-
-  /**
-   * Optional translator used for configuration errors.
-   */
-  translate?: MiaixzTranslator;
 }
 
 /**
@@ -113,17 +107,13 @@ export function isMiaixzSdkConfig(value: unknown): value is MiaixzSdkConfig {
  * Validates and freezes a configuration object.
  *
  * @param config - Configuration object to validate and freeze.
- * @param translate - Translator used for validation errors.
  * @returns Immutable SDK configuration.
  * @throws MiaixzSdkError when required values are missing or invalid.
  * @public
  */
-export function defineMiaixzConfig(
-  config: MiaixzSdkConfig,
-  translate: MiaixzTranslator = miaixzDefaultI18n.t,
-): Readonly<MiaixzSdkConfig> {
+export function defineMiaixzConfig(config: MiaixzSdkConfig): Readonly<MiaixzSdkConfig> {
   if (!isMiaixzSdkConfig(config)) {
-    throw new MiaixzSdkError(translate("sdk.error.config.invalid"), { code: "CONFIG_INVALID" });
+    throw new MiaixzSdkError({ code: "CONFIG_INVALID" });
   }
   return Object.freeze({
     ...config,
@@ -171,20 +161,19 @@ function readGlobalConfig(globalKey: string): unknown {
 export async function loadMiaixzConfig(
   options: MiaixzLoadConfigOptions = {},
 ): Promise<Readonly<MiaixzSdkConfig>> {
-  const translate = options.translate ?? miaixzDefaultI18n.t;
   let candidate = options.config ?? readGlobalConfig(options.globalKey ?? "__MIAIXZ_CONFIG__");
 
   if (candidate === undefined && options.url) {
     const fetchImplementation = options.fetch ?? globalThis.fetch;
     if (!fetchImplementation) {
-      throw new MiaixzSdkError(translate("sdk.error.config.invalid"), {
+      throw new MiaixzSdkError({
         code: "CONFIG_FETCH_UNAVAILABLE",
       });
     }
     try {
       const response = await fetchImplementation(options.url, { credentials: "same-origin" });
       if (!response.ok) {
-        throw new MiaixzSdkError(translate("sdk.error.config.invalid"), {
+        throw new MiaixzSdkError({
           code: "CONFIG_FETCH_FAILED",
           details: { status: response.status, url: options.url },
         });
@@ -192,7 +181,7 @@ export async function loadMiaixzConfig(
       candidate = await response.json();
     } catch (cause) {
       if (isMiaixzSdkError(cause)) throw cause;
-      throw new MiaixzSdkError(translate("sdk.error.config.invalid"), {
+      throw new MiaixzSdkError({
         code: "CONFIG_FETCH_FAILED",
         cause,
         details: { url: options.url },
@@ -201,12 +190,12 @@ export async function loadMiaixzConfig(
   }
 
   if (!isMiaixzSdkConfig(candidate)) {
-    throw new MiaixzSdkError(translate("sdk.error.config.invalid"), {
+    throw new MiaixzSdkError({
       code: "CONFIG_INVALID",
       details: candidate,
     });
   }
-  return defineMiaixzConfig(candidate, translate);
+  return defineMiaixzConfig(candidate);
 }
 
 /**
@@ -214,7 +203,6 @@ export async function loadMiaixzConfig(
  *
  * @param config - SDK configuration containing service endpoints.
  * @param service - Service name to resolve.
- * @param translate - Translator used for missing-service errors.
  * @returns Configured service base URL.
  * @throws MiaixzSdkError when the service name is not configured.
  * @public
@@ -222,11 +210,10 @@ export async function loadMiaixzConfig(
 export function getMiaixzServiceEndpoint(
   config: Readonly<MiaixzSdkConfig>,
   service: string,
-  translate: MiaixzTranslator = miaixzDefaultI18n.t,
 ): string {
   const endpoint = config.services?.[service];
   if (!endpoint) {
-    throw new MiaixzSdkError(translate("sdk.error.config.serviceMissing", { service }), {
+    throw new MiaixzSdkError({
       code: "SERVICE_ENDPOINT_MISSING",
       details: { service },
     });
@@ -257,10 +244,10 @@ export function getMiaixzFeature<T extends MiaixzFeatureValue>(
  * @public
  */
 export class MiaixzConfigStore {
+  readonly #preparers = new Set<(config: Readonly<MiaixzSdkConfig>) => void>();
   readonly #listeners = new Set<(config: Readonly<MiaixzSdkConfig>) => void>();
   #config: Readonly<MiaixzSdkConfig>;
-  readonly #events: MiaixzEventBus<MiaixzSdkEventMap> | undefined;
-  readonly #translate: MiaixzTranslator;
+  readonly #events: MiaixzEventBusPort<MiaixzSdkEventMap> | undefined;
   #stopEventListener: (() => void) | undefined;
 
   /**
@@ -268,15 +255,9 @@ export class MiaixzConfigStore {
    *
    * @param config - Initial validated configuration.
    * @param events - Optional shared event bus.
-   * @param translate - Translator used by validation errors.
    */
-  constructor(
-    config: MiaixzSdkConfig,
-    events?: MiaixzEventBus<MiaixzSdkEventMap>,
-    translate: MiaixzTranslator = miaixzDefaultI18n.t,
-  ) {
-    this.#translate = translate;
-    this.#config = defineMiaixzConfig(config, this.#translate);
+  constructor(config: MiaixzSdkConfig, events?: MiaixzEventBusPort<MiaixzSdkEventMap>) {
+    this.#config = defineMiaixzConfig(config);
     this.#events = events;
     this.#stopEventListener = events?.on("config:changed", (nextConfig) => {
       if (isMiaixzSdkConfig(nextConfig)) this.#set(nextConfig, false);
@@ -309,7 +290,9 @@ export class MiaixzConfigStore {
    */
   #set(config: MiaixzSdkConfig, broadcast: boolean): void {
     if (config === this.#config) return;
-    this.#config = defineMiaixzConfig(config, this.#translate);
+    const nextConfig = defineMiaixzConfig(config);
+    for (const prepare of this.#preparers) prepare(nextConfig);
+    this.#config = nextConfig;
     for (const listener of this.#listeners) listener(this.#config);
     if (broadcast) this.#events?.emit("config:changed", this.#config);
   }
@@ -326,10 +309,23 @@ export class MiaixzConfigStore {
   }
 
   /**
+   * Registers a side-effect-free preparation step before a new snapshot commits.
+   *
+   * @param prepare - Callback that validates and prepares replacement runtime state.
+   * @returns Function that unregisters the preparation step.
+   * @internal
+   */
+  prepare(prepare: (config: Readonly<MiaixzSdkConfig>) => void): () => void {
+    this.#preparers.add(prepare);
+    return () => this.#preparers.delete(prepare);
+  }
+
+  /**
    * Releases event subscriptions and local listeners.
    */
   destroy(): void {
     this.#stopEventListener?.();
+    this.#preparers.clear();
     this.#listeners.clear();
   }
 }

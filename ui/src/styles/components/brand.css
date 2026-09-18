@@ -1,0 +1,84 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-brand {
+  display: inline-flex;
+  gap: var(--miaixz-space-16);
+  align-items: baseline;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.miaixz-brand-logo {
+  display: inline-flex;
+  flex: none;
+  align-items: flex-end;
+}
+
+.miaixz-brand-logo > img,
+.miaixz-brand-logo > svg {
+  flex: none;
+  width: auto;
+  height: var(--miaixz-space-32);
+  object-fit: contain;
+}
+
+.miaixz-brand-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-section-title-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+}
+
+[data-ui="shell-brand-link"] {
+  display: inline-flex;
+  flex: 0 1 auto;
+  width: fit-content;
+  min-width: 0;
+  max-width: calc(100% - 34px);
+  height: auto;
+  margin-inline: var(--miaixz-space-12);
+  margin-inline-start: calc(var(--miaixz-space-12) + 10px);
+  text-decoration: none;
+  outline: 0;
+}
+
+[data-ui="shell-brand-link"] [data-color-mode] {
+  object-fit: contain;
+}
+
+[data-ui="shell-brand-link"] [data-color-mode="dark"] {
+  display: none;
+}
+
+html[data-miaixz-color-mode="dark"] [data-ui="shell-brand-link"] [data-color-mode="light"] {
+  display: none;
+}
+
+html[data-miaixz-color-mode="dark"] [data-ui="shell-brand-link"] [data-color-mode="dark"] {
+  display: block;
+}
+
+[data-ui="shell-brand-link"]:focus-visible {
+  box-shadow: inset 0 0 0 var(--miaixz-control-focus-width) var(--miaixz-color-focus);
+}

@@ -19,8 +19,8 @@
 */
 
 export {
-  getEditorClassName,
   EditorFields,
+  EditorForm,
   EditorActions,
   EditorBox,
   EditorFieldset,
@@ -33,8 +33,8 @@ export {
   EditorSummary,
 } from "./editor.js";
 export type {
-  EditorPart,
   EditorFieldsProps,
+  EditorFormProps,
   EditorActionsProps,
   EditorBoxProps,
   EditorFieldsetProps,

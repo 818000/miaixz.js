@@ -18,23 +18,51 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
+import { createElement, forwardRef, useCallback, useRef } from "react";
 
+import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { PageProps } from "./page.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
- * Establishes the width, spacing, and semantic main region of a page. @public
+ * Establishes page content width and spacing without implicitly creating a landmark. @public
  */
-export const Page = forwardRef<HTMLElement, PageProps>(function Page(
-  { fullWidth = false, className, ...props },
-  ref,
-) {
-  return (
-    <section
-      {...props}
-      ref={ref}
-      className={classNames("miaixz-page", fullWidth && "miaixz-page-fullwidth", className)}
-    />
-  );
-});
+export const Page = withMiaixzThemeComponent(
+  "Page",
+  forwardRef<HTMLElement, PageProps>(function Page(
+    { component = "div", fullWidth = false, className, ...props },
+    forwardedRef,
+  ) {
+    const rootRef = useRef<HTMLElement | null>(null);
+    const setRef = useCallback(
+      (element: HTMLElement | null) => {
+        rootRef.current = element;
+        if (typeof forwardedRef === "function") forwardedRef(element);
+        else if (forwardedRef !== null) forwardedRef.current = element;
+      },
+      [forwardedRef],
+    );
+    useMiaixzLayoutEffect(() => {
+      if (component !== "section") return;
+      const root = rootRef.current;
+      const labelledBy = props["aria-labelledby"];
+      const label =
+        labelledBy === undefined || labelledBy.trim() === ""
+          ? null
+          : root?.ownerDocument.getElementById(labelledBy);
+      if (root === null || label === null || label === undefined || !root.contains(label)) {
+        throw new MiaixzUiError({
+          code: "UI_PAGE_LABELLED_BY_INVALID",
+          details: { labelledBy },
+        });
+      }
+    }, [component, props]);
+    return createElement(component, {
+      ...props,
+      ref: setRef,
+      className: classNames("miaixz-page", fullWidth && "miaixz-page-fullwidth", className),
+    });
+  }),
+);

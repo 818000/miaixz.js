@@ -56,19 +56,19 @@
   transform: translateY(calc(var(--miaixz-toast-offset) * -1));
 }
 
-.miaixz-toast-success {
+.miaixz-toast[data-tone="success"] {
   border-inline-start-color: var(--miaixz-color-success);
 }
 
-.miaixz-toast-warning {
+.miaixz-toast[data-tone="warning"] {
   border-inline-start-color: var(--miaixz-color-warning);
 }
 
-.miaixz-toast-danger {
+.miaixz-toast[data-tone="danger"] {
   border-inline-start-color: var(--miaixz-color-danger);
 }
 
-.miaixz-toast-info {
+.miaixz-toast[data-tone="info"] {
   border-inline-start-color: var(--miaixz-color-info);
 }
 
@@ -79,19 +79,19 @@
   color: var(--miaixz-color-text-secondary);
 }
 
-.miaixz-toast-success > .miaixz-toast-icon {
+.miaixz-toast[data-tone="success"] > .miaixz-toast-icon {
   color: var(--miaixz-color-success);
 }
 
-.miaixz-toast-warning > .miaixz-toast-icon {
+.miaixz-toast[data-tone="warning"] > .miaixz-toast-icon {
   color: var(--miaixz-color-warning);
 }
 
-.miaixz-toast-danger > .miaixz-toast-icon {
+.miaixz-toast[data-tone="danger"] > .miaixz-toast-icon {
   color: var(--miaixz-color-danger);
 }
 
-.miaixz-toast-info > .miaixz-toast-icon {
+.miaixz-toast[data-tone="info"] > .miaixz-toast-icon {
   color: var(--miaixz-color-info);
 }
 

@@ -20,12 +20,19 @@
 
 import type { HTMLAttributes } from "react";
 
+type PageBaseProps = { readonly fullWidth?: boolean };
+type DivPageProps = PageBaseProps &
+  Omit<HTMLAttributes<HTMLDivElement>, "aria-labelledby"> & {
+    readonly component?: "div";
+    readonly "aria-labelledby"?: never;
+  };
+type SectionPageProps = PageBaseProps &
+  Omit<HTMLAttributes<HTMLElement>, "aria-label" | "aria-labelledby"> & {
+    readonly component: "section";
+    readonly "aria-label"?: never;
+    readonly "aria-labelledby": string;
+  };
 /**
- * Configures the standard page container. @public
+ * Configures a standard width and spacing container. @public
  */
-export interface PageProps extends HTMLAttributes<HTMLElement> {
-  /**
-   * Removes the standard maximum content width.
-   */
-  fullWidth?: boolean;
-}
+export type PageProps = DivPageProps | SectionPageProps;

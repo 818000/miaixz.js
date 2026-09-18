@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzEnvironment } from "../types/index.js";
+import type { MiaixzEnvironment } from "../types/config.js";
 
 const miaixzEnvironments = new Set<MiaixzEnvironment>([
   "development",
@@ -32,7 +32,7 @@ const localHttpHostnames = new Set(["localhost", "127.0.0.1", "[::1]"]);
  * Normalizes an absolute API endpoint under the environment-specific transport policy.
  *
  * @param value - Untrusted endpoint value to validate.
- * @param environment - Runtime environment that controls HTTP loopback access.
+ * @param environment - Runtime environment validated with the endpoint.
  * @returns The normalized endpoint without trailing separators, or `undefined` when invalid.
  */
 export function normalizeMiaixzApiEndpoint(
@@ -74,11 +74,7 @@ export function normalizeMiaixzApiEndpoint(
     return endpoint.href.replace(/\/+$/, "");
   }
 
-  if (
-    endpoint.protocol === "http:" &&
-    (environment === "development" || environment === "test") &&
-    localHttpHostnames.has(endpoint.hostname)
-  ) {
+  if (endpoint.protocol === "http:" && localHttpHostnames.has(endpoint.hostname)) {
     return endpoint.href.replace(/\/+$/, "");
   }
 

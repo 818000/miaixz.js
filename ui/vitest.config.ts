@@ -19,6 +19,7 @@
 */
 
 import { defineConfig } from "vitest/config";
+import { themePresetPlugin } from "../.github/scripts/codegen/theme-preset-vite.mjs";
 
 /**
  * Defines the jsdom unit-test environment for the UI package.
@@ -26,9 +27,27 @@ import { defineConfig } from "vitest/config";
  * @public
  */
 export default defineConfig({
+  plugins: [themePresetPlugin()],
   test: {
     environment: "jsdom",
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     restoreMocks: true,
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "**/*.d.ts",
+        "src/index.ts",
+        "src/**/index.ts",
+        "src/icons/icon-name.generated.ts",
+        "src/icons/icon-name-overrides.generated.ts",
+      ],
+      thresholds: {
+        lines: 85,
+        functions: 85,
+        statements: 85,
+        branches: 80,
+      },
+    },
   },
 });

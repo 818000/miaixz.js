@@ -19,3 +19,4 @@
 */
 
 export { FocusScope, activateMiaixzFocusScope } from "./focus-scope.js";
+export { assertMiaixzAccessibleName } from "./assert-accessible-name.js";

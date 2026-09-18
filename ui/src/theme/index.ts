@@ -18,22 +18,23 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { Theme, resolveMiaixzColorMode } from "./theme.js";
+export { Theme } from "./provider.js";
+export { resolveMiaixzColorMode } from "./mode.js";
 export { useTheme } from "./context.js";
+export type { ComponentTheme, ThemeComponents } from "./registry.js";
 export { defineTheme } from "./define.js";
 export { parseTheme } from "./parse.js";
 export { createThemeScript } from "./script.js";
-export { MiaixzThemeError } from "./errors.js";
-export { miaixzTheme } from "./miaixz.js";
-export { neutralTheme } from "./neutral.js";
-export { contrastTheme } from "./contrast.js";
+export { createThemeStyles } from "./styles.js";
+export { MiaixzThemeError } from "./error.js";
+export type { MiaixzThemeErrorCode } from "./error.js";
+export { loadThemePreset, loadThemePresets, themePresets } from "./presets/index.js";
 export { miaixzBreakpoints, miaixzMediaQueries } from "../design/breakpoints.js";
 export type {
   ThemeContextValue,
   ThemeProps,
   MiaixzThemeDefinition,
   MiaixzThemeDescriptor,
-  MiaixzThemeErrorCode,
   MiaixzThemeLoader,
   MiaixzThemeScriptOptions,
 } from "./types.js";

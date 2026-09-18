@@ -18,68 +18,47 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  RefAttributes,
+} from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Configures a Portal-backed fixed popover.
- *
- * @public
- */
-export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Selects a compact picker surface without changing default overlays.
-   *
-   * @defaultValue `"default"`
-   */
-  surface?: "default" | "picker";
-  /**
-   * Supplies the visible disclosure trigger.
-   */
-  trigger: ReactNode;
-  /**
-   * Controls the open state when supplied.
-   */
-  open?: boolean;
-  /**
-   * Sets the initial uncontrolled open state.
-   *
-   * @defaultValue `false`
-   */
-  defaultOpen?: boolean;
-  /**
-   * Receives requested open-state changes.
-   */
-  onOpenChange?: (open: boolean) => void;
-  /**
-   * Selects the popover placement relative to its trigger.
-   *
-   * @defaultValue `"bottom-start"`
-   */
-  placement?: "bottom-start" | "bottom-end" | "top-start" | "top-end";
-  /**
-   * Supplies a finite non-negative distance from the trigger.
-   *
-   * @defaultValue `8`
-   */
-  offset?: number;
-  /**
-   * Adds a class to the popover content surface.
-   */
-  contentClassName?: string;
-  /**
-   * Supplies native attributes for the button trigger.
-   */
-  triggerProps?: ButtonHTMLAttributes<HTMLButtonElement>;
-  /**
-   * Selects a formal visual treatment for the disclosure trigger.
-   *
-   * @defaultValue `"default"`
-   */
-  triggerVariant?: "default" | "avatar" | "plain" | "text" | "action";
-  /**
-   * Prevents disclosure interaction.
-   *
-   * @defaultValue `false`
-   */
-  disabled?: boolean;
+export type PopoverChangeReason = "trigger" | "escape" | "outsidePress";
+export type PopoverPopupRole = "dialog" | "menu" | "listbox" | "tree" | "grid";
+export type PopoverOpenState =
+  | {
+      readonly open: boolean;
+      readonly defaultOpen?: never;
+      readonly onOpenChange: (open: boolean, reason: PopoverChangeReason) => void;
+    }
+  | {
+      readonly open?: never;
+      readonly defaultOpen?: boolean;
+      readonly onOpenChange?: (open: boolean, reason: PopoverChangeReason) => void;
+    };
+export type PopoverTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  RefAttributes<HTMLButtonElement> & {
+    readonly "data-dropdown-presentation"?: "default" | "account";
+  };
+export type PopoverSlot = "trigger" | "content";
+export interface PopoverOwnerState {
+  readonly open: boolean;
+  readonly placement: "bottom-start" | "bottom-end" | "top-start" | "top-end";
+  readonly popupRole?: PopoverPopupRole;
 }
+export interface PopoverSlotProps {
+  readonly trigger?: MiaixzSlotProps<PopoverOwnerState, PopoverTriggerProps>;
+  readonly content?: MiaixzSlotProps<PopoverOwnerState, HTMLAttributes<HTMLDivElement>>;
+}
+export type PopoverProps = PopoverOpenState & {
+  readonly trigger: ReactElement<PopoverTriggerProps>;
+  readonly children: ReactNode;
+  readonly placement?: "bottom-start" | "bottom-end" | "top-start" | "top-end";
+  readonly offset?: number;
+  readonly popupRole?: PopoverPopupRole;
+  readonly slotProps?: PopoverSlotProps;
+};

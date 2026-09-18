@@ -19,4 +19,10 @@
 */
 
 export { Toolbar } from "./toolbar.js";
-export type { ToolbarProps } from "./toolbar.types.js";
+export type {
+  ToolbarDensity,
+  ToolbarOrientation,
+  ToolbarProps,
+  ToolbarSurface,
+  ToolbarVariant,
+} from "./toolbar.types.js";

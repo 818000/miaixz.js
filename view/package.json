@@ -1,0 +1,117 @@
+{
+  "name": "@miaixz/view",
+  "version": "0.6.5",
+  "description": "Composable image, PDF, and Office preview components for Miaixz applications.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19",
+    "npm": ">=10"
+  },
+  "license": "Apache-2.0",
+  "author": "The Miaixz Team",
+  "homepage": "https://github.com/818000/miaixz.js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/818000/miaixz.js.git",
+    "directory": "view"
+  },
+  "bugs": {
+    "url": "https://github.com/818000/miaixz.js/issues"
+  },
+  "keywords": [
+    "miaixz",
+    "preview",
+    "pdf",
+    "office",
+    "image"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./image": {
+      "types": "./dist/image/index.d.ts",
+      "import": "./dist/image/index.js"
+    },
+    "./pdf": {
+      "types": "./dist/pdf/index.d.ts",
+      "import": "./dist/pdf/index.js"
+    },
+    "./office": {
+      "types": "./dist/office/index.d.ts",
+      "import": "./dist/office/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json && node --input-type=module --eval \"import { cp, mkdir } from 'node:fs/promises'; await cp('src/styles.css', 'dist/styles.css'); await mkdir('dist/pdf', { recursive: true }); await cp(new URL(import.meta.resolve('pdfjs-dist/build/pdf.worker.min.mjs')), 'dist/pdf/pdf.worker.min.mjs');\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src tests *.config.js *.config.ts && stylelint \"src/**/*.css\"",
+    "lint:fix": "eslint src tests *.config.js *.config.ts --fix && stylelint \"src/**/*.css\" --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check": "npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
+  },
+  "peerDependencies": {
+    "@miaixz/ui": ">=0.6.5 <0.7.0",
+    "react": ">=18.3 <20",
+    "react-dom": ">=18.3 <20"
+  },
+  "dependencies": {
+    "pdfjs-dist": "5.5.207"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "@babel/core": "8.0.1",
+    "@babel/eslint-parser": "8.0.1",
+    "@eslint/js": "10.0.1",
+    "@miaixz/ui": "0.6.5",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.6",
+    "@types/node": "26.4.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@vitest/coverage-v8": "4.1.11",
+    "eslint": "10.9.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsdoc": "62.7.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.11.0",
+    "jsdom": "29.1.1",
+    "prettier": "3.9.6",
+    "publint": "0.3.24",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "stylelint": "17.14.1",
+    "stylelint-config-recess-order": "7.8.0",
+    "stylelint-config-standard": "40.0.0",
+    "stylelint-order": "8.1.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

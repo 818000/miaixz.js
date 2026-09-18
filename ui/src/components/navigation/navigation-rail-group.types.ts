@@ -18,22 +18,33 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactNode } from "react";
+import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Configures a labeled group inside an expandable application navigation rail.
- *
- * @public
- */
-export interface NavigationRailGroupProps extends HTMLAttributes<HTMLElement> {
-  /**
-   * Supplies the group label revealed when the containing rail is expanded.
-   */
-  readonly label: ReactNode;
-  /**
-   * Displays a compact divider that transitions into the group label.
-   *
-   * @defaultValue `false`
-   */
-  readonly separated?: boolean;
+export type NavigationRailGroupSlot = "root" | "marker" | "line" | "label";
+export interface NavigationRailGroupOwnerState {
+  readonly separated: boolean;
+  readonly labelVisible: boolean;
 }
+export type NavigationRailGroupRootAttributes = HTMLAttributes<HTMLElement> &
+  RefAttributes<HTMLElement> & {
+    readonly "data-separated"?: boolean;
+    readonly "data-label-hidden"?: boolean;
+  };
+export interface NavigationRailGroupSlotProps {
+  readonly root?: MiaixzSlotProps<NavigationRailGroupOwnerState, NavigationRailGroupRootAttributes>;
+  readonly marker?: MiaixzSlotProps<NavigationRailGroupOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly line?: MiaixzSlotProps<NavigationRailGroupOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<NavigationRailGroupOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export interface MiaixzNavigationRailGroupOwnProps {
+  readonly label: ReactNode;
+  readonly labelVisible?: boolean;
+  readonly separated?: boolean;
+  readonly slotProps?: NavigationRailGroupSlotProps;
+}
+/**
+ * Configures one named group inside an application navigation rail. @public
+ */
+export type NavigationRailGroupProps = MiaixzNavigationRailGroupOwnProps &
+  Omit<HTMLAttributes<HTMLElement>, keyof MiaixzNavigationRailGroupOwnProps>;

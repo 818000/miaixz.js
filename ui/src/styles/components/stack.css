@@ -25,6 +25,10 @@
   min-width: 0;
 }
 
+.miaixz-stack > * {
+  min-width: 0;
+}
+
 .miaixz-stack-gap-compact {
   gap: var(--miaixz-space-12);
 }

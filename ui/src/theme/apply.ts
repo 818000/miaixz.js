@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
 import type { MiaixzSerializedThemeApplication } from "./serialize.js";
 
 const themeAttributes = [
@@ -136,7 +136,7 @@ function restore(
       else target.setAttribute(attribute, previous);
     }
   } catch {
-    /*
+    /**
      * The originating error or external ownership remains authoritative.
      */
   }

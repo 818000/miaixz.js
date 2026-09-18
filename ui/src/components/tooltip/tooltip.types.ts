@@ -18,38 +18,43 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, ReactElement, ReactNode } from "react";
+import type { HTMLAttributes, ReactElement, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Describes the event and ARIA properties injected into a tooltip child.
- *
- * @public
- */
-export interface MiaixzTooltipChildProps {
-  /**
-   * References the tooltip together with any existing descriptions.
-   */
-  "aria-describedby"?: string;
+export interface MiaixzTooltipTriggerProps
+  extends HTMLAttributes<HTMLElement>, RefAttributes<HTMLElement> {
+  readonly disabled?: boolean;
+  readonly "aria-describedby"?: string;
 }
-
-/**
- * Configures concise contextual help associated with one child.
- *
- * @public
- */
-export interface TooltipProps extends Omit<HTMLAttributes<HTMLSpanElement>, "content"> {
-  /**
-   * Supplies the contextual help content.
-   */
-  content: ReactNode;
-  /**
-   * Supplies the single element described by the tooltip.
-   */
-  children: ReactElement<MiaixzTooltipChildProps>;
-  /**
-   * Selects the tooltip placement relative to its child.
-   *
-   * @defaultValue `"top"`
-   */
-  placement?: "top" | "right" | "bottom" | "left";
+export type TooltipOpenState =
+  | {
+      readonly open: boolean;
+      readonly defaultOpen?: never;
+      readonly onOpenChange: (open: boolean) => void;
+    }
+  | {
+      readonly open?: never;
+      readonly defaultOpen?: boolean;
+      readonly onOpenChange?: (open: boolean) => void;
+    };
+export type TooltipSlot = "trigger" | "content";
+export interface TooltipOwnerState {
+  readonly open: boolean;
+  readonly placement: "top" | "right" | "bottom" | "left";
+  readonly disabledTrigger: boolean;
 }
+export interface TooltipSlotProps {
+  readonly trigger?: MiaixzSlotProps<TooltipOwnerState, MiaixzTooltipTriggerProps>;
+  readonly content?: MiaixzSlotProps<TooltipOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+export type TooltipProps = TooltipOpenState & {
+  readonly content: string | number;
+  readonly children: ReactElement<MiaixzTooltipTriggerProps>;
+  readonly placement?: "top" | "right" | "bottom" | "left";
+  readonly enterDelay?: number;
+  readonly leaveDelay?: number;
+  readonly enterTouchDelay?: number;
+  readonly leaveTouchDelay?: number;
+  readonly disableTouch?: boolean;
+  readonly slotProps?: TooltipSlotProps;
+};

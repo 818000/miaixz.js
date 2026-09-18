@@ -19,4 +19,16 @@
 */
 
 export { Select } from "./select.js";
-export type { SelectProps, SelectSize } from "./select.types.js";
+export type {
+  SelectEntry,
+  SelectGroup,
+  SelectOption,
+  SelectOptionAttributes,
+  SelectOwnerState,
+  SelectProps,
+  SelectRootAttributes,
+  SelectSize,
+  SelectSlot,
+  SelectSlotProps,
+  SelectValueState,
+} from "./select.types.js";

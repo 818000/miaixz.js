@@ -2,29 +2,30 @@
 
 > Build with intelligence. Create without limits.
 
-`miaixz.js` is the public JavaScript and TypeScript monorepo maintained by Miaixz. It contains the browser SDK and React design system used by independently deployed Miaixz frontend services.
+`miaixz.js` is the public JavaScript and TypeScript monorepo maintained by Miaixz. It contains the browser SDK, React design system, and file preview components used by independently deployed Miaixz frontend services.
 
-The repository is organized as an npm workspace. Both public packages use one synchronized version and are released together from the same Git tag.
+The repository is organized as an npm workspace. All public packages use one synchronized version and are released together from the same Git tag.
 
 ## Packages
 
-| Package                | npm                                              | Description                                                                                                                                                                                    |
-| ---------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@miaixz/sdk`](./sdk) | [npm](https://www.npmjs.com/package/@miaixz/sdk) | Browser API client, authentication, runtime context, configuration, permissions, events, files, appearance, internationalization, public types, models, validators, formatters, and utilities. |
-| [`@miaixz/ui`](./ui)   | [npm](https://www.npmjs.com/package/@miaixz/ui)  | React design system with components, design tokens, themes, density modes, icons, styles, accessibility foundations, and interaction primitives.                                               |
+| Package                  | npm                                               | Description                                                                                                                                                                |
+| ------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@miaixz/sdk`](./sdk)   | [npm](https://www.npmjs.com/package/@miaixz/sdk)  | Browser API client, authentication, runtime context, configuration, permissions, events, files, appearance, internationalization, public types, formatters, and utilities. |
+| [`@miaixz/ui`](./ui)     | [npm](https://www.npmjs.com/package/@miaixz/ui)   | React design system with components, design tokens, themes, density modes, icons, styles, accessibility foundations, and interaction primitives.                           |
+| [`@miaixz/view`](./view) | [npm](https://www.npmjs.com/package/@miaixz/view) | Presentation-only React components for image, PDF, and Office previews.                                                                                                    |
 
 ### Package relationship
 
-`@miaixz/sdk` owns application-independent runtime state and browser integration. `@miaixz/ui` consumes compatible SDK capabilities to apply appearance settings, provide localized component messages, and keep independently deployed interfaces consistent.
+`@miaixz/sdk` owns application-independent runtime state and browser integration. `@miaixz/ui` consumes compatible SDK capabilities to apply appearance settings, provide localized component messages, and keep independently deployed interfaces consistent. `@miaixz/view` consumes the UI theme contract but never owns authorization, storage, signing secrets, or document conversion.
 
-`@miaixz/ui` declares `@miaixz/sdk` as a peer dependency. The release tooling keeps the UI development dependency, peer range, workspace manifests, and root version synchronized.
+`@miaixz/ui` declares `@miaixz/sdk` as a peer dependency, and `@miaixz/view` declares `@miaixz/ui` as a peer dependency. The release tooling keeps these development dependencies, peer ranges, workspace manifests, and root version synchronized.
 
 ## Requirements
 
-- Node.js 20 or later.
+- Node.js 20.19 or later at the workspace root. SDK and UI consumers support Node.js 20 or later; `@miaixz/view` requires Node.js 20.19 or later.
 - npm 10 or later.
 - An ESM-compatible application and build tool.
-- React and ReactDOM when using `@miaixz/ui`.
+- React and ReactDOM when using `@miaixz/ui` or `@miaixz/view`.
 
 ## Installation
 
@@ -37,10 +38,16 @@ npm install @miaixz/sdk
 Install the design system and its peers:
 
 ```bash
-npm install @miaixz/ui @miaixz/sdk react react-dom lucide-react
+npm install @miaixz/ui @miaixz/sdk react react-dom
 ```
 
-Both packages are ESM-only and do not expose CommonJS `require` entry points.
+Install file previews together with their UI theme peer:
+
+```bash
+npm install @miaixz/view @miaixz/ui @miaixz/sdk react react-dom
+```
+
+All packages are ESM-only and do not expose CommonJS `require` entry points.
 
 ## Quick start
 
@@ -67,14 +74,14 @@ console.log(response.data);
 Use the shared React components and styles:
 
 ```tsx
-import "@miaixz/ui/themes.css";
+import "@miaixz/ui/styles.css";
 import { Button, Field, Input, Theme } from "@miaixz/ui";
 
 import { sdk } from "./sdk.js";
 
 export function CreateSpaceForm() {
   return (
-    <Theme appearance={sdk.appearance} fallback="miaixz">
+    <Theme appearance={sdk.appearance}>
       <form>
         <Field label="Space name" required>
           <Input placeholder="Enter a space name" />
@@ -88,20 +95,52 @@ export function CreateSpaceForm() {
 
 Choose one public CSS entry at the application root:
 
-- `@miaixz/ui/miaixz.css`, `neutral.css`, or `contrast.css` for one built-in theme.
-- `@miaixz/ui/themes.css` for all three built-in themes.
-- `@miaixz/ui/core.css` when themes are supplied as registered definitions or loaded data.
-- `@miaixz/ui/styles.css` as the compatibility alias for `miaixz.css`.
+- `@miaixz/ui/styles.css` for the SDK-selected default theme with all foundation and component styles.
+- `@miaixz/ui/theme.css` for all built-in themes.
+- `@miaixz/ui/foundation.css`, `@miaixz/ui/components.css`, `@miaixz/ui/core.css`, and `@miaixz/ui/reset.css` for explicitly layered integrations.
+
+For selective delivery, load the chosen theme/foundation entry and then each DOM module's sole
+`@miaixz/ui/<subpath>/styles.css` entry. For example, Button uses
+`@miaixz/ui/button/styles.css` and Graph uses `@miaixz/ui/diagram/graph/styles.css`.
 
 The SDK persists `theme`, `colorMode`, `density`, and mode-specific color overrides. The UI
 `Theme` component validates and applies them atomically. Applications own their page root background
 through the public Page Surface variables; the library intentionally does not set a background on
 `html` or `body`.
 
+`@miaixz/ui/view` exports the design-system `View` used for page layout. `@miaixz/view` is a
+separate file-preview package and exports `FileView`, `ImageView`, `PdfView`, and `OfficeView`—it
+does not export a component named `View`. Preview styles depend on UI theme tokens, so import the
+UI stylesheet first, then the preview stylesheet, and render previews inside both locale and Theme
+providers:
+
+```tsx compile
+import "@miaixz/ui/styles.css";
+import "@miaixz/view/styles.css";
+import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
+import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+import { MiaixzLocaleProvider, Theme } from "@miaixz/ui";
+import { FileView } from "@miaixz/view";
+
+const appearance = createMiaixzAppearanceManager({ appId: "preview-example" });
+const i18n = createMiaixzI18n({ locale: "en-US", fallbackLocale: "en-US" });
+
+export function PreviewExample() {
+  return (
+    <MiaixzLocaleProvider i18n={i18n}>
+      <Theme appearance={appearance} scope="local">
+        <FileView alt="Architecture diagram" kind="image" src="/diagram.png" />
+      </Theme>
+    </MiaixzLocaleProvider>
+  );
+}
+```
+
 See the package documentation for authentication modes, API envelopes, service clients, permissions, cross-tab events, appearance synchronization, internationalization, component contracts, and microfrontend integration:
 
 - [SDK documentation](./sdk/README.md)
 - [UI documentation](./ui/README.md)
+- [View documentation](./view/README.md)
 
 ## Repository layout
 
@@ -110,18 +149,24 @@ See the package documentation for authentication modes, API envelopes, service c
 ├── .github/            Release workflows, composite actions, and version scripts
 ├── sdk/                @miaixz/sdk source and package configuration
 ├── ui/                 @miaixz/ui source and package configuration
+├── view/               @miaixz/view source and package configuration
 ├── VERSION             Authoritative shared release version
 └── package.json        Private npm workspace root
 ```
 
-The workspace root is private and is never published. Only `@miaixz/sdk` and `@miaixz/ui` are public npm packages.
+The workspace root is private and is never published. `@miaixz/sdk`, `@miaixz/ui`, and `@miaixz/view` are public npm packages.
+
+The root `package.json` `workspaces` array is the repository's only package registry. Build,
+source-policy, version, package validation, artifact, and publication tooling reads that array and
+each workspace manifest dynamically. Add a package there once; only package-specific architecture
+rules and contract tests require separate configuration.
 
 ## Development
 
 Install dependencies without creating a lockfile:
 
 ```bash
-npm install --no-package-lock
+npm install --no-package-lock --legacy-peer-deps
 ```
 
 Run the standard repository checks:
@@ -136,47 +181,46 @@ Build every workspace:
 npm run build
 ```
 
-Validate the exact package contents and public type surface before release:
+Run an individual package validation phase only while diagnosing a failure:
 
 ```bash
-npm run pack:check
+npm run check:package
 ```
 
 Additional root commands:
 
-| Command                | Purpose                                              |
-| ---------------------- | ---------------------------------------------------- |
-| `npm run build:sdk`    | Build the SDK before dependent workspace operations. |
-| `npm run typecheck`    | Build the SDK and type-check all workspaces.         |
-| `npm run lint`         | Run workspace linters.                               |
-| `npm run lint:fix`     | Apply supported lint fixes.                          |
-| `npm run format`       | Format workspace source files.                       |
-| `npm run format:check` | Verify formatting without modifying files.           |
-| `npm run check`        | Run the complete workspace validation suite.         |
-| `npm run pack:check`   | Build and inspect both publishable packages.         |
+| Command                 | Purpose                                                |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run build`         | Build every workspace in internal dependency order.    |
+| `npm run typecheck`     | Type-check all workspaces without building.            |
+| `npm run lint`          | Run workspace linters.                                 |
+| `npm run lint:fix`      | Apply supported lint fixes.                            |
+| `npm run format`        | Format workspace source files.                         |
+| `npm run format:check`  | Verify formatting without modifying files.             |
+| `npm run check`         | Run static, browser, package, and clean-tree checks.   |
+| `npm run check:package` | Diagnose packed package and consumer fixture failures. |
 
 ## Version management
 
 `VERSION` is the authoritative repository version. The version script updates all related values together:
 
 ```bash
-npm run version:set -- 0.6.0
+npm run version:set -- 1.2.3
 ```
 
 The script synchronizes:
 
 - `VERSION`
 - the root workspace version
-- `@miaixz/sdk`
-- `@miaixz/ui`
-- the UI development dependency on the SDK
-- the compatible UI peer dependency range for the SDK
+- every workspace manifest version
+- exact internal development, runtime, and optional dependency versions
+- compatible internal peer dependency ranges and their development dependencies
 
-Both public packages must always have the same exact release version.
+All public packages must always have the same exact release version.
 
 ## Release process
 
-Releases are driven by an unprefixed semantic-version Git tag. For example, version `0.6.0` uses tag `0.6.0`, never `v0.6.0`.
+Releases are driven by an unprefixed semantic-version Git tag. For example, version `1.2.3` uses tag `1.2.3`, never `v1.2.3`.
 
 The expected release sequence is:
 
@@ -184,14 +228,15 @@ The expected release sequence is:
 2. Merge `dev` into `main` with an explicit merge commit.
 3. Create the exact version tag on that merge commit.
 4. Push `main` and the tag.
-5. GitHub Actions builds and validates both workspaces.
-6. The workflow publishes `@miaixz/sdk` and `@miaixz/ui` with the same version.
-7. The workflow waits for both package versions to become visible in the npm registry.
-8. After npm publication succeeds, the workflow creates the matching GitHub Release.
+5. GitHub Actions builds and validates all workspaces.
+6. The workflow publishes every public workspace with the same version.
+7. The workflow waits for all package versions to become visible in the npm registry.
+8. After npm publication succeeds, the workflow creates the matching GitHub Release and generates
+   its notes from the commits and merged pull requests since the previous tag.
 
 Stable versions use the npm `latest` dist-tag. Prerelease versions use `next`. The publication action is resumable: if one package version already exists, it publishes only the missing package and restores version parity.
 
-The release workflow requires the `NPM_TOKEN` GitHub Actions secret when token-based npm authentication is used. The token must have read/write package access and permission to bypass 2FA for automated publishing. npm Trusted Publishing can replace the long-lived token after both packages have been configured as trusted publishers.
+The release workflow requires the `NPM_TOKEN` GitHub Actions secret when token-based npm authentication is used. The token must have read/write package access and permission to bypass 2FA for automated publishing. npm Trusted Publishing can replace the long-lived token after all packages have been configured as trusted publishers.
 
 ## Security
 

@@ -22,20 +22,25 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { SplitProps } from "./split.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Creates a responsive primary-secondary split layout. @public
  */
-export const Split = forwardRef<HTMLDivElement, SplitProps>(function Split(
-  { ratio = "equal", className, ...props },
-  ref,
-) {
-  return (
-    <div
-      {...props}
-      ref={ref}
-      data-ratio={ratio}
-      className={classNames("miaixz-split", className)}
-    />
-  );
-});
+export const Split = withMiaixzThemeComponent(
+  "Split",
+  forwardRef<HTMLDivElement, SplitProps>(function Split(
+    { ratio = "equal", collapseAt = "container", className, ...props },
+    ref,
+  ) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        data-ratio={ratio}
+        data-collapse-at={collapseAt}
+        className={classNames("miaixz-split", className)}
+      />
+    );
+  }),
+);

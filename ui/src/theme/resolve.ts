@@ -24,7 +24,7 @@ import { miaixzThemeCompositionDefaults } from "../design/composition.js";
 import { miaixzThemeLayoutGeometryDefaults } from "../design/geometry.js";
 import { miaixzThemeOpacityDefaults } from "../design/opacity.js";
 import { miaixzThemeTypographyDefaults } from "../design/typography.js";
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
 import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./types.js";
 import { validateResolvedTheme } from "./validate.js";
 

@@ -18,4 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export * from "./files.js";
+export {
+  createMiaixzFileClient,
+  getMiaixzDownloadFilename,
+  MiaixzFileClient,
+  saveMiaixzBlob,
+} from "./files.js";
+export type { MiaixzDownloadedFile, MiaixzDownloadOptions, MiaixzUploadOptions } from "./files.js";

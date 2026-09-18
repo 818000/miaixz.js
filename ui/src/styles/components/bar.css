@@ -27,12 +27,6 @@
   height: 2px;
   overflow: hidden;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 120ms ease;
-}
-
-.miaixz-bar[data-active="true"] {
-  opacity: 1;
 }
 
 .miaixz-bar-fill {
@@ -46,11 +40,7 @@
   will-change: transform;
 }
 
-.miaixz-bar[data-complete="true"] .miaixz-bar-fill {
-  transition-duration: 140ms;
-}
-
-.miaixz-bar[data-indeterminate="true"] .miaixz-bar-fill {
+.miaixz-bar[data-state="indeterminate"] .miaixz-bar-fill {
   animation: miaixz-bar-progress 3.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -82,7 +72,7 @@
     transition: none;
   }
 
-  .miaixz-bar[data-indeterminate="true"] .miaixz-bar-fill {
+  .miaixz-bar[data-state="indeterminate"] .miaixz-bar-fill {
     transform: scaleX(0.72);
     animation: none;
   }

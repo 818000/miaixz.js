@@ -18,9 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzSdkError } from "../api/errors.js";
+import { MiaixzSdkError } from "../errors/errors.js";
 import type { MiaixzResponseParser } from "../api/request.js";
-import { translateMiaixzDefaultMessage } from "../i18n/default-translator.js";
 
 /**
  * Defines the browser-compatible storage operations required by the SDK.
@@ -158,7 +157,7 @@ const miaixzStorageKinds = new Set(["appearance", "context", "preferences"]);
  * @returns Stable SDK storage-scope error.
  */
 function createStorageScopeError(): MiaixzSdkError {
-  return new MiaixzSdkError(translateMiaixzDefaultMessage("sdk.error.storage.scopeInvalid"), {
+  return new MiaixzSdkError({
     code: "STORAGE_SCOPE_INVALID",
   });
 }
@@ -169,10 +168,7 @@ function createStorageScopeError(): MiaixzSdkError {
  * @returns Stable SDK migration-chain error.
  */
 function createMigrationChainError(): MiaixzSdkError {
-  return new MiaixzSdkError(
-    translateMiaixzDefaultMessage("sdk.error.storage.migrationChainInvalid"),
-    { code: "STORAGE_MIGRATION_CHAIN_INVALID" },
-  );
+  return new MiaixzSdkError({ code: "STORAGE_MIGRATION_CHAIN_INVALID" });
 }
 
 /**
@@ -274,7 +270,7 @@ function safelyRemoveStorageValue(storage: MiaixzKeyValueStorage, key: string): 
   try {
     storage.removeItem(key);
   } catch {
-    /*
+    /**
      * Persistence failures never change the caller's in-memory state.
      */
   }
@@ -370,7 +366,7 @@ export function writeMiaixzVersionedValue<T>(
     };
     options.storage.setItem(key, JSON.stringify(envelope));
   } catch {
-    /*
+    /**
      * Serialization and adapter failures intentionally degrade to non-persistence.
      */
   }

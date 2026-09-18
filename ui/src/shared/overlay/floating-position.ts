@@ -18,7 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useEffect, useLayoutEffect, type RefObject } from "react";
+import type { RefObject } from "react";
+import { useMiaixzLayoutEffect } from "../use-client-layout-effect.js";
 
 /**
  * Defines every fixed placement used by package-owned Popover and Tooltip surfaces.
@@ -52,11 +53,6 @@ interface MiaixzFloatingPosition {
 const miaixzFloatingGap = 8;
 
 /**
- * Uses layout timing in browsers and passive timing during server rendering.
- */
-const useMiaixzClientLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
-
-/**
  * Positions one open Portal surface and maintains it across geometry changes.
  *
  * @param triggerRef - Reference containing the anchor element.
@@ -74,7 +70,7 @@ export function useMiaixzFloatingPosition(
   portalTarget: HTMLElement | null,
   offset = miaixzFloatingGap,
 ): void {
-  useMiaixzClientLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     const trigger = triggerRef.current;
     const content = contentRef.current;
     if (!open || trigger === null || content === null) return undefined;

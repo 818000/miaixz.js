@@ -1,0 +1,97 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-calendar {
+  inline-size: min(100%, 22rem);
+  padding: var(--miaixz-space-12);
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface);
+}
+
+.miaixz-calendar-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+}
+
+.miaixz-calendar-month {
+  text-align: center;
+}
+
+.miaixz-calendar-navigation,
+.miaixz-calendar-day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--miaixz-density-control-height);
+  min-block-size: var(--miaixz-density-control-height);
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-calendar-weekdays,
+.miaixz-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--miaixz-space-2);
+}
+
+.miaixz-calendar-weekdays {
+  margin-block: var(--miaixz-space-8) var(--miaixz-space-4);
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-muted);
+  text-align: center;
+}
+
+.miaixz-calendar-day:hover:not([aria-disabled="true"]),
+.miaixz-calendar-day[aria-selected="true"] {
+  color: var(--miaixz-color-brand-strong);
+  background: var(--miaixz-color-brand-soft);
+}
+
+.miaixz-calendar-day:focus-visible,
+.miaixz-calendar-navigation:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: calc(-1 * var(--miaixz-control-focus-width));
+}
+
+.miaixz-calendar-day[data-outside-month="true"],
+.miaixz-calendar-day[aria-disabled="true"] {
+  color: var(--miaixz-color-text-disabled);
+}
+
+.miaixz-date-picker,
+.miaixz-time-picker {
+  display: inline-flex;
+  width: 100%;
+}
+
+.miaixz-time-picker-options {
+  display: grid;
+  gap: var(--miaixz-space-4);
+  max-block-size: 20rem;
+  padding: var(--miaixz-space-8);
+  overflow: auto;
+}
