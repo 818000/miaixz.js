@@ -24,7 +24,7 @@ import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { getMiaixzFeedbackSemantics, MiaixzFeedback } from "../feedback/feedback.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { AlertOwnerState, AlertProps } from "./alert.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders prominent feedback with independently controlled tone and announcement priority.

@@ -1,10 +1,22 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync, readdirSync } from "node:fs";
+import { resolve } from "node:path";
 
 import { DRAWER_WIDTHS } from "../src/components/drawer/drawer-widths.js";
 
-import { miaixzTheme, MiaixzThemeError, parseTheme } from "../src/theme/index.js";
+import { MiaixzThemeError } from "../src/theme/error.js";
+import { parseTheme } from "../src/theme/parse.js";
+import miaixzTheme from "../src/theme/presets/miaixz/index.js";
 import { resolveThemeDefinitions } from "../src/theme/resolve.js";
 import { serializeThemeApplication } from "../src/theme/serialize.js";
+
+const presetDirectory = resolve("src/theme/presets");
+const builtInThemeNames = readdirSync(presetDirectory, { recursive: true })
+  .filter((entry) => entry.toString().endsWith("preset.json"))
+  .map((entry) => JSON.parse(readFileSync(resolve(presetDirectory, entry.toString()), "utf8")))
+  .filter(({ builtin }) => builtin)
+  .sort((left, right) => left.order - right.order)
+  .map(({ name }) => String(name));
 
 const compactTypography = {
   "--miaixz-text-compact-body-size": "12px",
@@ -26,7 +38,7 @@ const nonColorRoles = [
   "--miaixz-surface-role-panel-background",
 ] as const;
 
-for (const theme of ["miaixz", "neutral", "contrast"] as const) {
+for (const theme of builtInThemeNames) {
   for (const colorMode of ["light", "dark"] as const) {
     test(`${theme} ${colorMode} exposes the complete semantic typography contract`, async ({
       page,
@@ -57,7 +69,7 @@ for (const theme of ["miaixz", "neutral", "contrast"] as const) {
 
 for (const density of ["compact", "standard", "comfortable"] as const) {
   test(`${density} density is applied without changing component ownership`, async ({ page }) => {
-    await page.goto(`/tests/?theme=miaixz&colorMode=light&density=${density}`);
+    await page.goto(`/tests/?theme=${miaixzTheme.name}&colorMode=light&density=${density}`);
     await expect(page.locator("html")).toHaveAttribute("data-miaixz-density", density);
     await expect(page.getByRole("group", { name: "四项指标" })).toBeVisible();
     await expect(page.getByRole("table", { name: "固定成员数据" })).toBeVisible();
@@ -67,7 +79,7 @@ for (const density of ["compact", "standard", "comfortable"] as const) {
 test("theme delegates pointer and keyboard ripple feedback to semantic actions", async ({
   page,
 }) => {
-  await page.goto("/tests/?theme=miaixz&colorMode=light&density=standard");
+  await page.goto(`/tests/?theme=${miaixzTheme.name}&colorMode=light&density=standard`);
   const button = page.getByRole("button", { name: "默认按钮" });
 
   const pointerFeedback = await button.evaluate((element) => {
@@ -116,7 +128,7 @@ test("schema-one non-color roles parse, resolve and serialize through one contra
     name: "legacy-non-color",
     label: "Legacy non-color",
     version: "1.0.0",
-    extends: "miaixz",
+    extends: miaixzTheme.name,
     tokens: {
       opacity: { navigationSelected: 0.42 },
       typography: { bodySize: 15 },

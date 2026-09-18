@@ -21,7 +21,7 @@
 import { forwardRef } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { StatusOwnerState, StatusProps } from "./status.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders one stable marker, optional content, and status label structure.

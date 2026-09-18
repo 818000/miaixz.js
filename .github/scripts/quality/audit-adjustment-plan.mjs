@@ -19,44 +19,44 @@
 */
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
 import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
 
-const currentFile = fileURLToPath(import.meta.url);
 const repository = loadWorkspaceRepository();
 const { rootManifest } = repository;
-const manifestsByDirectory = new Map(
-  repository.workspaces.map(({ directory, manifest }) => [directory, manifest]),
-);
+const uiWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/ui");
+const sdkWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/sdk");
+const viewWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/view");
+if (uiWorkspace === undefined || sdkWorkspace === undefined || viewWorkspace === undefined) {
+  throw new Error("The SDK, UI, and View workspace manifests are required.");
+}
+const sdkReadmePath = `${sdkWorkspace.directory}/README.md`;
+const uiReadmePath = `${uiWorkspace.directory}/README.md`;
+const viewReadmePath = `${viewWorkspace.directory}/README.md`;
 const rootScripts = rootManifest.scripts ?? {};
-const registrySource = readFileSync(resolve(repositoryRoot, "ui/src/theme/components.ts"), "utf8");
+const registrySource = readFileSync(resolve(uiWorkspace.rootPath, "src/theme/registry.ts"), "utf8");
 const failures = [];
 const readmes = new Map(
-  ["README.md", "sdk/README.md", "ui/README.md", "view/README.md"].map((file) => [
-    file,
-    readFileSync(resolve(repositoryRoot, file), "utf8"),
-  ]),
+  ["README.md", ...repository.workspaces.map(({ directory }) => `${directory}/README.md`)].map(
+    (file) => [file, readFileSync(resolve(repositoryRoot, file), "utf8")],
+  ),
 );
 
 if (Object.values(rootScripts).some((script) => /--workspaces\s+--if-present/u.test(script))) {
   failures.push("root package scripts must not use --workspaces --if-present");
 }
-for (const removedScript of ["build:sdk", "lint:css"]) {
-  if (Object.hasOwn(rootScripts, removedScript)) {
-    failures.push(`removed root script is still declared: ${removedScript}`);
-  }
-}
-for (const file of walk(resolve(repositoryRoot, ".github/scripts")).filter(
-  (path) => path.endsWith(".mjs") && path !== currentFile,
-)) {
-  if (readFileSync(file, "utf8").includes("getWorkspaceReleaseTitle")) {
-    failures.push(`removed release-title helper is still referenced: ${file}`);
-  }
-}
+auditScriptTargets(repositoryRoot, rootScripts, "package.json", failures);
 
 const ast = parse(registrySource, {
   sourceType: "module",
@@ -79,7 +79,7 @@ const registryNames =
     : [];
 
 const calls = new Map();
-for (const file of walk(resolve(repositoryRoot, "ui/src")).filter((path) =>
+for (const file of walk(resolve(uiWorkspace.rootPath, "src")).filter((path) =>
   path.endsWith(".tsx"),
 )) {
   const source = readFileSync(file, "utf8");
@@ -100,20 +100,20 @@ for (const name of calls.keys())
   if (!registryNames.includes(name)) failures.push(`unregistered Theme consumer: ${name}`);
 
 const protocolSource = readFileSync(
-  resolve(repositoryRoot, "sdk/src/contracts/module-manifest.ts"),
+  resolve(sdkWorkspace.rootPath, "src/contracts/module-manifest.ts"),
   "utf8",
 );
 const protocolVersion = /MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*"([^"]+)"/u.exec(protocolSource)?.[1];
 if (
   protocolVersion === undefined ||
-  !readmes.get("sdk/README.md")?.includes(`Host Bridge protocol version is \`${protocolVersion}\``)
+  !readmes.get(sdkReadmePath)?.includes(`Host Bridge protocol version is \`${protocolVersion}\``)
 ) {
   failures.push("SDK README Host Bridge protocol version is not aligned with its constant");
 }
-if (/\b\d+\.\d+\.x\b[^\n]*development line/iu.test(readmes.get("sdk/README.md") ?? "")) {
+if (/\b\d+\.\d+\.x\b[^\n]*development line/iu.test(readmes.get(sdkReadmePath) ?? "")) {
   failures.push("SDK README must not hard-code a development-line version");
 }
-const uiReadme = readmes.get("ui/README.md") ?? "";
+const uiReadme = readmes.get(uiReadmePath) ?? "";
 if (/\bselected\s*:/u.test(uiReadme)) {
   failures.push("UI README NavigationRail examples must use current and textValue, not selected");
 }
@@ -127,7 +127,7 @@ if (/npm install[^\n]*\blucide(?:-react)?\b/iu.test(uiReadme)) {
   failures.push("UI README must not require consumers to install Lucide");
 }
 const rootReadme = readmes.get("README.md") ?? "";
-const viewReadme = readmes.get("view/README.md") ?? "";
+const viewReadme = readmes.get(viewReadmePath) ?? "";
 if (
   !rootReadme.includes("@miaixz/ui/view") ||
   !rootReadme.includes("@miaixz/view") ||
@@ -145,13 +145,10 @@ if (
 ) {
   failures.push("View README must show the complete locale, Theme, and FileView structure");
 }
-for (const directory of ["sdk", "ui", "view"]) {
-  const manifest = manifestsByDirectory.get(directory);
-  if (manifest === undefined) {
-    failures.push(`workspace manifest is missing: ${directory}`);
-    continue;
-  }
+for (const workspace of repository.workspaces) {
+  const { directory, manifest } = workspace;
   auditPublicEntryTable(directory, manifest, readmes.get(`${directory}/README.md`) ?? "", failures);
+  auditWorkspaceConfiguration(workspace, failures);
 }
 auditReadmeCompileBlocks(readmes, failures);
 
@@ -203,6 +200,105 @@ function auditPublicEntryTable(directory, manifest, readme, findings) {
 }
 
 /**
+ * Validates one workspace manifest against files, exports, scripts, and ATTW exclusions on disk.
+ *
+ * @param {object} workspace Loaded workspace record.
+ * @param {string[]} findings Mutable failure list.
+ * @returns {void}
+ */
+function auditWorkspaceConfiguration(workspace, findings) {
+  const { directory, manifest, rootPath } = workspace;
+  const exports = manifest.exports;
+  if (exports === null || typeof exports !== "object" || Array.isArray(exports)) {
+    findings.push(`${directory}/package.json must define an exports object`);
+    return;
+  }
+
+  for (const file of manifest.files ?? []) {
+    if (file === "dist") continue;
+    if (!existsSync(resolve(rootPath, file))) {
+      findings.push(`${directory}/package.json files entry does not exist: ${file}`);
+    }
+  }
+
+  const rootExport = exports["."];
+  if (rootExport === null || typeof rootExport !== "object" || Array.isArray(rootExport)) {
+    findings.push(`${directory}/package.json must define a JavaScript root export`);
+  } else {
+    if (manifest.main !== rootExport.import) {
+      findings.push(`${directory}/package.json main does not match exports["."].import`);
+    }
+    if (manifest.types !== rootExport.types) {
+      findings.push(`${directory}/package.json types does not match exports["."].types`);
+    }
+  }
+
+  for (const [entry, value] of Object.entries(exports)) {
+    const targets = typeof value === "string" ? [value] : Object.values(value);
+    for (const target of targets) {
+      if (typeof target !== "string" || !target.startsWith("./dist/")) {
+        findings.push(`${directory}/package.json export ${entry} has an invalid target`);
+        continue;
+      }
+      if (!hasExportSource(rootPath, target)) {
+        findings.push(`${directory}/package.json export ${entry} has no source for ${target}`);
+      }
+    }
+  }
+
+  const expectedCssExclusions = Object.entries(exports)
+    .filter(([, target]) => typeof target === "string" && target.endsWith(".css"))
+    .map(([entry]) => entry.replace(/^\.\//u, ""))
+    .sort();
+  const attwPath = resolve(rootPath, ".attw.json");
+  if (!existsSync(attwPath)) {
+    findings.push(`${directory}/.attw.json is missing`);
+  } else {
+    const attw = JSON.parse(readFileSync(attwPath, "utf8"));
+    const actualCssExclusions = [...(attw.excludeEntrypoints ?? [])].sort();
+    if (JSON.stringify(actualCssExclusions) !== JSON.stringify(expectedCssExclusions)) {
+      findings.push(`${directory}/.attw.json CSS exclusions do not match package exports`);
+    }
+  }
+
+  auditScriptTargets(rootPath, manifest.scripts ?? {}, `${directory}/package.json`, findings);
+}
+
+/**
+ * Reports whether an export target has a corresponding source file.
+ *
+ * @param {string} workspaceRoot Absolute workspace root.
+ * @param {string} target Package export target below dist.
+ * @returns {boolean} Whether one matching TypeScript, TSX, declaration, or CSS source exists.
+ */
+function hasExportSource(workspaceRoot, target) {
+  const relativeTarget = target.slice("./dist/".length);
+  const sourceTarget = resolve(workspaceRoot, "src", relativeTarget);
+  if (relativeTarget.endsWith(".css")) return existsSync(sourceTarget);
+  const base = sourceTarget.replace(/\.d\.ts$/u, "").replace(/\.js$/u, "");
+  return [`.ts`, `.tsx`, `.d.ts`].some((extension) => existsSync(`${base}${extension}`));
+}
+
+/**
+ * Verifies direct Node and shell script file references in package commands.
+ *
+ * @param {string} baseDirectory Directory from which package scripts run.
+ * @param {Record<string, string>} scripts Package script map.
+ * @param {string} manifestPath Repository-relative manifest label.
+ * @param {string[]} findings Mutable failure list.
+ * @returns {void}
+ */
+function auditScriptTargets(baseDirectory, scripts, manifestPath, findings) {
+  for (const [name, command] of Object.entries(scripts)) {
+    for (const match of command.matchAll(/\b(?:bash|node)\s+([^\s"']+\.(?:[cm]?js|sh))\b/gu)) {
+      if (!existsSync(resolve(baseDirectory, match[1]))) {
+        findings.push(`${manifestPath} script ${name} references missing ${match[1]}`);
+      }
+    }
+  }
+}
+
+/**
  * Compiles every explicitly marked README example as an independent module.
  *
  * @param {Map<string, string>} sources README sources keyed by repository path.
@@ -211,8 +307,28 @@ function auditPublicEntryTable(directory, manifest, readme, findings) {
  */
 function auditReadmeCompileBlocks(sources, findings) {
   const temporaryRoot = mkdtempSync(join(tmpdir(), "miaixz-readme-"));
-  const workspaceDeclarations = ["sdk", "ui", "view"].flatMap((directory) =>
-    walk(resolve(repositoryRoot, directory, "src")).filter((path) => path.endsWith(".d.ts")),
+  const workspaceDeclarations = repository.workspaces.flatMap(({ rootPath }) =>
+    walk(resolve(rootPath, "src")).filter((path) => path.endsWith(".d.ts")),
+  );
+  const defaultCompileWorkspace =
+    repository.workspaces.find(({ manifest }) =>
+      Object.hasOwn(manifest.peerDependencies ?? {}, "react"),
+    ) ?? repository.workspaces[0];
+  if (defaultCompileWorkspace === undefined) {
+    findings.push("README compile audit requires at least one workspace");
+    return;
+  }
+  const workspaceCompilerPaths = Object.fromEntries(
+    repository.workspaces.flatMap(({ directory, name }) => [
+      [name, [resolve(repositoryRoot, directory, "src/index.ts")]],
+      [
+        `${name}/*`,
+        [
+          resolve(repositoryRoot, directory, "src/components/*/index.ts"),
+          resolve(repositoryRoot, directory, "src/*/index.ts"),
+        ],
+      ],
+    ]),
   );
   try {
     let blockIndex = 0;
@@ -225,7 +341,8 @@ function auditReadmeCompileBlocks(sources, findings) {
         mkdirSync(blockDirectory, { recursive: true });
         writeFileSync(sourcePath, match[2]);
         writeFileSync(join(blockDirectory, "styles.d.ts"), 'declare module "*.css";\n');
-        const owningDirectory = readmePath === "README.md" ? "ui" : readmePath.split("/")[0];
+        const owningDirectory =
+          readmePath === "README.md" ? defaultCompileWorkspace.directory : readmePath.split("/")[0];
         writeFileSync(
           configPath,
           `${JSON.stringify(
@@ -251,15 +368,7 @@ function auditReadmeCompileBlocks(sources, findings) {
                   "react/*": [
                     resolve(repositoryRoot, owningDirectory, "node_modules/@types/react/*"),
                   ],
-                  "@miaixz/sdk": [resolve(repositoryRoot, "sdk/src/index.ts")],
-                  "@miaixz/sdk/*": [resolve(repositoryRoot, "sdk/src/*/index.ts")],
-                  "@miaixz/ui": [resolve(repositoryRoot, "ui/src/index.ts")],
-                  "@miaixz/ui/*": [
-                    resolve(repositoryRoot, "ui/src/components/*/index.ts"),
-                    resolve(repositoryRoot, "ui/src/*/index.ts"),
-                  ],
-                  "@miaixz/view": [resolve(repositoryRoot, "view/src/index.ts")],
-                  "@miaixz/view/*": [resolve(repositoryRoot, "view/src/*/index.ts")],
+                  ...workspaceCompilerPaths,
                 },
               },
               files: [sourcePath, join(blockDirectory, "styles.d.ts"), ...workspaceDeclarations],

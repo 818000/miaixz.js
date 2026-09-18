@@ -21,6 +21,7 @@
 import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import { Anchor } from "../../shared/anchor.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Icon } from "../icon/icon.js";
 import type {
@@ -30,7 +31,7 @@ import type {
   NavigationSlotProps,
   NavigationSlots,
 } from "./navigation.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a labeled, link-only navigation region from one declarative item source. @public
@@ -121,7 +122,7 @@ function NavigationEntryView({
   };
   const IconRenderer = slots?.icon ?? Icon;
   return (
-    <a
+    <Anchor
       {...mergeMiaixzSlotProps({
         ownerState,
         defaultProps: { className: "miaixz-navigation-item" },
@@ -134,6 +135,7 @@ function NavigationEntryView({
         },
         ownedProps: ["data-ui", "href", "aria-current"],
       })}
+      href={entry.href}
     >
       {entry.icon !== undefined && (
         <IconRenderer
@@ -170,7 +172,7 @@ function NavigationEntryView({
           {entry.meta}
         </span>
       )}
-    </a>
+    </Anchor>
   );
 }
 

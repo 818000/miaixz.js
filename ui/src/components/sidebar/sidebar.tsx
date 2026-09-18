@@ -23,7 +23,7 @@ import { forwardRef } from "react";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { SidebarOwnerState, SidebarProps } from "./sidebar.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Creates a local sidebar layout without owning viewport or expanded state. @public

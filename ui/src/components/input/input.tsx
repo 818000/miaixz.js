@@ -25,7 +25,7 @@ import { hasMiaixzControlValue } from "../../shared/control-state.js";
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlValueState } from "../../shared/use-control-value-state.js";
-import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
+import { getMiaixzThemeSlotClassNames } from "../../theme/registry.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
 import type { InputOwnerState, InputProps, InputRootAttributes, InputSlot } from "./input.types.js";
 

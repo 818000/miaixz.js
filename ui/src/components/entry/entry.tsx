@@ -22,7 +22,7 @@ import { createElement, forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { EntryOwnerState, EntryProps } from "./entry.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders an entry layout without implicitly creating a main landmark. @public

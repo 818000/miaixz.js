@@ -26,7 +26,7 @@ import { Dropdown } from "../dropdown/dropdown.js";
 import { type DropdownEntry } from "../dropdown/dropdown.types.js";
 import { Icon } from "../icon/icon.js";
 import type { ActionDescriptor, MoreActionsProps } from "./action.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 interface MoreActionsViewProps extends MoreActionsProps {
   /**

@@ -299,95 +299,16 @@ import { getMetricClassName } from "../../src/index.js";
 import { getNoticeClassName } from "../../src/index.js";
 /**
  * @ts-expect-error Removed Theme runtime API. */
-import { applyMiaixzAppearance } from "../../src/theme/appearance.js";
+import { applyMiaixzAppearance } from "../../src/theme/mode.js";
 /**
  * @ts-expect-error Removed Theme validation API. */
-import { validateMiaixzThemeContrast } from "../../src/theme/appearance.js";
+import { validateMiaixzThemeContrast } from "../../src/theme/mode.js";
 /**
  * @ts-expect-error Removed duplicate light color export. */
-import { miaixzLightThemeColors } from "../../src/theme/appearance.js";
+import { miaixzLightThemeColors } from "../../src/theme/mode.js";
 /**
  * @ts-expect-error Removed duplicate dark color export. */
-import { miaixzDarkThemeColors } from "../../src/theme/appearance.js";
-
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/confirm-dialog";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/inline-message";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/form-field";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/search-input";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/loading-overlay";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/multi-select";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/data-table";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/page-layout";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/file-upload";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/tree-view";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/status-indicator";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/empty-state";
-/**
- * @ts-expect-error Removed package subpath. */
-import "@miaixz/ui/visually-hidden";
-/**
- * @ts-expect-error Body has no compatibility package subpath. */
-import "@miaixz/ui/body";
-/**
- * @ts-expect-error Body has no compatibility CSS subpath. */
-import "@miaixz/ui/body/styles.css";
-/**
- * @ts-expect-error Locale is published only from its final subpath. */
-import "@miaixz/ui/locale-picker";
-/**
- * @ts-expect-error Metrics is published only from its final component-family subpath. */
-import "@miaixz/ui/metric";
-/**
- * @ts-expect-error Metrics is published only from its final component-family subpath. */
-import "@miaixz/ui/metric-group";
-/**
- * @ts-expect-error View is published only from its final subpath. */
-import "@miaixz/ui/module-frame";
-/**
- * @ts-expect-error Removed View CSS subpath. */
-import "@miaixz/ui/module-frame/styles.css";
-/**
- * @ts-expect-error Sections is published only from its final subpath. */
-import "@miaixz/ui/grouped-list";
-/**
- * @ts-expect-error Removed Sections CSS subpath. */
-import "@miaixz/ui/grouped-list/styles.css";
-/**
- * @ts-expect-error RelationMap package subpath was removed. */
-import "@miaixz/ui/relation-map";
-/**
- * @ts-expect-error Graph is published only from the final nested diagram/graph subpath. */
-import "@miaixz/ui/diagram";
-/**
- * @ts-expect-error Removed duplicate CSS subpath. */
-import "@miaixz/ui/miaixz.css";
-/**
- * @ts-expect-error Removed duplicate CSS subpath. */
-import "@miaixz/ui/themes.css";
+import { miaixzDarkThemeColors } from "../../src/theme/mode.js";
 
 void [
   ConfirmDialog,

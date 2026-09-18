@@ -23,7 +23,7 @@ import { forwardRef, useId } from "react";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { SparklineOwnerState, SparklineProps } from "./sparkline.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 interface SparklinePoint {
   readonly x: number;

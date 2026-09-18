@@ -342,6 +342,18 @@ export type {
   InputSlot,
   InputSlotProps,
 } from "./input/index.js";
+export { Link } from "./link/index.js";
+export type {
+  LinkOwnerState,
+  LinkProps,
+  LinkRenderer,
+  LinkRenderProps,
+  LinkRootAttributes,
+  LinkSlot,
+  LinkSlotProps,
+  LinkTone,
+  LinkUnderline,
+} from "./link/index.js";
 export { List, ListCounter, ListItem, ListMarker } from "./list/index.js";
 export type {
   ListCounterProps,
@@ -397,13 +409,12 @@ export type {
   ViewSlotProps,
   ViewSurface,
 } from "./view/index.js";
-export { ViewSwitch } from "./view-switch/index.js";
 export type {
-  ViewSwitchOwnerState,
-  ViewSwitchProps,
-  ViewSwitchRootAttributes,
-  ViewSwitchValue,
-} from "./view-switch/index.js";
+  ViewSelectorOwnerState,
+  ViewSelectorProps,
+  ViewSelectorRootAttributes,
+  ViewSelectorValue,
+} from "./view/index.js";
 export { Overlay } from "./overlay/index.js";
 export type {
   MiaixzOverlayOwnProps,
@@ -680,15 +691,15 @@ export type {
   ToolbarSurface,
   ToolbarVariant,
 } from "./toolbar/index.js";
-export { TransferList } from "./transfer-list/index.js";
+export { Transfer } from "./transfer/index.js";
 export type {
-  TransferListMobilePaneSize,
-  TransferListOwnerState,
-  TransferListProps,
-  TransferListRootAttributes,
-  TransferListSlotProps,
-  TransferListTargetSize,
-} from "./transfer-list/index.js";
+  TransferMobilePaneSize,
+  TransferOwnerState,
+  TransferProps,
+  TransferRootAttributes,
+  TransferSlotProps,
+  TransferTargetSize,
+} from "./transfer/index.js";
 export { Tree } from "./tree/index.js";
 export type {
   MiaixzTreeOwnProps,

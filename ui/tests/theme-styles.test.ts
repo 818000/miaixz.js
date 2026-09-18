@@ -19,9 +19,11 @@
 */
 
 import { readFileSync } from "node:fs";
+import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import { describe, expect, it } from "vitest";
-import { ThemeCatalog } from "../src/theme/catalog.js";
+import { miaixzBuiltInThemes, ThemeCatalog } from "../src/theme/catalog.js";
 import { defineTheme } from "../src/theme/define.js";
+import { themePresets } from "../src/theme/presets/index.js";
 import { createThemeStyles } from "../src/theme/styles.js";
 import { createThemeScript } from "../src/theme/script.js";
 import { serializeThemeStyles } from "../src/theme/serialize.js";
@@ -31,17 +33,17 @@ const customer = defineTheme({
   name: "customer",
   label: "Customer",
   version: "1.0.0",
-  extends: "miaixz",
+  extends: miaixzDefaultAppearance.theme,
   modes: { light: { colors: { brand: "#123456" } }, dark: { colors: { brand: "#ABCDEF" } } },
 });
 
 describe("application theme first paint", () => {
-  it("keeps business themes out of the built-in catalog and registers them in order", () => {
-    expect(new ThemeCatalog().descriptors().map(({ name }) => name)).toEqual([
-      "miaixz",
-      "neutral",
-      "contrast",
-    ]);
+  it("advertises lazy presets and appends registered themes in order", () => {
+    const presetDescriptors = new ThemeCatalog().descriptors();
+    expect(presetDescriptors).toEqual(themePresets);
+    expect(
+      presetDescriptors.filter(({ source }) => source === "builtin").map(({ name }) => name),
+    ).toEqual(miaixzBuiltInThemes.map(({ name }) => name));
     const descriptors = new ThemeCatalog([customer]).descriptors();
     expect(descriptors.at(-1)).toMatchObject({
       name: "customer",
@@ -52,8 +54,8 @@ describe("application theme first paint", () => {
 
   it("shares the static built-in declaration contract without binding a runtime or density", () => {
     const catalog = new ThemeCatalog();
-    for (const name of ["miaixz", "neutral", "contrast"]) {
-      const source = readFileSync(`src/theme/${name}.css`, "utf8")
+    for (const { name } of miaixzBuiltInThemes) {
+      const source = readFileSync(`src/theme/presets/${name}/styles.css`, "utf8")
         .replace(/\s+/g, "")
         .toLowerCase();
       for (const mode of ["light", "dark"] as const) {
@@ -86,7 +88,10 @@ describe("application theme first paint", () => {
     try {
       new Function(
         "matchMedia",
-        createThemeScript({ storageKey: key, themes: ["miaixz", customer.name] }),
+        createThemeScript({
+          storageKey: key,
+          themes: [miaixzDefaultAppearance.theme, customer.name],
+        }),
       )(() => ({ matches: false }));
       expect(document.documentElement.dataset.miaixzTheme).toBe("customer");
       expect(document.documentElement.dataset.miaixzColorMode).toBe("dark");

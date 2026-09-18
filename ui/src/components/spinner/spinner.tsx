@@ -26,7 +26,7 @@ import type { IconSize } from "../icon/icon.types.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
 import { Hidden } from "../hidden/hidden.js";
 import type { SpinnerOwnerState, SpinnerProps, SpinnerRootAttributes } from "./spinner.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const miaixzSpinnerIconSizes: Record<MiaixzComponentSize, IconSize> = {
   small: "inline",

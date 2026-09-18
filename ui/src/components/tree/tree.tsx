@@ -47,7 +47,7 @@ import {
 import { findTreeTypeaheadMatch, resolveTreeNavigation } from "./tree-keyboard.js";
 import { TreeRenderer } from "./tree-renderer.js";
 import type { TreeNode, TreeProps } from "./tree.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Implements the generic, ref-forwarding tree state and interaction controller.

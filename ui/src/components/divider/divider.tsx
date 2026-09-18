@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { DividerProps } from "./divider.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a semantic separator along the selected axis.

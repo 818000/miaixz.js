@@ -32,7 +32,7 @@ import { classNames } from "../../shared/class-names.js";
 import { useRovingFocus } from "../../shared/use-roving-focus.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { ToolbarProps } from "./toolbar.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const focusableSelector = [
   "button:not([disabled])",

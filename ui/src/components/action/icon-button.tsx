@@ -30,7 +30,7 @@ import type {
   IconButtonProps,
   IconButtonRootAttributes,
 } from "./action.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders one accessible icon-only command.

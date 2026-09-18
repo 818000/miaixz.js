@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
+import { themePresetPlugin } from "../../.github/scripts/codegen/theme-preset-vite.mjs";
 
 const port = Number(process.env.MIAIXZ_UI_PORT ?? "4173");
 if (!Number.isInteger(port) || port < 1024 || port > 65535)
@@ -49,6 +50,7 @@ const fixtureHtml = `<!doctype html>
  */
 export default defineConfig({
   plugins: [
+    themePresetPlugin(),
     {
       name: "miaixz-packed-fixture",
       enforce: "pre",
@@ -61,8 +63,8 @@ export default defineConfig({
       resolveId(id) {
         if (!resolvedPackedRoot || !resolvedPackedSdkRoot) return;
         if (id === "../src/index.js") return resolve(resolvedPackedRoot, "dist/index.js");
-        if (id === "../src/theme/miaixz.css")
-          return resolve(resolvedPackedRoot, "dist/theme/miaixz.css");
+        if (id === "../src/theme/theme.css")
+          return resolve(resolvedPackedRoot, "dist/theme/theme.css");
         if (id === "@miaixz/sdk/appearance")
           return resolve(resolvedPackedSdkRoot, "dist/appearance/index.js");
         if (id === "@miaixz/sdk/i18n") return resolve(resolvedPackedSdkRoot, "dist/i18n/index.js");

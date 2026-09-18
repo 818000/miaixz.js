@@ -31,7 +31,7 @@ import { MiaixzUiError } from "../../errors/ui-error.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Icon } from "../icon/icon.js";
 import type { DropzoneOwnerState, DropzoneProps, DropzoneRejection } from "./dropzone.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Describes one deterministic file-validation result.

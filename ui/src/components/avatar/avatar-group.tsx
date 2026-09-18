@@ -22,7 +22,7 @@ import { Children, cloneElement, forwardRef, isValidElement, type CSSProperties 
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 import type {
   AvatarGroupOwnerState,
   AvatarGroupProps,

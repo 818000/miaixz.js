@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
 import type { MiaixzSerializedThemeApplication } from "./serialize.js";
 
 const themeAttributes = [

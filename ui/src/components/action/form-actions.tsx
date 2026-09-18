@@ -26,7 +26,7 @@ import type {
   FormActionsProps,
   FormActionsRootAttributes,
 } from "./action.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders the native cancel and submit controls for a form footer.

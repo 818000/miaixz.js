@@ -26,7 +26,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { ListProvider } from "./list-context.js";
 import { ListItem } from "./list-item.js";
 import type { ListCounterProps, ListMarkerProps, ListOwnerState, ListProps } from "./list.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a semantic list from one required declarative item source. @public

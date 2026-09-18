@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { BrandOwnerState, BrandProps } from "./brand.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const ownerState: BrandOwnerState = {};
 

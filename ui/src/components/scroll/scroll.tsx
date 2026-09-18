@@ -25,7 +25,7 @@ import { classNames } from "../../shared/class-names.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
 import type { ScrollProps } from "./scroll.types.js";
 import { useOverflowFocus } from "./use-overflow-focus.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Creates a bounded overflow region that is focusable only when configured or overflowing. @public

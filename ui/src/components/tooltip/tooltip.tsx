@@ -38,7 +38,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { TooltipOwnerState, TooltipProps } from "./tooltip.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Associates concise help directly with one ref-capable trigger element.

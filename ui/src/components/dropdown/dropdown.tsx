@@ -30,6 +30,7 @@ import {
   type RefObject,
 } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import { Anchor } from "../../shared/anchor.js";
 import { classNames } from "../../shared/class-names.js";
 import { validateMiaixzCollectionItems } from "../../shared/collection/controller.js";
 import { Icon } from "../icon/icon.js";
@@ -42,7 +43,7 @@ import type {
   DropdownSubmenuEntry,
   DropdownSubmenuItem,
 } from "./dropdown.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders one stable data-driven menu with a single permitted submenu depth.
@@ -234,7 +235,7 @@ function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
   if (entry.kind === "link") {
     const originalClick = entry.anchorProps?.onClick;
     return (
-      <a
+      <Anchor
         {...entry.anchorProps}
         id={entry.id}
         role="menuitem"
@@ -247,7 +248,7 @@ function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
         }}
       >
         {content}
-      </a>
+      </Anchor>
     );
   }
   if (entry.kind === "checkbox") {

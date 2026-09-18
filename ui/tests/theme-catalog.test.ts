@@ -18,51 +18,56 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  */
 
+import { readFileSync, readdirSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { createThemeStyles } from "../src/theme/index.js";
-import { customThemes, recommendedThemes, traditionalThemes } from "../src/themes/index.js";
+import {
+  createThemeStyles,
+  loadThemePreset,
+  loadThemePresets,
+  themePresets,
+} from "../src/theme/index.js";
 
-const recommendedNames = [
-  "glacier",
-  "porcelain",
-  "tidal",
-  "olive",
-  "amber",
-  "copper",
-  "rose",
-  "ink",
-];
-const traditionalNames = [
-  "vermilion",
-  "imperial-gold",
-  "mineral-blue",
-  "mineral-green",
-  "clear-sky",
-  "mountain-dai",
-  "rouge",
-  "lotus-root",
-  "ru-celadon",
-  "pine-pollen",
-  "autumn-incense",
-  "xuan-ink",
-];
+interface PresetMetadata {
+  readonly name: string;
+  readonly label: string;
+  readonly group: string;
+  readonly order: number;
+  readonly builtin: boolean;
+}
+
+const presetDirectory = resolve("src/theme/presets");
+const presetMetadata = readdirSync(presetDirectory, { recursive: true })
+  .filter((entry) => entry.toString().endsWith("preset.json"))
+  .map(
+    (entry) =>
+      JSON.parse(
+        readFileSync(resolve(presetDirectory, entry.toString()), "utf8"),
+      ) as PresetMetadata,
+  )
+  .sort((left, right) => left.order - right.order);
+const lazyPresetMetadata = presetMetadata.filter(({ builtin }) => !builtin);
 
 describe("optional theme catalog", () => {
-  it("publishes all 21 themes in one stable catalog", () => {
-    expect(recommendedThemes.map((theme) => theme.name)).toEqual(recommendedNames);
-    expect(traditionalThemes.map((theme) => theme.name)).toEqual(traditionalNames);
-    expect(customThemes.map((theme) => theme.name)).toEqual([
-      "deepparser",
-      ...recommendedNames,
-      ...traditionalNames,
-    ]);
-    expect(new Set(customThemes.map((theme) => theme.name)).size).toBe(21);
+  it("publishes all preset descriptors in one stable generated catalog", () => {
+    expect(
+      themePresets.map(({ name, label, group, source }) => ({ name, label, group, source })),
+    ).toEqual(
+      presetMetadata.map(({ name, label, group, builtin }) => ({
+        name,
+        label,
+        group,
+        source: builtin ? "builtin" : "preset",
+      })),
+    );
+    expect(new Set(themePresets.map((theme) => theme.name)).size).toBe(presetMetadata.length);
   });
 
-  it("serializes every catalog theme for both color modes", () => {
-    const styles = createThemeStyles(customThemes);
-    for (const theme of customThemes) {
+  it("loads and serializes every lazy preset for both color modes", async () => {
+    const themes = await loadThemePresets();
+    const styles = createThemeStyles(themes);
+    for (const theme of themes) {
       expect(styles).toContain(
         `[data-miaixz-theme="${theme.name}"][data-miaixz-color-mode="light"]`,
       );
@@ -70,5 +75,12 @@ describe("optional theme catalog", () => {
         `[data-miaixz-theme="${theme.name}"][data-miaixz-color-mode="dark"]`,
       );
     }
+  });
+
+  it("loads a preset through its generated dynamic import", async () => {
+    const preset = lazyPresetMetadata[0];
+    expect(preset).toBeDefined();
+    const theme = await loadThemePreset(preset!.name, { signal: new AbortController().signal });
+    expect(theme).toMatchObject({ name: preset!.name, label: preset!.label });
   });
 });

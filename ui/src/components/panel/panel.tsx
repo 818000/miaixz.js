@@ -33,7 +33,7 @@ import type {
   PanelRowOwnerState,
   PanelRowProps,
 } from "./panel.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a non-interactive content surface with one stable structure. @public

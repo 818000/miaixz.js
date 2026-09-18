@@ -25,7 +25,7 @@ import { IconButton } from "../action/icon-button.js";
 import { Button } from "../button/button.js";
 import { Icon } from "../icon/icon.js";
 import type { ToastOwnerState, ToastProps, ToastTone } from "./toast.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const toneIcons: Record<ToastTone, "Info" | "CircleCheck" | "TriangleAlert" | "CircleAlert"> = {
   neutral: "Info",

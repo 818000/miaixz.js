@@ -30,7 +30,7 @@ import type {
   TextareaRootAttributes,
   TextareaControlAttributes,
 } from "./textarea.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a multiline native input with explicit root and textarea slots.

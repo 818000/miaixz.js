@@ -24,7 +24,7 @@ import type { IconProviderProps } from "../../icons/icon-provider.js";
 import { renderLucideIcon } from "../../icons/providers/lucide-provider.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { AvatarOwnerState, AvatarProps, AvatarRootAttributes } from "./avatar.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Derives the first two visible Unicode graphemes from a display name.

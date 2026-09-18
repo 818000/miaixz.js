@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { miaixzTheme } from "../src/theme/miaixz.js";
+import { miaixzTheme } from "../src/theme/presets/miaixz/index.js";
 import { ThemeCatalog } from "../src/theme/catalog.js";
 import { validateResolvedTheme } from "../src/theme/validate.js";
 /**
@@ -77,13 +77,12 @@ describe("color ownership", () => {
 
   it("uses the theme inverse foreground for the floating appearance trigger", () => {
     const appearance = readFileSync("src/styles/components/appearance.css", "utf8");
-    const triggerRule =
-      appearance.match(/\.miaixz-appearance-trigger\s*\{([^}]+)\}/u)?.[1] ?? "";
+    const triggerRule = appearance.match(/\.miaixz-appearance-trigger\s*\{([^}]+)\}/u)?.[1] ?? "";
     expect(triggerRule).toContain("color: var(--miaixz-color-text-inverse);");
   });
 
   it("loads authored brand foregrounds without weakening content contrast validation", () => {
-    const theme = new ThemeCatalog().get("miaixz");
+    const theme = new ThemeCatalog().get(miaixzTheme.name);
     expect(theme.modes.light.colors["on-brand"]).toBe("#10150D");
     expect(() =>
       validateResolvedTheme({

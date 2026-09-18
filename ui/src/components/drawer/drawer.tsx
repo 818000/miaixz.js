@@ -43,7 +43,7 @@ import type {
   DrawerProps,
   DrawerRootAttributes,
 } from "./drawer.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 interface DrawerFrame {
   readonly left: number;

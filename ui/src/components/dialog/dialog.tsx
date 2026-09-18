@@ -34,7 +34,7 @@ import { useMiaixzNativeModal } from "../../shared/overlay/native-modal.js";
 import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
-import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
+import { getMiaixzThemeSlotClassNames } from "../../theme/registry.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
 import { Icon } from "../icon/icon.js";
 import type {

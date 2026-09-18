@@ -26,7 +26,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Radio } from "../radio/radio.js";
 import { Search } from "../search/search.js";
 import type { LocaleOwnerState, LocaleProps } from "./locale.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders the sole searchable locale catalog and latest-request state machine.

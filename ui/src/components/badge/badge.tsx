@@ -21,7 +21,7 @@
 import { forwardRef } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { BadgeOwnerState, BadgeProps } from "./badge.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a standalone semantic label rather than an overlay badge.

@@ -23,7 +23,7 @@ import { forwardRef, type CSSProperties } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
 import type { BarProps } from "./bar.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 interface BarStyle extends CSSProperties {
   readonly "--miaixz-bar-progress"?: number;

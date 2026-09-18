@@ -23,7 +23,7 @@ import { forwardRef } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { DescriptionsOwnerState, DescriptionsProps } from "./descriptions.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders one invariant semantic definition-list structure. @public

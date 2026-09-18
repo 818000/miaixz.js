@@ -32,7 +32,7 @@ import { Locale } from "../components/locale/locale.js";
 import { Radio } from "../components/radio/radio.js";
 import type { AppearanceOwnerState, AppearanceProps } from "./appearance.types.js";
 import { useAppearancePosition } from "./use-appearance-position.js";
-import { withMiaixzThemeComponent } from "../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../theme/binding.js";
 
 const colorModes: readonly MiaixzColorMode[] = ["light", "dark", "system"];
 const densities: readonly MiaixzDensity[] = ["compact", "standard", "comfortable"];

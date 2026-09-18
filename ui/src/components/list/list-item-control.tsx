@@ -19,6 +19,7 @@
 */
 
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import { Anchor } from "../../shared/anchor.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ListItemOwnerState, ListItemProps, ListItemSlotProps } from "./list.types.js";
@@ -42,7 +43,7 @@ export function ListItemControl({
 }) {
   if (item.kind === "navigation") {
     return (
-      <a
+      <Anchor
         {...mergeMiaixzSlotProps({
           ownerState,
           defaultProps: { className: "miaixz-list-item-control" },
@@ -54,9 +55,10 @@ export function ListItemControl({
           internalProps: { "data-ui": "list-item-primary", href: item.href },
           ownedProps: ["href"],
         })}
+        href={item.href}
       >
         {children}
-      </a>
+      </Anchor>
     );
   }
   if (item.kind === "command") {

@@ -33,7 +33,7 @@ import type {
   TableProps,
   TableRowProps,
 } from "./table.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Provides responsive overflow and framing for a data table.

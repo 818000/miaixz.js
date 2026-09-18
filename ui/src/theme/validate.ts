@@ -44,7 +44,7 @@ import {
   miaixzThemeFontFamilyLength,
   miaixzThemeTypographyFields,
 } from "../design/typography.js";
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
 import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./types.js";
 
 const themeKeys = new Set([

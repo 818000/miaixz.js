@@ -56,7 +56,7 @@ export function migrateMiaixzAppearanceV1(value: unknown): MiaixzAppearanceSetti
   if (legacy === undefined) return miaixzDefaultAppearance;
   const overrides = createMigratedOverrides(legacy.colorMode, legacy.colors);
   return parseMiaixzAppearanceSettings({
-    theme: "miaixz",
+    theme: miaixzDefaultAppearance.theme,
     colorMode: legacy.colorMode,
     density: legacy.density,
     ...(overrides === undefined ? {} : { overrides }),

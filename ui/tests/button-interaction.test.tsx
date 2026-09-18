@@ -1,3 +1,4 @@
+import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -23,7 +24,7 @@ const actionRect = {
 describe("shared press interaction", () => {
   it("starts delegated pointer feedback for an explicit ripple target", () => {
     const { container } = render(
-      <div data-miaixz-theme="miaixz">
+      <div data-miaixz-theme={miaixzDefaultAppearance.theme}>
         <button type="button" data-miaixz-ripple="true" className="miaixz-interactive">
           保存
         </button>
@@ -46,7 +47,7 @@ describe("shared press interaction", () => {
   it("does not turn generic semantic controls or Pressable content into ripple buttons", () => {
     const { container } = render(
       <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
-        <div data-miaixz-theme="miaixz">
+        <div data-miaixz-theme={miaixzDefaultAppearance.theme}>
           <button type="button">选项卡</button>
           <Pressable className="selection-row">选择详情</Pressable>
         </div>

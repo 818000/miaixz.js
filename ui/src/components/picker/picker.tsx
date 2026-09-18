@@ -58,7 +58,7 @@ import type {
 import { emptyPickerValue, validatePickerValue } from "./picker-model.js";
 import type { PickerProps } from "./picker.types.js";
 import { renderDefaultValues } from "./picker-view.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders the public multiple-value Picker composition.

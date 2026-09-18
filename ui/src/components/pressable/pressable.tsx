@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { PressableProps } from "./pressable.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a visually neutral native button with shared focus and disabled behavior.

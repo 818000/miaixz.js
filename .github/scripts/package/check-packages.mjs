@@ -93,11 +93,11 @@ function createOnePagePdf(path) {
 /**
  * Validates the files and export targets required for a publishable workspace.
  *
- * @param {{ directory: string, manifest: object, rootPath: string }} workspace Workspace metadata.
+ * @param {{ directory: string, manifest: object, name: string, rootPath: string }} workspace Workspace metadata.
  * @returns {void}
  * @throws {Error} If required files or public export targets are invalid.
  */
-function validateManifest({ directory, manifest, rootPath }) {
+function validateManifest({ directory, manifest, name, rootPath }) {
   if (JSON.stringify(manifest.files) !== JSON.stringify(packageFiles)) {
     throw new Error(`${directory}/package.json files must equal ${JSON.stringify(packageFiles)}`);
   }
@@ -118,11 +118,52 @@ function validateManifest({ directory, manifest, rootPath }) {
       }
     }
   }
-  if (directory === "view") {
+  if (name === "@miaixz/ui") {
+    const contract = manifest.miaixzUiContract;
+    if (
+      contract?.schemaVersion !== 1 ||
+      contract.version !== manifest.version ||
+      !Array.isArray(contract.deprecatedProps) ||
+      contract.deprecatedProps.length !== 0 ||
+      contract.exports !== undefined
+    ) {
+      throw new Error(`${directory}/package.json contains an invalid or stale miaixzUiContract`);
+    }
+    for (const field of ["publicDomComponents", "stableSelectors", "runtimeAttributes"]) {
+      const values = contract[field];
+      if (
+        !Array.isArray(values) ||
+        values.some((value) => typeof value !== "string" || value === "") ||
+        new Set(values).size !== values.length
+      ) {
+        throw new Error(
+          `${directory}/package.json miaixzUiContract.${field} must contain unique names`,
+        );
+      }
+    }
+    const sortedComponents = [...contract.publicDomComponents].sort((left, right) =>
+      left.localeCompare(right),
+    );
+    if (JSON.stringify(contract.publicDomComponents) !== JSON.stringify(sortedComponents)) {
+      throw new Error(`${directory}/package.json publicDomComponents must be sorted`);
+    }
+    for (const [componentName, component] of Object.entries(contract.components ?? {})) {
+      if (component.deprecatedProps !== undefined) {
+        throw new Error(`${directory}/package.json ${componentName} retains removed properties`);
+      }
+      if (
+        !Array.isArray(component.supportedProps) ||
+        new Set(component.supportedProps).size !== component.supportedProps.length
+      ) {
+        throw new Error(`${directory}/package.json ${componentName}.supportedProps must be unique`);
+      }
+    }
+  }
+  if (name === "@miaixz/view") {
     readFileSync(join(rootPath, "dist/pdf/pdf.worker.min.mjs"));
     const styles = readFileSync(join(rootPath, "dist/styles.css"), "utf8");
     if (!styles.includes(".miaixz-preview") || /\.miaixz-view(?:-|\b)/u.test(styles)) {
-      throw new Error("view/dist/styles.css must use only the miaixz-preview namespace");
+      throw new Error(`${directory}/dist/styles.css must use only the miaixz-preview namespace`);
     }
   }
 }
@@ -276,42 +317,9 @@ function createPublicExportSource() {
       index += 1;
     }
   }
-  const removedSubpaths = [
-    "@miaixz/sdk/sdk",
-    "@miaixz/sdk/models",
-    "@miaixz/sdk/validators",
-    "@miaixz/ui/confirm-dialog",
-    "@miaixz/ui/inline-message",
-    "@miaixz/ui/form-field",
-    "@miaixz/ui/search-input",
-    "@miaixz/ui/loading-overlay",
-    "@miaixz/ui/multi-select",
-    "@miaixz/ui/data-table",
-    "@miaixz/ui/page-layout",
-    "@miaixz/ui/file-upload",
-    "@miaixz/ui/tree-view",
-    "@miaixz/ui/status-indicator",
-    "@miaixz/ui/empty-state",
-    "@miaixz/ui/visually-hidden",
-    "@miaixz/ui/body",
-    "@miaixz/ui/body/styles.css",
-    "@miaixz/ui/locale-picker",
-    "@miaixz/ui/metric",
-    "@miaixz/ui/metric-group",
-    "@miaixz/ui/module-frame",
-    "@miaixz/ui/module-frame/styles.css",
-    "@miaixz/ui/grouped-list",
-    "@miaixz/ui/grouped-list/styles.css",
-    "@miaixz/ui/relation-map",
-    "@miaixz/ui/diagram",
-    "@miaixz/ui/patterns/action-catalog",
-    "@miaixz/ui/miaixz.css",
-    "@miaixz/ui/themes.css",
-  ];
   return `
 ${imports.join("\n")}
 import * as packedUiRoot from "@miaixz/ui";
-${removedSubpaths.map((specifier) => `// @ts-expect-error Removed package subpath must remain unresolvable.\nimport type {} from ${JSON.stringify(specifier)};`).join("\n")}
 // @ts-expect-error Scoped intent definitions are not a packed root export.
 const packedIntentDefinitions = packedUiRoot.intentDefinitions;
 // @ts-expect-error Scoped intent resolver is not a packed root export.
@@ -330,10 +338,10 @@ for (const specifier of ${JSON.stringify(specifiers)}) {
     throw new Error(\`Packed export resolved outside the consumer: \${specifier} -> \${resolved}\`);
   }
 }
-for (const specifier of ${JSON.stringify(removedSubpaths)}) {
-  let rejected = false;
-  try { import.meta.resolve(specifier); } catch { rejected = true; }
-  if (!rejected) throw new Error(\`Removed package subpath resolved: \${specifier}\`);
+for (const name of ${JSON.stringify(manifests.ui.miaixzUiContract.publicDomComponents)}) {
+  if (!Object.hasOwn(packedUiRoot, name)) {
+    throw new Error(\`Packed UI contract value is missing from the root export: \${name}\`);
+  }
 }
 for (const name of ${JSON.stringify([
     "ConfirmDialog",

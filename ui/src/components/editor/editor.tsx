@@ -45,7 +45,7 @@ import type {
   EditorSummaryOwnerState,
   EditorSummaryProps,
 } from "./editor.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const EditorSectionHeadingContext = createContext<1 | 2 | 3 | 4 | 5 | 6 | null>(null);
 

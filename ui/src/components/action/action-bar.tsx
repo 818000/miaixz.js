@@ -32,7 +32,7 @@ import { Icon } from "../icon/icon.js";
 import { ActionText } from "./action-text.js";
 import type { ActionBarOwnerState, ActionBarProps, ActionDescriptor } from "./action.types.js";
 import { MoreActions } from "./more-actions.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 interface PrimaryActionProps {
   /**

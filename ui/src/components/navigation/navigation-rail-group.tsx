@@ -25,7 +25,7 @@ import type {
   NavigationRailGroupOwnerState,
   NavigationRailGroupProps,
 } from "./navigation-rail-group.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders an explicitly named navigation rail group. @public

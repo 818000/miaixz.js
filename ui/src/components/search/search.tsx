@@ -29,7 +29,7 @@ import { IconButton } from "../action/icon-button.js";
 import { Icon } from "../icon/icon.js";
 import { Input } from "../input/input.js";
 import type { SearchChangeReason, SearchOwnerState, SearchProps } from "./search.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a localized search field with one reasoned value-change channel.

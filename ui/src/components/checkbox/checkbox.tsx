@@ -30,7 +30,7 @@ import type {
   CheckboxProps,
   CheckboxRootAttributes,
 } from "./checkbox.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a labeled native checkbox with fixed semantic slots.

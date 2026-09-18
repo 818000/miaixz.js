@@ -30,3 +30,9 @@ export type {
   ViewSlotProps,
   ViewSurface,
 } from "./view.types.js";
+export type {
+  ViewSelectorOwnerState,
+  ViewSelectorProps,
+  ViewSelectorRootAttributes,
+  ViewSelectorValue,
+} from "./selector.types.js";

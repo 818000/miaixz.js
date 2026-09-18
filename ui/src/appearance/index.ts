@@ -38,8 +38,7 @@ export {
   miaixzDensities,
   miaixzThemeColorTokens,
   parseMiaixzAppearanceSettings,
-  watchMiaixzSystemColorMode,
-} from "../theme/appearance.js";
+} from "@miaixz/sdk/appearance";
 export type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
@@ -49,4 +48,5 @@ export type {
   MiaixzThemeColorOverrides,
   MiaixzThemeColorToken,
   MiaixzThemeOverrides,
-} from "../theme/appearance.js";
+} from "@miaixz/sdk/appearance";
+export { watchMiaixzSystemColorMode } from "../theme/mode.js";

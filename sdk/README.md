@@ -246,7 +246,7 @@ function AppearanceControls() {
 
 export function Root() {
   return (
-    <Theme appearance={sdk.appearance} fallback="miaixz">
+    <Theme appearance={sdk.appearance}>
       <AppearanceControls />
     </Theme>
   );
@@ -391,7 +391,8 @@ import type { MiaixzSpace } from "@miaixz/sdk/types";
 import { formatMiaixzBytes } from "@miaixz/sdk/formatters";
 ```
 
-Published subpaths include `api`, `auth`, `context`, `config`, `contracts`, `permissions`, `events`, `storage`, `appearance`, `files`, `i18n`, `sdk`, `consts`, `errors`, `formatters`, `models`, `types`, `utils`, and `validators`.
+The **Public entries** table above is the authoritative list of published subpaths and is checked
+directly against `package.json`; no second hand-maintained subpath list is kept here.
 
 ## Microfrontend module manifests
 

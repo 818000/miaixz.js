@@ -19,12 +19,12 @@
 */
 
 import { createContext, createElement, useContext, type ReactNode } from "react";
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
 import type {
   MiaixzThemeComponent,
   MiaixzThemeComponentRegistry,
   ThemeComponents,
-} from "./components.js";
+} from "./registry.js";
 import type { ThemeContextValue } from "./types.js";
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);

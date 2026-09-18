@@ -26,7 +26,7 @@ import { MiaixzFieldContext } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useStableId } from "../../shared/use-stable-id.js";
 import type { FieldOwnerState, FieldProps, FieldRootSlotProps } from "./field.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Connects one nested main control to a label, description, required state, and error.

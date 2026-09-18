@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { StackProps } from "./stack.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Arranges children vertically using a design-token gap. @public

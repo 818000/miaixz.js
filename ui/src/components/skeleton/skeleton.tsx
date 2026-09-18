@@ -21,7 +21,7 @@
 import { forwardRef } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { SkeletonOwnerState, SkeletonProps } from "./skeleton.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders an empty, assistive-hidden geometric loading placeholder.

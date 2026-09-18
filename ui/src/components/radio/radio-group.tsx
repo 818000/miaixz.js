@@ -27,7 +27,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import { useFormReset } from "../../shared/use-form-reset.js";
 import type { RadioGroupOwnerState, RadioGroupProps } from "./radio-group.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a native fieldset whose items are the only group-content source.

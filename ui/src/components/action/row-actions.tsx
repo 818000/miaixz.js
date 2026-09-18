@@ -27,7 +27,7 @@ import { useMergedSlotProps } from "../../shared/slots.js";
 import { ActionText } from "./action-text.js";
 import type { RowActionsOwnerState, RowActionsProps } from "./action.types.js";
 import { MoreActionsView } from "./more-actions.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Keeps row actions readable using the shared measured-capacity algorithm.

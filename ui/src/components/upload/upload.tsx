@@ -32,7 +32,7 @@ import { type DropzoneRejection } from "../dropzone/dropzone.types.js";
 import { Icon } from "../icon/icon.js";
 import { Progress } from "../progress/progress.js";
 import type { UploadOwnerState, UploadProps } from "./upload.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const defaultRetryPolicy = Object.freeze({ maxRetries: 0, delayMs: 0 });
 

@@ -25,7 +25,7 @@ import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { ColumnsOwnerState, ColumnsProps } from "./columns.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 interface ColumnsBarStyle extends CSSProperties {
   readonly "--miaixz-columns-value": string;

@@ -29,10 +29,11 @@ import {
 } from "react";
 
 import { classNames } from "../../shared/class-names.js";
+import { Anchor } from "../../shared/anchor.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { MetricVariantContext } from "./context.js";
 import type { MetricOwnerState, MetricProps } from "./metric.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders one metric as static content, navigation, or an action control.
@@ -161,13 +162,13 @@ export const Metric = withMiaixzThemeComponent(
     };
     if (href !== undefined) {
       return (
-        <a
+        <Anchor
           {...(rootProps as AnchorHTMLAttributes<HTMLAnchorElement>)}
           ref={ref as Ref<HTMLAnchorElement>}
           href={href}
         >
           {content}
-        </a>
+        </Anchor>
       );
     }
     if (onAction !== undefined) {

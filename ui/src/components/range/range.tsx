@@ -23,7 +23,7 @@ import { forwardRef } from "react";
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { RangeOwnerState, RangeProps } from "./range.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a branded native range input with one root slot.

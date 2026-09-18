@@ -44,7 +44,7 @@ import type {
   ToastOptions,
   ToastRecord,
 } from "./toaster.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 let toastSequence = 0;

@@ -34,7 +34,7 @@ import {
   type ViewState,
   zoomStep,
 } from "./graph-model.js";
-import { withMiaixzThemeComponent } from "../../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../../theme/binding.js";
 
 /**
  * Renders the accessible interactive graph under the diagram namespace.

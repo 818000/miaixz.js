@@ -28,7 +28,7 @@ import { type DialogCloseReason } from "../dialog/dialog.types.js";
 import { Input } from "../input/input.js";
 import { Notice } from "../notice/notice.js";
 import type { ConfirmCloseReason, ConfirmOwnerState, ConfirmProps } from "./confirm.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a confirmation state machine with visible asynchronous failure handling.

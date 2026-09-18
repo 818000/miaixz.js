@@ -24,7 +24,7 @@ import type { IconProviderProps } from "../../icons/icon-provider.js";
 import { renderLucideIcon } from "../../icons/providers/lucide-provider.js";
 import { classNames } from "../../shared/class-names.js";
 import type { IconProps, IconSize } from "./icon.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const semanticSizes = new Set<IconSize>([
   "indicator",

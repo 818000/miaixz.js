@@ -24,7 +24,7 @@ import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import type { PageProps } from "./page.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Establishes page content width and spacing without implicitly creating a landmark. @public

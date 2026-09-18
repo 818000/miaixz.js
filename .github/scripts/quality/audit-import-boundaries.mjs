@@ -36,9 +36,9 @@ const viewSourceRoot = requireSourceRoot("@miaixz/view");
 const violations = [];
 const componentRanks = new Map(
   Object.entries({
-    0: "avatar badge bar brand breadcrumb checkbox cluster columns descriptions divider donut empty entry field grid header hidden icon input list page panel popover pressable progress radio range scroll sections sidebar skeleton sparkline split stack status steps switch table tabs textarea timeline toolbar tooltip",
+    0: "badge bar brand breadcrumb checkbox cluster columns descriptions divider donut empty entry field grid header hidden icon input link list page panel popover pressable progress radio range scroll sections sidebar skeleton sparkline split stack status steps switch table tabs textarea timeline toolbar tooltip transfer",
     1: "button combobox dialog drawer dropdown dropzone editor heatmap metrics pagination select spinner tree",
-    2: "action navigation overlay picker shell",
+    2: "action avatar navigation overlay picker shell",
     3: "datagrid graph search toast view feedback",
     4: "alert locale notice toaster",
     5: "confirm",
@@ -144,7 +144,7 @@ function relative(file) {
  * @returns {{ kind: string, component?: string, rank?: number }} Layer classification.
  */
 function classifyUi(file) {
-  const source = relative(file).replace(/^ui\/src\//, "");
+  const source = path.relative(uiSourceRoot, file).replaceAll(path.sep, "/");
   if (
     source === "components/shared.types.ts" ||
     source === "shared/class-names.ts" ||
@@ -207,7 +207,16 @@ function auditEdge(source, edge) {
     }
     return;
   }
-  if (path.basename(source) !== "index.ts" && path.basename(edge.target) === "index.ts") {
+  const themeRoot = path.join(uiSourceRoot, "theme");
+  const presetRoot = path.join(themeRoot, "presets");
+  const presetFacade = path.join(presetRoot, "index.ts");
+  const presetFacadeImport =
+    edge.target === presetFacade && source.startsWith(themeRoot) && !source.startsWith(presetRoot);
+  if (
+    path.basename(source) !== "index.ts" &&
+    path.basename(edge.target) === "index.ts" &&
+    !presetFacadeImport
+  ) {
     violations.push(`${relative(source)} imports internal barrel ${relative(edge.target)}`);
   }
   if (source.startsWith(viewSourceRoot) && !edge.target.startsWith(viewSourceRoot)) {
@@ -232,14 +241,18 @@ function auditEdge(source, edge) {
     const componentTypeLeaf = /\/components\/(?:diagram\/graph|[^/]+)\/[^/]+\.types\.ts$/.test(
       edge.target.replaceAll(path.sep, "/"),
     );
-    if (relative(source) !== "ui/src/theme/components.ts" || !edge.typeOnly || !componentTypeLeaf) {
+    if (
+      source !== path.join(uiSourceRoot, "theme/registry.ts") ||
+      !edge.typeOnly ||
+      !componentTypeLeaf
+    ) {
       violations.push(`${relative(source)} (D1) cannot depend on ${relative(edge.target)}`);
     }
   }
   if (from.kind === "D1" && to.kind === "P0") {
     const allowed =
-      relative(source) === "ui/src/theme/components.ts" &&
-      relative(edge.target) === "ui/src/appearance/appearance.types.ts" &&
+      source === path.join(uiSourceRoot, "theme/registry.ts") &&
+      edge.target === path.join(uiSourceRoot, "appearance/appearance.types.ts") &&
       edge.typeOnly;
     if (!allowed) {
       violations.push(
@@ -274,7 +287,8 @@ function auditLayoutEffectOwnership(source) {
   if (!source.startsWith(uiSourceRoot)) return;
   const sourcePath = relative(source);
   const contents = readFileSync(source, "utf8");
-  const ownerPath = "ui/src/shared/use-client-layout-effect.ts";
+  const ownerSource = path.join(uiSourceRoot, "shared/use-client-layout-effect.ts");
+  const ownerPath = relative(ownerSource);
   const importsReactLayoutEffect =
     /import\s*\{[^}]*\buseLayoutEffect\b[^}]*\}\s*from\s*["']react["']/su.test(contents);
   const definesParallelLayoutEffect =
@@ -282,7 +296,7 @@ function auditLayoutEffectOwnership(source) {
       contents,
     );
 
-  if (sourcePath === ownerPath) {
+  if (source === ownerSource) {
     if (!importsReactLayoutEffect || !definesParallelLayoutEffect) {
       violations.push(`${ownerPath} must own the server-safe React layout effect definition`);
     }

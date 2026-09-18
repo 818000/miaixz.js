@@ -25,7 +25,7 @@ import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
 import type { SwitchOwnerState, SwitchProps, SwitchRootAttributes } from "./switch.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders an accessible native boolean switch with fixed semantic slots.

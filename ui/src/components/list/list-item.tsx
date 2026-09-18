@@ -26,7 +26,7 @@ import type { MiaixzSlotProps } from "../../shared/slots.js";
 import { useListContext } from "./list-context.js";
 import { ListItemControl } from "./list-item-control.js";
 import type { ListItemOwnerState, ListItemProps, ListItemRootAttributes } from "./list.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 type InternalListItemRootAttributes = ListItemRootAttributes &
   Pick<HTMLAttributes<HTMLLIElement>, "id"> & {

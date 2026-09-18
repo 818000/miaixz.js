@@ -22,6 +22,7 @@ import { forwardRef } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import { Anchor } from "../../shared/anchor.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type {
   BreadcrumbEntry,
@@ -29,7 +30,7 @@ import type {
   BreadcrumbProps,
   BreadcrumbSlotProps,
 } from "./breadcrumb.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const ownerState: BreadcrumbOwnerState = {};
 
@@ -139,7 +140,7 @@ function BreadcrumbEntryView({
           {content}
         </span>
       ) : (
-        <a
+        <Anchor
           {...entry.anchorProps}
           className={
             entry.anchorProps?.className === undefined
@@ -149,7 +150,7 @@ function BreadcrumbEntryView({
           href={entry.href}
         >
           {content}
-        </a>
+        </Anchor>
       )}
     </li>
   );

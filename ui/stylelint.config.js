@@ -63,7 +63,7 @@ const strictCommentPlugin = stylelint.createPlugin(
  */
 const configuration = {
   extends: ["stylelint-config-standard", "stylelint-config-recess-order"],
-  plugins: ["stylelint-order", strictCommentPlugin],
+  plugins: [strictCommentPlugin],
   rules: {
     [strictCommentRuleName]: true,
     "custom-property-pattern": "^miaixz-[a-z0-9-]+$",
@@ -86,7 +86,7 @@ const configuration = {
   },
   overrides: [
     {
-      files: ["src/theme/{miaixz,neutral,contrast,theme}.css"],
+      files: ["src/theme/{default,theme}.css", "src/theme/**/styles.css"],
       rules: {
         "color-hex-length": "long",
         "custom-property-empty-line-before": null,

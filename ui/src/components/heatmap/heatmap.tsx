@@ -26,7 +26,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useOverflowFocus } from "../scroll/use-overflow-focus.js";
 import { HeatmapLegend } from "./heatmap-legend.js";
 import type { HeatmapCellContext, HeatmapOwnerState, HeatmapProps } from "./heatmap.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders an accessible matrix heatmap with semantic labels and optional legend.

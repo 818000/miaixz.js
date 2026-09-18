@@ -25,7 +25,7 @@ import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
 import type { RadioOwnerState, RadioProps, RadioRootAttributes } from "./radio.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a labeled native radio control with fixed semantic slots.

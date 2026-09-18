@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { classNames } from "../../shared/class-names.js";
 import type { HiddenProps } from "./hidden.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders assistive content with the shared Miaixz hidden layout primitive.

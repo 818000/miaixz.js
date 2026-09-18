@@ -21,7 +21,7 @@
 import { createElement, forwardRef } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { EmptyOwnerState, EmptyProps } from "./empty.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Presents a structurally stable empty state.

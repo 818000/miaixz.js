@@ -14,9 +14,9 @@ This directory is package-private; consumers use existing public exports, not sh
 CSS trees to `dist`. The CSS package test detects generated-file drift; the generator also accepts
 `--runtime-dir` and `--output-dir` for isolated reproduction.
 
-Public theme entries are `@miaixz/ui/theme`, `@miaixz/ui/themes`, the optional
-`@miaixz/ui/themes/*` catalogs, `@miaixz/ui/styles.css`, `@miaixz/ui/theme.css`,
-`@miaixz/ui/neutral.css`, and `@miaixz/ui/contrast.css`.
+The sole public JavaScript theme entry is `@miaixz/ui/theme`. Public CSS theme entries are
+`@miaixz/ui/styles.css`, `@miaixz/ui/theme.css`, `@miaixz/ui/neutral.css`, and
+`@miaixz/ui/contrast.css`.
 `styles.css` is the complete default theme. Foundation, component, core, and reset
 entries retain their responsibilities. CSS auditing uses
 `.github/scripts/quality/audit-ui-contracts.mjs` from the repository root.
@@ -32,6 +32,25 @@ Do not publish to npm or link application dependencies directly to source.
 `@miaixz/ui` is the shared Miaixz React design system. It provides independently deployed frontend services, such as Home, Spaces, and Settings, with a consistent set of design tokens, themes, density modes, Lucide icons, and reusable components.
 
 The package is ESM-only and does not provide a CommonJS `require` entry point. JavaScript entry points do not load global CSS automatically; consumers must import the required stylesheet explicitly.
+
+## Navigation ownership
+
+`Link` is the inline text-link component, `ButtonLink` is navigation with Button presentation,
+and `Button` remains command-only. Composite components such as `Breadcrumb`, `Dropdown`,
+`List`, `Metric`, and `Navigation` use the same private, styleless anchor primitive; they do not
+inherit `Link` presentation styles.
+
+Applications can install one router adapter with `MiaixzLinkProvider`. The adapter must forward
+all supplied properties and the ref to a final native anchor. A component-level `renderAnchor`
+overrides the provider; without either adapter, the package renders a native `<a>`.
+
+```tsx
+import { MiaixzLinkProvider, type LinkRenderer } from "@miaixz/ui";
+
+const renderAnchor: LinkRenderer = (props, ref) => <RouterLink {...props} ref={ref} />;
+
+<MiaixzLinkProvider renderAnchor={renderAnchor}>{application}</MiaixzLinkProvider>;
+```
 
 ## Platform identity
 
@@ -95,177 +114,175 @@ npm install @miaixz/ui @miaixz/sdk react react-dom
 
 This table is checked directly against the package export map.
 
-| Entry                           | Kind       |
-| ------------------------------- | ---------- |
-| `.`                             | JavaScript |
-| `./styles.css`                  | CSS        |
-| `./foundation.css`              | CSS        |
-| `./components.css`              | CSS        |
-| `./appearance`                  | JavaScript |
-| `./icons`                       | JavaScript |
-| `./i18n`                        | JavaScript |
-| `./errors`                      | JavaScript |
-| `./bar`                         | JavaScript |
-| `./brand`                       | JavaScript |
-| `./cluster`                     | JavaScript |
-| `./columns`                     | JavaScript |
-| `./editor`                      | JavaScript |
-| `./grid`                        | JavaScript |
-| `./sections`                    | JavaScript |
-| `./header`                      | JavaScript |
-| `./heatmap`                     | JavaScript |
-| `./locale`                      | JavaScript |
-| `./metrics`                     | JavaScript |
-| `./view`                        | JavaScript |
-| `./pressable`                   | JavaScript |
-| `./range`                       | JavaScript |
-| `./diagram/graph`               | JavaScript |
-| `./scroll`                      | JavaScript |
-| `./shell`                       | JavaScript |
-| `./sidebar`                     | JavaScript |
-| `./sparkline`                   | JavaScript |
-| `./split`                       | JavaScript |
-| `./stack`                       | JavaScript |
-| `./timeline`                    | JavaScript |
-| `./toaster`                     | JavaScript |
-| `./visualization-motion`        | JavaScript |
-| `./alert`                       | JavaScript |
-| `./action`                      | JavaScript |
-| `./intents`                     | JavaScript |
-| `./avatar`                      | JavaScript |
-| `./button`                      | JavaScript |
-| `./combobox`                    | JavaScript |
-| `./breadcrumb`                  | JavaScript |
-| `./input`                       | JavaScript |
-| `./textarea`                    | JavaScript |
-| `./select`                      | JavaScript |
-| `./checkbox`                    | JavaScript |
-| `./radio`                       | JavaScript |
-| `./switch`                      | JavaScript |
-| `./navigation`                  | JavaScript |
-| `./panel`                       | JavaScript |
-| `./badge`                       | JavaScript |
-| `./list`                        | JavaScript |
-| `./table`                       | JavaScript |
-| `./tabs`                        | JavaScript |
-| `./pagination`                  | JavaScript |
-| `./popover`                     | JavaScript |
-| `./progress`                    | JavaScript |
-| `./dialog`                      | JavaScript |
-| `./divider`                     | JavaScript |
-| `./drawer`                      | JavaScript |
-| `./descriptions`                | JavaScript |
-| `./dropdown`                    | JavaScript |
-| `./donut`                       | JavaScript |
-| `./dropzone`                    | JavaScript |
-| `./toast`                       | JavaScript |
-| `./toolbar`                     | JavaScript |
-| `./transfer-list`               | JavaScript |
-| `./tooltip`                     | JavaScript |
-| `./skeleton`                    | JavaScript |
-| `./spinner`                     | JavaScript |
-| `./confirm`                     | JavaScript |
-| `./notice`                      | JavaScript |
-| `./field`                       | JavaScript |
-| `./search`                      | JavaScript |
-| `./overlay`                     | JavaScript |
-| `./picker`                      | JavaScript |
-| `./datagrid`                    | JavaScript |
-| `./page`                        | JavaScript |
-| `./upload`                      | JavaScript |
-| `./tree`                        | JavaScript |
-| `./status`                      | JavaScript |
-| `./steps`                       | JavaScript |
-| `./empty`                       | JavaScript |
-| `./entry`                       | JavaScript |
-| `./hidden`                      | JavaScript |
-| `./theme`                       | JavaScript |
-| `./themes`                      | JavaScript |
-| `./themes/deepparser`           | JavaScript |
-| `./themes/recommended`          | JavaScript |
-| `./themes/traditional`          | JavaScript |
-| `./themes/traditional-elegance` | JavaScript |
-| `./themes/traditional-imperial` | JavaScript |
-| `./themes/traditional-nature`   | JavaScript |
-| `./appearance/styles.css`       | CSS        |
-| `./icons/styles.css`            | CSS        |
-| `./bar/styles.css`              | CSS        |
-| `./brand/styles.css`            | CSS        |
-| `./cluster/styles.css`          | CSS        |
-| `./columns/styles.css`          | CSS        |
-| `./editor/styles.css`           | CSS        |
-| `./grid/styles.css`             | CSS        |
-| `./sections/styles.css`         | CSS        |
-| `./header/styles.css`           | CSS        |
-| `./heatmap/styles.css`          | CSS        |
-| `./locale/styles.css`           | CSS        |
-| `./metrics/styles.css`          | CSS        |
-| `./view/styles.css`             | CSS        |
-| `./pressable/styles.css`        | CSS        |
-| `./range/styles.css`            | CSS        |
-| `./diagram/graph/styles.css`    | CSS        |
-| `./scroll/styles.css`           | CSS        |
-| `./shell/styles.css`            | CSS        |
-| `./sidebar/styles.css`          | CSS        |
-| `./sparkline/styles.css`        | CSS        |
-| `./split/styles.css`            | CSS        |
-| `./stack/styles.css`            | CSS        |
-| `./timeline/styles.css`         | CSS        |
-| `./toaster/styles.css`          | CSS        |
-| `./alert/styles.css`            | CSS        |
-| `./action/styles.css`           | CSS        |
-| `./avatar/styles.css`           | CSS        |
-| `./button/styles.css`           | CSS        |
-| `./combobox/styles.css`         | CSS        |
-| `./breadcrumb/styles.css`       | CSS        |
-| `./input/styles.css`            | CSS        |
-| `./textarea/styles.css`         | CSS        |
-| `./select/styles.css`           | CSS        |
-| `./checkbox/styles.css`         | CSS        |
-| `./radio/styles.css`            | CSS        |
-| `./switch/styles.css`           | CSS        |
-| `./navigation/styles.css`       | CSS        |
-| `./panel/styles.css`            | CSS        |
-| `./badge/styles.css`            | CSS        |
-| `./list/styles.css`             | CSS        |
-| `./table/styles.css`            | CSS        |
-| `./tabs/styles.css`             | CSS        |
-| `./pagination/styles.css`       | CSS        |
-| `./popover/styles.css`          | CSS        |
-| `./progress/styles.css`         | CSS        |
-| `./dialog/styles.css`           | CSS        |
-| `./divider/styles.css`          | CSS        |
-| `./drawer/styles.css`           | CSS        |
-| `./descriptions/styles.css`     | CSS        |
-| `./dropdown/styles.css`         | CSS        |
-| `./donut/styles.css`            | CSS        |
-| `./dropzone/styles.css`         | CSS        |
-| `./toast/styles.css`            | CSS        |
-| `./toolbar/styles.css`          | CSS        |
-| `./transfer-list/styles.css`    | CSS        |
-| `./tooltip/styles.css`          | CSS        |
-| `./skeleton/styles.css`         | CSS        |
-| `./spinner/styles.css`          | CSS        |
-| `./confirm/styles.css`          | CSS        |
-| `./notice/styles.css`           | CSS        |
-| `./field/styles.css`            | CSS        |
-| `./search/styles.css`           | CSS        |
-| `./overlay/styles.css`          | CSS        |
-| `./picker/styles.css`           | CSS        |
-| `./datagrid/styles.css`         | CSS        |
-| `./page/styles.css`             | CSS        |
-| `./upload/styles.css`           | CSS        |
-| `./tree/styles.css`             | CSS        |
-| `./status/styles.css`           | CSS        |
-| `./steps/styles.css`            | CSS        |
-| `./empty/styles.css`            | CSS        |
-| `./entry/styles.css`            | CSS        |
-| `./hidden/styles.css`           | CSS        |
-| `./neutral.css`                 | CSS        |
-| `./contrast.css`                | CSS        |
-| `./theme.css`                   | CSS        |
-| `./core.css`                    | CSS        |
-| `./reset.css`                   | CSS        |
+| Entry                        | Kind       |
+| ---------------------------- | ---------- |
+| `.`                          | JavaScript |
+| `./styles.css`               | CSS        |
+| `./foundation.css`           | CSS        |
+| `./components.css`           | CSS        |
+| `./appearance`               | JavaScript |
+| `./icons`                    | JavaScript |
+| `./i18n`                     | JavaScript |
+| `./errors`                   | JavaScript |
+| `./bar`                      | JavaScript |
+| `./brand`                    | JavaScript |
+| `./cluster`                  | JavaScript |
+| `./columns`                  | JavaScript |
+| `./editor`                   | JavaScript |
+| `./grid`                     | JavaScript |
+| `./sections`                 | JavaScript |
+| `./header`                   | JavaScript |
+| `./heatmap`                  | JavaScript |
+| `./locale`                   | JavaScript |
+| `./metrics`                  | JavaScript |
+| `./view`                     | JavaScript |
+| `./pressable`                | JavaScript |
+| `./range`                    | JavaScript |
+| `./diagram/graph`            | JavaScript |
+| `./scroll`                   | JavaScript |
+| `./shell`                    | JavaScript |
+| `./sidebar`                  | JavaScript |
+| `./sparkline`                | JavaScript |
+| `./split`                    | JavaScript |
+| `./stack`                    | JavaScript |
+| `./timeline`                 | JavaScript |
+| `./toaster`                  | JavaScript |
+| `./visualization-motion`     | JavaScript |
+| `./alert`                    | JavaScript |
+| `./action`                   | JavaScript |
+| `./intents`                  | JavaScript |
+| `./avatar`                   | JavaScript |
+| `./button`                   | JavaScript |
+| `./combobox`                 | JavaScript |
+| `./breadcrumb`               | JavaScript |
+| `./input`                    | JavaScript |
+| `./link`                     | JavaScript |
+| `./textarea`                 | JavaScript |
+| `./select`                   | JavaScript |
+| `./checkbox`                 | JavaScript |
+| `./radio`                    | JavaScript |
+| `./switch`                   | JavaScript |
+| `./navigation`               | JavaScript |
+| `./panel`                    | JavaScript |
+| `./badge`                    | JavaScript |
+| `./list`                     | JavaScript |
+| `./table`                    | JavaScript |
+| `./tabs`                     | JavaScript |
+| `./pagination`               | JavaScript |
+| `./popover`                  | JavaScript |
+| `./progress`                 | JavaScript |
+| `./dialog`                   | JavaScript |
+| `./divider`                  | JavaScript |
+| `./drawer`                   | JavaScript |
+| `./descriptions`             | JavaScript |
+| `./dropdown`                 | JavaScript |
+| `./donut`                    | JavaScript |
+| `./dropzone`                 | JavaScript |
+| `./toast`                    | JavaScript |
+| `./toolbar`                  | JavaScript |
+| `./transfer`                 | JavaScript |
+| `./tooltip`                  | JavaScript |
+| `./skeleton`                 | JavaScript |
+| `./spinner`                  | JavaScript |
+| `./confirm`                  | JavaScript |
+| `./notice`                   | JavaScript |
+| `./field`                    | JavaScript |
+| `./search`                   | JavaScript |
+| `./overlay`                  | JavaScript |
+| `./picker`                   | JavaScript |
+| `./datagrid`                 | JavaScript |
+| `./page`                     | JavaScript |
+| `./upload`                   | JavaScript |
+| `./tree`                     | JavaScript |
+| `./status`                   | JavaScript |
+| `./steps`                    | JavaScript |
+| `./empty`                    | JavaScript |
+| `./entry`                    | JavaScript |
+| `./hidden`                   | JavaScript |
+| `./theme`                    | JavaScript |
+| `./appearance/styles.css`    | CSS        |
+| `./icons/styles.css`         | CSS        |
+| `./bar/styles.css`           | CSS        |
+| `./brand/styles.css`         | CSS        |
+| `./cluster/styles.css`       | CSS        |
+| `./columns/styles.css`       | CSS        |
+| `./editor/styles.css`        | CSS        |
+| `./grid/styles.css`          | CSS        |
+| `./sections/styles.css`      | CSS        |
+| `./header/styles.css`        | CSS        |
+| `./heatmap/styles.css`       | CSS        |
+| `./locale/styles.css`        | CSS        |
+| `./metrics/styles.css`       | CSS        |
+| `./view/styles.css`          | CSS        |
+| `./pressable/styles.css`     | CSS        |
+| `./range/styles.css`         | CSS        |
+| `./diagram/graph/styles.css` | CSS        |
+| `./scroll/styles.css`        | CSS        |
+| `./shell/styles.css`         | CSS        |
+| `./sidebar/styles.css`       | CSS        |
+| `./sparkline/styles.css`     | CSS        |
+| `./split/styles.css`         | CSS        |
+| `./stack/styles.css`         | CSS        |
+| `./timeline/styles.css`      | CSS        |
+| `./toaster/styles.css`       | CSS        |
+| `./alert/styles.css`         | CSS        |
+| `./action/styles.css`        | CSS        |
+| `./avatar/styles.css`        | CSS        |
+| `./button/styles.css`        | CSS        |
+| `./combobox/styles.css`      | CSS        |
+| `./breadcrumb/styles.css`    | CSS        |
+| `./input/styles.css`         | CSS        |
+| `./link/styles.css`          | CSS        |
+| `./textarea/styles.css`      | CSS        |
+| `./select/styles.css`        | CSS        |
+| `./checkbox/styles.css`      | CSS        |
+| `./radio/styles.css`         | CSS        |
+| `./switch/styles.css`        | CSS        |
+| `./navigation/styles.css`    | CSS        |
+| `./panel/styles.css`         | CSS        |
+| `./badge/styles.css`         | CSS        |
+| `./list/styles.css`          | CSS        |
+| `./table/styles.css`         | CSS        |
+| `./tabs/styles.css`          | CSS        |
+| `./pagination/styles.css`    | CSS        |
+| `./popover/styles.css`       | CSS        |
+| `./progress/styles.css`      | CSS        |
+| `./dialog/styles.css`        | CSS        |
+| `./divider/styles.css`       | CSS        |
+| `./drawer/styles.css`        | CSS        |
+| `./descriptions/styles.css`  | CSS        |
+| `./dropdown/styles.css`      | CSS        |
+| `./donut/styles.css`         | CSS        |
+| `./dropzone/styles.css`      | CSS        |
+| `./toast/styles.css`         | CSS        |
+| `./toolbar/styles.css`       | CSS        |
+| `./transfer/styles.css`      | CSS        |
+| `./tooltip/styles.css`       | CSS        |
+| `./skeleton/styles.css`      | CSS        |
+| `./spinner/styles.css`       | CSS        |
+| `./confirm/styles.css`       | CSS        |
+| `./notice/styles.css`        | CSS        |
+| `./field/styles.css`         | CSS        |
+| `./search/styles.css`        | CSS        |
+| `./overlay/styles.css`       | CSS        |
+| `./picker/styles.css`        | CSS        |
+| `./datagrid/styles.css`      | CSS        |
+| `./page/styles.css`          | CSS        |
+| `./upload/styles.css`        | CSS        |
+| `./tree/styles.css`          | CSS        |
+| `./status/styles.css`        | CSS        |
+| `./steps/styles.css`         | CSS        |
+| `./empty/styles.css`         | CSS        |
+| `./entry/styles.css`         | CSS        |
+| `./hidden/styles.css`        | CSS        |
+| `./neutral.css`              | CSS        |
+| `./contrast.css`             | CSS        |
+| `./theme.css`                | CSS        |
+| `./core.css`                 | CSS        |
+| `./reset.css`                | CSS        |
+
+The `miaixzUiContract.deprecatedProps` list is empty in `0.6.0`; removed APIs are not published as
+package metadata.
 
 ## Basic usage
 
@@ -420,7 +437,7 @@ sdk.appearance.patch({
 
 export function Root() {
   return (
-    <Theme appearance={sdk.appearance} fallback="miaixz">
+    <Theme appearance={sdk.appearance}>
       <App />
     </Theme>
   );
@@ -534,11 +551,15 @@ Publishing is coordinated by the repository release workflow. `@miaixz/ui` and `
 
 Apache-2.0
 
-### Optional theme catalogs
+### Theme catalog
 
-The shared Miaixz theme definitions live in `@miaixz/ui/themes`. Consumers can import
-`customThemes` from that entry or select a smaller catalog from one of its documented subpaths,
-then register those definitions with `Theme themes={themes}`. Use `createThemeStyles(themes)` from
-`@miaixz/ui/theme` to render their light/dark CSS in a nonce-bound `<style>` in the document head
-before `createThemeScript`, and include their identifiers in the script's `themes` option. The
-application owns persistence and user selection, but it must not copy or redefine a catalog theme.
+Concrete theme definitions and their owned assets live under
+`src/theme/presets/**/<theme>/` and are exposed through the sole JavaScript entry
+`@miaixz/ui/theme`. Every leaf theme directory contains `index.ts` and `preset.json`; built-ins may
+also own a generated `styles.css`. The preset generator recursively discovers these metadata files,
+validates the compiled definitions, and regenerates the ordered descriptor and dynamic-import
+manifest. `Theme` advertises every descriptor and lazily imports non-built-in presets when selected.
+Use `themePresets` for selector metadata, `loadThemePreset(name, context)` for one definition, or
+`loadThemePresets()` with `createThemeStyles` when a server needs first-paint CSS for every optional
+preset. `createThemeScript` automatically accepts every generated preset unless an explicit
+`themes` allowlist is supplied. Adding a theme requires no catalog, loader, or audit-rule edit.

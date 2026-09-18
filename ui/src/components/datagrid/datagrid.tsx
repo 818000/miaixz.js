@@ -43,7 +43,7 @@ import type {
   DatagridSort,
   DatagridSortDirection,
 } from "./datagrid.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 interface DatagridRow<Row> {
   readonly id: string;

@@ -25,7 +25,7 @@ import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Icon } from "../icon/icon.js";
 import type { PaginationOwnerState, PaginationProps } from "./pagination.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Represents a visible page number or a directional pagination ellipsis. @public

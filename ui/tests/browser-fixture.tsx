@@ -1,6 +1,6 @@
 import type {} from "vite/client";
 
-import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
+import { createMiaixzAppearanceManager, miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { createRoot } from "react-dom/client";
 import { useState } from "react";
@@ -56,10 +56,10 @@ import {
   type CommandAction,
   type MiaixzIconName,
 } from "../src/index.js";
-import "../src/theme/miaixz.css";
+import "../src/theme/theme.css";
 
 const parameters = new URLSearchParams(window.location.search);
-const theme = parameters.get("theme") ?? "miaixz";
+const theme = parameters.get("theme") ?? miaixzDefaultAppearance.theme;
 const colorMode = parameters.get("colorMode") === "dark" ? "dark" : "light";
 const densityParameter = parameters.get("density");
 const density =
@@ -81,7 +81,7 @@ const legacyTheme = defineTheme({
   name: "legacy-custom",
   label: "Legacy custom",
   version: "1.0.0",
-  extends: "miaixz",
+  extends: miaixzDefaultAppearance.theme,
   tokens: { typography: { bodySize: 15 } },
   modes: { light: {}, dark: {} },
 });
@@ -535,7 +535,11 @@ export function BrowserFixture() {
 
   return (
     <MiaixzLocaleProvider i18n={i18n}>
-      <Theme appearance={appearance} fallback="miaixz" themes={[legacyTheme]}>
+      <Theme
+        appearance={appearance}
+        fallback={miaixzDefaultAppearance.theme}
+        themes={[legacyTheme]}
+      >
         {accessibilityFixture === null ? (
           <Appearance scope="authenticated" />
         ) : (

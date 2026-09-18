@@ -23,7 +23,7 @@ import { forwardRef } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { TimelineOwnerState, TimelineProps } from "./timeline.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders invariant ol/li timeline semantics with customizable item bodies. @public

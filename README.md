@@ -8,11 +8,11 @@ The repository is organized as an npm workspace. All public packages use one syn
 
 ## Packages
 
-| Package                  | npm                                               | Description                                                                                                                                                                                    |
-| ------------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@miaixz/sdk`](./sdk)   | [npm](https://www.npmjs.com/package/@miaixz/sdk)  | Browser API client, authentication, runtime context, configuration, permissions, events, files, appearance, internationalization, public types, models, validators, formatters, and utilities. |
-| [`@miaixz/ui`](./ui)     | [npm](https://www.npmjs.com/package/@miaixz/ui)   | React design system with components, design tokens, themes, density modes, icons, styles, accessibility foundations, and interaction primitives.                                               |
-| [`@miaixz/view`](./view) | [npm](https://www.npmjs.com/package/@miaixz/view) | Presentation-only React components for image, PDF, and Office previews.                                                                                                                        |
+| Package                  | npm                                               | Description                                                                                                                                                                |
+| ------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@miaixz/sdk`](./sdk)   | [npm](https://www.npmjs.com/package/@miaixz/sdk)  | Browser API client, authentication, runtime context, configuration, permissions, events, files, appearance, internationalization, public types, formatters, and utilities. |
+| [`@miaixz/ui`](./ui)     | [npm](https://www.npmjs.com/package/@miaixz/ui)   | React design system with components, design tokens, themes, density modes, icons, styles, accessibility foundations, and interaction primitives.                           |
+| [`@miaixz/view`](./view) | [npm](https://www.npmjs.com/package/@miaixz/view) | Presentation-only React components for image, PDF, and Office previews.                                                                                                    |
 
 ### Package relationship
 
@@ -81,7 +81,7 @@ import { sdk } from "./sdk.js";
 
 export function CreateSpaceForm() {
   return (
-    <Theme appearance={sdk.appearance} fallback="miaixz">
+    <Theme appearance={sdk.appearance}>
       <form>
         <Field label="Space name" required>
           <Input placeholder="Enter a space name" />
@@ -95,7 +95,7 @@ export function CreateSpaceForm() {
 
 Choose one public CSS entry at the application root:
 
-- `@miaixz/ui/styles.css` for the default Miaixz theme with all foundation and component styles.
+- `@miaixz/ui/styles.css` for the SDK-selected default theme with all foundation and component styles.
 - `@miaixz/ui/theme.css` for all built-in themes.
 - `@miaixz/ui/neutral.css` or `@miaixz/ui/contrast.css` for one alternative built-in theme.
 - `@miaixz/ui/foundation.css`, `@miaixz/ui/components.css`, `@miaixz/ui/core.css`, and `@miaixz/ui/reset.css` for explicitly layered integrations.

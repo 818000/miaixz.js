@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { ShellOwnerState, ShellProps } from "./shell.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Provides the sole page-level main and navigation layout owner. @public

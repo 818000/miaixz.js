@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
+import { createMiaixzAppearanceManager, miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import "@testing-library/jest-dom/vitest";
 import { act, cleanup, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -26,19 +26,20 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Button } from "../src/components/button/button.js";
-import { watchMiaixzSystemColorMode } from "../src/theme/appearance.js";
+import { resolveMiaixzColorMode, watchMiaixzSystemColorMode } from "../src/theme/mode.js";
 import { applyTheme } from "../src/theme/apply.js";
 import { ThemeCache } from "../src/theme/cache.js";
 import {
   getMiaixzThemeSlotClassNames,
   mergeMiaixzThemeComponents,
   type ThemeComponents,
-} from "../src/theme/components.js";
+} from "../src/theme/registry.js";
 import { useTheme } from "../src/theme/context.js";
 import { defineTheme } from "../src/theme/define.js";
-import { Theme, resolveMiaixzColorMode } from "../src/theme/theme.js";
+import { Theme } from "../src/theme/provider.js";
+import { themePresets } from "../src/theme/presets/index.js";
 import type { MiaixzSerializedThemeApplication } from "../src/theme/serialize.js";
-import { withMiaixzThemeComponent } from "../src/theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../src/theme/binding.js";
 import { renderWithLocale } from "./test-utils.js";
 
 afterEach(() => {
@@ -51,7 +52,7 @@ const remoteTheme = defineTheme({
   name: "remote",
   label: "Remote",
   version: "1.0.0",
-  extends: "miaixz",
+  extends: miaixzDefaultAppearance.theme,
   modes: {
     light: { colors: { brand: "#123456" } },
     dark: { colors: { brand: "#abcdef" } },
@@ -64,7 +65,7 @@ const remoteTheme = defineTheme({
  * @param theme - Initial theme name.
  * @returns Appearance manager backed by deterministic in-memory storage.
  */
-function createAppearance(theme = "miaixz") {
+function createAppearance(theme = miaixzDefaultAppearance.theme) {
   const values = new Map<string, string>();
   return createMiaixzAppearanceManager({
     appId: `theme-test-${theme}`,
@@ -84,6 +85,7 @@ function createAppearance(theme = "miaixz") {
  */
 function ThemeProbe() {
   const theme = useTheme();
+  const lazyPreset = themePresets.find(({ source }) => source === "preset");
   return (
     <section>
       <output aria-label="theme-state">{`${theme.theme}:${theme.colorMode}:${theme.density}:${theme.status}:${theme.revision}`}</output>
@@ -99,6 +101,11 @@ function ThemeProbe() {
       <button type="button" onClick={() => void theme.setTheme("remote")}>
         remote
       </button>
+      {lazyPreset && (
+        <button type="button" onClick={() => void theme.setTheme(lazyPreset.name)}>
+          {lazyPreset.name}
+        </button>
+      )}
       <button type="button" onClick={() => void theme.retry()}>
         retry
       </button>
@@ -186,7 +193,7 @@ describe("Theme runtime", () => {
     );
     const target = container.querySelector<HTMLElement>("[data-miaixz-theme-scope]")!;
     expect(target).toHaveClass("local-theme");
-    expect(target).toHaveAttribute("data-miaixz-theme", "miaixz");
+    expect(target).toHaveAttribute("data-miaixz-theme", miaixzDefaultAppearance.theme);
     expect(screen.getByRole("button", { name: "Themed action" })).toHaveClass(
       "theme-button",
       "danger-button",
@@ -201,7 +208,7 @@ describe("Theme runtime", () => {
     await user.click(screen.getByRole("button", { name: "remote" }));
     expect(target).toHaveAttribute("data-miaixz-theme", "remote");
     await user.click(screen.getByRole("button", { name: "reset" }));
-    expect(target).toHaveAttribute("data-miaixz-theme", "miaixz");
+    expect(target).toHaveAttribute("data-miaixz-theme", miaixzDefaultAppearance.theme);
     expect(target).toHaveAttribute("data-miaixz-density", "standard");
     appearance.destroy();
   });
@@ -225,7 +232,7 @@ describe("Theme runtime", () => {
       </Theme>,
     );
     expect(await screen.findByLabelText("theme-state")).toHaveTextContent(
-      "miaixz:light:standard:loading",
+      `${miaixzDefaultAppearance.theme}:light:standard:loading`,
     );
     await act(async () => rejectFirst?.(new Error("offline")));
     await waitFor(() => expect(screen.getByLabelText("theme-state")).toHaveTextContent(":error:"));
@@ -237,6 +244,50 @@ describe("Theme runtime", () => {
     appearance.destroy();
   });
 
+  it("advertises and dynamically loads a generated preset without an application loader", async () => {
+    const lazyPreset = themePresets.find(({ source }) => source === "preset")!;
+    const user = userEvent.setup();
+    const appearance = createAppearance();
+    const { container } = renderWithLocale(
+      <Theme appearance={appearance} scope="local">
+        <ThemeProbe />
+      </Theme>,
+    );
+    await user.click(screen.getByRole("button", { name: lazyPreset.name }));
+    await waitFor(() =>
+      expect(screen.getByLabelText("theme-state")).toHaveTextContent(
+        `${lazyPreset.name}:light:standard:ready`,
+      ),
+    );
+    expect(container.querySelector("[data-miaixz-theme-scope]")).toHaveAttribute(
+      "data-miaixz-theme",
+      lazyPreset.name,
+    );
+    appearance.destroy();
+  });
+
+  it("preserves a generated preset's first-paint attributes while its definition loads", async () => {
+    const lazyPreset = themePresets.find(({ source }) => source === "preset")!;
+    document.documentElement.setAttribute("data-miaixz-theme", lazyPreset.name);
+    document.documentElement.setAttribute("data-miaixz-color-mode", "light");
+    const appearance = createAppearance(lazyPreset.name);
+    const view = renderWithLocale(
+      <Theme appearance={appearance}>
+        <ThemeProbe />
+      </Theme>,
+    );
+    expect(document.documentElement).toHaveAttribute("data-miaixz-theme", lazyPreset.name);
+    await waitFor(() =>
+      expect(screen.getByLabelText("theme-state")).toHaveTextContent(
+        `${lazyPreset.name}:light:standard:ready`,
+      ),
+    );
+    view.unmount();
+    document.documentElement.removeAttribute("data-miaixz-theme");
+    document.documentElement.removeAttribute("data-miaixz-color-mode");
+    appearance.destroy();
+  });
+
   it("falls back when an unknown persisted theme has no loader", async () => {
     const appearance = createAppearance("missing");
     const { container } = renderWithLocale(
@@ -244,10 +295,10 @@ describe("Theme runtime", () => {
         <ThemeProbe />
       </Theme>,
     );
-    await waitFor(() => expect(appearance.getSnapshot().theme).toBe("miaixz"));
+    await waitFor(() => expect(appearance.getSnapshot().theme).toBe(miaixzDefaultAppearance.theme));
     expect(container.querySelector("[data-miaixz-theme-scope]"))?.toHaveAttribute(
       "data-miaixz-theme",
-      "miaixz",
+      miaixzDefaultAppearance.theme,
     );
     appearance.destroy();
   });

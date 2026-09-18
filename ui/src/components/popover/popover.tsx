@@ -31,7 +31,7 @@ import { useControlled } from "../../shared/use-controlled.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { MiaixzPopoverContext } from "./context.js";
 import type { PopoverOwnerState, PopoverProps } from "./popover.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a controlled or uncontrolled button disclosure through the shared Portal layer.

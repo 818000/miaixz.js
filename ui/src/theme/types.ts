@@ -27,8 +27,8 @@ import type {
   MiaixzThemeOverrides,
 } from "@miaixz/sdk/appearance";
 import type { ReactNode } from "react";
-import type { ThemeComponents } from "./components.js";
-import type { MiaixzThemeError } from "./errors.js";
+import type { ThemeComponents } from "./registry.js";
+import type { MiaixzThemeError } from "./error.js";
 import type { MiaixzThemeColorToken, MiaixzThemeColors } from "../design/colors.js";
 import type { MiaixzThemeComposition } from "../design/composition.js";
 import type { MiaixzThemeGeometry } from "../design/geometry.js";
@@ -381,9 +381,13 @@ export interface MiaixzThemeDescriptor {
    */
   readonly version: string;
   /**
+   * Stable catalog group used to organize preset selectors.
+   */
+  readonly group?: string;
+  /**
    * Catalog source category.
    */
-  readonly source: "builtin" | "registered" | "loaded";
+  readonly source: "builtin" | "preset" | "registered" | "loaded";
   /**
    * Resolved light and dark preview colors.
    */

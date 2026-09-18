@@ -23,7 +23,7 @@ import { forwardRef } from "react";
 import { Icon } from "../icon/icon.js";
 import { ActionTarget } from "./action-target.js";
 import type { ActionTextProps } from "./action.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 
 /**

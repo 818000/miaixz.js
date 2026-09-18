@@ -26,7 +26,7 @@
 export const miaixzUiErrorMessageKeys = Object.freeze({
   UI_ACCESSIBLE_NAME_INVALID: "ui.error.accessible.nameInvalid",
   UI_SLOT_OWNED_PROP_CONFLICT: "ui.error.slot.ownedPropConflict",
-  UI_BUTTON_LINK_RENDERER_INVALID: "ui.error.button.linkRendererInvalid",
+  UI_ANCHOR_RENDERER_INVALID: "ui.error.anchor.rendererInvalid",
   UI_ACTION_DUPLICATE_ID: "ui.error.action.duplicateId",
   UI_ACTION_LABEL_VISIBILITY_REQUIRES_ICON: "ui.error.action.labelVisibilityRequiresIcon",
   UI_AVATAR_GROUP_MAX_INVALID: "ui.error.avatarGroup.maxInvalid",

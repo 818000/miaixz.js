@@ -24,10 +24,10 @@ describe("navigation selected theme opacity", () => {
     });
     for (const mode of ["light", "dark"] as const) {
       it(`${theme.name} ${mode} shares derived declarations between static and runtime CSS`, () => {
-        const staticCss = readFileSync(resolve("src/theme", `${theme.name}.css`), "utf8").replace(
-          /\s+/g,
-          " ",
-        );
+        const staticCss = readFileSync(
+          resolve("src/theme/presets", theme.name, "styles.css"),
+          "utf8",
+        ).replace(/\s+/g, " ");
         const runtime = serializeThemeApplication(
           theme,
           mode,

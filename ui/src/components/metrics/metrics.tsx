@@ -25,7 +25,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Scroll } from "../scroll/scroll.js";
 import { MetricVariantContext } from "./context.js";
 import type { MetricsProps } from "./metrics.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Groups metrics without cloning or modifying consumer children. @public

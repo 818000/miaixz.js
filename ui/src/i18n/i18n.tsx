@@ -208,7 +208,7 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.diagram.graph.relatedTo": "Related to",
     "ui.error.accessible.nameInvalid": "An accessible name is required",
     "ui.error.slot.ownedPropConflict": "A slot cannot replace component-owned semantics",
-    "ui.error.button.linkRendererInvalid": "The button link renderer must resolve to an anchor",
+    "ui.error.anchor.rendererInvalid": "The anchor renderer must resolve to an anchor",
     "ui.error.action.duplicateId": "Action identifiers must be unique",
     "ui.error.action.labelVisibilityRequiresIcon":
       "Responsive or hidden action labels require an icon",
@@ -411,7 +411,7 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.diagram.graph.relatedTo": "关联",
     "ui.error.accessible.nameInvalid": "必须提供可访问名称",
     "ui.error.slot.ownedPropConflict": "slot 不能覆盖组件拥有的语义属性",
-    "ui.error.button.linkRendererInvalid": "按钮链接 renderer 必须解析为锚点",
+    "ui.error.anchor.rendererInvalid": "锚点 renderer 必须解析为原生锚点",
     "ui.error.action.duplicateId": "操作标识必须唯一",
     "ui.error.action.labelVisibilityRequiresIcon": "响应式或隐藏的操作标签必须提供图标",
     "ui.error.avatarGroup.maxInvalid": "头像组最大数量必须是正整数",

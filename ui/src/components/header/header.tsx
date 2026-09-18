@@ -22,7 +22,7 @@ import { createElement, forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { HeaderOwnerState, HeaderProps } from "./header.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a page title area with configurable structure slots. @public

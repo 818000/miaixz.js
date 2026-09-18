@@ -24,10 +24,10 @@ import type {
   HTMLAttributes,
   ReactElement,
   ReactNode,
-  Ref,
   RefAttributes,
 } from "react";
 
+import type { AnchorRenderer, AnchorRenderProps } from "../../shared/anchor.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 /**
@@ -258,22 +258,14 @@ export interface ButtonLinkRootAttributes
  *
  * @public
  */
-export interface ButtonLinkRenderProps extends ButtonLinkRootAttributes {
-  /**
-   * Supplies the real navigation destination.
-   */
-  readonly href: string;
-}
+export type ButtonLinkRenderProps = AnchorRenderProps;
 
 /**
  * Defines the sole custom router-link adapter.
  *
  * @public
  */
-export type ButtonLinkRenderer = (
-  props: ButtonLinkRenderProps,
-  ref: Ref<HTMLAnchorElement>,
-) => ReactElement;
+export type ButtonLinkRenderer = AnchorRenderer;
 
 /**
  * Configures a real navigation link with Button presentation.

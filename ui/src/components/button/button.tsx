@@ -18,19 +18,17 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useId, useRef, type Ref } from "react";
+import { forwardRef, useId } from "react";
 
-import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { Anchor } from "../../shared/anchor.js";
 import { classNames } from "../../shared/class-names.js";
 import { MiaixzButtonContent } from "./button-content.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
-import { getMiaixzThemeSlotClassNames } from "../../theme/components.js";
+import { getMiaixzThemeSlotClassNames } from "../../theme/registry.js";
 import type {
   ButtonLinkProps,
-  ButtonLinkRenderProps,
   ButtonLinkRootAttributes,
   ButtonOwnerState,
   ButtonProps,
@@ -38,21 +36,7 @@ import type {
   ButtonSlot,
   ButtonSlotProps,
 } from "./button.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
-
-/**
- * Renders the default final native anchor.
- *
- * @param props - Final native anchor properties.
- * @param ref - Merged anchor reference.
- * @returns Native anchor element.
- */
-function renderNativeAnchor(
-  props: ButtonLinkRenderProps,
-  ref: Ref<HTMLAnchorElement>,
-): React.ReactElement {
-  return <a {...props} ref={ref} />;
-}
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Removes component-only Button props from a native root property set.
@@ -178,7 +162,7 @@ export const ButtonLink = withMiaixzThemeComponent(
       block = false,
       startIcon,
       endIcon,
-      renderAnchor = renderNativeAnchor,
+      renderAnchor,
       slotProps,
       ...nativeProps
     } = props;
@@ -190,13 +174,6 @@ export const ButtonLink = withMiaixzThemeComponent(
       loading: false,
       disabled: false,
     };
-    const anchorRef = useRef<HTMLAnchorElement>(null);
-    useMiaixzLayoutEffect(() => {
-      if (anchorRef.current instanceof HTMLAnchorElement) return;
-      throw new MiaixzUiError({
-        code: "UI_BUTTON_LINK_RENDERER_INVALID",
-      });
-    }, []);
     const rootProps = mergeMiaixzSlotProps<
       ButtonOwnerState,
       ButtonLinkRootAttributes,
@@ -213,7 +190,6 @@ export const ButtonLink = withMiaixzThemeComponent(
       },
       componentProps: nativeProps,
       slotProps: slotProps?.root,
-      internalRef: anchorRef,
       forwardedRef,
       internalProps: {
         href,
@@ -232,22 +208,17 @@ export const ButtonLink = withMiaixzThemeComponent(
         "data-block",
       ],
     });
-    return renderAnchor(
-      {
-        ...rootProps,
-        href,
-        children: (
-          <MiaixzButtonContent
-            ownerState={ownerState}
-            startIcon={startIcon}
-            endIcon={endIcon}
-            slotProps={slotProps}
-          >
-            {children}
-          </MiaixzButtonContent>
-        ),
-      },
-      rootProps.ref as Ref<HTMLAnchorElement>,
+    return (
+      <Anchor {...rootProps} href={href} renderAnchor={renderAnchor}>
+        <MiaixzButtonContent
+          ownerState={ownerState}
+          startIcon={startIcon}
+          endIcon={endIcon}
+          slotProps={slotProps}
+        >
+          {children}
+        </MiaixzButtonContent>
+      </Anchor>
     );
   }),
 );

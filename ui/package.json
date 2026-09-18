@@ -27,118 +27,113 @@
   "miaixzUiContract": {
     "schemaVersion": 1,
     "version": "0.6.0",
+    "deprecatedProps": [],
     "publicDomComponents": [
-      "Button",
-      "ButtonLink",
-      "ActionText",
-      "IconButton",
       "ActionBar",
-      "MoreActions",
-      "RowActions",
-      "FormActions",
-      "Field",
-      "Input",
-      "Textarea",
-      "Search",
-      "Checkbox",
-      "Radio",
-      "RadioGroup",
-      "Switch",
-      "Range",
-      "Select",
-      "Combobox",
-      "Picker",
+      "ActionText",
       "Alert",
-      "Notice",
-      "Overlay",
-      "Toast",
-      "Toaster",
-      "Tooltip",
-      "Popover",
-      "Dropdown",
-      "Dialog",
-      "Confirm",
-      "Drawer",
-      "Toolbar",
-      "TransferList",
-      "Tabs",
-      "View",
-      "ViewSwitch",
-      "Panel",
-      "PanelHeader",
-      "PanelFooter",
-      "PanelRow",
-      "List",
-      "ListItem",
-      "ListCounter",
-      "ListMarker",
-      "Metric",
-      "Metrics",
-      "Graph",
+      "Appearance",
       "Avatar",
       "AvatarGroup",
-      "Divider",
-      "Spinner",
-      "Icon",
-      "Hidden",
-      "Cluster",
-      "Grid",
-      "Split",
-      "Stack",
-      "Dropzone",
-      "Upload",
-      "Locale",
-      "Appearance",
+      "AvatarPicker",
       "Badge",
-      "Status",
-      "Progress",
-      "Skeleton",
-      "Empty",
       "Bar",
       "Brand",
-      "Scroll",
-      "Entry",
-      "Page",
-      "Header",
-      "Shell",
-      "Sidebar",
       "Breadcrumb",
+      "Button",
+      "ButtonLink",
+      "Checkbox",
+      "Cluster",
+      "Columns",
+      "Combobox",
+      "Confirm",
+      "Datagrid",
+      "Descriptions",
+      "Dialog",
+      "Divider",
+      "Donut",
+      "Drawer",
+      "Dropdown",
+      "Dropzone",
+      "EditorFieldset",
+      "EditorForm",
+      "EditorLayout",
+      "EditorSection",
+      "EditorSummary",
+      "Empty",
+      "Entry",
+      "Field",
+      "FormActions",
+      "Graph",
+      "Grid",
+      "Header",
+      "Heatmap",
+      "HeatmapLegend",
+      "Hidden",
+      "Icon",
+      "IconButton",
+      "Input",
+      "Link",
+      "List",
+      "ListCounter",
+      "ListItem",
+      "ListMarker",
+      "Locale",
+      "Metric",
+      "Metrics",
+      "MoreActions",
       "Navigation",
       "NavigationRail",
       "NavigationRailGroup",
+      "Notice",
+      "Overlay",
+      "Page",
       "Pagination",
+      "Panel",
+      "PanelFooter",
+      "PanelHeader",
+      "Picker",
+      "Popover",
+      "Pressable",
+      "Progress",
+      "Radio",
+      "RadioGroup",
+      "Range",
+      "RowActions",
+      "Scroll",
+      "Search",
       "Sections",
+      "Select",
+      "Shell",
+      "Sidebar",
+      "Skeleton",
+      "Sparkline",
+      "Spinner",
+      "Split",
+      "Stack",
+      "Status",
+      "Steps",
+      "Switch",
       "Table",
-      "TableHeader",
       "TableBody",
-      "TableRow",
-      "TableHead",
+      "TableCaption",
       "TableCell",
       "TableContainer",
       "TableFooter",
-      "TableCaption",
-      "Datagrid",
-      "Descriptions",
-      "Tree",
-      "Steps",
+      "TableHead",
+      "TableHeader",
+      "TableRow",
+      "Tabs",
+      "Textarea",
       "Timeline",
-      "EditorForm",
-      "EditorLayout",
-      "EditorSummary",
-      "EditorSection",
-      "EditorFieldset",
-      "EditorFields",
-      "EditorActions",
-      "EditorBox",
-      "EditorGroup",
-      "EditorOverview",
-      "EditorPicker",
-      "EditorStatus",
-      "Sparkline",
-      "Donut",
-      "Columns",
-      "Heatmap",
-      "HeatmapLegend"
+      "Toast",
+      "Toaster",
+      "Toolbar",
+      "Tooltip",
+      "Transfer",
+      "Tree",
+      "Upload",
+      "View"
     ],
     "components": {
       "Shell": {
@@ -146,16 +141,6 @@
           "desktopNavigation",
           "mobileNavigation",
           "slotProps"
-        ],
-        "deprecatedProps": [
-          "headerClassName",
-          "mainClassName",
-          "mobileNavigationMode",
-          "navigationDismissLabel",
-          "navigationExpanded",
-          "navigationVariant",
-          "onNavigationDismiss",
-          "sidebarClassName"
         ]
       },
       "Tabs": {
@@ -174,8 +159,7 @@
           "defaultValue",
           "onValueChange",
           "slotProps"
-        ],
-        "deprecatedProps": []
+        ]
       },
       "Panel": {
         "supportedProps": [
@@ -195,18 +179,6 @@
           "headingLevel",
           "footer",
           "slotProps"
-        ],
-        "deprecatedProps": [
-          "bodyFlush",
-          "bodySize",
-          "headerLayout",
-          "headerSize",
-          "interactive",
-          "raised",
-          "responsiveBodyScroll",
-          "sections",
-          "selected",
-          "variant"
         ]
       },
       "Drawer": {
@@ -229,10 +201,6 @@
           "xlarge",
           "wide",
           "content"
-        ],
-        "deprecatedProps": [
-          "bodyProps",
-          "size"
         ]
       },
       "Toolbar": {
@@ -247,10 +215,9 @@
           "wrap",
           "variant",
           "label"
-        ],
-        "deprecatedProps": []
+        ]
       },
-      "TransferList": {
+      "Transfer": {
         "supportedProps": [
           "label",
           "source",
@@ -264,8 +231,17 @@
           "sourceHeaderLayout",
           "targetHeaderLayout",
           "slotProps"
-        ],
-        "deprecatedProps": []
+        ]
+      },
+      "Link": {
+        "supportedProps": [
+          "href",
+          "children",
+          "tone",
+          "underline",
+          "renderAnchor",
+          "slotProps"
+        ]
       },
       "List": {
         "supportedProps": [
@@ -277,27 +253,23 @@
           "dividers",
           "bordered",
           "slotProps"
-        ],
-        "deprecatedProps": []
+        ]
       },
       "Tree": {
         "supportedProps": [
           "showSelectionIndicator"
-        ],
-        "deprecatedProps": []
+        ]
       },
       "Columns": {
         "supportedProps": [
           "size",
           "presentation"
-        ],
-        "deprecatedProps": []
+        ]
       },
       "Progress": {
         "supportedProps": [
           "data-miaixz-progress-group"
-        ],
-        "deprecatedProps": []
+        ]
       },
       "Status": {
         "supportedProps": [
@@ -308,14 +280,12 @@
           "layout",
           "presentation",
           "slotProps"
-        ],
-        "deprecatedProps": []
+        ]
       },
       "EditorForm": {
         "supportedProps": [
           "presentation"
-        ],
-        "deprecatedProps": []
+        ]
       }
     },
     "stableSelectors": [
@@ -334,6 +304,7 @@
       "list",
       "list-item",
       "list-item-primary",
+      "link",
       "metric",
       "metric-hint",
       "metric-icon",
@@ -352,27 +323,14 @@
       "sparkline-line",
       "sparkline-points",
       "tabs",
-      "transfer-list",
-      "transfer-list-source",
-      "transfer-list-target"
+      "transfer",
+      "transfer-source",
+      "transfer-target",
+      "view-selector"
     ],
     "runtimeAttributes": [
       "data-motion-replay",
       "data-motion-state"
-    ],
-    "exports": [
-      ".",
-      "./components.css",
-      "./theme",
-      "./themes",
-      "./themes/deepparser",
-      "./themes/recommended",
-      "./themes/traditional",
-      "./themes/traditional-elegance",
-      "./themes/traditional-imperial",
-      "./themes/traditional-nature",
-      "./transfer-list",
-      "./transfer-list/styles.css"
     ]
   },
   "files": [
@@ -391,7 +349,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/theme/miaixz.css",
+    "./styles.css": "./dist/theme/default.css",
     "./foundation.css": "./dist/styles/foundation.css",
     "./components.css": "./dist/styles/components.css",
     "./appearance": {
@@ -538,6 +496,10 @@
       "types": "./dist/components/input/index.d.ts",
       "import": "./dist/components/input/index.js"
     },
+    "./link": {
+      "types": "./dist/components/link/index.d.ts",
+      "import": "./dist/components/link/index.js"
+    },
     "./textarea": {
       "types": "./dist/components/textarea/index.d.ts",
       "import": "./dist/components/textarea/index.js"
@@ -630,9 +592,9 @@
       "types": "./dist/components/toolbar/index.d.ts",
       "import": "./dist/components/toolbar/index.js"
     },
-    "./transfer-list": {
-      "types": "./dist/components/transfer-list/index.d.ts",
-      "import": "./dist/components/transfer-list/index.js"
+    "./transfer": {
+      "types": "./dist/components/transfer/index.d.ts",
+      "import": "./dist/components/transfer/index.js"
     },
     "./tooltip": {
       "types": "./dist/components/tooltip/index.d.ts",
@@ -710,34 +672,6 @@
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js"
     },
-    "./themes": {
-      "types": "./dist/themes/index.d.ts",
-      "import": "./dist/themes/index.js"
-    },
-    "./themes/deepparser": {
-      "types": "./dist/themes/deepparser.d.ts",
-      "import": "./dist/themes/deepparser.js"
-    },
-    "./themes/recommended": {
-      "types": "./dist/themes/recommended.d.ts",
-      "import": "./dist/themes/recommended.js"
-    },
-    "./themes/traditional": {
-      "types": "./dist/themes/traditional.d.ts",
-      "import": "./dist/themes/traditional.js"
-    },
-    "./themes/traditional-elegance": {
-      "types": "./dist/themes/traditional-elegance.d.ts",
-      "import": "./dist/themes/traditional-elegance.js"
-    },
-    "./themes/traditional-imperial": {
-      "types": "./dist/themes/traditional-imperial.d.ts",
-      "import": "./dist/themes/traditional-imperial.js"
-    },
-    "./themes/traditional-nature": {
-      "types": "./dist/themes/traditional-nature.d.ts",
-      "import": "./dist/themes/traditional-nature.js"
-    },
     "./appearance/styles.css": "./dist/styles/components/appearance.css",
     "./icons/styles.css": "./dist/styles/components/icon.css",
     "./bar/styles.css": "./dist/styles/components/bar.css",
@@ -770,6 +704,7 @@
     "./combobox/styles.css": "./dist/styles/components/combobox.css",
     "./breadcrumb/styles.css": "./dist/styles/components/breadcrumb.css",
     "./input/styles.css": "./dist/styles/components/input.css",
+    "./link/styles.css": "./dist/styles/components/link.css",
     "./textarea/styles.css": "./dist/styles/components/textarea.css",
     "./select/styles.css": "./dist/styles/components/select.css",
     "./checkbox/styles.css": "./dist/styles/components/checkbox.css",
@@ -793,7 +728,7 @@
     "./dropzone/styles.css": "./dist/styles/components/dropzone.css",
     "./toast/styles.css": "./dist/styles/components/toast.css",
     "./toolbar/styles.css": "./dist/styles/components/toolbar.css",
-    "./transfer-list/styles.css": "./dist/styles/components/transfer-list.css",
+    "./transfer/styles.css": "./dist/styles/components/transfer.css",
     "./tooltip/styles.css": "./dist/styles/components/tooltip.css",
     "./skeleton/styles.css": "./dist/styles/components/skeleton.css",
     "./spinner/styles.css": "./dist/styles/components/spinner.css",
@@ -812,8 +747,8 @@
     "./empty/styles.css": "./dist/styles/components/empty.css",
     "./entry/styles.css": "./dist/styles/components/entry.css",
     "./hidden/styles.css": "./dist/styles/components/hidden.css",
-    "./neutral.css": "./dist/theme/neutral.css",
-    "./contrast.css": "./dist/theme/contrast.css",
+    "./neutral.css": "./dist/theme/presets/neutral/styles.css",
+    "./contrast.css": "./dist/theme/presets/contrast/styles.css",
     "./theme.css": "./dist/theme/theme.css",
     "./core.css": "./dist/styles/core.css",
     "./reset.css": "./dist/styles/reset.css"
@@ -822,11 +757,13 @@
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
     "icons:generate": "node ../.github/scripts/codegen/icon-names.mjs",
     "icons:check": "node ../.github/scripts/codegen/icon-names.mjs --check",
+    "theme:presets:generate": "node ../.github/scripts/codegen/theme-presets.mjs",
+    "theme:presets:check": "node ../.github/scripts/codegen/theme-presets.mjs --check",
     "theme:generate": "node ../.github/scripts/codegen/theme-css.mjs",
     "theme:check": "node ../.github/scripts/codegen/theme-css.mjs --check",
     "responsive:generate": "node ../.github/scripts/codegen/responsive-css.mjs",
     "responsive:check": "node ../.github/scripts/codegen/responsive-css.mjs --check",
-    "build": "npm run icons:check && npm run clean && tsc -p tsconfig.build.json && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
+    "build": "npm run icons:check && npm run clean && tsc -p tsconfig.build.json && npm run theme:presets:generate && npm run theme:presets:check && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint src tests *.config.js && npm run lint:css",
     "lint:fix": "eslint src tests *.config.js --fix && npm run lint:css:fix",
@@ -838,7 +775,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:browser": "playwright test",
-    "check": "npm run typecheck && npm run lint && npm run lint:css && npm run audit:css && npm run test:coverage && npm run format:check"
+    "check": "npm run typecheck && npm run lint && npm run audit:css && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
     "@miaixz/sdk": ">=0.6.0 <0.7.0",

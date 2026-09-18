@@ -22,7 +22,7 @@ import { forwardRef } from "react";
 import { getMiaixzFeedbackSemantics, MiaixzFeedback } from "../feedback/feedback.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { NoticeOwnerState, NoticeProps } from "./notice.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders compact feedback using the shared feedback semantics and structure.

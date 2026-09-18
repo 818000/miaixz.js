@@ -24,7 +24,7 @@ import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { SectionsOwnerState, SectionsProps } from "./sections.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Displays named read-only collections with invariant list semantics. @public

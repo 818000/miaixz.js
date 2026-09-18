@@ -22,7 +22,7 @@ import { forwardRef, useEffect, useRef } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Spinner } from "../spinner/spinner.js";
 import type { OverlayOwnerState, OverlayProps } from "./overlay.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders blocking or nonblocking loading feedback without unmounting content.

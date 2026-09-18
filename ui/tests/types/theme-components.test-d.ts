@@ -18,12 +18,13 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ThemeComponents } from "../../src/theme/components.js";
+import type { ThemeComponents } from "../../src/theme/registry.js";
 
 type ExpectedComponentName =
   | "Pressable"
   | "Button"
   | "ButtonLink"
+  | "Link"
   | "ActionText"
   | "IconButton"
   | "ActionBar"
@@ -54,10 +55,9 @@ type ExpectedComponentName =
   | "Confirm"
   | "Drawer"
   | "Toolbar"
-  | "TransferList"
+  | "Transfer"
   | "Tabs"
   | "View"
-  | "ViewSwitch"
   | "Panel"
   | "PanelHeader"
   | "PanelFooter"

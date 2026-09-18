@@ -19,6 +19,7 @@
 */
 
 import { ThemeCatalog } from "./catalog.js";
+import { hasThemePreset } from "./presets/index.js";
 import { serializeThemeStyles } from "./serialize.js";
 import type { MiaixzThemeDefinition } from "./types.js";
 
@@ -32,7 +33,10 @@ import type { MiaixzThemeDefinition } from "./types.js";
  * @public
  */
 export function createThemeStyles(themes: readonly MiaixzThemeDefinition[]): string {
-  const catalog = new ThemeCatalog(themes);
+  const catalog = new ThemeCatalog(themes.filter((theme) => !hasThemePreset(theme.name)));
+  for (const theme of themes) {
+    if (hasThemePreset(theme.name)) catalog.registerLoaded(theme);
+  }
   if (themes.length === 0) return "";
   return [
     "@layer miaixz-themes {",

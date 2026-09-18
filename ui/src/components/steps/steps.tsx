@@ -23,7 +23,7 @@ import { forwardRef } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { StepsOwnerState, StepsProps } from "./steps.types.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Renders a workflow whose visual dimensions never change its ol/li semantics. @public

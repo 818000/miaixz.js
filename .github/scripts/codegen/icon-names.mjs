@@ -23,9 +23,11 @@ import { join, resolve } from "node:path";
 import process from "node:process";
 import { iconNames } from "lucide-react/dynamic.js";
 import { format, resolveConfig } from "prettier";
-import { repositoryRoot } from "../miaixz.mjs";
+import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
 
-const directory = resolve(repositoryRoot, "ui/src/icons");
+const uiWorkspace = loadWorkspaceRepository().workspaces.find(({ name }) => name === "@miaixz/ui");
+if (uiWorkspace === undefined) throw new Error("Icon generation requires the UI workspace");
+const directory = resolve(uiWorkspace.rootPath, "src/icons");
 const checkOnly = process.argv.includes("--check");
 const prettierOptions = (await resolveConfig(join(directory, "icon-name.generated.ts"))) ?? {};
 const sourceHeader = (await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"))

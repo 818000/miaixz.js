@@ -32,7 +32,7 @@ import {
   validateRail,
 } from "./navigation-rail-layout.js";
 import { RailOverflow, StructuredRailGroup } from "./navigation-rail-overflow.js";
-import { withMiaixzThemeComponent } from "../../theme/themed-component.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
  * Composes a single deterministic adaptive navigation rail.
