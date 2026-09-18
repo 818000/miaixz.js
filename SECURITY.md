@@ -6,7 +6,7 @@ Security fixes are provided only for the latest stable release of the `0.x` seri
 
 | Release                     | Status        |
 | --------------------------- | ------------- |
-| Latest stable `0.x` release | Supported     |
+| Latest stable `0.8` release | Supported     |
 | Earlier releases            | Not supported |
 
 Users should upgrade to the latest available release before reporting a vulnerability.

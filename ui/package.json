@@ -1,6 +1,6 @@
 {
   "name": "@miaixz/ui",
-  "version": "0.6.0",
+  "version": "0.6.5",
   "description": "Miaixz design tokens, themes, icons, styles, and UI components.",
   "type": "module",
   "engines": {
@@ -26,7 +26,7 @@
   ],
   "miaixzUiContract": {
     "schemaVersion": 1,
-    "version": "0.6.0",
+    "version": "0.6.5",
     "deprecatedProps": [],
     "publicDomComponents": [
       "ActionBar",
@@ -41,15 +41,19 @@
       "Brand",
       "Breadcrumb",
       "Button",
+      "ButtonGroup",
       "ButtonLink",
+      "Calendar",
       "Checkbox",
       "Cluster",
       "Columns",
       "Combobox",
       "Confirm",
       "Datagrid",
+      "DatePicker",
       "Descriptions",
       "Dialog",
+      "Disclosure",
       "Divider",
       "Donut",
       "Drawer",
@@ -79,6 +83,7 @@
       "ListItem",
       "ListMarker",
       "Locale",
+      "Masonry",
       "Metric",
       "Metrics",
       "MoreActions",
@@ -86,6 +91,7 @@
       "NavigationRail",
       "NavigationRailGroup",
       "Notice",
+      "NumberInput",
       "Overlay",
       "Page",
       "Pagination",
@@ -98,15 +104,17 @@
       "Progress",
       "Radio",
       "RadioGroup",
-      "Range",
+      "Rating",
       "RowActions",
       "Scroll",
       "Search",
       "Sections",
+      "Segmented",
       "Select",
       "Shell",
       "Sidebar",
       "Skeleton",
+      "Slider",
       "Sparkline",
       "Spinner",
       "Split",
@@ -124,8 +132,10 @@
       "TableHeader",
       "TableRow",
       "Tabs",
+      "Tag",
       "Textarea",
       "Timeline",
+      "TimePicker",
       "Toast",
       "Toaster",
       "Toolbar",
@@ -290,9 +300,13 @@
     },
     "stableSelectors": [
       "avatar",
+      "button-group",
+      "calendar",
       "columns",
       "columns-bar",
       "columns-label",
+      "date-picker",
+      "disclosure",
       "donut",
       "donut-segment",
       "heatmap",
@@ -301,10 +315,11 @@
       "heatmap-legend",
       "heatmap-row-label",
       "heatmap-viewport",
+      "link",
       "list",
       "list-item",
       "list-item-primary",
-      "link",
+      "masonry",
       "metric",
       "metric-hint",
       "metric-icon",
@@ -314,19 +329,24 @@
       "metric-value",
       "metric-visual",
       "navigation-item",
+      "number-input",
       "panel",
       "progress",
       "progress-indicator",
+      "rating",
+      "segmented",
+      "slider",
       "sparkline",
       "sparkline-area",
       "sparkline-grid",
       "sparkline-line",
       "sparkline-points",
       "tabs",
+      "tag",
+      "time-picker",
       "transfer",
       "transfer-source",
-      "transfer-target",
-      "view-selector"
+      "transfer-target"
     ],
     "runtimeAttributes": [
       "data-motion-replay",
@@ -420,9 +440,9 @@
       "types": "./dist/components/pressable/index.d.ts",
       "import": "./dist/components/pressable/index.js"
     },
-    "./range": {
-      "types": "./dist/components/range/index.d.ts",
-      "import": "./dist/components/range/index.js"
+    "./slider": {
+      "types": "./dist/components/slider/index.d.ts",
+      "import": "./dist/components/slider/index.js"
     },
     "./diagram/graph": {
       "types": "./dist/components/diagram/graph/index.d.ts",
@@ -496,9 +516,33 @@
       "types": "./dist/components/input/index.d.ts",
       "import": "./dist/components/input/index.js"
     },
+    "./date": {
+      "types": "./dist/components/date/index.d.ts",
+      "import": "./dist/components/date/index.js"
+    },
+    "./segmented": {
+      "types": "./dist/components/segmented/index.d.ts",
+      "import": "./dist/components/segmented/index.js"
+    },
+    "./tag": {
+      "types": "./dist/components/tag/index.d.ts",
+      "import": "./dist/components/tag/index.js"
+    },
+    "./responsive": {
+      "types": "./dist/shared/responsive/use-media.d.ts",
+      "import": "./dist/shared/responsive/use-media.js"
+    },
     "./link": {
       "types": "./dist/components/link/index.d.ts",
       "import": "./dist/components/link/index.js"
+    },
+    "./masonry": {
+      "types": "./dist/components/masonry/index.d.ts",
+      "import": "./dist/components/masonry/index.js"
+    },
+    "./rating": {
+      "types": "./dist/components/rating/index.d.ts",
+      "import": "./dist/components/rating/index.js"
     },
     "./textarea": {
       "types": "./dist/components/textarea/index.d.ts",
@@ -559,6 +603,10 @@
     "./dialog": {
       "types": "./dist/components/dialog/index.d.ts",
       "import": "./dist/components/dialog/index.js"
+    },
+    "./disclosure": {
+      "types": "./dist/components/disclosure/index.d.ts",
+      "import": "./dist/components/disclosure/index.js"
     },
     "./divider": {
       "types": "./dist/components/divider/index.d.ts",
@@ -687,7 +735,7 @@
     "./metrics/styles.css": "./dist/styles/components/metrics.css",
     "./view/styles.css": "./dist/styles/components/view.css",
     "./pressable/styles.css": "./dist/styles/components/pressable.css",
-    "./range/styles.css": "./dist/styles/components/range.css",
+    "./slider/styles.css": "./dist/styles/components/slider.css",
     "./diagram/graph/styles.css": "./dist/styles/components/diagram/graph.css",
     "./scroll/styles.css": "./dist/styles/components/scroll.css",
     "./shell/styles.css": "./dist/styles/components/shell.css",
@@ -704,7 +752,12 @@
     "./combobox/styles.css": "./dist/styles/components/combobox.css",
     "./breadcrumb/styles.css": "./dist/styles/components/breadcrumb.css",
     "./input/styles.css": "./dist/styles/components/input.css",
+    "./date/styles.css": "./dist/styles/components/date.css",
+    "./segmented/styles.css": "./dist/styles/components/segmented.css",
+    "./tag/styles.css": "./dist/styles/components/tag.css",
     "./link/styles.css": "./dist/styles/components/link.css",
+    "./masonry/styles.css": "./dist/styles/components/masonry.css",
+    "./rating/styles.css": "./dist/styles/components/rating.css",
     "./textarea/styles.css": "./dist/styles/components/textarea.css",
     "./select/styles.css": "./dist/styles/components/select.css",
     "./checkbox/styles.css": "./dist/styles/components/checkbox.css",
@@ -720,6 +773,7 @@
     "./popover/styles.css": "./dist/styles/components/popover.css",
     "./progress/styles.css": "./dist/styles/components/progress.css",
     "./dialog/styles.css": "./dist/styles/components/dialog.css",
+    "./disclosure/styles.css": "./dist/styles/components/disclosure.css",
     "./divider/styles.css": "./dist/styles/components/divider.css",
     "./drawer/styles.css": "./dist/styles/components/drawer.css",
     "./descriptions/styles.css": "./dist/styles/components/descriptions.css",
@@ -747,8 +801,6 @@
     "./empty/styles.css": "./dist/styles/components/empty.css",
     "./entry/styles.css": "./dist/styles/components/entry.css",
     "./hidden/styles.css": "./dist/styles/components/hidden.css",
-    "./neutral.css": "./dist/theme/presets/neutral/styles.css",
-    "./contrast.css": "./dist/theme/presets/contrast/styles.css",
     "./theme.css": "./dist/theme/theme.css",
     "./core.css": "./dist/styles/core.css",
     "./reset.css": "./dist/styles/reset.css"
@@ -778,7 +830,7 @@
     "check": "npm run typecheck && npm run lint && npm run audit:css && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
-    "@miaixz/sdk": ">=0.6.0 <0.7.0",
+    "@miaixz/sdk": ">=0.6.5 <0.7.0",
     "react": ">=18.3 <20",
     "react-dom": ">=18.3 <20"
   },
@@ -791,8 +843,9 @@
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
-    "@miaixz/sdk": "0.6.0",
+    "@miaixz/sdk": "0.6.5",
     "@playwright/test": "1.62.1",
+    "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.6",
@@ -802,6 +855,7 @@
     "@vitejs/plugin-react": "6.1.1",
     "@vitest/coverage-v8": "4.1.11",
     "axe-core": "4.13.0",
+    "esbuild": "0.28.2",
     "eslint": "10.9.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsdoc": "62.7.0",

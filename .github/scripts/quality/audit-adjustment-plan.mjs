@@ -86,9 +86,7 @@ for (const file of walk(resolve(uiWorkspace.rootPath, "src")).filter((path) =>
   for (const match of source.matchAll(/withMiaixzThemeComponent\(\s*"([A-Z][A-Za-z0-9]+)"/gu)) {
     calls.set(match[1], (calls.get(match[1]) ?? 0) + 1);
   }
-  for (const match of source.matchAll(
-    /useMiaixzThemeComponent\("(Button|Input|Select|Dialog)"\)/gu,
-  )) {
+  for (const match of source.matchAll(/useMiaixzThemeComponent\(\s*"([A-Z][A-Za-z0-9]+)"/gu)) {
     calls.set(match[1], (calls.get(match[1]) ?? 0) + 1);
   }
 }
@@ -120,8 +118,8 @@ if (/\bselected\s*:/u.test(uiReadme)) {
 if (!/\bcurrent:\s*"page"/u.test(uiReadme) || !/\btextValue:/u.test(uiReadme)) {
   failures.push("UI README NavigationRail examples must show current and textValue");
 }
-if (/--no-package-lock/u.test(readmes.get("README.md") ?? "")) {
-  failures.push("root README must use the committed npm package lock");
+if (!/npm install --no-package-lock --legacy-peer-deps/u.test(readmes.get("README.md") ?? "")) {
+  failures.push("root README must document the lockfile-free npm install command");
 }
 if (/npm install[^\n]*\blucide(?:-react)?\b/iu.test(uiReadme)) {
   failures.push("UI README must not require consumers to install Lucide");

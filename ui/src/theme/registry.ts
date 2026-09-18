@@ -39,6 +39,7 @@ import type {
   AvatarProps,
 } from "../components/avatar/avatar.types.js";
 import type { BadgeOwnerState, BadgeProps } from "../components/badge/badge.types.js";
+import type { TagOwnerState, TagProps } from "../components/tag/tag.types.js";
 import type { BarProps } from "../components/bar/bar.types.js";
 import type { BrandOwnerState, BrandProps } from "../components/brand/brand.types.js";
 import type {
@@ -50,18 +51,35 @@ import type {
   ButtonOwnerState,
   ButtonProps,
 } from "../components/button/button.types.js";
+import type {
+  ButtonGroupOwnerState,
+  ButtonGroupProps,
+} from "../components/button/button-group.types.js";
 import type { CheckboxOwnerState, CheckboxProps } from "../components/checkbox/checkbox.types.js";
 import type { ClusterProps } from "../components/cluster/cluster.types.js";
 import type { ColumnsOwnerState, ColumnsProps } from "../components/columns/columns.types.js";
 import type { ComboboxOwnerState, ComboboxProps } from "../components/combobox/combobox.types.js";
 import type { ConfirmOwnerState, ConfirmProps } from "../components/confirm/confirm.types.js";
 import type { DatagridProps } from "../components/datagrid/datagrid.types.js";
+import type { CalendarOwnerState, CalendarProps } from "../components/date/calendar.types.js";
+import type {
+  DatePickerOwnerState,
+  DatePickerProps,
+} from "../components/date/date-picker.types.js";
+import type {
+  TimePickerOwnerState,
+  TimePickerProps,
+} from "../components/date/time-picker.types.js";
 import type {
   DescriptionsOwnerState,
   DescriptionsProps,
 } from "../components/descriptions/descriptions.types.js";
 import type { GraphOwnerState, GraphProps } from "../components/diagram/graph/graph.types.js";
 import type { DialogOwnerState, DialogProps } from "../components/dialog/dialog.types.js";
+import type {
+  DisclosureOwnerState,
+  DisclosureProps,
+} from "../components/disclosure/disclosure.types.js";
 import type { DividerProps } from "../components/divider/divider.types.js";
 import type { DonutOwnerState, DonutProps } from "../components/donut/donut.types.js";
 import type { DrawerOwnerState, DrawerProps } from "../components/drawer/drawer.types.js";
@@ -100,6 +118,10 @@ import type {
 import type { HiddenProps } from "../components/hidden/hidden.types.js";
 import type { IconProps } from "../components/icon/icon.types.js";
 import type { InputOwnerState, InputProps } from "../components/input/input.types.js";
+import type {
+  NumberInputOwnerState,
+  NumberInputProps,
+} from "../components/input/number-input.types.js";
 import type { LinkOwnerState, LinkProps } from "../components/link/link.types.js";
 import type {
   ListCounterProps,
@@ -111,6 +133,7 @@ import type {
 } from "../components/list/list.types.js";
 import type { LocaleOwnerState, LocaleProps } from "../components/locale/locale.types.js";
 import type { MetricOwnerState, MetricProps } from "../components/metrics/metric.types.js";
+import type { MasonryOwnerState, MasonryProps } from "../components/masonry/masonry.types.js";
 import type { MetricsProps } from "../components/metrics/metrics.types.js";
 import type {
   NavigationRailGroupOwnerState,
@@ -150,9 +173,14 @@ import type {
   RadioGroupProps,
 } from "../components/radio/radio-group.types.js";
 import type { RadioOwnerState, RadioProps } from "../components/radio/radio.types.js";
-import type { RangeOwnerState, RangeProps } from "../components/range/range.types.js";
+import type { RatingOwnerState, RatingProps } from "../components/rating/rating.types.js";
+import type { SliderOwnerState, SliderProps } from "../components/slider/slider.types.js";
 import type { ScrollProps } from "../components/scroll/scroll.types.js";
 import type { SearchOwnerState, SearchProps } from "../components/search/search.types.js";
+import type {
+  SegmentedOwnerState,
+  SegmentedProps,
+} from "../components/segmented/segmented.types.js";
 import type { SectionsOwnerState, SectionsProps } from "../components/sections/sections.types.js";
 import type { SelectOwnerState, SelectProps } from "../components/select/select.types.js";
 import type { ShellOwnerState, ShellProps } from "../components/shell/shell.types.js";
@@ -216,8 +244,10 @@ type MiaixzEmptyOwnerState = Readonly<Record<never, never>>;
 export interface MiaixzThemeComponentRegistry {
   readonly Pressable: MiaixzThemeEntry<PressableProps, { readonly disabled: boolean }>;
   readonly Button: MiaixzThemeEntry<ButtonProps, ButtonOwnerState>;
+  readonly ButtonGroup: MiaixzThemeEntry<ButtonGroupProps, ButtonGroupOwnerState>;
   readonly ButtonLink: MiaixzThemeEntry<ButtonLinkProps, ButtonOwnerState>;
   readonly Link: MiaixzThemeEntry<LinkProps, LinkOwnerState>;
+  readonly Tag: MiaixzThemeEntry<TagProps, TagOwnerState>;
   readonly ActionText: MiaixzThemeEntry<
     ActionTextProps,
     {
@@ -235,13 +265,20 @@ export interface MiaixzThemeComponentRegistry {
   readonly FormActions: MiaixzThemeEntry<FormActionsProps, FormActionsOwnerState>;
   readonly Field: MiaixzThemeEntry<FieldProps, FieldOwnerState>;
   readonly Input: MiaixzThemeEntry<InputProps, InputOwnerState>;
+  readonly Calendar: MiaixzThemeEntry<CalendarProps, CalendarOwnerState>;
+  readonly DatePicker: MiaixzThemeEntry<DatePickerProps, DatePickerOwnerState>;
+  readonly TimePicker: MiaixzThemeEntry<TimePickerProps, TimePickerOwnerState>;
+  readonly NumberInput: MiaixzThemeEntry<NumberInputProps, NumberInputOwnerState>;
   readonly Textarea: MiaixzThemeEntry<TextareaProps, TextareaOwnerState>;
   readonly Search: MiaixzThemeEntry<SearchProps, SearchOwnerState>;
+  readonly Segmented: MiaixzThemeEntry<SegmentedProps, SegmentedOwnerState>;
   readonly Checkbox: MiaixzThemeEntry<CheckboxProps, CheckboxOwnerState>;
   readonly Radio: MiaixzThemeEntry<RadioProps, RadioOwnerState>;
+  readonly Rating: MiaixzThemeEntry<RatingProps, RatingOwnerState>;
+  readonly Masonry: MiaixzThemeEntry<MasonryProps, MasonryOwnerState>;
   readonly RadioGroup: MiaixzThemeEntry<RadioGroupProps, RadioGroupOwnerState>;
   readonly Switch: MiaixzThemeEntry<SwitchProps, SwitchOwnerState>;
-  readonly Range: MiaixzThemeEntry<RangeProps, RangeOwnerState>;
+  readonly Slider: MiaixzThemeEntry<SliderProps, SliderOwnerState>;
   readonly Select: MiaixzThemeEntry<SelectProps, SelectOwnerState>;
   readonly Combobox: MiaixzThemeEntry<ComboboxProps, ComboboxOwnerState>;
   readonly Picker: MiaixzThemeEntry<PickerProps, ComboboxOwnerState>;
@@ -257,6 +294,7 @@ export interface MiaixzThemeComponentRegistry {
     DropdownPresentation & { readonly open: boolean }
   >;
   readonly Dialog: MiaixzThemeEntry<DialogProps, DialogOwnerState>;
+  readonly Disclosure: MiaixzThemeEntry<DisclosureProps, DisclosureOwnerState>;
   readonly Confirm: MiaixzThemeEntry<ConfirmProps, ConfirmOwnerState>;
   readonly Drawer: MiaixzThemeEntry<DrawerProps, DrawerOwnerState>;
   readonly Toolbar: MiaixzThemeEntry<

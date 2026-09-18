@@ -21,6 +21,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ForwardedRef, PointerEventHandler, RefCallback } from "react";
 
+import { useMedia } from "./responsive/use-media.js";
 import { useMergedRef } from "./use-merged-ref.js";
 
 type VisualizationElement = HTMLElement | SVGSVGElement;
@@ -79,19 +80,6 @@ export interface VisualizationGroupMotionOptions<T extends HTMLElement> {
 }
 
 /**
- * Reports whether the active environment requests reduced motion.
- *
- * @returns `true` when motion should be suppressed.
- */
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-}
-
-/**
  * Configures one visualization's entry and hover replay motion.
  *
  * @typeParam T - Visualization root element type.
@@ -134,6 +122,7 @@ export function useVisualizationMotion<T extends VisualizationElement>({
   const replayTimerRef = useRef<number | undefined>(undefined);
   const [motionState, setMotionState] = useState<VisualizationMotionState>("pending");
   const ref = useMergedRef(forwardedRef, localRef);
+  const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
 
   useEffect(() => {
     const element = localRef.current;
@@ -154,7 +143,7 @@ export function useVisualizationMotion<T extends VisualizationElement>({
       completionTimerRef.current = window.setTimeout(complete, replayDuration);
     };
 
-    if (prefersReducedMotion()) {
+    if (reducedMotion) {
       completionTimerRef.current = window.setTimeout(complete, 0);
       return clearCompletionTimer;
     }
@@ -186,7 +175,7 @@ export function useVisualizationMotion<T extends VisualizationElement>({
       window.cancelAnimationFrame(visibilityFrame);
       clearCompletionTimer();
     };
-  }, [replayDuration]);
+  }, [reducedMotion, replayDuration]);
 
   useEffect(
     () => () => {
@@ -197,7 +186,7 @@ export function useVisualizationMotion<T extends VisualizationElement>({
 
   const replay = useCallback(() => {
     const element = localRef.current;
-    if (!element || prefersReducedMotion()) return;
+    if (!element || reducedMotion) return;
 
     if (completionTimerRef.current !== undefined) {
       window.clearTimeout(completionTimerRef.current);
@@ -213,7 +202,7 @@ export function useVisualizationMotion<T extends VisualizationElement>({
       element.removeAttribute("data-motion-replay");
       replayTimerRef.current = undefined;
     }, replayDuration);
-  }, [replayDuration]);
+  }, [reducedMotion, replayDuration]);
 
   const stopReplay = useCallback(() => {
     const element = localRef.current;
@@ -271,13 +260,14 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
 }: VisualizationGroupMotionOptions<T>): RefCallback<T> {
   const rootRef = useRef<T>(null);
   const ref = useMergedRef(forwardedRef ?? null, rootRef);
+  const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return undefined;
 
     const visualizations = Array.from(root.querySelectorAll<HTMLElement>(selector));
-    const reduced = prefersReducedMotion();
+    const reduced = reducedMotion;
     const completionTimers = new Map<HTMLElement, number>();
     const replayTimers = new Map<HTMLElement, number>();
     const replayListeners = new Map<HTMLElement, VisualizationReplayListeners>();
@@ -380,7 +370,7 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
       });
       replayTimers.forEach((timer) => window.clearTimeout(timer));
     };
-  }, [replayDuration, selector]);
+  }, [reducedMotion, replayDuration, selector]);
 
   return ref;
 }

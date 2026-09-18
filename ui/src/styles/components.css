@@ -35,8 +35,10 @@
 @import url("./components/combobox.css") layer(miaixz-components);
 @import url("./components/confirm.css") layer(miaixz-components);
 @import url("./components/datagrid.css") layer(miaixz-components);
+@import url("./components/date.css") layer(miaixz-components);
 @import url("./components/descriptions.css") layer(miaixz-components);
 @import url("./components/dialog.css") layer(miaixz-components);
+@import url("./components/disclosure.css") layer(miaixz-components);
 @import url("./components/divider.css") layer(miaixz-components);
 @import url("./components/donut.css") layer(miaixz-components);
 @import url("./components/drawer.css") layer(miaixz-components);
@@ -60,6 +62,7 @@
 @import url("./components/list.css") layer(miaixz-components);
 @import url("./components/locale.css") layer(miaixz-components);
 @import url("./components/metrics.css") layer(miaixz-components);
+@import url("./components/masonry.css") layer(miaixz-components);
 @import url("./components/view.css") layer(miaixz-components);
 @import url("./components/overlay.css") layer(miaixz-components);
 @import url("./components/menu.css") layer(miaixz-components);
@@ -71,9 +74,11 @@
 @import url("./components/popover.css") layer(miaixz-components);
 @import url("./components/pressable.css") layer(miaixz-components);
 @import url("./components/progress.css") layer(miaixz-components);
-@import url("./components/range.css") layer(miaixz-components);
+@import url("./components/rating.css") layer(miaixz-components);
+@import url("./components/slider.css") layer(miaixz-components);
 @import url("./components/diagram/graph.css") layer(miaixz-components);
 @import url("./components/search.css") layer(miaixz-components);
+@import url("./components/segmented.css") layer(miaixz-components);
 @import url("./components/select.css") layer(miaixz-components);
 @import url("./components/shell.css") layer(miaixz-components);
 @import url("./components/sidebar.css") layer(miaixz-components);
@@ -87,6 +92,7 @@
 @import url("./components/switch.css") layer(miaixz-components);
 @import url("./components/table.css") layer(miaixz-components);
 @import url("./components/tabs.css") layer(miaixz-components);
+@import url("./components/tag.css") layer(miaixz-components);
 @import url("./components/textarea.css") layer(miaixz-components);
 @import url("./components/toast.css") layer(miaixz-components);
 @import url("./components/toaster.css") layer(miaixz-components);

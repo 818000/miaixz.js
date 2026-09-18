@@ -97,7 +97,6 @@ Choose one public CSS entry at the application root:
 
 - `@miaixz/ui/styles.css` for the SDK-selected default theme with all foundation and component styles.
 - `@miaixz/ui/theme.css` for all built-in themes.
-- `@miaixz/ui/neutral.css` or `@miaixz/ui/contrast.css` for one alternative built-in theme.
 - `@miaixz/ui/foundation.css`, `@miaixz/ui/components.css`, `@miaixz/ui/core.css`, and `@miaixz/ui/reset.css` for explicitly layered integrations.
 
 For selective delivery, load the chosen theme/foundation entry and then each DOM module's sole
@@ -164,10 +163,10 @@ rules and contract tests require separate configuration.
 
 ## Development
 
-Install dependencies and update the committed root lockfile:
+Install dependencies without creating a lockfile:
 
 ```bash
-npm install
+npm install --no-package-lock --legacy-peer-deps
 ```
 
 Run the standard repository checks:
@@ -206,7 +205,7 @@ Additional root commands:
 `VERSION` is the authoritative repository version. The version script updates all related values together:
 
 ```bash
-npm run version:set -- 0.6.0
+npm run version:set -- 1.2.3
 ```
 
 The script synchronizes:
@@ -221,7 +220,7 @@ All public packages must always have the same exact release version.
 
 ## Release process
 
-Releases are driven by an unprefixed semantic-version Git tag. For example, version `0.6.0` uses tag `0.6.0`, never `v0.6.0`.
+Releases are driven by an unprefixed semantic-version Git tag. For example, version `1.2.3` uses tag `1.2.3`, never `v1.2.3`.
 
 The expected release sequence is:
 

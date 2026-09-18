@@ -18,11 +18,13 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef, useRef } from "react";
+import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 
+import { MiaixzUiError } from "../../errors/ui-error.js";
 import { hasMiaixzControlValue } from "../../shared/control-state.js";
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { useControlValueState } from "../../shared/use-control-value-state.js";
 import type {
   TextareaOwnerState,
@@ -44,6 +46,11 @@ export const Textarea = withMiaixzThemeComponent(
       size = "medium",
       invalid,
       resize = "vertical",
+      autoResize = false,
+      minRows = 2,
+      maxRows,
+      showCount = false,
+      formatCount,
       className,
       style,
       disabled,
@@ -58,6 +65,15 @@ export const Textarea = withMiaixzThemeComponent(
       slotProps,
       ...nativeProps
     } = props;
+    if (
+      autoResize &&
+      (!Number.isInteger(minRows) ||
+        minRows <= 0 ||
+        (maxRows !== undefined &&
+          (!Number.isInteger(maxRows) || maxRows <= 0 || minRows > maxRows)))
+    ) {
+      throw new MiaixzUiError({ code: "UI_TEXTAREA_ROWS_INVALID" });
+    }
     const fieldProps = useFieldControl({
       ...(id === undefined ? {} : { id }),
       ...(required === undefined ? {} : { required }),
@@ -74,6 +90,10 @@ export const Textarea = withMiaixzThemeComponent(
         fieldProps["aria-invalid"] !== "false");
     const effectiveDisabled = fieldProps.disabled ?? false;
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [uncontrolledLength, setUncontrolledLength] = useState(
+      () => String(defaultValue ?? "").length,
+    );
+    const currentLength = value === undefined ? uncontrolledLength : String(value).length;
     const filledState = useControlValueState({
       controlRef: textareaRef,
       value: value === undefined ? undefined : hasMiaixzControlValue(value),
@@ -82,12 +102,48 @@ export const Textarea = withMiaixzThemeComponent(
     });
     const ownerState: TextareaOwnerState = {
       size,
-      resize,
+      resize: autoResize ? "none" : resize,
       invalid: effectiveInvalid,
       disabled: effectiveDisabled,
       readOnly: readOnly === true,
       filled: filledState.value,
+      autoResize,
+      showCount,
     };
+    const measure = useCallback(() => {
+      const control = textareaRef.current;
+      if (!autoResize || control === null) return;
+      const computed = window.getComputedStyle(control);
+      const lineHeight =
+        Number.parseFloat(computed.lineHeight) || Number.parseFloat(computed.fontSize) * 1.2;
+      const verticalChrome =
+        Number.parseFloat(computed.paddingTop) +
+        Number.parseFloat(computed.paddingBottom) +
+        Number.parseFloat(computed.borderTopWidth) +
+        Number.parseFloat(computed.borderBottomWidth);
+      const minimumHeight = lineHeight * minRows + verticalChrome;
+      const maximumHeight =
+        maxRows === undefined ? Number.POSITIVE_INFINITY : lineHeight * maxRows + verticalChrome;
+      control.style.height = "auto";
+      const nextHeight = Math.min(maximumHeight, Math.max(minimumHeight, control.scrollHeight));
+      control.style.height = `${nextHeight}px`;
+      control.style.overflowY = control.scrollHeight > maximumHeight ? "auto" : "hidden";
+    }, [autoResize, maxRows, minRows]);
+    useMiaixzLayoutEffect(measure, [currentLength, measure, value]);
+    useEffect(() => {
+      if (!autoResize) return;
+      const control = textareaRef.current;
+      if (control === null) return;
+      const observer =
+        typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(measure);
+      observer?.observe(control);
+      if (observer === undefined) window.addEventListener("resize", measure);
+      void document.fonts?.ready.then(measure);
+      return () => {
+        observer?.disconnect();
+        window.removeEventListener("resize", measure);
+      };
+    }, [autoResize, measure]);
     const rootProps = mergeMiaixzSlotProps<
       TextareaOwnerState,
       TextareaRootAttributes,
@@ -136,8 +192,12 @@ export const Textarea = withMiaixzThemeComponent(
         ...(fieldProps["aria-describedby"] === undefined
           ? {}
           : { "aria-describedby": fieldProps["aria-describedby"] }),
-        "data-resize": resize,
-        onChange: filledState.sync,
+        "data-resize": autoResize ? "none" : resize,
+        onChange: (event) => {
+          filledState.sync();
+          if (value === undefined) setUncontrolledLength(event.currentTarget.value.length);
+          measure();
+        },
       },
       ownedProps: [
         "id",
@@ -153,6 +213,22 @@ export const Textarea = withMiaixzThemeComponent(
     return (
       <span {...rootProps}>
         <textarea {...textareaProps} />
+        {showCount && (
+          <output
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-textarea-count" },
+              slotProps: slotProps?.count,
+              internalProps: fieldProps.id === undefined ? {} : { htmlFor: fieldProps.id },
+              ownedProps: ["htmlFor"],
+            })}
+          >
+            {formatCount?.(currentLength, nativeProps.maxLength) ??
+              (nativeProps.maxLength === undefined
+                ? String(currentLength)
+                : `${currentLength} / ${nativeProps.maxLength}`)}
+          </output>
+        )}
       </span>
     );
   }),

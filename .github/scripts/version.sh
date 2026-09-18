@@ -65,6 +65,16 @@ const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
 const peerRange = getWorkspacePeerRange(version);
 for (const { manifest } of repository.workspaces) {
   manifest.version = version;
+  if (manifest.miaixzUiContract !== undefined) {
+    if (
+      manifest.miaixzUiContract === null ||
+      typeof manifest.miaixzUiContract !== "object" ||
+      Array.isArray(manifest.miaixzUiContract)
+    ) {
+      throw new Error("miaixzUiContract must be an object when present.");
+    }
+    manifest.miaixzUiContract.version = version;
+  }
   for (const dependencyName of Object.keys(manifest.peerDependencies ?? {})) {
     if (!workspaceNames.has(dependencyName)) continue;
     manifest.peerDependencies[dependencyName] = peerRange;
@@ -101,6 +111,8 @@ const verifiedWorkspaceNames = new Set(
   verifiedRepository.workspaces.map(({ name }) => name),
 );
 const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest }) => {
+  const contractVersionMatches =
+    manifest.miaixzUiContract === undefined || manifest.miaixzUiContract.version === version;
   const peersMatch = Object.entries(manifest.peerDependencies ?? {}).every(
     ([name, range]) =>
       !verifiedWorkspaceNames.has(name) ||
@@ -115,7 +127,7 @@ const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest })
       ([name, range]) => !verifiedWorkspaceNames.has(name) || range === version,
     ),
   );
-  return peersMatch && otherDependenciesMatch;
+  return contractVersionMatches && peersMatch && otherDependenciesMatch;
 });
 const versionsMatch =
   readFileSync(paths.version, "utf8").trim() === version &&

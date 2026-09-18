@@ -286,6 +286,10 @@ button.miaixz-button.miaixz-action-text:disabled {
   flex: none;
 }
 
+.miaixz-action-bar > .miaixz-button {
+  flex: none;
+}
+
 .miaixz-action-bar {
   width: 100%;
   overflow-x: auto;

@@ -44,6 +44,11 @@ for (const [path, manifest] of manifests) {
   if (manifest.version !== version) {
     throw new Error(`${path} version '${manifest.version ?? ""}' does not match '${version}'.`);
   }
+  if (manifest.miaixzUiContract !== undefined && manifest.miaixzUiContract?.version !== version) {
+    throw new Error(
+      `${path} miaixzUiContract version '${manifest.miaixzUiContract?.version ?? ""}' does not match '${version}'.`,
+    );
+  }
 }
 
 if (repository.rootManifest.private !== true) {

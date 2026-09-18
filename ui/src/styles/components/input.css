@@ -101,6 +101,40 @@
   background: var(--miaixz-color-surface-secondary);
 }
 
+.miaixz-number-input-controls {
+  display: inline-flex;
+  align-self: stretch;
+  margin-inline-end: calc(-1 * var(--miaixz-density-control-padding-inline));
+  border-inline-start: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
+}
+
+.miaixz-number-input-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--miaixz-density-control-height);
+  padding: 0;
+  color: var(--miaixz-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-inline-start: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
+}
+
+.miaixz-number-input-step:first-child {
+  border-inline-start: 0;
+}
+
+.miaixz-number-input-step:hover:not(:disabled) {
+  color: var(--miaixz-color-text-primary);
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-number-input-step:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: calc(-1 * var(--miaixz-control-focus-width));
+}
+
 @media (pointer: coarse) {
   .miaixz-input-adornment :is(.miaixz-button, .miaixz-action-text, .miaixz-icon-button) {
     min-block-size: var(--miaixz-control-min-target-size);

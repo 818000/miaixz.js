@@ -20,7 +20,7 @@
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { ComboboxOwnerState, MiaixzOption } from "../combobox/combobox.types.js";
-import { Icon } from "../icon/icon.js";
+import { Tag } from "../tag/tag.js";
 import type { PickerSlotProps } from "./picker.types.js";
 
 /**
@@ -53,33 +53,27 @@ export function renderDefaultValues<Value extends string>(
       {value.map((option) => {
         const valueProps = mergeMiaixzSlotProps({
           ownerState,
-          defaultProps: { className: "miaixz-picker-tag" },
           slotProps: slotProps?.value,
         });
         const labelProps = mergeMiaixzSlotProps({
           ownerState,
-          defaultProps: { className: "miaixz-picker-tag-label" },
           slotProps: slotProps?.valueLabel,
         });
         const removeProps = mergeMiaixzSlotProps({
           ownerState,
-          defaultProps: { className: "miaixz-picker-tag-remove" },
           slotProps: slotProps?.remove,
-          internalProps: {
-            type: "button",
-            "aria-label": `${removeMessage} ${option.textValue}`,
-            disabled,
-            onClick: () => onRemove(option),
-          },
-          ownedProps: ["type", "aria-label", "disabled"],
         });
         return (
-          <span key={option.value} {...valueProps}>
-            <span {...labelProps}>{option.label}</span>
-            <button {...removeProps}>
-              <Icon name="X" size="indicator" />
-            </button>
-          </span>
+          <Tag
+            key={option.value}
+            {...valueProps}
+            disabled={disabled}
+            onRemove={() => onRemove(option)}
+            removeLabel={`${removeMessage} ${option.textValue}`}
+            slotProps={{ label: labelProps, remove: removeProps }}
+          >
+            {option.label}
+          </Tag>
         );
       })}
     </div>

@@ -28,7 +28,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["tests/unit/**/*.test.ts", "tests/runtime/**/*.test.ts"],
+    include: ["tests/**/*.test.ts"],
     restoreMocks: true,
     coverage: {
       provider: "v8",

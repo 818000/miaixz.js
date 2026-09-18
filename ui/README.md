@@ -15,8 +15,8 @@ CSS trees to `dist`. The CSS package test detects generated-file drift; the gene
 `--runtime-dir` and `--output-dir` for isolated reproduction.
 
 The sole public JavaScript theme entry is `@miaixz/ui/theme`. Public CSS theme entries are
-`@miaixz/ui/styles.css`, `@miaixz/ui/theme.css`, `@miaixz/ui/neutral.css`, and
-`@miaixz/ui/contrast.css`.
+`@miaixz/ui/styles.css` and `@miaixz/ui/theme.css`; preset-specific CSS paths are private so preset
+directories can be added or removed without changing package exports.
 `styles.css` is the complete default theme. Foundation, component, core, and reset
 entries retain their responsibilities. CSS auditing uses
 `.github/scripts/quality/audit-ui-contracts.mjs` from the repository root.
@@ -137,7 +137,7 @@ This table is checked directly against the package export map.
 | `./metrics`                  | JavaScript |
 | `./view`                     | JavaScript |
 | `./pressable`                | JavaScript |
-| `./range`                    | JavaScript |
+| `./slider`                   | JavaScript |
 | `./diagram/graph`            | JavaScript |
 | `./scroll`                   | JavaScript |
 | `./shell`                    | JavaScript |
@@ -156,7 +156,13 @@ This table is checked directly against the package export map.
 | `./combobox`                 | JavaScript |
 | `./breadcrumb`               | JavaScript |
 | `./input`                    | JavaScript |
+| `./date`                     | JavaScript |
+| `./segmented`                | JavaScript |
+| `./tag`                      | JavaScript |
+| `./responsive`               | JavaScript |
 | `./link`                     | JavaScript |
+| `./masonry`                  | JavaScript |
+| `./rating`                   | JavaScript |
 | `./textarea`                 | JavaScript |
 | `./select`                   | JavaScript |
 | `./checkbox`                 | JavaScript |
@@ -172,6 +178,7 @@ This table is checked directly against the package export map.
 | `./popover`                  | JavaScript |
 | `./progress`                 | JavaScript |
 | `./dialog`                   | JavaScript |
+| `./disclosure`               | JavaScript |
 | `./divider`                  | JavaScript |
 | `./drawer`                   | JavaScript |
 | `./descriptions`             | JavaScript |
@@ -215,7 +222,7 @@ This table is checked directly against the package export map.
 | `./metrics/styles.css`       | CSS        |
 | `./view/styles.css`          | CSS        |
 | `./pressable/styles.css`     | CSS        |
-| `./range/styles.css`         | CSS        |
+| `./slider/styles.css`        | CSS        |
 | `./diagram/graph/styles.css` | CSS        |
 | `./scroll/styles.css`        | CSS        |
 | `./shell/styles.css`         | CSS        |
@@ -232,7 +239,12 @@ This table is checked directly against the package export map.
 | `./combobox/styles.css`      | CSS        |
 | `./breadcrumb/styles.css`    | CSS        |
 | `./input/styles.css`         | CSS        |
+| `./date/styles.css`          | CSS        |
+| `./segmented/styles.css`     | CSS        |
+| `./tag/styles.css`           | CSS        |
 | `./link/styles.css`          | CSS        |
+| `./masonry/styles.css`       | CSS        |
+| `./rating/styles.css`        | CSS        |
 | `./textarea/styles.css`      | CSS        |
 | `./select/styles.css`        | CSS        |
 | `./checkbox/styles.css`      | CSS        |
@@ -248,6 +260,7 @@ This table is checked directly against the package export map.
 | `./popover/styles.css`       | CSS        |
 | `./progress/styles.css`      | CSS        |
 | `./dialog/styles.css`        | CSS        |
+| `./disclosure/styles.css`    | CSS        |
 | `./divider/styles.css`       | CSS        |
 | `./drawer/styles.css`        | CSS        |
 | `./descriptions/styles.css`  | CSS        |
@@ -275,13 +288,11 @@ This table is checked directly against the package export map.
 | `./empty/styles.css`         | CSS        |
 | `./entry/styles.css`         | CSS        |
 | `./hidden/styles.css`        | CSS        |
-| `./neutral.css`              | CSS        |
-| `./contrast.css`             | CSS        |
 | `./theme.css`                | CSS        |
 | `./core.css`                 | CSS        |
 | `./reset.css`                | CSS        |
 
-The `miaixzUiContract.deprecatedProps` list is empty in `0.6.0`; removed APIs are not published as
+The `miaixzUiContract.deprecatedProps` list is empty in the current package version; removed APIs are not published as
 package metadata.
 
 ## Basic usage
@@ -514,12 +525,30 @@ Modules in the same runtime use `createMiaixzDirectHostBridge()`. Cross-origin i
 
 The public component collection includes:
 
-- Foundations and forms: Icon, Button, Input, Search, Textarea, Select, Combobox, Picker, Field, Checkbox, Radio, Switch, Dropzone, and Upload.
-- Navigation and layout: Navigation, Breadcrumb, Tabs, Toolbar, Shell, Page, View, Header, Grid, Cluster, Split, Stack, Sidebar, Scroll, and Entry.
-- Data display: Panel, List, Table, Datagrid, Tree, Badge, Pagination, Avatar, AvatarGroup, Divider, and Status.
-- Feedback and overlays: Alert, Notice, Progress, Spinner, Overlay, Tooltip, Popover, Dropdown, Dialog, Confirm, Drawer, Toast, Skeleton, Empty, and Hidden.
+- Foundations and forms: Icon, Button, ButtonGroup, Input, NumberInput, Search, Textarea, Select, Combobox, Picker, Field, Checkbox, Radio, Rating, Slider, Switch, Calendar, DatePicker, TimePicker, Dropzone, and Upload.
+- Navigation and layout: Navigation, Breadcrumb, Tabs, Segmented, Toolbar, Shell, Page, View, Header, Grid, Masonry, Cluster, Split, Stack, Sidebar, Scroll, and Entry.
+- Data display: Panel, List, Table, Datagrid, Tree, Badge, Tag, Pagination, Avatar, AvatarGroup, Divider, and Status.
+- Feedback and overlays: Alert, Notice, Progress, Spinner, Overlay, Tooltip, Popover, Dropdown, Dialog, Confirm, Drawer, Disclosure, Toast, Skeleton, Empty, and Hidden.
 
 Interactive components preserve native semantics, keyboard behavior, and visible focus. Icon-only buttons must provide an accessible name.
+
+### Date and time values
+
+`Calendar` and `DatePicker` exchange local Gregorian calendar strings in strict `YYYY-MM-DD`
+format. `TimePicker` exchanges local wall-time strings in `HH:mm` format, or `HH:mm:ss` when
+`includeSeconds` is enabled. Their public APIs intentionally do not use JavaScript `Date`; the
+application converts a selected local value to an instant only when its business time zone is
+known. Each calendar receives a required, stable `referenceDate`, so server and client rendering
+do not depend on the machine clock.
+
+```tsx
+import { DatePicker, TimePicker } from "@miaixz/ui/date";
+import "@miaixz/ui/date/styles.css";
+
+<DatePicker aria-label="Birthday" name="birthday" referenceDate="2026-09-18" value="2000-01-01" />;
+
+<TimePicker aria-label="Start time" name="startTime" value="09:30" />;
+```
 
 ### Avatar capability
 

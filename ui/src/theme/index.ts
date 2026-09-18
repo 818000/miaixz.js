@@ -29,9 +29,6 @@ export { createThemeStyles } from "./styles.js";
 export { MiaixzThemeError } from "./error.js";
 export type { MiaixzThemeErrorCode } from "./error.js";
 export { loadThemePreset, loadThemePresets, themePresets } from "./presets/index.js";
-export { default as contrastTheme } from "./presets/contrast/index.js";
-export { default as miaixzTheme } from "./presets/miaixz/index.js";
-export { default as neutralTheme } from "./presets/neutral/index.js";
 export { miaixzBreakpoints, miaixzMediaQueries } from "../design/breakpoints.js";
 export type {
   ThemeContextValue,

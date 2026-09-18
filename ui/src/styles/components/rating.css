@@ -1,0 +1,97 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-rating {
+  display: inline-flex;
+  color: var(--miaixz-color-text-disabled);
+}
+
+.miaixz-rating-star {
+  position: relative;
+  display: inline-flex;
+}
+
+.miaixz-rating-item {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.miaixz-rating-item[data-half="true"] {
+  inset-inline-end: 50%;
+}
+
+.miaixz-rating-item[data-half="true"] + .miaixz-rating-item {
+  inset-inline-start: 50%;
+}
+
+.miaixz-rating-input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  cursor: inherit;
+  opacity: 0;
+}
+
+.miaixz-rating-icon {
+  display: inline-flex;
+  color: inherit;
+}
+
+.miaixz-rating-fill {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  inline-size: 0;
+  overflow: hidden;
+  color: var(--miaixz-color-warning);
+}
+
+.miaixz-rating-star[data-fill="half"] .miaixz-rating-fill {
+  inline-size: 50%;
+}
+
+.miaixz-rating-star[data-fill="full"] .miaixz-rating-fill {
+  inline-size: 100%;
+}
+
+.miaixz-rating-fill > .miaixz-icon {
+  flex: none;
+}
+
+.miaixz-rating-star:has(.miaixz-rating-input:focus-visible) {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-space-2);
+}
+
+.miaixz-rating[data-size="small"] .miaixz-rating-star {
+  transform: scale(0.75);
+}
+
+.miaixz-rating[data-size="large"] .miaixz-rating-star {
+  transform: scale(1.25);
+}
+
+.miaixz-rating:has(.miaixz-rating-input:disabled) {
+  opacity: var(--miaixz-opacity-disabled);
+}

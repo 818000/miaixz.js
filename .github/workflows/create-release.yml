@@ -54,7 +54,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install Dependencies
-        run: npm ci --ignore-scripts
+        run: npm install --ignore-scripts --no-package-lock --legacy-peer-deps
 
       - name: Validate Comments
         run: npm run comments:check

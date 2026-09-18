@@ -215,6 +215,45 @@ button.miaixz-button.miaixz-icon-button[data-appearance="glyph"][data-variant="p
   white-space: nowrap;
 }
 
+.miaixz-button-group {
+  display: inline-flex;
+}
+
+.miaixz-button-group[data-orientation="vertical"] {
+  flex-direction: column;
+}
+
+.miaixz-button-group[data-full-width="true"] {
+  display: flex;
+  width: 100%;
+}
+
+.miaixz-button-group[data-full-width="true"] > .miaixz-button {
+  flex: 1 1 0;
+}
+
+.miaixz-button-group[data-orientation="horizontal"] > .miaixz-button:not(:first-child) {
+  margin-inline-start: calc(-1 * var(--miaixz-control-border-width));
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.miaixz-button-group[data-orientation="horizontal"] > .miaixz-button:not(:last-child) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.miaixz-button-group[data-orientation="vertical"] > .miaixz-button:not(:first-child) {
+  margin-block-start: calc(-1 * var(--miaixz-control-border-width));
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+}
+
+.miaixz-button-group[data-orientation="vertical"] > .miaixz-button:not(:last-child) {
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+
 .miaixz-button-content {
   display: inline-flex;
   gap: var(--miaixz-space-2);
