@@ -18,33 +18,75 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 
-import { classNames } from "../../shared/class-names.js";
-import type { NavigationRailGroupProps } from "./navigation-rail-group.types.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import type {
+  NavigationRailGroupOwnerState,
+  NavigationRailGroupProps,
+} from "./navigation-rail-group.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
- * Groups direct rail destinations and morphs its compact divider into a label when expanded.
- *
- * @public
+ * Renders an explicitly named navigation rail group. @public
  */
-export const NavigationRailGroup = forwardRef<HTMLElement, NavigationRailGroupProps>(
-  function NavigationRailGroup({ label, separated = false, className, children, ...props }, ref) {
+export const NavigationRailGroup = withMiaixzThemeComponent(
+  "NavigationRailGroup",
+  forwardRef<HTMLElement, NavigationRailGroupProps>(function NavigationRailGroup(
+    { label, labelVisible = true, separated = false, slotProps, children, ...props },
+    ref,
+  ) {
+    const generatedId = useId();
+    const labelId = `${generatedId}-label`;
+    const ownerState: NavigationRailGroupOwnerState = { separated, labelVisible };
     return (
       <section
-        {...props}
-        ref={ref}
-        data-separated={separated || undefined}
-        className={classNames("miaixz-navigation-rail-group", className)}
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-navigation-rail-group" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "aria-labelledby": labelId,
+            ...(!labelVisible ? { "data-label-hidden": true } : {}),
+            ...(separated ? { "data-separated": true } : {}),
+          },
+          ownedProps: ["aria-labelledby", "data-label-hidden", "data-separated"],
+        })}
       >
-        {separated && (
-          <div aria-hidden="true" className="miaixz-navigation-rail-group-marker">
-            <span className="miaixz-navigation-rail-group-marker-line" />
-            <span className="miaixz-navigation-rail-group-marker-label">{label}</span>
-          </div>
-        )}
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-navigation-rail-group-marker" },
+            slotProps: slotProps?.marker,
+          })}
+        >
+          {separated && (
+            <span
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-navigation-rail-group-marker-line" },
+                slotProps: slotProps?.line,
+                internalProps: { "aria-hidden": true },
+                ownedProps: ["aria-hidden"],
+              })}
+            />
+          )}
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-navigation-rail-group-marker-label" },
+              slotProps: slotProps?.label,
+              internalProps: { id: labelId },
+              ownedProps: ["id"],
+            })}
+          >
+            {label}
+          </span>
+        </div>
         {children}
       </section>
     );
-  },
+  }),
 );

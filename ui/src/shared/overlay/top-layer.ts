@@ -18,12 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useEffect, useLayoutEffect, type RefObject } from "react";
-
-/**
- * Uses layout timing in browsers and passive timing during server rendering.
- */
-const useMiaixzClientLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
+import type { RefObject } from "react";
+import { useMiaixzLayoutEffect } from "../use-client-layout-effect.js";
 
 /**
  * Synchronizes a non-modal surface with the browser manual Popover top layer.
@@ -40,7 +36,7 @@ export function useMiaixzManualPopover(
   open: boolean,
   portalTarget: HTMLElement | null,
 ): void {
-  useMiaixzClientLayoutEffect(() => {
+  useMiaixzLayoutEffect(() => {
     const element = ref.current;
     if (element === null) return undefined;
     return synchronizeMiaixzManualPopover(element, open);

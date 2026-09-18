@@ -18,130 +18,248 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 
+import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { Anchor } from "../../shared/anchor.js";
 import { classNames } from "../../shared/class-names.js";
-import { useMiaixzLocale } from "../../i18n/index.js";
-import { Icon } from "../icon/index.js";
-import type { ButtonProps, ButtonStyleOptions, ButtonVariant } from "./button.types.js";
-
-const directContentVariants = new Set<ButtonVariant>([
-  "action",
-  "action-primary",
-  "favorite",
-  "choice",
-  "plain",
-  "plain-primary",
-  "text",
-  "text-danger",
-  "navigation",
-]);
+import { MiaixzButtonContent } from "./button-content.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useMiaixzThemeComponent } from "../../theme/context.js";
+import { getMiaixzThemeSlotClassNames } from "../../theme/registry.js";
+import type {
+  ButtonLinkProps,
+  ButtonLinkRootAttributes,
+  ButtonOwnerState,
+  ButtonProps,
+  ButtonRootAttributes,
+  ButtonSlot,
+  ButtonSlotProps,
+} from "./button.types.js";
+import { useButtonGroup } from "./button-group-context.js";
 
 /**
- * Returns the complete shared visual recipe without imposing a framework or element.
+ * Removes component-only Button props from a native root property set.
  *
- * @param root0 - Framework-independent button style options.
- * @param root0.variant - Visual and semantic treatment.
- * @param root0.size - Control size for framed recipes.
- * @param root0.block - Whether the recipe fills its container.
- * @param root0.iconOnly - Whether the recipe presents icon-only content.
- * @param root0.className - Optional consumer class appended to the recipe.
- * @returns A complete class name suitable for a button or semantic link.
- * @public
+ * @param props - Button properties that may contain component-only fields.
+ * @returns Native button root properties.
  */
-export function getButtonClassName({
-  variant = "secondary",
-  size = "medium",
-  block = false,
-  iconOnly = false,
-  className,
-}: ButtonStyleOptions = {}): string {
-  if (directContentVariants.has(variant)) {
-    return classNames(`miaixz-button-${variant}`, block && "miaixz-control-block", className);
-  }
-  return classNames(
-    "miaixz-control",
-    "miaixz-button",
-    `miaixz-control-${size}`,
-    `miaixz-button-${variant}`,
-    block && "miaixz-control-block",
-    iconOnly && "miaixz-button-icon-only",
-    iconOnly && "miaixz-link-no-underline",
-    className,
-  );
+function getButtonNativeProps(props: Partial<ButtonProps>): Partial<ButtonRootAttributes> {
+  const {
+    children: _children,
+    variant: _variant,
+    tone: _tone,
+    size: _size,
+    block: _block,
+    loading: _loading,
+    loadingLabel: _loadingLabel,
+    startIcon: _startIcon,
+    endIcon: _endIcon,
+    slotProps: _slotProps,
+    ...nativeProps
+  } = props;
+  return nativeProps;
 }
 
 /**
- * Renders an accessible action button with shared variants, sizes, and loading state.
+ * Removes component-only ButtonLink props from a native anchor property set.
+ *
+ * @param props - ButtonLink properties that may contain component-only fields.
+ * @returns Native anchor properties.
+ */
+function getButtonLinkNativeProps(
+  props: Partial<ButtonLinkProps>,
+): Partial<ButtonLinkRootAttributes> {
+  const {
+    children: _children,
+    href: _href,
+    variant: _variant,
+    tone: _tone,
+    size: _size,
+    block: _block,
+    startIcon: _startIcon,
+    endIcon: _endIcon,
+    renderAnchor: _renderAnchor,
+    slotProps: _slotProps,
+    onClick: _onClick,
+    ...nativeProps
+  } = props;
+  return nativeProps;
+}
+
+/**
+ * Renders a semantic command Button.
  *
  * @public
  */
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  {
-    variant = "secondary",
-    size = "medium",
-    block = false,
-    loading = false,
-    loadingLabel,
-    iconOnly = false,
-    startIcon,
-    endIcon,
-    className,
-    disabled,
-    type = "button",
-    children,
-    ...props
-  },
-  ref,
-) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(props, ref) {
   const { t } = useMiaixzLocale();
-  const resolvedLoadingLabel = loadingLabel ?? t("ui.loading");
+  const labelId = useId();
+  const theme = useMiaixzThemeComponent("Button");
+  const themeDefaults = theme?.defaultProps;
+  const group = useButtonGroup();
+  const variant = props.variant ?? group?.variant ?? themeDefaults?.variant ?? "outlined";
+  const tone = props.tone ?? group?.tone ?? themeDefaults?.tone ?? "neutral";
+  const size = props.size ?? group?.size ?? themeDefaults?.size ?? "medium";
+  const block = props.block ?? group?.fullWidth ?? themeDefaults?.block ?? false;
+  const loading = props.loading ?? themeDefaults?.loading ?? false;
+  const disabled =
+    (props.disabled ?? group?.disabled ?? themeDefaults?.disabled) === true || loading;
+  const type = props.type ?? themeDefaults?.type ?? "button";
+  const ownerState: ButtonOwnerState = { variant, tone, size, block, loading, disabled };
+  const slotThemeClasses = (slot: ButtonSlot) =>
+    getMiaixzThemeSlotClassNames(theme, ownerState, slot);
+  const rootProps = mergeMiaixzSlotProps<ButtonOwnerState, ButtonRootAttributes, HTMLButtonElement>(
+    {
+      ownerState,
+      defaultProps: {
+        className: classNames(
+          "miaixz-interactive",
+          "miaixz-control",
+          "miaixz-button",
+          `miaixz-control-${size}`,
+        ),
+      },
+      themeDefaultProps: getButtonNativeProps(themeDefaults ?? {}),
+      componentProps: getButtonNativeProps(props),
+      themeClassNames: slotThemeClasses("root"),
+      slotProps: props.slotProps?.root,
+      forwardedRef: ref,
+      internalProps: {
+        type,
+        disabled,
+        ...(loading ? { "aria-busy": true, "data-loading": true } : {}),
+        "aria-labelledby": labelId,
+        "data-miaixz-ripple": "true",
+        "data-variant": variant,
+        "data-tone": tone,
+        "data-size": size,
+        ...(block ? { "data-block": "true" } : {}),
+      },
+      ownedProps: [
+        "type",
+        "disabled",
+        "aria-busy",
+        "aria-labelledby",
+        "data-loading",
+        "data-miaixz-ripple",
+        "data-variant",
+        "data-tone",
+        "data-size",
+        "data-block",
+      ],
+    },
+  );
+  const slotProps = props.slotProps;
   return (
-    <button
-      {...props}
-      ref={ref}
-      type={type}
-      title={props.title ?? (iconOnly ? props["aria-label"] : undefined)}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
-      data-loading={loading || undefined}
-      data-variant={variant}
-      data-size={size}
-      className={getButtonClassName({
-        variant,
-        size,
-        block,
-        iconOnly,
-        ...(className !== undefined ? { className } : {}),
-      })}
-    >
-      {loading ? (
-        variant === "refresh" ? (
-          <>
-            <span className="miaixz-button-label">{resolvedLoadingLabel}</span>
-            <span className="miaixz-button-icon">
-              <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
-            </span>
-          </>
-        ) : (
-          <>
-            <Icon name="LoaderCircle" size="control" className="miaixz-button-spinner" />
-            <span className={iconOnly ? "miaixz-hidden" : undefined}>{resolvedLoadingLabel}</span>
-          </>
-        )
-      ) : (
-        <>
-          {startIcon && <span className="miaixz-button-icon">{startIcon}</span>}
-          {!iconOnly &&
-            (directContentVariants.has(variant) ? (
-              children
-            ) : (
-              <span className="miaixz-button-label">{children}</span>
-            ))}
-          {iconOnly && <span className="miaixz-button-icon">{children}</span>}
-          {endIcon && <span className="miaixz-button-icon">{endIcon}</span>}
-        </>
-      )}
+    <button {...rootProps}>
+      <MiaixzButtonContent
+        ownerState={ownerState}
+        labelId={labelId}
+        startIcon={props.startIcon ?? themeDefaults?.startIcon}
+        endIcon={props.endIcon ?? themeDefaults?.endIcon}
+        loadingLabel={props.loadingLabel ?? themeDefaults?.loadingLabel ?? t("ui.loading")}
+        slotProps={slotProps}
+        themeClassNames={{
+          label: slotThemeClasses("label"),
+          startIcon: slotThemeClasses("startIcon"),
+          endIcon: slotThemeClasses("endIcon"),
+          loadingIndicator: slotThemeClasses("loadingIndicator"),
+        }}
+      >
+        {props.children}
+      </MiaixzButtonContent>
     </button>
   );
 });
+
+/**
+ * Renders a Button-presented final native navigation anchor.
+ *
+ * @public
+ */
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  function ButtonLink(props, forwardedRef) {
+    const group = useButtonGroup();
+    const theme = useMiaixzThemeComponent("ButtonLink");
+    const themeDefaults = theme?.defaultProps;
+    const { href, children, renderAnchor, slotProps, onClick } = props;
+    const variant = props.variant ?? group?.variant ?? themeDefaults?.variant ?? "outlined";
+    const tone = props.tone ?? group?.tone ?? themeDefaults?.tone ?? "neutral";
+    const size = props.size ?? group?.size ?? themeDefaults?.size ?? "medium";
+    const block = props.block ?? group?.fullWidth ?? themeDefaults?.block ?? false;
+    const disabled = group?.disabled ?? false;
+    const ownerState: ButtonOwnerState = {
+      variant,
+      tone,
+      size,
+      block,
+      loading: false,
+      disabled,
+    };
+    const slotThemeClasses = (slot: ButtonSlot) =>
+      getMiaixzThemeSlotClassNames(theme, ownerState, slot);
+    const rootProps = mergeMiaixzSlotProps<
+      ButtonOwnerState,
+      ButtonLinkRootAttributes,
+      HTMLAnchorElement
+    >({
+      ownerState,
+      defaultProps: {
+        className: classNames(
+          "miaixz-interactive",
+          "miaixz-control",
+          "miaixz-button",
+          `miaixz-control-${size}`,
+        ),
+      },
+      componentProps: getButtonLinkNativeProps(props),
+      themeDefaultProps: getButtonLinkNativeProps(themeDefaults ?? {}),
+      themeClassNames: slotThemeClasses("root"),
+      slotProps: slotProps?.root,
+      forwardedRef,
+      internalProps: {
+        href,
+        ...(disabled ? { "aria-disabled": true, tabIndex: -1 } : {}),
+        onClick: (event) => {
+          if (disabled) event.preventDefault();
+          else onClick?.(event);
+        },
+        "data-miaixz-ripple": "true",
+        "data-variant": variant,
+        "data-tone": tone,
+        "data-size": size,
+        ...(block ? { "data-block": "true" } : {}),
+      },
+      ownedProps: [
+        "href",
+        "aria-disabled",
+        "tabIndex",
+        "onClick",
+        "data-miaixz-ripple",
+        "data-variant",
+        "data-tone",
+        "data-size",
+        "data-block",
+      ],
+    });
+    return (
+      <Anchor {...rootProps} href={href} renderAnchor={renderAnchor}>
+        <MiaixzButtonContent
+          ownerState={ownerState}
+          startIcon={props.startIcon ?? themeDefaults?.startIcon}
+          endIcon={props.endIcon ?? themeDefaults?.endIcon}
+          slotProps={slotProps}
+          themeClassNames={{
+            label: slotThemeClasses("label"),
+            startIcon: slotThemeClasses("startIcon"),
+            endIcon: slotThemeClasses("endIcon"),
+            loadingIndicator: slotThemeClasses("loadingIndicator"),
+          }}
+        >
+          {children}
+        </MiaixzButtonContent>
+      </Anchor>
+    );
+  },
+);

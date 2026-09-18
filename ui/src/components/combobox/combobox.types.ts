@@ -18,149 +18,193 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  LabelHTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
 
-import type { MiaixzFormPreviewProps } from "../shared.types.js";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Describes one selectable option shared by Combobox and Picker.
- *
- * @typeParam Value - Stable string value type used by the owning product.
- * @public
- */
-export interface MiaixzOption<Value extends string = string> {
-  /**
-   * Supplies the stable option value.
-   */
-  readonly value: Value;
-
-  /**
-   * Supplies the visible option label.
-   */
+export interface MiaixzOptionGroup {
+  readonly id: string;
   readonly label: string;
-
-  /**
-   * Supplies optional supporting copy.
-   */
-  readonly description?: string;
-
-  /**
-   * Prevents the option from being selected.
-   */
-  readonly disabled?: boolean;
 }
 
-/**
- * Loads options for the current query and supports immediate cancellation.
- *
- * @typeParam Value - Stable string value type returned by the loader.
- * @param query - Current user-entered query, including an empty query.
- * @param signal - Abort signal cancelled when the query or component lifecycle changes.
- * @returns The complete ordered option result for the query.
- * @public
- */
-export type MiaixzOptionLoader<Value extends string = string> = (
-  query: string,
-  signal: AbortSignal,
-) => Promise<readonly MiaixzOption<Value>[]>;
+export interface MiaixzOption<Value extends string = string> {
+  readonly value: Value;
+  readonly label: ReactNode;
+  readonly textValue: string;
+  readonly description?: ReactNode;
+  readonly disabled?: boolean;
+  readonly group?: MiaixzOptionGroup;
+}
 
-/**
- * Defines Miaixz-owned Combobox properties before native div attributes are merged.
- *
- * @typeParam Value - Stable string value type selected by the control.
- * @public
- */
-export interface MiaixzComboboxOwnProps<
-  Value extends string = string,
-> extends MiaixzFormPreviewProps {
-  /**
-   * Supplies the complete static option collection.
-   */
-  options?: readonly MiaixzOption<Value>[];
+export interface MiaixzOptionPage<Value extends string = string> {
+  readonly options: readonly MiaixzOption<Value>[];
+  readonly nextCursor: string | null;
+}
 
-  /**
-   * Supplies the asynchronous option source used instead of static options.
-   */
-  loadOptions?: MiaixzOptionLoader<Value>;
+export type MiaixzOptionSource<Value extends string = string> =
+  | {
+      readonly options: readonly MiaixzOption<Value>[];
+      readonly loadOptions?: never;
+    }
+  | {
+      readonly options?: never;
+      readonly loadOptions: (request: {
+        readonly query: string;
+        readonly cursor: string | null;
+        readonly signal: AbortSignal;
+      }) => Promise<MiaixzOptionPage<Value>>;
+    };
 
-  /**
-   * Controls the selected value when supplied with `onValueChange`.
-   */
-  value?: Value | null;
+export type MiaixzComboboxValueState<Value extends string = string> =
+  | {
+      readonly value: MiaixzOption<Value> | null;
+      readonly defaultValue?: never;
+      readonly onValueChange?: (option: MiaixzOption<Value> | null) => void;
+    }
+  | {
+      readonly value?: never;
+      readonly defaultValue?: MiaixzOption<Value> | null;
+      readonly onValueChange?: (option: MiaixzOption<Value> | null) => void;
+    };
 
-  /**
-   * Sets the initial uncontrolled selected value.
-   */
-  defaultValue?: Value | null;
+export type MiaixzComboboxInputState =
+  | {
+      readonly inputValue: string;
+      readonly defaultInputValue?: never;
+      readonly onInputValueChange: (value: string) => void;
+    }
+  | {
+      readonly inputValue?: never;
+      readonly defaultInputValue?: string;
+      readonly onInputValueChange?: (value: string) => void;
+    };
 
-  /**
-   * Receives requested selected-value changes.
-   */
-  onValueChange?: (value: Value | null) => void;
+export interface MiaixzOptionRenderState {
+  readonly selected: boolean;
+  readonly active: boolean;
+}
 
-  /**
-   * Controls the search input when supplied with `onInputValueChange`.
-   */
-  inputValue?: string;
+export type ComboboxSlot =
+  | "root"
+  | "label"
+  | "control"
+  | "input"
+  | "clear"
+  | "toggle"
+  | "surface"
+  | "listbox"
+  | "group"
+  | "groupLabel"
+  | "option"
+  | "optionCopy"
+  | "optionLabel"
+  | "optionDescription"
+  | "message"
+  | "hiddenInput";
 
-  /**
-   * Sets the initial uncontrolled search input.
-   */
-  defaultInputValue?: string;
+export interface ComboboxOwnerState {
+  readonly disabled: boolean;
+  readonly readOnly: boolean;
+  readonly invalid: boolean;
+  readonly open: boolean;
+  readonly filled: boolean;
+  readonly loading: boolean;
+}
 
-  /**
-   * Receives requested search changes.
-   */
-  onInputValueChange?: (value: string) => void;
+export interface ComboboxRootAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-filled"?: boolean;
+  readonly "data-invalid"?: boolean;
+  readonly "data-readonly"?: boolean;
+  readonly "data-state"?: "open" | "closed";
+}
 
-  /**
-   * Supplies the visible and accessible field label.
-   */
-  label: string;
+export interface ComboboxControlAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-filled"?: boolean;
+  readonly "data-invalid"?: boolean;
+  readonly "data-readonly"?: boolean;
+  readonly "data-state"?: "open" | "closed";
+}
 
-  /**
-   * Supplies placeholder copy for an empty search input.
-   */
-  placeholder?: string;
+export interface ComboboxSurfaceAttributes
+  extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
+  readonly popover?: "manual";
+  readonly "data-state"?: "loading" | "error" | "ready" | "limit";
+}
 
-  /**
-   * Replaces the empty-result message.
-   */
-  emptyMessage?: string;
+export interface ComboboxOptionAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-state"?: "active" | "idle";
+}
 
-  /**
-   * Replaces the loading-state message.
-   */
-  loadingMessage?: string;
+export interface ComboboxSlotProps {
+  readonly root?: MiaixzSlotProps<ComboboxOwnerState, ComboboxRootAttributes>;
+  readonly label?: MiaixzSlotProps<ComboboxOwnerState, LabelHTMLAttributes<HTMLLabelElement>>;
+  readonly control?: MiaixzSlotProps<ComboboxOwnerState, ComboboxControlAttributes>;
+  readonly input?: MiaixzSlotProps<
+    ComboboxOwnerState,
+    InputHTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>
+  >;
+  readonly clear?: MiaixzSlotProps<ComboboxOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly toggle?: MiaixzSlotProps<ComboboxOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly surface?: MiaixzSlotProps<ComboboxOwnerState, ComboboxSurfaceAttributes>;
+  readonly listbox?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly group?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly groupLabel?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly option?: MiaixzSlotProps<ComboboxOwnerState, ComboboxOptionAttributes>;
+  readonly optionCopy?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly optionLabel?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly optionDescription?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly message?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly hiddenInput?: MiaixzSlotProps<ComboboxOwnerState, InputHTMLAttributes<HTMLInputElement>>;
+}
 
-  /**
-   * Replaces the asynchronous loader failure message.
-   */
-  errorMessage?: string;
-
-  /**
-   * Disables the complete composite control.
-   */
-  disabled?: boolean;
-
-  /**
-   * Prevents search and selection changes while preserving focus and content.
-   */
-  readOnly?: boolean;
-
-  /**
-   * Applies the invalid visual and accessibility state.
-   */
-  invalid?: boolean;
+export interface MiaixzComboboxOwnProps<Value extends string = string> {
+  readonly label: ReactNode;
+  readonly id?: string;
+  readonly name?: string;
+  readonly form?: string;
+  readonly placeholder?: string;
+  readonly emptyMessage?: ReactNode;
+  readonly loadingMessage?: ReactNode;
+  readonly errorMessage?: ReactNode;
+  readonly refineMessage?: ReactNode;
+  readonly disabled?: boolean;
+  readonly readOnly?: boolean;
+  readonly invalid?: boolean;
+  readonly required?: boolean;
+  readonly renderOption?: (
+    option: MiaixzOption<Value>,
+    state: MiaixzOptionRenderState,
+  ) => ReactNode;
+  readonly slotProps?: ComboboxSlotProps;
 }
 
 /**
  * Configures a searchable single-value WAI-ARIA combobox.
- *
- * @typeParam Value - Stable string value type selected by the control.
- * @public
  */
-export interface ComboboxProps<Value extends string = string>
-  extends
-    Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzComboboxOwnProps<Value>>,
-    MiaixzComboboxOwnProps<Value> {}
+export type ComboboxProps<Value extends string = string> = MiaixzOptionSource<Value> &
+  MiaixzComboboxValueState<Value> &
+  MiaixzComboboxInputState &
+  MiaixzComboboxOwnProps<Value> &
+  Omit<
+    HTMLAttributes<HTMLDivElement>,
+    | keyof MiaixzComboboxOwnProps<Value>
+    | "children"
+    | "onChange"
+    | "aria-invalid"
+    | "aria-labelledby"
+    | "aria-describedby"
+  > & {
+    readonly "aria-invalid"?: boolean | "false" | "true" | "grammar" | "spelling";
+    readonly "aria-labelledby"?: string;
+    readonly "aria-describedby"?: string;
+  };

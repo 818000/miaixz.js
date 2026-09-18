@@ -18,12 +18,15 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { miaixzStorageKeys } from "../consts/index.js";
-import { MiaixzSdkError } from "../api/errors.js";
-import type { MiaixzAuthStatusEvent, MiaixzEventBus, MiaixzSdkEventMap } from "../events/index.js";
-import { miaixzDefaultI18n, type MiaixzTranslator } from "../i18n/index.js";
-import { readMiaixzJson, writeMiaixzJson, type MiaixzKeyValueStorage } from "../storage/index.js";
-import type { MiaixzUserSummary } from "../types/index.js";
+import { miaixzStorageKeys } from "../consts/constants.js";
+import { MiaixzSdkError } from "../errors/errors.js";
+import type {
+  MiaixzAuthStatusEvent,
+  MiaixzEventBusPort,
+  MiaixzSdkEventMap,
+} from "../events/event-types.js";
+import { readMiaixzJson, writeMiaixzJson, type MiaixzKeyValueStorage } from "../storage/storage.js";
+import type { MiaixzUserSummary } from "../types/user.js";
 import { isRecord } from "../utils/object.js";
 
 /**
@@ -121,10 +124,7 @@ export function createMiaixzPersistentAuthStorage(
   }>,
 ): MiaixzPersistentAuthStorage {
   if (options?.acknowledgeWebStorageRisk !== true) {
-    throw new MiaixzSdkError(
-      miaixzDefaultI18n.t("sdk.error.auth.persistenceAcknowledgementRequired"),
-      { code: "AUTH_PERSISTENCE_ACKNOWLEDGEMENT_REQUIRED" },
-    );
+    throw new MiaixzSdkError({ code: "AUTH_PERSISTENCE_ACKNOWLEDGEMENT_REQUIRED" });
   }
 
   const physicalKey = options.storageKey ?? miaixzStorageKeys.auth;
@@ -164,14 +164,9 @@ export interface MiaixzAuthManagerOptions {
   readonly now?: () => number;
 
   /**
-   * Optional translator used for authentication errors.
-   */
-  readonly translate?: MiaixzTranslator;
-
-  /**
    * Optional event bus used to synchronize service instances.
    */
-  readonly events?: MiaixzEventBus<MiaixzSdkEventMap>;
+  readonly events?: MiaixzEventBusPort<MiaixzSdkEventMap>;
 }
 
 /**
@@ -263,8 +258,7 @@ export class MiaixzAuthManager {
   readonly #refresh: MiaixzSessionRefresher | undefined;
   readonly #expirationLeewaySeconds: number;
   readonly #now: () => number;
-  readonly #translate: MiaixzTranslator;
-  readonly #events: MiaixzEventBus<MiaixzSdkEventMap> | undefined;
+  readonly #events: MiaixzEventBusPort<MiaixzSdkEventMap> | undefined;
   readonly #listeners = new Set<(session: Readonly<MiaixzAuthSession> | undefined) => void>();
   #session: MiaixzAuthSession | undefined;
   #refreshPromise: Promise<MiaixzAuthSession | undefined> | undefined;
@@ -278,18 +272,12 @@ export class MiaixzAuthManager {
    */
   constructor(options: MiaixzAuthManagerOptions = {}) {
     if (options.persistence && !persistentAuthStorages.has(options.persistence)) {
-      throw new MiaixzSdkError(
-        (options.translate ?? miaixzDefaultI18n.t)(
-          "sdk.error.auth.persistenceAcknowledgementRequired",
-        ),
-        { code: "AUTH_PERSISTENCE_ACKNOWLEDGEMENT_REQUIRED" },
-      );
+      throw new MiaixzSdkError({ code: "AUTH_PERSISTENCE_ACKNOWLEDGEMENT_REQUIRED" });
     }
     this.#persistence = options.persistence;
     this.#refresh = options.refresh;
     this.#expirationLeewaySeconds = options.expirationLeewaySeconds ?? 30;
     this.#now = options.now ?? Date.now;
-    this.#translate = options.translate ?? miaixzDefaultI18n.t;
     this.#events = options.events;
     this.#session = readMiaixzJson(this.#persistence, miaixzStorageKeys.auth, isMiaixzAuthSession);
     this.#stopEventListener = this.#events?.on("auth:changed", (event) => {
@@ -328,7 +316,7 @@ export class MiaixzAuthManager {
    */
   #setSession(session: MiaixzAuthSession, broadcast: boolean): void {
     if (!isMiaixzAuthSession(session)) {
-      throw new MiaixzSdkError(this.#translate("sdk.error.auth.sessionInvalid"), {
+      throw new MiaixzSdkError({
         code: "AUTH_SESSION_INVALID",
       });
     }
@@ -396,7 +384,7 @@ export class MiaixzAuthManager {
       })
       .catch(() => {
         this.clearSession();
-        throw new MiaixzSdkError(this.#translate("sdk.error.auth.refreshFailed"), {
+        throw new MiaixzSdkError({
           code: "AUTH_REFRESH_FAILED",
         });
       })

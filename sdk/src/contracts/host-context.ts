@@ -18,8 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzMessageCatalog } from "../i18n/index.js";
-import type { MiaixzRuntimeContext } from "../types/index.js";
+import type { MiaixzMessageCatalog } from "../i18n/i18n.js";
+import type { MiaixzRuntimeContext } from "../types/context.js";
 
 /**
  * Describes a navigation request issued by a remote module through its host bridge.

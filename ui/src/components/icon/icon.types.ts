@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { LucideIcon, LucideProps } from "lucide-react";
+import type { ComponentPropsWithoutRef } from "react";
 
 import type { MiaixzIconName } from "../../icons/icon-names.js";
 
@@ -36,9 +36,24 @@ export type IconSize = "indicator" | "inline" | "control" | "navigation" | "feat
  */
 export type IconStroke = "regular" | "strong";
 
-interface MiaixzIconBaseProps extends Omit<LucideProps, "children" | "name" | "ref" | "size"> {
+/**
+ * Configures an icon selected from the Miaixz icon catalog.
+ *
+ * The public contract is provider-neutral so business code remains unchanged if the underlying
+ * icon library is replaced.
+ *
+ * @public
+ */
+export interface IconProps extends Omit<
+  ComponentPropsWithoutRef<"svg">,
+  "children" | "name" | "size" | "stroke"
+> {
   /**
-   * Selects a semantic size or supplies a native Lucide size.
+   * Selects an icon from the complete Miaixz icon catalog.
+   */
+  readonly name: MiaixzIconName;
+  /**
+   * Selects a semantic size or supplies a native SVG size.
    *
    * @defaultValue `"inline"`
    */
@@ -54,30 +69,3 @@ interface MiaixzIconBaseProps extends Omit<LucideProps, "children" | "name" | "r
    */
   readonly label?: string;
 }
-
-/**
- * Configures a registered or explicitly supplied Lucide icon. @public
- */
-export type IconProps = MiaixzIconBaseProps &
-  (
-    | {
-        /**
-         * Selects an icon registered by the design system.
-         */
-        readonly name: MiaixzIconName;
-        /**
-         * Prevents combining a registered name with a custom icon.
-         */
-        readonly icon?: never;
-      }
-    | {
-        /**
-         * Supplies a custom Lucide icon component.
-         */
-        readonly icon: LucideIcon;
-        /**
-         * Prevents combining a custom icon with a registered name.
-         */
-        readonly name?: never;
-      }
-  );

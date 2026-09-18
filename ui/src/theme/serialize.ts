@@ -108,50 +108,7 @@ export function serializeThemeApplication(
   instanceId: string,
 ): Readonly<MiaixzSerializedThemeApplication> {
   if (!/^[a-zA-Z0-9_-]+$/.test(instanceId)) throw new TypeError("Invalid theme instance ID");
-  const colors = mergeThemeColors(theme.modes[colorMode].colors, overrides);
-  const declarations = [`color-scheme: ${colorMode};`];
-  for (const token of miaixzThemeColorTokens) {
-    declarations.push(`--miaixz-color-${token}: ${colors[token]};`);
-  }
-  declarations.push(...serializeThemeOpacity(theme.tokens.opacity));
-  const familyFields = new Set<string>(miaixzThemeFontFamilyFields);
-  for (const field of miaixzThemeTypographyFields) {
-    const prefix = familyFields.has(field) ? "font-" : "text-";
-    const value = theme.tokens.typography[field];
-    declarations.push(
-      `--miaixz-${prefix}${toKebab(field)}: ${value}${typeof value === "number" ? "px" : ""};`,
-    );
-  }
-  for (const field of miaixzThemeRadiusFields) {
-    declarations.push(`--miaixz-radius-${toKebab(field)}: ${theme.tokens.radius[field]}px;`);
-  }
-  for (const level of miaixzThemeShadowLevels) {
-    const value = theme.tokens.shadow[level];
-    const color = level === "high" || level === "overlay" ? "shadow-strong" : "shadow";
-    declarations.push(
-      `--miaixz-shadow-${level}: 0 ${value.y}px ${value.blur}px ${value.spread}px var(--miaixz-color-${color});`,
-    );
-  }
-  for (const branch of ["compact", "standard", "comfortable"] as const) {
-    for (const field of miaixzThemeDensityGeometryFields) {
-      declarations.push(
-        `--miaixz-geometry-${branch}-${toKebab(field)}: ${theme.tokens.geometry[branch][field]}px;`,
-      );
-    }
-  }
-  for (const field of miaixzThemeLayoutGeometryFields) {
-    const unit = layoutGeometryUnit(field);
-    declarations.push(
-      `--miaixz-layout-${toKebab(field)}: ${theme.tokens.geometry.layout[field]}${unit};`,
-    );
-  }
-  for (const role of miaixzThemeSurfaceRoles) {
-    for (const field of miaixzThemeSurfaceFields) {
-      declarations.push(
-        `--miaixz-surface-role-${role}-${field}: var(--miaixz-color-${theme.tokens.surfaces[role][field]});`,
-      );
-    }
-  }
+  const declarations = serializeThemeDeclarations(theme, colorMode, overrides);
   for (const field of miaixzThemeDensityGeometryFields) {
     declarations.push(
       `--miaixz-density-${toKebab(field)}: var(--miaixz-geometry-${density}-${toKebab(field)});`,
@@ -197,4 +154,82 @@ function layoutGeometryUnit(field: (typeof miaixzThemeLayoutGeometryFields)[numb
  */
 function toKebab(value: string): string {
   return value.replaceAll(/[A-Z]/g, (character) => `-${character.toLowerCase()}`);
+}
+
+/**
+ * Serializes first-paint declarations without choosing a density or runtime owner.
+ *
+ * @param theme - Fully resolved definition.
+ * @param colorMode - Concrete light or dark mode.
+ * @returns Static selector block matching the built-in theme stylesheets.
+ */
+export function serializeThemeStyles(
+  theme: Readonly<MiaixzResolvedThemeDefinition>,
+  colorMode: MiaixzResolvedColorMode,
+): string {
+  return [
+    `  [data-miaixz-theme="${theme.name}"][data-miaixz-color-mode="${colorMode}"] {`,
+    ...serializeThemeDeclarations(theme, colorMode).map((declaration) => `    ${declaration}`),
+    "  }",
+  ].join("\n");
+}
+
+/**
+ * Shares validated token serialization between static and runtime styles.
+ *
+ * @param theme - Fully resolved definition.
+ * @param colorMode - Concrete mode.
+ * @param overrides - Optional runtime color overrides.
+ * @returns Ordered CSS declarations.
+ */
+function serializeThemeDeclarations(
+  theme: Readonly<MiaixzResolvedThemeDefinition>,
+  colorMode: MiaixzResolvedColorMode,
+  overrides?: MiaixzThemeColorOverrides,
+): string[] {
+  const colors = mergeThemeColors(theme.modes[colorMode].colors, overrides);
+  const declarations = [`color-scheme: ${colorMode};`];
+  for (const token of miaixzThemeColorTokens) {
+    declarations.push(`--miaixz-color-${token}: ${colors[token]};`);
+  }
+  declarations.push(...serializeThemeOpacity(theme.tokens.opacity));
+  const familyFields = new Set<string>(miaixzThemeFontFamilyFields);
+  for (const field of miaixzThemeTypographyFields) {
+    const prefix = familyFields.has(field) ? "font-" : "text-";
+    const value = theme.tokens.typography[field];
+    declarations.push(
+      `--miaixz-${prefix}${toKebab(field)}: ${value}${typeof value === "number" ? "px" : ""};`,
+    );
+  }
+  for (const field of miaixzThemeRadiusFields) {
+    declarations.push(`--miaixz-radius-${toKebab(field)}: ${theme.tokens.radius[field]}px;`);
+  }
+  for (const level of miaixzThemeShadowLevels) {
+    const value = theme.tokens.shadow[level];
+    const color = level === "high" || level === "overlay" ? "shadow-strong" : "shadow";
+    declarations.push(
+      `--miaixz-shadow-${level}: 0 ${value.y}px ${value.blur}px ${value.spread}px var(--miaixz-color-${color});`,
+    );
+  }
+  for (const branch of ["compact", "standard", "comfortable"] as const) {
+    for (const field of miaixzThemeDensityGeometryFields) {
+      declarations.push(
+        `--miaixz-geometry-${branch}-${toKebab(field)}: ${theme.tokens.geometry[branch][field]}px;`,
+      );
+    }
+  }
+  for (const field of miaixzThemeLayoutGeometryFields) {
+    const unit = layoutGeometryUnit(field);
+    declarations.push(
+      `--miaixz-layout-${toKebab(field)}: ${theme.tokens.geometry.layout[field]}${unit};`,
+    );
+  }
+  for (const role of miaixzThemeSurfaceRoles) {
+    for (const field of miaixzThemeSurfaceFields) {
+      declarations.push(
+        `--miaixz-surface-role-${role}-${field}: var(--miaixz-color-${theme.tokens.surfaces[role][field]});`,
+      );
+    }
+  }
+  return declarations;
 }

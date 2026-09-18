@@ -27,7 +27,7 @@
   min-width: 0;
 }
 
-.miaixz-overlay[data-loading="true"] > .miaixz-overlay-content {
+.miaixz-overlay[data-loading="true"][data-blocking="true"] > .miaixz-overlay-content {
   pointer-events: none;
   user-select: none;
 }

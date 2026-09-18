@@ -27,7 +27,7 @@
  */
 
 [data-miaixz-theme] {
-  /*
+  /**
    * Control geometry
    */
   --miaixz-control-height-small: var(--miaixz-geometry-compact-control-height);
@@ -75,58 +75,41 @@
   transition-property: color, background-color, border-color, box-shadow, transform, opacity;
 }
 
-/*
-
- * State order below is intentional: disabled > invalid > readonly > focus > hover > filled.
-
- */
-/* stylelint-disable no-descending-specificity
- */
-.miaixz-control:where([data-filled="true"], [data-preview-state="filled"]) {
+.miaixz-control[data-filled="true"] {
   border-color: var(--miaixz-color-border);
 }
 
-.miaixz-control:where(
-  :hover:not(:disabled, [aria-disabled="true"], [data-disabled="true"]),
-  [data-preview-state="hover"]
-) {
+.miaixz-control:hover:not(:disabled, [aria-disabled="true"], [data-disabled="true"]) {
   border-color: var(--miaixz-color-border-strong);
 }
 
-.miaixz-control:where(:focus-visible, :focus-within, [data-preview-state="focus"]) {
+.miaixz-control:where(:focus-visible, :focus-within) {
   outline: 0;
   border-color: var(--miaixz-color-border-strong);
   box-shadow: var(--miaixz-control-focus-shadow);
 }
 
-.miaixz-control:where([readonly], [data-readonly="true"], [data-preview-state="readonly"]) {
+.miaixz-control:where([readonly], [data-readonly="true"]) {
   color: var(--miaixz-color-text-secondary);
   border-color: var(--miaixz-color-border);
   box-shadow: none;
 }
 
-.miaixz-control:where(
-  [aria-invalid="true"],
-  [data-invalid="true"],
-  [data-preview-state="invalid"]
-) {
+.miaixz-control:where([aria-invalid="true"], [data-invalid="true"]) {
   border-color: var(--miaixz-color-danger);
   box-shadow: var(--miaixz-control-invalid-shadow);
 }
 
 .miaixz-control:disabled,
 .miaixz-control[aria-disabled="true"],
-.miaixz-control[data-disabled="true"],
-.miaixz-control[data-preview-state="disabled"] {
+.miaixz-control[data-disabled="true"] {
   color: var(--miaixz-color-text-disabled);
   cursor: not-allowed;
   border-color: var(--miaixz-color-border);
   box-shadow: none;
 }
-/* stylelint-enable no-descending-specificity
- */
 
-/* Editable field shells share one animated brand underline. Keeping this state
+/** Editable field shells share one animated brand underline. Keeping this state
  * on the shell makes native inputs, composite pickers and multiline editors
  * visually identical without adding a second focus ring to their editors.
  */
@@ -166,11 +149,7 @@
     .miaixz-select,
     .miaixz-combobox-control,
     .miaixz-picker-control
-  ):where(:focus-within, [data-preview-state="focus"]):not(
-    [data-invalid="true"],
-    [data-disabled="true"],
-    [data-readonly="true"]
-  ) {
+  ):focus-within:not([data-invalid="true"], [data-disabled="true"], [data-readonly="true"]) {
   box-shadow: none;
 }
 
@@ -180,16 +159,12 @@
     .miaixz-select,
     .miaixz-combobox-control,
     .miaixz-picker-control
-  ):where(:focus-within, [data-preview-state="focus"]):not(
-    [data-invalid="true"],
-    [data-disabled="true"],
-    [data-readonly="true"]
-  )::after {
+  ):focus-within:not([data-invalid="true"], [data-disabled="true"], [data-readonly="true"])::after {
   transform: scaleX(1);
   transition: transform 420ms cubic-bezier(0.2, 0.72, 0.2, 1);
 }
 
-/* Field shells own the focus indicator; internal editors must not add a second ring.
+/** Field shells own the focus indicator; internal editors must not add a second ring.
  * Match the theme fallback's specificity without raising border/shadow state priority.
  * Independent buttons and links are intentionally outside this contract.
  */
@@ -214,7 +189,7 @@
   outline-offset: 0;
 }
 
-/*
+/**
 
  * Readonly fields have no editable bottom line, but remain keyboard discoverable.
 
@@ -260,7 +235,7 @@
   }
 }
 
-/*
+/**
 
  * Forced colors suppress shadows/backgrounds, so expose one system focus ring.
 

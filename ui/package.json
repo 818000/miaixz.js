@@ -1,6 +1,6 @@
 {
   "name": "@miaixz/ui",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "description": "Miaixz design tokens, themes, icons, styles, and UI components.",
   "type": "module",
   "engines": {
@@ -20,21 +20,344 @@
   },
   "keywords": [
     "miaixz",
-    "design-system",
     "ui",
     "theme",
     "css"
   ],
+  "miaixzUiContract": {
+    "schemaVersion": 1,
+    "version": "0.8.0",
+    "deprecatedProps": [],
+    "publicDomComponents": [
+      "ActionBar",
+      "ActionText",
+      "Alert",
+      "Appearance",
+      "Avatar",
+      "AvatarGroup",
+      "AvatarPicker",
+      "Badge",
+      "Bar",
+      "Brand",
+      "Breadcrumb",
+      "Button",
+      "ButtonGroup",
+      "ButtonLink",
+      "Calendar",
+      "Checkbox",
+      "Cluster",
+      "Columns",
+      "Combobox",
+      "Confirm",
+      "Datagrid",
+      "DatePicker",
+      "Descriptions",
+      "Dialog",
+      "Disclosure",
+      "Divider",
+      "Donut",
+      "Drawer",
+      "Dropdown",
+      "Dropzone",
+      "EditorFieldset",
+      "EditorForm",
+      "EditorLayout",
+      "EditorSection",
+      "EditorSummary",
+      "Empty",
+      "Entry",
+      "Field",
+      "FormActions",
+      "Graph",
+      "Grid",
+      "Header",
+      "Heatmap",
+      "HeatmapLegend",
+      "Hidden",
+      "Icon",
+      "IconButton",
+      "Input",
+      "Link",
+      "List",
+      "ListCounter",
+      "ListItem",
+      "ListMarker",
+      "Locale",
+      "Masonry",
+      "Metric",
+      "Metrics",
+      "MoreActions",
+      "Navigation",
+      "NavigationRail",
+      "NavigationRailGroup",
+      "Notice",
+      "NumberInput",
+      "Overlay",
+      "Page",
+      "Pagination",
+      "Panel",
+      "PanelFooter",
+      "PanelHeader",
+      "Picker",
+      "Popover",
+      "Pressable",
+      "Progress",
+      "Radio",
+      "RadioGroup",
+      "Rating",
+      "RowActions",
+      "Scroll",
+      "Search",
+      "Sections",
+      "Segmented",
+      "Select",
+      "Shell",
+      "Sidebar",
+      "Skeleton",
+      "Slider",
+      "Sparkline",
+      "Spinner",
+      "Split",
+      "Stack",
+      "Status",
+      "Steps",
+      "Switch",
+      "Table",
+      "TableBody",
+      "TableCaption",
+      "TableCell",
+      "TableContainer",
+      "TableFooter",
+      "TableHead",
+      "TableHeader",
+      "TableRow",
+      "Tabs",
+      "Tag",
+      "Textarea",
+      "Timeline",
+      "TimePicker",
+      "Toast",
+      "Toaster",
+      "Toolbar",
+      "Tooltip",
+      "Transfer",
+      "Tree",
+      "Upload",
+      "View"
+    ],
+    "components": {
+      "Shell": {
+        "supportedProps": [
+          "desktopNavigation",
+          "mobileNavigation",
+          "slotProps"
+        ]
+      },
+      "Tabs": {
+        "supportedProps": [
+          "items",
+          "label",
+          "orientation",
+          "activationMode",
+          "actions",
+          "actionsPlacement",
+          "headerInset",
+          "headerVariant",
+          "panelPadding",
+          "variant",
+          "value",
+          "defaultValue",
+          "onValueChange",
+          "slotProps"
+        ]
+      },
+      "Panel": {
+        "supportedProps": [
+          "surface",
+          "frame",
+          "density",
+          "bodyPadding",
+          "bodyGap",
+          "bodyLayout",
+          "minHeight",
+          "interaction",
+          "presentation",
+          "title",
+          "description",
+          "leading",
+          "actions",
+          "headingLevel",
+          "footer",
+          "slotProps"
+        ]
+      },
+      "Drawer": {
+        "supportedProps": [
+          "width",
+          "placement",
+          "density",
+          "open",
+          "onOpenChange",
+          "title",
+          "description",
+          "children",
+          "footer",
+          "slotProps"
+        ],
+        "widthValues": [
+          "small",
+          "medium",
+          "large",
+          "xlarge",
+          "wide",
+          "content"
+        ]
+      },
+      "Toolbar": {
+        "supportedProps": [
+          "behavior",
+          "search",
+          "filters",
+          "actions",
+          "surface",
+          "density",
+          "orientation",
+          "wrap",
+          "variant",
+          "label"
+        ]
+      },
+      "Transfer": {
+        "supportedProps": [
+          "label",
+          "source",
+          "sourceLabel",
+          "sourceHeader",
+          "target",
+          "targetLabel",
+          "targetHeader",
+          "targetSize",
+          "mobilePaneSize",
+          "sourceHeaderLayout",
+          "targetHeaderLayout",
+          "slotProps"
+        ]
+      },
+      "Link": {
+        "supportedProps": [
+          "href",
+          "children",
+          "tone",
+          "underline",
+          "renderAnchor",
+          "slotProps"
+        ]
+      },
+      "List": {
+        "supportedProps": [
+          "items",
+          "variant",
+          "layout",
+          "density",
+          "surface",
+          "dividers",
+          "bordered",
+          "slotProps"
+        ]
+      },
+      "Tree": {
+        "supportedProps": [
+          "showSelectionIndicator"
+        ]
+      },
+      "Columns": {
+        "supportedProps": [
+          "size",
+          "presentation"
+        ]
+      },
+      "Progress": {
+        "supportedProps": [
+          "data-miaixz-progress-group"
+        ]
+      },
+      "Status": {
+        "supportedProps": [
+          "tone",
+          "label",
+          "children",
+          "size",
+          "layout",
+          "presentation",
+          "slotProps"
+        ]
+      },
+      "EditorForm": {
+        "supportedProps": [
+          "presentation"
+        ]
+      }
+    },
+    "stableSelectors": [
+      "avatar",
+      "button-group",
+      "calendar",
+      "columns",
+      "columns-bar",
+      "columns-label",
+      "date-picker",
+      "disclosure",
+      "donut",
+      "donut-segment",
+      "heatmap",
+      "heatmap-cell",
+      "heatmap-column-label",
+      "heatmap-legend",
+      "heatmap-row-label",
+      "heatmap-viewport",
+      "link",
+      "list",
+      "list-item",
+      "list-item-primary",
+      "masonry",
+      "metric",
+      "metric-hint",
+      "metric-icon",
+      "metric-label",
+      "metric-status",
+      "metric-trend",
+      "metric-value",
+      "metric-visual",
+      "navigation-item",
+      "number-input",
+      "panel",
+      "progress",
+      "progress-indicator",
+      "rating",
+      "segmented",
+      "slider",
+      "sparkline",
+      "sparkline-area",
+      "sparkline-grid",
+      "sparkline-line",
+      "sparkline-points",
+      "tabs",
+      "tag",
+      "time-picker",
+      "transfer",
+      "transfer-source",
+      "transfer-target"
+    ],
+    "runtimeAttributes": [
+      "data-motion-replay",
+      "data-motion-state"
+    ]
+  },
   "files": [
     "dist",
     "README.md",
     "LICENSE",
-    "NOTICE",
-    "CHANGELOG.md",
-    "MIGRATION.md",
-    "SECURITY.md",
-    "SUPPORT.md",
-    "THIRD_PARTY_NOTICES.md"
+    "NOTICE"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -46,12 +369,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/theme/miaixz.css",
+    "./styles.css": "./dist/theme/default.css",
     "./foundation.css": "./dist/styles/foundation.css",
     "./components.css": "./dist/styles/components.css",
     "./appearance": {
-      "types": "./dist/theme/appearance.d.ts",
-      "import": "./dist/theme/appearance.js"
+      "types": "./dist/appearance/index.d.ts",
+      "import": "./dist/appearance/index.js"
     },
     "./icons": {
       "types": "./dist/icons/index.d.ts",
@@ -65,9 +388,113 @@
       "types": "./dist/errors/index.d.ts",
       "import": "./dist/errors/index.js"
     },
+    "./bar": {
+      "types": "./dist/components/bar/index.d.ts",
+      "import": "./dist/components/bar/index.js"
+    },
+    "./brand": {
+      "types": "./dist/components/brand/index.d.ts",
+      "import": "./dist/components/brand/index.js"
+    },
+    "./cluster": {
+      "types": "./dist/components/cluster/index.d.ts",
+      "import": "./dist/components/cluster/index.js"
+    },
+    "./columns": {
+      "types": "./dist/components/columns/index.d.ts",
+      "import": "./dist/components/columns/index.js"
+    },
+    "./editor": {
+      "types": "./dist/components/editor/index.d.ts",
+      "import": "./dist/components/editor/index.js"
+    },
+    "./grid": {
+      "types": "./dist/components/grid/index.d.ts",
+      "import": "./dist/components/grid/index.js"
+    },
+    "./sections": {
+      "types": "./dist/components/sections/index.d.ts",
+      "import": "./dist/components/sections/index.js"
+    },
+    "./header": {
+      "types": "./dist/components/header/index.d.ts",
+      "import": "./dist/components/header/index.js"
+    },
+    "./heatmap": {
+      "types": "./dist/components/heatmap/index.d.ts",
+      "import": "./dist/components/heatmap/index.js"
+    },
+    "./locale": {
+      "types": "./dist/components/locale/index.d.ts",
+      "import": "./dist/components/locale/index.js"
+    },
+    "./metrics": {
+      "types": "./dist/components/metrics/index.d.ts",
+      "import": "./dist/components/metrics/index.js"
+    },
+    "./view": {
+      "types": "./dist/components/view/index.d.ts",
+      "import": "./dist/components/view/index.js"
+    },
+    "./pressable": {
+      "types": "./dist/components/pressable/index.d.ts",
+      "import": "./dist/components/pressable/index.js"
+    },
+    "./slider": {
+      "types": "./dist/components/slider/index.d.ts",
+      "import": "./dist/components/slider/index.js"
+    },
+    "./diagram/graph": {
+      "types": "./dist/components/diagram/graph/index.d.ts",
+      "import": "./dist/components/diagram/graph/index.js"
+    },
+    "./scroll": {
+      "types": "./dist/components/scroll/index.d.ts",
+      "import": "./dist/components/scroll/index.js"
+    },
+    "./shell": {
+      "types": "./dist/components/shell/index.d.ts",
+      "import": "./dist/components/shell/index.js"
+    },
+    "./sidebar": {
+      "types": "./dist/components/sidebar/index.d.ts",
+      "import": "./dist/components/sidebar/index.js"
+    },
+    "./sparkline": {
+      "types": "./dist/components/sparkline/index.d.ts",
+      "import": "./dist/components/sparkline/index.js"
+    },
+    "./split": {
+      "types": "./dist/components/split/index.d.ts",
+      "import": "./dist/components/split/index.js"
+    },
+    "./stack": {
+      "types": "./dist/components/stack/index.d.ts",
+      "import": "./dist/components/stack/index.js"
+    },
+    "./timeline": {
+      "types": "./dist/components/timeline/index.d.ts",
+      "import": "./dist/components/timeline/index.js"
+    },
+    "./toaster": {
+      "types": "./dist/components/toaster/index.d.ts",
+      "import": "./dist/components/toaster/index.js"
+    },
+    "./visualization-motion": {
+      "types": "./dist/shared/use-visualization-motion.d.ts",
+      "import": "./dist/shared/use-visualization-motion.js"
+    },
     "./alert": {
       "types": "./dist/components/alert/index.d.ts",
       "import": "./dist/components/alert/index.js"
+    },
+    "./action": {
+      "types": "./dist/components/action/index.d.ts",
+      "import": "./dist/components/action/index.js"
+    },
+    "./intents": {
+      "types": "./dist/intents/index.d.ts",
+      "import": "./dist/intents/index.js"
     },
     "./avatar": {
       "types": "./dist/components/avatar/index.d.ts",
@@ -81,10 +508,6 @@
       "types": "./dist/components/combobox/index.d.ts",
       "import": "./dist/components/combobox/index.js"
     },
-    "./confirm-dialog": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
     "./breadcrumb": {
       "types": "./dist/components/breadcrumb/index.d.ts",
       "import": "./dist/components/breadcrumb/index.js"
@@ -93,13 +516,33 @@
       "types": "./dist/components/input/index.d.ts",
       "import": "./dist/components/input/index.js"
     },
-    "./inline-message": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "./date": {
+      "types": "./dist/components/date/index.d.ts",
+      "import": "./dist/components/date/index.js"
     },
-    "./form-field": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "./segmented": {
+      "types": "./dist/components/segmented/index.d.ts",
+      "import": "./dist/components/segmented/index.js"
+    },
+    "./tag": {
+      "types": "./dist/components/tag/index.d.ts",
+      "import": "./dist/components/tag/index.js"
+    },
+    "./responsive": {
+      "types": "./dist/shared/responsive/use-media.d.ts",
+      "import": "./dist/shared/responsive/use-media.js"
+    },
+    "./link": {
+      "types": "./dist/components/link/index.d.ts",
+      "import": "./dist/components/link/index.js"
+    },
+    "./masonry": {
+      "types": "./dist/components/masonry/index.d.ts",
+      "import": "./dist/components/masonry/index.js"
+    },
+    "./rating": {
+      "types": "./dist/components/rating/index.d.ts",
+      "import": "./dist/components/rating/index.js"
     },
     "./textarea": {
       "types": "./dist/components/textarea/index.d.ts",
@@ -108,10 +551,6 @@
     "./select": {
       "types": "./dist/components/select/index.d.ts",
       "import": "./dist/components/select/index.js"
-    },
-    "./search-input": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
     },
     "./checkbox": {
       "types": "./dist/components/checkbox/index.d.ts",
@@ -141,18 +580,6 @@
       "types": "./dist/components/list/index.d.ts",
       "import": "./dist/components/list/index.js"
     },
-    "./loading-overlay": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./multi-select": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./data-table": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
     "./table": {
       "types": "./dist/components/table/index.d.ts",
       "import": "./dist/components/table/index.js"
@@ -165,10 +592,6 @@
       "types": "./dist/components/pagination/index.d.ts",
       "import": "./dist/components/pagination/index.js"
     },
-    "./page-layout": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
     "./popover": {
       "types": "./dist/components/popover/index.d.ts",
       "import": "./dist/components/popover/index.js"
@@ -180,6 +603,10 @@
     "./dialog": {
       "types": "./dist/components/dialog/index.d.ts",
       "import": "./dist/components/dialog/index.js"
+    },
+    "./disclosure": {
+      "types": "./dist/components/disclosure/index.d.ts",
+      "import": "./dist/components/disclosure/index.js"
     },
     "./divider": {
       "types": "./dist/components/divider/index.d.ts",
@@ -197,13 +624,13 @@
       "types": "./dist/components/dropdown/index.d.ts",
       "import": "./dist/components/dropdown/index.js"
     },
+    "./donut": {
+      "types": "./dist/components/donut/index.d.ts",
+      "import": "./dist/components/donut/index.js"
+    },
     "./dropzone": {
       "types": "./dist/components/dropzone/index.d.ts",
       "import": "./dist/components/dropzone/index.js"
-    },
-    "./file-upload": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
     },
     "./toast": {
       "types": "./dist/components/toast/index.d.ts",
@@ -213,9 +640,9 @@
       "types": "./dist/components/toolbar/index.d.ts",
       "import": "./dist/components/toolbar/index.js"
     },
-    "./tree-view": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "./transfer": {
+      "types": "./dist/components/transfer/index.d.ts",
+      "import": "./dist/components/transfer/index.js"
     },
     "./tooltip": {
       "types": "./dist/components/tooltip/index.d.ts",
@@ -228,18 +655,6 @@
     "./spinner": {
       "types": "./dist/components/spinner/index.d.ts",
       "import": "./dist/components/spinner/index.js"
-    },
-    "./status-indicator": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./empty-state": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./visually-hidden": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
     },
     "./confirm": {
       "types": "./dist/components/confirm/index.d.ts",
@@ -293,6 +708,10 @@
       "types": "./dist/components/empty/index.d.ts",
       "import": "./dist/components/empty/index.js"
     },
+    "./entry": {
+      "types": "./dist/components/entry/index.d.ts",
+      "import": "./dist/components/entry/index.js"
+    },
     "./hidden": {
       "types": "./dist/components/hidden/index.d.ts",
       "import": "./dist/components/hidden/index.js"
@@ -301,33 +720,122 @@
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js"
     },
-    "./miaixz.css": "./dist/theme/miaixz.css",
-    "./neutral.css": "./dist/theme/neutral.css",
-    "./contrast.css": "./dist/theme/contrast.css",
+    "./appearance/styles.css": "./dist/styles/components/appearance.css",
+    "./icons/styles.css": "./dist/styles/components/icon.css",
+    "./bar/styles.css": "./dist/styles/components/bar.css",
+    "./brand/styles.css": "./dist/styles/components/brand.css",
+    "./cluster/styles.css": "./dist/styles/components/cluster.css",
+    "./columns/styles.css": "./dist/styles/components/columns.css",
+    "./editor/styles.css": "./dist/styles/components/editor.css",
+    "./grid/styles.css": "./dist/styles/components/grid.css",
+    "./sections/styles.css": "./dist/styles/components/sections.css",
+    "./header/styles.css": "./dist/styles/components/header.css",
+    "./heatmap/styles.css": "./dist/styles/components/heatmap.css",
+    "./locale/styles.css": "./dist/styles/components/locale.css",
+    "./metrics/styles.css": "./dist/styles/components/metrics.css",
+    "./view/styles.css": "./dist/styles/components/view.css",
+    "./pressable/styles.css": "./dist/styles/components/pressable.css",
+    "./slider/styles.css": "./dist/styles/components/slider.css",
+    "./diagram/graph/styles.css": "./dist/styles/components/diagram/graph.css",
+    "./scroll/styles.css": "./dist/styles/components/scroll.css",
+    "./shell/styles.css": "./dist/styles/components/shell.css",
+    "./sidebar/styles.css": "./dist/styles/components/sidebar.css",
+    "./sparkline/styles.css": "./dist/styles/components/sparkline.css",
+    "./split/styles.css": "./dist/styles/components/split.css",
+    "./stack/styles.css": "./dist/styles/components/stack.css",
+    "./timeline/styles.css": "./dist/styles/components/timeline.css",
+    "./toaster/styles.css": "./dist/styles/components/toaster.css",
+    "./alert/styles.css": "./dist/styles/components/alert.css",
+    "./action/styles.css": "./dist/styles/components/action.css",
+    "./avatar/styles.css": "./dist/styles/components/avatar.css",
+    "./button/styles.css": "./dist/styles/components/button.css",
+    "./combobox/styles.css": "./dist/styles/components/combobox.css",
+    "./breadcrumb/styles.css": "./dist/styles/components/breadcrumb.css",
+    "./input/styles.css": "./dist/styles/components/input.css",
+    "./date/styles.css": "./dist/styles/components/date.css",
+    "./segmented/styles.css": "./dist/styles/components/segmented.css",
+    "./tag/styles.css": "./dist/styles/components/tag.css",
+    "./link/styles.css": "./dist/styles/components/link.css",
+    "./masonry/styles.css": "./dist/styles/components/masonry.css",
+    "./rating/styles.css": "./dist/styles/components/rating.css",
+    "./textarea/styles.css": "./dist/styles/components/textarea.css",
+    "./select/styles.css": "./dist/styles/components/select.css",
+    "./checkbox/styles.css": "./dist/styles/components/checkbox.css",
+    "./radio/styles.css": "./dist/styles/components/radio.css",
+    "./switch/styles.css": "./dist/styles/components/switch.css",
+    "./navigation/styles.css": "./dist/styles/components/navigation.css",
+    "./panel/styles.css": "./dist/styles/components/panel.css",
+    "./badge/styles.css": "./dist/styles/components/badge.css",
+    "./list/styles.css": "./dist/styles/components/list.css",
+    "./table/styles.css": "./dist/styles/components/table.css",
+    "./tabs/styles.css": "./dist/styles/components/tabs.css",
+    "./pagination/styles.css": "./dist/styles/components/pagination.css",
+    "./popover/styles.css": "./dist/styles/components/popover.css",
+    "./progress/styles.css": "./dist/styles/components/progress.css",
+    "./dialog/styles.css": "./dist/styles/components/dialog.css",
+    "./disclosure/styles.css": "./dist/styles/components/disclosure.css",
+    "./divider/styles.css": "./dist/styles/components/divider.css",
+    "./drawer/styles.css": "./dist/styles/components/drawer.css",
+    "./descriptions/styles.css": "./dist/styles/components/descriptions.css",
+    "./dropdown/styles.css": "./dist/styles/components/dropdown.css",
+    "./donut/styles.css": "./dist/styles/components/donut.css",
+    "./dropzone/styles.css": "./dist/styles/components/dropzone.css",
+    "./toast/styles.css": "./dist/styles/components/toast.css",
+    "./toolbar/styles.css": "./dist/styles/components/toolbar.css",
+    "./transfer/styles.css": "./dist/styles/components/transfer.css",
+    "./tooltip/styles.css": "./dist/styles/components/tooltip.css",
+    "./skeleton/styles.css": "./dist/styles/components/skeleton.css",
+    "./spinner/styles.css": "./dist/styles/components/spinner.css",
+    "./confirm/styles.css": "./dist/styles/components/confirm.css",
+    "./notice/styles.css": "./dist/styles/components/notice.css",
+    "./field/styles.css": "./dist/styles/components/field.css",
+    "./search/styles.css": "./dist/styles/components/search.css",
+    "./overlay/styles.css": "./dist/styles/components/overlay.css",
+    "./picker/styles.css": "./dist/styles/components/picker.css",
+    "./datagrid/styles.css": "./dist/styles/components/datagrid.css",
+    "./page/styles.css": "./dist/styles/components/page.css",
+    "./upload/styles.css": "./dist/styles/components/upload.css",
+    "./tree/styles.css": "./dist/styles/components/tree.css",
+    "./status/styles.css": "./dist/styles/components/status.css",
+    "./steps/styles.css": "./dist/styles/components/steps.css",
+    "./empty/styles.css": "./dist/styles/components/empty.css",
+    "./entry/styles.css": "./dist/styles/components/entry.css",
+    "./hidden/styles.css": "./dist/styles/components/hidden.css",
     "./theme.css": "./dist/theme/theme.css",
-    "./themes.css": "./dist/theme/theme.css",
     "./core.css": "./dist/styles/core.css",
     "./reset.css": "./dist/styles/reset.css"
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
-    "build": "node ../.github/scripts/enforce.js --check && npm run lint && npm run clean && tsc -p tsconfig.build.json && node src/theme/generate.mjs && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "lint": "eslint src tests *.config.js",
-    "lint:fix": "eslint src tests *.config.js --fix",
+    "icons:generate": "node ../.github/scripts/codegen/icon-names.mjs",
+    "icons:check": "node ../.github/scripts/codegen/icon-names.mjs --check",
+    "theme:presets:generate": "node ../.github/scripts/codegen/theme-presets.mjs",
+    "theme:presets:check": "node ../.github/scripts/codegen/theme-presets.mjs --check",
+    "theme:generate": "node ../.github/scripts/codegen/theme-css.mjs",
+    "theme:check": "node ../.github/scripts/codegen/theme-css.mjs --check",
+    "responsive:generate": "node ../.github/scripts/codegen/responsive-css.mjs",
+    "responsive:check": "node ../.github/scripts/codegen/responsive-css.mjs --check",
+    "build": "npm run icons:check && npm run clean && tsc -p tsconfig.build.json && npm run theme:presets:generate && npm run theme:presets:check && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src tests *.config.js && npm run lint:css",
+    "lint:fix": "eslint src tests *.config.js --fix && npm run lint:css:fix",
     "lint:css": "stylelint \"src/{styles,theme}/**/*.css\"",
     "lint:css:fix": "stylelint \"src/{styles,theme}/**/*.css\" --fix",
-    "audit:css": "node tests/scripts/audit.mjs",
+    "audit:css": "node ../.github/scripts/quality/audit-ui-contracts.mjs && node ../.github/scripts/quality/audit-responsive-css.mjs",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "check": "npm run typecheck && npm run lint && npm run lint:css && npm run format:check",
-    "pack:check": "npm run build && publint && attw --pack . && npm pack --dry-run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:browser": "playwright test",
+    "check": "npm run typecheck && npm run lint && npm run audit:css && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
-    "@miaixz/sdk": ">=0.6.0 <1.0.0",
-    "lucide-react": ">=1.35.0 <2",
+    "@miaixz/sdk": ">=0.8.0 <0.9.0",
     "react": ">=18.3 <20",
     "react-dom": ">=18.3 <20"
+  },
+  "dependencies": {
+    "lucide-react": "1.35.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -335,12 +843,10 @@
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
-    "@miaixz/sdk": "0.6.0",
-    "@microsoft/api-extractor": "7.59.0",
+    "@miaixz/sdk": "0.8.0",
     "@playwright/test": "1.62.1",
-    "@size-limit/esbuild": "12.1.0",
-    "@size-limit/esbuild-why": "12.1.0",
-    "@size-limit/file": "12.1.0",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.6",
     "@types/node": "26.4.0",
@@ -349,18 +855,17 @@
     "@vitejs/plugin-react": "6.1.1",
     "@vitest/coverage-v8": "4.1.11",
     "axe-core": "4.13.0",
+    "esbuild": "0.28.2",
     "eslint": "10.9.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsdoc": "62.7.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.11.0",
     "jsdom": "29.1.1",
-    "lucide-react": "1.35.0",
     "prettier": "3.9.6",
     "publint": "0.3.24",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "size-limit": "12.1.0",
     "stylelint": "17.14.1",
     "stylelint-config-recess-order": "7.8.0",
     "stylelint-config-standard": "40.0.0",

@@ -18,9 +18,8 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzSdkError } from "../api/errors.js";
-import { translateMiaixzDefaultMessage } from "../i18n/default-translator.js";
-import type { MiaixzEnvironment } from "../types/index.js";
+import { MiaixzSdkError } from "../errors/errors.js";
+import type { MiaixzEnvironment } from "../types/config.js";
 import { compareMiaixzModuleNavigation, type MiaixzModuleNavigationItem } from "./navigation.js";
 import {
   isMiaixzModuleIdentifier,
@@ -186,9 +185,7 @@ const hostVersionPattern = /^\^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
  * @returns Manifest-validation error using the registered public error code.
  */
 function invalidManifest(): MiaixzSdkError {
-  return new MiaixzSdkError(translateMiaixzDefaultMessage("sdk.error.module.manifestInvalid"), {
-    code: "MODULE_MANIFEST_INVALID",
-  });
+  return new MiaixzSdkError({ code: "MODULE_MANIFEST_INVALID" });
 }
 
 /**
@@ -197,9 +194,7 @@ function invalidManifest(): MiaixzSdkError {
  * @returns Host-compatibility error using the registered public error code.
  */
 function incompatibleHost(): MiaixzSdkError {
-  return new MiaixzSdkError(translateMiaixzDefaultMessage("sdk.error.module.hostIncompatible"), {
-    code: "MODULE_HOST_INCOMPATIBLE",
-  });
+  return new MiaixzSdkError({ code: "MODULE_HOST_INCOMPATIBLE" });
 }
 
 /**
@@ -263,10 +258,10 @@ function parseHostVersion(value: string): MiaixzParsedSemanticVersion | undefine
 }
 
 /**
- * Compares two parsed semantic versions using standard prerelease precedence.
+ * Compares a parsed host version with a release-only host-range floor.
  *
- * @param first - First semantic version.
- * @param second - Second semantic version.
+ * @param first - Concrete host semantic version.
+ * @param second - Release-only range floor produced by `parseHostVersion`.
  * @returns Negative, zero, or positive precedence result.
  */
 function compareSemanticVersions(
@@ -276,23 +271,7 @@ function compareSemanticVersions(
   const core =
     first.major - second.major || first.minor - second.minor || first.patch - second.patch;
   if (core !== 0) return core;
-  if (first.prerelease.length === 0) return second.prerelease.length === 0 ? 0 : 1;
-  if (second.prerelease.length === 0) return -1;
-  const length = Math.max(first.prerelease.length, second.prerelease.length);
-  for (let index = 0; index < length; index += 1) {
-    const left = first.prerelease[index];
-    const right = second.prerelease[index];
-    if (left === undefined) return -1;
-    if (right === undefined) return 1;
-    if (left === right) continue;
-    const leftNumeric = /^\d+$/.test(left);
-    const rightNumeric = /^\d+$/.test(right);
-    if (leftNumeric && rightNumeric) return Number(left) - Number(right);
-    if (leftNumeric) return -1;
-    if (rightNumeric) return 1;
-    return left.localeCompare(right);
-  }
-  return 0;
+  return first.prerelease.length === 0 ? 0 : -1;
 }
 
 /**

@@ -18,9 +18,32 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ImgHTMLAttributes, ReactNode, RefAttributes } from "react";
 
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
+
+export type AvatarSlot = "root" | "image" | "fallback" | "indicator";
+export type AvatarVariant = "circular" | "rounded" | "square";
+export interface AvatarOwnerState {
+  readonly size: MiaixzComponentSize;
+  readonly state: "image" | "fallback";
+  readonly decorative: boolean;
+  readonly hasIndicator: boolean;
+  readonly variant: AvatarVariant;
+}
+export type AvatarRootAttributes = HTMLAttributes<HTMLSpanElement> &
+  RefAttributes<HTMLSpanElement> & {
+    readonly "data-size"?: MiaixzComponentSize;
+    readonly "data-state"?: "image" | "fallback";
+    readonly "data-variant"?: AvatarVariant;
+  };
+export interface AvatarSlotProps {
+  readonly root?: MiaixzSlotProps<AvatarOwnerState, AvatarRootAttributes>;
+  readonly image?: MiaixzSlotProps<AvatarOwnerState, ImgHTMLAttributes<HTMLImageElement>>;
+  readonly fallback?: MiaixzSlotProps<AvatarOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly indicator?: MiaixzSlotProps<AvatarOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
 
 /**
  * Defines properties owned by the Miaixz Avatar contract.
@@ -34,21 +57,58 @@ export interface MiaixzAvatarOwnProps {
   readonly src?: string;
 
   /**
+   * Supplies responsive profile image candidates.
+   */
+  readonly srcSet?: string;
+
+  /**
+   * Supplies the responsive image slot sizes hint.
+   */
+  readonly sizes?: string;
+
+  /**
    * Supplies the required accessible name for either image or fallback content.
    */
-  readonly alt: string;
+  readonly alt?: string;
 
   /**
    * Supplies the name used to derive fallback graphemes.
    */
-  readonly name: string;
+  readonly name?: string;
+
+  /**
+   * Supplies explicit text or icon fallback content.
+   */
+  readonly children?: ReactNode;
+
+  /**
+   * Supplies optional status, count, or custom overlay content.
+   */
+  readonly indicator?: ReactNode;
+
+  /**
+   * Supplies an accessible name for meaningful indicator content.
+   */
+  readonly indicatorLabel?: string;
 
   /**
    * Selects the semantic avatar size.
    *
    * @defaultValue `"medium"`
    */
-  readonly size?: MiaixzComponentSize | "account" | "profile" | "fill";
+  readonly size?: MiaixzComponentSize;
+
+  /**
+   * Selects the avatar shape.
+   *
+   * @defaultValue `"circular"`
+   */
+  readonly variant?: AvatarVariant;
+
+  /**
+   * Configures the fixed Avatar nodes.
+   */
+  readonly slotProps?: AvatarSlotProps;
 }
 
 /**
@@ -57,4 +117,44 @@ export interface MiaixzAvatarOwnProps {
  * @public
  */
 export interface AvatarProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzAvatarOwnProps>, MiaixzAvatarOwnProps {}
+  extends
+    Omit<
+      HTMLAttributes<HTMLSpanElement>,
+      keyof MiaixzAvatarOwnProps | "aria-hidden" | "aria-label" | "aria-labelledby" | "role"
+    >,
+    MiaixzAvatarOwnProps {}
+
+export type AvatarGroupSpacing = "medium" | "small" | number;
+export type AvatarGroupSlot = "root" | "surplus";
+
+export interface AvatarGroupOwnerState {
+  readonly spacing: AvatarGroupSpacing;
+  readonly surplus: number;
+  readonly variant: AvatarVariant;
+}
+
+export type AvatarGroupRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & {
+    readonly "data-spacing"?: "medium" | "small" | "custom";
+    readonly "data-variant"?: AvatarVariant;
+  };
+
+export interface AvatarGroupSlotProps {
+  readonly root?: MiaixzSlotProps<AvatarGroupOwnerState, AvatarGroupRootAttributes>;
+  readonly surplus?: MiaixzSlotProps<AvatarGroupOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+
+/**
+ * Configures a stacked collection of avatars with an optional surplus indicator.
+ *
+ * @public
+ */
+export interface AvatarGroupProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  readonly children?: ReactNode;
+  readonly max?: number;
+  readonly renderSurplus?: (surplus: number) => ReactNode;
+  readonly slotProps?: AvatarGroupSlotProps;
+  readonly spacing?: AvatarGroupSpacing;
+  readonly total?: number;
+  readonly variant?: AvatarVariant;
+}

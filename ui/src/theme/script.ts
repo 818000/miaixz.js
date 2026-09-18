@@ -18,11 +18,12 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import type { MiaixzThemeScriptOptions } from "./types.js";
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
+import { themePresets } from "./presets/index.js";
 
 const themeIdPattern = /^[a-z][a-z0-9-]{0,63}$/;
-const builtInThemeIds = ["miaixz", "neutral", "contrast"] as const;
 
 /**
  * Creates a synchronous CSP-compatible first-paint Appearance script.
@@ -38,8 +39,8 @@ export function createThemeScript(options: MiaixzThemeScriptOptions): string {
       details: { path: "storageKey" },
     });
   }
-  const themes = [...(options.themes ?? builtInThemeIds)];
-  const fallback = options.fallback ?? "miaixz";
+  const themes = [...(options.themes ?? themePresets.map((theme) => theme.name))];
+  const fallback = options.fallback ?? miaixzDefaultAppearance.theme;
   if (
     themes.length === 0 ||
     themes.some((theme) => !themeIdPattern.test(theme)) ||

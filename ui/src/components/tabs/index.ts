@@ -19,4 +19,15 @@
 */
 
 export { Tabs } from "./tabs.js";
-export type { TabsEntry, TabsOrientation, TabsProps } from "./tabs.types.js";
+export type {
+  MiaixzTabsOwnProps,
+  TabsActivationMode,
+  TabsEntry,
+  TabsOrientation,
+  TabsOwnerState,
+  TabsProps,
+  TabsRootAttributes,
+  TabsSlot,
+  TabsSlotProps,
+  TabsValueState,
+} from "./tabs.types.js";

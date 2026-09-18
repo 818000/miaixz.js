@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { MiaixzThemeError } from "./errors.js";
+import { MiaixzThemeError } from "./error.js";
 import { parseTheme } from "./parse.js";
 import type { MiaixzThemeDefinition, MiaixzThemeLoader } from "./types.js";
 

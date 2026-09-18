@@ -18,33 +18,24 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, RefAttributes } from "react";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
-/**
- * Defines the supported skeleton placeholder shapes.
- *
- * @public
- */
-export type SkeletonVariant = "text" | "heading" | "avatar" | "button" | "row" | "custom";
-
-/**
- * Configures a non-interactive loading placeholder.
- *
- * @public
- */
-export interface SkeletonProps extends HTMLAttributes<HTMLSpanElement> {
-  /**
-   * Selects the semantic placeholder shape.
-   *
-   * @defaultValue `"text"`
-   */
-  variant?: SkeletonVariant;
-  /**
-   * Overrides the placeholder width.
-   */
-  width?: number | string;
-  /**
-   * Overrides the placeholder height.
-   */
-  height?: number | string;
+export type SkeletonVariant = "text" | "circular" | "rectangular" | "rounded" | "custom";
+export type SkeletonSlot = "root";
+export interface SkeletonOwnerState {
+  readonly variant: SkeletonVariant;
 }
+export type SkeletonRootAttributes = HTMLAttributes<HTMLSpanElement> &
+  RefAttributes<HTMLSpanElement> & { readonly "data-variant"?: SkeletonVariant };
+export interface SkeletonSlotProps {
+  readonly root?: MiaixzSlotProps<SkeletonOwnerState, SkeletonRootAttributes>;
+}
+export interface MiaixzSkeletonOwnProps {
+  readonly variant?: SkeletonVariant;
+  readonly width?: number | string;
+  readonly height?: number | string;
+  readonly slotProps?: SkeletonSlotProps;
+}
+export type SkeletonProps = MiaixzSkeletonOwnProps &
+  Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzSkeletonOwnProps | "children" | "aria-hidden">;

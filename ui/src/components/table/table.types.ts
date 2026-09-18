@@ -23,7 +23,10 @@ import type {
   TableHTMLAttributes,
   TdHTMLAttributes,
   ThHTMLAttributes,
+  RefAttributes,
 } from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 /**
  * Configures the responsive table framing container.
@@ -43,6 +46,12 @@ export interface TableContainerProps extends HTMLAttributes<HTMLDivElement> {
    * @defaultValue `"default"`
    */
   surface?: "default" | "transparent";
+  /**
+   * Selects the minimum table width used before horizontal scrolling begins.
+   *
+   * @defaultValue `"default"`
+   */
+  minimumWidth?: "default" | "compact";
 }
 
 /**
@@ -50,19 +59,41 @@ export interface TableContainerProps extends HTMLAttributes<HTMLDivElement> {
  *
  * @public
  */
+export type TableDensity = "compact" | "standard" | "comfortable";
+export type TableDividerStyle = "solid" | "dashed" | "none";
+export type TableSlot = "root";
+export interface TableOwnerState {
+  readonly density: TableDensity;
+  readonly dividerStyle: TableDividerStyle;
+  readonly stickyHeader: boolean;
+  readonly presentation: "default" | "resource-tree";
+}
+export type TableRootAttributes = TableHTMLAttributes<HTMLTableElement> &
+  RefAttributes<HTMLTableElement> & {
+    readonly "data-density"?: TableDensity;
+    readonly "data-divider-style"?: TableDividerStyle;
+    readonly "data-sticky-header"?: boolean;
+    readonly "data-presentation"?: TableOwnerState["presentation"];
+  };
 export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   /**
    * Selects the default, dashed, or compact semantic table presentation.
    *
    * @defaultValue `"default"`
    */
-  variant?: "default" | "dashed" | "compact";
+  density?: TableDensity;
+  /**
+   * Selects row divider rendering independently from density.
+   */
+  dividerStyle?: TableDividerStyle;
   /**
    * Keeps header rows visible within the table scroll container.
    *
    * @defaultValue `false`
    */
   stickyHeader?: boolean;
+  readonly presentation?: TableOwnerState["presentation"];
+  readonly slotProps?: { readonly root?: MiaixzSlotProps<TableOwnerState, TableRootAttributes> };
 }
 
 /**
@@ -70,7 +101,16 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
  *
  * @public
  */
-export interface TableHeaderProps extends HTMLAttributes<HTMLTableSectionElement> {}
+export type TableHeaderSlot = "root";
+export type TableHeaderOwnerState = Record<never, never>;
+export interface TableHeaderProps extends HTMLAttributes<HTMLTableSectionElement> {
+  readonly slotProps?: {
+    readonly root?: MiaixzSlotProps<
+      TableHeaderOwnerState,
+      HTMLAttributes<HTMLTableSectionElement> & RefAttributes<HTMLTableSectionElement>
+    >;
+  };
+}
 
 /**
  * Configures the table body section.
@@ -106,6 +146,7 @@ export interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
  * @public
  */
 export interface TableHeadProps extends ThHTMLAttributes<HTMLTableCellElement> {
+  readonly scope?: "col" | "row" | "colgroup" | "rowgroup";
   /**
    * Aligns and formats the heading as numeric content.
    *
@@ -118,6 +159,12 @@ export interface TableHeadProps extends ThHTMLAttributes<HTMLTableCellElement> {
    * @defaultValue `false`
    */
   actions?: boolean;
+  readonly slotProps?: {
+    readonly root?: MiaixzSlotProps<
+      { readonly numeric: boolean; readonly actions: boolean },
+      ThHTMLAttributes<HTMLTableCellElement> & RefAttributes<HTMLTableCellElement>
+    >;
+  };
 }
 
 /**

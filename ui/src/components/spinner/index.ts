@@ -19,5 +19,12 @@
 */
 
 export { Spinner } from "./spinner.js";
-export type { MiaixzSpinnerOwnProps, SpinnerProps } from "./spinner.types.js";
+export type {
+  MiaixzSpinnerOwnProps,
+  SpinnerOwnerState,
+  SpinnerProps,
+  SpinnerRootAttributes,
+  SpinnerSlot,
+  SpinnerSlotProps,
+} from "./spinner.types.js";
 export type { MiaixzComponentSize } from "../shared.types.js";

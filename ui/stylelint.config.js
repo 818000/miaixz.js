@@ -20,23 +20,37 @@
 
 import stylelint from "stylelint";
 
-const multilineCommentRuleName = "miaixz/comments-must-be-multiline";
-const multilineCommentMessages = stylelint.utils.ruleMessages(multilineCommentRuleName, {
-  rejected: "Comments must use a multiline block format.",
+const strictCommentRuleName = "miaixz/comments-must-use-jsdoc";
+const strictCommentMessages = stylelint.utils.ruleMessages(strictCommentRuleName, {
+  nonJsdoc: "Every block comment must use the /** ... */ JSDoc form.",
+  singleLine: "Every comment must use a multiline JSDoc block.",
 });
-const multilineCommentPlugin = stylelint.createPlugin(
-  multilineCommentRuleName,
+const strictCommentPlugin = stylelint.createPlugin(
+  strictCommentRuleName,
   (primaryOption) => (root, result) => {
     if (!primaryOption) return;
 
     root.walkComments((comment) => {
+      const raw = comment.toString();
+      const isRepositoryHeader =
+        comment.source?.start?.line === 1 && raw.startsWith("/*\n") && raw.includes("miaixz.org");
+
+      if (!raw.startsWith("/**") && !isRepositoryHeader) {
+        stylelint.utils.report({
+          message: strictCommentMessages.nonJsdoc,
+          node: comment,
+          result,
+          ruleName: strictCommentRuleName,
+        });
+      }
+
       if (comment.source?.start?.line !== comment.source?.end?.line) return;
 
       stylelint.utils.report({
-        message: multilineCommentMessages.rejected,
+        message: strictCommentMessages.singleLine,
         node: comment,
         result,
-        ruleName: multilineCommentRuleName,
+        ruleName: strictCommentRuleName,
       });
     });
   },
@@ -49,13 +63,17 @@ const multilineCommentPlugin = stylelint.createPlugin(
  */
 const configuration = {
   extends: ["stylelint-config-standard", "stylelint-config-recess-order"],
-  plugins: ["stylelint-order", multilineCommentPlugin],
+  plugins: [strictCommentPlugin],
   rules: {
-    [multilineCommentRuleName]: true,
+    [strictCommentRuleName]: true,
     "custom-property-pattern": "^miaixz-[a-z0-9-]+$",
     "declaration-property-value-disallowed-list": {
       transition: ["/\\ball\\b/"],
     },
+    /**
+     * Component state and surface selectors intentionally compose across source order.
+     */
+    "no-descending-specificity": null,
     "property-disallowed-list": [
       "left",
       "margin-left",
@@ -68,7 +86,7 @@ const configuration = {
   },
   overrides: [
     {
-      files: ["src/theme/{miaixz,neutral,contrast,theme}.css"],
+      files: ["src/theme/{default,theme}.css", "src/theme/**/styles.css"],
       rules: {
         "color-hex-length": "long",
         "custom-property-empty-line-before": null,

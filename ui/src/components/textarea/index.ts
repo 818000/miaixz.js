@@ -19,4 +19,14 @@
 */
 
 export { Textarea } from "./textarea.js";
-export type { TextareaProps, TextareaResize, TextareaSize } from "./textarea.types.js";
+export type {
+  TextareaControlAttributes,
+  TextareaOwnerState,
+  TextareaProps,
+  TextareaResize,
+  TextareaRootAttributes,
+  TextareaSize,
+  TextareaSizingProps,
+  TextareaSlot,
+  TextareaSlotProps,
+} from "./textarea.types.js";

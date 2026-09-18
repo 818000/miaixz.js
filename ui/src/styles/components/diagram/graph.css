@@ -1,0 +1,179 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+.miaixz-graph {
+  min-inline-size: 0;
+  color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-graph-toolbar {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  justify-content: flex-end;
+  margin-block-end: var(--miaixz-space-8);
+}
+
+.miaixz-graph-zoom {
+  min-inline-size: 4ch;
+  font-size: var(--miaixz-text-caption-size);
+  font-variant-numeric: tabular-nums;
+  color: var(--miaixz-color-text-secondary);
+  text-align: center;
+}
+
+.miaixz-graph-viewport {
+  min-block-size: 22rem;
+  overflow: hidden;
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-graph-canvas {
+  inline-size: 100%;
+  block-size: 22rem;
+}
+
+.miaixz-graph-edge line {
+  stroke: var(--miaixz-color-border-strong);
+  stroke-width: 0.35;
+}
+
+.miaixz-graph-edge text {
+  font-size: 2.5px;
+  fill: var(--miaixz-color-text-muted);
+}
+
+.miaixz-graph-arrow {
+  fill: var(--miaixz-color-border-strong);
+}
+
+.miaixz-graph-node {
+  color: var(--miaixz-color-data-neutral);
+  cursor: pointer;
+  outline: none;
+}
+
+.miaixz-graph-node[data-tone="brand"] {
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-graph-node[data-tone="info"] {
+  color: var(--miaixz-color-info);
+}
+
+.miaixz-graph-node[data-tone="success"] {
+  color: var(--miaixz-color-success);
+}
+
+.miaixz-graph-node[data-tone="warning"] {
+  color: var(--miaixz-color-warning);
+}
+
+.miaixz-graph-node[data-tone="danger"] {
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-graph-node[data-tone="data-1"] {
+  color: var(--miaixz-color-data-1);
+}
+
+.miaixz-graph-node[data-tone="data-2"] {
+  color: var(--miaixz-color-data-2);
+}
+
+.miaixz-graph-node[data-tone="data-3"] {
+  color: var(--miaixz-color-data-3);
+}
+
+.miaixz-graph-node[data-tone="data-4"] {
+  color: var(--miaixz-color-data-4);
+}
+
+.miaixz-graph-node[data-tone="data-5"] {
+  color: var(--miaixz-color-data-5);
+}
+
+.miaixz-graph-node[data-tone="data-6"] {
+  color: var(--miaixz-color-data-6);
+}
+
+.miaixz-graph-node[data-tone="data-7"] {
+  color: var(--miaixz-color-data-7);
+}
+
+.miaixz-graph-node[data-tone="data-8"] {
+  color: var(--miaixz-color-data-8);
+}
+
+.miaixz-graph-node circle {
+  fill: var(--miaixz-surface-role-panel-background);
+  stroke: currentcolor;
+  stroke-width: 0.6;
+  transition: fill var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-graph-node text {
+  font-size: 2.8px;
+  font-weight: var(--miaixz-font-weight-medium);
+  pointer-events: none;
+  fill: var(--miaixz-color-text-primary);
+}
+
+.miaixz-graph-node:hover circle,
+.miaixz-graph-node[aria-pressed="true"] circle {
+  fill: var(--miaixz-color-surface-selected);
+}
+
+.miaixz-graph-node:focus-visible circle {
+  stroke: var(--miaixz-color-focus);
+  stroke-width: 1;
+}
+
+.miaixz-graph[aria-disabled="true"] .miaixz-graph-node {
+  cursor: not-allowed;
+  opacity: var(--miaixz-opacity-disabled);
+}
+
+@media (width <= 720px) {
+  .miaixz-graph-viewport,
+  .miaixz-graph-canvas {
+    block-size: 18rem;
+    min-block-size: 18rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-graph-node circle {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .miaixz-graph-edge line,
+  .miaixz-graph-node circle {
+    stroke: CanvasText;
+  }
+
+  .miaixz-graph-arrow {
+    fill: CanvasText;
+  }
+}

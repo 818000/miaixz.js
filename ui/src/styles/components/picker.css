@@ -33,45 +33,6 @@
   min-width: 0;
 }
 
-.miaixz-picker-tag {
-  display: inline-flex;
-  gap: var(--miaixz-space-2);
-  align-items: center;
-  max-inline-size: min(100%, var(--miaixz-layout-card-min-width));
-  min-block-size: var(--miaixz-density-control-height);
-  padding-inline-start: var(--miaixz-space-8);
-  color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface-secondary);
-  border-radius: var(--miaixz-radius-control);
-}
-
-.miaixz-picker-tag-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.miaixz-picker-tag-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  inline-size: var(--miaixz-density-control-height);
-  block-size: var(--miaixz-density-control-height);
-  padding: 0;
-  color: var(--miaixz-color-text-secondary);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: var(--miaixz-radius-control);
-}
-
-.miaixz-picker-tag-remove:hover,
-.miaixz-picker-tag-remove:focus-visible {
-  color: var(--miaixz-color-text-primary);
-  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
-  outline-offset: calc(-1 * var(--miaixz-control-focus-width));
-}
-
 .miaixz-picker-count {
   display: inline-flex;
   flex: none;

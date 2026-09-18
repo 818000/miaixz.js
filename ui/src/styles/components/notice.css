@@ -41,8 +41,16 @@
 }
 
 .miaixz-notice-icon {
+  display: flex;
   flex: none;
+  width: var(--miaixz-icon-size-inline);
+  height: var(--miaixz-icon-size-inline);
   margin-block-start: var(--miaixz-space-2);
+}
+
+.miaixz-notice-icon > .miaixz-icon {
+  width: var(--miaixz-icon-size-inline);
+  height: var(--miaixz-icon-size-inline);
 }
 
 .miaixz-notice-info {

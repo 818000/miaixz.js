@@ -26,7 +26,7 @@
  */
 
 [data-miaixz-theme] {
-  /*
+  /**
    * Duration scale
    */
   --miaixz-duration-instant: 0ms;
@@ -35,7 +35,7 @@
   --miaixz-duration-slow: 240ms;
   --miaixz-duration-slower: 320ms;
 
-  /*
+  /**
 
    * Easing scale
 
@@ -45,13 +45,14 @@
   --miaixz-easing-exit: cubic-bezier(0.3, 0, 1, 1);
   --miaixz-easing-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
 
-  /*
+  /**
 
    * Semantic motion
 
    */
   --miaixz-motion-interaction-duration: var(--miaixz-duration-fast);
   --miaixz-motion-state-duration: var(--miaixz-duration-normal);
+  --miaixz-motion-state-easing: var(--miaixz-easing-standard);
   --miaixz-motion-overlay-duration: var(--miaixz-duration-slow);
   --miaixz-motion-interaction-easing: var(--miaixz-easing-standard);
   --miaixz-motion-enter-easing: var(--miaixz-easing-enter);

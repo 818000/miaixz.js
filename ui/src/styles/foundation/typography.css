@@ -31,7 +31,7 @@
  */
 
 [data-miaixz-theme] {
-  /*
+  /**
    * Font families
    */
   --miaixz-font-family-sans:
@@ -39,7 +39,7 @@
     "Microsoft YaHei", system-ui, sans-serif;
   --miaixz-font-family-mono: "SFMono-Regular", menlo, consolas, "Liberation Mono", monospace;
 
-  /*
+  /**
      * Primitive font-size scale
      * These are the only literal font-size values allowed in the system.
      */
@@ -53,7 +53,7 @@
   --miaixz-font-size-24: 24px;
   --miaixz-font-size-32: 32px;
 
-  /*
+  /**
 
    * Primitive line-height scale
 
@@ -68,7 +68,7 @@
   --miaixz-line-height-32: 32px;
   --miaixz-line-height-40: 40px;
 
-  /*
+  /**
 
    * Primitive font weights
 
@@ -77,7 +77,7 @@
   --miaixz-font-weight-medium: 600;
   --miaixz-font-weight-bold: 700;
 
-  /*
+  /**
      * Semantic typography scale
      * caption: helper text, table headers, status, time and pagination
      * body: navigation, tabs, controls, form fields, tables and body copy
@@ -98,24 +98,7 @@
     var(--miaixz-line-height-18)
   );
 
-  /* Console/application roles. Feature modules consume these aliases instead
-   * of maintaining private type scales. */
-  --miaixz-console-title-size: var(--miaixz-text-page-title-size, var(--miaixz-font-size-20));
-  --miaixz-console-section-size: var(--miaixz-text-section-title-size, var(--miaixz-font-size-16));
-  --miaixz-console-body-size: var(--miaixz-text-body-size, var(--miaixz-font-size-14));
-  --miaixz-console-meta-size: var(--miaixz-text-caption-size, var(--miaixz-font-size-12));
-  --miaixz-console-metric-size: var(--miaixz-text-metric-size, var(--miaixz-font-size-24));
-
-  /* Compatibility aliases for modules authored before the console roles
-   * were promoted into the component library. */
-  --miaixz-module-type-section: var(--miaixz-console-title-size);
-  --miaixz-module-type-region: var(--miaixz-console-section-size);
-  --miaixz-module-type-body: var(--miaixz-console-body-size);
-  --miaixz-module-type-meta: var(--miaixz-console-meta-size);
-  --miaixz-module-type-auxiliary: var(--miaixz-console-meta-size);
-  --miaixz-module-type-metric: var(--miaixz-console-metric-size);
-
-  /*
+  /**
 
    * Letter spacing
 

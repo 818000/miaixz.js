@@ -18,166 +18,310 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  RefAttributes,
+} from "react";
+
+import type { AnchorRenderer, AnchorRenderProps } from "../../shared/anchor.js";
+import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 /**
- * Defines the visual and semantic treatment of a button.
+ * Defines the visual treatment independently from semantic tone.
  *
  * @public
  */
-export type ButtonVariant =
-  | "action"
-  | "action-primary"
-  | "favorite"
-  | "framed-icon"
-  | "choice"
-  | "navigation"
-  | "plain"
-  | "plain-primary"
-  | "text"
-  | "text-danger"
-  | "danger"
-  | "danger-link"
-  | "ghost"
-  | "link"
-  | "outline"
-  | "primary"
-  | "refresh"
-  | "secondary";
+export type ButtonVariant = "solid" | "outlined" | "plain";
 
 /**
- * Defines the supported button control sizes.
+ * Defines the semantic color role used by Button and ButtonLink.
+ *
+ * @public
+ */
+export type ButtonTone = "neutral" | "brand" | "danger";
+
+/**
+ * Defines the supported framed-control sizes.
  *
  * @public
  */
 export type ButtonSize = "small" | "medium" | "large";
 
 /**
- * Configures framework-independent styling shared by buttons and semantic links.
+ * Lists the fixed Button content slots.
  *
  * @public
  */
-export interface ButtonStyleOptions {
+export type ButtonSlot = "root" | "label" | "startIcon" | "endIcon" | "loadingIndicator";
+
+/**
+ * Describes immutable Button state exposed to slot functions and Theme variants.
+ *
+ * @public
+ */
+export interface ButtonOwnerState {
   /**
-   * Selects the visual and semantic treatment.
-   *
-   * @defaultValue `"secondary"`
+   * Selects the visual treatment.
    */
-  variant?: ButtonVariant;
+  readonly variant: ButtonVariant;
   /**
-   * Selects the control size for framed recipes.
-   *
-   * @defaultValue `"medium"`
+   * Selects the semantic tone.
    */
-  size?: ButtonSize;
+  readonly tone: ButtonTone;
   /**
-   * Expands the recipe to the width of its container.
-   *
-   * @defaultValue `false`
+   * Selects control geometry.
    */
-  block?: boolean;
+  readonly size: ButtonSize;
   /**
-   * Applies icon-only structure without changing the selected variant.
-   *
-   * @defaultValue `false`
+   * Reports whether the root fills available width.
    */
-  iconOnly?: boolean;
+  readonly block: boolean;
   /**
-   * Appends a consumer-owned class without replacing the public recipe.
+   * Reports whether command interaction is pending.
    */
-  className?: string;
+  readonly loading: boolean;
+  /**
+   * Reports whether command interaction is unavailable.
+   */
+  readonly disabled: boolean;
 }
 
 /**
- * Defines properties shared by all Miaixz button variants.
+ * Configures fixed Button native slots.
  *
  * @public
  */
-export interface MiaixzButtonBaseProps extends Omit<
+export interface ButtonSlotProps {
+  /**
+   * Configures the native button root.
+   */
+  readonly root?: MiaixzSlotProps<ButtonOwnerState, ButtonRootAttributes>;
+  /**
+   * Configures the visible label wrapper.
+   */
+  readonly label?: MiaixzSlotProps<ButtonOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  /**
+   * Configures the leading icon wrapper.
+   */
+  readonly startIcon?: MiaixzSlotProps<ButtonOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  /**
+   * Configures the trailing icon wrapper.
+   */
+  readonly endIcon?: MiaixzSlotProps<ButtonOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  /**
+   * Configures the centered loading indicator wrapper.
+   */
+  readonly loadingIndicator?: MiaixzSlotProps<ButtonOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+
+/**
+ * Configures a labeled command button.
+ *
+ * @public
+ */
+export interface ButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "children"
+  "aria-labelledby" | "children"
 > {
-  /**
-   * Selects the visual and semantic treatment.
-   *
-   * @defaultValue `"secondary"`
-   */
-  variant?: ButtonVariant;
-  /**
-   * Selects the button control size.
-   *
-   * @defaultValue `"medium"`
-   */
-  size?: ButtonSize;
-  /**
-   * Expands the button to the width of its container.
-   *
-   * @defaultValue `false`
-   */
-  block?: boolean;
-  /**
-   * Disables interaction and displays progress feedback.
-   *
-   * @defaultValue `false`
-   */
-  loading?: boolean;
-  /**
-   * Overrides the localized loading announcement.
-   */
-  loadingLabel?: string;
-  /**
-   * Displays content before the button label.
-   */
-  startIcon?: ReactNode;
-  /**
-   * Displays content after the button label.
-   */
-  endIcon?: ReactNode;
-}
-
-/**
- * Configures a labeled Miaixz button.
- *
- * @public
- */
-export interface MiaixzButtonWithContentProps extends MiaixzButtonBaseProps {
-  /**
-   * Keeps the visible label presentation enabled.
-   *
-   * @defaultValue `false`
-   */
-  iconOnly?: false;
   /**
    * Supplies the visible button label.
    */
-  children: ReactNode;
+  readonly children: ReactNode;
+  /**
+   * Selects visual treatment.
+   *
+   * @defaultValue `"outlined"`
+   */
+  readonly variant?: ButtonVariant;
+  /**
+   * Selects semantic color.
+   *
+   * @defaultValue `"neutral"`
+   */
+  readonly tone?: ButtonTone;
+  /**
+   * Selects the shared control height.
+   *
+   * @defaultValue `"medium"`
+   */
+  readonly size?: ButtonSize;
+  /**
+   * Expands the button to container width.
+   *
+   * @defaultValue `false`
+   */
+  readonly block?: boolean;
+  /**
+   * Disables interaction and announces progress.
+   *
+   * @defaultValue `false`
+   */
+  readonly loading?: boolean;
+  /**
+   * Overrides the localized loading announcement.
+   */
+  readonly loadingLabel?: string;
+  /**
+   * Displays one leading element.
+   */
+  readonly startIcon?: ReactElement;
+  /**
+   * Displays one trailing element.
+   */
+  readonly endIcon?: ReactElement;
+  /**
+   * Configures fixed native slots.
+   */
+  readonly slotProps?: ButtonSlotProps;
 }
 
 /**
- * Configures an accessible icon-only Miaixz button.
+ * Describes the native Button root plus component-owned data attributes.
  *
  * @public
  */
-export interface MiaixzIconOnlyButtonProps extends MiaixzButtonBaseProps {
+export interface ButtonRootAttributes
+  extends ButtonHTMLAttributes<HTMLButtonElement>, RefAttributes<HTMLButtonElement> {
   /**
-   * Enables an icon-only action while the selected variant controls whether the
-   * action is framed. Keeps the control hit area and keyboard-only focus treatment;
-   * the accessible name is also used as the title unless a title is supplied.
+   * Exposes pending state to styles.
    */
-  iconOnly: true;
+  readonly "data-loading"?: boolean;
   /**
-   * Provides the required accessible name for an icon-only button.
+   * Enables the shared press effect.
    */
-  "aria-label": string;
+  readonly "data-miaixz-ripple"?: string;
   /**
-   * Supplies the icon-only button content.
+   * Exposes the effective visual treatment.
    */
-  children: ReactNode;
+  readonly "data-variant"?: ButtonVariant;
+  /**
+   * Exposes the effective semantic tone.
+   */
+  readonly "data-tone"?: ButtonTone;
+  /**
+   * Exposes the effective control size.
+   */
+  readonly "data-size"?: ButtonSize;
+  /**
+   * Exposes full-width layout state.
+   */
+  readonly "data-block"?: string;
 }
 
 /**
- * Configures either a labeled or an icon-only action button.
+ * Configures ButtonLink fixed native slots.
  *
  * @public
  */
-export type ButtonProps = MiaixzButtonWithContentProps | MiaixzIconOnlyButtonProps;
+export interface ButtonLinkSlotProps extends Omit<ButtonSlotProps, "root"> {
+  /**
+   * Configures the native anchor root.
+   */
+  readonly root?: MiaixzSlotProps<ButtonOwnerState, ButtonLinkRootAttributes>;
+}
+
+/**
+ * Describes the native ButtonLink root plus component-owned data attributes.
+ *
+ * @public
+ */
+export interface ButtonLinkRootAttributes
+  extends AnchorHTMLAttributes<HTMLAnchorElement>, RefAttributes<HTMLAnchorElement> {
+  /**
+   * Enables the shared press effect.
+   */
+  readonly "data-miaixz-ripple"?: string;
+  /**
+   * Exposes the effective visual treatment.
+   */
+  readonly "data-variant"?: ButtonVariant;
+  /**
+   * Exposes the effective semantic tone.
+   */
+  readonly "data-tone"?: ButtonTone;
+  /**
+   * Exposes the effective control size.
+   */
+  readonly "data-size"?: ButtonSize;
+  /**
+   * Exposes full-width layout state.
+   */
+  readonly "data-block"?: string;
+}
+
+/**
+ * Supplies the required destination to a ButtonLink renderer.
+ *
+ * @public
+ */
+export type ButtonLinkRenderProps = AnchorRenderProps;
+
+/**
+ * Defines the sole custom router-link adapter.
+ *
+ * @public
+ */
+export type ButtonLinkRenderer = AnchorRenderer;
+
+/**
+ * Configures a real navigation link with Button presentation.
+ *
+ * @public
+ */
+export interface ButtonLinkProps extends Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  "children" | "href"
+> {
+  /**
+   * Supplies the real navigation destination.
+   */
+  readonly href: string;
+  /**
+   * Supplies the visible link label.
+   */
+  readonly children: ReactNode;
+  /**
+   * Selects visual treatment.
+   *
+   * @defaultValue `"outlined"`
+   */
+  readonly variant?: ButtonVariant;
+  /**
+   * Selects semantic color.
+   *
+   * @defaultValue `"neutral"`
+   */
+  readonly tone?: ButtonTone;
+  /**
+   * Selects shared control height.
+   *
+   * @defaultValue `"medium"`
+   */
+  readonly size?: ButtonSize;
+  /**
+   * Expands the link to container width.
+   *
+   * @defaultValue `false`
+   */
+  readonly block?: boolean;
+  /**
+   * Displays one leading element.
+   */
+  readonly startIcon?: ReactElement;
+  /**
+   * Displays one trailing element.
+   */
+  readonly endIcon?: ReactElement;
+  /**
+   * Adapts the final native anchor to a router.
+   */
+  readonly renderAnchor?: ButtonLinkRenderer;
+  /**
+   * Configures fixed native slots.
+   */
+  readonly slotProps?: ButtonLinkSlotProps;
+}
