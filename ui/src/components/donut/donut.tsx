@@ -22,6 +22,7 @@ import { forwardRef, useEffect, useId, useRef, useState, type CSSProperties } fr
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { useMedia } from "../../shared/responsive/use-media.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { DonutOwnerState, DonutProps } from "./donut.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -98,6 +99,7 @@ export const Donut = withMiaixzThemeComponent(
       };
     });
     const [animating, setAnimating] = useState(false);
+    const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
     const mountedRef = useRef(false);
     const signature = segments.map(({ id, value, tone }) => `${id}:${value}:${tone}`).join("|");
     useEffect(() => {
@@ -105,14 +107,11 @@ export const Donut = withMiaixzThemeComponent(
         mountedRef.current = true;
         return;
       }
-      const reducedMotion =
-        typeof window.matchMedia === "function" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!animate || reducedMotion) return;
       setAnimating(false);
       const timer = window.setTimeout(() => setAnimating(true), 0);
       return () => window.clearTimeout(timer);
-    }, [animate, signature]);
+    }, [animate, reducedMotion, signature]);
     const state = total === 0 ? "empty" : "ready";
     const ownerState: DonutOwnerState = { size, variant, legend, state, animate: animating };
     return (

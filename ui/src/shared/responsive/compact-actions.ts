@@ -18,63 +18,9 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { useSyncExternalStore } from "react";
+import { useMedia } from "./use-media.js";
 
 const compactActionQuery = "(max-width: 767px)";
-const subscribers = new Set<() => void>();
-let mediaQuery: MediaQueryList | undefined;
-
-/**
- * Returns the lazily created compact-action media query.
- *
- * @returns The shared query in browser environments.
- */
-function getMediaQuery(): MediaQueryList | undefined {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return undefined;
-  mediaQuery ??= window.matchMedia(compactActionQuery);
-  return mediaQuery;
-}
-
-/**
- * Notifies every compact-action subscriber.
- */
-function notifySubscribers(): void {
-  for (const subscriber of subscribers) subscriber();
-}
-
-/**
- * Subscribes one compact-action consumer.
- *
- * @param subscriber Store change callback.
- * @returns Cleanup callback.
- */
-function subscribe(subscriber: () => void): () => void {
-  const query = getMediaQuery();
-  subscribers.add(subscriber);
-  if (subscribers.size === 1) query?.addEventListener("change", notifySubscribers);
-  return () => {
-    subscribers.delete(subscriber);
-    if (subscribers.size === 0) query?.removeEventListener("change", notifySubscribers);
-  };
-}
-
-/**
- * Reads the current browser breakpoint state.
- *
- * @returns Whether compact action density is active.
- */
-function getSnapshot(): boolean {
-  return getMediaQuery()?.matches ?? false;
-}
-
-/**
- * Returns the deterministic server breakpoint state.
- *
- * @returns False during server rendering.
- */
-function getServerSnapshot(): boolean {
-  return false;
-}
 
 /**
  * Shares one viewport breakpoint listener across compact row action layouts.
@@ -83,5 +29,5 @@ function getServerSnapshot(): boolean {
  * @internal
  */
 export function useMiaixzCompactActions(): boolean {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return useMedia(compactActionQuery);
 }

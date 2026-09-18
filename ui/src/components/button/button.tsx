@@ -36,7 +36,7 @@ import type {
   ButtonSlot,
   ButtonSlotProps,
 } from "./button.types.js";
-import { withMiaixzThemeComponent } from "../../theme/binding.js";
+import { useButtonGroup } from "./button-group-context.js";
 
 /**
  * Removes component-only Button props from a native root property set.
@@ -62,6 +62,32 @@ function getButtonNativeProps(props: Partial<ButtonProps>): Partial<ButtonRootAt
 }
 
 /**
+ * Removes component-only ButtonLink props from a native anchor property set.
+ *
+ * @param props - ButtonLink properties that may contain component-only fields.
+ * @returns Native anchor properties.
+ */
+function getButtonLinkNativeProps(
+  props: Partial<ButtonLinkProps>,
+): Partial<ButtonLinkRootAttributes> {
+  const {
+    children: _children,
+    href: _href,
+    variant: _variant,
+    tone: _tone,
+    size: _size,
+    block: _block,
+    startIcon: _startIcon,
+    endIcon: _endIcon,
+    renderAnchor: _renderAnchor,
+    slotProps: _slotProps,
+    onClick: _onClick,
+    ...nativeProps
+  } = props;
+  return nativeProps;
+}
+
+/**
  * Renders a semantic command Button.
  *
  * @public
@@ -71,12 +97,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const labelId = useId();
   const theme = useMiaixzThemeComponent("Button");
   const themeDefaults = theme?.defaultProps;
-  const variant = props.variant ?? themeDefaults?.variant ?? "outlined";
-  const tone = props.tone ?? themeDefaults?.tone ?? "neutral";
-  const size = props.size ?? themeDefaults?.size ?? "medium";
-  const block = props.block ?? themeDefaults?.block ?? false;
+  const group = useButtonGroup();
+  const variant = props.variant ?? group?.variant ?? themeDefaults?.variant ?? "outlined";
+  const tone = props.tone ?? group?.tone ?? themeDefaults?.tone ?? "neutral";
+  const size = props.size ?? group?.size ?? themeDefaults?.size ?? "medium";
+  const block = props.block ?? group?.fullWidth ?? themeDefaults?.block ?? false;
   const loading = props.loading ?? themeDefaults?.loading ?? false;
-  const disabled = (props.disabled ?? themeDefaults?.disabled) === true || loading;
+  const disabled =
+    (props.disabled ?? group?.disabled ?? themeDefaults?.disabled) === true || loading;
   const type = props.type ?? themeDefaults?.type ?? "button";
   const ownerState: ButtonOwnerState = { variant, tone, size, block, loading, disabled };
   const slotThemeClasses = (slot: ButtonSlot) =>
@@ -150,30 +178,27 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
  *
  * @public
  */
-export const ButtonLink = withMiaixzThemeComponent(
-  "ButtonLink",
-  forwardRef<HTMLAnchorElement, ButtonLinkProps>(function ButtonLink(props, forwardedRef) {
-    const {
-      href,
-      children,
-      variant = "outlined",
-      tone = "neutral",
-      size = "medium",
-      block = false,
-      startIcon,
-      endIcon,
-      renderAnchor,
-      slotProps,
-      ...nativeProps
-    } = props;
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  function ButtonLink(props, forwardedRef) {
+    const group = useButtonGroup();
+    const theme = useMiaixzThemeComponent("ButtonLink");
+    const themeDefaults = theme?.defaultProps;
+    const { href, children, renderAnchor, slotProps, onClick } = props;
+    const variant = props.variant ?? group?.variant ?? themeDefaults?.variant ?? "outlined";
+    const tone = props.tone ?? group?.tone ?? themeDefaults?.tone ?? "neutral";
+    const size = props.size ?? group?.size ?? themeDefaults?.size ?? "medium";
+    const block = props.block ?? group?.fullWidth ?? themeDefaults?.block ?? false;
+    const disabled = group?.disabled ?? false;
     const ownerState: ButtonOwnerState = {
       variant,
       tone,
       size,
       block,
       loading: false,
-      disabled: false,
+      disabled,
     };
+    const slotThemeClasses = (slot: ButtonSlot) =>
+      getMiaixzThemeSlotClassNames(theme, ownerState, slot);
     const rootProps = mergeMiaixzSlotProps<
       ButtonOwnerState,
       ButtonLinkRootAttributes,
@@ -188,11 +213,18 @@ export const ButtonLink = withMiaixzThemeComponent(
           `miaixz-control-${size}`,
         ),
       },
-      componentProps: nativeProps,
+      componentProps: getButtonLinkNativeProps(props),
+      themeDefaultProps: getButtonLinkNativeProps(themeDefaults ?? {}),
+      themeClassNames: slotThemeClasses("root"),
       slotProps: slotProps?.root,
       forwardedRef,
       internalProps: {
         href,
+        ...(disabled ? { "aria-disabled": true, tabIndex: -1 } : {}),
+        onClick: (event) => {
+          if (disabled) event.preventDefault();
+          else onClick?.(event);
+        },
         "data-miaixz-ripple": "true",
         "data-variant": variant,
         "data-tone": tone,
@@ -201,6 +233,9 @@ export const ButtonLink = withMiaixzThemeComponent(
       },
       ownedProps: [
         "href",
+        "aria-disabled",
+        "tabIndex",
+        "onClick",
         "data-miaixz-ripple",
         "data-variant",
         "data-tone",
@@ -212,13 +247,19 @@ export const ButtonLink = withMiaixzThemeComponent(
       <Anchor {...rootProps} href={href} renderAnchor={renderAnchor}>
         <MiaixzButtonContent
           ownerState={ownerState}
-          startIcon={startIcon}
-          endIcon={endIcon}
+          startIcon={props.startIcon ?? themeDefaults?.startIcon}
+          endIcon={props.endIcon ?? themeDefaults?.endIcon}
           slotProps={slotProps}
+          themeClassNames={{
+            label: slotThemeClasses("label"),
+            startIcon: slotThemeClasses("startIcon"),
+            endIcon: slotThemeClasses("endIcon"),
+            loadingIndicator: slotThemeClasses("loadingIndicator"),
+          }}
         >
           {children}
         </MiaixzButtonContent>
       </Anchor>
     );
-  }),
+  },
 );

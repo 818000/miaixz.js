@@ -31,7 +31,7 @@ export default defineConfig({
     globals: true,
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     restoreMocks: true,
-    setupFiles: ["./tests/setup.ts"],
+    setupFiles: ["./tests/support/setup.ts"],
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],

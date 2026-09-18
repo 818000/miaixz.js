@@ -431,7 +431,7 @@ function inspect(fileName, source, pattern, code) {
  * @returns {void}
  */
 function inspectRemovedActionApi(fileName, source) {
-  inspect(fileName, source, /\b(?:ButtonGroup|getButtonClassName)\b/g, "ACTION_REMOVED_EXPORT");
+  inspect(fileName, source, /\bgetButtonClassName\b/g, "ACTION_REMOVED_EXPORT");
 }
 
 /**

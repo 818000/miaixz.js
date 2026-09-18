@@ -70,7 +70,7 @@ Source / 来源: [gitmoji](https://github.com/carloscuesta/gitmoji/blob/master/p
 | 🛂    | `:passport_control:`          | `passport-control`          | patch  | Work on code related to authorization, roles and permissions. | 处理授权、角色和访问权限相关代码。       |
 | 🩹    | `:adhesive_bandage:`          | `adhesive-bandage`          | patch  | Simple fix for a non-critical issue.                          | 简单修复非关键问题。                     |
 | 🧐    | `:monocle_face:`              | `monocle-face`              | -      | Data exploration/inspection.                                  | 数据探索或检查。                         |
-| ⚰️    | `:coffin:`                    | `coffin`                    | -      | Remove dead code.                                             | 移除死代码。                             |
+| ⚰️    | `:coffin:`                    | `coffin`                    | -      | Remove dead code.                                             | 移除无效代码。                           |
 | 🧪    | `:test_tube:`                 | `test-tube`                 | -      | Add a failing test.                                           | 添加一个预期失败的测试。                 |
 | 👔    | `:necktie:`                   | `necktie`                   | patch  | Add or update business logic.                                 | 添加或更新业务逻辑。                     |
 | 🩺    | `:stethoscope:`               | `stethoscope`               | -      | Add or update healthcheck.                                    | 添加或更新健康检查。                     |

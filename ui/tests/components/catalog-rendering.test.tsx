@@ -41,7 +41,7 @@ import {
   Progress,
   Radio,
   RadioGroup,
-  Range,
+  Slider,
   Sidebar,
   Skeleton,
   Split,
@@ -53,7 +53,7 @@ import {
   Toast,
   Toolbar,
 } from "../../src/index.js";
-import { renderWithLocale } from "../test-utils.js";
+import { renderWithLocale } from "../support/test-utils.js";
 
 afterEach(cleanup);
 
@@ -191,11 +191,11 @@ describe("catalog input components", () => {
     );
   });
 
-  it("keeps Checkbox and Range native state, field attributes, refs, and slots on one owner", async () => {
+  it("keeps Checkbox and Slider native state, field attributes, refs, and slots on one owner", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     const checkboxRef = vi.fn();
-    const rangeRef = vi.fn();
+    const sliderRef = vi.fn();
     const { container } = renderWithLocale(
       <>
         <span id="choice-label">Choice</span>
@@ -227,25 +227,25 @@ describe("catalog input components", () => {
           style={{ color: "red" }}
         />
         <Checkbox aria-label="Bare checkbox" />
-        <span id="range-label">Range</span>
-        <span id="range-help">Range help</span>
-        <Range
-          aria-describedby="range-help"
+        <span id="slider-label">Slider</span>
+        <span id="slider-help">Slider help</span>
+        <Slider
+          aria-describedby="slider-help"
           aria-invalid="true"
-          aria-labelledby="range-label"
+          aria-labelledby="slider-label"
           disabled
-          id="range"
+          id="slider"
           invalid
           max={10}
           min={0}
-          ref={rangeRef}
+          ref={sliderRef}
           required
           slotProps={{
-            root: ({ invalid }) => ({ className: invalid ? "range-invalid" : undefined }),
+            root: ({ invalid }) => ({ className: invalid ? "slider-invalid" : undefined }),
           }}
           value={5}
         />
-        <Range aria-label="Bare range" />
+        <Slider aria-label="Bare slider" />
       </>,
     );
     const checkbox = screen.getByRole("checkbox", { name: "Choice" });
@@ -257,14 +257,14 @@ describe("catalog input components", () => {
     await user.click(checkbox);
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByRole("checkbox", { name: "Bare checkbox" })).not.toBeChecked();
-    const range = screen.getByRole("slider", { name: "Range" });
-    expect(range).toBeDisabled();
-    expect(range).toHaveAttribute("required");
-    expect(range).toHaveClass("range-invalid");
-    expect(range).toHaveAttribute("data-invalid", "true");
-    expect(screen.getByRole("slider", { name: "Bare range" })).not.toBeDisabled();
+    const slider = screen.getByRole("slider", { name: "Slider" });
+    expect(slider).toBeDisabled();
+    expect(slider).toHaveAttribute("required");
+    expect(slider).toHaveClass("slider-invalid");
+    expect(slider).toHaveAttribute("data-invalid", "true");
+    expect(screen.getByRole("slider", { name: "Bare slider" })).not.toBeDisabled();
     expect(checkboxRef).toHaveBeenCalled();
-    expect(rangeRef).toHaveBeenCalled();
+    expect(sliderRef).toHaveBeenCalled();
   });
 
   it("uses native radio and switch controls with controlled and uncontrolled state", async () => {
@@ -315,7 +315,7 @@ describe("catalog input components", () => {
     expect(screen.getByRole("radio", { name: "Two" })).toBeDisabled();
   });
 
-  it("tracks textarea filled state and forwards range validity", async () => {
+  it("tracks textarea filled state and forwards slider validity", async () => {
     const user = userEvent.setup();
     const { rerender } = renderWithLocale(
       <>
@@ -326,7 +326,7 @@ describe("catalog input components", () => {
           resize="horizontal"
           size="large"
         />
-        <Range aria-label="Volume" defaultValue={25} invalid max={100} min={0} />
+        <Slider aria-label="Volume" defaultValue={25} invalid max={100} min={0} />
       </>,
     );
     const textarea = screen.getByRole("textbox", { name: "Notes" });

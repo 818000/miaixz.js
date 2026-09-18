@@ -26,6 +26,7 @@ import {
   loadWorkspaceRepository,
   sortWorkspacesByDependencies,
 } from "../miaixz.mjs";
+import { readPackageVisibility } from "./npm-registry.mjs";
 
 const [version, requestedDirectory, requestedRegistry] = process.argv.slice(2);
 if (!version || !requestedDirectory) {
@@ -75,35 +76,8 @@ if (
   throw new Error("Package directory tarballs do not match workspace-packages.json.");
 }
 
-/**
- * Reads the target version currently published for one workspace package.
- *
- * @param {string} name npm package name.
- * @returns {string | undefined} Published version, or undefined when the version is absent.
- */
-function readPublishedVersion(name) {
-  try {
-    return execFileSync(
-      "npm",
-      [
-        "view",
-        `${name}@${version}`,
-        "version",
-        "--json",
-        "--prefer-online",
-        "--registry",
-        registry,
-      ],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-    )
-      .replaceAll(/["\s]/gu, "")
-      .trim();
-  } catch {
-    return undefined;
-  }
-}
-
-const publishedCount = packages.filter(({ name }) => readPublishedVersion(name) === version).length;
+const initialVisibility = await readPackageVisibility(packages, version, registry);
+const publishedCount = packages.filter(({ name }) => initialVisibility.get(name)).length;
 if (publishedCount > 0 && publishedCount < packages.length) {
   console.log(
     `::warning::Only ${publishedCount} of ${packages.length} packages currently have version ${version}; publishing the missing packages to restore parity`,
@@ -112,7 +86,7 @@ if (publishedCount > 0 && publishedCount < packages.length) {
 
 const distributionTag = version.includes("-") ? "next" : "latest";
 for (const { name, tarball } of packages) {
-  if (readPublishedVersion(name) === version) {
+  if (initialVisibility.get(name)) {
     console.log(`${name}@${version} is already present on npm.`);
     continue;
   }
@@ -135,22 +109,39 @@ for (const { name, tarball } of packages) {
   console.log("::endgroup::");
 }
 
-const maximumAttempts = 18;
-const retryDelay = 10_000;
-let published = false;
-for (let attempt = 1; attempt <= maximumAttempts; attempt += 1) {
-  if (packages.every(({ name }) => readPublishedVersion(name) === version)) {
-    published = true;
-    break;
-  }
-  if (attempt < maximumAttempts) {
-    console.log(`Waiting for npm registry propagation (${attempt}/${maximumAttempts}).`);
+const propagationTimeout = 15 * 60_000;
+const retryDelay = 15_000;
+const propagationStartedAt = Date.now();
+let attempt = 0;
+while (true) {
+  attempt += 1;
+  let visibility;
+  try {
+    visibility = await readPackageVisibility(packages, version, registry);
+  } catch (error) {
+    const elapsedSeconds = Math.round((Date.now() - propagationStartedAt) / 1_000);
+    if (Date.now() - propagationStartedAt >= propagationTimeout) throw error;
+    console.log(
+      `::warning::npm registry visibility check ${attempt} failed after ${elapsedSeconds} seconds: ${error instanceof Error ? error.message : String(error)}`,
+    );
     await new Promise((resolveDelay) => setTimeout(resolveDelay, retryDelay));
+    continue;
   }
-}
-if (!published) {
-  throw new Error(
-    `npm does not report all packages at version ${version} after ${((maximumAttempts - 1) * retryDelay) / 1_000} seconds.`,
+  const missingPackages = packages
+    .filter(({ name }) => !visibility.get(name))
+    .map(({ name }) => `${name}@${version}`);
+  if (missingPackages.length === 0) break;
+  const elapsed = Date.now() - propagationStartedAt;
+  if (elapsed >= propagationTimeout) {
+    throw new Error(
+      `npm registry did not expose ${missingPackages.join(", ")} within ${Math.round(propagationTimeout / 60_000)} minutes.`,
+    );
+  }
+  console.log(
+    `Waiting for npm registry propagation (${Math.round(elapsed / 1_000)}s elapsed); missing: ${missingPackages.join(", ")}.`,
+  );
+  await new Promise((resolveDelay) =>
+    setTimeout(resolveDelay, Math.min(retryDelay, propagationTimeout - elapsed)),
   );
 }
 

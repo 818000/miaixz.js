@@ -19,6 +19,7 @@
 */
 
 export { Input } from "./input.js";
+export { NumberInput } from "./number-input.js";
 export type {
   InputOwnerState,
   InputProps,
@@ -27,3 +28,9 @@ export type {
   InputSlot,
   InputSlotProps,
 } from "./input.types.js";
+export type {
+  NumberInputChangeDetails,
+  NumberInputOwnerState,
+  NumberInputProps,
+  NumberInputSlotProps,
+} from "./number-input.types.js";

@@ -28,12 +28,11 @@ import type { NavigationEntry } from "../navigation/navigation.types.js";
 import type { TabsEntry } from "../tabs/tabs.types.js";
 import type { ViewOwnerState, ViewProps } from "./view.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
-import { Selector } from "./selector.js";
 
 /**
  * Renders one explicit content, route-navigation, or tabs view composition. @public
  */
-const ViewRoot = withMiaixzThemeComponent(
+export const View = withMiaixzThemeComponent(
   "View",
   forwardRef<HTMLElement, ViewProps>(function View(
     {
@@ -155,13 +154,6 @@ const ViewRoot = withMiaixzThemeComponent(
     );
   }),
 );
-
-/**
- * Provides the route-level view composition and its list/grid selector.
- *
- * @public
- */
-export const View = Object.assign(ViewRoot, { Selector });
 
 /**
  * Resolves static or owner-state-driven view slot properties.

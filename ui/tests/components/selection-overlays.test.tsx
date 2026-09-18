@@ -30,7 +30,7 @@ import { ComboboxPopup } from "../../src/components/combobox/combobox-popup.js";
 import { Dropdown } from "../../src/components/dropdown/dropdown.js";
 import { Picker } from "../../src/components/picker/picker.js";
 import { validatePickerValue } from "../../src/components/picker/picker-model.js";
-import { renderWithLocale } from "../test-utils.js";
+import { renderWithLocale } from "../support/test-utils.js";
 
 afterEach(() => {
   cleanup();
@@ -140,6 +140,7 @@ describe("Combobox and Picker", () => {
       />,
     );
     const input = screen.getByRole("combobox", { name: "Tags" });
+    expect(container.querySelector('[data-ui="tag"]')).toBeInTheDocument();
     fireEvent.focus(input);
     await user.click(await screen.findByRole("option", { name: "Beta" }));
     expect(onValueChange).toHaveBeenCalledWith([options[0], options[1]]);

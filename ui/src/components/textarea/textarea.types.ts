@@ -18,13 +18,32 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { HTMLAttributes, RefAttributes, TextareaHTMLAttributes } from "react";
+import type {
+  HTMLAttributes,
+  OutputHTMLAttributes,
+  ReactNode,
+  RefAttributes,
+  TextareaHTMLAttributes,
+} from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 export type TextareaSize = "small" | "medium" | "large";
 export type TextareaResize = "none" | "vertical" | "horizontal" | "both";
-export type TextareaSlot = "root" | "textarea";
+export type TextareaSlot = "root" | "textarea" | "count";
+export type TextareaSizingProps =
+  | {
+      readonly autoResize?: false;
+      readonly resize?: TextareaResize;
+      readonly minRows?: never;
+      readonly maxRows?: never;
+    }
+  | {
+      readonly autoResize: true;
+      readonly resize?: never;
+      readonly minRows?: number;
+      readonly maxRows?: number;
+    };
 
 export interface TextareaOwnerState {
   readonly size: TextareaSize;
@@ -33,6 +52,8 @@ export interface TextareaOwnerState {
   readonly disabled: boolean;
   readonly readOnly: boolean;
   readonly filled: boolean;
+  readonly autoResize: boolean;
+  readonly showCount: boolean;
 }
 
 export interface TextareaRootAttributes
@@ -47,6 +68,7 @@ export interface TextareaRootAttributes
 export interface TextareaSlotProps {
   readonly root?: MiaixzSlotProps<TextareaOwnerState, TextareaRootAttributes>;
   readonly textarea?: MiaixzSlotProps<TextareaOwnerState, TextareaControlAttributes>;
+  readonly count?: MiaixzSlotProps<TextareaOwnerState, OutputHTMLAttributes<HTMLOutputElement>>;
 }
 
 export interface TextareaControlAttributes
@@ -59,13 +81,16 @@ export interface TextareaControlAttributes
  *
  * @public
  */
-export interface TextareaProps extends Omit<
+interface TextareaBaseProps extends Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
   "children" | "style"
 > {
   readonly size?: TextareaSize;
   readonly invalid?: boolean;
-  readonly resize?: TextareaResize;
   readonly style?: React.CSSProperties;
+  readonly showCount?: boolean;
+  readonly formatCount?: (current: number, maxLength?: number) => ReactNode;
   readonly slotProps?: TextareaSlotProps;
 }
+
+export type TextareaProps = TextareaBaseProps & TextareaSizingProps;

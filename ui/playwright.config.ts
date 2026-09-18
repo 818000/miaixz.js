@@ -56,7 +56,6 @@ if (outputDir !== artifactsRoot && !outputDir.startsWith(`${artifactsRoot}${path
 export default defineConfig({
   testDir: "./tests",
   testMatch: "**/*.spec.ts",
-  snapshotPathTemplate: path.resolve("tests/visual-baselines/action-system/v1/{arg}{ext}"),
   outputDir,
   metadata: { packageStage, runId },
   fullyParallel: false,
@@ -91,13 +90,8 @@ export default defineConfig({
       reducedMotion: "reduce",
     },
   },
-  expect: {
-    toHaveScreenshot: {
-      maxDiffPixelRatio: 0.001,
-    },
-  },
   webServer: {
-    command: "npm exec -- vite --config tests/vite.config.ts",
+    command: "npm exec -- vite --config tests/support/vite.config.ts",
     url: `${baseURL}/tests/`,
     env: {
       MIAIXZ_UI_BASE_URL: baseURL,

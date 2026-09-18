@@ -19,6 +19,13 @@
 */
 
 export { Button, ButtonLink } from "./button.js";
+export { ButtonGroup } from "./button-group.js";
+export type {
+  ButtonGroupOwnerState,
+  ButtonGroupProps,
+  ButtonGroupRootAttributes,
+  ButtonGroupSlotProps,
+} from "./button-group.types.js";
 export type {
   ButtonLinkProps,
   ButtonLinkRenderProps,
