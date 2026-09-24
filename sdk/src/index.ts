@@ -27,7 +27,7 @@ export {
   RestSigner,
   Signer,
   unwrapMiaixzData,
-} from "./api/index.js";
+} from "./fabric/api/index.js";
 export type {
   MiaixzApiClient,
   MiaixzApiClientOptions,
@@ -59,7 +59,7 @@ export type {
   RestJsonValue,
   RestSignatureAuth,
   RestSignInput,
-} from "./api/index.js";
+} from "./fabric/api/index.js";
 export {
   createMiaixzAppearanceManager,
   isMiaixzAppearanceSettings,
@@ -75,7 +75,7 @@ export {
   miaixzThemeColorTokens,
   migrateMiaixzAppearanceV1,
   parseMiaixzAppearanceSettings,
-} from "./appearance/index.js";
+} from "./display/index.js";
 export type {
   MiaixzAppearanceManagerOptions,
   MiaixzAppearancePayload,
@@ -87,21 +87,21 @@ export type {
   MiaixzThemeColors,
   MiaixzThemeColorToken,
   MiaixzThemeOverrides,
-} from "./appearance/index.js";
+} from "./display/index.js";
 export {
-  createMiaixzAuthManager,
-  createMiaixzPersistentAuthStorage,
-  isMiaixzAuthSession,
+  createMiaixzPersistentSessionStorage,
+  createMiaixzSessionManager,
+  isMiaixzSession,
   isMiaixzSessionExpired,
-  MiaixzAuthManager,
-} from "./auth/index.js";
+  MiaixzSessionManager,
+} from "./access/session/index.js";
 export type {
-  MiaixzAuthManagerOptions,
-  MiaixzAuthSession,
-  MiaixzAuthStatus,
-  MiaixzPersistentAuthStorage,
+  MiaixzPersistentSessionStorage,
+  MiaixzSession,
+  MiaixzSessionManagerOptions,
   MiaixzSessionRefresher,
-} from "./auth/index.js";
+  MiaixzSessionStatus,
+} from "./access/session/index.js";
 export {
   defineMiaixzConfig,
   getMiaixzFeature,
@@ -109,14 +109,14 @@ export {
   isMiaixzSdkConfig,
   loadMiaixzConfig,
   MiaixzConfigStore,
-} from "./config/index.js";
-export type { MiaixzLoadConfigOptions } from "./config/index.js";
-export { miaixzDefaultRequestTimeoutMs, miaixzHeaders, miaixzStorageKeys } from "./consts/index.js";
+} from "./runtime/config/index.js";
+export type { MiaixzLoadConfigOptions } from "./runtime/config/index.js";
+export { miaixzDefaultRequestTimeoutMs, miaixzHeaders, miaixzStorageKeys } from "./constants.js";
 export {
   isMiaixzHostVersionCompatible,
   MIAIXZ_MODULE_PROTOCOL_VERSION,
   parseMiaixzModuleManifest,
-} from "./contracts/index.js";
+} from "./runtime/contracts/index.js";
 export type {
   MiaixzBridgeEnvelope,
   MiaixzDirectHostBridgeOptions,
@@ -135,17 +135,16 @@ export type {
   MiaixzPostMessageChildOptions,
   MiaixzPostMessageHost,
   MiaixzPostMessageHostOptions,
-} from "./contracts/index.js";
+} from "./runtime/contracts/index.js";
 export {
   createMiaixzContextStore,
   isMiaixzRuntimeContext,
   MiaixzContextStore,
   miaixzContextToHeaders,
-} from "./context/index.js";
-export type { MiaixzContextStoreOptions } from "./context/index.js";
-export { createMiaixzEventBus, MiaixzEventBus } from "./events/index.js";
+} from "./access/context/index.js";
+export type { MiaixzContextStoreOptions } from "./access/context/index.js";
+export { createMiaixzEventBus, MiaixzEventBus } from "./runtime/events/index.js";
 export type {
-  MiaixzAuthStatusEvent,
   MiaixzEventBusOptions,
   MiaixzEventEmitOptions,
   MiaixzEventEnvelope,
@@ -154,7 +153,8 @@ export type {
   MiaixzEventValidator,
   MiaixzLocaleChangedEvent,
   MiaixzSdkEventMap,
-} from "./events/index.js";
+  MiaixzSessionStatusEvent,
+} from "./runtime/events/index.js";
 export {
   getMiaixzSdkErrorMessageKey,
   isMiaixzApiError,
@@ -177,14 +177,18 @@ export {
   getMiaixzDownloadFilename,
   MiaixzFileClient,
   saveMiaixzBlob,
-} from "./files/index.js";
+} from "./fabric/files/index.js";
 export type {
   MiaixzDownloadedFile,
   MiaixzDownloadOptions,
   MiaixzUploadOptions,
-} from "./files/index.js";
-export { formatMiaixzBytes, formatMiaixzDate, formatMiaixzNumber } from "./formatters/index.js";
-export type { MiaixzFormatOptions } from "./formatters/index.js";
+} from "./fabric/files/index.js";
+export {
+  formatMiaixzBytes,
+  formatMiaixzDate,
+  formatMiaixzNumber,
+} from "./i18n/formatters/index.js";
+export type { MiaixzFormatOptions } from "./i18n/formatters/index.js";
 export {
   createMiaixzI18n,
   createMiaixzMessageLoader,
@@ -214,10 +218,10 @@ export type {
   MiaixzTranslator,
 } from "./i18n/index.js";
 export {
-  createMiaixzPermissionSet,
-  isMiaixzPermissionSnapshot,
-  MiaixzPermissionSet,
-} from "./permissions/index.js";
+  createMiaixzGrantSet,
+  isMiaixzGrantSnapshot,
+  MiaixzGrantSet,
+} from "./access/grants/index.js";
 export {
   createMiaixzDirectHostBridge,
   createMiaixzPostMessageChildBridge,
@@ -246,40 +250,41 @@ export {
   readMiaixzVersionedValue,
   writeMiaixzJson,
   writeMiaixzVersionedValue,
-} from "./storage/index.js";
+} from "./runtime/storage/index.js";
 export type {
   MiaixzKeyValueStorage,
   MiaixzStorageMigration,
   MiaixzStorageScope,
   MiaixzVersionedStorageOptions,
   MiaixzVersionedValue,
-} from "./storage/index.js";
-export { getMiaixzPageCount } from "./types/index.js";
+} from "./runtime/storage/index.js";
+export { getMiaixzPageCount } from "./types.js";
 export type {
   MiaixzApiEnvelope,
   MiaixzApiProblem,
+  MiaixzAudit,
   MiaixzDepartmentSummary,
   MiaixzEntity,
   MiaixzEnvironment,
   MiaixzFeatureValue,
   MiaixzFileDescriptor,
+  MiaixzGrantSnapshot,
   MiaixzIdentifier,
-  MiaixzIsoDateTime,
+  MiaixzLogicalStatus,
   MiaixzOrganizationSummary,
   MiaixzPage,
   MiaixzPageQuery,
   MiaixzPagination,
   MiaixzPermissionCode,
-  MiaixzPermissionSnapshot,
   MiaixzRuntimeContext,
   MiaixzSdkConfig,
-  MiaixzSpaceStatus,
+  MiaixzSpaceState,
   MiaixzSpaceSummary,
-  MiaixzTenantStatus,
+  MiaixzTenantState,
   MiaixzTenantSummary,
-  MiaixzTimestampedEntity,
+  MiaixzTimestamp,
   MiaixzUploadResult,
   MiaixzUser,
   MiaixzUserSummary,
-} from "./types/index.js";
-export { clamp, isNonEmptyString, isRecord, isValidDate } from "./utils/index.js";
+} from "./types.js";
+export { clamp, isNonEmptyString, isRecord, isValidDate } from "./shared/index.js";

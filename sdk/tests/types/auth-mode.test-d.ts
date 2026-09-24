@@ -18,10 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzPersistentAuthStorage } from "../../src/auth/index.js";
-import type { MiaixzEventBus, MiaixzSdkEventMap } from "../../src/events/index.js";
+import type { MiaixzPersistentSessionStorage } from "../../src/access/session/index.js";
+import type { MiaixzEventBus, MiaixzSdkEventMap } from "../../src/runtime/events/index.js";
 import type { MiaixzBearerSdk, MiaixzCookieSdk, MiaixzSdkOptions } from "../../src/sdk.js";
-import type { MiaixzSdkConfig } from "../../src/types/index.js";
+import type { MiaixzSdkConfig } from "../../src/types.js";
 
 type Expect<T extends true> = T;
 type IsAssignable<From, To> = From extends To ? true : false;
@@ -41,22 +41,22 @@ type CookieOptionsAreAccepted = Expect<
 type BearerOptionsAreAccepted = Expect<
   IsAssignable<RequiredOptions & { readonly authMode: "bearer" }, MiaixzSdkOptions>
 >;
-type CookiePersistenceIsRejected = Expect<
+type CookieSessionPersistenceIsRejected = Expect<
   IsExactly<
     IsAssignable<
       RequiredOptions & {
         readonly authMode: "cookie";
-        readonly authPersistence: MiaixzPersistentAuthStorage;
+        readonly sessionPersistence: MiaixzPersistentSessionStorage;
       },
       MiaixzSdkOptions
     >,
     false
   >
 >;
-type ImplicitCookieRefreshIsRejected = Expect<
+type ImplicitCookieSessionRefreshIsRejected = Expect<
   IsExactly<
     IsAssignable<
-      RequiredOptions & { readonly authRefresh: () => Promise<never> },
+      RequiredOptions & { readonly refreshSession: () => Promise<never> },
       MiaixzSdkOptions
     >,
     false
@@ -86,19 +86,19 @@ type EventSourcesAreExclusive = Expect<
     false
   >
 >;
-type CookieHasNoAuthProperty = Expect<
-  IsExactly<"auth" extends keyof MiaixzCookieSdk ? true : false, false>
+type CookieHasNoSessionProperty = Expect<
+  IsExactly<"session" extends keyof MiaixzCookieSdk ? true : false, false>
 >;
-type BearerHasAuthProperty = Expect<
-  IsExactly<"auth" extends keyof MiaixzBearerSdk ? true : false, true>
+type BearerHasSessionProperty = Expect<
+  IsExactly<"session" extends keyof MiaixzBearerSdk ? true : false, true>
 >;
 
 export type AuthModeContractAssertions =
   | CookieOptionsAreAccepted
   | BearerOptionsAreAccepted
-  | CookiePersistenceIsRejected
-  | ImplicitCookieRefreshIsRejected
+  | CookieSessionPersistenceIsRejected
+  | ImplicitCookieSessionRefreshIsRejected
   | BearerCsrfIsRejected
   | EventSourcesAreExclusive
-  | CookieHasNoAuthProperty
-  | BearerHasAuthProperty;
+  | CookieHasNoSessionProperty
+  | BearerHasSessionProperty;

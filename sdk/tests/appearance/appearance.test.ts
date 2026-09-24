@@ -6,7 +6,7 @@ import {
   miaixzDefaultAppearance,
   migrateMiaixzAppearanceV1,
   parseMiaixzAppearanceSettings,
-} from "../../src/appearance/index.js";
+} from "../../src/display/index.js";
 import { createMiaixzSdk } from "../../src/sdk.js";
 
 const testConfig = Object.freeze({

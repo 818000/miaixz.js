@@ -21,28 +21,33 @@
 import {
   createMiaixzAppearanceManager,
   type MiaixzAppearanceManager,
-} from "./appearance/appearance.js";
+} from "./display/appearance.js";
 import {
   createApiClient,
   type MiaixzApiClient,
   type MiaixzCsrfTokenProvider,
-} from "./api/client.js";
-import { type MiaixzApiTelemetryHooks } from "./api/telemetry-types.js";
-import { type MiaixzHttpResponse } from "./api/response.js";
-import { type MiaixzRequestBody, type MiaixzRequestOptions } from "./api/request.js";
+} from "./fabric/api/client.js";
+import { type MiaixzApiTelemetryHooks } from "./fabric/api/telemetry.types.js";
+import { type MiaixzHttpResponse } from "./fabric/api/response.js";
+import { type MiaixzRequestBody, type MiaixzRequestOptions } from "./fabric/api/request.js";
 import {
-  createMiaixzAuthManager,
-  MiaixzAuthManager,
-  type MiaixzPersistentAuthStorage,
-  type MiaixzSessionRefresher,
-} from "./auth/auth.js";
-import { MiaixzConfigStore } from "./config/config.js";
-import { miaixzHeaders } from "./consts/constants.js";
-import { createMiaixzContextStore, type MiaixzContextStore } from "./context/context.js";
+  createMiaixzSessionManager,
+  type MiaixzSessionManager,
+} from "./access/session/session-manager.js";
+import type {
+  MiaixzPersistentSessionStorage,
+  MiaixzSessionRefresher,
+} from "./access/session/session.types.js";
+import { MiaixzConfigStore } from "./runtime/config/config.js";
+import { miaixzHeaders } from "./fabric/api/constants.js";
+import {
+  createMiaixzContextStore,
+  type MiaixzContextStore,
+} from "./access/context/context-store.js";
 import { MiaixzSdkError } from "./errors/errors.js";
-import type { MiaixzSdkEventMap } from "./events/event-types.js";
-import { createMiaixzEventBus, type MiaixzEventBus } from "./events/events.js";
-import { createMiaixzFileClient, type MiaixzFileClient } from "./files/files.js";
+import type { MiaixzSdkEventMap } from "./runtime/events/event-types.js";
+import { createMiaixzEventBus, type MiaixzEventBus } from "./runtime/events/events.js";
+import { createMiaixzFileClient, type MiaixzFileClient } from "./fabric/files/files.js";
 import {
   createMiaixzI18n,
   type MiaixzI18n,
@@ -52,15 +57,15 @@ import {
   type MiaixzMessageCatalog,
   type MiaixzMessageLoader,
 } from "./i18n/i18n.js";
-import { createMiaixzPermissionSet, type MiaixzPermissionSet } from "./permissions/permissions.js";
+import { createMiaixzGrantSet, type MiaixzGrantSet } from "./access/grants/grant-set.js";
 import {
   createMiaixzStorageKey,
   getMiaixzBrowserStorage,
   type MiaixzKeyValueStorage,
-} from "./storage/storage.js";
-import type { MiaixzPermissionSnapshot } from "./types/permissions.js";
-import type { MiaixzRuntimeContext } from "./types/context.js";
-import type { MiaixzSdkConfig } from "./types/config.js";
+} from "./runtime/storage/storage.js";
+import type { MiaixzGrantSnapshot } from "./access/grants/grant.types.js";
+import type { MiaixzRuntimeContext } from "./access/context/context.types.js";
+import type { MiaixzSdkConfig } from "./runtime/config/config.types.js";
 
 /**
  * Selects the SDK authentication integration.
@@ -135,9 +140,9 @@ export interface MiaixzSdkCommonOptions {
    */
   readonly telemetry?: MiaixzApiTelemetryHooks;
   /**
-   * Supplies the initial frontend permission snapshot.
+   * Supplies the initial frontend grant snapshot.
    */
-  readonly permissions?: MiaixzPermissionSnapshot;
+  readonly grants?: MiaixzGrantSnapshot;
 }
 
 /**
@@ -157,11 +162,11 @@ export interface MiaixzCookieSdkOptions {
   /**
    * Rejects Bearer-only persistence.
    */
-  readonly authPersistence?: never;
+  readonly sessionPersistence?: never;
   /**
    * Rejects Bearer-only refresh behavior.
    */
-  readonly authRefresh?: never;
+  readonly refreshSession?: never;
 }
 
 /**
@@ -177,11 +182,11 @@ export interface MiaixzBearerSdkOptions {
   /**
    * Supplies explicitly acknowledged Bearer persistence.
    */
-  readonly authPersistence?: MiaixzPersistentAuthStorage;
+  readonly sessionPersistence?: MiaixzPersistentSessionStorage;
   /**
    * Supplies the Bearer session refresher.
    */
-  readonly authRefresh?: MiaixzSessionRefresher;
+  readonly refreshSession?: MiaixzSessionRefresher;
   /**
    * Rejects the Cookie-only CSRF provider.
    */
@@ -263,13 +268,13 @@ export interface MiaixzSdkBase {
    */
   readonly files: MiaixzFileClient;
   /**
-   * Current immutable permission evaluator.
+   * Current immutable grant evaluator.
    */
-  readonly permissions: MiaixzPermissionSet;
+  readonly grants: MiaixzGrantSet;
   /**
-   * Replaces the permission snapshot.
+   * Replaces the grant snapshot.
    */
-  setPermissions(snapshot: MiaixzPermissionSnapshot): void;
+  setGrants(snapshot: MiaixzGrantSnapshot): void;
   /**
    * Returns a stable API façade for the exact service key.
    */
@@ -305,7 +310,7 @@ export interface MiaixzBearerSdk extends MiaixzSdkBase {
   /**
    * Bearer session manager.
    */
-  readonly auth: MiaixzAuthManager;
+  readonly session: MiaixzSessionManager;
 }
 
 /**
@@ -519,10 +524,10 @@ export function createMiaixzSdk(
 ): MiaixzCookieSdk;
 
 /**
- * Creates a Bearer SDK with an authentication manager.
+ * Creates a Bearer SDK with a session manager.
  *
  * @param options - Bearer runtime options.
- * @returns A Bearer SDK with an authentication manager.
+ * @returns A Bearer SDK with a session manager.
  * @public
  */
 export function createMiaixzSdk(
@@ -544,8 +549,8 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   }
   if (
     authMode === "cookie" &&
-    (Reflect.get(options, "authPersistence") !== undefined ||
-      Reflect.get(options, "authRefresh") !== undefined)
+    (Reflect.get(options, "sessionPersistence") !== undefined ||
+      Reflect.get(options, "refreshSession") !== undefined)
   ) {
     throw new MiaixzSdkError({ code: "CONFIG_INVALID" });
   }
@@ -571,19 +576,19 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   const storage = options.storage ?? getMiaixzBrowserStorage();
   const ready = i18n.initialize(["sdk"]);
   const config = new MiaixzConfigStore(options.config, events);
-  const auth =
+  const session =
     authMode === "bearer"
-      ? createMiaixzAuthManager({
-          events,
-          ...(options.authPersistence === undefined
+      ? createMiaixzSessionManager({
+          eventBus: events,
+          ...(options.sessionPersistence === undefined
             ? {}
-            : { persistence: options.authPersistence }),
-          ...(options.authRefresh === undefined ? {} : { refresh: options.authRefresh }),
+            : { persistence: options.sessionPersistence }),
+          ...(options.refreshSession === undefined ? {} : { refresh: options.refreshSession }),
         })
       : undefined;
   const context = createMiaixzContextStore({
     appId: options.appId,
-    events,
+    eventBus: events,
     ...(storage === undefined ? {} : { storage }),
     ...(options.initialContext === undefined ? {} : { initialContext: options.initialContext }),
   });
@@ -620,7 +625,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
       baseUrl,
       environment,
       credentials: authMode === "cookie" ? "include" : "same-origin",
-      ...(auth === undefined ? {} : { authorizationProvider: auth.authorizationProvider }),
+      ...(session === undefined ? {} : { authorizationProvider: session.authorizationProvider }),
       csrf:
         authMode === "cookie"
           ? {
@@ -650,7 +655,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   );
   const files = createMiaixzFileClient(primary.client);
   const services = new Map<string, MiaixzApiFacadeController>();
-  let permissions = createMiaixzPermissionSet(options.permissions ?? { allowed: [] });
+  let grants = createMiaixzGrantSet(options.grants ?? { allowed: [] });
   let preparedUpdate:
     | {
         /**
@@ -718,21 +723,21 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     api: primary.client,
     files,
     /**
-     * Returns the active permission evaluator.
+     * Returns the active grant evaluator.
      *
-     * @returns The active immutable permission set.
+     * @returns The active immutable grant set.
      */
-    get permissions() {
-      return permissions;
+    get grants() {
+      return grants;
     },
     /**
-     * Replaces the active permission snapshot.
+     * Replaces the active grant snapshot.
      *
-     * @param snapshot - Permission snapshot to validate and activate.
+     * @param snapshot - Grant snapshot to validate and activate.
      */
-    setPermissions(snapshot) {
+    setGrants(snapshot) {
       if (destroyed) throw new MiaixzSdkError({ code: "SDK_DESTROYED" });
-      permissions = createMiaixzPermissionSet(snapshot);
+      grants = createMiaixzGrantSet(snapshot);
     },
     /**
      * Returns a stable client for an exact configured service key.
@@ -769,7 +774,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
       stopLocaleSync();
       stopClientConfigPrepare();
       stopClientConfigSync();
-      auth?.destroy();
+      session?.destroy();
       context.destroy();
       appearance.destroy();
       config.destroy();
@@ -781,6 +786,6 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   };
 
   return authMode === "bearer"
-    ? { ...common, authMode: "bearer", auth: auth as MiaixzAuthManager }
+    ? { ...common, authMode: "bearer", session: session as MiaixzSessionManager }
     : { ...common, authMode: "cookie" };
 }

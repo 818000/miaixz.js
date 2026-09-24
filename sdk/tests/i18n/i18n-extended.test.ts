@@ -41,10 +41,10 @@ import {
   validateNamespace,
   type MutableCatalog,
 } from "../../src/i18n/messages.js";
-import { getMiaixzPageCount } from "../../src/types/pagination.js";
-import { isValidDate } from "../../src/utils/date.js";
-import { clamp } from "../../src/utils/number.js";
-import { isNonEmptyString } from "../../src/utils/string.js";
+import { getMiaixzPageCount } from "../../src/models/pagination.js";
+import { isValidDate } from "../../src/shared/date.js";
+import { clamp } from "../../src/shared/number.js";
+import { isNonEmptyString } from "../../src/shared/string.js";
 
 describe("locale catalog", () => {
   it("canonicalizes locales and rejects invalid identifiers and definitions", () => {
@@ -273,9 +273,9 @@ describe("i18n runtime", () => {
 
 describe("small shared utilities", () => {
   it("covers pagination, date, number, and string boundaries", () => {
-    expect(getMiaixzPageCount({ page: 1, pageSize: 10, total: 21 })).toBe(3);
-    expect(getMiaixzPageCount({ page: 1, pageSize: 0, total: 21 })).toBe(0);
-    expect(getMiaixzPageCount({ page: 1, pageSize: 10, total: -1 })).toBe(0);
+    expect(getMiaixzPageCount({ pageNo: 1, pageSize: 10, total: 21 })).toBe(3);
+    expect(getMiaixzPageCount({ pageNo: 1, pageSize: 0, total: 21 })).toBe(0);
+    expect(getMiaixzPageCount({ pageNo: 1, pageSize: 10, total: -1 })).toBe(0);
     expect(isValidDate(new Date("2026-01-01"))).toBe(true);
     expect(isValidDate(new Date("invalid"))).toBe(false);
     expect(clamp(20, 0, 10)).toBe(10);

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "vitest";
 
-import { createApiClient, RestGatewayClient, RestSigner } from "../../src/api/index.js";
+import { createApiClient, RestGatewayClient, RestSigner } from "../../src/fabric/api/index.js";
 
 const timestamp = "1735689600000";
 
@@ -141,10 +141,13 @@ test("gateway adapter signs one snapshot and omits browser credentials", async (
     baseUrl: "https://dev.example.com/router/rest",
     fetch: async (input, init) => {
       captured = { input: String(input), init: init ?? {} };
-      return new Response(JSON.stringify({ errcode: 0, errmsg: "ok", data: { accepted: true } }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ errcode: "0", errmsg: "ok", data: { accepted: true } }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      );
     },
   });
   const gateway = new RestGatewayClient({ api, now: () => Number(timestamp) });
@@ -176,9 +179,9 @@ test("gateway adapter reports the HTTP and business session-expiration signals",
     fetch: async () => {
       calls += 1;
       if (calls === 1) {
-        return Response.json({ errcode: 100160, errmsg: "expired" });
+        return Response.json({ errcode: "100160", errmsg: "expired" });
       }
-      return Response.json({ errcode: 100160, errmsg: "unauthorized" }, { status: 401 });
+      return Response.json({ errcode: "100160", errmsg: "unauthorized" }, { status: 401 });
     },
   });
   const gateway = new RestGatewayClient({
@@ -223,7 +226,7 @@ test("gateway adapter sends V1 API keys through X-API-Key", async () => {
     baseUrl: "https://dev.example.com/router/rest",
     fetch: async (_input, init) => {
       headers = new Headers(init?.headers);
-      return Response.json({ errcode: 0, errmsg: "ok", data: true });
+      return Response.json({ errcode: "0", errmsg: "ok", data: true });
     },
   });
   const gateway = new RestGatewayClient({ api, now: () => Number(timestamp) });
@@ -354,7 +357,7 @@ test("signer rejects invalid credential modes and bounds", async () => {
 test("gateway rejects unsafe adapter inputs before dispatch", async () => {
   const api = createApiClient({
     baseUrl: "https://api.test",
-    fetch: async () => Response.json({ errcode: 0, errmsg: "ok", data: true }),
+    fetch: async () => Response.json({ errcode: "0", errmsg: "ok", data: true }),
   });
   const invalidClocks = [Number.NaN, -1, 1.5];
   for (const now of invalidClocks) {

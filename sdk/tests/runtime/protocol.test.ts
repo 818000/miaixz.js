@@ -40,7 +40,7 @@ import {
   parseTargetWindow,
   parseTimeout,
   serializeError,
-} from "../../src/runtime/post-message-protocol.js";
+} from "../../src/runtime/bridge/post-message-protocol.js";
 
 const messageId = "123e4567-e89b-42d3-a456-426614174000";
 

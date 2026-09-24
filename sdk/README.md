@@ -2,7 +2,7 @@
 
 `@miaixz/sdk` is an ESM-only npm package. It does not provide a CommonJS `require` entry point, so consumers must use standard ESM `import` statements.
 
-This is the official Miaixz browser SDK. It gives independently deployed frontend services, such as Home, Spaces, and Settings, a shared API protocol and common authentication, runtime context, configuration, permissions, events, files, appearance, and internationalization capabilities.
+This is the official Miaixz browser SDK. It gives independently deployed frontend services, such as Home, Spaces, and Settings, a shared API protocol and common session, runtime context, configuration, grants, events, files, appearance, and internationalization capabilities.
 
 The SDK has no third-party runtime dependencies and can be built and published independently with npm.
 
@@ -18,26 +18,31 @@ npm install @miaixz/sdk
 
 This table is checked directly against the package export map.
 
-| Entry           | Kind       |
-| --------------- | ---------- |
-| `.`             | JavaScript |
-| `./api`         | JavaScript |
-| `./auth`        | JavaScript |
-| `./context`     | JavaScript |
-| `./config`      | JavaScript |
-| `./permissions` | JavaScript |
-| `./runtime`     | JavaScript |
-| `./events`      | JavaScript |
-| `./storage`     | JavaScript |
-| `./appearance`  | JavaScript |
-| `./files`       | JavaScript |
-| `./i18n`        | JavaScript |
-| `./consts`      | JavaScript |
-| `./contracts`   | JavaScript |
-| `./errors`      | JavaScript |
-| `./formatters`  | JavaScript |
-| `./types`       | JavaScript |
-| `./utils`       | JavaScript |
+| Entry          | Kind       |
+| -------------- | ---------- |
+| `.`            | JavaScript |
+| `./api`        | JavaScript |
+| `./session`    | JavaScript |
+| `./context`    | JavaScript |
+| `./config`     | JavaScript |
+| `./grants`     | JavaScript |
+| `./runtime`    | JavaScript |
+| `./events`     | JavaScript |
+| `./storage`    | JavaScript |
+| `./appearance` | JavaScript |
+| `./files`      | JavaScript |
+| `./i18n`       | JavaScript |
+| `./consts`     | JavaScript |
+| `./contracts`  | JavaScript |
+| `./errors`     | JavaScript |
+| `./formatters` | JavaScript |
+| `./types`      | JavaScript |
+
+## Source layout
+
+SDK source is organized into eight stable capability areas: `fabric`, `display`, `i18n`,
+`access`, `runtime`, `models`, `errors`, and `shared`. The `shared` directory is package-private;
+public consumers use the documented package entries above rather than source paths.
 
 ## One-time setup
 
@@ -81,7 +86,7 @@ const sdk = createMiaixzSdk({
   config,
 });
 
-sdk.auth.setSession({
+sdk.session.setSession({
   accessToken: "token",
   tokenType: "DP-Token",
 });
@@ -90,16 +95,16 @@ sdk.auth.setSession({
 Enable persistent storage through the dedicated factory only when you explicitly accept the risk that injected scripts could steal credentials from Web Storage. Prefer the default in-memory mode or HttpOnly Cookie/BFF mode:
 
 ```ts
-import { createMiaixzPersistentAuthStorage, createMiaixzSdk } from "@miaixz/sdk";
+import { createMiaixzPersistentSessionStorage, createMiaixzSdk } from "@miaixz/sdk";
 
-const authPersistence = createMiaixzPersistentAuthStorage(window.sessionStorage, {
+const sessionPersistence = createMiaixzPersistentSessionStorage(window.sessionStorage, {
   acknowledgeWebStorageRisk: true,
 });
 
 const sdk = createMiaixzSdk({
   appId: "portal",
   authMode: "bearer",
-  authPersistence,
+  sessionPersistence,
   config,
 });
 ```
@@ -116,7 +121,7 @@ All JSON APIs use the following response envelope by default:
 }
 ```
 
-- `String(errcode) === "0"`: the request succeeded, and the SDK returns the inner `data` value automatically.
+- `errcode === "0"`: the request succeeded, and the SDK returns the inner `data` value automatically.
 - `errcode !== "0"`: the SDK throws `MiaixzApiError`, even when the HTTP status is `200`.
 - A JSON response without `errcode`, `errmsg`, or `data`: the SDK throws an error with code `API_ENVELOPE_INVALID`.
 - Text, Blob, ArrayBuffer, and empty responses do not require this envelope.
@@ -326,20 +331,20 @@ try {
 
 Never record tokens, cookies, authorization headers, CSRF values, personal information, request bodies, or file contents in logs or telemetry. Frontend errors support interaction only; the server must still perform authorization and input validation.
 
-## Permissions
+## Grants
 
 ```ts
-sdk.setPermissions({
+sdk.setGrants({
   allowed: ["space:*", "organization:read"],
   denied: ["space:delete"],
   roles: ["member"],
 });
 
-sdk.permissions.can("space:read");
-sdk.permissions.canAll(["space:read", "organization:read"]);
+sdk.grants.can("space:read");
+sdk.grants.canAll(["space:read", "organization:read"]);
 ```
 
-Frontend permissions control presentation and interaction only. They do not replace server-side authorization.
+Frontend grants control presentation and interaction only. They do not replace server-side authorization.
 
 ## Local and cross-tab events
 
@@ -460,7 +465,7 @@ const bridge = createMiaixzDirectHostBridge({
   moduleId: "spaces",
   adapter: {
     getContext: async () => sdk.context.getSnapshot(),
-    hasPermissions: async (permissions) => sdk.permissions.canAll(permissions),
+    hasPermissions: async (permissions) => sdk.grants.canAll(permissions),
   },
 });
 
