@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements combobox listbox support for the combobox component.
+ */
+
 import type { UIEvent } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

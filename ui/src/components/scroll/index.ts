@@ -18,5 +18,9 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the scroll public module.
+ */
+
 export { Scroll } from "./scroll.js";
 export type { ScrollProps } from "./scroll.types.js";

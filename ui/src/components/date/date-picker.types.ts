@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the date picker public type contracts.
+ */
+
 import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

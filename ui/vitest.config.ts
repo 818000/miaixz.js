@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Configures vitest tooling for the UI package.
+ */
+
 import { defineConfig } from "vitest/config";
 import { themePresetPlugin } from "../.github/scripts/codegen/theme-preset-vite.mjs";
 

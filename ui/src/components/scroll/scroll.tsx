@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the scroll UI component.
+ */
+
 import { forwardRef } from "react";
 
 import { assertMiaixzAccessibleName } from "../../accessibility/assert-accessible-name.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the page visual styles.
+ */
+
 .miaixz-page {
   width: min(100%, var(--miaixz-page-max-width));
   padding: var(--miaixz-page-block-padding) var(--miaixz-page-gutter);

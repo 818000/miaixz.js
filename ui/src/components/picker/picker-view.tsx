@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements picker view support for the picker component.
+ */
+
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { ComboboxOwnerState, MiaixzOption } from "../combobox/combobox.types.js";
 import { Tag } from "../tag/tag.js";

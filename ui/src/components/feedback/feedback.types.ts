@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the feedback public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzFeedbackTone } from "../shared.types.js";

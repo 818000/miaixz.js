@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the locale public type contracts.
+ */
+
 import type { MiaixzLocaleDescriptor } from "@miaixz/sdk/i18n";
 import type { HTMLAttributes, RefAttributes } from "react";
 

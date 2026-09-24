@@ -1,3 +1,7 @@
+/**
+ * Verifies button interaction behavior in the UI package.
+ */
+
 import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import "@testing-library/jest-dom/vitest";

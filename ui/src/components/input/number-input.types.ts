@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the number input public type contracts.
+ */
+
 import type { ButtonHTMLAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the appearance UI module.
+ */
+
 import type { MiaixzColorMode, MiaixzDensity } from "@miaixz/sdk/appearance";
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 

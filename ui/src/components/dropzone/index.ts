@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the dropzone public module.
+ */
+
 export { Dropzone, getDropzoneFileSignature, validateDropzoneFiles } from "./dropzone.js";
 export type { DropzoneValidationResult } from "./dropzone.js";
 export type {

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements navigation rail group support for the navigation component.
+ */
+
 import { forwardRef, useId } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

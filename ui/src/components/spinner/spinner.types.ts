@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the spinner public type contracts.
+ */
+
 import type { HTMLAttributes, RefAttributes } from "react";
 
 import type { HiddenProps } from "../hidden/hidden.types.js";

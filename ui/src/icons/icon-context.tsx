@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the icon context UI module.
+ */
+
 import { createContext, type PropsWithChildren, useContext } from "react";
 
 import { createIconRegistry, type IconRegistry } from "./icon-registry.js";

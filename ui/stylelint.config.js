@@ -18,10 +18,15 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Configures stylelint tooling for the UI package.
+ */
+
 import stylelint from "stylelint";
 
 const strictCommentRuleName = "miaixz/comments-must-use-jsdoc";
 const strictCommentMessages = stylelint.utils.ruleMessages(strictCommentRuleName, {
+  missingModule: "Every stylesheet must begin with a multiline JSDoc module description.",
   nonJsdoc: "Every block comment must use the /** ... */ JSDoc form.",
   singleLine: "Every comment must use a multiline JSDoc block.",
 });
@@ -29,6 +34,19 @@ const strictCommentPlugin = stylelint.createPlugin(
   strictCommentRuleName,
   (primaryOption) => (root, result) => {
     if (!primaryOption) return;
+
+    const moduleBody = root.source.input.css.replace(
+      /^\/\*[\s\S]*?miaixz\.org[\s\S]*?\*\/\s*/u,
+      "",
+    );
+    if (!moduleBody.startsWith("/**\n")) {
+      stylelint.utils.report({
+        message: strictCommentMessages.missingModule,
+        node: root,
+        result,
+        ruleName: strictCommentRuleName,
+      });
+    }
 
     root.walkComments((comment) => {
       const raw = comment.toString();

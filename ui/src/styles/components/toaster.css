@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the toaster visual styles.
+ */
+
 .miaixz-toaster {
   position: fixed;
   inset-inline-end: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-end));

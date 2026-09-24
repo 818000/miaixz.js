@@ -1,3 +1,7 @@
+/**
+ * Verifies slider behavior in the UI package.
+ */
+
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { createRef } from "react";

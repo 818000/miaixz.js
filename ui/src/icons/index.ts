@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the icons public module.
+ */
+
 export { ICON_NAMES, iconCatalog, isIconName, parseIconName } from "./icon-names.js";
 export type { IconCatalogEntry, IconName, ParseIconNameOptions } from "./icon-names.js";
 export type {

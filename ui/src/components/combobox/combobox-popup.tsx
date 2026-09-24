@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements combobox popup support for the combobox component.
+ */
+
 import type { ReactNode, RefObject, UIEvent } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

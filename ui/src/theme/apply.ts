@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the apply UI module.
+ */
+
 import { MiaixzThemeError } from "./error.js";
 import type { MiaixzSerializedThemeApplication } from "./serialize.js";
 

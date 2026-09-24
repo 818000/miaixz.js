@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the shell public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode, Ref, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 

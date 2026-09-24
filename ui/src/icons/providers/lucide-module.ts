@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the lucide module icon provider integration.
+ */
+
 import dynamicIconImports from "lucide-react/dynamicIconImports.mjs";
 
 import { ICON_NAMES, type IconName } from "../icon-names.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements select model support for the select component.
+ */
+
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { MiaixzCollectionController } from "../../shared/collection/controller.js";
 import type { SelectEntry, SelectGroup, SelectOption } from "./select.types.js";

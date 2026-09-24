@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements button group context support for the button component.
+ */
+
 import { createContext, useContext } from "react";
 
 import type { ButtonSize, ButtonTone, ButtonVariant } from "./button.types.js";

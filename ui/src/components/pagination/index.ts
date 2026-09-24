@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the pagination public module.
+ */
+
 export { getPaginationEntries, Pagination } from "./pagination.js";
 export type { MiaixzPaginationEntry } from "./pagination.js";
 export type {

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the hidden visual styles.
+ */
+
 [data-miaixz-theme] .miaixz-hidden {
   position: absolute !important;
   inline-size: var(--miaixz-border-width-1) !important;

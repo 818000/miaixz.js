@@ -1,3 +1,7 @@
+/**
+ * Verifies vite behavior in the UI package.
+ */
+
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { resolve } from "node:path";

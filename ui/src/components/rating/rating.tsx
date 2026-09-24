@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the rating UI component.
+ */
+
 import { forwardRef, useEffect, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

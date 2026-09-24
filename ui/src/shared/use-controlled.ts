@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the use controlled React hook.
+ */
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { MiaixzUiError, reportMiaixzUiWarning } from "../errors/ui-error.js";

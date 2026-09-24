@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements navigation rail support for the navigation component.
+ */
+
 import { forwardRef, useId, useMemo, useRef, useState } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";

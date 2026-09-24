@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements shared floating position behavior for UI components.
+ */
+
 import type { RefObject } from "react";
 import { useMiaixzLayoutEffect } from "../use-client-layout-effect.js";
 

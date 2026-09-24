@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements tree async loader support for the tree component.
+ */
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { TreeNode } from "./tree.types.js";

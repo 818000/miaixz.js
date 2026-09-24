@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the styles UI module.
+ */
+
 import { ThemeCatalog } from "./catalog.js";
 import { hasThemePreset } from "./presets/index.js";
 import { serializeThemeStyles } from "./serialize.js";

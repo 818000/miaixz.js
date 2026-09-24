@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the dropdown visual styles.
+ */
+
 .miaixz-popover-content.miaixz-dropdown-content {
   inline-size: max-content;
   min-inline-size: min(100%, var(--miaixz-layout-card-min-width));

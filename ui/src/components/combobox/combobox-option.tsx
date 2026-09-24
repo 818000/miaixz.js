@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements combobox option support for the combobox component.
+ */
+
 import type { MouseEvent } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

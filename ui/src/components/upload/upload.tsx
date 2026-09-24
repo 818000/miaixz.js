@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the upload UI component.
+ */
+
 import { forwardRef, useMemo, useState, type ReactElement } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

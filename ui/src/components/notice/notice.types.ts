@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the notice public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzFeedbackLive } from "../feedback/feedback.types.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";

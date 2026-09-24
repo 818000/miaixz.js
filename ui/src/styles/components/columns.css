@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the columns visual styles.
+ */
+
 [data-miaixz-theme] {
   --miaixz-columns-plot-height: calc(var(--miaixz-space-32) * 4);
 }

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements action target support for the action component.
+ */
+
 import type { ReactElement, ReactNode, Ref } from "react";
 
 import { Button, ButtonLink } from "../button/button.js";

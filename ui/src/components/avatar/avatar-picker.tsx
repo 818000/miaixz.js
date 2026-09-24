@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements avatar picker support for the avatar component.
+ */
+
 import { forwardRef, type HTMLAttributes, type ReactElement } from "react";
 
 import { Dropzone } from "../dropzone/dropzone.js";

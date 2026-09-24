@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the sparkline public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode, SVGAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies component layout behavior in the UI package.
+ */
+
 import { expect, test } from "@playwright/test";
 
 test("responsive metric and table owners adapt without alternate component APIs", async ({

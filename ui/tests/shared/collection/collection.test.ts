@@ -1,3 +1,7 @@
+/**
+ * Verifies collection behavior in the UI package.
+ */
+
 import { describe, expect, it } from "vitest";
 
 import { MiaixzCollectionController } from "../../../src/shared/collection/controller.js";

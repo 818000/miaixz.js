@@ -1,3 +1,7 @@
+/**
+ * Verifies link policy behavior in the UI package.
+ */
+
 import { readFileSync } from "node:fs";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import "@testing-library/jest-dom/vitest";

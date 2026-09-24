@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the datagrid UI component.
+ */
+
 import { forwardRef, useId, useMemo, type ReactElement, type RefAttributes } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

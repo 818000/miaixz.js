@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the toast public type contracts.
+ */
+
 import type { HTMLAttributes, MouseEvent, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 import type { ButtonProps } from "../button/button.types.js";

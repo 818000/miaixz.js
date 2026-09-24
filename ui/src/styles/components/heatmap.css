@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the heatmap visual styles.
+ */
+
 [data-miaixz-theme] {
   --miaixz-heatmap-cell-size: var(--miaixz-density-control-height);
   --miaixz-heatmap-cell-gap: var(--miaixz-space-4);

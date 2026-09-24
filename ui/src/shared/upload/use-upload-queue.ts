@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the use upload queue React hook.
+ */
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

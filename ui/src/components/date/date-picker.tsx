@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements date picker support for the date component.
+ */
+
 import { forwardRef, useEffect, useState } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";

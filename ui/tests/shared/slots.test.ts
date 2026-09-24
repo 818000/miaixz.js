@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies slots behavior in the UI package.
+ */
+
 import { createRef, type HTMLAttributes, type RefAttributes } from "react";
 import { describe, expect, it, vi } from "vitest";
 
