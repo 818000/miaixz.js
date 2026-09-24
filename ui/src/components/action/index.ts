@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the action public module.
+ */
+
 export { ActionBar } from "./action-bar.js";
 export { ActionText } from "./action-text.js";
 export { FormActions } from "./form-actions.js";

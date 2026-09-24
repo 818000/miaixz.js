@@ -1,3 +1,7 @@
+/**
+ * Verifies CSS layer package behavior in the UI package.
+ */
+
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";

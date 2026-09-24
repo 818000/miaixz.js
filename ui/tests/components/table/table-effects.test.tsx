@@ -1,3 +1,7 @@
+/**
+ * Verifies table effects behavior in the UI package.
+ */
+
 import { readFileSync } from "node:fs";
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen } from "@testing-library/react";

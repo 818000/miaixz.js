@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the script UI module.
+ */
+
 import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import type { MiaixzThemeScriptOptions } from "./types.js";
 import { MiaixzThemeError } from "./error.js";

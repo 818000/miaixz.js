@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the theme public module.
+ */
+
 export { Theme } from "./provider.js";
 export { resolveMiaixzColorMode } from "./mode.js";
 export { useTheme } from "./context.js";

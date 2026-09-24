@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the calendar public type contracts.
+ */
+
 import type { ButtonHTMLAttributes, HTMLAttributes, RefAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

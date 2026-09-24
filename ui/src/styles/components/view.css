@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the view visual styles.
+ */
+
 .miaixz-view {
   --miaixz-view-gutter: clamp(var(--miaixz-space-20), 2.4vw, var(--miaixz-space-40));
 

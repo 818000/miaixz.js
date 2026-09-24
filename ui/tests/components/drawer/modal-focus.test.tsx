@@ -1,3 +1,7 @@
+/**
+ * Verifies modal focus behavior in the UI package.
+ */
+
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";

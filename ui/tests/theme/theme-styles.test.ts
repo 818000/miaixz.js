@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies theme styles behavior in the UI package.
+ */
+
 import { readFileSync } from "node:fs";
 import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import { describe, expect, it } from "vitest";

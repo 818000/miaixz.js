@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the custom provider icon provider integration.
+ */
+
 import type { IconLoader, LazyIconProvider, LazyIconSource } from "../icon-provider.js";
 import { resolveCustomProviderModule, type CustomProviderModuleExport } from "./custom-module.js";
 

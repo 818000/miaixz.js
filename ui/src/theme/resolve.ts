@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the resolve UI module.
+ */
+
 import type { MiaixzThemeColorOverrides } from "@miaixz/sdk/appearance";
 import type { MiaixzThemeColors } from "../design/colors.js";
 import { miaixzThemeCompositionDefaults } from "../design/composition.js";

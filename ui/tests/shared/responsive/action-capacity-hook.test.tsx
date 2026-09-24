@@ -1,3 +1,7 @@
+/**
+ * Verifies action capacity hook behavior in the UI package.
+ */
+
 import "@testing-library/jest-dom/vitest";
 import { render, screen } from "@testing-library/react";
 import { createRef, useMemo, useRef } from "react";

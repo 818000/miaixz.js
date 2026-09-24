@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements combobox controller support for the combobox component.
+ */
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

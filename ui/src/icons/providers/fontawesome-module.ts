@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the fontawesome module icon provider integration.
+ */
+
 import { ICON_NAMES, type IconName } from "../icon-names.js";
 import { assertIconDefinition, type IconSvgDefinition } from "../icon-definition.js";
 import type { IconLoader, IconProviderModule } from "../icon-provider.js";

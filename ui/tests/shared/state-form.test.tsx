@@ -1,3 +1,7 @@
+/**
+ * Verifies state form behavior in the UI package.
+ */
+
 import "@testing-library/jest-dom/vitest";
 import { act, cleanup, render, renderHook, screen } from "@testing-library/react";
 import { createRef, type InputHTMLAttributes } from "react";

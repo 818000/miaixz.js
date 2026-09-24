@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the rating public type contracts.
+ */
+
 import type { HTMLAttributes, InputHTMLAttributes, RefAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

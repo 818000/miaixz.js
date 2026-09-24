@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the intents public module.
+ */
+
 export { getIntentDefinition, intentDefinitions } from "./definitions.js";
 export type { IntentDefinition } from "./definitions.js";
 export type { Intent } from "./types.js";

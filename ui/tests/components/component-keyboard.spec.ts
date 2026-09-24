@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies component keyboard behavior in the UI package.
+ */
+
 import { expect, test } from "@playwright/test";
 
 test("Tabs, Toolbar, Tree, and Graph expose one deterministic keyboard path", async ({ page }) => {

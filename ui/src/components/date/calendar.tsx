@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements calendar support for the date component.
+ */
+
 import { forwardRef, useMemo, useRef, useState } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";

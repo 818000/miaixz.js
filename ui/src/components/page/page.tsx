@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the page UI component.
+ */
+
 import { createElement, forwardRef, useCallback, useRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

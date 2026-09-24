@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the toolbar public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode } from "react";
 
 export type ToolbarSurface = "plain" | "filled";

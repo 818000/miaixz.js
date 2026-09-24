@@ -1,3 +1,7 @@
+/**
+ * Verifies browser fixture behavior in the UI package.
+ */
+
 import type {} from "vite/client";
 
 import { createMiaixzAppearanceManager, miaixzDefaultAppearance } from "@miaixz/sdk/appearance";

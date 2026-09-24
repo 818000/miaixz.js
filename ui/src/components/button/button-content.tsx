@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements button content support for the button component.
+ */
+
 import type { ReactElement, ReactNode } from "react";
 
 import type { ButtonOwnerState, ButtonSlotProps } from "./button.types.js";

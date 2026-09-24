@@ -1,3 +1,7 @@
+/**
+ * Verifies link behavior in the UI package.
+ */
+
 import { readFileSync } from "node:fs";
 import { createRef } from "react";
 import "@testing-library/jest-dom/vitest";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements tree controller support for the tree component.
+ */
+
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import type { TreeNode } from "./tree.types.js";
 

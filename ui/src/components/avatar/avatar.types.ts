@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the avatar public type contracts.
+ */
+
 import type { HTMLAttributes, ImgHTMLAttributes, ReactNode, RefAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

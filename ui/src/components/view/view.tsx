@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the view UI component.
+ */
+
 import { forwardRef, type ReactNode } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

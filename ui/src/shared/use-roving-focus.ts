@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the use roving focus React hook.
+ */
+
 import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
 import { MiaixzCollectionController } from "./collection/controller.js";

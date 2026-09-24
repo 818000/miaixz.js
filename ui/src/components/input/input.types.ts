@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the input public type contracts.
+ */
+
 import type { HTMLAttributes, InputHTMLAttributes, ReactNode, RefAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

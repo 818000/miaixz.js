@@ -1,3 +1,7 @@
+/**
+ * Verifies overlay infrastructure behavior in the UI package.
+ */
+
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useRef } from "react";
 import { describe, expect, it, vi } from "vitest";

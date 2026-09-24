@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the catalog UI module.
+ */
+
 import { MiaixzThemeError } from "./error.js";
 import { presetBuiltInThemes, presetThemeDescriptors } from "./presets/index.js";
 import { resolveThemeDefinitions } from "./resolve.js";

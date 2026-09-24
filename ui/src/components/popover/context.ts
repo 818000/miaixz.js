@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements context support for the popover component.
+ */
+
 import { createContext, useContext, type RefObject } from "react";
 import type { MiaixzOverlayChangeReason } from "../../shared/overlay/types.js";
 

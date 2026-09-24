@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements navigation rail overflow support for the navigation component.
+ */
+
 import { forwardRef, type RefObject } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

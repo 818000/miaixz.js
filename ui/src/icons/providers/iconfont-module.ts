@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the iconfont module icon provider integration.
+ */
+
 import type { IconFontDefinition } from "../icon-definition.js";
 import { isIconName, type IconName } from "../icon-names.js";
 import type { IconLoader, IconProviderModule } from "../icon-provider.js";

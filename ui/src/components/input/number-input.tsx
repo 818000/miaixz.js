@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements number input support for the input component.
+ */
+
 import { forwardRef, useEffect, useRef, useState } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";

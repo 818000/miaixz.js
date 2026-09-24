@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the link public type contracts.
+ */
+
 import type { AnchorHTMLAttributes, ReactNode, RefAttributes } from "react";
 
 import type { AnchorRenderer, AnchorRenderProps } from "../../shared/anchor.js";

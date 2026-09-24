@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the icon UI component.
+ */
+
 import { forwardRef, Suspense, type ForwardedRef } from "react";
 
 import { useIconRegistry } from "../../icons/icon-context.js";

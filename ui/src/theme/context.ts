@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the context UI module.
+ */
+
 import { createContext, createElement, useContext, type ReactNode } from "react";
 import { MiaixzThemeError } from "./error.js";
 import type {

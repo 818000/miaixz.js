@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the segmented public type contracts.
+ */
+
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 
 import type { IconName } from "../../icons/icon-names.js";

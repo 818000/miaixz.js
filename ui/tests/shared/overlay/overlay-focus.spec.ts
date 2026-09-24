@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies overlay focus behavior in the UI package.
+ */
+
 import { expect, test } from "@playwright/test";
 
 test("nested Drawers restore focus one modal level at a time", async ({ page }) => {

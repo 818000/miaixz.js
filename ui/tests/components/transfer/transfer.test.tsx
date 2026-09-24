@@ -16,6 +16,10 @@
  ~ limitations under the License.                                            ~
  ~                                                                           ~
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Verifies transfer behavior in the UI package.
  */
 
 import "@testing-library/jest-dom/vitest";

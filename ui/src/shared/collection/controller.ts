@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements shared controller behavior for UI components.
+ */
+
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import {
   findMiaixzCollectionTypeaheadMatch,
@@ -71,7 +75,7 @@ export class MiaixzCollectionController {
   private items: readonly MiaixzCollectionItem[] = [];
   private currentActiveId: string | null = null;
   private typeahead = "";
-  private typeaheadAt = 0;
+  private recorded = 0;
 
   /**
    * Creates a validated collection with an optional initial active identity.
@@ -140,19 +144,19 @@ export class MiaixzCollectionController {
    *
    * @param key - Keyboard key to process.
    * @param options - Orientation, direction, and wrapping configuration.
-   * @param timestamp - Event time used to expire typeahead.
+   * @param recorded - Event time used to expire typeahead.
    * @returns Resolved navigation or activation result.
    */
   handleKey(
     key: string,
     options: MiaixzCollectionKeyboardOptions,
-    timestamp = Date.now(),
+    recorded = Date.now(),
   ): MiaixzCollectionKeyboardResult {
     if (isMiaixzCollectionTypeaheadKey(key)) {
       const normalized = key.toLocaleLowerCase();
       this.typeahead =
-        timestamp - this.typeaheadAt > typeaheadTimeout ? normalized : this.typeahead + normalized;
-      this.typeaheadAt = timestamp;
+        recorded - this.recorded > typeaheadTimeout ? normalized : this.typeahead + normalized;
+      this.recorded = recorded;
       if ([...this.typeahead].every((character) => character === normalized)) {
         this.typeahead = normalized;
       }

@@ -1,3 +1,7 @@
+/**
+ * Verifies theme behavior in the UI package.
+ */
+
 import { expect, test } from "@playwright/test";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";

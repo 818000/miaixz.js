@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements shared dismissible layer behavior for UI components.
+ */
+
 import { useEffect, useRef, type RefObject } from "react";
 
 import type { MiaixzDismissReason } from "./types.js";

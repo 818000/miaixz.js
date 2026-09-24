@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the presets public module.
+ */
+
 import { MiaixzThemeError } from "../error.js";
 import type { MiaixzThemeDefinition, MiaixzThemeLoader } from "../types.js";
 import { presetBuiltInThemes, presetThemeDescriptors, presetThemeImports } from "./manifest.js";

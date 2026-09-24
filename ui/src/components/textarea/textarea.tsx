@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the textarea UI component.
+ */
+
 import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the toast UI component.
+ */
+
 import { forwardRef, useId } from "react";
 import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";

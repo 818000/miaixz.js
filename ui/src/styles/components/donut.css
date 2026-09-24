@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the donut visual styles.
+ */
+
 [data-miaixz-theme] {
   --miaixz-donut-size: calc(var(--miaixz-space-32) * 4);
   --miaixz-donut-stroke-width: var(--miaixz-space-12);

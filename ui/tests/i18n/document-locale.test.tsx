@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies document locale behavior in the UI package.
+ */
+
 import { createMiaixzI18n, defineLocale } from "@miaixz/sdk/i18n";
 import { act, cleanup, render } from "@testing-library/react";
 import { renderToString } from "react-dom/server";

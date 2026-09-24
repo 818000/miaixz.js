@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the locale UI component.
+ */
+
 import { forwardRef, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the tabs UI component.
+ */
+
 import { forwardRef, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

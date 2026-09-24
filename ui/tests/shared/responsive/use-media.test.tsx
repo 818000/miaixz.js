@@ -1,3 +1,7 @@
+/**
+ * Verifies use media behavior in the UI package.
+ */
+
 import "@testing-library/jest-dom/vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";

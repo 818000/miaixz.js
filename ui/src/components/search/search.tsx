@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the search UI component.
+ */
+
 import { forwardRef, useCallback, useRef } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";

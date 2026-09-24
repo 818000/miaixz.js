@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the builtin UI module.
+ */
+
 import type { MiaixzThemeTokens } from "./types.js";
 import { miaixzThemeOpacityDefaults } from "../design/opacity.js";
 import { defineTheme } from "./define.js";

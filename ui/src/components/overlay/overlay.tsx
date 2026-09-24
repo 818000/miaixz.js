@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the overlay UI component.
+ */
+
 import { forwardRef, useEffect, useRef } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Spinner } from "../spinner/spinner.js";

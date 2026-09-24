@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements shared slots behavior for UI components.
+ */
+
 import { useMemo, type CSSProperties, type ElementType, type Ref } from "react";
 
 import { MiaixzUiError } from "../errors/ui-error.js";

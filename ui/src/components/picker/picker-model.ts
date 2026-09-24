@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements picker model support for the picker component.
+ */
+
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { validateMiaixzOptions } from "../combobox/combobox-controller.js";
 import type { MiaixzOption } from "../combobox/combobox.types.js";

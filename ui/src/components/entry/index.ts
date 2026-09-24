@@ -18,5 +18,9 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the entry public module.
+ */
+
 export { Entry } from "./entry.js";
 export type { EntryOwnerState, EntryProps, EntrySlotProps } from "./entry.types.js";

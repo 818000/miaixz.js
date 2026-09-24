@@ -1,3 +1,7 @@
+/**
+ * Verifies surface background behavior in the UI package.
+ */
+
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements graph model support for the graph component.
+ */
+
 import { MiaixzUiError } from "../../../errors/ui-error.js";
 import type { GraphEdge, GraphNode } from "./graph.types.js";
 

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the datagrid public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode } from "react";
 
 export type DatagridSortDirection = "ascending" | "descending";

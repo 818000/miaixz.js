@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements time picker support for the date component.
+ */
+
 import { forwardRef, useEffect, useMemo, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

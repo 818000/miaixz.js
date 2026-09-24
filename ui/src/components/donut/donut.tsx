@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the donut UI component.
+ */
+
 import { forwardRef, useEffect, useId, useRef, useState, type CSSProperties } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies native form behavior in the UI package.
+ */
+
 import { expect, test } from "@playwright/test";
 
 test("FormActions preserves native validation and submit behavior", async ({ page }) => {

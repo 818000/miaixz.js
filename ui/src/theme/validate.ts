@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the validate UI module.
+ */
+
 import { miaixzThemeColorTokens, type MiaixzThemeColorToken } from "../design/colors.js";
 import {
   miaixzThemeCompositionFields,

@@ -1,3 +1,7 @@
+/**
+ * Verifies masonry layout behavior in the UI package.
+ */
+
 import { expect, test } from "@playwright/test";
 
 test("Masonry uses CSS columns without wrapping or reordering its children", async ({ page }) => {

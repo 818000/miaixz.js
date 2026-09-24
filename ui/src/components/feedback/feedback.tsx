@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the feedback UI component.
+ */
+
 import type { HTMLAttributes, ReactElement } from "react";
 
 import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";

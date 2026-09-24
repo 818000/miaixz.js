@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the use overflow focus React hook.
+ */
+
 import { useRef, useState } from "react";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 

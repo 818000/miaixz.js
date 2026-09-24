@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements shared option surface behavior for UI components.
+ */
+
 import { useRef, type RefObject } from "react";
 import { useMiaixzFloatingPosition } from "./overlay/floating-position.js";
 import { useMiaixzLayoutEffect } from "./use-client-layout-effect.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the tree public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Configures eslint tooling for the UI package.
+ */
+
 import babelParser from "@babel/eslint-parser";
 import eslint from "@eslint/js";
 import prettier from "eslint-config-prettier";

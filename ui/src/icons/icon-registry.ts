@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the icon registry UI module.
+ */
+
 import { assertIconDefinition, type IconDefinition } from "./icon-definition.js";
 import { isIconName, type IconName } from "./icon-names.js";
 import {

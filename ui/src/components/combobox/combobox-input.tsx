@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements combobox input support for the combobox component.
+ */
+
 import type { KeyboardEvent, ReactNode, RefObject } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

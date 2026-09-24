@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the link public module.
+ */
+
 export { Link } from "./link.js";
 export { MiaixzLinkProvider } from "../../shared/anchor.js";
 export type { MiaixzLinkProviderProps } from "../../shared/anchor.js";

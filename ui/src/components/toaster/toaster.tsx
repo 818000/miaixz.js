@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the toaster UI component.
+ */
+
 import {
   createContext,
   useCallback,
@@ -72,7 +76,7 @@ interface ManagedToastProps {
  */
 function ManagedToast({ toast, close }: ManagedToastProps) {
   const remainingRef = useRef(toast.duration ?? 0);
-  const startedAtRef = useRef(0);
+  const startedRef = useRef(0);
   const [pointerPaused, setPointerPaused] = useState(false);
   const [focusPaused, setFocusPaused] = useState(false);
   const [documentPaused, setDocumentPaused] = useState(false);
@@ -89,13 +93,13 @@ function ManagedToast({ toast, close }: ManagedToastProps) {
   }, []);
   useEffect(() => {
     if (pointerPaused || focusPaused || documentPaused || remainingRef.current <= 0) return;
-    startedAtRef.current = performance.now();
+    startedRef.current = performance.now();
     const timer = window.setTimeout(() => close(toast.id, "timeout"), remainingRef.current);
     return () => {
       window.clearTimeout(timer);
       remainingRef.current = Math.max(
         0,
-        remainingRef.current - (performance.now() - startedAtRef.current),
+        remainingRef.current - (performance.now() - startedRef.current),
       );
     };
   }, [close, documentPaused, focusPaused, pointerPaused, toast]);

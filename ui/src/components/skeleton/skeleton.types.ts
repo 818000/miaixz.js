@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the skeleton public type contracts.
+ */
+
 import type { HTMLAttributes, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 

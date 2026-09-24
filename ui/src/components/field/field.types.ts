@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the field public type contracts.
+ */
+
 import type { HTMLAttributes, LabelHTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";

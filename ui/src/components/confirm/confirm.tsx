@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the confirm UI component.
+ */
+
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";

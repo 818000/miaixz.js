@@ -1,3 +1,7 @@
+/**
+ * Verifies heatmap legend behavior in the UI package.
+ */
+
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { HeatmapLegend } from "../../../src/components/heatmap/index.js";

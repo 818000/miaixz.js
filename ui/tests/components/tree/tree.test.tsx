@@ -1,3 +1,7 @@
+/**
+ * Verifies tree behavior in the UI package.
+ */
+
 import "@testing-library/jest-dom/vitest";
 import {
   act,

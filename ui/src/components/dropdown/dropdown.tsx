@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the dropdown UI component.
+ */
+
 import {
   cloneElement,
   forwardRef,
@@ -134,7 +138,7 @@ interface DropdownMenuBehaviorProps {
  */
 function DropdownMenuBehavior({ initialFocusRef, children }: DropdownMenuBehaviorProps) {
   const popover = useMiaixzPopoverContext();
-  const typeaheadRef = useRef({ value: "", time: 0 });
+  const typeaheadRef = useRef({ value: "", recorded: 0 });
   useEffect(() => {
     if (popover === undefined || !popover.open) return undefined;
     const menu = popover.contentRef.current;
@@ -330,7 +334,7 @@ function DropdownSubmenu({ entry }: { readonly entry: DropdownSubmenuEntry }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const typeaheadRef = useRef({ value: "", time: 0 });
+  const typeaheadRef = useRef({ value: "", recorded: 0 });
   useEffect(() => {
     if (open) {
       queueMicrotask(() => getMenuItems(menuRef.current)[0]?.focus({ preventScroll: true }));
@@ -398,14 +402,14 @@ function DropdownSubmenu({ entry }: { readonly entry: DropdownSubmenuEntry }) {
  *
  * @param event - Keyboard event received by the active menu.
  * @param menu - Menu element that owns the active items.
- * @param typeaheadRef - Mutable typeahead buffer and timestamp.
+ * @param typeaheadRef - Mutable typeahead buffer and interaction record time.
  * @param close - Callback used to request menu dismissal.
  * @returns Nothing after handling or ignoring the event.
  */
 function handleMenuKeyDown(
   event: globalThis.KeyboardEvent,
   menu: HTMLElement,
-  typeaheadRef: RefObject<{ value: string; time: number }>,
+  typeaheadRef: RefObject<{ value: string; recorded: number }>,
   close: (reason: "escape" | "outsidePress") => void,
 ): void {
   const items = getMenuItems(menu);
@@ -432,10 +436,10 @@ function handleMenuKeyDown(
     return;
   }
   if (event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey) {
-    const now = Date.now();
+    const recorded = Date.now();
     const state = typeaheadRef.current;
-    state.value = `${now - state.time <= 500 ? state.value : ""}${event.key.toLocaleLowerCase()}`;
-    state.time = now;
+    state.value = `${recorded - state.recorded <= 500 ? state.value : ""}${event.key.toLocaleLowerCase()}`;
+    state.recorded = recorded;
     const start = Math.max(0, current + 1);
     const ordered = [...items.slice(start), ...items.slice(0, start)];
     const match = ordered.find((item) =>

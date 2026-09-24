@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements tree renderer support for the tree component.
+ */
+
 import type { KeyboardEvent, MouseEvent, RefObject } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

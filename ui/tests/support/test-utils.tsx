@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies test utils behavior in the UI package.
+ */
+
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { render, type RenderOptions, type RenderResult } from "@testing-library/react";
 import type { ReactNode } from "react";

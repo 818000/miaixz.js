@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the graph UI component.
+ */
+
 import { forwardRef, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
 import { IconButton } from "../../action/icon-button.js";

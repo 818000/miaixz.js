@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Exposes the navigation public module.
+ */
+
 export { Navigation } from "./navigation.js";
 export { NavigationRail } from "./navigation-rail.js";
 export { NavigationRailGroup } from "./navigation-rail-group.js";

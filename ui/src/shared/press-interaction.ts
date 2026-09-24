@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements shared press interaction behavior for UI components.
+ */
+
 const interactiveSelector = "[data-miaixz-ripple='true']";
 
 const maximumConcurrentRipples = 3;

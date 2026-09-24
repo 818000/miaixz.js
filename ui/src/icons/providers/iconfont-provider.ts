@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the iconfont provider icon provider integration.
+ */
+
 import type { LazyIconProvider } from "../icon-provider.js";
 import { createCustomIconProvider } from "./custom-provider.js";
 import { createIconfontModule, type IconfontManifest } from "./iconfont-module.js";

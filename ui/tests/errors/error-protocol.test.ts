@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies error protocol behavior in the UI package.
+ */
+
 import { describe, expect, it, vi } from "vitest";
 
 import { assertMiaixzAccessibleName } from "../../src/accessibility/assert-accessible-name.js";

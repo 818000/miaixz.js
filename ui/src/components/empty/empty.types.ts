@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Defines the empty public type contracts.
+ */
+
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 

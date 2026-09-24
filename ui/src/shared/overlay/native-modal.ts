@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements shared native modal behavior for UI components.
+ */
+
 import { useEffect, useRef, type RefObject } from "react";
 
 import { useMiaixzLayoutEffect } from "../use-client-layout-effect.js";
@@ -64,7 +68,7 @@ interface MiaixzModalInteractionRecord {
   /**
    * Stores the wall-clock time at which the pointer interaction occurred.
    */
-  recordedAt: number;
+  recorded: number;
 
   /**
    * Handles pointer activity captured before application click handlers run.
@@ -135,18 +139,18 @@ function observeMiaixzModalInteractions(ownerDocument: Document): () => void {
     record = {
       references: 0,
       target: null,
-      recordedAt: 0,
+      recorded: 0,
       handlePointerDown: (event) => {
         const activeRecord = miaixzModalInteractionRecords.get(ownerDocument);
         if (activeRecord === undefined) return;
         activeRecord.target = findMiaixzModalInteractionTarget(event.target);
-        activeRecord.recordedAt = Date.now();
+        activeRecord.recorded = Date.now();
       },
       handleKeyDown: () => {
         const activeRecord = miaixzModalInteractionRecords.get(ownerDocument);
         if (activeRecord === undefined) return;
         activeRecord.target = null;
-        activeRecord.recordedAt = 0;
+        activeRecord.recorded = 0;
       },
     };
     miaixzModalInteractionRecords.set(ownerDocument, record);
@@ -181,7 +185,7 @@ function resolveMiaixzModalRestoreTarget(ownerDocument: Document): HTMLElement |
     record?.target !== null &&
     record?.target !== undefined &&
     record.target.isConnected &&
-    Date.now() - record.recordedAt <= miaixzModalInteractionWindow
+    Date.now() - record.recorded <= miaixzModalInteractionWindow
   ) {
     return record.target;
   }

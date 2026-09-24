@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements select view support for the select component.
+ */
+
 import type { ButtonHTMLAttributes, MouseEvent } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the notice UI component.
+ */
+
 import { forwardRef } from "react";
 import { getMiaixzFeedbackSemantics, MiaixzFeedback } from "../feedback/feedback.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

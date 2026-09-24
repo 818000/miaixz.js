@@ -1,3 +1,7 @@
+/**
+ * Verifies appearance size behavior in the UI package.
+ */
+
 import { describe, expect, it } from "vitest";
 
 import { resolveThemeDefinitions } from "../../src/theme/resolve.js";

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements avatar group support for the avatar component.
+ */
+
 import { Children, cloneElement, forwardRef, isValidElement, type CSSProperties } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

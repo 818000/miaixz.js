@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the disclosure UI component.
+ */
+
 import { createElement, forwardRef, useId, useState } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

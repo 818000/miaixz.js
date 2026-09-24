@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the use visualization motion React hook.
+ */
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ForwardedRef, PointerEventHandler, RefCallback } from "react";
 
