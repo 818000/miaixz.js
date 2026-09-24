@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "rar",
+  "label": "RAR archive",
+  "category": "archive",
+  "extensions": ["rar"],
+  "mimeTypes": ["application/vnd.rar"],
+  "implementation": "recognized",
+  "entry": "./driver.ts"
+}

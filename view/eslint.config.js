@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Configures strict source, React, and JSDoc linting for the viewer package.
+ */
+
 import baseConfiguration from "../ui/eslint.config.js";
 
 /**
@@ -25,14 +29,6 @@ import baseConfiguration from "../ui/eslint.config.js";
  *
  * @public
  */
-const configuration = [
-  ...baseConfiguration,
-  {
-    files: ["tests/**/*.{ts,tsx}"],
-    rules: {
-      "jsdoc/require-jsdoc": "off",
-    },
-  },
-];
+const configuration = [...baseConfiguration];
 
 export default configuration;

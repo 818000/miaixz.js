@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "epub",
+  "label": "Electronic publication",
+  "category": "document",
+  "extensions": ["epub"],
+  "mimeTypes": ["application/epub+zip"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

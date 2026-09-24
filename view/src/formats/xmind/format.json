@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "xmind",
+  "label": "XMind workbook",
+  "category": "diagram",
+  "extensions": ["xmind"],
+  "mimeTypes": ["application/vnd.xmind.workbook"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

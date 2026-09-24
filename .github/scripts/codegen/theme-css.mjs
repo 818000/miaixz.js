@@ -75,7 +75,7 @@ const typographyFields = typographyModule.miaixzThemeTypographyFields;
 const fontFamilyFields = new Set(typographyModule.miaixzThemeFontFamilyFields);
 const layoutGeometryRanges = geometryModule.miaixzThemeLayoutGeometryRanges;
 const { miaixzDefaultAppearance } = await import(
-  pathToFileURL(resolve(sdkWorkspace.rootPath, "dist/appearance/index.js")).href
+  pathToFileURL(resolve(sdkWorkspace.rootPath, "dist/display/index.js")).href
 );
 const defaultTheme = themes.find((theme) => theme.name === miaixzDefaultAppearance.theme);
 

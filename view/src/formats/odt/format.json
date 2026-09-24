@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "odt",
+  "label": "OpenDocument text",
+  "category": "document",
+  "extensions": ["odt", "fodt", "ott"],
+  "mimeTypes": [
+    "application/vnd.oasis.opendocument.text",
+    "application/vnd.oasis.opendocument.text-template"
+  ],
+  "implementation": "recognized",
+  "entry": "./driver.ts"
+}

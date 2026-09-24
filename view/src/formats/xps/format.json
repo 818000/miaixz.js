@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "xps",
+  "label": "XML Paper Specification",
+  "category": "fixed-layout",
+  "extensions": ["xps", "oxps"],
+  "mimeTypes": ["application/vnd.ms-xpsdocument", "application/oxps"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

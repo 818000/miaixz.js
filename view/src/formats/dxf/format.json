@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "dxf",
+  "label": "Drawing Exchange Format",
+  "category": "cad",
+  "extensions": ["dxf"],
+  "mimeTypes": ["image/vnd.dxf", "application/dxf"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

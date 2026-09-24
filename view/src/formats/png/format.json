@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "png",
+  "label": "Portable Network Graphics",
+  "category": "image",
+  "extensions": ["png"],
+  "mimeTypes": ["image/png"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

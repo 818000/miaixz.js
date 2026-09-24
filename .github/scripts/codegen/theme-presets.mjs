@@ -62,7 +62,7 @@ for (const record of records) {
 }
 
 const { miaixzDefaultAppearance } = await import(
-  pathToFileURL(resolve(sdkRuntimeDirectory, "appearance/index.js")).href
+  pathToFileURL(resolve(sdkRuntimeDirectory, "display/index.js")).href
 );
 const fallbackRecord = records.find(
   (record) => record.metadata.name === miaixzDefaultAppearance.theme,

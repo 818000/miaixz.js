@@ -1,10 +1,6 @@
 # @miaixz/view
 
-`@miaixz/view` provides reusable React components for previewing images, PDF files, and Office documents.
-
-The package is deliberately presentation-only. Authentication, authorization, storage, signed URLs, ONLYOFFICE JWT generation, document conversion, and audit logging belong to the application or preview service that supplies the component props.
-
-Node.js 20.19 or later is required for the PDF.js runtime.
+`@miaixz/view` is a self-hosted React file viewer with automatic format detection. It does not use PDF.js, ONLYOFFICE, remote conversion services, CDN scripts, or third-party runtime parsers.
 
 ## Install
 
@@ -12,9 +8,103 @@ Node.js 20.19 or later is required for the PDF.js runtime.
 npm install @miaixz/view @miaixz/ui react react-dom
 ```
 
-## Public entries
+Import the UI theme and viewer styles once, then pass a `File`, `Blob`, URL, `ArrayBuffer`, or `Uint8Array` directly to `FileView`:
 
-This table is checked directly against the package export map.
+```tsx compile
+import "@miaixz/ui/styles.css";
+import "@miaixz/view/styles.css";
+import { FileView } from "@miaixz/view";
+
+export function Preview({ file }: { file: File }) {
+  return <FileView source={file} />;
+}
+```
+
+For signed remote URLs, metadata and authorized request options can be supplied without selecting a viewer manually:
+
+```tsx compile
+<FileView
+  source={{
+    url: "/files/opaque-id",
+    name: "quarterly-flow.xlsx",
+    mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    headers: { Authorization: "Bearer …" },
+  }}
+/>
+```
+
+Applications with private storage or companion files can provide one policy boundary for both the primary source and related-resource requests:
+
+```tsx compile
+import type { FileResourceProvider } from "@miaixz/view";
+
+const resourceProvider: FileResourceProvider = {
+  async open(source, signal) {
+    return myStorage.open(source, signal);
+  },
+  async resolveRelated(request, signal) {
+    return myStorage.openRelated(request.path, signal);
+  },
+};
+
+<FileView resourceProvider={resourceProvider} source={fileReference} />;
+```
+
+`FileViewHandle` exposes stable `zoomIn`, `zoomOut`, `resetZoom`, `retry`, `dispose`, `getState`, and `getElement` commands. The legacy `src` alias remains for the 0.x migration window; new code should use `source`.
+
+## Current built-in pipeline
+
+- The generated manifest covers all 274 extensions and 17 driver families in the audited reference baseline.
+- Filename, MIME, signature, and container evidence are scored together; callers no longer pass `kind`.
+- The current installable modules are PDF, DOCX, DOC, XLSX, XLS, PPTX, PPT, ODT, ODS, ODP, EPUB, XPS/OXPS, OFD, ZIP, RAR, JPEG, PNG, GIF, SVG, MP3, MP4, Draw.io, XMind, GeoJSON/TopoJSON, DXF, OBJ, and WASM.
+- Every module owns a `format.json`, a driver boundary, and a generated lazy-loader entry. Deleting a module directory and regenerating removes that format without editing runtime code.
+- XLSX parsing includes sparse cells, cached formula values, `oneCellAnchor`, `twoCellAnchor`, `absoluteAnchor`, DrawingML shapes, connector endpoints, and a semantic edge list.
+- Unsupported subformats return a stable rejected or partial result; metadata output is never presented as full preview support.
+
+The implementation is still governed by the support levels in `docs/file-viewer-reimplementation-plan.md`. An extension being recognized does not imply that every vendor-specific feature is rendered.
+
+## Custom formats
+
+Applications can extend the default registry without modifying `@miaixz/view`. A custom format declares its identity, extensions, MIME types, and lazy driver, then passes that registry to `FileView`:
+
+```tsx compile
+import { createDefaultRegistry, FileView, type ViewerDriver } from "@miaixz/view";
+
+const registry = createDefaultRegistry();
+
+registry.registerFormat(
+  {
+    schemaVersion: 1,
+    id: "acme-map",
+    label: "Acme map",
+    category: "geospatial",
+    extensions: ["amap"],
+    mimeTypes: ["application/vnd.acme.map"],
+    implementation: "ready",
+  },
+  async () => {
+    const module = await import("./acme-map-driver.js");
+    return module.formatDriver as ViewerDriver;
+  },
+);
+
+<FileView registry={registry} source={file} />;
+```
+
+Custom identifiers are ordinary stable strings. Extension and MIME matching join the same detector used by built-in modules; custom drivers receive the same bounded resources, cancellation signal, progress channel, and document-model contract.
+
+## Specialized entries
+
+`PdfView`, `OfficeView`, and `ImageView` remain available for applications that prefer explicit component names. `PdfView` and `OfficeView` are thin adapters over the same local `FileView` pipeline and never activate a remote viewer.
+
+```tsx compile
+import { OfficeView, PdfView } from "@miaixz/view";
+
+<PdfView source={pdfBytes} />;
+<OfficeView name="workflow.xlsx" source={workbookFile} />;
+```
+
+## Public entries
 
 | Entry          | Kind       |
 | -------------- | ---------- |
@@ -23,77 +113,14 @@ This table is checked directly against the package export map.
 | `./pdf`        | JavaScript |
 | `./office`     | JavaScript |
 | `./errors`     | JavaScript |
+| `./shared`     | JavaScript |
+| `./runtime`    | JavaScript |
 | `./styles.css` | CSS        |
 
-Import the Miaixz UI theme before the preview styles. A preview tree is supported only inside the
-UI `Theme` scope; it also uses the shared locale provider for surrounding application copy:
-
-```tsx compile
-import "@miaixz/ui/styles.css";
-import "@miaixz/view/styles.css";
-import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
-import { createMiaixzI18n } from "@miaixz/sdk/i18n";
-import { MiaixzLocaleProvider, Theme } from "@miaixz/ui";
-import { FileView } from "@miaixz/view";
-
-const appearance = createMiaixzAppearanceManager({ appId: "preview-example" });
-const i18n = createMiaixzI18n({ locale: "en-US", fallbackLocale: "en-US" });
-
-export function PreviewExample() {
-  return (
-    <MiaixzLocaleProvider i18n={i18n}>
-      <Theme appearance={appearance} scope="local">
-        <FileView alt="Architecture diagram" kind="image" src="/diagram.png" />
-      </Theme>
-    </MiaixzLocaleProvider>
-  );
-}
-```
-
-The design-system `View` for page layout comes from `@miaixz/ui/view`. This package is only for
-file previews and deliberately has no bare `View` export.
-
-## Components
-
-- `ImageView` renders an image with optional zoom and rotation controls.
-- `PdfView` renders one PDF page at a time with PDF.js and loads the PDF runtime only when mounted.
-- `OfficeView` embeds an existing ONLYOFFICE Docs deployment using a caller-supplied, already-signed editor configuration.
-- `FileView` routes a discriminated source object to one of the three viewers.
-
-## Image and PDF
-
-```tsx
-import { FileView } from "@miaixz/view";
-
-export function Preview({ url }: { url: string }) {
-  return <FileView kind="pdf" src={url} />;
-}
-```
-
-Use `kind="image"` for browser-supported images. The caller should pass a URL whose lifetime and access scope were decided by the backend.
-
-## Office and diagrams
-
-`OfficeView` loads the browser API from an existing ONLYOFFICE Docs deployment. Its `config` property follows the ONLYOFFICE editor configuration and may include callbacks and customization fields beyond the required typed fields.
-
-```tsx
-import { OfficeView, type OnlyOfficeEditorConfig } from "@miaixz/view/office";
-
-export function DiagramPreview({ config }: { config: OnlyOfficeEditorConfig }) {
-  return (
-    <OfficeView
-      config={{
-        ...config,
-        documentType: "diagram",
-      }}
-      documentServerUrl="https://office.example.com"
-    />
-  );
-}
-```
-
-Use `documentType: "diagram"` with a supported Visio diagram format such as `vsdx`. The deployed ONLYOFFICE Docs version must provide diagram support. The document URL must be reachable by the document server, not only by the end user's browser.
+The design-system `View` for page layout comes from `@miaixz/ui/view`; this package deliberately has no bare `View` export.
 
 ## Security boundary
 
-UI controls are not a security boundary. The backend must decide whether a user may view, download, print, or edit a document and must enforce that decision when issuing URLs and ONLYOFFICE configurations. Never send an ONLYOFFICE signing secret to this package or to the browser.
+All parsing is treated as untrusted input. Sources are size-bounded, XML entities are rejected, archive paths and expansion are checked, remote requests use only caller-supplied authorization, embedded scripts and macros are not executed, and public errors do not retain source bytes, credentials, local paths, or internal stack traces.
+
+Toolbar visibility is not an authorization boundary. Applications must still enforce permissions when issuing URLs or enabling download and print actions.
