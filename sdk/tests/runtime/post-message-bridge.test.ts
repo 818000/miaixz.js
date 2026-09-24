@@ -23,8 +23,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createMiaixzPostMessageChildBridge,
   createMiaixzPostMessageHost,
-} from "../../src/runtime/post-message-bridge.js";
-import type { MiaixzBridgeEnvelope } from "../../src/contracts/post-message.js";
+} from "../../src/runtime/bridge/post-message-bridge.js";
+import type { MiaixzBridgeEnvelope } from "../../src/runtime/contracts/post-message.js";
 
 const origin = "https://module.example";
 const manifest = {

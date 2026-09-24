@@ -27,20 +27,20 @@ import {
   isMiaixzSdkConfig,
   loadMiaixzConfig,
   MiaixzConfigStore,
-} from "../../src/config/config.js";
-import { createMiaixzEventBus, MiaixzEventBus } from "../../src/events/events.js";
+} from "../../src/runtime/config/config.js";
+import { createMiaixzEventBus, MiaixzEventBus } from "../../src/runtime/events/events.js";
 import { MiaixzSdkError } from "../../src/errors/errors.js";
 import {
   createMiaixzFileClient,
   getMiaixzDownloadFilename,
   MiaixzFileClient,
   saveMiaixzBlob,
-} from "../../src/files/files.js";
+} from "../../src/fabric/files/files.js";
 import {
-  createMiaixzPermissionSet,
-  isMiaixzPermissionSnapshot,
-  MiaixzPermissionSet,
-} from "../../src/permissions/permissions.js";
+  createMiaixzGrantSet,
+  isMiaixzGrantSnapshot,
+  MiaixzGrantSet,
+} from "../../src/access/grants/index.js";
 import {
   createMiaixzStorageKey,
   getMiaixzBrowserStorage,
@@ -51,8 +51,8 @@ import {
   writeMiaixzJson,
   writeMiaixzVersionedValue,
   type MiaixzKeyValueStorage,
-} from "../../src/storage/storage.js";
-import type { MiaixzSdkConfig } from "../../src/types/config.js";
+} from "../../src/runtime/storage/storage.js";
+import type { MiaixzSdkConfig } from "../../src/runtime/config/config.types.js";
 
 const config: MiaixzSdkConfig = {
   apiBaseUrl: "https://api.test",
@@ -416,31 +416,31 @@ describe("storage", () => {
   });
 });
 
-describe("permissions and files", () => {
-  it("validates permission snapshots and applies exact, namespace, global, deny, and role rules", () => {
-    expect(isMiaixzPermissionSnapshot({ allowed: ["project:read"] })).toBe(true);
-    expect(isMiaixzPermissionSnapshot({ allowed: [], denied: ["x"], roles: ["admin"] })).toBe(true);
+describe("grants and files", () => {
+  it("validates grant snapshots and applies exact, namespace, global, deny, and role rules", () => {
+    expect(isMiaixzGrantSnapshot({ allowed: ["project:read"] })).toBe(true);
+    expect(isMiaixzGrantSnapshot({ allowed: [], denied: ["x"], roles: ["admin"] })).toBe(true);
     for (const value of [
       {},
       { allowed: [""] },
       { allowed: [], denied: [1] },
       { allowed: [], roles: "admin" },
     ]) {
-      expect(isMiaixzPermissionSnapshot(value)).toBe(false);
+      expect(isMiaixzGrantSnapshot(value)).toBe(false);
     }
-    const permissions = createMiaixzPermissionSet({
+    const grants = createMiaixzGrantSet({
       allowed: ["project:*", "billing:read", "*"],
       denied: ["project:delete"],
       roles: ["admin", "admin"],
     });
-    expect(permissions.can("project:read")).toBe(true);
-    expect(permissions.can("project:delete")).toBe(false);
-    expect(permissions.can("anything")).toBe(true);
-    expect(permissions.canAny(["project:delete", "billing:read"])).toBe(true);
-    expect(permissions.canAll(["project:read", "billing:read"])).toBe(true);
-    expect(permissions.hasRole("admin")).toBe(true);
-    expect(() => new MiaixzPermissionSet({ allowed: [""] })).toThrowError(
-      expect.objectContaining({ code: "PERMISSIONS_INVALID" }),
+    expect(grants.can("project:read")).toBe(true);
+    expect(grants.can("project:delete")).toBe(false);
+    expect(grants.can("anything")).toBe(true);
+    expect(grants.canAny(["project:delete", "billing:read"])).toBe(true);
+    expect(grants.canAll(["project:read", "billing:read"])).toBe(true);
+    expect(grants.hasRole("admin")).toBe(true);
+    expect(() => new MiaixzGrantSet({ allowed: [""] })).toThrowError(
+      expect.objectContaining({ code: "GRANTS_INVALID" }),
     );
   });
 

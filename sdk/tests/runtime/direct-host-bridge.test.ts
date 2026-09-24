@@ -20,7 +20,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 
-import { createMiaixzDirectHostBridge } from "../../src/runtime/direct-host-bridge.js";
+import { createMiaixzDirectHostBridge } from "../../src/runtime/bridge/direct-host-bridge.js";
 
 describe("Direct Host Bridge", () => {
   it("delegates every capability with defensive validation and idempotent cleanup", async () => {

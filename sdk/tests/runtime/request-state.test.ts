@@ -21,9 +21,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { MiaixzSdkError } from "../../src/errors/errors.js";
-import { MiaixzBridgeMessageCache } from "../../src/runtime/message-cache.js";
-import { MiaixzPendingRequestRegistry } from "../../src/runtime/pending-requests.js";
-import { createEnvelope } from "../../src/runtime/post-message-protocol.js";
+import { MiaixzBridgeMessageCache } from "../../src/runtime/bridge/message-cache.js";
+import { MiaixzPendingRequestRegistry } from "../../src/runtime/bridge/pending-requests.js";
+import { createEnvelope } from "../../src/runtime/bridge/post-message-protocol.js";
 
 afterEach(() => vi.useRealTimers());
 

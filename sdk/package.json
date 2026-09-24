@@ -39,72 +39,68 @@
       "import": "./dist/index.js"
     },
     "./api": {
-      "types": "./dist/api/index.d.ts",
-      "import": "./dist/api/index.js"
+      "types": "./dist/fabric/api/index.d.ts",
+      "import": "./dist/fabric/api/index.js"
     },
-    "./auth": {
-      "types": "./dist/auth/index.d.ts",
-      "import": "./dist/auth/index.js"
+    "./session": {
+      "types": "./dist/access/session/index.d.ts",
+      "import": "./dist/access/session/index.js"
     },
     "./context": {
-      "types": "./dist/context/index.d.ts",
-      "import": "./dist/context/index.js"
+      "types": "./dist/access/context/index.d.ts",
+      "import": "./dist/access/context/index.js"
     },
     "./config": {
-      "types": "./dist/config/index.d.ts",
-      "import": "./dist/config/index.js"
+      "types": "./dist/runtime/config/index.d.ts",
+      "import": "./dist/runtime/config/index.js"
     },
-    "./permissions": {
-      "types": "./dist/permissions/index.d.ts",
-      "import": "./dist/permissions/index.js"
+    "./grants": {
+      "types": "./dist/access/grants/index.d.ts",
+      "import": "./dist/access/grants/index.js"
     },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
     },
     "./events": {
-      "types": "./dist/events/index.d.ts",
-      "import": "./dist/events/index.js"
+      "types": "./dist/runtime/events/index.d.ts",
+      "import": "./dist/runtime/events/index.js"
     },
     "./storage": {
-      "types": "./dist/storage/index.d.ts",
-      "import": "./dist/storage/index.js"
+      "types": "./dist/runtime/storage/index.d.ts",
+      "import": "./dist/runtime/storage/index.js"
     },
     "./appearance": {
-      "types": "./dist/appearance/index.d.ts",
-      "import": "./dist/appearance/index.js"
+      "types": "./dist/display/index.d.ts",
+      "import": "./dist/display/index.js"
     },
     "./files": {
-      "types": "./dist/files/index.d.ts",
-      "import": "./dist/files/index.js"
+      "types": "./dist/fabric/files/index.d.ts",
+      "import": "./dist/fabric/files/index.js"
     },
     "./i18n": {
       "types": "./dist/i18n/index.d.ts",
       "import": "./dist/i18n/index.js"
     },
     "./consts": {
-      "types": "./dist/consts/index.d.ts",
-      "import": "./dist/consts/index.js"
+      "types": "./dist/constants.d.ts",
+      "import": "./dist/constants.js"
     },
     "./contracts": {
-      "types": "./dist/contracts/index.d.ts",
-      "import": "./dist/contracts/index.js"
+      "types": "./dist/runtime/contracts/index.d.ts",
+      "import": "./dist/runtime/contracts/index.js"
     },
     "./errors": {
       "types": "./dist/errors/index.d.ts",
       "import": "./dist/errors/index.js"
     },
     "./formatters": {
-      "types": "./dist/formatters/index.d.ts",
-      "import": "./dist/formatters/index.js"
+      "types": "./dist/i18n/formatters/index.d.ts",
+      "import": "./dist/i18n/formatters/index.js"
     },
     "./types": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/types/index.js"
-    },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "import": "./dist/utils/index.js"
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
     }
   },
   "scripts": {

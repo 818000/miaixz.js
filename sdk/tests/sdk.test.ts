@@ -47,12 +47,12 @@ function createRecordingFetch(requests: string[]): typeof fetch {
         headers: { "content-type": "application/octet-stream" },
       });
     }
-    return Response.json({ errcode: 0, errmsg: "ok", data: { url } });
+    return Response.json({ errcode: "0", errmsg: "ok", data: { url } });
   };
 }
 
 describe("createMiaixzSdk", () => {
-  it("exposes auth only for the bearer branch", () => {
+  it("exposes session only for the bearer branch", () => {
     const cookie = createMiaixzSdk({ appId: "cookie", config: initialConfig });
     const bearer = createMiaixzSdk({
       appId: "bearer",
@@ -61,9 +61,9 @@ describe("createMiaixzSdk", () => {
     });
 
     expect(cookie.authMode).toBe("cookie");
-    expect("auth" in cookie).toBe(false);
+    expect("session" in cookie).toBe(false);
     expect(bearer.authMode).toBe("bearer");
-    expect(bearer.auth).toBeDefined();
+    expect(bearer.session).toBeDefined();
     cookie.destroy();
     bearer.destroy();
   });

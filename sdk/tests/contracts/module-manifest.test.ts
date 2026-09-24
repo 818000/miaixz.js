@@ -23,14 +23,14 @@ import { describe, expect, it } from "vitest";
 import {
   isMiaixzHostVersionCompatible,
   parseMiaixzModuleManifest,
-} from "../../src/contracts/module-manifest.js";
-import { compareMiaixzModuleNavigation } from "../../src/contracts/navigation.js";
-import { isMiaixzModulePermission } from "../../src/contracts/permission.js";
+} from "../../src/runtime/contracts/module-manifest.js";
+import { compareMiaixzModuleNavigation } from "../../src/runtime/contracts/navigation.js";
+import { isMiaixzModulePermission } from "../../src/runtime/contracts/permission.js";
 import {
   isMiaixzModuleIdentifier,
   isMiaixzModulePath,
   isMiaixzModulePermissionList,
-} from "../../src/contracts/route.js";
+} from "../../src/runtime/contracts/route.js";
 
 const validManifest = {
   protocolVersion: "1.0.0",
