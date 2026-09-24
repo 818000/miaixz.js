@@ -26,14 +26,14 @@ import type {
   RefAttributes,
 } from "react";
 
-import type { MiaixzIconName } from "../../icons/icon-name.generated.js";
+import type { IconName } from "../../icons/icon-names.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ButtonLinkSlotProps, ButtonSlotProps, ButtonTone } from "../button/button.types.js";
 
 export interface ActionBase {
   readonly id: string;
   readonly label: string;
-  readonly icon?: MiaixzIconName;
+  readonly icon?: IconName;
   readonly tone?: "neutral" | "brand" | "danger";
   readonly size?: "small" | "medium" | "large";
   readonly description?: string;
@@ -108,7 +108,7 @@ export interface IconButtonProps extends Omit<
   "aria-label" | "children"
 > {
   readonly label: string;
-  readonly icon: MiaixzIconName;
+  readonly icon: IconName;
   readonly tone?: "neutral" | "brand" | "danger";
   readonly size?: "small" | "medium" | "large";
   readonly appearance?: "control" | "glyph" | "favorite";
@@ -154,7 +154,7 @@ export interface ActionBarProps {
 export interface FormCancelAction {
   readonly id: string;
   readonly label: string;
-  readonly icon?: MiaixzIconName;
+  readonly icon?: IconName;
   readonly disabled?: boolean;
   readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
   readonly buttonProps?: Omit<
@@ -166,7 +166,7 @@ export interface FormCancelAction {
 export interface FormSubmitAction {
   readonly id: string;
   readonly label: string;
-  readonly icon?: MiaixzIconName;
+  readonly icon?: IconName;
   readonly tone?: "brand" | "danger";
   readonly disabled?: boolean;
   readonly loading?: boolean;

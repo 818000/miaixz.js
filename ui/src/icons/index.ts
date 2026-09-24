@@ -18,6 +18,37 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export type { MiaixzIconName } from "./icon-names.js";
+export { ICON_NAMES, iconCatalog, isIconName, parseIconName } from "./icon-names.js";
+export type { IconCatalogEntry, IconName, ParseIconNameOptions } from "./icon-names.js";
+export type {
+  IconDefinition,
+  IconDefinitionModule,
+  IconFontDefinition,
+  IconPaint,
+  IconSvgAttributes,
+  IconSvgDefinition,
+  IconSvgNode,
+} from "./icon-definition.js";
+export { IconRegistryProvider, useIconRegistry } from "./icon-context.js";
+export type { IconRegistryProviderProps } from "./icon-context.js";
+export { createIconRegistry } from "./icon-registry.js";
+export type { IconRegistry } from "./icon-registry.js";
+export type {
+  IconLoader,
+  IconProviderModule,
+  IconRegistryOptions,
+  LazyIconProvider,
+  LazyIconSource,
+} from "./icon-provider.js";
+export { composeIconProviders } from "./icon-compose.js";
+export { createCustomIconProvider, defineLazyIconSource } from "./providers/custom-provider.js";
+export type {
+  CustomIconProviderOptions,
+  LazyIconSourceOptions,
+} from "./providers/custom-provider.js";
+export { fontAwesomeProvider } from "./providers/fontawesome-provider.js";
+export { createIconfontProvider } from "./providers/iconfont-provider.js";
+export type { IconfontManifest, IconfontProviderOptions } from "./providers/iconfont-provider.js";
+export { lucideProvider } from "./providers/lucide-provider.js";
 export { Icon } from "../components/icon/index.js";
 export type { IconProps, IconSize, IconStroke } from "../components/icon/index.js";

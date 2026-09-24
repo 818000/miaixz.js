@@ -807,8 +807,7 @@
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
-    "icons:generate": "node ../.github/scripts/codegen/icon-names.mjs",
-    "icons:check": "node ../.github/scripts/codegen/icon-names.mjs --check",
+    "icons:check": "node ../.github/scripts/quality/check-icon-system.mjs",
     "theme:presets:generate": "node ../.github/scripts/codegen/theme-presets.mjs",
     "theme:presets:check": "node ../.github/scripts/codegen/theme-presets.mjs --check",
     "theme:generate": "node ../.github/scripts/codegen/theme-css.mjs",
@@ -835,7 +834,9 @@
     "react-dom": ">=18.3 <20"
   },
   "dependencies": {
-    "lucide-react": "1.35.0"
+    "@fortawesome/free-regular-svg-icons": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "lucide-react": "^1.35.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",

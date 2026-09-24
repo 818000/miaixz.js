@@ -128,7 +128,7 @@ export const IconButton = withMiaixzThemeComponent(
         {loading && (
           <>
             <span {...indicatorProps}>
-              <Icon className="miaixz-button-spinner" name="LoaderCircle" size="control" />
+              <Icon className="miaixz-button-spinner" name="loading" size="control" />
             </span>
             <span className="miaixz-hidden">{t("ui.loading")}</span>
           </>

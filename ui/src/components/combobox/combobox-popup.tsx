@@ -86,7 +86,7 @@ export function ComboboxPopup(props: ComboboxPopupProps) {
   if (props.state === "loading") {
     content = (
       <div {...messageProps} role="status">
-        <Icon name="LoaderCircle" size="control" className="miaixz-icon-spin" />
+        <Icon name="loading" size="control" className="miaixz-icon-spin" />
         {props.loadingMessage}
       </div>
     );

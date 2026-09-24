@@ -106,7 +106,7 @@ export function MoreActionsView(properties: MoreActionsViewProps) {
         <Button
           className="miaixz-action-text"
           size="small"
-          startIcon={<Icon name="Ellipsis" size="control" />}
+          startIcon={<Icon name="more-horizontal" size="control" />}
           tone="neutral"
           variant="plain"
         >

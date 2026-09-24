@@ -841,6 +841,6 @@ export type {
   ThemeContextValue,
   ThemeProps,
 } from "./theme/index.js";
-export type { MiaixzIconName } from "./icons/index.js";
+export type { IconName } from "./icons/index.js";
 export { useMedia } from "./shared/responsive/use-media.js";
 export type { UseMediaOptions } from "./shared/responsive/use-media.js";

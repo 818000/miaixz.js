@@ -171,10 +171,10 @@ export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
                     slotProps: props.slotProps?.loadingIndicator,
                   })}
                 >
-                  <Icon name="LoaderCircle" size="control" className="miaixz-icon-spin" />
+                  <Icon name="loading" size="control" className="miaixz-icon-spin" />
                 </span>
               ) : expandable ? (
-                <Icon name={expanded ? "ChevronDown" : "ChevronRight"} size="control" />
+                <Icon name={expanded ? "chevron-down" : "chevron-right"} size="control" />
               ) : null}
             </span>
             <span className="miaixz-tree-copy">
@@ -195,7 +195,7 @@ export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
               <span className="miaixz-tree-trailing">{node.trailing}</span>
             )}
             {selected && props.selectionMode !== "none" && props.showSelectionIndicator && (
-              <Icon name="Check" size="control" className="miaixz-tree-selection" />
+              <Icon name="confirm" size="control" className="miaixz-tree-selection" />
             )}
           </div>
           {error && (
@@ -217,7 +217,7 @@ export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
                   props.onRetry(node);
                 }}
               >
-                <Icon name="RotateCcw" size="indicator" />
+                <Icon name="rotate-ccw" size="indicator" />
                 {props.retryLabel}
               </button>
             </div>

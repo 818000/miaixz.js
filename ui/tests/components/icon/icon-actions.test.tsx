@@ -42,7 +42,7 @@ function iconAction(properties: IconActionFixtureProps) {
   return (
     <IconButton
       label={properties.label}
-      icon="X"
+      icon="close"
       {...(properties.disabled === undefined ? {} : { disabled: properties.disabled })}
       {...(properties.loading === undefined ? {} : { loading: properties.loading })}
       onClick={properties.onAction ?? (() => undefined)}

@@ -197,7 +197,7 @@ function Appearance(props: AppearanceProps) {
         <span>{activeLocale?.label ?? localeRuntime.locale}</span>
         <span>{localeRuntime.t("ui.appearance.language.current")}</span>
       </span>
-      <Icon aria-hidden="true" name="ChevronRight" size="control" />
+      <Icon aria-hidden="true" name="chevron-right" size="control" />
     </button>,
     "miaixz-appearance-options-rows",
   );
@@ -268,7 +268,7 @@ function Appearance(props: AppearanceProps) {
     <>
       <div {...rootSlotProps}>
         <button {...triggerSlotProps}>
-          <Icon aria-hidden="true" name="Palette" size="navigation" />
+          <Icon aria-hidden="true" name="palette" size="navigation" />
         </button>
       </div>
 
@@ -301,7 +301,7 @@ function Appearance(props: AppearanceProps) {
                 id: "appearance-language-back",
                 kind: "command",
                 label: localeRuntime.t("ui.appearance.language.back"),
-                icon: "ChevronLeft",
+                icon: "chevron-left",
                 tone: "neutral",
                 size: "small",
                 onAction: () => setView("settings"),

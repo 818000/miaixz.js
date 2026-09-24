@@ -295,7 +295,7 @@ function DatagridImplementation<Row>(
                         >
                           <span>{column.header}</span>
                           <Icon
-                            name="ChevronDown"
+                            name="chevron-down"
                             size="inline"
                             className="miaixz-datagrid-sort-icon"
                           />

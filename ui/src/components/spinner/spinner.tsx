@@ -62,7 +62,7 @@ export const Spinner = withMiaixzThemeComponent(
     const indicatorProps = mergeMiaixzSlotProps({
       ownerState,
       slotProps: slotProps?.indicator,
-      internalProps: { name: "LoaderCircle" as const, size: miaixzSpinnerIconSizes[size] },
+      internalProps: { name: "loading" as const, size: miaixzSpinnerIconSizes[size] },
       ownedProps: ["name", "size"],
     });
     const labelProps = mergeMiaixzSlotProps({

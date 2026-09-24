@@ -82,7 +82,7 @@ describe("Avatar", () => {
 
     rerender(
       <Avatar alt="Folder" variant="square">
-        <Icon name="Folder" />
+        <Icon name="folder" />
       </Avatar>,
     );
     expect(container.firstElementChild).toHaveClass("miaixz-avatar-square");

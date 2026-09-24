@@ -371,7 +371,7 @@ export const Drawer = withMiaixzThemeComponent(
                     ownedProps: ["type", "aria-label"],
                   })}
                 >
-                  <Icon name="X" size="control" />
+                  <Icon name="close" size="control" />
                 </button>
               )}
             </header>

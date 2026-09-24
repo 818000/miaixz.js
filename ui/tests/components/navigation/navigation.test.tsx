@@ -36,7 +36,7 @@ describe("Navigation", () => {
             id: "workbench",
             current: "page",
             href: "/workbench",
-            icon: "LayoutDashboard",
+            icon: "layout-dashboard",
             label: "工作空间",
             textValue: "工作空间",
           },

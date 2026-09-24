@@ -69,7 +69,7 @@ function commandAction(overrides: Partial<CommandAction> = {}): CommandAction {
     id: "edit",
     kind: "command",
     label: "编辑",
-    icon: "Pencil",
+    icon: "pencil",
     tone: "neutral",
     onAction: vi.fn(),
     ...overrides,
@@ -87,7 +87,7 @@ function primaryAction(overrides: Partial<CommandAction> = {}): CommandAction {
     id: "save",
     kind: "command",
     label: "保存",
-    icon: "Save",
+    icon: "save",
     tone: "brand",
     onAction: vi.fn(),
     ...overrides,
@@ -105,7 +105,7 @@ describe("ActionText", () => {
             id: "view",
             kind: "navigation",
             label: "查看详情",
-            icon: "Eye",
+            icon: "eye",
             tone: "neutral",
             href: "/details",
           }}
@@ -134,7 +134,9 @@ describe("ActionText", () => {
 
 describe("IconButton", () => {
   it("provides an accessible name without rendering visible action text", () => {
-    renderAction(<IconButton appearance="glyph" label="关闭" icon="X" onClick={() => undefined} />);
+    renderAction(
+      <IconButton appearance="glyph" label="关闭" icon="close" onClick={() => undefined} />,
+    );
 
     const action = screen.getByRole("button", { name: "关闭" });
     expect(action).toHaveClass("miaixz-icon-button");
@@ -152,10 +154,10 @@ describe("MoreActions", () => {
           commandAction({
             id: "delete",
             label: "删除",
-            icon: "Trash2",
+            icon: "delete",
             tone: "danger",
           }),
-          commandAction({ id: "export", label: "导出", icon: "Download" }),
+          commandAction({ id: "export", label: "导出", icon: "download" }),
         ]}
       />,
     );
@@ -207,7 +209,7 @@ describe("RowActions", () => {
           commandAction({
             id: "delete",
             label: "删除",
-            icon: "Trash2",
+            icon: "delete",
             tone: "danger",
           }),
         ]}
@@ -239,11 +241,11 @@ describe("RowActions", () => {
       <RowActions
         actions={[
           commandAction({ id: "edit" }),
-          commandAction({ id: "view", label: "查看", icon: "Eye" }),
+          commandAction({ id: "view", label: "查看", icon: "eye" }),
           commandAction({
             id: "delete",
             label: "删除",
-            icon: "Trash2",
+            icon: "delete",
             tone: "danger",
           }),
         ]}
@@ -274,8 +276,8 @@ describe("RowActions", () => {
       <RowActions
         actions={[
           commandAction({ id: "edit" }),
-          commandAction({ id: "reset", label: "重置密码", icon: "KeyRound" }),
-          commandAction({ id: "freeze", label: "冻结", icon: "Snowflake", tone: "danger" }),
+          commandAction({ id: "reset", label: "重置密码", icon: "key-round" }),
+          commandAction({ id: "freeze", label: "冻结", icon: "snowflake", tone: "danger" }),
         ]}
       />,
     );
@@ -298,11 +300,11 @@ describe("ActionBar", () => {
   it("keeps the primary visible during the zero-capacity hydration partition", () => {
     renderAction(
       <ActionBar
-        primary={primaryAction({ label: "新建", icon: "Plus" })}
+        primary={primaryAction({ label: "新建", icon: "add" })}
         actions={[
           commandAction({ id: "edit" }),
-          commandAction({ id: "refresh", label: "刷新", icon: "RefreshCw" }),
-          commandAction({ id: "export", label: "导出", icon: "Download" }),
+          commandAction({ id: "refresh", label: "刷新", icon: "refresh-cw" }),
+          commandAction({ id: "export", label: "导出", icon: "download" }),
         ]}
       />,
     );

@@ -19,6 +19,7 @@
 */
 
 import { forwardRef, useId } from "react";
+import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { IconButton } from "../action/icon-button.js";
@@ -27,12 +28,12 @@ import { Icon } from "../icon/icon.js";
 import type { ToastOwnerState, ToastProps, ToastTone } from "./toast.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
-const toneIcons: Record<ToastTone, "Info" | "CircleCheck" | "TriangleAlert" | "CircleAlert"> = {
-  neutral: "Info",
-  success: "CircleCheck",
-  warning: "TriangleAlert",
-  danger: "CircleAlert",
-  info: "Info",
+const toneIcons: Record<ToastTone, IconName> = {
+  neutral: ICON_NAMES.INFO,
+  success: ICON_NAMES.CIRCLE_CHECK,
+  warning: ICON_NAMES.WARNING,
+  danger: ICON_NAMES.CIRCLE_ALERT,
+  info: ICON_NAMES.INFO,
 };
 
 /**
@@ -160,7 +161,7 @@ export const Toast = withMiaixzThemeComponent(
               defaultProps: { className: "miaixz-toast-dismiss" },
               slotProps: slotProps?.dismiss,
               internalProps: {
-                icon: "X",
+                icon: "close",
                 label: dismissLabel ?? t("ui.notification.dismiss"),
                 size: "small",
                 onClick: () => onClose(id, "dismiss"),

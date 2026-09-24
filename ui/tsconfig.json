@@ -16,5 +16,12 @@
     "noUncheckedIndexedAccess": true,
     "types": ["node"]
   },
-  "include": ["src", "tests/**/*.test-d.ts", "tests/**/*.test-d.tsx"]
+  "include": [
+    "src",
+    "tests/**/*.test-d.ts",
+    "tests/**/*.test-d.tsx",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "tests/support/vite.config.ts"
+  ]
 }

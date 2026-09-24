@@ -18,7 +18,7 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type { MiaixzIconName } from "../icons/icon-name.generated.js";
+import type { IconName } from "../icons/icon-names.js";
 import type { Intent } from "./types.js";
 
 /**
@@ -32,7 +32,7 @@ export interface IntentDefinition {
   /**
    * Framework icon name.
    */
-  readonly icon: MiaixzIconName;
+  readonly icon: IconName;
   /**
    * Semantic visual tone.
    */
@@ -47,137 +47,137 @@ export interface IntentDefinition {
 export const intentDefinitions: Readonly<Record<Intent, IntentDefinition>> = Object.freeze({
   create: {
     labelKey: "ui.action.create",
-    icon: "Plus",
+    icon: "add",
     tone: "brand",
   },
   edit: {
     labelKey: "ui.action.edit",
-    icon: "Pencil",
+    icon: "pencil",
     tone: "neutral",
   },
   view: {
     labelKey: "ui.action.view",
-    icon: "Eye",
+    icon: "eye",
     tone: "neutral",
   },
   import: {
     labelKey: "ui.action.import",
-    icon: "Upload",
+    icon: "upload",
     tone: "neutral",
   },
   export: {
     labelKey: "ui.action.export",
-    icon: "Download",
+    icon: "download",
     tone: "neutral",
   },
   copy: {
     labelKey: "ui.action.copy",
-    icon: "Copy",
+    icon: "copy",
     tone: "neutral",
   },
   refresh: {
     labelKey: "ui.action.refresh",
-    icon: "RefreshCw",
+    icon: "refresh-cw",
     tone: "neutral",
   },
   validate: {
     labelKey: "ui.action.validate",
-    icon: "ShieldCheck",
+    icon: "shield-check",
     tone: "neutral",
   },
   configure: {
     labelKey: "ui.action.configure",
-    icon: "Settings",
+    icon: "settings",
     tone: "neutral",
   },
   invite: {
     labelKey: "ui.action.invite",
-    icon: "UserPlus",
+    icon: "user-plus",
     tone: "neutral",
   },
   "add-member": {
     labelKey: "ui.action.add-member",
-    icon: "UserPlus",
+    icon: "user-plus",
     tone: "neutral",
   },
   "reset-password": {
     labelKey: "ui.action.reset-password",
-    icon: "KeyRound",
+    icon: "key-round",
     tone: "neutral",
   },
   "enter-tenant": {
     labelKey: "ui.action.enter-tenant",
-    icon: "LogIn",
+    icon: "log-in",
     tone: "neutral",
   },
   enable: {
     labelKey: "ui.action.enable",
-    icon: "CircleCheck",
+    icon: "circle-check",
     tone: "neutral",
   },
   disable: {
     labelKey: "ui.action.disable",
-    icon: "Ban",
+    icon: "ban",
     tone: "danger",
   },
   freeze: {
     labelKey: "ui.action.freeze",
-    icon: "Snowflake",
+    icon: "snowflake",
     tone: "danger",
   },
   archive: {
     labelKey: "ui.action.archive",
-    icon: "Archive",
+    icon: "archive",
     tone: "danger",
   },
   revoke: {
     labelKey: "ui.action.revoke",
-    icon: "ShieldX",
+    icon: "shield-x",
     tone: "danger",
   },
   delete: {
     labelKey: "ui.action.delete",
-    icon: "Trash2",
+    icon: "delete",
     tone: "danger",
   },
   save: {
     labelKey: "ui.action.save",
-    icon: "Save",
+    icon: "save",
     tone: "brand",
   },
   submit: {
     labelKey: "ui.action.submit",
-    icon: "Send",
+    icon: "send",
     tone: "brand",
   },
   publish: {
     labelKey: "ui.action.publish",
-    icon: "Rocket",
+    icon: "rocket",
     tone: "brand",
   },
   cancel: {
     labelKey: "ui.action.cancel",
-    icon: "CircleX",
+    icon: "circle-x",
     tone: "neutral",
   },
   close: {
     labelKey: "ui.action.close",
-    icon: "X",
+    icon: "close",
     tone: "neutral",
   },
   back: {
     labelKey: "ui.action.back",
-    icon: "ArrowLeft",
+    icon: "arrow-left",
     tone: "neutral",
   },
   favorite: {
     labelKey: "ui.action.favorite",
-    icon: "Star",
+    icon: "star",
     tone: "neutral",
   },
   more: {
     labelKey: "ui.action.more",
-    icon: "Ellipsis",
+    icon: "more-horizontal",
     tone: "neutral",
   },
 });

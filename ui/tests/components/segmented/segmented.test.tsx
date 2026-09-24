@@ -9,8 +9,8 @@ import { renderWithLocale } from "../../support/test-utils.js";
 afterEach(cleanup);
 
 const items = [
-  { value: "list", label: "List", textValue: "List", icon: "Menu" },
-  { value: "grid", label: "Grid", textValue: "Grid", icon: "LayoutGrid" },
+  { value: "list", label: "List", textValue: "List", icon: "menu" },
+  { value: "grid", label: "Grid", textValue: "Grid", icon: "layout-grid" },
   { value: "map", label: "Map", textValue: "Map", disabled: true },
 ] as const;
 

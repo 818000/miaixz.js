@@ -216,7 +216,7 @@ function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
             {option.value === entry.value ? (
               <Icon
                 aria-hidden="true"
-                name="Check"
+                name="confirm"
                 size="control"
                 className="miaixz-dropdown-item-check"
               />
@@ -271,7 +271,7 @@ function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
         {entry.checked ? (
           <Icon
             aria-hidden="true"
-            name="Check"
+            name="confirm"
             size="control"
             className="miaixz-dropdown-item-check"
           />
@@ -361,7 +361,7 @@ function DropdownSubmenu({ entry }: { readonly entry: DropdownSubmenuEntry }) {
         type="button"
       >
         <DropdownEntryContent entry={entry} />
-        <Icon aria-hidden="true" name="ChevronRight" size="control" />
+        <Icon aria-hidden="true" name="chevron-right" size="control" />
       </button>
       {open ? (
         <div

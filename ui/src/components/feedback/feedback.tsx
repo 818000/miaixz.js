@@ -20,6 +20,7 @@
 
 import type { HTMLAttributes, ReactElement } from "react";
 
+import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";
 import { IconButton } from "../action/icon-button.js";
 import { Icon } from "../icon/icon.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
@@ -62,20 +63,22 @@ export function MiaixzFeedback(props: MiaixzFeedbackProps): ReactElement {
       </div>
       {props.onDismiss === undefined || props.dismissLabel === undefined ? null : (
         <span {...props.dismissProps}>
-          <IconButton icon="X" label={props.dismissLabel} onClick={props.onDismiss} size="small" />
+          <IconButton
+            icon="close"
+            label={props.dismissLabel}
+            onClick={props.onDismiss}
+            size="small"
+          />
         </span>
       )}
     </div>
   );
 }
 
-const feedbackIcons: Record<
-  MiaixzFeedbackTone,
-  "Info" | "CircleCheck" | "TriangleAlert" | "CircleAlert"
-> = {
-  neutral: "Info",
-  info: "Info",
-  success: "CircleCheck",
-  warning: "TriangleAlert",
-  danger: "CircleAlert",
+const feedbackIcons: Record<MiaixzFeedbackTone, IconName> = {
+  neutral: ICON_NAMES.INFO,
+  info: ICON_NAMES.INFO,
+  success: ICON_NAMES.CIRCLE_CHECK,
+  warning: ICON_NAMES.WARNING,
+  danger: ICON_NAMES.CIRCLE_ALERT,
 };

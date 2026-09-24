@@ -199,7 +199,7 @@ export const Graph = withMiaixzThemeComponent(
         >
           <IconButton
             disabled={disabled || view.zoom <= minimumZoom}
-            icon="ZoomOut"
+            icon="zoom-out"
             label={t("ui.diagram.graph.zoomOut")}
             onClick={() =>
               setView((current) => ({
@@ -213,7 +213,7 @@ export const Graph = withMiaixzThemeComponent(
           </output>
           <IconButton
             disabled={disabled || view.zoom >= maximumZoom}
-            icon="ZoomIn"
+            icon="zoom-in"
             label={t("ui.diagram.graph.zoomIn")}
             onClick={() =>
               setView((current) => ({
@@ -224,7 +224,7 @@ export const Graph = withMiaixzThemeComponent(
           />
           <IconButton
             disabled={disabled}
-            icon="RotateCcw"
+            icon="rotate-ccw"
             label={t("ui.diagram.graph.resetView")}
             onClick={() => setView({ zoom: 1, x: 0, y: 0 })}
           />

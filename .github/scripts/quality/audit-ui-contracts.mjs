@@ -249,7 +249,7 @@ inspect(
   /\b(?:icon|startIcon|endIcon)\??\s*:\s*ReactNode\b/g,
   "ACTION_PUBLIC_REACT_NODE_ICON",
 );
-if (!/readonly\s+icon\s*:\s*MiaixzIconName\b/.test(actionTypes)) {
+if (!/readonly\s+icon\s*:\s*IconName\b/.test(actionTypes)) {
   addFinding(
     "src/components/action/action.types.ts",
     actionTypes,

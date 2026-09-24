@@ -150,7 +150,7 @@ export const Calendar = withMiaixzThemeComponent(
             aria-label={t("ui.date.previousMonth")}
             onClick={() => moveMonth(-1)}
           >
-            <Icon name="ChevronLeft" size="control" />
+            <Icon name="chevron-left" size="control" />
           </button>
           <strong className="miaixz-calendar-month">
             {monthFormatter.format(asDate(monthDate))}
@@ -162,7 +162,7 @@ export const Calendar = withMiaixzThemeComponent(
             aria-label={t("ui.date.nextMonth")}
             onClick={() => moveMonth(1)}
           >
-            <Icon name="ChevronRight" size="control" />
+            <Icon name="chevron-right" size="control" />
           </button>
         </div>
         <div className="miaixz-calendar-weekdays" aria-hidden="true">

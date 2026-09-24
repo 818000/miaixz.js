@@ -49,6 +49,9 @@ const fixtureHtml = `<!doctype html>
  * Serves the package browser contract fixture without creating a product entry.
  */
 export default defineConfig({
+  optimizeDeps: {
+    include: ["react-dom/client"],
+  },
   plugins: [
     themePresetPlugin(),
     {

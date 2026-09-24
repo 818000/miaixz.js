@@ -64,7 +64,7 @@ const groups: readonly NavigationRailGroupModel[] = [
     placement: "end",
     items: [
       item("last", {
-        icon: "Settings",
+        icon: "settings",
         meta: "meta",
         anchorProps: { target: "_blank" },
       }),

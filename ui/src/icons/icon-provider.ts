@@ -18,39 +18,56 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import type {
-  ComponentPropsWithoutRef,
-  ForwardedRef,
-  ForwardRefExoticComponent,
-  ReactElement,
-  RefAttributes,
-} from "react";
-
-import type { MiaixzIconName } from "./icon-name.generated.js";
+import type { IconDefinitionModule } from "./icon-definition.js";
+import type { IconName } from "./icon-names.js";
 
 /**
- * Defines the provider-neutral SVG properties passed to an icon implementation.
- *
- * @internal
+ * Loads one provider-neutral icon definition.
  */
-export type IconProviderProps = Omit<ComponentPropsWithoutRef<"svg">, "children">;
+export type IconLoader = () => Promise<IconDefinitionModule>;
 
 /**
- * Defines a provider icon component without exposing the provider's public types.
- *
- * @internal
+ * Defines a loaded provider mapping.
  */
-export type IconProviderSource = ForwardRefExoticComponent<
-  IconProviderProps & RefAttributes<SVGSVGElement>
->;
+export interface IconProviderModule {
+  readonly id: string;
+  readonly icons: Readonly<Partial<Record<IconName, IconLoader>>>;
+}
 
 /**
- * Defines the internal boundary implemented by the active icon provider.
- *
- * @internal
+ * Describes a provider whose mapping module is loaded only when selected.
  */
-export type IconProviderRenderer = (
-  name: MiaixzIconName,
-  props: IconProviderProps,
-  ref: ForwardedRef<SVGSVGElement>,
-) => ReactElement;
+export interface LazyIconProvider {
+  readonly id: string;
+  readonly dependency: string;
+  readonly path: string;
+  readonly load: () => Promise<IconProviderModule>;
+}
+
+/**
+ * Describes an individual icon imported from a public dependency path.
+ */
+export interface LazyIconSource {
+  readonly dependency: string;
+  readonly path: string;
+  readonly load: IconLoader;
+}
+
+/**
+ * Configures the immutable icon registry.
+ */
+export interface IconRegistryOptions {
+  readonly defaultProvider?: LazyIconProvider;
+  readonly icons?: Readonly<Partial<Record<IconName, LazyIconSource | LazyIconProvider>>>;
+  readonly fallback?: IconName;
+}
+
+/**
+ * Returns whether a configured override is a provider rather than a single icon source.
+ *
+ * @param value - Configured provider or exact icon source.
+ * @returns Whether the value is a lazy provider.
+ */
+export const isLazyIconProvider = (
+  value: LazyIconSource | LazyIconProvider,
+): value is LazyIconProvider => "id" in value;

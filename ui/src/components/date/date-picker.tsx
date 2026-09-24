@@ -139,7 +139,7 @@ export const DatePicker = withMiaixzThemeComponent(
         disabled={disabled || readOnly}
         onClick={coarsePointer ? () => setOpen(true) : undefined}
       >
-        <Icon name="CalendarDays" size="control" />
+        <Icon name="calendar-days" size="control" />
       </button>
     );
     const adornment = (
@@ -156,7 +156,7 @@ export const DatePicker = withMiaixzThemeComponent(
             disabled={disabled}
             onClick={() => commit(null)}
           >
-            <Icon name="X" size="indicator" />
+            <Icon name="close" size="indicator" />
           </button>
         )}
         {coarsePointer ? (

@@ -34,6 +34,27 @@
   stroke-width: var(--miaixz-icon-stroke-regular);
 }
 
+.miaixz-icon[data-miaixz-icon-paint="stroke"] {
+  fill: none;
+  stroke: currentcolor;
+}
+
+.miaixz-icon[data-miaixz-icon-paint="fill"],
+.miaixz-icon[data-miaixz-icon-paint="font"] {
+  fill: currentcolor;
+  stroke: none;
+}
+
+.miaixz-icon[data-miaixz-icon-paint="font"] text {
+  dominant-baseline: alphabetic;
+}
+
+.miaixz-icon[data-miaixz-icon-loading="true"],
+.miaixz-icon[data-miaixz-icon-error="true"] {
+  fill: none;
+  stroke: none;
+}
+
 .miaixz-icon[role="img"] {
   pointer-events: auto;
 }
