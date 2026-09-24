@@ -58,10 +58,10 @@ const resourceProvider: FileResourceProvider = {
 - Filename, MIME, signature, and container evidence are scored together; callers no longer pass `kind`.
 - The current installable modules are PDF, DOCX, DOC, XLSX, XLS, PPTX, PPT, ODT, ODS, ODP, EPUB, XPS/OXPS, OFD, ZIP, RAR, JPEG, PNG, GIF, SVG, MP3, MP4, Draw.io, XMind, GeoJSON/TopoJSON, DXF, OBJ, and WASM.
 - Every module owns a `format.json`, a driver boundary, and a generated lazy-loader entry. Deleting a module directory and regenerating removes that format without editing runtime code.
-- XLSX parsing includes sparse cells, cached formula values, `oneCellAnchor`, `twoCellAnchor`, `absoluteAnchor`, DrawingML shapes, connector endpoints, and a semantic edge list.
+- XLSX parsing includes sparse cells, cached formula values, all DrawingML anchor modes, recursive groups, affine transforms, theme colors, text styles, arrowheads, embedded pictures, preset/custom geometry, connector endpoints, semantic graph data, materialized SmartArt drawings, and legacy VML drawings.
 - Unsupported subformats return a stable rejected or partial result; metadata output is never presented as full preview support.
 
-The implementation is still governed by the support levels in `docs/file-viewer-reimplementation-plan.md`. An extension being recognized does not imply that every vendor-specific feature is rendered.
+The generated format matrix and the tests under `tests/` are the executable support contract. An extension being recognized does not imply that every vendor-specific feature is rendered.
 
 ## Custom formats
 

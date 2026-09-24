@@ -94,6 +94,32 @@ export interface SpreadsheetDocument extends DocumentBase {
 }
 
 /**
+ * Stores one affine transform using the SVG matrix component order.
+ */
+export interface DrawingTransform {
+  readonly a: number;
+  readonly b: number;
+  readonly c: number;
+  readonly d: number;
+  readonly e: number;
+  readonly f: number;
+}
+
+/**
+ * Describes normalized text presentation inside one drawing shape.
+ */
+export interface DrawingTextStyle {
+  readonly align: "center" | "end" | "start";
+  readonly bold: boolean;
+  readonly color: string;
+  readonly fontFamily: string;
+  readonly fontSize: number;
+  readonly italic: boolean;
+  readonly underline: boolean;
+  readonly verticalAlign: "bottom" | "center" | "top";
+}
+
+/**
  * Represents one immutable vector shape.
  */
 export interface DrawingShape {
@@ -107,6 +133,18 @@ export interface DrawingShape {
   readonly fill?: string;
   readonly stroke?: string;
   readonly rotation?: number;
+  readonly name?: string;
+  readonly preset?: string;
+  readonly path?: string;
+  readonly source?: string;
+  readonly mimeType?: string;
+  readonly transform?: DrawingTransform;
+  readonly strokeWidth?: number;
+  readonly strokeDasharray?: string;
+  readonly startArrow?: string;
+  readonly endArrow?: string;
+  readonly cornerRadius?: number;
+  readonly textStyle?: DrawingTextStyle;
 }
 
 /**
@@ -154,6 +192,19 @@ export interface DiagramWarning {
 }
 
 /**
+ * Summarizes source features retained by one drawing scene.
+ */
+export interface DrawingFeatures {
+  readonly shapeCount: number;
+  readonly connectorCount: number;
+  readonly groupCount: number;
+  readonly pictureCount: number;
+  readonly customGeometryCount: number;
+  readonly smartArtCount: number;
+  readonly unsupportedCount: number;
+}
+
+/**
  * Exposes semantic graph data independently from visual shape rendering.
  */
 export interface DiagramGraph {
@@ -172,6 +223,9 @@ export interface DrawingScene extends DocumentBase {
   readonly shapes: readonly DrawingShape[];
   readonly edges: readonly DiagramEdge[];
   readonly graph?: DiagramGraph;
+  readonly sheetId?: string;
+  readonly sheetName?: string;
+  readonly features?: DrawingFeatures;
 }
 
 /**

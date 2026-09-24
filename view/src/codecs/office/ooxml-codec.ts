@@ -31,11 +31,7 @@ import {
   textFromElements as textContent,
 } from "../xml/xml-codec.js";
 import type {
-  DiagramEdge,
-  DiagramNode,
-  DiagramWarning,
   DrawingScene,
-  DrawingShape,
   FlowDocument,
   PagedDocument,
   SpreadsheetCell,
@@ -46,287 +42,14 @@ import type {
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import { parseOfficeDrawing, type OfficeDrawingImage } from "./drawing-codec.js";
+import { defaultOfficeTheme, parseOfficeTheme, type OfficeTheme } from "./theme-codec.js";
+import { parseVmlDrawing } from "./vml-codec.js";
 
 /**
  * Identifies the three OOXML document models implemented by the shared decoder.
  */
 export type OoxmlDocumentKind = "document" | "presentation" | "spreadsheet";
-
-/**
- * Reads a finite numeric XML attribute with a zero fallback.
- *
- * @param element - Optional element containing the requested attribute.
- * @param name - Namespace-independent attribute name.
- * @returns Finite numeric attribute value or zero.
- */
-function numericAttribute(element: Element | undefined, name: string): number {
-  const value = Number(element === undefined ? undefined : attribute(element, name));
-  return Number.isFinite(value) ? value : 0;
-}
-
-/**
- * Finds a direct child by namespace-independent local name.
- *
- * @param element - Parent element whose direct children are inspected.
- * @param localName - Namespace-independent child name.
- * @returns First matching direct child, or undefined when absent.
- */
-function child(element: Element, localName: string): Element | undefined {
-  return [...element.children].find((item) => item.localName === localName);
-}
-
-/**
- * Collects descendants by namespace-independent local name.
- *
- * @param root - Parent node whose descendants are searched.
- * @param localName - Namespace-independent element name.
- * @returns Matching descendants in document order.
- */
-function descendants(root: ParentNode, localName: string): Element[] {
-  return elements(root, localName);
-}
-
-interface AnchorBox {
-  readonly x: number;
-  readonly y: number;
-  readonly width: number;
-  readonly height: number;
-}
-
-/**
- * Converts an Excel drawing marker into approximate pixel coordinates.
- *
- * @param marker - Optional DrawingML row and column marker.
- * @returns Horizontal and vertical position in CSS pixels.
- */
-function markerPosition(marker: Element | undefined): { readonly x: number; readonly y: number } {
-  if (marker === undefined) return { x: 0, y: 0 };
-  const column = Number(first(marker, "col")?.textContent ?? 0);
-  const row = Number(first(marker, "row")?.textContent ?? 0);
-  const columnOffset = Number(first(marker, "colOff")?.textContent ?? 0) / 9525;
-  const rowOffset = Number(first(marker, "rowOff")?.textContent ?? 0) / 9525;
-  return { x: column * 96 + columnOffset, y: row * 24 + rowOffset };
-}
-
-/**
- * Resolves two-cell, one-cell, or absolute DrawingML anchor geometry.
- *
- * @param anchor - DrawingML anchor element containing position and extent data.
- * @returns Normalized positive drawing bounds in CSS pixels.
- */
-function anchorBox(anchor: Element): AnchorBox {
-  const from = child(anchor, "from");
-  const to = child(anchor, "to");
-  if (from !== undefined && to !== undefined) {
-    const start = markerPosition(from);
-    const end = markerPosition(to);
-    return {
-      x: start.x,
-      y: start.y,
-      width: Math.max(1, end.x - start.x),
-      height: Math.max(1, end.y - start.y),
-    };
-  }
-  const position = first(anchor, "pos");
-  const extent = first(anchor, "ext");
-  return {
-    x: numericAttribute(position, "x") / 9525,
-    y: numericAttribute(position, "y") / 9525,
-    width: Math.max(1, numericAttribute(extent, "cx") / 9525),
-    height: Math.max(1, numericAttribute(extent, "cy") / 9525),
-  };
-}
-
-/**
- * Maps DrawingML preset geometry to a format-neutral shape kind.
- *
- * @param shape - DrawingML shape or connector element.
- * @returns Supported format-neutral shape kind.
- */
-function shapeKind(shape: Element): DrawingShape["kind"] {
-  const preset = attribute(first(shape, "prstGeom") ?? shape, "prst") ?? "rect";
-  if (/ellipse|arc|pie|wedge/iu.test(preset)) return "ellipse";
-  if (/line|connector/iu.test(preset) || shape.localName === "cxnSp") return "line";
-  return "rectangle";
-}
-
-/**
- * Converts a zero-based spreadsheet column index to its A1 column name.
- *
- * @param index - Zero-based spreadsheet column index.
- * @returns Uppercase A1-style column name.
- */
-function columnName(index: number): string {
-  let value = Math.max(0, index) + 1;
-  let result = "";
-  while (value > 0) {
-    value -= 1;
-    result = String.fromCharCode(65 + (value % 26)) + result;
-    value = Math.floor(value / 26);
-  }
-  return result;
-}
-
-/**
- * Converts a DrawingML marker to one A1 cell address.
- *
- * @param marker - Optional DrawingML row and column marker.
- * @returns A1 cell address, or undefined for invalid marker coordinates.
- */
-function markerCell(marker: Element | undefined): string | undefined {
-  if (marker === undefined) return undefined;
-  const column = Number(first(marker, "col")?.textContent);
-  const row = Number(first(marker, "row")?.textContent);
-  if (!Number.isInteger(column) || !Number.isInteger(row) || column < 0 || row < 0)
-    return undefined;
-  return `${columnName(column)}${row + 1}`;
-}
-
-/**
- * Derives the source-cell range covered by a drawing anchor.
- *
- * @param anchor - DrawingML anchor containing from and optional to markers.
- * @returns Single A1 address, A1 range, or undefined when no start marker exists.
- */
-function anchorCellRange(anchor: Element): string | undefined {
-  const from = markerCell(child(anchor, "from"));
-  const to = markerCell(child(anchor, "to"));
-  if (from === undefined) return undefined;
-  return to === undefined || to === from ? from : `${from}:${to}`;
-}
-
-/**
- * Infers a semantic flowchart role from shape text and preset geometry.
- *
- * @param label - Human-readable shape label.
- * @param preset - DrawingML preset geometry identifier.
- * @returns Inferred semantic role and confidence score.
- */
-function diagramRole(
-  label: string,
-  preset: string,
-): { readonly role: DiagramNode["role"]; readonly confidence: number } {
-  const normalized = label.trim().toLowerCase();
-  if (/^(start|begin|开始|起点)$/u.test(normalized)) return { role: "start", confidence: 0.95 };
-  if (/^(end|finish|结束|终点)$/u.test(normalized)) return { role: "end", confidence: 0.95 };
-  if (/diamond|decision/iu.test(preset)) return { role: "decision", confidence: 0.8 };
-  if (/document/iu.test(preset)) return { role: "document", confidence: 0.75 };
-  if (/parallelogram|input/iu.test(preset)) return { role: "input", confidence: 0.7 };
-  if (label !== "") return { role: "process", confidence: 0.55 };
-  return { role: "unknown", confidence: 0.2 };
-}
-
-/**
- * Converts DrawingML shapes, connectors, anchors, and semantics into one scene.
- *
- * @param document - Parsed DrawingML document or presentation slide.
- * @param id - Stable identifier assigned to the resulting scene.
- * @param title - Safe display title for the scene.
- * @param sheet - Optional spreadsheet sheet name owning the drawing.
- * @returns Drawing scene with visual shapes and semantic diagram graph.
- */
-function parseDrawing(
-  document: XMLDocument,
-  id: string,
-  title: string,
-  sheet?: string,
-): DrawingScene {
-  const shapes: DrawingShape[] = [];
-  const edges: DiagramEdge[] = [];
-  const nodes: DiagramNode[] = [];
-  let width = 1;
-  let height = 1;
-  const anchors = descendants(document, "twoCellAnchor").concat(
-    descendants(document, "oneCellAnchor"),
-    descendants(document, "absoluteAnchor"),
-  );
-  const candidates =
-    anchors.length === 0
-      ? descendants(document, "sp").concat(descendants(document, "cxnSp"))
-      : anchors;
-  for (const [index, container] of candidates.entries()) {
-    const shape =
-      container.localName === "sp" || container.localName === "cxnSp"
-        ? container
-        : (first(container, "sp") ?? first(container, "cxnSp"));
-    if (shape === undefined) continue;
-    const properties = first(shape, "cNvPr");
-    const shapeId = attribute(properties ?? shape, "id") ?? `shape-${index + 1}`;
-    const box =
-      anchors.length === 0
-        ? (() => {
-            const transform = first(shape, "xfrm");
-            const offset = transform === undefined ? undefined : child(transform, "off");
-            const extent = transform === undefined ? undefined : child(transform, "ext");
-            return {
-              x: numericAttribute(offset, "x") / 9525,
-              y: numericAttribute(offset, "y") / 9525,
-              width: Math.max(1, numericAttribute(extent, "cx") / 9525),
-              height: Math.max(1, numericAttribute(extent, "cy") / 9525),
-            };
-          })()
-        : anchorBox(container);
-    const text = textContent(shape).trim();
-    const preset = attribute(first(shape, "prstGeom") ?? shape, "prst") ?? "rect";
-    const fill = attribute(first(shape, "srgbClr") ?? shape, "val");
-    shapes.push({
-      id: shapeId,
-      kind: shapeKind(shape),
-      x: box.x,
-      y: box.y,
-      width: box.width,
-      height: box.height,
-      ...(text === "" ? {} : { text }),
-      ...(fill === undefined ? {} : { fill: `#${fill}` }),
-    });
-    width = Math.max(width, box.x + box.width);
-    height = Math.max(height, box.y + box.height);
-    if (shape.localName === "cxnSp") {
-      const start = first(shape, "stCxn");
-      const end = first(shape, "endCxn");
-      const from = attribute(start ?? shape, "id");
-      const to = attribute(end ?? shape, "id");
-      edges.push({
-        id: `edge-${shapeId}`,
-        inferred: false,
-        ...(from === undefined ? {} : { from }),
-        ...(to === undefined ? {} : { to }),
-        ...(text === "" ? {} : { label: text }),
-      });
-    } else {
-      const recognition = diagramRole(text, preset);
-      const cellRange = anchors.length === 0 ? undefined : anchorCellRange(container);
-      nodes.push({
-        id: shapeId,
-        label: text,
-        role: recognition.role,
-        bounds: box,
-        ...(sheet === undefined ? {} : { sheet }),
-        ...(cellRange === undefined ? {} : { cellRange }),
-        confidence: recognition.confidence,
-      });
-    }
-  }
-  const nodeIds = new Set(nodes.map((node) => node.id));
-  const warnings: DiagramWarning[] = [];
-  for (const edge of edges) {
-    if (edge.from !== undefined && !nodeIds.has(edge.from))
-      warnings.push({ code: "DIAGRAM_DANGLING_SOURCE", edgeId: edge.id, nodeId: edge.from });
-    if (edge.to !== undefined && !nodeIds.has(edge.to))
-      warnings.push({ code: "DIAGRAM_DANGLING_TARGET", edgeId: edge.id, nodeId: edge.to });
-  }
-  return {
-    schemaVersion: 1,
-    id,
-    kind: "drawing",
-    title,
-    width,
-    height,
-    shapes,
-    edges,
-    graph: { nodes, edges, warnings },
-  };
-}
 
 /**
  * Resolves an OPC relationship target against its owning package part.
@@ -376,6 +99,138 @@ async function relationships(
 }
 
 /**
+ * Encodes binary package content as a browser-safe base64 string.
+ *
+ * @param bytes - Binary content being embedded in a data URL.
+ * @returns Base64 representation without line breaks.
+ */
+function base64(bytes: Uint8Array): string {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let result = "";
+  for (let index = 0; index < bytes.length; index += 3) {
+    const firstByte = bytes[index] ?? 0;
+    const secondByte = bytes[index + 1] ?? 0;
+    const thirdByte = bytes[index + 2] ?? 0;
+    const value = (firstByte << 16) | (secondByte << 8) | thirdByte;
+    result += alphabet[(value >>> 18) & 63] ?? "";
+    result += alphabet[(value >>> 12) & 63] ?? "";
+    result += index + 1 < bytes.length ? (alphabet[(value >>> 6) & 63] ?? "") : "=";
+    result += index + 2 < bytes.length ? (alphabet[value & 63] ?? "") : "=";
+  }
+  return result;
+}
+
+/**
+ * Resolves a package media path to a conservative browser MIME type.
+ *
+ * @param path - Normalized media-part path.
+ * @returns MIME type suitable for a data URL.
+ */
+function imageMimeType(path: string): string {
+  const extension = path.split(".").at(-1)?.toLowerCase();
+  if (extension === "png") return "image/png";
+  if (extension === "gif") return "image/gif";
+  if (extension === "jpg" || extension === "jpeg") return "image/jpeg";
+  if (extension === "svg") return "image/svg+xml";
+  if (extension === "emf") return "image/emf";
+  if (extension === "wmf") return "image/wmf";
+  return "application/octet-stream";
+}
+
+/**
+ * Loads image relationships owned by one drawing part.
+ *
+ * @param archive - Open OOXML package.
+ * @param drawingPart - Normalized drawing-part path.
+ * @param maxNodes - Maximum XML nodes accepted in its relationship part.
+ * @returns Relationship identifier map containing inert data URLs.
+ */
+async function drawingImages(
+  archive: ZipArchive,
+  drawingPart: string,
+  maxNodes: number,
+): Promise<Map<string, OfficeDrawingImage>> {
+  const related = await relationships(archive, drawingPart, maxNodes);
+  const images = new Map<string, OfficeDrawingImage>();
+  for (const [id, path] of related) {
+    if (
+      !archive.entries.some((entry) => entry.path === path) ||
+      !/\.(?:emf|gif|jpe?g|png|svg|wmf)$/iu.test(path)
+    )
+      continue;
+    const mimeType = imageMimeType(path);
+    images.set(id, {
+      mimeType,
+      source: `data:${mimeType};base64,${base64(await archive.read(path))}`,
+    });
+  }
+  return images;
+}
+
+/**
+ * Loads one package theme or returns deterministic Office-compatible defaults.
+ *
+ * @param archive - Open OOXML package.
+ * @param path - Normalized package path of the requested theme.
+ * @param maxNodes - Maximum XML nodes accepted in the theme part.
+ * @returns Parsed Office theme.
+ */
+async function packageTheme(
+  archive: ZipArchive,
+  path: string,
+  maxNodes: number,
+): Promise<OfficeTheme> {
+  if (!archive.entries.some((entry) => entry.path === path)) return defaultOfficeTheme();
+  return parseOfficeTheme(parseXml(await archive.text(path), maxNodes));
+}
+
+/**
+ * Resolves materialized SmartArt drawings referenced by one DrawingML part.
+ *
+ * @param archive - Open OOXML package.
+ * @param drawingPart - Normalized owner drawing path.
+ * @param drawingDocument - Parsed owner drawing document.
+ * @param theme - Active Office theme.
+ * @param maxNodes - Maximum XML nodes accepted per related part.
+ * @returns Data-model relationship identifiers mapped to materialized scenes.
+ */
+async function drawingDiagrams(
+  archive: ZipArchive,
+  drawingPart: string,
+  drawingDocument: XMLDocument,
+  theme: OfficeTheme,
+  maxNodes: number,
+): Promise<Map<string, DrawingScene>> {
+  const ownerRelationships = await relationships(archive, drawingPart, maxNodes);
+  const diagrams = new Map<string, DrawingScene>();
+  for (const relationIds of elements(drawingDocument, "relIds")) {
+    const dataId = attribute(relationIds, "dm");
+    const dataPart = dataId === undefined ? undefined : ownerRelationships.get(dataId);
+    if (dataId === undefined || dataPart === undefined) continue;
+    const dataRelationships = await relationships(archive, dataPart, maxNodes);
+    const materializedPart = [...dataRelationships.values()].find((path) =>
+      /(?:^|\/)diagrams\/drawing\d+\.xml$/iu.test(path),
+    );
+    if (
+      materializedPart === undefined ||
+      !archive.entries.some((entry) => entry.path === materializedPart)
+    ) {
+      continue;
+    }
+    diagrams.set(
+      dataId,
+      parseOfficeDrawing(parseXml(await archive.text(materializedPart), maxNodes), {
+        id: `${drawingPart}-${dataId}-smartart`,
+        title: "SmartArt",
+        theme,
+        images: await drawingImages(archive, materializedPart, maxNodes),
+      }),
+    );
+  }
+  return diagrams;
+}
+
+/**
  * Parses workbook sheets, cells, formulas, drawings, and flowchart semantics.
  *
  * @param archive - Open OOXML package container.
@@ -398,6 +253,7 @@ async function parseSpreadsheet(
     : [];
   const workbook = parseXml(await archive.text("xl/workbook.xml"), maxNodes);
   const workbookRels = await relationships(archive, "xl/workbook.xml", maxNodes);
+  const theme = await packageTheme(archive, "xl/theme/theme1.xml", maxNodes);
   const sheets: SpreadsheetSheet[] = [];
   const drawings: DrawingScene[] = [];
   for (const [sheetIndex, sheet] of elements(workbook, "sheet").entries()) {
@@ -419,23 +275,42 @@ async function parseSpreadsheet(
       const formula = first(cell, "f")?.textContent ?? undefined;
       return { address, value, ...(formula === undefined ? {} : { formula }) };
     });
-    sheets.push({
-      id: `sheet-${sheetIndex + 1}`,
-      name: attribute(sheet, "name") ?? `Sheet ${sheetIndex + 1}`,
-      cells,
-    });
+    const sheetId = `sheet-${sheetIndex + 1}`;
+    const sheetName = attribute(sheet, "name") ?? `Sheet ${sheetIndex + 1}`;
+    sheets.push({ id: sheetId, name: sheetName, cells });
     const sheetRels = await relationships(archive, part, maxNodes);
     for (const drawingReference of elements(sheetDocument, "drawing")) {
       const id = attribute(drawingReference, "id");
       const drawingPart = id === undefined ? undefined : sheetRels.get(id);
       if (drawingPart === undefined || !archive.entries.some((entry) => entry.path === drawingPart))
         continue;
+      const drawingDocument = parseXml(await archive.text(drawingPart), maxNodes);
       drawings.push(
-        parseDrawing(
-          parseXml(await archive.text(drawingPart), maxNodes),
+        parseOfficeDrawing(drawingDocument, {
+          id: `${documentId}-drawing-${drawings.length + 1}`,
+          title: `${sheetName} drawing`,
+          sheetId,
+          sheetName,
+          theme,
+          images: await drawingImages(archive, drawingPart, maxNodes),
+          diagrams: await drawingDiagrams(archive, drawingPart, drawingDocument, theme, maxNodes),
+        }),
+      );
+    }
+    for (const legacyReference of elements(sheetDocument, "legacyDrawing")) {
+      const relationId = attribute(legacyReference, "id");
+      const legacyPart = relationId === undefined ? undefined : sheetRels.get(relationId);
+      if (legacyPart === undefined || !archive.entries.some((entry) => entry.path === legacyPart)) {
+        continue;
+      }
+      drawings.push(
+        parseVmlDrawing(
+          await archive.text(legacyPart),
           `${documentId}-drawing-${drawings.length + 1}`,
-          `${attribute(sheet, "name") ?? `Sheet ${sheetIndex + 1}`} drawing`,
-          attribute(sheet, "name") ?? `Sheet ${sheetIndex + 1}`,
+          `${sheetName} legacy drawing`,
+          maxNodes,
+          sheetId,
+          sheetName,
         ),
       );
     }
@@ -459,6 +334,7 @@ async function parsePresentation(
   maxNodes: number,
 ): Promise<PagedDocument> {
   const id = stableDocumentId(title, bytes);
+  const theme = await packageTheme(archive, "ppt/theme/theme1.xml", maxNodes);
   const slidePaths = archive.entries
     .map((entry) => entry.path)
     .filter((path) => /^ppt\/slides\/slide\d+\.xml$/u.test(path))
@@ -466,7 +342,13 @@ async function parsePresentation(
   const pages = [];
   for (const [index, path] of slidePaths.entries()) {
     const document = parseXml(await archive.text(path), maxNodes);
-    const drawing = parseDrawing(document, `${id}-drawing-${index + 1}`, `Slide ${index + 1}`);
+    const drawing = parseOfficeDrawing(document, {
+      id: `${id}-drawing-${index + 1}`,
+      title: `Slide ${index + 1}`,
+      theme,
+      images: await drawingImages(archive, path, maxNodes),
+      diagrams: await drawingDiagrams(archive, path, document, theme, maxNodes),
+    });
     pages.push({
       id: `${id}-page-${index + 1}`,
       width: Math.max(1, drawing.width),
