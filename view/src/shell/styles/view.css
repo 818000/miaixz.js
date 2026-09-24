@@ -181,13 +181,40 @@
 
 .miaixz-preview-binary,
 .miaixz-preview-flow,
-.miaixz-preview-sheet,
 .miaixz-preview-scene {
   box-sizing: border-box;
   inline-size: min(100%, 960px);
   padding: var(--miaixz-space-24);
   background: var(--miaixz-surface-role-panel-background);
   box-shadow: var(--miaixz-shadow-medium);
+}
+
+.miaixz-preview-workbook {
+  display: grid;
+  gap: var(--miaixz-space-24);
+  inline-size: min(100%, 1400px);
+  transform-origin: top center;
+}
+
+.miaixz-preview-sheet {
+  box-sizing: border-box;
+  inline-size: 100%;
+  padding: var(--miaixz-space-24);
+  overflow: auto;
+  background: var(--miaixz-surface-role-panel-background);
+  box-shadow: var(--miaixz-shadow-medium);
+}
+
+.miaixz-preview-sheet-drawing {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  min-block-size: 240px;
+  background: #fff;
+}
+
+.miaixz-preview-sheet-data {
+  margin-block-start: var(--miaixz-space-16);
 }
 
 .miaixz-preview-binary dl > div {
@@ -206,6 +233,11 @@
   background: var(--miaixz-surface-role-panel-background);
 }
 
+.miaixz-preview-drawing-frame {
+  inline-size: min(100%, 1200px);
+  transform-origin: top center;
+}
+
 .miaixz-preview-pages {
   display: grid;
   gap: var(--miaixz-space-16);
@@ -219,6 +251,12 @@
   white-space: pre-wrap;
   background: var(--miaixz-surface-role-panel-background);
   box-shadow: var(--miaixz-shadow-medium);
+}
+
+.miaixz-preview-page-drawing {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
 }
 
 .miaixz-preview-warning {

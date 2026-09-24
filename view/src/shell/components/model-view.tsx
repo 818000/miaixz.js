@@ -23,6 +23,7 @@
  */
 
 import type { ViewerDocument } from "../../shared/contracts/document.js";
+import { DrawingView } from "./drawing-view.js";
 
 /**
  * Renders a framework model without reparsing source bytes.
@@ -138,71 +139,48 @@ export function ModelView({
         </article>
       );
     case "spreadsheet": {
-      const sheet = document.sheets[0];
       return (
-        <section className="miaixz-preview-sheet" style={style}>
-          <h2>{sheet?.name ?? document.title}</h2>
-          <table className="miaixz-preview-table">
-            <tbody>
-              {sheet?.cells.map((cell) => (
-                <tr key={cell.address}>
-                  <th>{cell.address}</th>
-                  <td>{String(cell.value ?? "")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <section className="miaixz-preview-workbook" style={style}>
+          {document.sheets.map((sheet) => {
+            const drawings = document.drawings.filter(
+              (drawing) => drawing.sheetId === sheet.id || drawing.sheetName === sheet.name,
+            );
+            return (
+              <article className="miaixz-preview-sheet" key={sheet.id}>
+                <h2>{sheet.name}</h2>
+                {drawings.map((drawing) => (
+                  <DrawingView
+                    className="miaixz-preview-sheet-drawing"
+                    key={drawing.id}
+                    scene={drawing}
+                  />
+                ))}
+                {sheet.cells.length === 0 ? null : (
+                  <details className="miaixz-preview-sheet-data">
+                    <summary>Cell data</summary>
+                    <table className="miaixz-preview-table">
+                      <tbody>
+                        {sheet.cells.map((cell) => (
+                          <tr key={cell.address}>
+                            <th>{cell.address}</th>
+                            <td>{String(cell.value ?? "")}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </details>
+                )}
+              </article>
+            );
+          })}
         </section>
       );
     }
     case "drawing":
       return (
-        <svg
-          aria-label={document.title}
-          className="miaixz-preview-drawing"
-          role="img"
-          style={style}
-          viewBox={`0 0 ${document.width} ${document.height}`}
-        >
-          {document.shapes.map((shape) =>
-            shape.kind === "ellipse" ? (
-              <ellipse
-                cx={shape.x + shape.width / 2}
-                cy={shape.y + shape.height / 2}
-                fill={shape.fill ?? "none"}
-                key={shape.id}
-                rx={shape.width / 2}
-                ry={shape.height / 2}
-                stroke={shape.stroke ?? "currentColor"}
-              />
-            ) : shape.kind === "line" ? (
-              <line
-                key={shape.id}
-                stroke={shape.stroke ?? "currentColor"}
-                x1={shape.x}
-                x2={shape.x + shape.width}
-                y1={shape.y}
-                y2={shape.y + shape.height}
-              />
-            ) : (
-              <g key={shape.id}>
-                <rect
-                  fill={shape.fill ?? "none"}
-                  height={shape.height}
-                  stroke={shape.stroke ?? "currentColor"}
-                  width={shape.width}
-                  x={shape.x}
-                  y={shape.y}
-                />
-                {shape.text === undefined ? null : (
-                  <text x={shape.x + 4} y={shape.y + 16}>
-                    {shape.text}
-                  </text>
-                )}
-              </g>
-            ),
-          )}
-        </svg>
+        <div className="miaixz-preview-drawing-frame" style={style}>
+          <DrawingView scene={document} />
+        </div>
       );
     case "paged":
       return (
@@ -213,7 +191,10 @@ export function ModelView({
               key={page.id}
               style={{ aspectRatio: `${page.width}/${page.height}` }}
             >
-              {page.text}
+              {page.drawing === undefined ? null : (
+                <DrawingView className="miaixz-preview-page-drawing" scene={page.drawing} />
+              )}
+              {page.text === "" ? null : <p>{page.text}</p>}
             </article>
           ))}
         </section>

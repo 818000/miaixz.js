@@ -42,6 +42,12 @@ export interface ZipEntry {
 const decoder = new TextDecoder();
 
 /**
+ * Avoids false positives from small, highly repetitive Office metadata while total and per-entry
+ * expansion limits continue to bound every archive.
+ */
+const compressionRatioMinimumBytes = 16 * 1024 * 1024;
+
+/**
  * Locates the classic ZIP end-of-central-directory record.
  *
  * @param bytes - Complete ZIP source bytes.
@@ -135,7 +141,11 @@ export class ZipArchive {
       if (totalExpandedBytes > budget.maxExpandedBytes) {
         throw new ViewerError("RESOURCE_LIMIT_EXCEEDED", "parse");
       }
-      if (compressedSize > 0 && uncompressedSize / compressedSize > budget.maxCompressionRatio) {
+      if (
+        compressedSize > 0 &&
+        uncompressedSize > compressionRatioMinimumBytes &&
+        uncompressedSize / compressedSize > budget.maxCompressionRatio
+      ) {
         throw new ViewerError("RESOURCE_LIMIT_EXCEEDED", "parse");
       }
       offset += 46 + nameLength + extraLength + commentLength;
