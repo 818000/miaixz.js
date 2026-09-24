@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "gif",
+  "label": "Graphics Interchange Format",
+  "category": "image",
+  "extensions": ["gif"],
+  "mimeTypes": ["image/gif"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

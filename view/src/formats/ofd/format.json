@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "ofd",
+  "label": "Open Fixed-layout Document",
+  "category": "fixed-layout",
+  "extensions": ["ofd"],
+  "mimeTypes": ["application/ofd"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

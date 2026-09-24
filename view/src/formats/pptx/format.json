@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "pptx",
+  "label": "Office Open XML presentation",
+  "category": "presentation",
+  "family": "powerpoint",
+  "extensions": ["pptx", "pptm", "ppsx", "ppsm", "potx", "potm", "sldx", "sldm"],
+  "mimeTypes": [
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.ms-powerpoint.presentation.macroEnabled.12",
+    "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+    "application/vnd.ms-powerpoint.slideshow.macroEnabled.12",
+    "application/vnd.openxmlformats-officedocument.presentationml.template",
+    "application/vnd.ms-powerpoint.template.macroEnabled.12",
+    "application/vnd.openxmlformats-officedocument.presentationml.slide",
+    "application/vnd.ms-powerpoint.slide.macroEnabled.12"
+  ],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

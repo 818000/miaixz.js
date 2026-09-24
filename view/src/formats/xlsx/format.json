@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "xlsx",
+  "label": "Office Open XML spreadsheet",
+  "category": "spreadsheet",
+  "family": "excel",
+  "extensions": ["xlsx", "xlsm", "xltx", "xltm"],
+  "mimeTypes": [
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel.sheet.macroEnabled.12",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+    "application/vnd.ms-excel.template.macroEnabled.12"
+  ],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

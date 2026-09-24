@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "jpeg",
+  "label": "JPEG image",
+  "category": "image",
+  "extensions": ["jpg", "jpeg", "jpe", "jfif", "pjpe", "pjpeg"],
+  "mimeTypes": ["image/jpeg", "image/pjpeg"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

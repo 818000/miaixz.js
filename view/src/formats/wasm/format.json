@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "wasm",
+  "label": "WebAssembly module",
+  "category": "binary",
+  "extensions": ["wasm"],
+  "mimeTypes": ["application/wasm"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

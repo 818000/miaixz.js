@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "geojson",
+  "label": "GeoJSON data",
+  "category": "geospatial",
+  "extensions": ["geojson", "topojson"],
+  "mimeTypes": ["application/geo+json", "application/topo+json"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

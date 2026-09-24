@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "docx",
+  "label": "Office Open XML document",
+  "category": "document",
+  "family": "word",
+  "extensions": ["docx", "docm", "dotx", "dotm"],
+  "mimeTypes": [
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-word.document.macroEnabled.12",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+    "application/vnd.ms-word.template.macroEnabled.12"
+  ],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

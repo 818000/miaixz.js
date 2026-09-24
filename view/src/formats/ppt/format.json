@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "ppt",
+  "label": "Microsoft PowerPoint binary presentation",
+  "category": "presentation",
+  "family": "powerpoint",
+  "extensions": ["ppt", "pps", "pot"],
+  "mimeTypes": ["application/vnd.ms-powerpoint"],
+  "implementation": "recognized",
+  "entry": "./driver.ts"
+}

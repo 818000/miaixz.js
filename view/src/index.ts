@@ -18,30 +18,111 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-export { FileView } from "./file/file-view.js";
-export type { FileViewProps } from "./file/file-view.types.js";
-export { MiaixzViewError } from "./errors/view-error.js";
-export type { MiaixzViewErrorCode } from "./errors/view-error.js";
-export { ImageView } from "./image/image-view.js";
+/**
+ * Exposes the primary public API of the file-viewer package.
+ */
+
+export { FileView } from "./shell/file/file-view.js";
+export type {
+  FileViewHandle,
+  FileViewLabels,
+  FileViewProps,
+  FileViewSlotProps,
+} from "./shell/file/file-view.types.js";
+export { MiaixzViewError } from "./shared/errors/view-error.js";
+export type { MiaixzViewErrorCode } from "./shared/errors/view-error.js";
+export { ViewerError } from "./shared/errors/viewer-error.js";
+export type {
+  ViewerErrorCategory,
+  ViewerErrorCode,
+  ViewerErrorStage,
+  ViewerRecoveryAction,
+} from "./shared/errors/viewer-error.js";
+export { browserBaseline, detectBrowserSupport } from "./runtime/browser-support.js";
+export type { BrowserSupport } from "./runtime/browser-support.js";
+export type {
+  DocumentEvent,
+  ViewerCapabilities,
+  ViewerCommand,
+} from "./shared/contracts/capability.js";
+export {
+  WORKER_PROTOCOL_VERSION,
+  assertWorkerProtocolVersion,
+} from "./workers/protocol/worker-protocol.js";
+export type { WorkerRequest, WorkerResponse } from "./workers/protocol/worker-protocol.js";
+export {
+  defaultResourceBudget,
+  hardResourceBudget,
+  resolveResourceBudget,
+} from "./runtime/resource-budget.js";
+export type { ResourceBudget } from "./shared/contracts/resource-budget.js";
+export { ViewerController, openViewerDocument } from "./runtime/viewer-controller.js";
+export type {
+  OpenDocumentOptions,
+  OpenedDocument,
+  ViewerControllerState,
+} from "./runtime/viewer-controller.js";
+export {
+  detectFormat,
+  getFormatDescriptors,
+  getFormatManifest,
+  getFormatParityRecords,
+} from "./runtime/detect-format.js";
+export { createDefaultRegistry } from "./runtime/default-registry.js";
+export { DriverRegistry } from "./runtime/driver-registry.js";
+export { DefaultFileResourceProvider } from "./runtime/file-source.js";
+export type {
+  FormatDescriptor,
+  FormatDecision,
+  FormatDriverId,
+  FormatEvidence,
+  FormatManifestRecord,
+  FormatParityRecord,
+  SupportLevel,
+} from "./shared/contracts/format.js";
+export type {
+  FileResourceProvider,
+  FileViewSource,
+  FileViewSourceDescriptor,
+  RandomAccessResource,
+  RelatedResourceRequest,
+  RemoteFileSource,
+} from "./shared/contracts/source.js";
+export type {
+  DriverContext,
+  ProbeContext,
+  ProbeResult,
+  ViewerDriver,
+  ViewerProgress,
+} from "./shared/contracts/driver.js";
+export type {
+  ArchiveDocument,
+  BinaryDocument,
+  DiagramEdge,
+  DiagramGraph,
+  DiagramNode,
+  DiagramWarning,
+  DrawingScene,
+  DrawingShape,
+  FlowDocument,
+  MediaDocument,
+  PagedDocument,
+  ParseOutcome,
+  SceneDocument,
+  SceneMesh,
+  SceneNode,
+  Rectangle,
+  SpreadsheetDocument,
+  TextDocument,
+  ViewerDocument,
+} from "./shared/contracts/document.js";
+export { ImageView } from "./shell/image/image-view.js";
 export type {
   ImageViewLabels,
   ImageViewProps,
   ImageViewSlotProps,
-} from "./image/image-view.types.js";
-export { OfficeView } from "./office/office-view.js";
-export type {
-  OfficeViewLabels,
-  OfficeViewProps,
-  OfficeViewSlotProps,
-  OnlyOfficeDocument,
-  OnlyOfficeDocumentType,
-  OnlyOfficeEditorConfig,
-} from "./office/office-view.types.js";
-export { PdfView } from "./pdf/pdf-view.js";
-export type {
-  PdfDocumentInfo,
-  PdfViewLabels,
-  PdfViewProps,
-  PdfViewSlotProps,
-  PdfViewSource,
-} from "./pdf/pdf-view.types.js";
+} from "./shell/image/image-view.types.js";
+export { OfficeView } from "./shell/office/office-view.js";
+export type { OfficeViewProps } from "./shell/office/office-view.types.js";
+export { PdfView } from "./shell/pdf/pdf-view.js";
+export type { PdfViewProps } from "./shell/pdf/pdf-view.types.js";

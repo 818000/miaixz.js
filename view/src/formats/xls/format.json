@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "xls",
+  "label": "Microsoft Excel binary workbook",
+  "category": "spreadsheet",
+  "family": "excel",
+  "extensions": ["xls", "xlt", "xlsb"],
+  "mimeTypes": [
+    "application/vnd.ms-excel",
+    "application/vnd.ms-excel.sheet.binary.macroEnabled.12"
+  ],
+  "implementation": "recognized",
+  "entry": "./driver.ts"
+}

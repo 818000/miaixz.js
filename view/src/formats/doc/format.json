@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "doc",
+  "label": "Microsoft Word binary document",
+  "category": "document",
+  "family": "word",
+  "extensions": ["doc", "dot"],
+  "mimeTypes": ["application/msword"],
+  "implementation": "recognized",
+  "entry": "./driver.ts"
+}

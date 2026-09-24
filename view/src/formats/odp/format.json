@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "odp",
+  "label": "OpenDocument presentation",
+  "category": "presentation",
+  "extensions": ["odp", "fodp", "otp"],
+  "mimeTypes": [
+    "application/vnd.oasis.opendocument.presentation",
+    "application/vnd.oasis.opendocument.presentation-template"
+  ],
+  "implementation": "recognized",
+  "entry": "./driver.ts"
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "obj",
+  "label": "Wavefront OBJ model",
+  "category": "model-3d",
+  "extensions": ["obj"],
+  "mimeTypes": ["model/obj", "text/plain"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

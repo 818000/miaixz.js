@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "drawio",
+  "label": "Draw.io diagram",
+  "category": "diagram",
+  "extensions": ["drawio", "dio"],
+  "mimeTypes": ["application/vnd.jgraph.mxfile"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

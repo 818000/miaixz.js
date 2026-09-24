@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "mp4",
+  "label": "MPEG-4 media",
+  "category": "video",
+  "extensions": ["mp4", "m4v"],
+  "mimeTypes": ["video/mp4", "video/x-m4v"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

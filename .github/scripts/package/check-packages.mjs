@@ -160,7 +160,6 @@ function validateManifest({ directory, manifest, name, rootPath }) {
     }
   }
   if (name === "@miaixz/view") {
-    readFileSync(join(rootPath, "dist/pdf/pdf.worker.min.mjs"));
     const styles = readFileSync(join(rootPath, "dist/styles.css"), "utf8");
     if (!styles.includes(".miaixz-preview") || /\.miaixz-view(?:-|\b)/u.test(styles)) {
       throw new Error(`${directory}/dist/styles.css must use only the miaixz-preview namespace`);
@@ -462,14 +461,14 @@ async function runBrowserSmoke(directory) {
     );
 
     await page
-      .getByRole("toolbar", { name: "Image preview controls" })
+      .getByRole("toolbar", { name: "File preview controls" })
+      .first()
       .getByRole("button", { name: "Zoom in", exact: true })
       .click();
     assertEqual(await page.getByText("125%").textContent(), "125%", "Image zoom output");
-    await page.getByRole("img", { name: "1 / 1" }).waitFor();
-    await page.waitForFunction(() => window.__miaixzPackedOfficeCreated === 1);
-    await page.getByRole("button", { name: "Remove Office", exact: true }).click();
-    await page.waitForFunction(() => window.__miaixzPackedOfficeDestroyed === 1);
+    await page.getByRole("img", { name: "pixel.gif" }).waitFor();
+    await page.locator(".miaixz-preview-page").waitFor();
+    await page.getByText("Packed text", { exact: true }).waitFor();
     if (browserErrors.length > 0) {
       throw new Error(`Packed browser emitted errors:\n${browserErrors.join("\n")}`);
     }
@@ -540,9 +539,9 @@ try {
         </form>
         <Dialog open={false} onOpenChange={() => {}} title="Dialog">Content</Dialog>
         <Graph aria-label="Graph" edges={[]} nodes={[{ id: "one", label: "One", x: 50, y: 50, tone: "neutral" }]} tableCaption="Graph data" />
-        <FileView alt="Preview" controls={false} kind="image" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
-        <FileView kind="pdf" src={new Uint8Array([37, 80, 68, 70])} />
-        <FileView config={{ documentType: "word", document: { fileType: "docx", key: "one", title: "One", url: "https://files.example.test/one.docx" } }} documentServerUrl="http://127.0.0.1" kind="office" />
+        <FileView name="pixel.gif" source={new Uint8Array([71, 73, 70, 56, 57, 97])} />
+        <FileView name="document.pdf" source={new Uint8Array([37, 80, 68, 70])} />
+        <FileView name="note.txt" source={new TextEncoder().encode("Packed text")} />
       </Theme>
     </MiaixzLocaleProvider>,
   );
@@ -550,7 +549,7 @@ try {
   console.error = originalConsoleError;
 }
 if (consoleErrors.length > 0) throw new Error("Packed SSR emitted console errors");
-if (!html.includes("miaixz-button") || !html.includes("Graph data") || !html.includes("miaixz-preview-image") || !html.includes("miaixz-preview-pdf") || !html.includes("miaixz-preview-office")) throw new Error("Packed SSR output is incomplete");
+if (!html.includes("miaixz-button") || !html.includes("Graph data") || !html.includes("miaixz-file-view")) throw new Error("Packed SSR output is incomplete");
 `;
 }
 
@@ -574,12 +573,11 @@ import { createRoot } from "react-dom/client";
 const appearance = createMiaixzAppearanceManager({ appId: "packed-browser" });
 const i18n = createMiaixzI18n();
 const option = { kind: "option" as const, id: "one", value: "one", label: "One", textValue: "One" };
-const officeConfig = { documentType: "word", document: { fileType: "docx", key: "one", title: "One", url: "http://127.0.0.1/one.docx" } } as const;
+const gifBytes = Uint8Array.from(atob("R0lGODlhAQABAAAAACw="), character => character.charCodeAt(0));
 
 function App() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formResult, setFormResult] = useState("");
-  const [showOffice, setShowOffice] = useState(true);
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -612,16 +610,9 @@ function App() {
           ]}
           tableCaption="Graph data"
         />
-        <FileView alt="Packed preview" kind="image" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
-        <FileView kind="pdf" src={Uint8Array.from(atob("${onePagePdfBase64}"), character => character.charCodeAt(0))} />
-        {showOffice && (
-          <FileView
-            config={officeConfig}
-            documentServerUrl={window.location.origin}
-            kind="office"
-          />
-        )}
-        <Button onClick={() => setShowOffice(false)}>Remove Office</Button>
+        <FileView name="pixel.gif" source={gifBytes} />
+        <FileView name="document.pdf" source={Uint8Array.from(atob("${onePagePdfBase64}"), character => character.charCodeAt(0))} />
+        <FileView name="note.txt" source={new TextEncoder().encode("Packed text")} />
       </Theme>
     </MiaixzLocaleProvider>
   );
@@ -629,22 +620,6 @@ function App() {
 
 const root = document.getElementById("root");
 if (root === null) throw new Error("Packed browser root is missing");
-type PackedWindow = Window & {
-  DocsAPI?: { DocEditor: new (target: string, config: unknown) => { destroyEditor(): void } };
-  __miaixzPackedOfficeCreated?: number;
-  __miaixzPackedOfficeDestroyed?: number;
-};
-const packedWindow = window as PackedWindow;
-packedWindow.DocsAPI = {
-  DocEditor: class {
-    constructor() {
-      packedWindow.__miaixzPackedOfficeCreated = (packedWindow.__miaixzPackedOfficeCreated ?? 0) + 1;
-    }
-    destroyEditor() {
-      packedWindow.__miaixzPackedOfficeDestroyed = (packedWindow.__miaixzPackedOfficeDestroyed ?? 0) + 1;
-    }
-  },
-};
 createRoot(root).render(<App />);
 `;
 }

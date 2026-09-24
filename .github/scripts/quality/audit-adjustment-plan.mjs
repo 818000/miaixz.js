@@ -98,7 +98,7 @@ for (const name of calls.keys())
   if (!registryNames.includes(name)) failures.push(`unregistered Theme consumer: ${name}`);
 
 const protocolSource = readFileSync(
-  resolve(sdkWorkspace.rootPath, "src/contracts/module-manifest.ts"),
+  resolve(sdkWorkspace.rootPath, "src/runtime/contracts/module-manifest.ts"),
   "utf8",
 );
 const protocolVersion = /MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*"([^"]+)"/u.exec(protocolSource)?.[1];
