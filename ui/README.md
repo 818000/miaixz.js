@@ -323,19 +323,26 @@ Components can be imported from the package root or from stable subpaths:
 ```tsx
 import { Button } from "@miaixz/ui/button";
 import { Graph } from "@miaixz/ui/diagram/graph";
-import { Icon, type MiaixzIconName } from "@miaixz/ui/icons";
+import { ICON_NAMES, Icon, type IconName } from "@miaixz/ui/icons";
 import "@miaixz/ui/button/styles.css";
 import "@miaixz/ui/diagram/graph/styles.css";
 
-const tenantIcon: MiaixzIconName = "Blocks";
+const tenantIcon: IconName = ICON_NAMES.BLOCKS;
 
 <Icon name={tenantIcon} size="navigation" />;
 ```
 
-`Icon` accepts every Lucide catalog name in PascalCase through the stable Miaixz `name` contract.
-Frequently used icons render synchronously and the rest load on demand. Business code must not
-import Lucide components directly or pass icon components into `Icon`; this keeps call sites stable
-if the underlying icon provider changes. Do not import from `dist` or from internal source paths.
+`Icon` accepts the complete provider-neutral Miaixz `IconName` catalog. Names are lower-case
+kebab-case values and are also available through `ICON_NAMES`, the sole name definition. Icons load
+on demand through an immutable registry. Applications may select Lucide, Font Awesome, Iconfont,
+or a custom dependency-owned provider without changing business `<Icon name={...} />` call sites.
+Do not import provider components, `dist`, or internal source paths directly.
+
+Every built-in provider is a self-contained trio under `src/icons/providers`: `xx-module.ts`
+contains mappings or module construction, `xx-provider.ts` exposes the lazy provider entry, and
+`xx-provider.json` declares dependencies and validation policy. The icon-system check discovers
+these declarations automatically; adding a provider must not require provider-specific checker
+code.
 
 Product intent definitions are available only from their dedicated subpath:
 

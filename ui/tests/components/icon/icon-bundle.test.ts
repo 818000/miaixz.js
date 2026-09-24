@@ -30,7 +30,7 @@ describe("Icon bundle boundary", () => {
     const result = await build({
       stdin: {
         contents:
-          'import React from "react"; import { Icon } from "./src/icons/index.ts"; export const Example = () => React.createElement(Icon, { name: "Blocks" });',
+          'import React from "react"; import { Icon } from "./src/icons/index.ts"; export const Example = () => React.createElement(Icon, { name: "blocks" });',
         resolveDir: process.cwd(),
         sourcefile: "icon-consumer.mjs",
       },
@@ -50,10 +50,17 @@ describe("Icon bundle boundary", () => {
     }));
     const entry = outputs.find((output) => output.entryPoint === "icon-consumer.mjs");
     const lazyChunks = outputs.filter((output) => output.path !== entry?.path);
+    const providerModules = outputs.filter((output) => output.entryPoint?.includes("-module.ts"));
+    const individualIcons = outputs.filter(
+      (output) =>
+        output.entryPoint?.includes("node_modules/lucide-react/dist/esm/icons/") ||
+        output.entryPoint?.includes("node_modules/@fortawesome/free-"),
+    );
 
     expect(entry).toBeDefined();
-    expect(entry!.bytes).toBeLessThan(180_000);
+    expect(entry!.bytes).toBeLessThan(10_000);
     expect(lazyChunks.length).toBeGreaterThan(2_000);
-    expect(Math.max(...lazyChunks.map((chunk) => chunk.bytes))).toBeLessThan(5_000);
+    expect(Math.max(...providerModules.map((chunk) => chunk.bytes))).toBeLessThan(180_000);
+    expect(Math.max(...individualIcons.map((chunk) => chunk.bytes))).toBeLessThan(5_000);
   });
 });

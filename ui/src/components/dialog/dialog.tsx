@@ -316,7 +316,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
                     ownedProps: ["type", "aria-label"],
                   })}
                 >
-                  <Icon name="X" size="control" />
+                  <Icon name="close" size="control" />
                 </button>
               )}
             </div>

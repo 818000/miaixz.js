@@ -171,7 +171,7 @@ export const TimePicker = withMiaixzThemeComponent(
         disabled={disabled || readOnly}
         onClick={coarsePointer ? () => setOpen(true) : undefined}
       >
-        <Icon name="Clock" size="control" />
+        <Icon name="clock" size="control" />
       </button>
     );
     const adornment = (
@@ -188,7 +188,7 @@ export const TimePicker = withMiaixzThemeComponent(
             disabled={disabled}
             onClick={() => commit(null)}
           >
-            <Icon name="X" size="indicator" />
+            <Icon name="close" size="indicator" />
           </button>
         )}
         {coarsePointer ? (

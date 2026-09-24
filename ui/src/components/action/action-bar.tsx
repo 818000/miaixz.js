@@ -159,7 +159,7 @@ function ActionBar(properties: ActionBarProps) {
               id: "more-actions-measurement",
               kind: "command",
               label: t("ui.action.more"),
-              icon: "Ellipsis",
+              icon: "more-horizontal",
               onAction: () => undefined,
             }}
           />

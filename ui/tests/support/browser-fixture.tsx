@@ -62,7 +62,7 @@ import {
   Tree,
   Upload,
   type CommandAction,
-  type MiaixzIconName,
+  type IconName,
 } from "../../src/index.js";
 import "../../src/theme/theme.css";
 
@@ -106,7 +106,7 @@ const legacyTheme = defineTheme({
 function commandAction(
   id: string,
   label: string,
-  icon: MiaixzIconName,
+  icon: IconName,
   options: Pick<CommandAction, "buttonProps" | "disabled" | "loading" | "tone"> = {},
 ): CommandAction {
   return { id, kind: "command", label, icon, onAction: () => undefined, ...options };
@@ -124,10 +124,10 @@ function ActionShowcase() {
         data-testid="action-baseline-page-header"
         actions={
           <ActionBar
-            primary={commandAction("showcase-create", "新建资源", "Plus", { tone: "brand" })}
+            primary={commandAction("showcase-create", "新建资源", "add", { tone: "brand" })}
             actions={[
-              commandAction("showcase-import", "导入", "Upload"),
-              commandAction("showcase-refresh", "刷新", "RefreshCw"),
+              commandAction("showcase-import", "导入", "upload"),
+              commandAction("showcase-refresh", "刷新", "refresh-cw"),
             ]}
           />
         }
@@ -142,8 +142,8 @@ function ActionShowcase() {
         actions={
           <ActionBar
             actions={[
-              commandAction("showcase-edit-card", "编辑", "Pencil"),
-              commandAction("showcase-configure-card", "配置", "Settings"),
+              commandAction("showcase-edit-card", "编辑", "pencil"),
+              commandAction("showcase-configure-card", "配置", "settings"),
             ]}
           />
         }
@@ -175,10 +175,10 @@ function ActionShowcase() {
                 <TableCell>
                   <RowActions
                     actions={[
-                      commandAction("showcase-view-row", "查看", "Eye"),
-                      commandAction("showcase-edit-row", "编辑", "Pencil"),
-                      commandAction("showcase-export-row", "导出", "Download"),
-                      commandAction("showcase-delete-row", "删除", "Trash2", {
+                      commandAction("showcase-view-row", "查看", "eye"),
+                      commandAction("showcase-edit-row", "编辑", "pencil"),
+                      commandAction("showcase-export-row", "导出", "download"),
+                      commandAction("showcase-delete-row", "删除", "delete", {
                         tone: "danger",
                       }),
                     ]}
@@ -194,10 +194,10 @@ function ActionShowcase() {
         data-testid="action-baseline-icon-actions"
         actions={
           <div aria-label="图标操作" className="miaixz-action-bar" role="toolbar">
-            <IconButton icon="ArrowLeft" label="返回" onClick={() => undefined} />
-            <IconButton icon="Star" label="收藏" pressed onClick={() => undefined} />
-            <IconButton icon="X" label="关闭" onClick={() => undefined} />
-            <IconButton icon="Ellipsis" label="更多" onClick={() => undefined} />
+            <IconButton icon="arrow-left" label="返回" onClick={() => undefined} />
+            <IconButton icon="star" label="收藏" pressed onClick={() => undefined} />
+            <IconButton icon="close" label="关闭" onClick={() => undefined} />
+            <IconButton icon="more-horizontal" label="更多" onClick={() => undefined} />
           </div>
         }
         description="仅用于空间受限且图标含义明确的操作"
@@ -215,13 +215,13 @@ function ActionShowcase() {
           cancel={{
             id: "showcase-cancel",
             label: "取消",
-            icon: "CircleX",
+            icon: "circle-x",
             onAction: () => undefined,
           }}
           submit={{
             id: "showcase-save",
             label: "保存",
-            icon: "Save",
+            icon: "save",
             tone: "brand",
           }}
         />
@@ -229,13 +229,13 @@ function ActionShowcase() {
           cancel={{
             id: "showcase-cancel-loading",
             label: "取消",
-            icon: "CircleX",
+            icon: "circle-x",
             onAction: () => undefined,
           }}
           submit={{
             id: "showcase-save-loading",
             label: "保存",
-            icon: "Save",
+            icon: "save",
             tone: "brand",
             loading: true,
           }}
@@ -244,13 +244,13 @@ function ActionShowcase() {
           cancel={{
             id: "showcase-cancel-disabled",
             label: "取消",
-            icon: "CircleX",
+            icon: "circle-x",
             onAction: () => undefined,
           }}
           submit={{
             id: "showcase-save-disabled",
             label: "保存",
-            icon: "Save",
+            icon: "save",
             tone: "brand",
             disabled: true,
           }}
@@ -259,13 +259,13 @@ function ActionShowcase() {
           cancel={{
             id: "showcase-cancel-danger",
             label: "取消",
-            icon: "CircleX",
+            icon: "circle-x",
             onAction: () => undefined,
           }}
           submit={{
             id: "showcase-delete-confirm",
             label: "确认删除",
-            icon: "Trash2",
+            icon: "delete",
             tone: "danger",
           }}
         />
@@ -278,29 +278,29 @@ function ActionShowcase() {
       >
         <div aria-label="操作状态矩阵" className="miaixz-action-bar" role="group">
           <ActionText
-            action={commandAction("showcase-default", "默认", "Pencil", {
+            action={commandAction("showcase-default", "默认", "pencil", {
               buttonProps: { "data-testid": "action-default" },
             })}
           />
           <ActionText
-            action={commandAction("showcase-brand", "品牌", "ShieldCheck", {
+            action={commandAction("showcase-brand", "品牌", "shield-check", {
               tone: "brand",
               buttonProps: { "data-testid": "action-brand" },
             })}
           />
           <ActionText
-            action={commandAction("showcase-danger", "危险", "Trash2", {
+            action={commandAction("showcase-danger", "危险", "delete", {
               tone: "danger",
               buttonProps: { "data-testid": "action-danger" },
             })}
           />
           <ActionText
-            action={commandAction("showcase-disabled", "禁用", "Pencil", {
+            action={commandAction("showcase-disabled", "禁用", "pencil", {
               disabled: true,
             })}
           />
           <ActionText
-            action={commandAction("showcase-loading", "加载", "RefreshCw", {
+            action={commandAction("showcase-loading", "加载", "refresh-cw", {
               loading: true,
             })}
           />
@@ -624,7 +624,7 @@ export function BrowserFixture() {
                     id: "view-table",
                     kind: "navigation",
                     label: "查看表格",
-                    icon: "Eye",
+                    icon: "eye",
                     tone: "neutral",
                     href: "#tables",
                   }}
@@ -641,7 +641,7 @@ export function BrowserFixture() {
               <Button loading loadingLabel="正在保存">
                 保存
               </Button>
-              <IconButton icon="RefreshCw" label="刷新" onClick={() => undefined} />
+              <IconButton icon="refresh-cw" label="刷新" onClick={() => undefined} />
               <Button
                 onClick={() =>
                   appearance.setDensity(

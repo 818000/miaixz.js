@@ -135,7 +135,7 @@ export function ComboboxOption<Value extends string>(props: ComboboxOptionProps<
       ) : (
         props.renderOption(props.option, state)
       )}
-      {props.selected && <Icon name="Check" size="control" />}
+      {props.selected && <Icon name="confirm" size="control" />}
     </div>
   );
 }

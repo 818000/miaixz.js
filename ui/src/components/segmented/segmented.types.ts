@@ -20,14 +20,14 @@
 
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 
-import type { MiaixzIconName } from "../../icons/icon-name.generated.js";
+import type { IconName } from "../../icons/icon-names.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 export interface SegmentedItem<Value extends string = string> {
   readonly value: Value;
   readonly label: ReactNode;
   readonly textValue: string;
-  readonly icon?: MiaixzIconName;
+  readonly icon?: IconName;
   readonly disabled?: boolean;
 }
 

@@ -163,11 +163,11 @@ export function ComboboxInput(props: ComboboxInputProps) {
       {props.afterInput}
       {props.clearable && !state.disabled && (
         <button {...clearProps}>
-          <Icon name="X" size="indicator" />
+          <Icon name="close" size="indicator" />
         </button>
       )}
       <button {...toggleProps}>
-        <Icon name="ChevronDown" size="control" />
+        <Icon name="chevron-down" size="control" />
       </button>
     </div>
   );

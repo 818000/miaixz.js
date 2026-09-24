@@ -140,7 +140,7 @@ export const Pagination = withMiaixzThemeComponent(
                     ownedProps: ["type", "disabled", "aria-label"],
                   })}
                 >
-                  <Icon aria-hidden="true" name="ChevronLeft" size="control" />
+                  <Icon aria-hidden="true" name="chevron-left" size="control" />
                 </button>
               </li>
             )}
@@ -194,7 +194,7 @@ export const Pagination = withMiaixzThemeComponent(
                     ownedProps: ["type", "disabled", "aria-label"],
                   })}
                 >
-                  <Icon aria-hidden="true" name="ChevronRight" size="control" />
+                  <Icon aria-hidden="true" name="chevron-right" size="control" />
                 </button>
               </li>
             )}

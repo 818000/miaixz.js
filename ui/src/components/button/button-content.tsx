@@ -120,7 +120,7 @@ export function MiaixzButtonContent(properties: MiaixzButtonContentProps) {
       {ownerState.loading && (
         <>
           <span {...indicatorProps}>
-            <Icon className="miaixz-button-spinner" name="LoaderCircle" size="control" />
+            <Icon className="miaixz-button-spinner" name="loading" size="control" />
           </span>
           <span className="miaixz-hidden" role="status" aria-live="polite">
             {loadingLabel}

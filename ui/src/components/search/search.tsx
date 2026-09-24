@@ -109,7 +109,7 @@ export const Search = withMiaixzThemeComponent(
     const clearAction = canClear ? (
       <span className="miaixz-search-clear">
         <IconButton
-          icon="X"
+          icon="close"
           label={resolvedClearLabel}
           size="small"
           {...(clearRootProps === undefined ? {} : { slotProps: { root: clearRootProps } })}
@@ -150,7 +150,7 @@ export const Search = withMiaixzThemeComponent(
         }}
         startAdornment={
           <span {...startProps}>
-            <Icon name="Search" size="control" />
+            <Icon name="search" size="control" />
           </span>
         }
         type="search"

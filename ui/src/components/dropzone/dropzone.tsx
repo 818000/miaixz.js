@@ -234,7 +234,7 @@ export const Dropzone = withMiaixzThemeComponent(
       <div {...rootProps}>
         <input {...inputProps} />
         <button {...triggerProps}>
-          <Icon name="Upload" size="feature" className="miaixz-dropzone-icon" />
+          <Icon name="upload" size="feature" className="miaixz-dropzone-icon" />
           <span {...contentProps}>{children}</span>
         </button>
       </div>

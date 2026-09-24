@@ -18,10 +18,14 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { forwardRef } from "react";
+import { forwardRef, Suspense, type ForwardedRef } from "react";
 
-import type { IconProviderProps } from "../../icons/icon-provider.js";
-import { renderLucideIcon } from "../../icons/providers/lucide-provider.js";
+import { useIconRegistry } from "../../icons/icon-context.js";
+import {
+  IconPlaceholder,
+  renderIconDefinition,
+  type IconRendererProps,
+} from "../../icons/icon-renderer.js";
 import { classNames } from "../../shared/class-names.js";
 import type { IconProps, IconSize } from "./icon.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -34,6 +38,27 @@ const semanticSizes = new Set<IconSize>([
   "feature",
   "display",
 ]);
+
+/**
+ * Resolves and renders one icon inside the nearest registry boundary.
+ *
+ * @param options - Resolution and renderer properties.
+ * @returns The resolved icon or its error placeholder.
+ */
+function ResolvedIcon(options: {
+  readonly name: IconProps["name"];
+  readonly properties: IconRendererProps;
+  readonly reference: ForwardedRef<SVGSVGElement>;
+}) {
+  const { name, properties, reference } = options;
+  const registry = useIconRegistry();
+  const definition = registry.read(name);
+  return definition ? (
+    renderIconDefinition(definition, properties, reference)
+  ) : (
+    <IconPlaceholder properties={properties} reference={reference} state="error" />
+  );
+}
 
 /**
  * Renders an icon through the unified Miaixz size and accessibility contract.
@@ -51,7 +76,7 @@ export const Icon = withMiaixzThemeComponent(
         ? (size as IconSize)
         : undefined;
     const pixelSize = semanticSize ? undefined : size;
-    const providerProps: IconProviderProps = {
+    const rendererProps: IconRendererProps = {
       ...(pixelSize === undefined ? {} : { width: pixelSize, height: pixelSize }),
       ...props,
       ...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true }),
@@ -64,6 +89,12 @@ export const Icon = withMiaixzThemeComponent(
       ),
     };
 
-    return renderLucideIcon(name, providerProps, ref);
+    return (
+      <Suspense
+        fallback={<IconPlaceholder properties={rendererProps} reference={ref} state="loading" />}
+      >
+        <ResolvedIcon name={name} properties={rendererProps} reference={ref} />
+      </Suspense>
+    );
   }),
 );

@@ -133,7 +133,7 @@ export const Disclosure = withMiaixzThemeComponent(
                 ownedProps: ["aria-hidden"],
               })}
             >
-              <Icon name="ChevronDown" size="control" />
+              <Icon name="chevron-down" size="control" />
             </span>
           </button>,
         )}

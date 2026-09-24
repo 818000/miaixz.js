@@ -18,7 +18,7 @@ describe("global link and command semantics", () => {
             id: "audit",
             kind: "navigation",
             label: "查看审计",
-            icon: "Eye",
+            icon: "eye",
             tone: "neutral",
             href: "/audit",
           }}
@@ -28,7 +28,7 @@ describe("global link and command semantics", () => {
             id: "execute",
             kind: "command",
             label: "执行操作",
-            icon: "ShieldCheck",
+            icon: "shield-check",
             tone: "neutral",
             onAction: execute,
           }}

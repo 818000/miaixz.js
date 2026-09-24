@@ -31,7 +31,7 @@ const virtualId = "\0miaixz-theme-preset-manifest";
  * Published packages use the build-generated dist manifest instead; this virtual module keeps
  * tests and the source browser fixture free of a committed theme-name registry.
  *
- * @returns {object} Vite plugin that supplies the discovered preset manifest in memory.
+ * @returns {import("vite").Plugin} Vite plugin that supplies the discovered preset manifest in memory.
  */
 export function themePresetPlugin() {
   const uiWorkspace = loadWorkspaceRepository().workspaces.find(

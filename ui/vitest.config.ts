@@ -39,8 +39,8 @@ export default defineConfig({
         "**/*.d.ts",
         "src/index.ts",
         "src/**/index.ts",
-        "src/icons/icon-name.generated.ts",
-        "src/icons/icon-name-overrides.generated.ts",
+        "src/icons/providers/lucide-module.ts",
+        "src/icons/providers/fontawesome-module.ts",
       ],
       thresholds: {
         lines: 85,

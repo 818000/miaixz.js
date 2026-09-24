@@ -140,10 +140,10 @@ export const Rating = withMiaixzThemeComponent(
                 })}
                 aria-hidden="true"
               >
-                <Icon name="Star" size="feature" />
+                <Icon name="star" size="feature" />
               </span>
               <span className="miaixz-rating-fill" aria-hidden="true">
-                <Icon name={fill === "half" ? "StarHalf" : "Star"} size="feature" />
+                <Icon name={fill === "half" ? "star-half" : "star"} size="feature" />
               </span>
               {options.map((option) => (
                 <label

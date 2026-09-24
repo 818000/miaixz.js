@@ -376,7 +376,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
       <button {...triggerProps}>
         <span {...valueProps}>{selected?.label ?? "\u00a0"}</span>
         <span {...iconProps}>
-          <Icon name="ChevronDown" size="control" />
+          <Icon name="chevron-down" size="control" />
         </span>
       </button>
       {validationInvalid && <span {...validationProps}>{t("ui.select.required")}</span>}

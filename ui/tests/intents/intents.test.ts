@@ -35,7 +35,7 @@ describe("intent definitions", () => {
     expect(definition).toBe(intentDefinitions.delete);
     expect(definition).toEqual({
       labelKey: "ui.action.delete",
-      icon: "Trash2",
+      icon: "delete",
       tone: "danger",
     });
     expect(Object.isFrozen(intentDefinitions)).toBe(true);

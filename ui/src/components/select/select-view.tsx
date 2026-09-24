@@ -113,7 +113,7 @@ export function renderSelectEntries(
     return (
       <div key={option.id} {...optionProps}>
         <span className="miaixz-select-option-label">{option.label}</span>
-        {selected && <Icon name="Check" size="control" />}
+        {selected && <Icon name="confirm" size="control" />}
       </div>
     );
   };

@@ -25,7 +25,7 @@ import type {
   ReactNode,
   RefAttributes,
 } from "react";
-import type { MiaixzIconName } from "../../icons/icon-name.generated.js";
+import type { IconName } from "../../icons/icon-names.js";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 import type { IconProps } from "../icon/icon.types.js";
 
@@ -38,7 +38,7 @@ export interface NavigationEntry {
   readonly textValue: string;
   readonly href: string;
   readonly current?: AriaAttributes["aria-current"];
-  readonly icon?: MiaixzIconName;
+  readonly icon?: IconName;
   readonly meta?: ReactNode;
   readonly anchorProps?: Omit<
     AnchorHTMLAttributes<HTMLAnchorElement>,

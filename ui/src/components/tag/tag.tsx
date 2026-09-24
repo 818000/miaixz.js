@@ -178,7 +178,7 @@ export const Tag = withMiaixzThemeComponent(
               }
             }}
           >
-            <Icon name="X" size="indicator" />
+            <Icon name="close" size="indicator" />
           </button>
         )}
       </span>

@@ -20,9 +20,9 @@
 
 import { forwardRef, useState } from "react";
 
-import type { IconProviderProps } from "../../icons/icon-provider.js";
-import { renderLucideIcon } from "../../icons/providers/lucide-provider.js";
+import { ICON_NAMES } from "../../icons/icon-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { Icon } from "../icon/icon.js";
 import type { AvatarOwnerState, AvatarProps, AvatarRootAttributes } from "./avatar.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
@@ -64,12 +64,14 @@ function createAltFallback(alt: string): string {
  * @returns Decorative user silhouette from the configured icon provider.
  */
 function createGenericAvatarFallback() {
-  const props: IconProviderProps = {
-    "aria-hidden": true,
-    className: "miaixz-icon miaixz-icon-control miaixz-avatar-generic-icon",
-    focusable: "false",
-  };
-  return renderLucideIcon("UserRound", props, null);
+  return (
+    <Icon
+      aria-hidden
+      className="miaixz-avatar-generic-icon"
+      name={ICON_NAMES.USER_ROUND}
+      size="control"
+    />
+  );
 }
 
 /**

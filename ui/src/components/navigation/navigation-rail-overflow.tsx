@@ -158,7 +158,7 @@ export const RailOverflow = forwardRef<HTMLButtonElement, RailOverflowProps>(fun
             title={ownerState.expanded ? undefined : label}
           >
             <span className="miaixz-navigation-icon">
-              <Icon aria-hidden="true" name="Ellipsis" size="navigation" />
+              <Icon aria-hidden="true" name="more-horizontal" size="navigation" />
             </span>
             <span className="miaixz-navigation-label">{label}</span>
           </Pressable>

@@ -20,7 +20,7 @@
 
 import type { ComponentPropsWithoutRef } from "react";
 
-import type { MiaixzIconName } from "../../icons/icon-names.js";
+import type { IconName } from "../../icons/icon-names.js";
 
 /**
  * Defines semantic icon sizes managed by the design system.
@@ -49,9 +49,9 @@ export interface IconProps extends Omit<
   "children" | "name" | "size" | "stroke"
 > {
   /**
-   * Selects an icon from the complete Miaixz icon catalog.
+   * * Selects an icon from the complete Miaixz icon catalog.
    */
-  readonly name: MiaixzIconName;
+  readonly name: IconName;
   /**
    * Selects a semantic size or supplies a native SVG size.
    *
@@ -65,7 +65,7 @@ export interface IconProps extends Omit<
    */
   readonly stroke?: IconStroke;
   /**
-   * Provides an accessible name for a meaningful icon.
+   * * Provides an accessible name for a meaningful icon.
    */
   readonly label?: string;
 }

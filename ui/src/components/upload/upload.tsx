@@ -22,6 +22,7 @@ import { forwardRef, useMemo, useState, type ReactElement } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { UploadFileRecord } from "../../shared/upload/types.js";
 import { useUploadQueue } from "../../shared/upload/use-upload-queue.js";
@@ -188,7 +189,7 @@ export const Upload = withMiaixzThemeComponent(
         </div>
         {validationErrors.length > 0 ? (
           <div {...validationProps}>
-            <Icon aria-hidden="true" name="CircleAlert" size="inline" />
+            <Icon aria-hidden="true" name="circle-alert" size="inline" />
             <ul className="miaixz-upload-validation-list">
               {[...new Set(validationErrors.map((error) => error.message))].map((message) => (
                 <li key={message}>{message}</li>
@@ -217,7 +218,7 @@ export const Upload = withMiaixzThemeComponent(
                   {record.source.kind === "local" && record.status === "failed" ? (
                     <IconButton
                       disabled={disabled}
-                      icon="RefreshCw"
+                      icon="refresh-cw"
                       label={t("ui.action.retry")}
                       onClick={() => queue.retry(record.id)}
                       size="small"
@@ -225,7 +226,7 @@ export const Upload = withMiaixzThemeComponent(
                   ) : null}
                   <IconButton
                     disabled={disabled}
-                    icon="Trash2"
+                    icon="delete"
                     label={t("ui.action.remove")}
                     onClick={() => requestRemove(record)}
                     size="small"
@@ -294,11 +295,9 @@ function getStatusKey(status: UploadFileRecord["status"]): string {
  * @param status - Current upload record state.
  * @returns Stable icon name for the state.
  */
-function getStatusIcon(
-  status: UploadFileRecord["status"],
-): "File" | "LoaderCircle" | "CircleCheck" | "CircleAlert" {
-  if (status === "uploading") return "LoaderCircle";
-  if (status === "succeeded") return "CircleCheck";
-  if (status === "failed") return "CircleAlert";
-  return "File";
+function getStatusIcon(status: UploadFileRecord["status"]): IconName {
+  if (status === "uploading") return ICON_NAMES.LOADING;
+  if (status === "succeeded") return ICON_NAMES.CIRCLE_CHECK;
+  if (status === "failed") return ICON_NAMES.CIRCLE_ALERT;
+  return ICON_NAMES.FILE;
 }
