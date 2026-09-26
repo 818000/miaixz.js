@@ -1,0 +1,138 @@
+{
+  "name": "@miaixz/sdk",
+  "version": "0.6.5",
+  "description": "Miaixz API client, runtime contracts, formatters, and utilities.",
+  "type": "module",
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "license": "Apache-2.0",
+  "author": "The Miaixz Team",
+  "homepage": "https://github.com/818000/miaixz.js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/818000/miaixz.js.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/818000/miaixz.js/issues"
+  },
+  "keywords": [
+    "miaixz",
+    "sdk",
+    "api",
+    "typescript"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./api": {
+      "types": "./dist/fabric/api/index.d.ts",
+      "import": "./dist/fabric/api/index.js"
+    },
+    "./session": {
+      "types": "./dist/access/session/index.d.ts",
+      "import": "./dist/access/session/index.js"
+    },
+    "./context": {
+      "types": "./dist/access/context/index.d.ts",
+      "import": "./dist/access/context/index.js"
+    },
+    "./config": {
+      "types": "./dist/runtime/config/index.d.ts",
+      "import": "./dist/runtime/config/index.js"
+    },
+    "./grants": {
+      "types": "./dist/access/grants/index.d.ts",
+      "import": "./dist/access/grants/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
+    },
+    "./events": {
+      "types": "./dist/runtime/events/index.d.ts",
+      "import": "./dist/runtime/events/index.js"
+    },
+    "./storage": {
+      "types": "./dist/runtime/storage/index.d.ts",
+      "import": "./dist/runtime/storage/index.js"
+    },
+    "./appearance": {
+      "types": "./dist/display/index.d.ts",
+      "import": "./dist/display/index.js"
+    },
+    "./files": {
+      "types": "./dist/fabric/files/index.d.ts",
+      "import": "./dist/fabric/files/index.js"
+    },
+    "./i18n": {
+      "types": "./dist/i18n/index.d.ts",
+      "import": "./dist/i18n/index.js"
+    },
+    "./consts": {
+      "types": "./dist/constants.d.ts",
+      "import": "./dist/constants.js"
+    },
+    "./contracts": {
+      "types": "./dist/runtime/contracts/index.d.ts",
+      "import": "./dist/runtime/contracts/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js"
+    },
+    "./formatters": {
+      "types": "./dist/i18n/formatters/index.d.ts",
+      "import": "./dist/i18n/formatters/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    }
+  },
+  "scripts": {
+    "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src tests *.config.js *.config.ts",
+    "lint:fix": "eslint src tests *.config.js *.config.ts --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check": "npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "@babel/core": "8.0.1",
+    "@babel/eslint-parser": "8.0.1",
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.4.0",
+    "@vitest/coverage-v8": "4.1.11",
+    "eslint": "10.9.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsdoc": "62.7.0",
+    "globals": "17.11.0",
+    "prettier": "3.9.6",
+    "publint": "0.3.24",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

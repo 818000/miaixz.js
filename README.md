@@ -8,11 +8,11 @@ The repository is organized as an npm workspace. All public packages use one syn
 
 ## Packages
 
-| Package                  | npm                                               | Description                                                                                                                                                                |
-| ------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@miaixz/sdk`](./sdk)   | [npm](https://www.npmjs.com/package/@miaixz/sdk)  | Browser API client, authentication, runtime context, configuration, permissions, events, files, appearance, internationalization, public types, formatters, and utilities. |
-| [`@miaixz/ui`](./ui)     | [npm](https://www.npmjs.com/package/@miaixz/ui)   | React design system with components, design tokens, themes, density modes, icons, styles, accessibility foundations, and interaction primitives.                           |
-| [`@miaixz/view`](./view) | [npm](https://www.npmjs.com/package/@miaixz/view) | Presentation-only React components for image, PDF, and Office previews.                                                                                                    |
+| Package                           | npm                                               | Description                                                                                                                                                                |
+| --------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@miaixz/sdk`](./packages/sdk)   | [npm](https://www.npmjs.com/package/@miaixz/sdk)  | Browser API client, authentication, runtime context, configuration, permissions, events, files, appearance, internationalization, public types, formatters, and utilities. |
+| [`@miaixz/ui`](./packages/ui)     | [npm](https://www.npmjs.com/package/@miaixz/ui)   | React design system with components, design tokens, themes, density modes, icons, styles, accessibility foundations, and interaction primitives.                           |
+| [`@miaixz/view`](./packages/view) | [npm](https://www.npmjs.com/package/@miaixz/view) | Presentation-only React components for image, PDF, and Office previews.                                                                                                    |
 
 ### Package relationship
 
@@ -138,18 +138,26 @@ export function PreviewExample() {
 
 See the package documentation for authentication modes, API envelopes, service clients, permissions, cross-tab events, appearance synchronization, internationalization, component contracts, and microfrontend integration:
 
-- [SDK documentation](./sdk/README.md)
-- [UI documentation](./ui/README.md)
-- [View documentation](./view/README.md)
+- [SDK documentation](./packages/sdk/README.md)
+- [UI documentation](./packages/ui/README.md)
+- [View documentation](./packages/view/README.md)
 
 ## Repository layout
 
 ```text
 .
-├── .github/            Release workflows, composite actions, and version scripts
-├── sdk/                @miaixz/sdk source and package configuration
-├── ui/                 @miaixz/ui source and package configuration
-├── view/               @miaixz/view source and package configuration
+├── .github/
+│   ├── actions/        Reusable GitHub Actions
+│   ├── workflows/      GitHub workflow configuration
+│   └── scripts/
+│       ├── modules/    UI, View, and Icons automation grouped by module
+│       ├── package/    Cross-module package validation
+│       ├── quality/    Cross-module repository quality checks
+│       └── release/    Cross-module release automation
+├── packages/
+│   ├── sdk/            @miaixz/sdk source and package configuration
+│   ├── ui/             @miaixz/ui source and package configuration
+│   └── view/           @miaixz/view source and package configuration
 ├── VERSION             Authoritative shared release version
 └── package.json        Private npm workspace root
 ```

@@ -36,9 +36,8 @@ const reactMatrix = JSON.parse(
   readFileSync(resolve(root, ".github/scripts/package/react-matrix.json"), "utf8"),
 );
 const { publicWorkspaces } = loadWorkspaceRepository(root);
-const manifests = Object.fromEntries(
-  publicWorkspaces.map(({ directory, manifest }) => [directory, manifest]),
-);
+const uiManifest = publicWorkspaces.find(({ name }) => name === "@miaixz/ui")?.manifest;
+if (uiManifest === undefined) throw new Error("The UI workspace manifest is required.");
 
 try {
   mkdirSync(packageOutputDirectory, { recursive: true });
@@ -305,8 +304,8 @@ function createPublicExportSource() {
   const bindings = [];
   const specifiers = [];
   let index = 0;
-  for (const { directory, name: packageName } of publicWorkspaces) {
-    for (const [subpath, target] of Object.entries(manifests[directory].exports)) {
+  for (const { manifest, name: packageName } of publicWorkspaces) {
+    for (const [subpath, target] of Object.entries(manifest.exports)) {
       if (typeof target === "string") continue;
       const specifier = subpath === "." ? packageName : `${packageName}${subpath.slice(1)}`;
       const binding = `publicExport${index}`;
@@ -337,7 +336,7 @@ for (const specifier of ${JSON.stringify(specifiers)}) {
     throw new Error(\`Packed export resolved outside the consumer: \${specifier} -> \${resolved}\`);
   }
 }
-for (const name of ${JSON.stringify(manifests.ui.miaixzUiContract.publicDomComponents)}) {
+for (const name of ${JSON.stringify(uiManifest.miaixzUiContract.publicDomComponents)}) {
   if (!Object.hasOwn(packedUiRoot, name)) {
     throw new Error(\`Packed UI contract value is missing from the root export: \${name}\`);
   }

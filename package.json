@@ -10,9 +10,9 @@
     "npm": ">=10"
   },
   "workspaces": [
-    "sdk",
-    "ui",
-    "view"
+    "packages/sdk",
+    "packages/ui",
+    "packages/view"
   ],
   "scripts": {
     "version:set": "bash .github/scripts/version.sh",
@@ -23,15 +23,15 @@
     "build": "node .github/scripts/miaixz.mjs build",
     "typecheck": "node .github/scripts/miaixz.mjs typecheck",
     "lint": "node .github/scripts/miaixz.mjs lint && npm run lint:scripts",
-    "lint:scripts": "eslint .github/scripts --config ui/eslint.config.js",
+    "lint:scripts": "eslint .github/scripts --config packages/ui/eslint.config.js",
     "lint:boundaries": "node .github/scripts/quality/audit-import-boundaries.mjs",
     "lint:fix": "node .github/scripts/miaixz.mjs lint:fix && npm run lint:scripts -- --fix",
     "audit:css": "npm run audit:css --workspace @miaixz/ui",
     "test:coverage": "node .github/scripts/miaixz.mjs test:coverage",
     "lockfile:check": "node .github/scripts/quality/check-lockfile.mjs",
     "plan:check": "node .github/scripts/quality/audit-adjustment-plan.mjs",
-    "format": "npm run headers:fix && prettier . --write --ignore-unknown --config ui/prettier.config.js --ignore-path .gitignore",
-    "format:check": "prettier . --check --ignore-unknown --config ui/prettier.config.js --ignore-path .gitignore",
+    "format": "npm run headers:fix && prettier . --write --ignore-unknown --config packages/ui/prettier.config.js --ignore-path .gitignore",
+    "format:check": "prettier . --check --ignore-unknown --config packages/ui/prettier.config.js --ignore-path .gitignore",
     "check:static": "npm run comments:check && npm run lockfile:check && npm run version:check && npm run plan:check && npm run build && npm run typecheck && npm run lint:boundaries && npm run audit:css && npm run test:coverage && npm run format:check",
     "check:browser": "npm run test:browser --workspace @miaixz/ui",
     "check:package": "node .github/scripts/package/check-packages.mjs",
