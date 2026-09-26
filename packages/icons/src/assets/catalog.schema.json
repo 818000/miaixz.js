@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://miaixz.org/schema/icons/catalog-0.6.5.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "release", "icons"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "release": {
+      "const": "0.6.5"
+    },
+    "icons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "aliases", "category", "tier", "source", "status", "rtl"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "aliases": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          },
+          "category": {
+            "enum": [
+              "actions",
+              "commerce",
+              "communication",
+              "core-ui",
+              "data",
+              "devices",
+              "editor",
+              "files",
+              "maps",
+              "media",
+              "navigation",
+              "objects",
+              "status"
+            ]
+          },
+          "tier": {
+            "enum": ["core", "extended"]
+          },
+          "source": {
+            "const": "miaixz"
+          },
+          "status": {
+            "enum": ["planned", "stable"]
+          },
+          "rtl": {
+            "enum": ["none", "mirror"]
+          }
+        }
+      }
+    }
+  }
+}

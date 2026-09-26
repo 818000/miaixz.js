@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the post message child module.
+ */
+
 import { MIAIXZ_MODULE_PROTOCOL_VERSION } from "../contracts/module-manifest.js";
 import type {
   MiaixzBridgeEnvelope,

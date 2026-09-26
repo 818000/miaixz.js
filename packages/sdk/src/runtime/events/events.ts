@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the events module.
+ */
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import { isMiaixzAppearanceSettings } from "../../display/validation.js";
 import { isMiaixzSdkConfig } from "../config/config.js";

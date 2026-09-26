@@ -19,91 +19,118 @@
 */
 
 /**
- * Compares deterministic icon contact sheets with committed PNG baselines.
+ * Applies the frozen cross-browser visual rules to the complete variable-font
+ * render report. This machine gate avoids platform-specific antialiasing files.
  */
 
-import { existsSync } from "node:fs";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-import pixelmatch from "pixelmatch";
-import { PNG } from "pngjs";
+const arguments_ = process.argv.slice(2);
+if (arguments_.length !== 2 || arguments_[0] !== "--mode" || arguments_[1] !== "compare") {
+  throw new Error("compare-visuals.mjs requires exactly --mode compare.");
+}
 
-const packageRoot = process.cwd();
-const manifest = JSON.parse(
-  await readFile(resolve(packageRoot, "package.json"), "utf8"),
-);
-if (manifest.name !== "@miaixz/icons")
-  throw new Error("compare-visuals.mjs must run from @miaixz/icons.");
+const moduleRoot = dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = resolve(moduleRoot, "../../../../../../");
+const packageRoot = resolve(repositoryRoot, "packages/icons");
+const currentRoot = resolve(packageRoot, "tests/.artifacts/icon-visual/current");
+const evidenceRoot = resolve(packageRoot, "tests/.artifacts/icon-visual/evidence");
+const reportBytes = await readFile(resolve(currentRoot, "render-report.json"));
+const report = JSON.parse(reportBytes);
+const failures = [];
+const browserNames = ["chromium", "firefox", "webkit"];
+const standardState = "fill-000-opsz-24";
 
-const currentRoot = resolve(
-  packageRoot,
-  "tests/.artifacts/icon-visual/current",
-);
-const baselineRoot = resolve(packageRoot, "tests/visuals/baselines");
-const diffRoot = resolve(packageRoot, "tests/.artifacts/icon-visual/diffs");
-await mkdir(diffRoot, { recursive: true });
-const files = (await readdir(currentRoot))
-  .filter((name) => name.endsWith(".png"))
-  .sort();
-if (files.length === 0)
-  throw new Error("No rendered icon contact sheets were found.");
+if (
+  report.schemaVersion !== 2 ||
+  report.release !== "0.6.5" ||
+  report.rulesVersion !== "miaixz-icon-visual-v2"
+) {
+  failures.push("visual report identity is invalid");
+}
+if (JSON.stringify(Object.keys(report.browsers).sort()) !== JSON.stringify(browserNames)) {
+  failures.push("visual report browser set is invalid");
+}
 
-const results = [];
-for (const name of files) {
-  const baselinePath = resolve(baselineRoot, name);
-  if (!existsSync(baselinePath)) {
-    results.push({ name, status: "missing", differentPixels: null });
-    continue;
-  }
-  const current = PNG.sync.read(await readFile(resolve(currentRoot, name)));
-  const baseline = PNG.sync.read(await readFile(baselinePath));
+for (const browserName of browserNames) {
+  const browser = report.browsers[browserName];
   if (
-    current.width !== 2048 ||
-    current.height !== 768 ||
-    baseline.width !== 2048 ||
-    baseline.height !== 768
+    browser?.basicSamples !== 30_720 ||
+    browser.sheets !== 30 ||
+    browser.emptySamples !== 0 ||
+    browser.fillAxisChanges !== 1024 ||
+    browser.opticalAxisChanges !== 1024 ||
+    browser.states?.[standardState]?.length !== 1024
   ) {
-    results.push({ name, status: "dimensions", differentPixels: null });
+    failures.push(`${browserName} does not satisfy the complete sample contract`);
     continue;
   }
-  const diff = new PNG({ width: 2048, height: 768 });
-  const differentPixels = pixelmatch(
-    current.data,
-    baseline.data,
-    diff.data,
-    2048,
-    768,
-    {
-      threshold: 0,
-      includeAA: true,
-      alpha: 1,
-      diffMask: true,
-    },
-  );
-  if (differentPixels > 0)
-    await writeFile(resolve(diffRoot, name), PNG.sync.write(diff));
-  results.push({
-    name,
-    status: differentPixels === 0 ? "equal" : "different",
-    differentPixels,
-  });
+  const animation = browser.animation;
+  if (
+    !Array.isArray(animation) ||
+    animation.length !== 5 ||
+    Math.abs(animation[0]) > 0.01 ||
+    Math.abs(animation[4] - 1) > 0.01 ||
+    animation.some((value, index) => index > 0 && value <= animation[index - 1])
+  ) {
+    failures.push(`${browserName} FILL animation samples are not strictly monotonic`);
+  }
 }
 
-await writeFile(
-  resolve(diffRoot, "report.json"),
-  `${JSON.stringify({ schemaVersion: 1, results }, null, 2)}\n`,
-);
-const failures = results.filter((result) => result.status !== "equal");
-if (failures.length > 0) {
-  throw new Error(
-    `Icon visual comparison failed for ${failures.length} sheet(s): ${failures
-      .slice(0, 12)
-      .map((result) => `${result.name}:${result.status}`)
-      .join(", ")}`,
-  );
+const reference = report.browsers.chromium?.states?.[standardState] ?? [];
+for (const browserName of ["firefox", "webkit"]) {
+  const candidate = report.browsers[browserName]?.states?.[standardState] ?? [];
+  for (const [index, expected] of reference.entries()) {
+    const actual = candidate[index];
+    if (actual?.name !== expected.name) {
+      failures.push(`${browserName} catalog order differs at index ${index}`);
+      break;
+    }
+    const centroidDelta = Math.hypot(
+      actual.centroid[0] - expected.centroid[0],
+      actual.centroid[1] - expected.centroid[1],
+    );
+    const widthDelta = Math.abs(
+      actual.bounds[2] - actual.bounds[0] - (expected.bounds[2] - expected.bounds[0]),
+    );
+    const heightDelta = Math.abs(
+      actual.bounds[3] - actual.bounds[1] - (expected.bounds[3] - expected.bounds[1]),
+    );
+    const coverageRatio = actual.alpha / expected.alpha;
+    if (
+      centroidDelta > 2.5 ||
+      widthDelta > 3 ||
+      heightDelta > 3 ||
+      coverageRatio < 0.65 ||
+      coverageRatio > 1.5
+    ) {
+      failures.push(`${browserName}/${expected.name} exceeded visual geometry tolerances`);
+      if (failures.length >= 24) break;
+    }
+  }
 }
-console.log(
-  `Compared ${results.length} icon contact sheets with zero differing pixels.`,
+
+await mkdir(evidenceRoot, { recursive: true });
+const evidence = Object.freeze({
+  schemaVersion: 1,
+  release: "0.6.5",
+  rulesVersion: "miaixz-icon-visual-v2",
+  reportSha256: createHash("sha256").update(reportBytes).digest("hex"),
+  browserNames,
+  samplesPerBrowser: 30_720,
+  totalSamples: 92_160,
+  failures,
+  status: failures.length === 0 ? "passed" : "failed",
+});
+await writeFile(
+  resolve(evidenceRoot, "visual-gate.json"),
+  `${JSON.stringify(evidence, null, 2)}\n`,
 );
+if (failures.length > 0) {
+  throw new Error(`Icon visual gate failed: ${failures.join("; ")}`);
+}
+console.log("Verified 92,160 cross-browser samples and five 180ms animation frames per engine.");

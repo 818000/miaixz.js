@@ -25,7 +25,7 @@
 import type { ReactNode, RefObject, UIEvent } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type { MiaixzComboboxLoadState } from "./combobox-controller.js";
 import type { ComboboxOwnerState, ComboboxSlotProps } from "./combobox.types.js";
 

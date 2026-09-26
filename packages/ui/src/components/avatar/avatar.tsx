@@ -24,9 +24,8 @@
 
 import { forwardRef, useState } from "react";
 
-import { ICON_NAMES } from "../../icons/icon-names.js";
+import { ICON_NAMES, Icon } from "@miaixz/icons";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "../icon/icon.js";
 import type { AvatarOwnerState, AvatarProps, AvatarRootAttributes } from "./avatar.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
@@ -69,12 +68,7 @@ function createAltFallback(alt: string): string {
  */
 function createGenericAvatarFallback() {
   return (
-    <Icon
-      aria-hidden
-      className="miaixz-avatar-generic-icon"
-      name={ICON_NAMES.USER_ROUND}
-      size="control"
-    />
+    <Icon className="miaixz-avatar-generic-icon" name={ICON_NAMES.USER_ROUND} size="control" />
   );
 }
 

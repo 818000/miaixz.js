@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the files module.
+ */
+
 import type { MiaixzApiClient } from "../api/client.js";
 import { isMiaixzSdkError, MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzFileDescriptor, MiaixzUploadResult } from "./file.types.js";

@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "release": "0.6.5",
+  "sourceRoot": "packages/ui/src",
+  "excludedRoot": "packages/ui/src/icons",
+  "exactNameCount": 42,
+  "usages": [
+    {
+      "name": "add",
+      "locations": ["packages/ui/src/intents/definitions.ts:54:5"]
+    },
+    {
+      "name": "archive",
+      "locations": ["packages/ui/src/intents/definitions.ts:134:5"]
+    },
+    {
+      "name": "arrow-left",
+      "locations": ["packages/ui/src/intents/definitions.ts:174:5"]
+    },
+    {
+      "name": "ban",
+      "locations": ["packages/ui/src/intents/definitions.ts:124:5"]
+    },
+    {
+      "name": "calendar-days",
+      "locations": ["packages/ui/src/components/date/date-picker.tsx:146:9"]
+    },
+    {
+      "name": "chevron-down",
+      "locations": [
+        "packages/ui/src/components/combobox/combobox-input.tsx:174:9",
+        "packages/ui/src/components/datagrid/datagrid.tsx:301:27",
+        "packages/ui/src/components/disclosure/disclosure.tsx:140:15",
+        "packages/ui/src/components/select/select.tsx:383:11",
+        "packages/ui/src/components/tree/tree-renderer.tsx:181:17"
+      ]
+    },
+    {
+      "name": "chevron-left",
+      "locations": [
+        "packages/ui/src/appearance/appearance.tsx:308:17",
+        "packages/ui/src/components/date/calendar.tsx:157:13",
+        "packages/ui/src/components/pagination/pagination.tsx:147:19"
+      ]
+    },
+    {
+      "name": "chevron-right",
+      "locations": [
+        "packages/ui/src/appearance/appearance.tsx:204:7",
+        "packages/ui/src/components/date/calendar.tsx:169:13",
+        "packages/ui/src/components/dropdown/dropdown.tsx:368:9",
+        "packages/ui/src/components/pagination/pagination.tsx:201:19",
+        "packages/ui/src/components/tree/tree-renderer.tsx:181:17"
+      ]
+    },
+    {
+      "name": "circle-alert",
+      "locations": [
+        "packages/ui/src/components/feedback/feedback.tsx:87:11",
+        "packages/ui/src/components/toast/toast.tsx:39:11",
+        "packages/ui/src/components/upload/upload.tsx:196:13",
+        "packages/ui/src/components/upload/upload.tsx:305:35"
+      ]
+    },
+    {
+      "name": "circle-check",
+      "locations": [
+        "packages/ui/src/components/feedback/feedback.tsx:85:12",
+        "packages/ui/src/components/toast/toast.tsx:37:12",
+        "packages/ui/src/components/upload/upload.tsx:304:38",
+        "packages/ui/src/intents/definitions.ts:119:5"
+      ]
+    },
+    {
+      "name": "circle-x",
+      "locations": ["packages/ui/src/intents/definitions.ts:164:5"]
+    },
+    {
+      "name": "clock",
+      "locations": ["packages/ui/src/components/date/time-picker.tsx:178:9"]
+    },
+    {
+      "name": "close",
+      "locations": [
+        "packages/ui/src/components/combobox/combobox-input.tsx:170:11",
+        "packages/ui/src/components/date/date-picker.tsx:163:13",
+        "packages/ui/src/components/date/time-picker.tsx:195:13",
+        "packages/ui/src/components/dialog/dialog.tsx:323:19",
+        "packages/ui/src/components/drawer/drawer.tsx:378:19",
+        "packages/ui/src/components/tag/tag.tsx:185:13",
+        "packages/ui/src/components/toast/toast.tsx:168:17",
+        "packages/ui/src/intents/definitions.ts:169:5"
+      ]
+    },
+    {
+      "name": "confirm",
+      "locations": [
+        "packages/ui/src/components/combobox/combobox-option.tsx:142:26",
+        "packages/ui/src/components/dropdown/dropdown.tsx:221:15",
+        "packages/ui/src/components/dropdown/dropdown.tsx:276:11",
+        "packages/ui/src/components/select/select-view.tsx:120:22",
+        "packages/ui/src/components/tree/tree-renderer.tsx:202:15"
+      ]
+    },
+    {
+      "name": "copy",
+      "locations": ["packages/ui/src/intents/definitions.ts:79:5"]
+    },
+    {
+      "name": "delete",
+      "locations": ["packages/ui/src/intents/definitions.ts:144:5"]
+    },
+    {
+      "name": "download",
+      "locations": ["packages/ui/src/intents/definitions.ts:74:5"]
+    },
+    {
+      "name": "eye",
+      "locations": ["packages/ui/src/intents/definitions.ts:64:5"]
+    },
+    {
+      "name": "file",
+      "locations": ["packages/ui/src/components/upload/upload.tsx:306:10"]
+    },
+    {
+      "name": "info",
+      "locations": [
+        "packages/ui/src/components/feedback/feedback.tsx:83:12",
+        "packages/ui/src/components/feedback/feedback.tsx:84:9",
+        "packages/ui/src/components/toast/toast.tsx:36:12",
+        "packages/ui/src/components/toast/toast.tsx:40:9"
+      ]
+    },
+    {
+      "name": "key-round",
+      "locations": ["packages/ui/src/intents/definitions.ts:109:5"]
+    },
+    {
+      "name": "loading",
+      "locations": [
+        "packages/ui/src/components/action/icon-button.tsx:135:15",
+        "packages/ui/src/components/button/button-content.tsx:127:13",
+        "packages/ui/src/components/combobox/combobox-popup.tsx:93:9",
+        "packages/ui/src/components/tree/tree-renderer.tsx:178:19",
+        "packages/ui/src/components/upload/upload.tsx:303:38"
+      ]
+    },
+    {
+      "name": "log-in",
+      "locations": ["packages/ui/src/intents/definitions.ts:114:5"]
+    },
+    {
+      "name": "more-horizontal",
+      "locations": [
+        "packages/ui/src/components/action/action-bar.tsx:166:15",
+        "packages/ui/src/components/action/more-actions.tsx:113:22",
+        "packages/ui/src/components/navigation/navigation-rail-overflow.tsx:165:15",
+        "packages/ui/src/intents/definitions.ts:184:5"
+      ]
+    },
+    {
+      "name": "palette",
+      "locations": ["packages/ui/src/appearance/appearance.tsx:275:11"]
+    },
+    {
+      "name": "pencil",
+      "locations": ["packages/ui/src/intents/definitions.ts:59:5"]
+    },
+    {
+      "name": "refresh-cw",
+      "locations": ["packages/ui/src/intents/definitions.ts:84:5"]
+    },
+    {
+      "name": "rocket",
+      "locations": ["packages/ui/src/intents/definitions.ts:159:5"]
+    },
+    {
+      "name": "rotate-ccw",
+      "locations": ["packages/ui/src/components/tree/tree-renderer.tsx:224:17"]
+    },
+    {
+      "name": "save",
+      "locations": ["packages/ui/src/intents/definitions.ts:149:5"]
+    },
+    {
+      "name": "search",
+      "locations": ["packages/ui/src/components/search/search.tsx:157:13"]
+    },
+    {
+      "name": "send",
+      "locations": ["packages/ui/src/intents/definitions.ts:154:5"]
+    },
+    {
+      "name": "settings",
+      "locations": ["packages/ui/src/intents/definitions.ts:94:5"]
+    },
+    {
+      "name": "shield-check",
+      "locations": ["packages/ui/src/intents/definitions.ts:89:5"]
+    },
+    {
+      "name": "shield-x",
+      "locations": ["packages/ui/src/intents/definitions.ts:139:5"]
+    },
+    {
+      "name": "snowflake",
+      "locations": ["packages/ui/src/intents/definitions.ts:129:5"]
+    },
+    {
+      "name": "star",
+      "locations": [
+        "packages/ui/src/components/rating/rating.tsx:147:17",
+        "packages/ui/src/components/rating/rating.tsx:150:17",
+        "packages/ui/src/intents/definitions.ts:179:5"
+      ]
+    },
+    {
+      "name": "star-half",
+      "locations": ["packages/ui/src/components/rating/rating.tsx:150:17"]
+    },
+    {
+      "name": "upload",
+      "locations": [
+        "packages/ui/src/components/dropzone/dropzone.tsx:241:11",
+        "packages/ui/src/intents/definitions.ts:69:5"
+      ]
+    },
+    {
+      "name": "user-plus",
+      "locations": [
+        "packages/ui/src/intents/definitions.ts:104:5",
+        "packages/ui/src/intents/definitions.ts:99:5"
+      ]
+    },
+    {
+      "name": "user-round",
+      "locations": [
+        "packages/ui/src/components/avatar/avatar.tsx:72:5",
+        "packages/ui/src/components/avatar/avatar.tsx:75:13"
+      ]
+    },
+    {
+      "name": "warning",
+      "locations": [
+        "packages/ui/src/components/feedback/feedback.tsx:86:12",
+        "packages/ui/src/components/toast/toast.tsx:38:12"
+      ]
+    }
+  ]
+}

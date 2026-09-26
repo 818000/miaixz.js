@@ -1,0 +1,112 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the Miaixz icon font faces and stable renderers.
+ */
+
+:where(:root, [data-miaixz-theme]) {
+  --miaixz-icon-size-indicator: 12px;
+  --miaixz-icon-size-inline: 16px;
+  --miaixz-icon-size-control: 16px;
+  --miaixz-icon-size-navigation: 20px;
+  --miaixz-icon-size-feature: 24px;
+  --miaixz-icon-size-display: 32px;
+  --miaixz-icon-size-40: 40px;
+}
+
+@font-face {
+  font-family: "Miaixz Icons";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../assets/fonts/miaixz-icons.woff2") format("woff2");
+  font-display: block;
+  unicode-range: U+F0000-F003F;
+}
+
+@font-face {
+  font-family: "Miaixz Icons";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../assets/fonts/miaixz-icons-extended.woff2") format("woff2");
+  font-display: block;
+  unicode-range: U+F0040-F03FF;
+}
+
+@layer miaixz.icons {
+  .miaixz-icon {
+    --miaixz-icon-fill: 0;
+    --miaixz-icon-opsz: 16;
+    --miaixz-icon-size: 16px;
+
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: var(--miaixz-icon-size);
+    height: var(--miaixz-icon-size);
+    line-height: 1;
+    vertical-align: -0.125em;
+    color: currentcolor;
+  }
+
+  .miaixz-icon-glyph,
+  .miaixz-icon-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .miaixz-icon-glyph {
+    font-family: "Miaixz Icons", sans-serif;
+    font-size: var(--miaixz-icon-size);
+    font-variation-settings:
+      "FILL" var(--miaixz-icon-fill),
+      "opsz" var(--miaixz-icon-opsz);
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    line-height: 1;
+    color: currentcolor;
+    text-align: center;
+    text-rendering: geometricprecision;
+    transition: font-variation-settings 180ms cubic-bezier(0.2, 0, 0, 1);
+    speak: never;
+  }
+
+  .miaixz-icon-glyph::before {
+    content: attr(data-miaixz-icon-glyph);
+  }
+
+  .miaixz-icon-glyph[data-miaixz-icon-mirror="true"] {
+    transform: scaleX(-1);
+  }
+
+  .miaixz-icon[data-motion="none"] .miaixz-icon-glyph {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-icon-glyph {
+    transition: none !important;
+  }
+}

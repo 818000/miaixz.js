@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Audits source imports against the workspace dependency boundaries.
+ */
+
 import { parse } from "@babel/parser";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";

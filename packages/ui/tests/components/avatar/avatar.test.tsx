@@ -28,7 +28,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Avatar, AvatarGroup, AvatarPicker } from "../../../src/components/avatar/index.js";
-import { Icon } from "../../../src/components/icon/index.js";
+import { Icon } from "@miaixz/icons";
 
 afterEach(cleanup);
 
@@ -91,7 +91,7 @@ describe("Avatar", () => {
     );
     expect(container.firstElementChild).toHaveClass("miaixz-avatar-square");
     expect(screen.getByRole("img", { name: "Folder" })).toContainElement(
-      container.querySelector("svg"),
+      container.querySelector(".miaixz-icon"),
     );
   });
 
@@ -121,7 +121,7 @@ describe("Avatar", () => {
 
     rerender(<Avatar src="/broken-final.png" />);
     fireEvent.error(container.querySelector("img")!);
-    expect(container.querySelector(".miaixz-avatar-fallback svg")).toBeInTheDocument();
+    expect(container.querySelector(".miaixz-avatar-fallback .miaixz-icon")).toBeInTheDocument();
     expect(screen.queryByRole("img")).toBeNull();
   });
 

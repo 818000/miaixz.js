@@ -23,6 +23,7 @@
  */
 
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { Icon } from "@miaixz/icons";
 
 import { ViewerController, type ViewerControllerState } from "../../runtime/viewer-controller.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
@@ -134,7 +135,7 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
   return (
     <div
       {...rootProps}
-      className={classNames("miaixz-preview", "miaixz-file-view", className)}
+      className={classNames("miaixz-preview", "miaixz-preview-file", className)}
       ref={elementRef}
     >
       <div
@@ -151,7 +152,7 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
           title={labels.zoomOut}
           type="button"
         >
-          −
+          <Icon name="circle-minus" size="control" />
         </button>
         <button
           aria-label={labels.resetZoom}
@@ -160,7 +161,8 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
           title={labels.resetZoom}
           type="button"
         >
-          {Math.round(scale * 100)}%
+          <Icon name="rotate-ccw" size="control" />
+          <span>{Math.round(scale * 100)}%</span>
         </button>
         <button
           aria-label={labels.zoomIn}
@@ -170,7 +172,7 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
           title={labels.zoomIn}
           type="button"
         >
-          +
+          <Icon name="circle-plus" size="control" />
         </button>
         {actions}
       </div>

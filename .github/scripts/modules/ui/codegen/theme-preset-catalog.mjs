@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Discovers and validates the canonical UI theme preset catalog.
+ */
+
 import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, dirname, relative, resolve, sep } from "node:path";
 

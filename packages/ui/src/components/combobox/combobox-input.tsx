@@ -25,7 +25,7 @@
 import type { KeyboardEvent, ReactNode, RefObject } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type { ComboboxOwnerState, ComboboxSlotProps } from "./combobox.types.js";
 
 /**

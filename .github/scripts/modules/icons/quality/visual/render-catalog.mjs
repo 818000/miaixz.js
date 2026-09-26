@@ -19,219 +19,302 @@
 */
 
 /**
- * Renders deterministic icon review sheets, contact sheets, and alpha centroids.
+ * Renders and measures all 30,720 FILL/opsz states from the release WOFF2 files
+ * in Chromium, Firefox, and WebKit without an SVG or static-font substitute.
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-import { chromium } from "@playwright/test";
+import { chromium, firefox, webkit } from "@playwright/test";
 import { PNG } from "pngjs";
 
-const packageRoot = process.cwd();
-const manifest = JSON.parse(
-  await readFile(resolve(packageRoot, "package.json"), "utf8"),
-);
-if (manifest.name !== "@miaixz/icons")
-  throw new Error("render-catalog.mjs must run from @miaixz/icons.");
-
-const assetsRoot = resolve(packageRoot, "src/assets");
-const outputRoot = resolve(packageRoot, "tests/.artifacts/icon-visual/current");
-const catalog = JSON.parse(
-  await readFile(resolve(assetsRoot, "catalog.json"), "utf8"),
-).icons;
-const releasePlan = JSON.parse(
-  await readFile(resolve(assetsRoot, "release-plan.json"), "utf8"),
-);
-const catalogByName = new Map(catalog.map((entry) => [entry.name, entry]));
-const sizes = [12, 16, 20, 24, 32, 40];
-const opticalSizes = ["compact", "standard", "display"];
-const directions = ["ltr", "rtl"];
-const themes = { light: "#111111", dark: "#f5f5f5" };
-const stableEntries = catalog.filter(
-  (entry) => entry.source === "miaixz" && entry.status === "stable",
-);
-
-await mkdir(outputRoot, { recursive: true });
-
-/**
- * Reads the requested SVG or applies the frozen standard optical fallback.
- *
- * @param {object} entry Catalog entry.
- * @param {string} variant Visual variant.
- * @param {string} opticalSize Requested optical size.
- * @returns {Promise<string | null>} SVG source or null for an empty slot.
- */
-async function readSvg(entry, variant, opticalSize) {
-  const available = entry.variants[variant] ?? [];
-  const actual = available.includes(opticalSize)
-    ? opticalSize
-    : opticalSize !== "standard" && available.includes("standard")
-      ? "standard"
-      : null;
-  if (actual === null) return null;
-  return readFile(
-    resolve(assetsRoot, "svg", variant, actual, `${entry.name}.svg`),
-    "utf8",
-  );
-}
-
-/**
- * Sizes and optionally mirrors one safe committed SVG.
- *
- * @param {string} source SVG source.
- * @param {number} size Pixel size.
- * @param {boolean} mirror Whether to mirror geometry.
- * @returns {string} Renderable markup.
- */
-function sizedSvg(source, size, mirror) {
-  return source.replace(
-    "<svg ",
-    `<svg width="${size}" height="${size}" style="display:block;${mirror ? "transform:scaleX(-1);" : ""}" `,
-  );
-}
-
-/**
- * Creates one exact 8 x 8 contact sheet page.
- *
- * @param {string[]} names Batch names.
- * @param {string} variant Visual variant.
- * @param {string} opticalSize Optical-size request.
- * @param {string} direction Direction sample.
- * @param {string} foreground Foreground color.
- * @returns {Promise<string>} Standalone HTML.
- */
-async function contactSheet(
-  names,
-  variant,
-  opticalSize,
-  direction,
-  foreground,
+const arguments_ = process.argv.slice(2);
+if (
+  arguments_.length !== 4 ||
+  arguments_[0] !== "--font-dir" ||
+  arguments_[2] !== "--browser" ||
+  arguments_[3] !== "all"
 ) {
-  const cells = [];
-  for (const [index, name] of names.entries()) {
-    const entry = catalogByName.get(name);
-    const source =
-      direction === "rtl" && entry.rtl !== "mirror"
-        ? null
-        : await readSvg(entry, variant, opticalSize);
-    const row = Math.floor(index / 8);
-    const column = index % 8;
-    const samples = source
-      ? sizes
-          .map(
-            (size, sizeIndex) =>
-              `<span style="position:absolute;left:${8 + sizeIndex * 40}px;top:16px;width:40px;height:64px;display:flex;align-items:center;justify-content:center">${sizedSvg(source, size, direction === "rtl")}</span>`,
-          )
-          .join("")
-      : "";
-    cells.push(
-      `<div style="position:absolute;left:${column * 256}px;top:${row * 96}px;width:256px;height:96px">${samples}</div>`,
-    );
-  }
-  return `<!doctype html><html><body style="margin:0;width:2048px;height:768px;overflow:hidden;background:transparent;color:${foreground}">${cells.join("")}</body></html>`;
+  throw new Error("render-catalog.mjs requires exactly --font-dir <directory> --browser all.");
 }
 
-const browser = await chromium.launch();
-const page = await browser.newPage({
-  viewport: { width: 2048, height: 768 },
-  deviceScaleFactor: 1,
-  colorScheme: "light",
+const moduleRoot = dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = resolve(moduleRoot, "../../../../../../");
+const packageRoot = resolve(repositoryRoot, "packages/icons");
+const fontRoot = resolve(repositoryRoot, arguments_[1]);
+const outputRoot = resolve(packageRoot, "tests/.artifacts/icon-visual/current");
+const codepoints = JSON.parse(
+  await readFile(resolve(packageRoot, "src/assets/fonts/codepoints.json"), "utf8"),
+).icons;
+const catalog = JSON.parse(
+  await readFile(resolve(packageRoot, "src/assets/catalog.json"), "utf8"),
+).icons;
+const manifest = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
+if (manifest.name !== "@miaixz/icons" || codepoints.length !== 1024) {
+  throw new Error("Visual rendering requires the complete @miaixz/icons release catalog.");
+}
+
+const fontFiles = Object.freeze({
+  core: "miaixz-icons.woff2",
+  extended: "miaixz-icons-extended.woff2",
 });
-const rendered = [];
-const centroids = {};
-try {
-  const variants = ["outline", "filled"].filter((variant) =>
-    catalog.some((entry) => (entry.variants[variant] ?? []).length > 0),
-  );
-  for (const variant of variants) {
-    for (const opticalSize of opticalSizes) {
-      for (const direction of directions) {
-        for (const [theme, foreground] of Object.entries(themes)) {
-          for (const batch of releasePlan.batches) {
-            const pageNumber = batch.id.slice(-2);
-            const filename = `${variant}-${opticalSize}-${direction}-${theme}-${pageNumber}.png`;
-            await page.setContent(
-              await contactSheet(
-                batch.names,
-                variant,
-                opticalSize,
-                direction,
-                foreground,
-              ),
-            );
-            await page.screenshot({
-              path: resolve(outputRoot, filename),
-              omitBackground: true,
-              clip: { x: 0, y: 0, width: 2048, height: 768 },
-            });
-            rendered.push(filename);
-          }
-        }
-      }
-    }
-  }
+const fontBytes = Object.freeze({
+  core: await readFile(resolve(fontRoot, fontFiles.core)),
+  extended: await readFile(resolve(fontRoot, fontFiles.extended)),
+});
+const fontHashes = Object.freeze(
+  Object.fromEntries(
+    Object.entries(fontBytes).map(([subset, bytes]) => [
+      subset,
+      createHash("sha256").update(bytes).digest("hex"),
+    ]),
+  ),
+);
+const dataUrls = Object.freeze(
+  Object.fromEntries(
+    Object.entries(fontBytes).map(([subset, bytes]) => [
+      subset,
+      `data:font/woff2;base64,${bytes.toString("base64")}`,
+    ]),
+  ),
+);
+const fillValues = Object.freeze([0, 0.25, 0.5, 0.75, 1]);
+const opticalSizes = Object.freeze([12, 16, 20, 24, 32, 40]);
+const cellSize = 32;
+const columns = 32;
+const sheetSize = cellSize * columns;
+const browserTypes = Object.freeze({ chromium, firefox, webkit });
 
-  await page.setViewportSize({ width: 240, height: 240 });
-  for (const entry of stableEntries) {
-    for (const variant of Object.keys(entry.variants)) {
-      for (const opticalSize of entry.variants[variant]) {
-        const source = await readSvg(entry, variant, opticalSize);
-        await page.setContent(
-          `<!doctype html><html><body style="margin:0;width:240px;height:240px;background:transparent;color:#000"><div style="width:240px;height:240px">${sizedSvg(source, 240, false)}</div></body></html>`,
-        );
-        const png = PNG.sync.read(
-          await page.screenshot({ omitBackground: true }),
-        );
-        let weight = 0;
-        let weightedX = 0;
-        let weightedY = 0;
-        for (let y = 0; y < png.height; y += 1) {
-          for (let x = 0; x < png.width; x += 1) {
-            const alpha = png.data[(y * png.width + x) * 4 + 3];
-            weight += alpha;
-            weightedX += alpha * (x + 0.5);
-            weightedY += alpha * (y + 0.5);
-          }
-        }
-        if (weight === 0)
-          throw new Error(
-            `${entry.name}/${variant}/${opticalSize} rendered empty.`,
+/**
+ * Returns a deterministic state identifier.
+ *
+ * @param {number} fill FILL coordinate.
+ * @param {number} opticalSize Optical-size coordinate.
+ * @returns {string} Filesystem-safe identifier.
+ */
+function stateId(fill, opticalSize) {
+  return `fill-${String(Math.round(fill * 100)).padStart(3, "0")}-opsz-${String(opticalSize).padStart(2, "0")}`;
+}
+
+/**
+ * Builds the fixed 32-by-32 catalog surface.
+ *
+ * @returns {string} Standalone font test document.
+ */
+function catalogSurface() {
+  const glyphs = codepoints
+    .map(
+      ({ codepoint, name }) =>
+        `<span class="glyph" data-name="${name}">${String.fromCodePoint(codepoint)}</span>`,
+    )
+    .join("");
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.core}") format("woff2");font-display:block;unicode-range:U+F0000-F003F}
+    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.extended}") format("woff2");font-display:block;unicode-range:U+F0040-F03FF}
+    :root{--fill:0;--opsz:24}
+    *{box-sizing:border-box}
+    html,body{margin:0;width:${sheetSize}px;height:${sheetSize}px;overflow:hidden;background:#fff}
+    body{display:grid;grid-template-columns:repeat(${columns},${cellSize}px);grid-auto-rows:${cellSize}px}
+    .glyph{display:grid;width:${cellSize}px;height:${cellSize}px;place-items:center;color:#000;font:24px/1 "Miaixz Icons";font-variation-settings:"FILL" var(--fill),"opsz" var(--opsz);text-rendering:geometricPrecision}
+  </style></head><body>${glyphs}</body></html>`;
+}
+
+/**
+ * Measures every glyph cell in one transparent contact sheet.
+ *
+ * @param {Buffer} bytes PNG screenshot bytes.
+ * @returns {readonly object[]} Per-glyph alpha geometry.
+ */
+function measureSheet(bytes) {
+  const png = PNG.sync.read(bytes);
+  if (png.width !== sheetSize || png.height !== sheetSize) {
+    throw new Error(`Unexpected visual sheet dimensions ${png.width}x${png.height}.`);
+  }
+  return Object.freeze(
+    codepoints.map(({ name }, index) => {
+      const originX = (index % columns) * cellSize;
+      const originY = Math.floor(index / columns) * cellSize;
+      let alpha = 0;
+      let pixels = 0;
+      let weightedX = 0;
+      let weightedY = 0;
+      let minX = cellSize;
+      let minY = cellSize;
+      let maxX = -1;
+      let maxY = -1;
+      const mask = Buffer.alloc(cellSize * cellSize);
+      for (let y = 0; y < cellSize; y += 1) {
+        for (let x = 0; x < cellSize; x += 1) {
+          const offset = ((originY + y) * png.width + originX + x) * 4;
+          const value = Math.round(
+            255 - (png.data[offset] + png.data[offset + 1] + png.data[offset + 2]) / 3,
           );
-        centroids[`${entry.name}/${variant}/${opticalSize}`] = {
-          x: Number((weightedX / weight / 10).toFixed(3)),
-          y: Number((weightedY / weight / 10).toFixed(3)),
-        };
+          if (value === 0) continue;
+          mask[y * cellSize + x] = value;
+          alpha += value;
+          pixels += 1;
+          weightedX += value * (x + 0.5);
+          weightedY += value * (y + 0.5);
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
       }
-    }
-  }
-  await writeFile(
-    resolve(outputRoot, "centroids.json"),
-    `${JSON.stringify(centroids, null, 2)}\n`,
+      if (pixels === 0) throw new Error(`${name} rendered empty.`);
+      return Object.freeze({
+        name,
+        pixels,
+        alpha,
+        bounds: Object.freeze([minX, minY, maxX, maxY]),
+        centroid: Object.freeze([
+          Number((weightedX / alpha).toFixed(3)),
+          Number((weightedY / alpha).toFixed(3)),
+        ]),
+        digest: createHash("sha256").update(mask).digest("hex"),
+      });
+    }),
   );
-} finally {
-  await browser.close();
 }
 
-const reviewCards = [];
-for (const batch of releasePlan.batches) {
-  for (const name of batch.names) {
-    const entry = catalogByName.get(name);
-    const source = await readSvg(entry, "outline", "standard");
-    reviewCards.push(
-      `<article><h2>${name}</h2><p>${entry.category} · ${batch.id} · outline · standard · rtl=${entry.rtl}</p><div>${sizes.map((size) => sizedSvg(source, size, false)).join("")}</div></article>`,
-    );
+/**
+ * Captures deterministic FILL animation values from the browser engine.
+ *
+ * @param {import("@playwright/test").Page} page Active catalog page.
+ * @returns {Promise<readonly number[]>} Five sampled FILL values.
+ */
+async function measureAnimation(page) {
+  return page.evaluate(async () => {
+    const glyph = document.querySelector(".glyph");
+    if (!(glyph instanceof HTMLElement)) throw new Error("Animation glyph is missing.");
+    glyph.style.transition = "font-variation-settings 180ms linear";
+    document.documentElement.style.setProperty("--fill", "0");
+    await new Promise((resolvePromise) => requestAnimationFrame(resolvePromise));
+    document.documentElement.style.setProperty("--fill", "1");
+    await new Promise((resolvePromise) => requestAnimationFrame(resolvePromise));
+    const animation = glyph.getAnimations()[0];
+    if (animation === undefined) throw new Error("FILL animation is missing.");
+    const samples = [];
+    for (const time of [0, 45, 90, 135, 180]) {
+      animation.currentTime = time;
+      const value = getComputedStyle(glyph).fontVariationSettings;
+      const match = /"FILL"\s+([\d.]+)/u.exec(value);
+      if (match?.[1] === undefined) throw new Error(`Missing FILL in ${value}.`);
+      samples.push(Number(match[1]));
+    }
+    glyph.style.transition = "none";
+    return samples;
+  });
+}
+
+await rm(outputRoot, { recursive: true, force: true });
+await mkdir(outputRoot, { recursive: true });
+const reports = {};
+
+for (const [browserName, browserType] of Object.entries(browserTypes)) {
+  const browser = await browserType.launch();
+  const browserRoot = resolve(outputRoot, browserName);
+  await mkdir(browserRoot, { recursive: true });
+  const context = await browser.newContext({
+    colorScheme: "light",
+    deviceScaleFactor: 1,
+    locale: "en-US",
+    reducedMotion: "no-preference",
+    timezoneId: "UTC",
+    viewport: { width: sheetSize, height: sheetSize },
+  });
+  const page = await context.newPage();
+  const states = {};
+  try {
+    await page.setContent(catalogSurface(), { waitUntil: "load" });
+    await page.evaluate(async () => {
+      await document.fonts.load(`24px "Miaixz Icons"`, String.fromCodePoint(0xf0000));
+      await document.fonts.load(`24px "Miaixz Icons"`, String.fromCodePoint(0xf0040));
+      await document.fonts.ready;
+    });
+    const animation = await measureAnimation(page);
+    for (const fill of fillValues) {
+      for (const opticalSize of opticalSizes) {
+        await page.evaluate(
+          ({ nextFill, nextOpticalSize }) => {
+            document.documentElement.style.setProperty("--fill", String(nextFill));
+            document.documentElement.style.setProperty("--opsz", String(nextOpticalSize));
+          },
+          { nextFill: fill, nextOpticalSize: opticalSize },
+        );
+        const id = stateId(fill, opticalSize);
+        const screenshot = await page.screenshot({
+          path: resolve(browserRoot, `${id}.png`),
+        });
+        states[id] = measureSheet(screenshot);
+      }
+    }
+    const fillStart = states[stateId(0, 24)];
+    const fillEnd = states[stateId(1, 24)];
+    const opticalStart = states[stateId(0, 12)];
+    const opticalEnd = states[stateId(0, 40)];
+    const fillAxisChanges = fillStart.filter(
+      (entry, index) => entry.digest !== fillEnd[index].digest,
+    ).length;
+    const opticalAxisChanges = opticalStart.filter(
+      (entry, index) => entry.digest !== opticalEnd[index].digest,
+    ).length;
+    reports[browserName] = Object.freeze({
+      basicSamples: codepoints.length * fillValues.length * opticalSizes.length,
+      sheets: fillValues.length * opticalSizes.length,
+      emptySamples: 0,
+      fillAxisChanges,
+      opticalAxisChanges,
+      animation,
+      states,
+    });
+  } finally {
+    await context.close();
+    await browser.close();
   }
 }
+
+const report = Object.freeze({
+  schemaVersion: 2,
+  release: "0.6.5",
+  rulesVersion: "miaixz-icon-visual-v2",
+  fontFiles,
+  fontHashes,
+  catalogDigest: createHash("sha256").update(JSON.stringify(catalog)).digest("hex"),
+  fillValues,
+  opticalSizes,
+  browsers: reports,
+});
+await writeFile(resolve(outputRoot, "render-report.json"), `${JSON.stringify(report)}\n`);
 await writeFile(
-  resolve(outputRoot, "review.html"),
-  `<!doctype html><html><head><meta charset="utf-8"><title>Miaixz icon review</title><style>body{font:14px sans-serif;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:24px}article{border:1px solid #ddd;padding:12px}h2{font-size:14px;margin:0}p{color:#666}article div{display:flex;align-items:center;gap:12px;height:48px}</style></head><body>${reviewCards.join("")}</body></html>`,
+  resolve(outputRoot, "summary.json"),
+  `${JSON.stringify(
+    {
+      schemaVersion: report.schemaVersion,
+      release: report.release,
+      rulesVersion: report.rulesVersion,
+      fontHashes: report.fontHashes,
+      catalogDigest: report.catalogDigest,
+      browsers: Object.fromEntries(
+        Object.entries(reports).map(([name, value]) => [
+          name,
+          {
+            basicSamples: value.basicSamples,
+            sheets: value.sheets,
+            emptySamples: value.emptySamples,
+            fillAxisChanges: value.fillAxisChanges,
+            opticalAxisChanges: value.opticalAxisChanges,
+            animation: value.animation,
+          },
+        ]),
+      ),
+    },
+    null,
+    2,
+  )}\n`,
 );
-await writeFile(
-  resolve(outputRoot, "render-report.json"),
-  `${JSON.stringify({ schemaVersion: 1, rendered, centroids: Object.keys(centroids).length }, null, 2)}\n`,
-);
-console.log(
-  `Rendered ${rendered.length} contact sheets and ${stableEntries.length} stable icons.`,
-);
+console.log("Rendered and measured 30,720 samples in each of Chromium, Firefox, and WebKit.");

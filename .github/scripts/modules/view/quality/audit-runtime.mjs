@@ -63,6 +63,18 @@ async function sourceFiles(directory) {
 }
 
 const failures = [];
+if (packageJson.version !== "0.6.5") failures.push("package version must remain 0.6.5");
+if (packageJson.peerDependencies?.["@miaixz/icons"] !== ">=0.6.5 <0.7.0") {
+  failures.push("peerDependencies must declare @miaixz/icons >=0.6.5 <0.7.0");
+}
+if (packageJson.devDependencies?.["@miaixz/icons"] !== "0.6.5") {
+  failures.push("devDependencies must pin @miaixz/icons to 0.6.5");
+}
+for (const forbiddenPeer of ["@miaixz/sdk", "@miaixz/ui"]) {
+  if (packageJson.peerDependencies?.[forbiddenPeer] !== undefined) {
+    failures.push(`peerDependencies must not contain ${forbiddenPeer}`);
+  }
+}
 for (const entry of await readdir(codecsRoot, { withFileTypes: true })) {
   if (entry.isDirectory() && retiredCodecDirectories.has(entry.name)) {
     failures.push(`codecs/${entry.name} uses a retired codec domain name`);
@@ -142,6 +154,11 @@ for (const path of auditedFiles) {
       }
     }
   }
+}
+
+const viewStyleSource = await readFile(resolve(sourceRoot, "shell/styles/view.css"), "utf8");
+for (const match of viewStyleSource.matchAll(/var\((--miaixz-[a-z0-9-]+)(\s*,[^)]*)?\)/gu)) {
+  if (match[2] === undefined) failures.push(`view.css lacks a local fallback for ${match[1]}`);
 }
 
 if (failures.length > 0) {

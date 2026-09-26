@@ -27,7 +27,7 @@ import { forwardRef } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type { PaginationOwnerState, PaginationProps } from "./pagination.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
@@ -144,7 +144,7 @@ export const Pagination = withMiaixzThemeComponent(
                     ownedProps: ["type", "disabled", "aria-label"],
                   })}
                 >
-                  <Icon aria-hidden="true" name="chevron-left" size="control" />
+                  <Icon name="chevron-left" size="control" />
                 </button>
               </li>
             )}
@@ -198,7 +198,7 @@ export const Pagination = withMiaixzThemeComponent(
                     ownedProps: ["type", "disabled", "aria-label"],
                   })}
                 >
-                  <Icon aria-hidden="true" name="chevron-right" size="control" />
+                  <Icon name="chevron-right" size="control" />
                 </button>
               </li>
             )}

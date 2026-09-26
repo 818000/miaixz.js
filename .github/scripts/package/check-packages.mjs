@@ -18,11 +18,16 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Validates workspace package metadata and public package boundaries.
+ */
+
 import { execFileSync } from "node:child_process";
 import { createServer } from "node:http";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
 
 const root = repositoryRoot;
@@ -31,7 +36,8 @@ const requestedOutputDirectory = process.env.MIAIXZ_PACKAGE_OUTPUT?.trim();
 const packageOutputDirectory = requestedOutputDirectory
   ? resolve(root, requestedOutputDirectory)
   : temporaryDirectory;
-const packageFiles = ["dist", "README.md", "LICENSE", "NOTICE"];
+const basePackageFiles = ["dist", "README.md", "LICENSE", "NOTICE"];
+const licensedIconPackageFiles = [...basePackageFiles, "SBOM.spdx.json"];
 const reactMatrix = JSON.parse(
   readFileSync(resolve(root, ".github/scripts/package/react-matrix.json"), "utf8"),
 );
@@ -97,6 +103,10 @@ function createOnePagePdf(path) {
  * @throws {Error} If required files or public export targets are invalid.
  */
 function validateManifest({ directory, manifest, name, rootPath }) {
+  const packageFiles =
+    name === "@miaixz/icons" || name.startsWith("@miaixz/icons-")
+      ? licensedIconPackageFiles
+      : basePackageFiles;
   if (JSON.stringify(manifest.files) !== JSON.stringify(packageFiles)) {
     throw new Error(`${directory}/package.json files must equal ${JSON.stringify(packageFiles)}`);
   }
@@ -164,16 +174,38 @@ function validateManifest({ directory, manifest, name, rootPath }) {
       throw new Error(`${directory}/dist/styles.css must use only the miaixz-preview namespace`);
     }
   }
+  if (name === "@miaixz/icons") {
+    const coreBytes = statSync(join(rootPath, "dist/assets/fonts/miaixz-icons.woff2")).size;
+    const extendedBytes = statSync(
+      join(rootPath, "dist/assets/fonts/miaixz-icons-extended.woff2"),
+    ).size;
+    const mappingBytes = gzipSync(
+      Buffer.concat([
+        readFileSync(join(rootPath, "dist/autogen/codepoints.js")),
+        readFileSync(join(rootPath, "dist/autogen/names.js")),
+      ]),
+    ).byteLength;
+    const cssBytes = gzipSync(readFileSync(join(rootPath, "dist/styles/index.css"))).byteLength;
+    if (
+      coreBytes > 256 * 1024 ||
+      extendedBytes > 3 * 1024 * 1024 ||
+      coreBytes + extendedBytes > 3.25 * 1024 * 1024 ||
+      mappingBytes > 128 * 1024 ||
+      cssBytes > 12 * 1024
+    ) {
+      throw new Error(`${directory} exceeds the frozen font, mapping, or CSS size budget`);
+    }
+  }
 }
 
 /**
  * Packs a workspace and verifies that repository-level policy files are not duplicated.
  *
- * @param {{ directory: string }} workspace Workspace metadata to package.
+ * @param {{ directory: string, name: string }} workspace Workspace metadata to package.
  * @returns {string} Absolute path to the generated package tarball.
  * @throws {Error} If npm returns an invalid result or the tarball contains forbidden files.
  */
-function pack({ directory }) {
+function pack({ directory, name }) {
   const output = execFileSync(
     "npm",
     ["pack", "--json", "--pack-destination", packageOutputDirectory, `./${directory}`],
@@ -190,10 +222,35 @@ function pack({ directory }) {
     "SUPPORT.md",
     "THIRD_PARTY_NOTICES.md",
   ]);
+  const packedFiles = (result[0].files ?? []).map((file) => file.path);
   for (const file of result[0].files ?? []) {
     const topLevel = file.path.split("/")[0];
     if (forbiddenPackageFiles.has(topLevel)) {
       throw new Error(`${directory} tarball contains duplicate package-local policy ${topLevel}`);
+    }
+  }
+  if (name === "@miaixz/icons") {
+    for (const required of ["LICENSE", "NOTICE", "README.md", "SBOM.spdx.json"]) {
+      if (!packedFiles.includes(required))
+        throw new Error(`${directory} tarball is missing ${required}`);
+    }
+  }
+  if (name === "@miaixz/icons") {
+    const fontFiles = packedFiles.filter((path) => /\.(?:ttf|otf|woff2?)$/u.test(path));
+    const expectedFonts = [
+      "dist/assets/fonts/miaixz-icons-extended.woff2",
+      "dist/assets/fonts/miaixz-icons.woff2",
+    ];
+    if (JSON.stringify(fontFiles.sort()) !== JSON.stringify(expectedFonts)) {
+      throw new Error(`${directory} tarball font set is invalid: ${fontFiles.join(", ")}`);
+    }
+    if (
+      packedFiles.some((path) =>
+        /(?:\.designspace$|\.glif$|\.ufo(?:\/|$)|tests\/|visuals\/)/u.test(path),
+      ) ||
+      result[0].size > 4 * 1024 * 1024
+    ) {
+      throw new Error(`${directory} tarball contains source/test files or exceeds 4 MiB`);
     }
   }
   return join(packageOutputDirectory, result[0].filename);
@@ -467,7 +524,7 @@ async function runBrowserSmoke(directory) {
     assertEqual(await page.getByText("125%").textContent(), "125%", "Image zoom output");
     await page.getByRole("img", { name: "pixel.gif" }).waitFor();
     await page.locator(".miaixz-preview-page").waitFor();
-    await page.getByText("Packed text", { exact: true }).waitFor();
+    await page.locator("#geo-preview .miaixz-preview-drawing").waitFor();
     if (browserErrors.length > 0) {
       throw new Error(`Packed browser emitted errors:\n${browserErrors.join("\n")}`);
     }
@@ -540,7 +597,12 @@ try {
         <Graph aria-label="Graph" edges={[]} nodes={[{ id: "one", label: "One", x: 50, y: 50, tone: "neutral" }]} tableCaption="Graph data" />
         <FileView name="pixel.gif" source={new Uint8Array([71, 73, 70, 56, 57, 97])} />
         <FileView name="document.pdf" source={new Uint8Array([37, 80, 68, 70])} />
-        <FileView name="note.txt" source={new TextEncoder().encode("Packed text")} />
+        <div id="geo-preview">
+          <FileView
+            name="point.geojson"
+            source={new TextEncoder().encode('{"type":"Point","coordinates":[120,30]}')}
+          />
+        </div>
       </Theme>
     </MiaixzLocaleProvider>,
   );
@@ -548,7 +610,7 @@ try {
   console.error = originalConsoleError;
 }
 if (consoleErrors.length > 0) throw new Error("Packed SSR emitted console errors");
-if (!html.includes("miaixz-button") || !html.includes("Graph data") || !html.includes("miaixz-file-view")) throw new Error("Packed SSR output is incomplete");
+if (!html.includes("miaixz-button") || !html.includes("Graph data") || !html.includes("miaixz-preview-file")) throw new Error("Packed SSR output is incomplete");
 `;
 }
 
@@ -611,7 +673,12 @@ function App() {
         />
         <FileView name="pixel.gif" source={gifBytes} />
         <FileView name="document.pdf" source={Uint8Array.from(atob("${onePagePdfBase64}"), character => character.charCodeAt(0))} />
-        <FileView name="note.txt" source={new TextEncoder().encode("Packed text")} />
+        <div id="geo-preview">
+          <FileView
+            name="point.geojson"
+            source={new TextEncoder().encode('{"type":"Point","coordinates":[120,30]}')}
+          />
+        </div>
       </Theme>
     </MiaixzLocaleProvider>
   );

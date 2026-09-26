@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the sdk test module.
+ */
+
 import { describe, expect, it } from "vitest";
 
 import { createMiaixzSdk, type MiaixzSdkOptions } from "../src/sdk.js";

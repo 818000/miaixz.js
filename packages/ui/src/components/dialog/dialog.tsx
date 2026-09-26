@@ -40,7 +40,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { getMiaixzThemeSlotClassNames } from "../../theme/registry.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type {
   DialogCloseReason,
   DialogOwnerState,

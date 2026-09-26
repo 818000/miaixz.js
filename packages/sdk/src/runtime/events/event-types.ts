@@ -18,10 +18,21 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the event types module.
+ */
+
 import type { MiaixzLocale } from "../../i18n/i18n.js";
 import type { MiaixzAppearancePayload } from "../../display/appearance.types.js";
 import type { MiaixzRuntimeContext } from "../../access/context/context.types.js";
 import type { MiaixzSdkConfig } from "../config/config.types.js";
+
+export type {
+  MiaixzEventBusPort,
+  MiaixzEventEmitOptions,
+  MiaixzEventListener,
+  MiaixzEventName,
+} from "./event-port.js";
 
 /**
  * Validates an untrusted event payload before it crosses a browser-context boundary.
@@ -116,48 +127,4 @@ export interface MiaixzEventEnvelope {
    * Contains untrusted data that must pass the registered runtime validator.
    */
   readonly payload: unknown;
-}
-
-/**
- * Configures one event publication.
- */
-export interface MiaixzEventEmitOptions {
-  /**
-   * Indicates whether a locally dispatched event may also cross the configured channel.
-   */
-  readonly broadcast?: boolean;
-}
-
-/**
- * Extracts string event names from an event map.
- */
-export type MiaixzEventName<Events extends object> = Extract<keyof Events, string>;
-
-/**
- * Receives a typed event payload.
- */
-export type MiaixzEventListener<T> = (payload: T) => void;
-
-/**
- * Defines the minimal event-bus port required by SDK domain stores.
- *
- * @typeParam Events - Event-name map whose values define payload types.
- * @internal
- */
-export interface MiaixzEventBusPort<Events extends object> {
-  /**
-   * Registers a typed event listener.
-   */
-  on<Name extends MiaixzEventName<Events>>(
-    type: Name,
-    listener: MiaixzEventListener<Events[Name]>,
-  ): () => void;
-  /**
-   * Publishes a typed event.
-   */
-  emit<Name extends MiaixzEventName<Events>>(
-    type: Name,
-    payload: Events[Name],
-    options?: Readonly<MiaixzEventEmitOptions>,
-  ): void;
 }

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the index module.
+ */
+
 export type { MiaixzDepartmentSummary, MiaixzOrganizationSummary } from "./organization.js";
 export { getMiaixzPageCount } from "./pagination.js";
 export type { MiaixzPage, MiaixzPageQuery, MiaixzPagination } from "./pagination.js";

@@ -1,3 +1,7 @@
+/**
+ * Implements the appearance test module.
+ */
+
 import assert from "node:assert/strict";
 import { test } from "vitest";
 

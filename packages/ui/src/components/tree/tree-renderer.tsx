@@ -25,7 +25,7 @@
 import type { KeyboardEvent, MouseEvent, RefObject } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import {
   isTreeNodeExpandable,
   resolveTreeChildren,

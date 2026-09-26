@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the telemetry module.
+ */
+
 import { miaixzHeaders } from "./constants.js";
 import { MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzHttpMethod, MiaixzPreparedRequest } from "./request.js";

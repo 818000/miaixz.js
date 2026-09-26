@@ -29,14 +29,11 @@ import { loadWorkspaceRepository, repositoryRoot } from "../../../miaixz.mjs";
 import { inspectComponentColors } from "./ui-color-policy.mjs";
 
 const repository = loadWorkspaceRepository();
-const uiWorkspace = repository.workspaces.find(
-  ({ name }) => name === "@miaixz/ui",
-);
-const viewWorkspace = repository.workspaces.find(
-  ({ name }) => name === "@miaixz/view",
-);
-if (uiWorkspace === undefined || viewWorkspace === undefined) {
-  throw new Error("The UI and View workspace manifests are required.");
+const uiWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/ui");
+const viewWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/view");
+const iconsWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/icons");
+if (uiWorkspace === undefined || viewWorkspace === undefined || iconsWorkspace === undefined) {
+  throw new Error("The Icons, UI, and View workspace manifests are required.");
 }
 const packageDirectory = uiWorkspace.rootPath;
 const sourceDirectory = resolve(packageDirectory, "src");
@@ -67,10 +64,7 @@ const publicContractFiles = [
   resolve(packageDirectory, "README.md"),
   resolve(repositoryRoot, "README.md"),
 ];
-const componentIndex = await readFile(
-  resolve(packageDirectory, "src/components/index.ts"),
-  "utf8",
-);
+const componentIndex = await readFile(resolve(packageDirectory, "src/components/index.ts"), "utf8");
 const packageManifestSource = `${JSON.stringify(uiWorkspace.manifest, null, 2)}\n`;
 const actionTypes = await readFile(
   resolve(packageDirectory, "src/components/action/action.types.ts"),
@@ -91,6 +85,13 @@ const buttonSource = await readFile(
 const findings = [];
 const definitions = new Set();
 const uses = [];
+const iconStyleSource = await readFile(
+  resolve(iconsWorkspace.rootPath, "src/styles/index.css"),
+  "utf8",
+);
+for (const match of iconStyleSource.matchAll(/(--miaixz-[a-z0-9-]+)\s*:/g)) {
+  definitions.add(match[1]);
+}
 const requiredGeneratedThemeVariables = new Set([
   "--miaixz-text-compact-body-size",
   "--miaixz-text-compact-body-line-height",
@@ -124,45 +125,22 @@ for (const file of files) {
   const isGeneratedTheme = source.includes(generatedThemeMarker);
   if (isGeneratedTheme) generatedThemeFiles.push(file);
   const isReset = fileName.endsWith("/reset.css");
-  for (const match of source.matchAll(/(--miaixz-[a-z0-9-]+)\s*:/g))
-    definitions.add(match[1]);
-  for (const match of source.matchAll(
-    /var\((--miaixz-[a-z0-9-]+)(?:\s*,[^)]*)?\)/g,
-  )) {
+  for (const match of source.matchAll(/(--miaixz-[a-z0-9-]+)\s*:/g)) definitions.add(match[1]);
+  for (const match of source.matchAll(/var\((--miaixz-[a-z0-9-]+)(?:\s*,[^)]*)?\)/g)) {
     uses.push({ fileName, source, index: match.index, property: match[1] });
-    if (
-      match[0].includes(",") &&
-      !isAllowedTypographyFallback(fileName, match[0])
-    )
+    if (match[0].includes(",") && !isAllowedTypographyFallback(fileName, match[0]))
       addFinding(fileName, source, match.index, "THEME_VAR_FALLBACK", match[0]);
   }
   if (!isReset) {
-    inspect(
-      fileName,
-      source,
-      /(^|[},]\s*)(html|body|:root)(?=[\s,{])/gm,
-      "THEME_HOST_SELECTOR",
-    );
+    inspect(fileName, source, /(^|[},]\s*)(html|body|:root)(?=[\s,{])/gm, "THEME_HOST_SELECTOR");
   }
-  if (
-    isComponent ||
-    fileName.includes("/foundation/") ||
-    fileName === "src/theme/scope.css"
-  ) {
-    for (const finding of inspectComponentColors(
-      fileName.split("/").at(-1),
-      source,
-    )) {
+  if (isComponent || fileName.includes("/foundation/") || fileName === "src/theme/scope.css") {
+    for (const finding of inspectComponentColors(fileName.split("/").at(-1), source)) {
       addFinding(fileName, source, 0, "THEME_COLOR_POLICY", finding);
     }
   }
   if (isComponent) {
-    inspect(
-      fileName,
-      source,
-      /#[0-9a-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(/gi,
-      "THEME_DIRECT_COLOR",
-    );
+    inspect(fileName, source, /#[0-9a-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(/gi, "THEME_DIRECT_COLOR");
     inspect(
       fileName,
       source,
@@ -185,19 +163,9 @@ for (const file of files) {
     inspectLiteralFontSizes(fileName, source);
   }
   if (!isGeneratedTheme) {
-    inspect(
-      fileName,
-      source,
-      /--miaixz-color-[a-z0-9-]+\s*:/g,
-      "THEME_COLOR_OUTSIDE_THEME",
-    );
+    inspect(fileName, source, /--miaixz-color-[a-z0-9-]+\s*:/g, "THEME_COLOR_OUTSIDE_THEME");
   } else {
-    inspect(
-      fileName,
-      source,
-      /\.miaixz-[a-z0-9-]+/g,
-      "THEME_COMPONENT_SELECTOR",
-    );
+    inspect(fileName, source, /\.miaixz-[a-z0-9-]+/g, "THEME_COMPONENT_SELECTOR");
   }
 }
 
@@ -206,9 +174,7 @@ for (const file of componentSourceFiles) {
   for (const match of source.matchAll(/["'](--miaixz-[a-z0-9-]+)["']\s*:/g)) {
     definitions.add(match[1]);
   }
-  for (const match of source.matchAll(
-    /\.setProperty\(\s*["'](--miaixz-[a-z0-9-]+)["']/g,
-  )) {
+  for (const match of source.matchAll(/\.setProperty\(\s*["'](--miaixz-[a-z0-9-]+)["']/g)) {
     definitions.add(match[1]);
   }
 }
@@ -218,73 +184,39 @@ const resolvedUiClassNames = new Set(
     await Promise.all(
       files.map(async (file) => {
         const source = await readFile(file, "utf8");
-        return [...source.matchAll(/\.(miaixz-[a-z0-9-]+)/gu)].map(
-          (match) => match[1],
-        );
+        return [...source.matchAll(/\.(miaixz-[a-z0-9-]+)/gu)].map((match) => match[1]);
       }),
     )
   ).flat(),
 );
 const viewStyleSource = await readFile(viewStyleFile, "utf8");
 const viewClassNames = new Set(
-  [...viewStyleSource.matchAll(/\.(miaixz-[a-z0-9-]+)/gu)].map(
-    (match) => match[1],
-  ),
+  [...viewStyleSource.matchAll(/\.(miaixz-[a-z0-9-]+)/gu)].map((match) => match[1]),
 );
 for (const className of viewClassNames) {
   if (!className.startsWith("miaixz-preview")) {
-    addFinding(
-      viewStyleName,
-      viewStyleSource,
-      0,
-      "VIEW_CLASS_PREFIX",
-      className,
-    );
+    addFinding(viewStyleName, viewStyleSource, 0, "VIEW_CLASS_PREFIX", className);
   }
   if (resolvedUiClassNames.has(className)) {
-    addFinding(
-      viewStyleName,
-      viewStyleSource,
-      0,
-      "VIEW_UI_CLASS_COLLISION",
-      className,
-    );
+    addFinding(viewStyleName, viewStyleSource, 0, "VIEW_UI_CLASS_COLLISION", className);
   }
 }
-for (const match of viewStyleSource.matchAll(
-  /var\((--miaixz-[a-z0-9-]+)(\s*,[^)]*)?\)/gu,
-)) {
-  if (match[2] !== undefined) {
+for (const match of viewStyleSource.matchAll(/var\((--miaixz-[a-z0-9-]+)(\s*,[^)]*)?\)/gu)) {
+  if (match[2] === undefined) {
     addFinding(
       viewStyleName,
       viewStyleSource,
       match.index,
-      "VIEW_TOKEN_FALLBACK",
+      "VIEW_TOKEN_FALLBACK_MISSING",
       match[0],
-    );
-  }
-  if (!definitions.has(match[1])) {
-    addFinding(
-      viewStyleName,
-      viewStyleSource,
-      match.index,
-      "VIEW_TOKEN_UNKNOWN",
-      match[1],
     );
   }
 }
 for (const file of viewSourceFiles) {
   const source = await readFile(file, "utf8");
   const fileName = relative(packageDirectory, file);
-  inspect(
-    fileName,
-    source,
-    /\bmiaixz-view(?:-[a-z0-9-]+)*\b/gu,
-    "VIEW_OLD_NAMESPACE",
-  );
-  for (const match of source.matchAll(
-    /["'](miaixz-(?:preview|view)[a-z0-9-]*)["']/gu,
-  )) {
+  inspect(fileName, source, /\bmiaixz-view(?:-[a-z0-9-]+)*\b/gu, "VIEW_OLD_NAMESPACE");
+  for (const match of source.matchAll(/["'](miaixz-(?:preview|view)[a-z0-9-]*)["']/gu)) {
     if (!match[1].startsWith("miaixz-preview")) {
       addFinding(fileName, source, match.index, "VIEW_CLASS_PREFIX", match[1]);
     }
@@ -343,10 +275,7 @@ for (const entry of ["action-text.tsx"]) {
   );
 }
 {
-  const file = resolve(
-    packageDirectory,
-    "src/components/pressable/pressable.tsx",
-  );
+  const file = resolve(packageDirectory, "src/components/pressable/pressable.tsx");
   const source = await readFile(file, "utf8");
   inspect(
     "src/components/pressable/pressable.tsx",
@@ -365,10 +294,7 @@ if ((buttonSource.match(/"data-miaixz-ripple": "true"/g) ?? []).length !== 2) {
   );
 }
 {
-  const file = resolve(
-    packageDirectory,
-    "src/components/action/icon-button.tsx",
-  );
+  const file = resolve(packageDirectory, "src/components/action/icon-button.tsx");
   const source = await readFile(file, "utf8");
   if ((source.match(/"data-miaixz-ripple": "true"/g) ?? []).length !== 1) {
     addFinding(
@@ -449,13 +375,7 @@ for (const directory of [
 
 for (const use of uses) {
   if (!definitions.has(use.property)) {
-    addFinding(
-      use.fileName,
-      use.source,
-      use.index,
-      "THEME_VARIABLE_UNKNOWN",
-      use.property,
-    );
+    addFinding(use.fileName, use.source, use.index, "THEME_VARIABLE_UNKNOWN", use.property);
   }
 }
 
@@ -549,20 +469,10 @@ function inspectPublicContract(fileName, source) {
 function inspectGlobalBackground(fileName, source) {
   for (const rule of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     const selector = rule[1].trim();
-    if (!/(?:^|[\s>+~,(])(?:html|body|:root)(?=$|[\s>+~.#:[(])/i.test(selector))
-      continue;
-    for (const declaration of rule[2].matchAll(
-      /(?:^|;)\s*(background(?:-color|-image)?)\s*:/gi,
-    )) {
-      const index =
-        (rule.index ?? 0) + rule[0].indexOf(rule[2]) + (declaration.index ?? 0);
-      addFinding(
-        fileName,
-        source,
-        index,
-        "THEME_GLOBAL_BACKGROUND",
-        declaration[1],
-      );
+    if (!/(?:^|[\s>+~,(])(?:html|body|:root)(?=$|[\s>+~.#:[(])/i.test(selector)) continue;
+    for (const declaration of rule[2].matchAll(/(?:^|;)\s*(background(?:-color|-image)?)\s*:/gi)) {
+      const index = (rule.index ?? 0) + rule[0].indexOf(rule[2]) + (declaration.index ?? 0);
+      addFinding(fileName, source, index, "THEME_GLOBAL_BACKGROUND", declaration[1]);
     }
   }
 }
@@ -583,17 +493,9 @@ function inspectThemeBackgroundAssets(fileName, source) {
       !/url\(/i.test(declaration) &&
       /gradient\(/i.test(declaration) &&
       /var\(--miaixz-/i.test(declaration) &&
-      !/#[0-9a-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(|\b(?:black|white)\b/i.test(
-        declaration,
-      );
+      !/#[0-9a-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(|\b(?:black|white)\b/i.test(declaration);
     if (!isTokenizedGradient) {
-      addFinding(
-        fileName,
-        source,
-        match.index,
-        "THEME_BACKGROUND_ASSET",
-        declaration,
-      );
+      addFinding(fileName, source, match.index, "THEME_BACKGROUND_ASSET", declaration);
     }
   }
 }
@@ -613,18 +515,11 @@ function inspectLiteralFontSizes(fileName, source) {
     const value = match[1];
     if (
       value === "0" ||
-      (fileName === "src/styles/components/diagram/graph.css" &&
-        allowedSvgGeometry.has(value))
+      (fileName === "src/styles/components/diagram/graph.css" && allowedSvgGeometry.has(value))
     ) {
       continue;
     }
-    addFinding(
-      fileName,
-      source,
-      match.index,
-      "THEME_LITERAL_FONT_SIZE",
-      match[0],
-    );
+    addFinding(fileName, source, match.index, "THEME_LITERAL_FONT_SIZE", match[0]);
   }
 }
 

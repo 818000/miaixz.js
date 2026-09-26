@@ -23,12 +23,11 @@
  */
 
 import { forwardRef, useId } from "react";
-import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";
+import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { IconButton } from "../action/icon-button.js";
 import { Button } from "../button/button.js";
-import { Icon } from "../icon/icon.js";
 import type { ToastOwnerState, ToastProps, ToastTone } from "./toast.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 

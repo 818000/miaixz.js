@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the auth mode test d module.
+ */
+
 import type { MiaixzPersistentSessionStorage } from "../../src/access/session/index.js";
 import type { MiaixzEventBus, MiaixzSdkEventMap } from "../../src/runtime/events/index.js";
 import type { MiaixzBearerSdk, MiaixzCookieSdk, MiaixzSdkOptions } from "../../src/sdk.js";

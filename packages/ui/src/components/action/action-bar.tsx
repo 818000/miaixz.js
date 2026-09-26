@@ -32,7 +32,7 @@ import {
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { useMergedSlotProps } from "../../shared/slots.js";
 import { Button, ButtonLink } from "../button/button.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { ActionText } from "./action-text.js";
 import type { ActionBarOwnerState, ActionBarProps, ActionDescriptor } from "./action.types.js";
 import { MoreActions } from "./more-actions.js";

@@ -30,7 +30,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
 import { IconButton } from "../action/icon-button.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { Input } from "../input/input.js";
 import type { SearchChangeReason, SearchOwnerState, SearchProps } from "./search.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";

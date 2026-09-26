@@ -28,7 +28,7 @@ import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
 import { Checkbox } from "../checkbox/checkbox.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { Overlay } from "../overlay/overlay.js";
 import { Radio } from "../radio/radio.js";
 import { Scroll } from "../scroll/scroll.js";

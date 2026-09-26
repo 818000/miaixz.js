@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the response parser module.
+ */
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import { isRecord } from "../../shared/object.js";
 import type { MiaixzResponseParser, MiaixzResponseType } from "./request.js";

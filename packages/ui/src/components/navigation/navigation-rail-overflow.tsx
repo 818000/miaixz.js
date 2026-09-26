@@ -27,7 +27,7 @@ import { forwardRef, type RefObject } from "react";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Dropdown } from "../dropdown/dropdown.js";
 import type { DropdownEntry } from "../dropdown/dropdown.types.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { Pressable } from "../pressable/pressable.js";
 import { Navigation } from "./navigation.js";
 import { NavigationRailGroup } from "./navigation-rail-group.js";
@@ -162,7 +162,7 @@ export const RailOverflow = forwardRef<HTMLButtonElement, RailOverflowProps>(fun
             title={ownerState.expanded ? undefined : label}
           >
             <span className="miaixz-navigation-icon">
-              <Icon aria-hidden="true" name="more-horizontal" size="navigation" />
+              <Icon name="more-horizontal" size="navigation" />
             </span>
             <span className="miaixz-navigation-label">{label}</span>
           </Pressable>

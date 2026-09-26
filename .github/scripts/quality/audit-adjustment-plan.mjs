@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Audits implementation changes against the repository adjustment plan.
+ */
+
 import { execFileSync } from "node:child_process";
 import {
   existsSync,
@@ -182,14 +186,14 @@ function walk(directory) {
 function auditPublicEntryTable(directory, manifest, readme, findings) {
   const section = /## Public entries\n([\s\S]*?)(?=\n## |$)/u.exec(readme)?.[1] ?? "";
   const documented = new Map(
-    [...section.matchAll(/^\|[ \t]*`([^`]+)`[ \t]*\|[ \t]*(JavaScript|CSS)[ \t]*\|$/gmu)].map(
+    [...section.matchAll(/^\|[ \t]*`([^`]+)`[ \t]*\|[ \t]*(JavaScript|CSS|Asset)[ \t]*\|$/gmu)].map(
       (match) => [match[1], match[2]],
     ),
   );
   const expected = new Map(
     Object.entries(manifest.exports).map(([entry, target]) => [
       entry,
-      typeof target === "string" ? "CSS" : "JavaScript",
+      typeof target === "string" ? (target.endsWith(".css") ? "CSS" : "Asset") : "JavaScript",
     ]),
   );
   if (JSON.stringify([...documented]) !== JSON.stringify([...expected])) {
@@ -238,14 +242,14 @@ function auditWorkspaceConfiguration(workspace, findings) {
         findings.push(`${directory}/package.json export ${entry} has an invalid target`);
         continue;
       }
-      if (!hasExportSource(rootPath, target)) {
+      if (!hasExportSource(directory, rootPath, target)) {
         findings.push(`${directory}/package.json export ${entry} has no source for ${target}`);
       }
     }
   }
 
-  const expectedCssExclusions = Object.entries(exports)
-    .filter(([, target]) => typeof target === "string" && target.endsWith(".css"))
+  const expectedResourceExclusions = Object.entries(exports)
+    .filter(([, target]) => typeof target === "string")
     .map(([entry]) => entry.replace(/^\.\//u, ""))
     .sort();
   const attwPath = resolve(rootPath, ".attw.json");
@@ -253,9 +257,9 @@ function auditWorkspaceConfiguration(workspace, findings) {
     findings.push(`${directory}/.attw.json is missing`);
   } else {
     const attw = JSON.parse(readFileSync(attwPath, "utf8"));
-    const actualCssExclusions = [...(attw.excludeEntrypoints ?? [])].sort();
-    if (JSON.stringify(actualCssExclusions) !== JSON.stringify(expectedCssExclusions)) {
-      findings.push(`${directory}/.attw.json CSS exclusions do not match package exports`);
+    const actualResourceExclusions = [...(attw.excludeEntrypoints ?? [])].sort();
+    if (JSON.stringify(actualResourceExclusions) !== JSON.stringify(expectedResourceExclusions)) {
+      findings.push(`${directory}/.attw.json resource exclusions do not match package exports`);
     }
   }
 
@@ -265,11 +269,22 @@ function auditWorkspaceConfiguration(workspace, findings) {
 /**
  * Reports whether an export target has a corresponding source file.
  *
+ * @param {string} directory Workspace directory.
  * @param {string} workspaceRoot Absolute workspace root.
  * @param {string} target Package export target below dist.
  * @returns {boolean} Whether one matching TypeScript, TSX, declaration, or CSS source exists.
  */
-function hasExportSource(workspaceRoot, target) {
+function hasExportSource(directory, workspaceRoot, target) {
+  if (directory === "packages/view" && target === "./dist/styles.css") {
+    return existsSync(resolve(workspaceRoot, "src/shell/styles/view.css"));
+  }
+  if (directory === "packages/icons" && target.startsWith("./dist/assets/fonts/")) {
+    return (
+      existsSync(resolve(workspaceRoot, "src/assets/fonts/miaixz-icons.designspace")) &&
+      existsSync(resolve(workspaceRoot, "src/assets/fonts/codepoints.json")) &&
+      existsSync(resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/build.mjs"))
+    );
+  }
   const relativeTarget = target.slice("./dist/".length);
   const sourceTarget = resolve(workspaceRoot, "src", relativeTarget);
   if (relativeTarget.endsWith(".css")) return existsSync(sourceTarget);
@@ -317,16 +332,34 @@ function auditReadmeCompileBlocks(sources, findings) {
     return;
   }
   const workspaceCompilerPaths = Object.fromEntries(
-    repository.workspaces.flatMap(({ directory, name }) => [
-      [name, [resolve(repositoryRoot, directory, "src/index.ts")]],
-      [
-        `${name}/*`,
+    repository.workspaces.flatMap(({ directory, manifest, name }) => {
+      const exactEntries = Object.entries(manifest.exports ?? {}).flatMap(([entry, target]) => {
+        if (
+          entry === "." ||
+          target === null ||
+          typeof target !== "object" ||
+          Array.isArray(target) ||
+          typeof target.import !== "string"
+        ) {
+          return [];
+        }
+        const source = target.import.replace(/^\.\/dist\//u, "src/").replace(/\.js$/u, ".ts");
+        return [
+          [`${name}/${entry.replace(/^\.\//u, "")}`, [resolve(repositoryRoot, directory, source)]],
+        ];
+      });
+      return [
+        [name, [resolve(repositoryRoot, directory, "src/index.ts")]],
         [
-          resolve(repositoryRoot, directory, "src/components/*/index.ts"),
-          resolve(repositoryRoot, directory, "src/*/index.ts"),
+          `${name}/*`,
+          [
+            resolve(repositoryRoot, directory, "src/components/*/index.ts"),
+            resolve(repositoryRoot, directory, "src/*/index.ts"),
+          ],
         ],
-      ],
-    ]),
+        ...exactEntries,
+      ];
+    }),
   );
   try {
     let blockIndex = 0;
@@ -340,7 +373,9 @@ function auditReadmeCompileBlocks(sources, findings) {
         writeFileSync(sourcePath, match[2]);
         writeFileSync(join(blockDirectory, "styles.d.ts"), 'declare module "*.css";\n');
         const owningDirectory =
-          readmePath === "README.md" ? defaultCompileWorkspace.directory : readmePath.split("/")[0];
+          readmePath === "README.md"
+            ? defaultCompileWorkspace.directory
+            : readmePath.slice(0, -"/README.md".length);
         writeFileSync(
           configPath,
           `${JSON.stringify(
@@ -382,8 +417,16 @@ function auditReadmeCompileBlocks(sources, findings) {
             cwd: repositoryRoot,
             stdio: "pipe",
           });
-        } catch {
-          findings.push(`${readmePath} compile block ${blockIndex + 1} does not type-check`);
+        } catch (error) {
+          const diagnostics =
+            error !== null && typeof error === "object" && "stdout" in error
+              ? String(error.stdout).trim().split("\n").slice(0, 3).join(" ")
+              : "";
+          findings.push(
+            `${readmePath} compile block ${blockIndex + 1} does not type-check${
+              diagnostics === "" ? "" : `: ${diagnostics}`
+            }`,
+          );
         }
         blockIndex += 1;
       }

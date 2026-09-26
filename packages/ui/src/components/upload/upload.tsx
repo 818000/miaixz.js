@@ -26,7 +26,7 @@ import { forwardRef, useMemo, useState, type ReactElement } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
-import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";
+import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { UploadFileRecord } from "../../shared/upload/types.js";
 import { useUploadQueue } from "../../shared/upload/use-upload-queue.js";
@@ -34,7 +34,6 @@ import { IconButton } from "../action/icon-button.js";
 import { Confirm } from "../confirm/confirm.js";
 import { Dropzone, getDropzoneFileSignature, validateDropzoneFiles } from "../dropzone/dropzone.js";
 import { type DropzoneRejection } from "../dropzone/dropzone.types.js";
-import { Icon } from "../icon/icon.js";
 import { Progress } from "../progress/progress.js";
 import type { UploadOwnerState, UploadProps } from "./upload.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -193,7 +192,7 @@ export const Upload = withMiaixzThemeComponent(
         </div>
         {validationErrors.length > 0 ? (
           <div {...validationProps}>
-            <Icon aria-hidden="true" name="circle-alert" size="inline" />
+            <Icon name="circle-alert" size="inline" />
             <ul className="miaixz-upload-validation-list">
               {[...new Set(validationErrors.map((error) => error.message))].map((message) => (
                 <li key={message}>{message}</li>

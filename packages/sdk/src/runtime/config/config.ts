@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the config module.
+ */
+
 import { normalizeMiaixzApiEndpoint } from "../../fabric/api/endpoint.js";
 import { isMiaixzAppearanceSettings } from "../../display/validation.js";
 import { isMiaixzSdkError, MiaixzSdkError } from "../../errors/errors.js";

@@ -24,7 +24,7 @@
 
 import { forwardRef } from "react";
 
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { ActionTarget } from "./action-target.js";
 import type { ActionTextProps } from "./action.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";

@@ -70,7 +70,6 @@ export {
   Heatmap,
   HeatmapLegend,
   Hidden,
-  Icon,
   IconButton,
   Input,
   NumberInput,
@@ -363,9 +362,6 @@ export type {
   IconButtonProps,
   IconButtonRootAttributes,
   IconButtonSlotProps,
-  IconProps,
-  IconSize,
-  IconStroke,
   InputOwnerState,
   InputProps,
   InputRootAttributes,
@@ -845,6 +841,5 @@ export type {
   ThemeContextValue,
   ThemeProps,
 } from "./theme/index.js";
-export type { IconName } from "./icons/index.js";
 export { useMedia } from "./shared/responsive/use-media.js";
 export type { UseMediaOptions } from "./shared/responsive/use-media.js";

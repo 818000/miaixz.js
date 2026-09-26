@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the post message module.
+ */
+
 import type { MiaixzHostAdapter, MiaixzHostBridge } from "./host-context.js";
 import type { MiaixzModuleManifest } from "./module-manifest.js";
 

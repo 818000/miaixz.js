@@ -25,7 +25,7 @@
 import type { ReactElement, ReactNode } from "react";
 
 import type { ButtonOwnerState, ButtonSlotProps } from "./button.types.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 
 /**

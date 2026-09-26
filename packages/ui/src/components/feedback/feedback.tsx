@@ -24,9 +24,8 @@
 
 import type { HTMLAttributes, ReactElement } from "react";
 
-import { ICON_NAMES, type IconName } from "../../icons/icon-names.js";
+import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
 import { IconButton } from "../action/icon-button.js";
-import { Icon } from "../icon/icon.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 import type { MiaixzFeedbackLive, MiaixzFeedbackProps } from "./feedback.types.js";
 
@@ -58,7 +57,7 @@ export function MiaixzFeedback(props: MiaixzFeedbackProps): ReactElement {
   return (
     <div {...props.rootProps}>
       <span {...props.iconProps}>
-        <Icon aria-hidden="true" name={feedbackIcons[props.tone]} size="control" />
+        <Icon name={feedbackIcons[props.tone]} size="control" />
       </span>
       <div {...props.contentProps}>
         {props.title === undefined ? null : <div {...props.titleProps}>{props.title}</div>}

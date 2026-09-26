@@ -25,7 +25,7 @@
 import type { HTMLAttributes, RefAttributes } from "react";
 
 import type { HiddenProps } from "../hidden/hidden.types.js";
-import type { IconProps } from "../icon/icon.types.js";
+import type { IconProps } from "@miaixz/icons";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
 

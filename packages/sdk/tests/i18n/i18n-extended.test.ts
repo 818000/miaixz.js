@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the i18n extended test module.
+ */
+
 import { describe, expect, it, vi } from "vitest";
 
 import { createMiaixzI18n, MiaixzI18n } from "../../src/i18n/i18n-runtime.js";

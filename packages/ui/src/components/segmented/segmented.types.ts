@@ -24,7 +24,7 @@
 
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 
-import type { IconName } from "../../icons/icon-names.js";
+import type { IconName } from "@miaixz/icons";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 export interface SegmentedItem<Value extends string = string> {

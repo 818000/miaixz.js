@@ -391,8 +391,6 @@ export type {
 } from "./header/index.js";
 export { Heatmap, HeatmapLegend } from "./heatmap/index.js";
 export type { HeatmapLegendProps, HeatmapLevel, HeatmapProps } from "./heatmap/index.js";
-export { Icon } from "./icon/index.js";
-export type { IconProps, IconSize, IconStroke } from "./icon/index.js";
 export { Notice } from "./notice/index.js";
 export type {
   MiaixzNoticeOwnProps,

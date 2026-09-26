@@ -334,6 +334,7 @@ describe("public view components", () => {
     fireEvent.click(rendered.getByRole("button", { name: "Rotate right" }));
     fireEvent.click(rendered.getByRole("button", { name: "Rotate left" }));
     fireEvent.click(rendered.getByRole("button", { name: "Zoom out" }));
+    expect(rendered.getByRole("toolbar").querySelectorAll(".miaixz-icon")).toHaveLength(4);
     expect(image).toHaveClass("host-content");
     expect(rendered.getByRole("toolbar")).toHaveClass("host-toolbar");
     expect(rendered.getByRole("button", { name: "Custom" })).toBeInTheDocument();
@@ -373,6 +374,7 @@ describe("public view components", () => {
     expect(rendered.getByText("complete")).toBeInTheDocument();
     expect(reference.current?.getElement()).toHaveClass("host-view");
     fireEvent.click(rendered.getByRole("button", { name: "Zoom in" }));
+    expect(rendered.getByRole("toolbar").querySelectorAll(".miaixz-icon")).toHaveLength(3);
     expect(rendered.getByRole("button", { name: "Original" })).toHaveTextContent("125%");
     act(() => reference.current?.resetZoom());
     await waitFor(() =>

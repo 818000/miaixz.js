@@ -23,6 +23,7 @@
  */
 
 import { forwardRef, useEffect, useState } from "react";
+import { Icon } from "@miaixz/icons";
 
 import { MiaixzViewError } from "../../shared/errors/view-error.js";
 import { clamp, classNames } from "../../shell/util/class-names.js";
@@ -119,7 +120,7 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
                 title={labels.zoomOut}
                 type="button"
               >
-                −
+                <Icon name="circle-minus" size="control" />
               </button>
               <output aria-live="polite" className="miaixz-preview-value">
                 {Math.round(scale * 100)}%
@@ -132,7 +133,7 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
                 title={labels.zoomIn}
                 type="button"
               >
-                +
+                <Icon name="circle-plus" size="control" />
               </button>
               <button
                 aria-label={labels.rotateLeft}
@@ -141,7 +142,7 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
                 title={labels.rotateLeft}
                 type="button"
               >
-                ↺
+                <Icon name="rotate-ccw" size="control" />
               </button>
               <button
                 aria-label={labels.rotateRight}
@@ -150,7 +151,7 @@ export const ImageView = forwardRef<HTMLDivElement, ImageViewProps>(function Ima
                 title={labels.rotateRight}
                 type="button"
               >
-                ↻
+                <Icon className="miaixz-preview-icon-reverse" name="rotate-ccw" size="control" />
               </button>
             </>
           )}

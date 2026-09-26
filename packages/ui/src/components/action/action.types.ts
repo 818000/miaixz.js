@@ -30,7 +30,7 @@ import type {
   RefAttributes,
 } from "react";
 
-import type { IconName } from "../../icons/icon-names.js";
+import type { IconName } from "@miaixz/icons";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ButtonLinkSlotProps, ButtonSlotProps, ButtonTone } from "../button/button.types.js";
 

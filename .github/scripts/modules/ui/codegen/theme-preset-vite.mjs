@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Provides the Vite integration for generated UI theme presets.
+ */
+
 import { dirname, resolve } from "node:path";
 import { normalizePath } from "vite";
 import { discoverThemePresets } from "./theme-preset-catalog.mjs";

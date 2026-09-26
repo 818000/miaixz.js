@@ -40,7 +40,7 @@ import { useMiaixzNativeModal } from "../../shared/overlay/native-modal.js";
 import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type {
   DrawerCloseReason,
   DrawerOwnerState,

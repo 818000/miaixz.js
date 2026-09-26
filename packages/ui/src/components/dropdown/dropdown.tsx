@@ -37,7 +37,7 @@ import { MiaixzUiError } from "../../errors/ui-error.js";
 import { Anchor } from "../../shared/anchor.js";
 import { classNames } from "../../shared/class-names.js";
 import { validateMiaixzCollectionItems } from "../../shared/collection/controller.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { Popover } from "../popover/popover.js";
 import { useMiaixzPopoverContext } from "../popover/context.js";
 import type {
@@ -365,7 +365,7 @@ function DropdownSubmenu({ entry }: { readonly entry: DropdownSubmenuEntry }) {
         type="button"
       >
         <DropdownEntryContent entry={entry} />
-        <Icon aria-hidden="true" name="chevron-right" size="control" />
+        <Icon name="chevron-right" size="control" />
       </button>
       {open ? (
         <div

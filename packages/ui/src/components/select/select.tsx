@@ -51,7 +51,7 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import { getMiaixzThemeSlotClassNames } from "../../theme/registry.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { emptySelectItems, joinIds, validateAndFlattenSelectEntries } from "./select-model.js";
 import type {
   SelectOption,

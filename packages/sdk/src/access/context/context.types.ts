@@ -23,7 +23,7 @@
  */
 
 import type { MiaixzIdentifier } from "../../fabric/api/api.types.js";
-import type { MiaixzEventBusPort, MiaixzSdkEventMap } from "../../runtime/events/event-types.js";
+import type { MiaixzEventBusPort } from "../../runtime/events/event-port.js";
 import type {
   MiaixzKeyValueStorage,
   MiaixzStorageMigration,
@@ -111,5 +111,7 @@ export interface MiaixzContextStoreOptions {
   /**
    * Optional event bus used to synchronize service instances.
    */
-  readonly eventBus?: MiaixzEventBusPort<MiaixzSdkEventMap>;
+  readonly eventBus?: MiaixzEventBusPort<{
+    readonly "context:changed": Readonly<MiaixzRuntimeContext>;
+  }>;
 }

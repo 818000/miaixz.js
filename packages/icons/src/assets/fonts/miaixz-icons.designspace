@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<designspace format="5.0">
+  <axes>
+    <axis tag="FILL" name="Fill" minimum="0" maximum="1" default="0">
+      <labels ordering="0">
+        <label uservalue="0" name="Outline" elidable="true">
+          <labelname xml:lang="en">Outline</labelname>
+        </label>
+        <label uservalue="1" name="Filled">
+          <labelname xml:lang="en">Filled</labelname>
+        </label>
+      </labels>
+    </axis>
+    <axis tag="opsz" name="Optical Size" minimum="12" maximum="40" default="24">
+      <labels ordering="1">
+        <label uservalue="12" name="Compact">
+          <labelname xml:lang="en">Compact</labelname>
+        </label>
+        <label uservalue="24" name="Standard" elidable="true">
+          <labelname xml:lang="en">Standard</labelname>
+        </label>
+        <label uservalue="40" name="Display">
+          <labelname xml:lang="en">Display</labelname>
+        </label>
+      </labels>
+    </axis>
+  </axes>
+  <sources>
+    <source filename="miaixz-icons-outline-compact.ufo" name="miaixz-icons-outline-compact-master" familyname="Miaixz Icons" stylename="Outline Compact">
+      <location>
+        <dimension name="Fill" xvalue="0"/>
+        <dimension name="Optical Size" xvalue="12"/>
+      </location>
+    </source>
+    <source filename="miaixz-icons-outline-standard.ufo" name="miaixz-icons-outline-standard-master" familyname="Miaixz Icons" stylename="Outline Standard">
+      <location>
+        <dimension name="Fill" xvalue="0"/>
+        <dimension name="Optical Size" xvalue="24"/>
+      </location>
+      <info copy="1"/>
+      <lib copy="1"/>
+    </source>
+    <source filename="miaixz-icons-outline-display.ufo" name="miaixz-icons-outline-display-master" familyname="Miaixz Icons" stylename="Outline Display">
+      <location>
+        <dimension name="Fill" xvalue="0"/>
+        <dimension name="Optical Size" xvalue="40"/>
+      </location>
+    </source>
+    <source filename="miaixz-icons-filled-compact.ufo" name="miaixz-icons-filled-compact-master" familyname="Miaixz Icons" stylename="Filled Compact">
+      <location>
+        <dimension name="Fill" xvalue="1"/>
+        <dimension name="Optical Size" xvalue="12"/>
+      </location>
+    </source>
+    <source filename="miaixz-icons-filled-standard.ufo" name="miaixz-icons-filled-standard-master" familyname="Miaixz Icons" stylename="Filled Standard">
+      <location>
+        <dimension name="Fill" xvalue="1"/>
+        <dimension name="Optical Size" xvalue="24"/>
+      </location>
+    </source>
+    <source filename="miaixz-icons-filled-display.ufo" name="miaixz-icons-filled-display-master" familyname="Miaixz Icons" stylename="Filled Display">
+      <location>
+        <dimension name="Fill" xvalue="1"/>
+        <dimension name="Optical Size" xvalue="40"/>
+      </location>
+    </source>
+  </sources>
+  <instances>
+    <instance name="Outline Compact" familyname="Miaixz Icons" stylename="Outline Compact" postscriptfontname="MiaixzIcons-OutlineCompact">
+      <familyname xml:lang="en">Miaixz Icons</familyname>
+      <stylename xml:lang="en">Outline Compact</stylename>
+      <location>
+        <dimension name="Fill" xvalue="0"/>
+        <dimension name="Optical Size" xvalue="12"/>
+      </location>
+    </instance>
+    <instance name="Outline Standard" familyname="Miaixz Icons" stylename="Outline Standard" postscriptfontname="MiaixzIcons-OutlineStandard">
+      <familyname xml:lang="en">Miaixz Icons</familyname>
+      <stylename xml:lang="en">Outline Standard</stylename>
+      <location>
+        <dimension name="Fill" xvalue="0"/>
+        <dimension name="Optical Size" xvalue="24"/>
+      </location>
+    </instance>
+    <instance name="Outline Display" familyname="Miaixz Icons" stylename="Outline Display" postscriptfontname="MiaixzIcons-OutlineDisplay">
+      <familyname xml:lang="en">Miaixz Icons</familyname>
+      <stylename xml:lang="en">Outline Display</stylename>
+      <location>
+        <dimension name="Fill" xvalue="0"/>
+        <dimension name="Optical Size" xvalue="40"/>
+      </location>
+    </instance>
+    <instance name="Filled Compact" familyname="Miaixz Icons" stylename="Filled Compact" postscriptfontname="MiaixzIcons-FilledCompact">
+      <familyname xml:lang="en">Miaixz Icons</familyname>
+      <stylename xml:lang="en">Filled Compact</stylename>
+      <location>
+        <dimension name="Fill" xvalue="1"/>
+        <dimension name="Optical Size" xvalue="12"/>
+      </location>
+    </instance>
+    <instance name="Filled Standard" familyname="Miaixz Icons" stylename="Filled Standard" postscriptfontname="MiaixzIcons-FilledStandard">
+      <familyname xml:lang="en">Miaixz Icons</familyname>
+      <stylename xml:lang="en">Filled Standard</stylename>
+      <location>
+        <dimension name="Fill" xvalue="1"/>
+        <dimension name="Optical Size" xvalue="24"/>
+      </location>
+    </instance>
+    <instance name="Filled Display" familyname="Miaixz Icons" stylename="Filled Display" postscriptfontname="MiaixzIcons-FilledDisplay">
+      <familyname xml:lang="en">Miaixz Icons</familyname>
+      <stylename xml:lang="en">Filled Display</stylename>
+      <location>
+        <dimension name="Fill" xvalue="1"/>
+        <dimension name="Optical Size" xvalue="40"/>
+      </location>
+    </instance>
+  </instances>
+</designspace>

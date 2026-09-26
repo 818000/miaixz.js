@@ -4,6 +4,7 @@
 
 import type {} from "vite/client";
 
+import "@miaixz/icons/styles.css";
 import { createMiaixzAppearanceManager, miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { createRoot } from "react-dom/client";

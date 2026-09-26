@@ -22,7 +22,7 @@
  * Finalizes icon and provider package build outputs without mutating source inputs.
  */
 
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import process from "node:process";
 
@@ -33,34 +33,24 @@ import process from "node:process";
  */
 async function finalizePackage() {
   const packageRoot = process.cwd();
-  const manifest = JSON.parse(
-    await readFile(resolve(packageRoot, "package.json"), "utf8"),
-  );
+  const manifest = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
   if (manifest.name === "@miaixz/icons") {
-    await cp(
-      resolve(packageRoot, "src/styles"),
-      resolve(packageRoot, "dist/styles"),
-      {
-        recursive: true,
-      },
-    );
-    await cp(
-      resolve(packageRoot, "src/assets/svg"),
-      resolve(packageRoot, "dist/svg"),
-      {
-        recursive: true,
-        filter: (source) => !source.endsWith(".gitkeep"),
-      },
-    );
+    const fonts = (await readdir(resolve(packageRoot, "dist/assets/fonts"))).sort();
+    const expectedFonts = ["miaixz-icons-extended.woff2", "miaixz-icons.woff2"];
+    if (JSON.stringify(fonts) !== JSON.stringify(expectedFonts)) {
+      throw new Error(
+        `@miaixz/icons requires exactly ${expectedFonts.join(", ")} before package build.`,
+      );
+    }
+    await cp(resolve(packageRoot, "src/styles"), resolve(packageRoot, "dist/styles"), {
+      recursive: true,
+    });
   }
   const reportPath = resolve(packageRoot, "src/generation-report.json");
   try {
     const report = await readFile(reportPath, "utf8");
     await mkdir(resolve(packageRoot, "dist"), { recursive: true });
-    await writeFile(
-      resolve(packageRoot, "dist/generation-report.json"),
-      report,
-    );
+    await writeFile(resolve(packageRoot, "dist/generation-report.json"), report);
   } catch (error) {
     if (error?.code !== "ENOENT") throw error;
   }

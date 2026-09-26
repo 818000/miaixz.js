@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the request options module.
+ */
+
 import { miaixzDefaultRequestTimeoutMs, miaixzHeaders } from "./constants.js";
 import { MiaixzApiError, MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzEnvironment } from "../../runtime/config/config.types.js";
