@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the signer module.
+ */
+
 import type { MiaixzApiClient } from "./client.js";
 import { MiaixzApiError, MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzHttpMethod, MiaixzResponseParser } from "./request.js";

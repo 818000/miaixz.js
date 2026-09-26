@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the index module.
+ */
+
 export { isValidDate } from "./date.js";
 export { clamp } from "./number.js";
 export { isRecord } from "./object.js";

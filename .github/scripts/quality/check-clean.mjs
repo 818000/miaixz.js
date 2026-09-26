@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Verifies that repository checks leave the source tree unchanged.
+ */
+
 import { execFileSync } from "node:child_process";
 
 const status = execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" });

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the errors module.
+ */
+
 import { getMiaixzSdkErrorMessageKey } from "./error-codes.js";
 import {
   sanitizeMiaixzErrorCause,

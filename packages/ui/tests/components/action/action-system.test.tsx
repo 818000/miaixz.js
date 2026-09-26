@@ -128,9 +128,7 @@ describe("ActionText", () => {
     const action = screen.getByRole("button", { name: "编辑" });
     expect(action).toBeDisabled();
     expect(action).toHaveAttribute("aria-busy", "true");
-    expect(action.querySelector("svg")).not.toBeNull();
-    expect(action.querySelector("svg")).toHaveAttribute("width", "12");
-    expect(action.querySelector("svg")).toHaveAttribute("height", "12");
+    expect(action.querySelector(".miaixz-icon")).toHaveStyle({ "--miaixz-icon-size": "12px" });
     expect(action.querySelector(".miaixz-hidden")).toHaveTextContent("加载中");
     expect(action.querySelector(`.${removedHiddenClassName}`)).toBeNull();
   });
@@ -168,7 +166,7 @@ describe("MoreActions", () => {
 
     const trigger = screen.getByRole("button", { name: "更多" });
     expect(trigger).toHaveTextContent("更多");
-    expect(trigger.querySelector("svg")).not.toBeNull();
+    expect(trigger.querySelector(".miaixz-icon")).not.toBeNull();
     fireEvent.click(trigger);
     const menu = screen.getByRole("menu", { name: "更多" });
     expect(
@@ -260,8 +258,8 @@ describe("RowActions", () => {
     const view = screen.getByRole("button", { name: "查看" });
     expect(edit).toBeVisible();
     expect(view).toBeVisible();
-    expect(edit.querySelector("svg")).not.toBeNull();
-    expect(view.querySelector("svg")).not.toBeNull();
+    expect(edit.querySelector(".miaixz-icon")).not.toBeNull();
+    expect(view.querySelector(".miaixz-icon")).not.toBeNull();
     expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "更多" }));
     expect(screen.getByRole("menuitem", { name: "删除" })).toBeVisible();
@@ -295,7 +293,7 @@ describe("RowActions", () => {
     expect(
       within(menu)
         .getAllByRole("menuitem")
-        .map((item) => item.textContent),
+        .map((item) => item.getAttribute("data-text-value")),
     ).toEqual(["编辑", "重置密码", "冻结"]);
   });
 });

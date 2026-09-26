@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the storage module.
+ */
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzResponseParser } from "../../fabric/api/request.js";
 

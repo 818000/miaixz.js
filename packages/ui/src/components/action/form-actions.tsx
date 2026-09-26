@@ -24,7 +24,7 @@
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Button } from "../button/button.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type {
   FormActionsOwnerState,
   FormActionsProps,

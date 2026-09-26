@@ -26,7 +26,7 @@ import { createElement } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import type { DropdownEntry } from "../dropdown/dropdown.types.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type { NavigationRailGroupModel, NavigationRailItem } from "./navigation-rail.types.js";
 
 /**
@@ -170,7 +170,6 @@ export function createOverflowEntries(
           ? {}
           : {
               icon: createElement(Icon, {
-                "aria-hidden": true,
                 name: item.icon,
                 size: "control",
               }),

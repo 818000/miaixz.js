@@ -26,7 +26,7 @@ import { createElement, forwardRef, useId, useState } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type {
   DisclosureOwnerState,
   DisclosureProps,

@@ -30,7 +30,7 @@ import { useMedia } from "../../shared/responsive/use-media.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 import { Dialog } from "../dialog/dialog.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { Input } from "../input/input.js";
 import { Popover } from "../popover/popover.js";
 import { formatIsoTime, parseIsoTime, stepIsoTime } from "./date-model.js";

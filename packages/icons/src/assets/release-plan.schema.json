@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://miaixz.org/schema/icons/release-plan-0.6.5.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "release",
+    "state",
+    "selectionPolicy",
+    "exactCanonicalCount",
+    "exactCoreCount",
+    "exactExtendedCount",
+    "coreNames",
+    "extendedNames",
+    "canonicalNames",
+    "historicalClassification",
+    "aliasReviews",
+    "batchSize",
+    "batches"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "release": {
+      "const": "0.6.5"
+    },
+    "state": {
+      "enum": ["brief-review", "design", "stable"]
+    },
+    "selectionPolicy": {
+      "type": "string",
+      "minLength": 16
+    },
+    "exactCanonicalCount": {
+      "const": 1024
+    },
+    "exactCoreCount": {
+      "const": 64
+    },
+    "exactExtendedCount": {
+      "const": 960
+    },
+    "coreNames": {
+      "type": "array",
+      "minItems": 64,
+      "maxItems": 64,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "extendedNames": {
+      "type": "array",
+      "minItems": 960,
+      "maxItems": 960,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "canonicalNames": {
+      "type": "array",
+      "minItems": 1024,
+      "maxItems": 1024,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "historicalClassification": {
+      "type": "object"
+    },
+    "aliasReviews": {
+      "type": "array"
+    },
+    "batchSize": {
+      "const": 64
+    },
+    "batches": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16
+    }
+  }
+}

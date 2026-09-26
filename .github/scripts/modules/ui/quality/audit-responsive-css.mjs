@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Audits generated responsive CSS against the canonical breakpoint contract.
+ */
+
 import { readFile, readdir } from "node:fs/promises";
 import { extname, relative, resolve } from "node:path";
 import process from "node:process";

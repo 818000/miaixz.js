@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the module manifest module.
+ */
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzEnvironment } from "../config/config.types.js";
 import { compareMiaixzModuleNavigation, type MiaixzModuleNavigationItem } from "./navigation.js";

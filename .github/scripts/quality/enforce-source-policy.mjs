@@ -33,8 +33,7 @@ const requireStrictComments = {
   meta: {
     type: "layout",
     docs: {
-      description:
-        "Require non-license source comments to use multiline JSDoc blocks.",
+      description: "Require non-license source comments to use multiline JSDoc blocks.",
     },
     fixable: "whitespace",
     schema: [],
@@ -43,8 +42,7 @@ const requireStrictComments = {
         "Only a validated @ts-expect-error directive may share the JSDoc closing line.",
       invalidTypeScriptDirective:
         "TypeScript directives must use @ts-expect-error in multiline JSDoc and include a reason.",
-      missingModule:
-        "Every source file must begin with a multiline JSDoc module description.",
+      missingModule: "Every source file must begin with a multiline JSDoc module description.",
       nonJsdoc: "Every block comment must use the /** ... */ JSDoc form.",
       singleLine: "Every comment must use a multiline JSDoc block.",
     },
@@ -73,6 +71,26 @@ const requireStrictComments = {
           context.report({
             loc: { line: 1, column: 0 },
             messageId: "missingModule",
+
+            /**
+             * Inserts a deterministic module description after the repository header.
+             *
+             * @param {object} fixer ESLint source-code fixer.
+             * @returns {object} ESLint fix that inserts the missing module description.
+             */
+            fix(fixer) {
+              const header = /^\/\*[\s\S]*?miaixz\.org[\s\S]*?\*\/\s*/u.exec(sourceCode.text);
+              const insertionOffset = header?.[0].length ?? 0;
+              const filename = context.filename.split(/[\\/]/u).at(-1) ?? "source";
+              const label = filename
+                .replace(/\.[^.]+$/u, "")
+                .replaceAll(/[._-]+/gu, " ")
+                .trim();
+              return fixer.insertTextAfterRange(
+                [0, insertionOffset],
+                `/**\n * Implements the ${label || "source"} module.\n */\n\n`,
+              );
+            },
           });
         }
         for (const comment of sourceCode.getAllComments()) {
@@ -103,11 +121,7 @@ const requireStrictComments = {
               messageId: "finalLineText",
             });
           }
-          if (
-            comment.type === "Block" &&
-            !raw.startsWith("/**") &&
-            !isRepositoryHeader
-          ) {
+          if (comment.type === "Block" && !raw.startsWith("/**") && !isRepositoryHeader) {
             context.report({
               loc: comment.loc,
               messageId: "nonJsdoc",
@@ -140,11 +154,9 @@ const requireStrictComments = {
              */
             fix(fixer) {
               const source = sourceCode.getText();
-              const lineStart =
-                source.lastIndexOf("\n", comment.range[0] - 1) + 1;
+              const lineStart = source.lastIndexOf("\n", comment.range[0] - 1) + 1;
               const indentation =
-                source.slice(lineStart, comment.range[0]).match(/^\s*/)?.[0] ??
-                "";
+                source.slice(lineStart, comment.range[0]).match(/^\s*/)?.[0] ?? "";
               const content =
                 comment.type === "Line"
                   ? raw.replace(/^\/\/\/?\s?/, "").trimEnd()
@@ -197,19 +209,12 @@ async function processSourceHeaders(mode) {
     resolve(rootDirectory, ".github/scripts"),
   ].filter(existsSync);
   const header = normalizeHeader(
-    await readFile(
-      resolve(repositoryRoot, ".github/scripts/miaixz.org"),
-      "utf8",
-    ),
+    await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"),
   );
   const files = (
-    await Promise.all(
-      sourceDirectories.map((directory) => collectSourceFiles(directory)),
-    )
+    await Promise.all(sourceDirectories.map((directory) => collectSourceFiles(directory)))
   ).flat();
-  const scriptFiles = await collectScriptFiles(
-    resolve(rootDirectory, ".github/scripts"),
-  );
+  const scriptFiles = await collectScriptFiles(resolve(rootDirectory, ".github/scripts"));
   const changedFiles = [];
 
   for (const file of files) {
@@ -226,9 +231,7 @@ async function processSourceHeaders(mode) {
     const source = await readFile(file, "utf8");
     for (const [index, line] of source.split(/\r?\n/u).entries()) {
       if (/\p{Script=Han}/u.test(line)) {
-        scriptLanguageFailures.push(
-          `${file.slice(rootDirectory.length + 1)}:${index + 1}`,
-        );
+        scriptLanguageFailures.push(`${file.slice(rootDirectory.length + 1)}:${index + 1}`);
       }
     }
   }
@@ -236,26 +239,19 @@ async function processSourceHeaders(mode) {
   if (changedFiles.length === 0) {
     process.stdout.write(`Verified source headers in ${files.length} files.\n`);
   } else if (mode === "--write") {
-    process.stdout.write(
-      `Updated source headers in ${changedFiles.length} files.\n`,
-    );
+    process.stdout.write(`Updated source headers in ${changedFiles.length} files.\n`);
   } else {
     for (const file of changedFiles) {
       process.stderr.write(`${file.slice(rootDirectory.length + 1)}\n`);
     }
-    process.stderr.write(
-      `Source header check failed for ${changedFiles.length} files.\n`,
-    );
+    process.stderr.write(`Source header check failed for ${changedFiles.length} files.\n`);
     process.exitCode = 1;
   }
 
   if (scriptLanguageFailures.length === 0) {
-    process.stdout.write(
-      `Verified English-only content in ${scriptFiles.length} script files.\n`,
-    );
+    process.stdout.write(`Verified English-only content in ${scriptFiles.length} script files.\n`);
   } else {
-    for (const location of scriptLanguageFailures)
-      process.stderr.write(`${location}\n`);
+    for (const location of scriptLanguageFailures) process.stderr.write(`${location}\n`);
     process.stderr.write(
       `Script language check found Han characters in ${scriptLanguageFailures.length} lines.\n`,
     );
@@ -270,22 +266,13 @@ async function processSourceHeaders(mode) {
  * @returns {Promise<string[]>} Stable absolute source file paths.
  */
 async function collectSourceFiles(directory) {
-  const supportedExtensions = new Set([
-    ".cjs",
-    ".css",
-    ".js",
-    ".jsx",
-    ".mjs",
-    ".ts",
-    ".tsx",
-  ]);
+  const supportedExtensions = new Set([".cjs", ".css", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
   const entries = await readdir(directory, { withFileTypes: true });
   const nestedFiles = await Promise.all(
     entries.map(async (entry) => {
       const path = resolve(directory, entry.name);
       if (entry.isDirectory()) return collectSourceFiles(path);
-      if (entry.isFile() && supportedExtensions.has(extname(entry.name)))
-        return [path];
+      if (entry.isFile() && supportedExtensions.has(extname(entry.name))) return [path];
       return [];
     }),
   );
@@ -318,8 +305,7 @@ async function collectScriptFiles(directory) {
       if (entry.isDirectory() && !localizedDirectories.has(entry.name)) {
         return collectScriptFiles(path);
       }
-      if (entry.isFile() && supportedExtensions.has(extname(entry.name)))
-        return [path];
+      if (entry.isFile() && supportedExtensions.has(extname(entry.name))) return [path];
       return [];
     }),
   );
@@ -337,10 +323,7 @@ async function collectScriptFiles(directory) {
 function normalizeHeader(source) {
   const header = source.replaceAll("\r\n", "\n").trim();
 
-  if (
-    !/^\/\*\n[\s\S]+\n\s*\*\/$/u.test(header) ||
-    !header.includes("miaixz.org")
-  ) {
+  if (!/^\/\*\n[\s\S]+\n\s*\*\/$/u.test(header) || !header.includes("miaixz.org")) {
     throw new Error(
       "miaixz.org must contain one multiline block comment with miaixz.org branding.",
     );
@@ -368,8 +351,7 @@ function applyHeader(source, header) {
   }
 
   const leadingComment = body.match(/^\/\*[\s\S]*?\*\/(?:\r?\n)*/u)?.[0];
-  if (leadingComment?.includes("miaixz.org"))
-    body = body.slice(leadingComment.length);
+  if (leadingComment?.includes("miaixz.org")) body = body.slice(leadingComment.length);
   body = body.replace(/^(?:[ \t]*\r?\n)+/u, "");
   const prefix = shebang ? `${shebang}\n\n` : "";
 

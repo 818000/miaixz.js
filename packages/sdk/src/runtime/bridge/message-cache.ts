@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the message cache module.
+ */
+
 import type { MiaixzBridgeEnvelope } from "../contracts/post-message.js";
 import type { HostRequestState } from "./pending-requests.js";
 

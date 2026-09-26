@@ -2,30 +2,31 @@
 
 > Build with intelligence. Create without limits.
 
-`miaixz.js` is the public JavaScript and TypeScript monorepo maintained by Miaixz. It contains the browser SDK, React design system, and file preview components used by independently deployed Miaixz frontend services.
+`miaixz.js` is the public JavaScript and TypeScript monorepo maintained by Miaixz. It contains the browser SDK, independent icon system, React design system, and file preview components used by independently deployed Miaixz frontend services.
 
 The repository is organized as an npm workspace. All public packages use one synchronized version and are released together from the same Git tag.
 
 ## Packages
 
-| Package                           | npm                                               | Description                                                                                                                                                                |
-| --------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`@miaixz/sdk`](./packages/sdk)   | [npm](https://www.npmjs.com/package/@miaixz/sdk)  | Browser API client, authentication, runtime context, configuration, permissions, events, files, appearance, internationalization, public types, formatters, and utilities. |
-| [`@miaixz/ui`](./packages/ui)     | [npm](https://www.npmjs.com/package/@miaixz/ui)   | React design system with components, design tokens, themes, density modes, icons, styles, accessibility foundations, and interaction primitives.                           |
-| [`@miaixz/view`](./packages/view) | [npm](https://www.npmjs.com/package/@miaixz/view) | Presentation-only React components for image, PDF, and Office previews.                                                                                                    |
+| Package                             | npm                                                | Description                                                                                                                         |
+| ----------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| [`@miaixz/sdk`](./packages/sdk)     | [npm](https://www.npmjs.com/package/@miaixz/sdk)   | Browser API client, runtime context, configuration, permissions, events, files, appearance, i18n, types, formatters, and utilities. |
+| [`@miaixz/icons`](./packages/icons) | [npm](https://www.npmjs.com/package/@miaixz/icons) | 1024-icon variable font, React Icon, semantic sizes, continuous animation, and accessibility.                                       |
+| [`@miaixz/ui`](./packages/ui)       | [npm](https://www.npmjs.com/package/@miaixz/ui)    | React design system with components, design tokens, themes, density modes, styles, and interaction primitives.                      |
+| [`@miaixz/view`](./packages/view)   | [npm](https://www.npmjs.com/package/@miaixz/view)  | Independent React components for image, PDF, Office, and other local file previews.                                                 |
 
 ### Package relationship
 
-`@miaixz/sdk` owns application-independent runtime state and browser integration. `@miaixz/ui` consumes compatible SDK capabilities to apply appearance settings, provide localized component messages, and keep independently deployed interfaces consistent. `@miaixz/view` consumes the UI theme contract but never owns authorization, storage, signing secrets, or document conversion.
+`@miaixz/sdk` and `@miaixz/icons` are independent foundations. `@miaixz/ui` consumes both directly. `@miaixz/view` consumes only `@miaixz/icons` and carries local CSS token fallbacks, so it does not require UI or SDK.
 
-`@miaixz/ui` declares `@miaixz/sdk` as a peer dependency, and `@miaixz/view` declares `@miaixz/ui` as a peer dependency. The release tooling keeps these development dependencies, peer ranges, workspace manifests, and root version synchronized.
+The only internal core-package dependency edges are `ui → sdk`, `ui → icons`, and `view → icons`. This graph is checked from manifests, source imports, built declarations, CSS, and packed artifacts.
 
 ## Requirements
 
 - Node.js 20.19 or later at the workspace root. SDK and UI consumers support Node.js 20 or later; `@miaixz/view` requires Node.js 20.19 or later.
 - npm 10 or later.
 - An ESM-compatible application and build tool.
-- React and ReactDOM when using `@miaixz/ui` or `@miaixz/view`.
+- React and ReactDOM when using `@miaixz/icons`, `@miaixz/ui`, or `@miaixz/view`.
 
 ## Installation
 
@@ -35,16 +36,22 @@ Install the SDK by itself:
 npm install @miaixz/sdk
 ```
 
+Install the independent icon system:
+
+```bash
+npm install @miaixz/icons react react-dom
+```
+
 Install the design system and its peers:
 
 ```bash
 npm install @miaixz/ui @miaixz/sdk react react-dom
 ```
 
-Install file previews together with their UI theme peer:
+Install file previews independently:
 
 ```bash
-npm install @miaixz/view @miaixz/ui @miaixz/sdk react react-dom
+npm install @miaixz/view @miaixz/icons react react-dom
 ```
 
 All packages are ESM-only and do not expose CommonJS `require` entry points.
@@ -110,35 +117,23 @@ through the public Page Surface variables; the library intentionally does not se
 
 `@miaixz/ui/view` exports the design-system `View` used for page layout. `@miaixz/view` is a
 separate file-preview package and exports `FileView`, `ImageView`, `PdfView`, and `OfficeView`—it
-does not export a component named `View`. Preview styles depend on UI theme tokens, so import the
-UI stylesheet first, then the preview stylesheet, and render previews inside both locale and Theme
-providers:
+does not export a component named `View`. Preview styles include local theme fallbacks, so import
+the icon and preview styles without a UI or SDK provider:
 
 ```tsx compile
-import "@miaixz/ui/styles.css";
+import "@miaixz/icons/styles.css";
 import "@miaixz/view/styles.css";
-import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
-import { createMiaixzI18n } from "@miaixz/sdk/i18n";
-import { MiaixzLocaleProvider, Theme } from "@miaixz/ui";
 import { FileView } from "@miaixz/view";
 
-const appearance = createMiaixzAppearanceManager({ appId: "preview-example" });
-const i18n = createMiaixzI18n({ locale: "en-US", fallbackLocale: "en-US" });
-
 export function PreviewExample() {
-  return (
-    <MiaixzLocaleProvider i18n={i18n}>
-      <Theme appearance={appearance} scope="local">
-        <FileView alt="Architecture diagram" kind="image" src="/diagram.png" />
-      </Theme>
-    </MiaixzLocaleProvider>
-  );
+  return <FileView source="/diagram.png" />;
 }
 ```
 
 See the package documentation for authentication modes, API envelopes, service clients, permissions, cross-tab events, appearance synchronization, internationalization, component contracts, and microfrontend integration:
 
 - [SDK documentation](./packages/sdk/README.md)
+- [Icons documentation](./packages/icons/README.md)
 - [UI documentation](./packages/ui/README.md)
 - [View documentation](./packages/view/README.md)
 
@@ -156,13 +151,16 @@ See the package documentation for authentication modes, API envelopes, service c
 │       └── release/    Cross-module release automation
 ├── packages/
 │   ├── sdk/            @miaixz/sdk source and package configuration
+│   ├── icons/          @miaixz/icons font source, runtime, React API, and tests
 │   ├── ui/             @miaixz/ui source and package configuration
 │   └── view/           @miaixz/view source and package configuration
+├── examples/
+│   └── icons/          Runnable variable-font icon catalog
 ├── VERSION             Authoritative shared release version
 └── package.json        Private npm workspace root
 ```
 
-The workspace root is private and is never published. `@miaixz/sdk`, `@miaixz/ui`, and `@miaixz/view` are public npm packages.
+The workspace root is private and is never published. Every package listed above is an independent public npm package at the synchronized version.
 
 The root `package.json` `workspaces` array is the repository's only package registry. Build,
 source-policy, version, package validation, artifact, and publication tooling reads that array and

@@ -25,8 +25,7 @@
 import { forwardRef } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "../icon/icon.js";
-import type { IconSize } from "../icon/icon.types.js";
+import { Icon, type IconSize } from "@miaixz/icons";
 import type { MiaixzComponentSize } from "../shared.types.js";
 import { Hidden } from "../hidden/hidden.js";
 import type { SpinnerOwnerState, SpinnerProps, SpinnerRootAttributes } from "./spinner.types.js";

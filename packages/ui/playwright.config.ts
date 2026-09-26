@@ -45,9 +45,7 @@ if (!new Set(["source", "packed"]).has(packageStage)) {
 const runId = process.env.MIAIXZ_UI_RUN_ID ?? "local";
 if (!/^[a-zA-Z0-9_-]+$/.test(runId)) throw new Error("Invalid MIAIXZ_UI_RUN_ID");
 const artifactsRoot = path.resolve("tests/.artifacts");
-const outputDir = path.resolve(
-  process.env.MIAIXZ_UI_OUTPUT_DIR ?? "tests/.artifacts/playwright-results",
-);
+const outputDir = path.resolve(process.env.MIAIXZ_UI_OUTPUT_DIR ?? "tests/.artifacts/playwright");
 if (outputDir !== artifactsRoot && !outputDir.startsWith(`${artifactsRoot}${path.sep}`)) {
   throw new Error("MIAIXZ_UI_OUTPUT_DIR must remain inside tests/.artifacts");
 }

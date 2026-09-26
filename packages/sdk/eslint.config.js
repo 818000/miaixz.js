@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the eslint config module.
+ */
+
 import babelParser from "@babel/eslint-parser";
 import eslint from "@eslint/js";
 import prettier from "eslint-config-prettier";

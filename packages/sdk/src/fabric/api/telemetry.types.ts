@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the telemetry types module.
+ */
+
 import type { MiaixzHttpMethod } from "./request.js";
 import type { MiaixzTimestamp } from "./api.types.js";
 

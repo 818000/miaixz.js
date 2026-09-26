@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the message loader module.
+ */
+
 import { MiaixzSdkError } from "../errors/errors.js";
 import { canonicalizeLocale, getBaseLanguage, type MiaixzLocale } from "./locale-catalog.js";
 import {

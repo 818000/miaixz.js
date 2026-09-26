@@ -27,7 +27,7 @@ import { forwardRef, useRef, useState } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type { SegmentedItem, SegmentedOwnerState, SegmentedProps } from "./segmented.types.js";
 import type { ReactElement, RefAttributes } from "react";
 

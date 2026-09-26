@@ -5,24 +5,38 @@
 ## Install
 
 ```bash
-npm install @miaixz/view @miaixz/ui react react-dom
+npm install @miaixz/view @miaixz/icons react react-dom
 ```
 
-Import the UI theme and viewer styles once, then pass a `File`, `Blob`, URL, `ArrayBuffer`, or `Uint8Array` directly to `FileView`:
+Import the icon and viewer styles once, then pass a `File`, `Blob`, URL, `ArrayBuffer`, or `Uint8Array` directly to `FileView`. The viewer has local style fallbacks and does not require `@miaixz/ui` or `@miaixz/sdk`:
 
 ```tsx compile
-import "@miaixz/ui/styles.css";
+import "@miaixz/icons/styles.css";
 import "@miaixz/view/styles.css";
+import { createMiaixzAppearanceManager } from "@miaixz/sdk/appearance";
+import { createMiaixzI18n } from "@miaixz/sdk/i18n";
+import { MiaixzLocaleProvider, Theme } from "@miaixz/ui";
 import { FileView } from "@miaixz/view";
 
+const appearance = createMiaixzAppearanceManager({ appId: "file-preview" });
+const i18n = createMiaixzI18n({ locale: "en-US", fallbackLocale: "en-US" });
+
 export function Preview({ file }: { file: File }) {
-  return <FileView source={file} />;
+  return (
+    <MiaixzLocaleProvider i18n={i18n}>
+      <Theme appearance={appearance}>
+        <FileView source={file} />
+      </Theme>
+    </MiaixzLocaleProvider>
+  );
 }
 ```
 
 For signed remote URLs, metadata and authorized request options can be supplied without selecting a viewer manually:
 
 ```tsx compile
+import { FileView } from "@miaixz/view";
+
 <FileView
   source={{
     url: "/files/opaque-id",
@@ -30,13 +44,28 @@ For signed remote URLs, metadata and authorized request options can be supplied 
     mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     headers: { Authorization: "Bearer …" },
   }}
-/>
+/>;
 ```
 
 Applications with private storage or companion files can provide one policy boundary for both the primary source and related-resource requests:
 
 ```tsx compile
-import type { FileResourceProvider } from "@miaixz/view";
+import {
+  FileView,
+  type FileResourceProvider,
+  type FileViewSource,
+  type FileViewSourceDescriptor,
+  type RandomAccessResource,
+} from "@miaixz/view";
+
+declare const fileReference: FileViewSource;
+declare const myStorage: {
+  open(
+    source: FileViewSource | FileViewSourceDescriptor,
+    signal: AbortSignal,
+  ): Promise<RandomAccessResource>;
+  openRelated(path: string, signal: AbortSignal): Promise<RandomAccessResource | undefined>;
+};
 
 const resourceProvider: FileResourceProvider = {
   async open(source, signal) {
@@ -71,6 +100,8 @@ Applications can extend the default registry without modifying `@miaixz/view`. A
 import { createDefaultRegistry, FileView, type ViewerDriver } from "@miaixz/view";
 
 const registry = createDefaultRegistry();
+const file = new File([], "drawing.amap", { type: "application/vnd.acme.map" });
+declare const loadAcmeMapDriver: () => Promise<ViewerDriver>;
 
 registry.registerFormat(
   {
@@ -82,10 +113,7 @@ registry.registerFormat(
     mimeTypes: ["application/vnd.acme.map"],
     implementation: "ready",
   },
-  async () => {
-    const module = await import("./acme-map-driver.js");
-    return module.formatDriver as ViewerDriver;
-  },
+  loadAcmeMapDriver,
 );
 
 <FileView registry={registry} source={file} />;
@@ -99,6 +127,9 @@ Custom identifiers are ordinary stable strings. Extension and MIME matching join
 
 ```tsx compile
 import { OfficeView, PdfView } from "@miaixz/view";
+
+const pdfBytes = new Uint8Array();
+const workbookFile = new File([], "workflow.xlsx");
 
 <PdfView source={pdfBytes} />;
 <OfficeView name="workflow.xlsx" source={workbookFile} />;
@@ -117,7 +148,7 @@ import { OfficeView, PdfView } from "@miaixz/view";
 | `./runtime`    | JavaScript |
 | `./styles.css` | CSS        |
 
-The design-system `View` for page layout comes from `@miaixz/ui/view`; this package deliberately has no bare `View` export.
+The package exports file-preview components only and deliberately has no page-layout `View` export.
 
 ## Security boundary
 

@@ -29,7 +29,7 @@ import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import type { RatingOwnerState, RatingProps, RatingRootAttributes } from "./rating.types.js";
 
 /**

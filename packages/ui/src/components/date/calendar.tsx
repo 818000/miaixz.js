@@ -27,7 +27,7 @@ import { forwardRef, useMemo, useRef, useState } from "react";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import {
   addCalendarDays,
   addCalendarMonths,

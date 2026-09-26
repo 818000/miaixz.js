@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the post message bridge module.
+ */
+
 import type { MiaixzHostBridge } from "../contracts/host-context.js";
 import type {
   MiaixzPostMessageChildOptions,

@@ -84,7 +84,7 @@
     "check": "npm run audit:runtime-deps && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
-    "@miaixz/ui": ">=0.6.5 <0.7.0",
+    "@miaixz/icons": ">=0.6.5 <0.7.0",
     "react": ">=18.3 <20",
     "react-dom": ">=18.3 <20"
   },
@@ -94,7 +94,7 @@
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
-    "@miaixz/ui": "0.6.5",
+    "@miaixz/icons": "0.6.5",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "16.3.3",

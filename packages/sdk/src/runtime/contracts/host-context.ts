@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the host context module.
+ */
+
 import type { MiaixzMessageCatalog } from "../../i18n/i18n.js";
 import type { MiaixzRuntimeContext } from "../../access/context/context.types.js";
 

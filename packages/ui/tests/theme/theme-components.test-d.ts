@@ -87,7 +87,6 @@ type ExpectedComponentName =
   | "AvatarGroup"
   | "Divider"
   | "Spinner"
-  | "Icon"
   | "Hidden"
   | "Cluster"
   | "Grid"

@@ -18,5 +18,9 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the constants module.
+ */
+
 export { miaixzDefaultRequestTimeoutMs, miaixzHeaders } from "./fabric/api/constants.js";
 export { miaixzStorageKeys } from "./runtime/storage/storage-keys.js";

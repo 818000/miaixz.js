@@ -27,7 +27,7 @@ import { forwardRef, useRef } from "react";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { Link } from "../link/link.js";
 import type { TagOwnerState, TagProps } from "./tag.types.js";
 

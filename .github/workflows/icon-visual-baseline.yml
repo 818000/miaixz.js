@@ -1,0 +1,65 @@
+name: Icon Visual Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  FONTBAKERY_VERSION: "1.1.0"
+  FONTMAKE_VERSION: "3.12.1"
+  FONTTOOLS_VERSION: "4.66.0"
+  PYTHON_VERSION: "3.13.12"
+  UFO2FT_VERSION: "3.9.0"
+
+jobs:
+  validate:
+    name: Validate Icon Visuals
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+          package-manager-cache: false
+
+      - name: Set Up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: ""
+
+      - name: Install Hash-Locked Font Tools
+        run: pip install --require-hashes -r .github/scripts/modules/icons/requirements-font.txt
+
+      - name: Install JavaScript Dependencies
+        run: npm install --ignore-scripts --no-package-lock --legacy-peer-deps
+
+      - name: Install Browser Runtimes
+        run: npm exec -- playwright install --with-deps chromium firefox webkit
+
+      - name: Build Fonts
+        run: npm run icons:font:build
+
+      - name: Render Candidate Visuals
+        run: npm run icons:font:render
+
+      - name: Compare Committed Baselines
+        run: node .github/scripts/modules/icons/quality/visual/compare-visuals.mjs --mode compare
+
+      - name: Upload Visual Evidence
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: icon-visual-evidence-${{ github.sha }}
+          path: packages/icons/tests/.artifacts/icon-visual
+          if-no-files-found: error

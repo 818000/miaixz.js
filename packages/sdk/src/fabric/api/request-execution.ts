@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the request execution module.
+ */
+
 import { miaixzDefaultRequestTimeoutMs, miaixzHeaders } from "./constants.js";
 import { MiaixzAbortError, MiaixzApiError, MiaixzSdkError } from "../../errors/errors.js";
 import { isMiaixzApiEnvelope, type MiaixzHttpResponse } from "./response.js";

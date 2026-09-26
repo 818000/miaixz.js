@@ -31,7 +31,7 @@ import { mergeMiaixzSlotProps } from "../shared/slots.js";
 import { useTheme } from "../theme/context.js";
 import { ActionText } from "../components/action/action-text.js";
 import { Drawer } from "../components/drawer/drawer.js";
-import { Icon } from "../components/icon/icon.js";
+import { Icon } from "@miaixz/icons";
 import { Locale } from "../components/locale/locale.js";
 import { Radio } from "../components/radio/radio.js";
 import type { AppearanceOwnerState, AppearanceProps } from "./appearance.types.js";
@@ -201,7 +201,7 @@ function Appearance(props: AppearanceProps) {
         <span>{activeLocale?.label ?? localeRuntime.locale}</span>
         <span>{localeRuntime.t("ui.appearance.language.current")}</span>
       </span>
-      <Icon aria-hidden="true" name="chevron-right" size="control" />
+      <Icon name="chevron-right" size="control" />
     </button>,
     "miaixz-appearance-options-rows",
   );
@@ -272,7 +272,7 @@ function Appearance(props: AppearanceProps) {
     <>
       <div {...rootSlotProps}>
         <button {...triggerSlotProps}>
-          <Icon aria-hidden="true" name="palette" size="navigation" />
+          <Icon name="palette" size="navigation" />
         </button>
       </div>
 

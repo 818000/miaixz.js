@@ -1,7 +1,7 @@
 {
   "name": "@miaixz/ui",
   "version": "0.6.5",
-  "description": "Miaixz design tokens, themes, icons, styles, and UI components.",
+  "description": "Miaixz design tokens, themes, styles, and UI components.",
   "type": "module",
   "engines": {
     "node": ">=20",
@@ -74,7 +74,6 @@
       "Heatmap",
       "HeatmapLegend",
       "Hidden",
-      "Icon",
       "IconButton",
       "Input",
       "Link",
@@ -375,10 +374,6 @@
     "./appearance": {
       "types": "./dist/appearance/index.d.ts",
       "import": "./dist/appearance/index.js"
-    },
-    "./icons": {
-      "types": "./dist/icons/index.d.ts",
-      "import": "./dist/icons/index.js"
     },
     "./i18n": {
       "types": "./dist/i18n/index.d.ts",
@@ -721,7 +716,6 @@
       "import": "./dist/theme/index.js"
     },
     "./appearance/styles.css": "./dist/styles/components/appearance.css",
-    "./icons/styles.css": "./dist/styles/components/icon.css",
     "./bar/styles.css": "./dist/styles/components/bar.css",
     "./brand/styles.css": "./dist/styles/components/brand.css",
     "./cluster/styles.css": "./dist/styles/components/cluster.css",
@@ -807,14 +801,13 @@
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
-    "icons:check": "node ../../.github/scripts/modules/ui/quality/check-icon-system.mjs",
     "theme:presets:generate": "node ../../.github/scripts/modules/ui/codegen/theme-presets.mjs",
     "theme:presets:check": "node ../../.github/scripts/modules/ui/codegen/theme-presets.mjs --check",
     "theme:generate": "node ../../.github/scripts/modules/ui/codegen/theme-css.mjs",
     "theme:check": "node ../../.github/scripts/modules/ui/codegen/theme-css.mjs --check",
     "responsive:generate": "node ../../.github/scripts/modules/ui/codegen/responsive-css.mjs",
     "responsive:check": "node ../../.github/scripts/modules/ui/codegen/responsive-css.mjs --check",
-    "build": "npm run icons:check && npm run clean && tsc -p tsconfig.build.json && npm run theme:presets:generate && npm run theme:presets:check && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json && npm run theme:presets:generate && npm run theme:presets:check && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint src tests *.config.js *.config.ts && npm run lint:css",
     "lint:fix": "eslint src tests *.config.js *.config.ts --fix && npm run lint:css:fix",
@@ -829,21 +822,19 @@
     "check": "npm run typecheck && npm run lint && npm run audit:css && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
+    "@miaixz/icons": ">=0.6.5 <0.7.0",
     "@miaixz/sdk": ">=0.6.5 <0.7.0",
     "react": ">=18.3 <20",
     "react-dom": ">=18.3 <20"
   },
-  "dependencies": {
-    "@fortawesome/free-regular-svg-icons": "^7.3.1",
-    "@fortawesome/free-solid-svg-icons": "^7.3.1",
-    "lucide-react": "^1.35.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@axe-core/playwright": "4.13.0",
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
+    "@miaixz/icons": "0.6.5",
     "@miaixz/sdk": "0.6.5",
     "@playwright/test": "1.62.1",
     "@testing-library/dom": "10.4.2",

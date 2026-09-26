@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the lifecycle module.
+ */
+
 import type { MiaixzHostBridge } from "./host-context.js";
 import type { MiaixzModuleManifest } from "./module-manifest.js";
 

@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Checks published package metadata against the expected release contract.
+ */
+
 import { assertReleaseVersion, loadWorkspaceRepository } from "../miaixz.mjs";
 import { readPackageVisibility } from "./npm-registry.mjs";
 

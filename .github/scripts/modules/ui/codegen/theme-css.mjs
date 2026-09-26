@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Generates the UI theme stylesheets from the built design-token modules.
+ */
+
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import process from "node:process";
@@ -39,6 +43,13 @@ const checkOnly = parameters.includes("--check");
 const sourceHeader = (await readFile(resolve(repositoryRoot, ".github/scripts/miaixz.org"), "utf8"))
   .replaceAll("\r\n", "\n")
   .trim();
+/**
+ * Creates the generated module description for a named stylesheet.
+ *
+ * @param {string} name Human-readable stylesheet name.
+ * @returns {string} JSDoc module description.
+ */
+const cssModuleDescription = (name) => `/**\n * Defines the ${name} visual styles.\n */`;
 
 /**
  * Resolves a named command-line path option or returns its default path.
@@ -101,6 +112,8 @@ const outputs = new Map();
 const render = (values, stylesPath) =>
   sourceHeader +
   "\n\n" +
+  cssModuleDescription("theme") +
+  "\n\n" +
   `@import url("${stylesPath}/foundation.css");\n@import url("${stylesPath}/components.css");\n` +
   "\n@layer miaixz-themes {\n" +
   values
@@ -119,7 +132,7 @@ outputs.set(resolve(outputDirectory, "src/theme/default.css"), render([defaultTh
 outputs.set(resolve(outputDirectory, "src/theme/theme.css"), render(themes, "../styles"));
 outputs.set(
   resolve(outputDirectory, "src/styles/core.css"),
-  `${sourceHeader}\n\n@import url("./foundation.css");\n@import url("./components.css");\n`,
+  `${sourceHeader}\n\n${cssModuleDescription("core")}\n\n@import url("@miaixz/icons/styles.css");\n@import url("./foundation.css");\n@import url("./components.css");\n`,
 );
 outputs.set(resolve(outputDirectory, "src/styles/reset.css"), serializeReset());
 
@@ -217,6 +230,8 @@ function serializeTheme(theme, order, typographyOrder, familyFields, geometryRan
 function serializeReset() {
   return [
     sourceHeader,
+    "",
+    cssModuleDescription("reset"),
     "",
     "@layer miaixz-foundation {",
     "  html {",

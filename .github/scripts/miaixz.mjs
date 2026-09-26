@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Provides shared repository metadata and workspace discovery utilities.
+ */
+
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";

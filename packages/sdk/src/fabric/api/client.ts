@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the client module.
+ */
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzRequestBody, MiaixzRequestOptions } from "./request.js";
 import type { MiaixzHttpResponse } from "./response.js";

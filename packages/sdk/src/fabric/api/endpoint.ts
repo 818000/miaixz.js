@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the endpoint module.
+ */
+
 import type { MiaixzEnvironment } from "../../runtime/config/config.types.js";
 
 const miaixzEnvironments = new Set<MiaixzEnvironment>([

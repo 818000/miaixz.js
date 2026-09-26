@@ -39,13 +39,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],
-      exclude: [
-        "**/*.d.ts",
-        "src/index.ts",
-        "src/**/index.ts",
-        "src/icons/providers/lucide-module.ts",
-        "src/icons/providers/fontawesome-module.ts",
-      ],
+      exclude: ["**/*.d.ts", "src/index.ts", "src/**/index.ts"],
       thresholds: {
         lines: 85,
         functions: 85,

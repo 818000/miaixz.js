@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the direct host bridge test module.
+ */
+
 import { describe, expect, it, vi } from "vitest";
 
 import { createMiaixzDirectHostBridge } from "../../src/runtime/bridge/direct-host-bridge.js";

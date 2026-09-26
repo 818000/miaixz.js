@@ -112,7 +112,7 @@ function rootDomComponentEntries(): Array<readonly [name: string, subpath: strin
     /export\s+\{([^}]+)\}\s+from\s+"\.\/([^";]+)\/index\.js";/gu,
   )) {
     const sourceSubpath = match[2]!;
-    const packageSubpath = sourceSubpath === "icon" ? "icons" : sourceSubpath;
+    const packageSubpath = sourceSubpath;
     for (const rawName of match[1]!.split(",")) {
       const name = rawName
         .trim()
@@ -134,9 +134,9 @@ function rootDomComponentEntries(): Array<readonly [name: string, subpath: strin
  * @returns Direct relative import values.
  */
 function cssImports(file: string): string[] {
-  return [...readFileSync(file, "utf8").matchAll(/@import\s+url\(["'](.+?)["']\)/g)].map(
-    (match) => match[1]!,
-  );
+  return [...readFileSync(file, "utf8").matchAll(/@import\s+url\(["'](.+?)["']\)/g)]
+    .map((match) => match[1]!)
+    .filter((entry) => entry.startsWith("."));
 }
 
 /**
@@ -214,20 +214,16 @@ describe("CSS package ownership contract", () => {
     }
 
     for (const [name, subpath] of entries) {
-      const sourceSubpath = subpath === "./icons" ? "icon" : subpath.slice(2);
+      const sourceSubpath = subpath.slice(2);
       expect(packageManifest.exports[subpath], `${name} requires ${subpath}`).toEqual({
         types:
           subpath === "./appearance"
             ? "./dist/appearance/index.d.ts"
-            : subpath === "./icons"
-              ? "./dist/icons/index.d.ts"
-              : `./dist/components/${sourceSubpath}/index.d.ts`,
+            : `./dist/components/${sourceSubpath}/index.d.ts`,
         import:
           subpath === "./appearance"
             ? "./dist/appearance/index.js"
-            : subpath === "./icons"
-              ? "./dist/icons/index.js"
-              : `./dist/components/${sourceSubpath}/index.js`,
+            : `./dist/components/${sourceSubpath}/index.js`,
       });
       expect(packageManifest.exports[`${subpath}/styles.css`], `${name} requires CSS`).toBe(
         subpath === "./appearance"
@@ -288,7 +284,7 @@ describe("CSS package ownership contract", () => {
     const targets: string[] = [];
 
     for (const [subpath] of componentEntries) {
-      const componentPath = subpath === "./icons" ? "icon" : subpath.slice(2);
+      const componentPath = subpath.slice(2);
       const styleSubpath = `${subpath}/styles.css`;
       const expectedTarget = `./dist/styles/components/${componentPath}.css`;
       expect(packageManifest.exports[styleSubpath], styleSubpath).toBe(expectedTarget);

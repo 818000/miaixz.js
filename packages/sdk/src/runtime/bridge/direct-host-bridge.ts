@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the direct host bridge module.
+ */
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import { MIAIXZ_MODULE_PROTOCOL_VERSION } from "../contracts/module-manifest.js";
 import {

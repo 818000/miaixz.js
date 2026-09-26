@@ -29,7 +29,7 @@ For this remediation, build and pack locally, unpack under the application's con
 `node_modules/.miaixz-local` directory and link the installed package to that output.
 Do not publish to npm or link application dependencies directly to source.
 
-`@miaixz/ui` is the shared Miaixz React design system. It provides independently deployed frontend services, such as Home, Spaces, and Settings, with a consistent set of design tokens, themes, density modes, Lucide icons, and reusable components.
+`@miaixz/ui` is the shared Miaixz React design system. It provides independently deployed frontend services, such as Home, Spaces, and Settings, with a consistent set of design tokens, themes, density modes, and reusable components. Icons are owned exclusively by the `@miaixz/icons` peer package.
 
 The package is ESM-only and does not provide a CommonJS `require` entry point. JavaScript entry points do not load global CSS automatically; consumers must import the required stylesheet explicitly.
 
@@ -105,10 +105,10 @@ The Appearance panel uses **360px**, while the two-column user editor uses
 ## Installation
 
 ```bash
-npm install @miaixz/ui @miaixz/sdk react react-dom
+npm install @miaixz/ui @miaixz/icons @miaixz/sdk react react-dom
 ```
 
-`@miaixz/sdk`, `react`, and `react-dom` are peer dependencies. The icon provider dependency is owned by the component package. The exact supported SDK range is declared by the installed package metadata.
+`@miaixz/icons`, `@miaixz/sdk`, `react`, and `react-dom` are peer dependencies. The exact supported ranges are declared by the installed package metadata.
 
 ## Public entries
 
@@ -121,7 +121,6 @@ This table is checked directly against the package export map.
 | `./foundation.css`           | CSS        |
 | `./components.css`           | CSS        |
 | `./appearance`               | JavaScript |
-| `./icons`                    | JavaScript |
 | `./i18n`                     | JavaScript |
 | `./errors`                   | JavaScript |
 | `./bar`                      | JavaScript |
@@ -208,7 +207,6 @@ This table is checked directly against the package export map.
 | `./hidden`                   | JavaScript |
 | `./theme`                    | JavaScript |
 | `./appearance/styles.css`    | CSS        |
-| `./icons/styles.css`         | CSS        |
 | `./bar/styles.css`           | CSS        |
 | `./brand/styles.css`         | CSS        |
 | `./cluster/styles.css`       | CSS        |
@@ -323,7 +321,8 @@ Components can be imported from the package root or from stable subpaths:
 ```tsx
 import { Button } from "@miaixz/ui/button";
 import { Graph } from "@miaixz/ui/diagram/graph";
-import { ICON_NAMES, Icon, type IconName } from "@miaixz/ui/icons";
+import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
+import "@miaixz/icons/styles.css";
 import "@miaixz/ui/button/styles.css";
 import "@miaixz/ui/diagram/graph/styles.css";
 
@@ -332,17 +331,10 @@ const tenantIcon: IconName = ICON_NAMES.BLOCKS;
 <Icon name={tenantIcon} size="navigation" />;
 ```
 
-`Icon` accepts the complete provider-neutral Miaixz `IconName` catalog. Names are lower-case
-kebab-case values and are also available through `ICON_NAMES`, the sole name definition. Icons load
-on demand through an immutable registry. Applications may select Lucide, Font Awesome, Iconfont,
-or a custom dependency-owned provider without changing business `<Icon name={...} />` call sites.
-Do not import provider components, `dist`, or internal source paths directly.
-
-Every built-in provider is a self-contained trio under `src/icons/providers`: `xx-module.ts`
-contains mappings or module construction, `xx-provider.ts` exposes the lazy provider entry, and
-`xx-provider.json` declares dependencies and validation policy. The icon-system check discovers
-these declarations automatically; adding a provider must not require provider-specific checker
-code.
+`Icon`, `IconName`, the registry, fonts, provider protocol, and all icon CSS belong exclusively to
+`@miaixz/icons`. UI components consume that public package directly; `@miaixz/ui` intentionally has
+no `Icon` export, `./icons` subpath, icon registry, or icon stylesheet. Do not import `dist` or
+internal source paths directly.
 
 Product intent definitions are available only from their dedicated subpath:
 
@@ -532,7 +524,7 @@ Modules in the same runtime use `createMiaixzDirectHostBridge()`. Cross-origin i
 
 The public component collection includes:
 
-- Foundations and forms: Icon, Button, ButtonGroup, Input, NumberInput, Search, Textarea, Select, Combobox, Picker, Field, Checkbox, Radio, Rating, Slider, Switch, Calendar, DatePicker, TimePicker, Dropzone, and Upload.
+- Foundations and forms: Button, ButtonGroup, Input, NumberInput, Search, Textarea, Select, Combobox, Picker, Field, Checkbox, Radio, Rating, Slider, Switch, Calendar, DatePicker, TimePicker, Dropzone, and Upload.
 - Navigation and layout: Navigation, Breadcrumb, Tabs, Segmented, Toolbar, Shell, Page, View, Header, Grid, Masonry, Cluster, Split, Stack, Sidebar, Scroll, and Entry.
 - Data display: Panel, List, Table, Datagrid, Tree, Badge, Tag, Pagination, Avatar, AvatarGroup, Divider, and Status.
 - Feedback and overlays: Alert, Notice, Progress, Spinner, Overlay, Tooltip, Popover, Dropdown, Dialog, Confirm, Drawer, Disclosure, Toast, Skeleton, Empty, and Hidden.

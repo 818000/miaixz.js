@@ -120,7 +120,6 @@ import type {
   HeatmapProps,
 } from "../components/heatmap/heatmap.types.js";
 import type { HiddenProps } from "../components/hidden/hidden.types.js";
-import type { IconProps } from "../components/icon/icon.types.js";
 import type { InputOwnerState, InputProps } from "../components/input/input.types.js";
 import type {
   NumberInputOwnerState,
@@ -339,13 +338,6 @@ export interface MiaixzThemeComponentRegistry {
   readonly AvatarGroup: MiaixzThemeEntry<AvatarGroupProps, AvatarGroupOwnerState>;
   readonly Divider: MiaixzThemeEntry<DividerProps, MiaixzEmptyOwnerState>;
   readonly Spinner: MiaixzThemeEntry<SpinnerProps, SpinnerOwnerState>;
-  readonly Icon: MiaixzThemeEntry<
-    IconProps,
-    {
-      readonly size: NonNullable<IconProps["size"]>;
-      readonly stroke: NonNullable<IconProps["stroke"]>;
-    }
-  >;
   readonly Hidden: MiaixzThemeEntry<HiddenProps, MiaixzEmptyOwnerState>;
   readonly Cluster: MiaixzThemeEntry<
     ClusterProps,

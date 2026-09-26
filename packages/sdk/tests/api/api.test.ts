@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the api test module.
+ */
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createApiClient } from "../../src/fabric/api/client.js";

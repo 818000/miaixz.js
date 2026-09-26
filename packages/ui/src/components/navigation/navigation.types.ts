@@ -29,9 +29,8 @@ import type {
   ReactNode,
   RefAttributes,
 } from "react";
-import type { IconName } from "../../icons/icon-names.js";
+import type { IconName, IconProps } from "@miaixz/icons";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
-import type { IconProps } from "../icon/icon.types.js";
 
 export type NavigationOrientation = "horizontal" | "vertical";
 export type NavigationDensity = "compact" | "standard" | "comfortable";

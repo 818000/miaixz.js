@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Implements the appearance module.
+ */
+
 import { MiaixzSdkError } from "../errors/errors.js";
 import type { MiaixzEventBusPort, MiaixzSdkEventMap } from "../runtime/events/event-types.js";
 import {

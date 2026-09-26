@@ -92,6 +92,28 @@
   width: 100%;
 }
 
+.miaixz-date-picker-clear,
+.miaixz-date-picker-trigger {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 24px;
+  min-block-size: 24px;
+  padding: 0;
+  color: var(--miaixz-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-date-picker-clear:focus-visible,
+.miaixz-date-picker-trigger:focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: calc(-1 * var(--miaixz-control-focus-width));
+}
+
 .miaixz-time-picker-options {
   display: grid;
   gap: var(--miaixz-space-4);
