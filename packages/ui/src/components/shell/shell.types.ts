@@ -26,6 +26,7 @@ import type { HTMLAttributes, ReactNode, Ref, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 export type ShellSidebarOverflow = "auto" | "contained";
+export type ShellMainComponent = "main" | "div";
 export type ShellDesktopNavigation =
   { readonly mode: "sidebar" } | { readonly mode: "rail"; readonly expanded: boolean };
 export type ShellMobileNavigation =
@@ -57,6 +58,7 @@ export interface ShellSlotProps {
 }
 export interface MiaixzShellOwnProps {
   readonly mainRef?: Ref<HTMLElement>;
+  readonly mainComponent?: ShellMainComponent;
   readonly header: ReactNode;
   readonly sidebar: ReactNode;
   readonly children: ReactNode;

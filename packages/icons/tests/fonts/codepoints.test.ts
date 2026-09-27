@@ -19,7 +19,7 @@
 */
 
 /**
- * Verifies codepoint ranges, uniqueness, and subset boundaries.
+ * Verifies codepoint ranges, uniqueness, and priority tiers.
  */
 
 import { readFile } from "node:fs/promises";
@@ -81,12 +81,12 @@ describe("codepoint schema", () => {
     );
   });
 
-  it("rejects a wrong subset", () => {
+  it("rejects a wrong priority tier", () => {
     const invalid = cloneCodepoints();
     const firstExtended = invalid.icons.at(64);
     if (firstExtended === undefined)
       throw new Error("Extended codepoint fixture is unexpectedly empty.");
-    firstExtended.subset = "core";
+    firstExtended.tier = "core";
     expect(() => validateCodepoints(releasePlan, invalid)).toThrow(/Invalid codepoint entry/u);
   });
 });

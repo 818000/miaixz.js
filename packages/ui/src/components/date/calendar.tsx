@@ -175,52 +175,57 @@ export const Calendar = withMiaixzThemeComponent(
           ))}
         </div>
         <div className="miaixz-calendar-grid" role="grid">
-          {cells.map((cell, index) => {
-            const unavailable = dateDisabled(cell.date);
-            return (
-              <button
-                key={cell.date}
-                ref={(node) => {
-                  if (node === null) buttonRefs.current.delete(cell.date);
-                  else buttonRefs.current.set(cell.date, node);
-                }}
-                className="miaixz-calendar-day"
-                type="button"
-                role="gridcell"
-                aria-label={formatter.format(asDate(cell.date))}
-                aria-selected={selectedValue === cell.date}
-                aria-disabled={unavailable || undefined}
-                data-outside-month={cell.outsideMonth || undefined}
-                tabIndex={cell.date === focusedDate ? 0 : -1}
-                onClick={() => select(cell.date)}
-                onKeyDown={(event) => {
-                  let next: IsoDate | undefined;
-                  if (event.key === "ArrowLeft") next = addCalendarDays(cell.date, -1);
-                  if (event.key === "ArrowRight") next = addCalendarDays(cell.date, 1);
-                  if (event.key === "ArrowUp") next = addCalendarDays(cell.date, -7);
-                  if (event.key === "ArrowDown") next = addCalendarDays(cell.date, 7);
-                  if (event.key === "Home") next = addCalendarDays(cell.date, -(index % 7));
-                  if (event.key === "End") next = addCalendarDays(cell.date, 6 - (index % 7));
-                  if (event.key === "PageUp")
-                    next = event.shiftKey
-                      ? addCalendarYears(cell.date, -1)
-                      : addCalendarMonths(cell.date, -1);
-                  if (event.key === "PageDown")
-                    next = event.shiftKey
-                      ? addCalendarYears(cell.date, 1)
-                      : addCalendarMonths(cell.date, 1);
-                  if (next !== undefined) {
-                    event.preventDefault();
-                    focusDate(next);
-                  }
-                  if ((event.key === "Enter" || event.key === " ") && !unavailable)
-                    select(cell.date);
-                }}
-              >
-                {cell.day}
-              </button>
-            );
-          })}
+          {Array.from({ length: Math.ceil(cells.length / 7) }, (_, weekIndex) => (
+            <div className="miaixz-calendar-row" role="row" key={cells[weekIndex * 7]?.date}>
+              {cells.slice(weekIndex * 7, weekIndex * 7 + 7).map((cell, dayIndex) => {
+                const unavailable = dateDisabled(cell.date);
+                const index = weekIndex * 7 + dayIndex;
+                return (
+                  <button
+                    key={cell.date}
+                    ref={(node) => {
+                      if (node === null) buttonRefs.current.delete(cell.date);
+                      else buttonRefs.current.set(cell.date, node);
+                    }}
+                    className="miaixz-calendar-day"
+                    type="button"
+                    role="gridcell"
+                    aria-label={formatter.format(asDate(cell.date))}
+                    aria-selected={selectedValue === cell.date}
+                    aria-disabled={unavailable || undefined}
+                    data-outside-month={cell.outsideMonth || undefined}
+                    tabIndex={cell.date === focusedDate ? 0 : -1}
+                    onClick={() => select(cell.date)}
+                    onKeyDown={(event) => {
+                      let next: IsoDate | undefined;
+                      if (event.key === "ArrowLeft") next = addCalendarDays(cell.date, -1);
+                      if (event.key === "ArrowRight") next = addCalendarDays(cell.date, 1);
+                      if (event.key === "ArrowUp") next = addCalendarDays(cell.date, -7);
+                      if (event.key === "ArrowDown") next = addCalendarDays(cell.date, 7);
+                      if (event.key === "Home") next = addCalendarDays(cell.date, -(index % 7));
+                      if (event.key === "End") next = addCalendarDays(cell.date, 6 - (index % 7));
+                      if (event.key === "PageUp")
+                        next = event.shiftKey
+                          ? addCalendarYears(cell.date, -1)
+                          : addCalendarMonths(cell.date, -1);
+                      if (event.key === "PageDown")
+                        next = event.shiftKey
+                          ? addCalendarYears(cell.date, 1)
+                          : addCalendarMonths(cell.date, 1);
+                      if (next !== undefined) {
+                        event.preventDefault();
+                        focusDate(next);
+                      }
+                      if ((event.key === "Enter" || event.key === " ") && !unavailable)
+                        select(cell.date);
+                    }}
+                  >
+                    {cell.day}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
     );

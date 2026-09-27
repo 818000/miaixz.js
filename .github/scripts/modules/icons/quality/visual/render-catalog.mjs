@@ -19,7 +19,7 @@
 */
 
 /**
- * Renders and measures all 30,720 FILL/opsz states from the release WOFF2 files
+ * Renders and measures all 30,720 FILL/opsz states from the release WOFF2 file
  * in Chromium, Firefox, and WebKit without an SVG or static-font substitute.
  */
 
@@ -58,26 +58,22 @@ if (manifest.name !== "@miaixz/icons" || codepoints.length !== 1024) {
   throw new Error("Visual rendering requires the complete @miaixz/icons release catalog.");
 }
 
-const fontFiles = Object.freeze({
-  core: "miaixz-icons.woff2",
-  extended: "miaixz-icons-extended.woff2",
-});
+const fontFiles = Object.freeze({ font: "miaixz-icons.woff2" });
 const fontBytes = Object.freeze({
-  core: await readFile(resolve(fontRoot, fontFiles.core)),
-  extended: await readFile(resolve(fontRoot, fontFiles.extended)),
+  font: await readFile(resolve(fontRoot, fontFiles.font)),
 });
 const fontHashes = Object.freeze(
   Object.fromEntries(
-    Object.entries(fontBytes).map(([subset, bytes]) => [
-      subset,
+    Object.entries(fontBytes).map(([name, bytes]) => [
+      name,
       createHash("sha256").update(bytes).digest("hex"),
     ]),
   ),
 );
 const dataUrls = Object.freeze(
   Object.fromEntries(
-    Object.entries(fontBytes).map(([subset, bytes]) => [
-      subset,
+    Object.entries(fontBytes).map(([name, bytes]) => [
+      name,
       `data:font/woff2;base64,${bytes.toString("base64")}`,
     ]),
   ),
@@ -113,8 +109,7 @@ function catalogSurface() {
     )
     .join("");
   return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.core}") format("woff2");font-display:block;unicode-range:U+F0000-F003F}
-    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.extended}") format("woff2");font-display:block;unicode-range:U+F0040-F03FF}
+    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.font}") format("woff2");font-display:block;unicode-range:U+F0000-F03FF}
     :root{--fill:0;--opsz:24}
     *{box-sizing:border-box}
     html,body{margin:0;width:${sheetSize}px;height:${sheetSize}px;overflow:hidden;background:#fff}

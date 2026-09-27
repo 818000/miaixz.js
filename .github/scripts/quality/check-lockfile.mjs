@@ -31,7 +31,6 @@ const { rootManifest, workspaces } = loadWorkspaceRepository(root);
 const failures = [];
 const forbiddenLockfiles = new Set([
   "package-lock.json",
-  "pnpm-lock.yaml",
   "yarn.lock",
   "bun.lock",
   "bun.lockb",

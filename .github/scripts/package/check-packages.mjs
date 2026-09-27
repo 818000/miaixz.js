@@ -175,10 +175,7 @@ function validateManifest({ directory, manifest, name, rootPath }) {
     }
   }
   if (name === "@miaixz/icons") {
-    const coreBytes = statSync(join(rootPath, "dist/assets/fonts/miaixz-icons.woff2")).size;
-    const extendedBytes = statSync(
-      join(rootPath, "dist/assets/fonts/miaixz-icons-extended.woff2"),
-    ).size;
+    const fontBytes = statSync(join(rootPath, "dist/assets/fonts/miaixz-icons.woff2")).size;
     const mappingBytes = gzipSync(
       Buffer.concat([
         readFileSync(join(rootPath, "dist/autogen/codepoints.js")),
@@ -186,13 +183,7 @@ function validateManifest({ directory, manifest, name, rootPath }) {
       ]),
     ).byteLength;
     const cssBytes = gzipSync(readFileSync(join(rootPath, "dist/styles/index.css"))).byteLength;
-    if (
-      coreBytes > 256 * 1024 ||
-      extendedBytes > 3 * 1024 * 1024 ||
-      coreBytes + extendedBytes > 3.25 * 1024 * 1024 ||
-      mappingBytes > 128 * 1024 ||
-      cssBytes > 12 * 1024
-    ) {
+    if (fontBytes > 512 * 1024 || mappingBytes > 128 * 1024 || cssBytes > 12 * 1024) {
       throw new Error(`${directory} exceeds the frozen font, mapping, or CSS size budget`);
     }
   }
@@ -237,10 +228,7 @@ function pack({ directory, name }) {
   }
   if (name === "@miaixz/icons") {
     const fontFiles = packedFiles.filter((path) => /\.(?:ttf|otf|woff2?)$/u.test(path));
-    const expectedFonts = [
-      "dist/assets/fonts/miaixz-icons-extended.woff2",
-      "dist/assets/fonts/miaixz-icons.woff2",
-    ];
+    const expectedFonts = ["dist/assets/fonts/miaixz-icons.woff2"];
     if (JSON.stringify(fontFiles.sort()) !== JSON.stringify(expectedFonts)) {
       throw new Error(`${directory} tarball font set is invalid: ${fontFiles.join(", ")}`);
     }
@@ -451,6 +439,10 @@ async function runBrowserSmoke(directory) {
   const distribution = resolve(directory, "dist");
   const server = createServer((request, response) => {
     const pathname = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
+    if (pathname === "/favicon.ico") {
+      response.writeHead(204).end();
+      return;
+    }
     const requestedPath = pathname === "/" ? "/index.html" : pathname;
     const file = resolve(distribution, `.${decodeURIComponent(requestedPath)}`);
     if (!file.startsWith(`${distribution}/`)) {
@@ -477,7 +469,10 @@ async function runBrowserSmoke(directory) {
   if (address === null || typeof address === "string")
     throw new Error("Browser server has no port");
   const { chromium } = await import("@playwright/test");
-  const browser = await chromium.launch();
+  const browserExecutable = process.env.MIAIXZ_CHROMIUM_EXECUTABLE?.trim();
+  const browser = await chromium.launch(
+    browserExecutable ? { executablePath: browserExecutable } : {},
+  );
   const page = await browser.newPage();
   const browserErrors = [];
   page.on("console", (message) => {

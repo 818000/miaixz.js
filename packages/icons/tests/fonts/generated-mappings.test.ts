@@ -29,11 +29,6 @@ import { describe, expect, it } from "vitest";
 
 import { ICON_CODEPOINTS, ICON_GLYPH_BY_NAME } from "../../src/autogen/codepoints.js";
 import { ICON_CATALOG, ICON_NAME_LIST } from "../../src/autogen/catalog.js";
-import {
-  CORE_ICON_NAMES,
-  EXTENDED_ICON_NAMES,
-  ICON_SUBSET_BY_NAME,
-} from "../../src/autogen/subset-map.js";
 
 const assetsRoot = resolve(process.cwd(), "src/assets");
 const ledger = JSON.parse(await readFile(resolve(assetsRoot, "fonts/codepoints.json"), "utf8")) as {
@@ -41,11 +36,11 @@ const ledger = JSON.parse(await readFile(resolve(assetsRoot, "fonts/codepoints.j
     name: string;
     codepoint: number;
     glyphName: string;
-    subset: "core" | "extended";
+    tier: "core" | "extended";
   }[];
 };
 const catalog = JSON.parse(await readFile(resolve(assetsRoot, "catalog.json"), "utf8")) as {
-  icons: readonly { name: string; rtl: "none" | "mirror" }[];
+  icons: readonly { name: string; rtl: "none" | "mirror"; tier: "core" | "extended" }[];
 };
 const releasePlan = JSON.parse(
   await readFile(resolve(assetsRoot, "release-plan.json"), "utf8"),
@@ -69,13 +64,16 @@ describe("generated TypeScript mappings", () => {
     expect(ICON_CODEPOINTS).toEqual(expected);
     for (const icon of ICON_CODEPOINTS) {
       expect(ICON_GLYPH_BY_NAME.get(icon.name)).toBe(String.fromCodePoint(icon.codepoint));
-      expect(ICON_SUBSET_BY_NAME.get(icon.name)).toBe(icon.subset);
+      expect(catalog.icons.find(({ name }) => name === icon.name)?.tier).toBe(icon.tier);
     }
   });
 
-  it("matches the frozen 64/960 release partition", () => {
-    expect(CORE_ICON_NAMES).toEqual(releasePlan.coreNames);
-    expect(EXTENDED_ICON_NAMES).toEqual(releasePlan.extendedNames);
-    expect(ICON_SUBSET_BY_NAME.size).toBe(1024);
+  it("matches the frozen 64/960 catalog priority partition", () => {
+    expect(ICON_CODEPOINTS.filter(({ tier }) => tier === "core").map(({ name }) => name)).toEqual(
+      releasePlan.coreNames,
+    );
+    expect(
+      ICON_CODEPOINTS.filter(({ tier }) => tier === "extended").map(({ name }) => name),
+    ).toEqual(releasePlan.extendedNames);
   });
 });

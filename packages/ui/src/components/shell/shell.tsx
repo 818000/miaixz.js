@@ -42,6 +42,7 @@ export const Shell = withMiaixzThemeComponent(
       desktopNavigation = { mode: "sidebar" },
       mobileNavigation = { mode: "none" },
       presentation = "default",
+      mainComponent: MainComponent = "main",
       slotProps,
       mainRef,
       children,
@@ -99,7 +100,7 @@ export const Shell = withMiaixzThemeComponent(
         >
           {sidebar}
         </aside>
-        <main
+        <MainComponent
           {...mergeMiaixzSlotProps({
             ownerState,
             defaultProps: { className: "miaixz-shell-main" },
@@ -108,7 +109,7 @@ export const Shell = withMiaixzThemeComponent(
           })}
         >
           {children}
-        </main>
+        </MainComponent>
         {mobileNavigation.mode === "bottom" && (
           <div
             {...mergeMiaixzSlotProps({

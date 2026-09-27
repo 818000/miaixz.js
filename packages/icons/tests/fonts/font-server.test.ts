@@ -26,8 +26,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { startFontTestServer, type FontTestServer } from "../browser/support/font-server.js";
 
-const corePath = "/assets/miaixz-icons.woff2";
-const extendedPath = "/assets/miaixz-icons-extended.woff2";
+const fontPath = "/assets/miaixz-icons.woff2";
 let activeServer: FontTestServer | undefined;
 
 afterEach(async () => {
@@ -38,38 +37,24 @@ afterEach(async () => {
 describe("font request test server", () => {
   it("records exact filenames, counts, status, CORS, and cache headers", async () => {
     activeServer = await startFontTestServer();
-    const coreResponses = await Promise.all([
-      fetch(`${activeServer.origin}${corePath}`),
-      fetch(`${activeServer.origin}${corePath}`),
+    const responses = await Promise.all([
+      fetch(`${activeServer.origin}${fontPath}`),
+      fetch(`${activeServer.origin}${fontPath}`),
     ]);
-    const extendedResponse = await fetch(`${activeServer.origin}${extendedPath}`);
 
-    expect(coreResponses.map((response) => response.status)).toEqual([200, 200]);
-    expect(extendedResponse.status).toBe(200);
-    expect(extendedResponse.headers.get("content-type")).toBe("font/woff2");
-    expect(extendedResponse.headers.get("access-control-allow-origin")).toBe("*");
-    expect(extendedResponse.headers.get("cache-control")).toBe(
-      "public, max-age=31536000, immutable",
-    );
-    expect(activeServer.count(corePath)).toBe(2);
-    expect(activeServer.count(extendedPath)).toBe(1);
-    expect(activeServer.requests.map(({ path }) => path)).toEqual([
-      corePath,
-      corePath,
-      extendedPath,
-    ]);
+    expect(responses.map((response) => response.status)).toEqual([200, 200]);
+    expect(responses[0]?.headers.get("content-type")).toBe("font/woff2");
+    expect(responses[0]?.headers.get("access-control-allow-origin")).toBe("*");
+    expect(responses[0]?.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+    expect(activeServer.count(fontPath)).toBe(2);
+    expect(activeServer.requests.map(({ path }) => path)).toEqual([fontPath, fontPath]);
   });
 
-  it("records independent 404 responses for either subset", async () => {
-    activeServer = await startFontTestServer({ failures: [extendedPath] });
-    const coreResponse = await fetch(`${activeServer.origin}${corePath}`);
-    const extendedResponse = await fetch(`${activeServer.origin}${extendedPath}`);
+  it("records a deterministic 404 response for the font", async () => {
+    activeServer = await startFontTestServer({ failures: [fontPath] });
+    const response = await fetch(`${activeServer.origin}${fontPath}`);
 
-    expect(coreResponse.status).toBe(200);
-    expect(extendedResponse.status).toBe(404);
-    expect(activeServer.requests).toEqual([
-      { method: "GET", path: corePath, status: 200 },
-      { method: "GET", path: extendedPath, status: 404 },
-    ]);
+    expect(response.status).toBe(404);
+    expect(activeServer.requests).toEqual([{ method: "GET", path: fontPath, status: 404 }]);
   });
 });

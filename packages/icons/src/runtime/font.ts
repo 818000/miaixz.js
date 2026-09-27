@@ -19,39 +19,37 @@
 */
 
 /**
- * Owns the font-only icon lookup and subset loading state.
+ * Owns the font-only icon lookup and single-font loading state.
  */
 
 import { ICON_CODEPOINTS } from "../autogen/codepoints.js";
 import { ICON_NAME_LIST, type IconName } from "../autogen/names.js";
 
 export type IconVariant = "outline" | "filled";
-export type IconSubset = "core" | "extended";
 export type IconDirection = "none" | "mirror";
 
 export interface MiaixzIconRecord {
   readonly name: IconName;
   readonly codepoint: number;
   readonly glyph: string;
-  readonly subset: IconSubset;
   readonly rtl: IconDirection;
 }
 
-interface PendingSubset {
+interface PendingFont {
   readonly status: "pending";
   readonly promise: Promise<void>;
 }
 
-interface ResolvedSubset {
+interface ResolvedFont {
   readonly status: "resolved";
 }
 
-interface FailedSubset {
+interface FailedFont {
   readonly status: "failed";
   readonly error: unknown;
 }
 
-type SubsetState = PendingSubset | ResolvedSubset | FailedSubset;
+type FontState = PendingFont | ResolvedFont | FailedFont;
 
 const iconNames = new Set<string>(ICON_NAME_LIST);
 const iconRecords = new Map<IconName, MiaixzIconRecord>(
@@ -61,12 +59,11 @@ const iconRecords = new Map<IconName, MiaixzIconRecord>(
       name: entry.name,
       codepoint: entry.codepoint,
       glyph: String.fromCodePoint(entry.codepoint),
-      subset: entry.subset,
       rtl: entry.rtl,
     }),
   ]),
 );
-const subsetStates = new Map<IconSubset, SubsetState>();
+let fontState: FontState | undefined;
 
 /**
  * Returns whether a string is one of the 1024 font-backed names.
@@ -93,7 +90,7 @@ export function parseIconName(value: string): IconName {
  * Resolves the immutable font record for one public name.
  *
  * @param name - Font-backed icon name.
- * @returns Immutable codepoint and subset metadata.
+ * @returns Immutable codepoint and direction metadata.
  */
 export function resolveMiaixzIcon(name: IconName): MiaixzIconRecord {
   const record = iconRecords.get(name);
@@ -102,39 +99,37 @@ export function resolveMiaixzIcon(name: IconName): MiaixzIconRecord {
 }
 
 /**
- * Loads exactly one font subset. Concurrent requests share one promise and
- * failures remain isolated by subset.
+ * Loads the complete icon font. Concurrent requests share one promise.
  *
- * @param subset - Core or Extended subset.
- * @param glyph - Representative glyph from that subset.
+ * @param glyph - Representative glyph from the complete font.
  * @returns Promise completed when the browser font is available.
  */
-export function loadMiaixzIconSubset(subset: IconSubset, glyph: string): Promise<void> {
+export function loadMiaixzIconFont(glyph = String.fromCodePoint(0xf0000)): Promise<void> {
   if (typeof document === "undefined" || document.fonts === undefined) return Promise.resolve();
-  const current = subsetStates.get(subset);
+  const current = fontState;
   if (current?.status === "resolved") return Promise.resolve();
   if (current?.status === "pending") return current.promise;
   if (current?.status === "failed") return Promise.reject(current.error);
 
   const promise = document.fonts.load('16px "Miaixz Icons"', glyph).then(
     (faces) => {
-      if (faces.length === 0) throw new Error(`[miaixz] Unable to load the ${subset} icon font.`);
-      subsetStates.set(subset, { status: "resolved" });
+      if (faces.length === 0) throw new Error("[miaixz] Unable to load the icon font.");
+      fontState = { status: "resolved" };
     },
     (error: unknown) => {
-      subsetStates.set(subset, { status: "failed", error });
+      fontState = { status: "failed", error };
       throw error;
     },
   );
-  subsetStates.set(subset, { status: "pending", promise });
+  fontState = { status: "pending", promise };
   void promise.catch((error: unknown) => {
-    subsetStates.set(subset, { status: "failed", error });
+    fontState = { status: "failed", error };
   });
   return promise;
 }
 
 /**
- * Reads a font record for React rendering, suspending while its subset loads
+ * Reads a font record for React rendering, suspending while the font loads
  * and returning null after a controlled load failure.
  *
  * @param name - Font-backed icon name.
@@ -143,27 +138,27 @@ export function loadMiaixzIconSubset(subset: IconSubset, glyph: string): Promise
 export function readMiaixzIcon(name: IconName): MiaixzIconRecord | null {
   const record = resolveMiaixzIcon(name);
   if (typeof document === "undefined" || document.fonts === undefined) return record;
-  const current = subsetStates.get(record.subset);
+  const current = fontState;
   if (current?.status === "resolved") return record;
   if (current?.status === "failed") return null;
-  const pending = current?.promise ?? loadMiaixzIconSubset(record.subset, record.glyph);
+  const pending = current?.promise ?? loadMiaixzIconFont(record.glyph);
   throw pending.catch(() => undefined);
 }
 
 /**
- * Preloads only the 64-glyph Core font.
+ * Preloads the complete 1024-glyph font.
  *
  * @returns Promise completed when Core is ready, or immediately during SSR.
  */
 export function preloadMiaixzIconFont(): Promise<void> {
-  return loadMiaixzIconSubset("core", String.fromCodePoint(0xf0000));
+  return loadMiaixzIconFont();
 }
 
 /**
- * Clears browser subset state for isolated tests and controlled retries.
+ * Clears browser font state for isolated tests and controlled retries.
  *
  * @internal
  */
 export function resetMiaixzIconFontLoads(): void {
-  subsetStates.clear();
+  fontState = undefined;
 }

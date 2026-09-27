@@ -38,16 +38,7 @@
   font-weight: 400;
   src: url("../assets/fonts/miaixz-icons.woff2") format("woff2");
   font-display: block;
-  unicode-range: U+F0000-F003F;
-}
-
-@font-face {
-  font-family: "Miaixz Icons";
-  font-style: normal;
-  font-weight: 400;
-  src: url("../assets/fonts/miaixz-icons-extended.woff2") format("woff2");
-  font-display: block;
-  unicode-range: U+F0040-F03FF;
+  unicode-range: U+F0000-F03FF;
 }
 
 @layer miaixz.icons {

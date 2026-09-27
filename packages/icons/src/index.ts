@@ -25,7 +25,6 @@
 export {
   CANONICAL_ICON_NAMES,
   ICON_CATALOG,
-  ICON_CATALOG as iconCatalog,
   ICON_IDENTIFIERS,
   ICON_NAME_LIST,
   ICON_NAMES,
@@ -35,9 +34,9 @@ export { Icon } from "./react/index.js";
 export type { IconMotion, IconProps, IconSize } from "./react/index.js";
 export {
   isIconName,
-  loadMiaixzIconSubset,
+  loadMiaixzIconFont,
   parseIconName,
   preloadMiaixzIconFont,
   resolveMiaixzIcon,
 } from "./runtime/index.js";
-export type { IconDirection, IconSubset, IconVariant, MiaixzIconRecord } from "./runtime/index.js";
+export type { IconDirection, IconVariant, MiaixzIconRecord } from "./runtime/index.js";

@@ -19,7 +19,7 @@
 */
 
 /**
- * Inspects the two published Miaixz WOFF2 subsets through the TTX CLI.
+ * Inspects the published Miaixz WOFF2 through the TTX CLI.
  */
 
 import { mkdtemp, readFile, rm } from "node:fs/promises";
@@ -29,12 +29,12 @@ import { pathToFileURL } from "node:url";
 
 import { runFontTool } from "./validate.mjs";
 
-const expectedFonts = Object.freeze(["miaixz-icons-extended.woff2", "miaixz-icons.woff2"]);
+const expectedFonts = Object.freeze(["miaixz-icons.woff2"]);
 
 /**
- * Dumps and validates required OpenType tables for two font subsets.
+ * Dumps and validates required OpenType tables for the complete font.
  *
- * @param {string} inputDirectory - Directory containing the two WOFF2 files.
+ * @param {string} inputDirectory - Directory containing the WOFF2 file.
  * @returns {Promise<Readonly<Record<string, string>>>} TTX XML by font filename.
  */
 export async function inspectFonts(inputDirectory) {

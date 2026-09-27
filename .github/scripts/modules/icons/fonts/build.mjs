@@ -43,7 +43,7 @@ const interruptSignals = Object.freeze({
   SIGINT: 130,
   SIGTERM: 143,
 });
-const expectedOutputNames = Object.freeze(["miaixz-icons-extended.woff2", "miaixz-icons.woff2"]);
+const expectedOutputNames = Object.freeze(["miaixz-icons.woff2"]);
 
 /**
  * Requires two isolated build rounds to contain byte-identical font outputs.
@@ -118,7 +118,7 @@ async function digest(path) {
 }
 
 /**
- * Builds one temporary complete variable TTF and its two WOFF2 subsets.
+ * Builds one temporary complete variable TTF and its complete WOFF2 output.
  *
  * @param {string} outputDirectory - Existing temporary output directory.
  * @returns {Promise<Readonly<Record<string, string>>>} Output hashes.
@@ -131,10 +131,7 @@ async function buildCandidate(outputDirectory) {
     ["-m", designspacePath, "-o", "variable", "--output-path", completeFont, "--validate-ufo"],
     { env: environment },
   );
-  const outputs = [
-    ["miaixz-icons.woff2", "U+F0000-F003F"],
-    ["miaixz-icons-extended.woff2", "U+F0040-F03FF"],
-  ];
+  const outputs = [["miaixz-icons.woff2", "U+F0000-F03FF"]];
   for (const [filename, unicodes] of outputs) {
     await runFontTool(
       "fonttools",
@@ -166,7 +163,7 @@ async function buildCandidate(outputDirectory) {
 }
 
 /**
- * Replaces the published font directory with the two verified WOFF2 files.
+ * Replaces the published font directory with the verified WOFF2 file.
  *
  * @param {string} candidateDirectory - Verified first-round build directory.
  * @param {string} destinationDirectory - Package distribution font directory.

@@ -156,7 +156,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   );
   const slotProps = props.slotProps;
   return (
-    <button {...rootProps}>
+    <button
+      {...rootProps}
+      aria-labelledby={rootProps["aria-label"] === undefined ? labelId : undefined}
+    >
       <MiaixzButtonContent
         ownerState={ownerState}
         labelId={labelId}

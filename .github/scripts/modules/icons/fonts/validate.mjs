@@ -50,7 +50,7 @@ export const EXPECTED_MASTER_DIRECTORIES = Object.freeze([
 ]);
 
 const allowedExecutables = new Set(["fontbakery", "fontmake", "fonttools", "ttx"]);
-const expectedFontFiles = Object.freeze(["miaixz-icons-extended.woff2", "miaixz-icons.woff2"]);
+const expectedFontFiles = Object.freeze(["miaixz-icons.woff2"]);
 /**
  * Universal-profile checks that intentionally conflict with the frozen icon-font
  * contract. Each exclusion is scoped to release 0.6.5 and is visible to tests.
@@ -167,10 +167,10 @@ async function readJson(path) {
 }
 
 /**
- * Validates the complete Core/Extended codepoint ledger.
+ * Validates the complete codepoint ledger and catalog priority tiers.
  *
  * @param {{canonicalNames: readonly string[], coreNames: readonly string[], extendedNames: readonly string[]}} releasePlan - Frozen release plan.
- * @param {{schemaVersion: number, rangeStart: number, icons: readonly {name: string, codepoint: number, glyphName: string, subset: string}[]}} codepointFile - Codepoint ledger.
+ * @param {{schemaVersion: number, rangeStart: number, icons: readonly {name: string, codepoint: number, glyphName: string, tier: string}[]}} codepointFile - Codepoint ledger.
  * @returns {void}
  */
 export function validateCodepoints(releasePlan, codepointFile) {
@@ -191,13 +191,13 @@ export function validateCodepoints(releasePlan, codepointFile) {
   for (const [index, icon] of codepointFile.icons.entries()) {
     const expectedName = releasePlan.canonicalNames[index];
     const expectedCodepoint = 0xf0000 + index;
-    const expectedSubset = index < 64 ? "core" : "extended";
+    const expectedTier = index < 64 ? "core" : "extended";
     if (
       icon.name !== expectedName ||
       icon.codepoint !== expectedCodepoint ||
       !Number.isInteger(icon.codepoint) ||
       icon.glyphName !== `miaixz.${icon.name}` ||
-      icon.subset !== expectedSubset
+      icon.tier !== expectedTier
     ) {
       throw new Error(`Invalid codepoint entry at index ${index}.`);
     }
@@ -213,7 +213,7 @@ export function validateCodepoints(releasePlan, codepointFile) {
     codepointFile.icons[64].codepoint !== 0xf0040 ||
     codepointFile.icons[1023].codepoint !== 0xf03ff
   ) {
-    throw new Error("Codepoint subset boundaries are not contiguous.");
+    throw new Error("Codepoint range is not contiguous.");
   }
 }
 
@@ -819,7 +819,7 @@ export async function validateFontSource() {
 }
 
 /**
- * Runs the FontBakery universal profile for both candidate WOFF2 subsets.
+ * Runs the FontBakery universal profile for the complete candidate WOFF2.
  *
  * @param {string} fontDirectory - Candidate font directory.
  * @param {string} reportDirectory - External report destination.

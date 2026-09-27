@@ -36,7 +36,7 @@ async function finalizePackage() {
   const manifest = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
   if (manifest.name === "@miaixz/icons") {
     const fonts = (await readdir(resolve(packageRoot, "dist/assets/fonts"))).sort();
-    const expectedFonts = ["miaixz-icons-extended.woff2", "miaixz-icons.woff2"];
+    const expectedFonts = ["miaixz-icons.woff2"];
     if (JSON.stringify(fonts) !== JSON.stringify(expectedFonts)) {
       throw new Error(
         `@miaixz/icons requires exactly ${expectedFonts.join(", ")} before package build.`,

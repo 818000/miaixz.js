@@ -19,14 +19,14 @@
 */
 
 /**
- * Verifies deterministic font lookup and isolated subset loading.
+ * Verifies deterministic font lookup and single-font loading.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   isIconName,
-  loadMiaixzIconSubset,
+  loadMiaixzIconFont,
   parseIconName,
   preloadMiaixzIconFont,
   readMiaixzIcon,
@@ -47,31 +47,31 @@ describe("font icon runtime", () => {
     expect(parseIconName("search")).toBe("search");
     expect(() => parseIconName("not-a-real-icon")).toThrow("Unknown icon name");
     expect(resolveMiaixzIcon("search")).toEqual(
-      expect.objectContaining({ glyph: String.fromCodePoint(0xf0034), subset: "core" }),
+      expect.objectContaining({ glyph: String.fromCodePoint(0xf0034) }),
     );
   });
 
-  it("deduplicates concurrent loads independently for both subsets", async () => {
+  it("deduplicates concurrent requests for any glyph in the complete font", async () => {
     const load = vi.fn(async () => [Object.freeze({})] as FontFace[]);
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
 
     await Promise.all([
-      ...Array.from({ length: 100 }, () => loadMiaixzIconSubset("core", "a")),
-      ...Array.from({ length: 100 }, () => loadMiaixzIconSubset("extended", "b")),
+      ...Array.from({ length: 100 }, () => loadMiaixzIconFont("a")),
+      ...Array.from({ length: 100 }, () => loadMiaixzIconFont("b")),
     ]);
 
-    expect(load).toHaveBeenCalledTimes(2);
+    expect(load).toHaveBeenCalledTimes(1);
     await preloadMiaixzIconFont();
-    expect(load).toHaveBeenCalledTimes(2);
+    expect(load).toHaveBeenCalledTimes(1);
   });
 
   it("resolves immediately without the Font Loading API", async () => {
     Reflect.deleteProperty(document, "fonts");
-    await expect(loadMiaixzIconSubset("core", "a")).resolves.toBeUndefined();
+    await expect(loadMiaixzIconFont("a")).resolves.toBeUndefined();
     expect(readMiaixzIcon("help")).toEqual(expect.objectContaining({ name: "help" }));
   });
 
-  it("suspends once and returns a record after the subset resolves", async () => {
+  it("suspends once and returns a record after the font resolves", async () => {
     const load = vi.fn(async () => [Object.freeze({})] as FontFace[]);
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
     let pending: unknown;
@@ -88,17 +88,17 @@ describe("font icon runtime", () => {
   it("turns an empty font result into a controlled failed state", async () => {
     const load = vi.fn(async () => [] as FontFace[]);
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
-    await expect(loadMiaixzIconSubset("extended", "b")).rejects.toThrow("extended icon font");
+    await expect(loadMiaixzIconFont("b")).rejects.toThrow("Unable to load the icon font");
     expect(readMiaixzIcon("accessibility")).toBeNull();
-    await expect(loadMiaixzIconSubset("extended", "b")).rejects.toThrow("extended icon font");
+    await expect(loadMiaixzIconFont("b")).rejects.toThrow("Unable to load the icon font");
   });
 
   it("retains a rejected browser font error for deterministic retries", async () => {
     const failure = new Error("font fixture failure");
     const load = vi.fn(async () => Promise.reject(failure));
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
-    await expect(loadMiaixzIconSubset("core", "a")).rejects.toBe(failure);
-    await expect(loadMiaixzIconSubset("core", "a")).rejects.toBe(failure);
+    await expect(loadMiaixzIconFont("a")).rejects.toBe(failure);
+    await expect(loadMiaixzIconFont("a")).rejects.toBe(failure);
     expect(load).toHaveBeenCalledTimes(1);
   });
 });

@@ -23,17 +23,17 @@ export function Example() {
 
 ## 字体加载
 
-Core 字体固定包含 64 个首屏名称和 U+F0000–U+F003F；Extended 字体包含其余 960 个 canonical 名称和 U+F0040–U+F03FF。两个 `@font-face` 使用互斥 `unicode-range`，因此浏览器只在页面实际出现对应字符时请求文件。
+`miaixz-icons.woff2` 是唯一字体文件，固定包含全部 1024 个 canonical 名称和 U+F0000–U+F03FF。64 个 Core 与 960 个 Extended 只保留为目录优先级标签，不再对应物理字体分包或独立网络请求。
 
-首屏可以只预载 Core：
+首屏使用图标时可以预载完整字体：
 
 ```html
 <link rel="preload" href="/assets/miaixz-icons.woff2" as="font" type="font/woff2" crossorigin />
 ```
 
-不要默认预载 Extended。打包器也可以通过 `@miaixz/icons/font.woff2` 和 `@miaixz/icons/font-extended.woff2` 取得稳定资源入口。跨源部署必须返回 `Access-Control-Allow-Origin`，两个字体建议返回 `Cache-Control: public, max-age=31536000, immutable`。
+打包器可以通过 `@miaixz/icons/font.woff2` 取得唯一稳定资源入口。跨源部署必须返回 `Access-Control-Allow-Origin`，字体建议返回 `Cache-Control: public, max-age=31536000, immutable`。
 
-运行时预热只加载 Core：
+运行时预热加载完整字体，所有并发请求共享同一个 Promise：
 
 ```ts
 import { preloadMiaixzIconFont } from "@miaixz/icons";
@@ -70,16 +70,15 @@ npm install lucide-react
 
 ## 故障策略与浏览器范围
 
-字体加载失败时显示固定尺寸的安全占位，不会泄漏 PUA/tofu。Core 与 Extended 各自使用一个全局加载 Promise，任一子集失败不会污染另一子集。
+字体加载失败时显示固定尺寸的安全占位，不会泄漏 PUA/tofu。完整字体使用一个全局加载 Promise，同一页面最多触发一次字体请求。
 
 支持 React 18.3–19，以及当前锁定 Playwright 版本对应的 Chromium、Firefox 和 WebKit。SSR 不访问 Font Loading API；Hydration 保持同一个 `span` 根节点和固定尺寸占位。
 
 ## Public entries
 
-| Entry                   | Kind       |
-| ----------------------- | ---------- |
-| `.`                     | JavaScript |
-| `./catalog`             | JavaScript |
-| `./styles.css`          | CSS        |
-| `./font.woff2`          | Asset      |
-| `./font-extended.woff2` | Asset      |
+| Entry          | Kind       |
+| -------------- | ---------- |
+| `.`            | JavaScript |
+| `./catalog`    | JavaScript |
+| `./styles.css` | CSS        |
+| `./font.woff2` | Asset      |

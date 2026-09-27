@@ -19,10 +19,10 @@
 */
 
 /**
- * Freezes the executable examples/icons acceptance surface.
+ * Freezes the directly openable static icons example.
  */
 
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -30,51 +30,42 @@ import { describe, expect, it } from "vitest";
 const repositoryRoot = resolve(process.cwd(), "../..");
 const exampleRoot = resolve(repositoryRoot, "examples/icons");
 
-describe("icons example contract", () => {
-  it("remains private and version locked", async () => {
-    const manifest = JSON.parse(await readFile(resolve(exampleRoot, "package.json"), "utf8")) as {
-      readonly name: string;
-      readonly private: boolean;
-      readonly version: string;
-    };
-    expect(manifest).toMatchObject({
-      name: "@miaixz/example-icons",
-      private: true,
-      version: "0.6.5",
-    });
+describe("icons static example contract", () => {
+  it("uses only classic local assets", async () => {
+    const html = await readFile(resolve(exampleRoot, "index.html"), "utf8");
+    expect(html).toContain('<script defer src="./assets/icons.js"></script>');
+    expect(html).toContain('<link rel="stylesheet" href="./assets/icons.css" />');
+    expect(html).not.toContain('type="module"');
+    expect(html).not.toMatch(/(?:src|href)=["']https?:\/\//u);
   });
 
-  it("covers the complete variable-font and failure controls", async () => {
-    const source = await readFile(resolve(exampleRoot, "src/main.tsx"), "utf8");
+  it("ships one complete local variable font", async () => {
+    const font = await stat(resolve(exampleRoot, "assets/miaixz-icons.woff2"));
+    const css = await readFile(resolve(exampleRoot, "assets/icons.css"), "utf8");
+    expect(font.size).toBeGreaterThan(20_000);
+    expect(font.size).toBeLessThan(100_000);
+    expect(css).toContain('url("./miaixz-icons.woff2")');
+    expect(css).toContain('"FILL" var(--demo-fill)');
+    expect(css).toContain('"opsz" var(--demo-opsz)');
+  });
+
+  it("covers catalog, axes, inspection, accessibility, and failure status", async () => {
+    const html = await readFile(resolve(exampleRoot, "index.html"), "utf8");
+    const javascript = await readFile(resolve(exampleRoot, "assets/icons.js"), "utf8");
     for (const token of [
-      'import coreFontUrl from "@miaixz/icons/font.woff2?url"',
-      'import("@miaixz/icons/catalog")',
-      'min="0"',
-      'max="1"',
-      'min="12"',
-      'max="40"',
-      "simulateFailure",
-      "reducedMotion",
-      "setRtl",
-      "namedSizes",
+      "完整图标目录",
+      "实时轴控制",
+      "调用检查器",
+      "尺寸、方向与可访问性",
+      "[miaixz] Unable to load the icon font.",
+      "ICON_CATALOG",
+      "resolveMiaixzIcon",
+      "visibleLimit += 160",
     ]) {
-      expect(source).toContain(token);
+      expect(`${html}\n${javascript}`).toContain(token);
     }
-  });
-
-  it("contains no third-party Provider entry", async () => {
-    const source = await readFile(resolve(exampleRoot, "src/main.tsx"), "utf8");
-    expect(source).not.toMatch(
-      /IconRegistry|IconProvider|@miaixz\/icons-(?:lucide|phosphor|fontawesome|iconify)/u,
+    expect(`${html}\n${javascript}`).not.toMatch(
+      /IconProvider|icons-(?:lucide|phosphor|fontawesome|iconify)/u,
     );
-    expect(source).toContain("help 图标加载失败");
-  });
-
-  it("documents reproducible development and production commands", async () => {
-    const readme = await readFile(resolve(exampleRoot, "README.md"), "utf8");
-    expect(readme).toContain("npm --prefix examples/icons run dev");
-    expect(readme).toContain("npm --prefix examples/icons run build");
-    expect(readme).toContain("64 个 Core");
-    expect(readme).toContain("Extended");
   });
 });
