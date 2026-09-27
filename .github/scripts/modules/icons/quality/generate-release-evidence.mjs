@@ -118,10 +118,7 @@ const visualGate = readJson(
   "packages/icons/tests/.artifacts/icon-visual/evidence/visual-gate.json",
 );
 const fontbakeryReports = Object.freeze({
-  core: readJson("packages/icons/tests/.artifacts/fontbakery/miaixz-icons.fontbakery.json"),
-  extended: readJson(
-    "packages/icons/tests/.artifacts/fontbakery/miaixz-icons-extended.fontbakery.json",
-  ),
+  font: readJson("packages/icons/tests/.artifacts/fontbakery/miaixz-icons.fontbakery.json"),
 });
 
 invariant(releasePlan.release === release, "Release plan version is not 0.6.5.");
@@ -193,20 +190,12 @@ const batches = releasePlan.batches.map((batch) => {
 });
 
 const fonts = Object.freeze({
-  core: describeFile("packages/icons/dist/assets/fonts/miaixz-icons.woff2"),
-  extended: describeFile("packages/icons/dist/assets/fonts/miaixz-icons-extended.woff2"),
+  font: describeFile("packages/icons/dist/assets/fonts/miaixz-icons.woff2"),
 });
-invariant(fonts.core.sha256 === visualSummary.fontHashes.core, "Core font hash is stale.");
-invariant(
-  fonts.extended.sha256 === visualSummary.fontHashes.extended,
-  "Extended font hash is stale.",
-);
+invariant(fonts.font.sha256 === visualSummary.fontHashes.font, "Font hash is stale.");
 
 const fontbakery = Object.freeze({
-  core: describeFile("packages/icons/tests/.artifacts/fontbakery/miaixz-icons.fontbakery.json"),
-  extended: describeFile(
-    "packages/icons/tests/.artifacts/fontbakery/miaixz-icons-extended.fontbakery.json",
-  ),
+  font: describeFile("packages/icons/tests/.artifacts/fontbakery/miaixz-icons.fontbakery.json"),
 });
 
 const sourceEvidence = [

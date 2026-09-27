@@ -46,8 +46,7 @@
       "import": "./dist/autogen/catalog.js"
     },
     "./styles.css": "./dist/styles/index.css",
-    "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2",
-    "./font-extended.woff2": "./dist/assets/fonts/miaixz-icons-extended.woff2"
+    "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2"
   },
   "scripts": {
     "clean": "node ../../.github/scripts/modules/icons/lib/clean-package.mjs",

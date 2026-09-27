@@ -207,7 +207,7 @@ async function writeFormattedJson(path, value) {
  * Assigns a stable category using explicit semantic name groups.
  *
  * @param {string} name - Canonical icon name.
- * @param {"core" | "extended"} tier - Release subset.
+ * @param {"core" | "extended"} tier - Catalog priority tier.
  * @returns {string} Frozen catalog category.
  */
 export function categoryFor(name, tier) {
@@ -981,7 +981,7 @@ async function bootstrapAssets() {
     name,
     codepoint: 0xf0000 + index,
     glyphName: `${glyphPrefix}${name}`,
-    subset: index < 64 ? "core" : "extended",
+    tier: index < 64 ? "core" : "extended",
   }));
   const schemaFiles = schemas();
   for (const [filename, schema] of Object.entries(schemaFiles)) {
@@ -1052,7 +1052,7 @@ async function commitGenerated(filename, contents, check) {
 }
 
 /**
- * Generates public codepoint, subset, name, and catalog data from JSON.
+ * Generates public codepoint, priority-tier, name, and catalog data from JSON.
  *
  * @param {boolean} check - Compare without writing.
  * @returns {Promise<void>} Promise completed after all outputs are current.
@@ -1092,7 +1092,7 @@ export interface IconCodepoint {
   readonly name: string;
   readonly codepoint: number;
   readonly glyphName: string;
-  readonly subset: "core" | "extended";
+  readonly tier: "core" | "extended";
   readonly rtl: "none" | "mirror";
 }
 /**
@@ -1107,26 +1107,6 @@ export const ICON_CODEPOINT_BY_NAME = new Map(ICON_CODEPOINTS.map((entry) => [en
  * Unicode glyph string lookup created without handwritten surrogate pairs.
  */
 export const ICON_GLYPH_BY_NAME = new Map(ICON_CODEPOINTS.map((entry) => [entry.name, String.fromCodePoint(entry.codepoint)]));
-`),
-  );
-  outputs.set(
-    "subset-map.ts",
-    await generatedModule(`
-/**
- * Frozen Core subset names.
- */
-export const CORE_ICON_NAMES = Object.freeze(${JSON.stringify(releasePlan.coreNames, null, 2)} as const);
-/**
- * Frozen Extended subset names.
- */
-export const EXTENDED_ICON_NAMES = Object.freeze(${JSON.stringify(releasePlan.extendedNames, null, 2)} as const);
-/**
- * Canonical name to independently loadable font subset.
- */
-export const ICON_SUBSET_BY_NAME = new Map<string, "core" | "extended">([
-  ...CORE_ICON_NAMES.map((name) => [name, "core"] as const),
-  ...EXTENDED_ICON_NAMES.map((name) => [name, "extended"] as const),
-]);
 `),
   );
   outputs.set(

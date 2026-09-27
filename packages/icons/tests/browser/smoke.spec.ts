@@ -19,7 +19,7 @@
 */
 
 /**
- * Verifies real font loading, subset isolation, animation, motion, and RTL in
+ * Verifies real font loading, one-file coverage, animation, motion, and RTL in
  * every supported browser engine.
  */
 
@@ -30,18 +30,14 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { startFontTestServer, type FontTestServer } from "./support/font-server.js";
 
-const corePath = "/assets/miaixz-icons.woff2";
-const extendedPath = "/assets/miaixz-icons-extended.woff2";
+const fontPath = "/assets/miaixz-icons.woff2";
 const fontDirectory = resolve(process.cwd(), "dist/assets/fonts");
 const fonts = Object.freeze({
-  [corePath]: new Uint8Array(await readFile(resolve(fontDirectory, "miaixz-icons.woff2"))),
-  [extendedPath]: new Uint8Array(
-    await readFile(resolve(fontDirectory, "miaixz-icons-extended.woff2")),
-  ),
+  [fontPath]: new Uint8Array(await readFile(resolve(fontDirectory, "miaixz-icons.woff2"))),
 });
 
 /**
- * Creates a real-font test surface that uses the production unicode ranges.
+ * Creates a real-font test surface that uses the production Unicode range.
  *
  * @param page - Browser page.
  * @param server - Isolated font server.
@@ -60,15 +56,9 @@ async function mountFontSurface(
         <style>
           @font-face {
             font-family: "Miaixz Icons";
-            src: url("${server.origin}${corePath}") format("woff2");
+            src: url("${server.origin}${fontPath}") format("woff2");
             font-display: block;
-            unicode-range: U+F0000-F003F;
-          }
-          @font-face {
-            font-family: "Miaixz Icons";
-            src: url("${server.origin}${extendedPath}") format("woff2");
-            font-display: block;
-            unicode-range: U+F0040-F03FF;
+            unicode-range: U+F0000-F03FF;
           }
           .icon {
             --fill: 0;
@@ -88,42 +78,39 @@ async function mountFontSurface(
     </html>`);
 }
 
-test("loads only Core for a Core glyph", async ({ page }) => {
+test("loads the single font for a low-range glyph", async ({ page }) => {
   const server = await startFontTestServer({ fonts });
   try {
     await mountFontSurface(page, server, String.fromCodePoint(0xf0000));
-    await expect.poll(() => server.count(corePath)).toBe(1);
+    await expect.poll(() => server.count(fontPath)).toBe(1);
     expect(await page.evaluate(() => document.fonts.check('64px "Miaixz Icons"'))).toBe(true);
-    expect(server.count(extendedPath)).toBe(0);
     await expect(page.getByTestId("icon")).toHaveAttribute("aria-hidden", "true");
   } finally {
     await server.close();
   }
 });
 
-test("loads only Extended for an Extended glyph", async ({ page }) => {
+test("loads the same single font for a high-range glyph", async ({ page }) => {
   const server = await startFontTestServer({ fonts });
   try {
     await mountFontSurface(page, server, String.fromCodePoint(0xf0040));
-    await expect.poll(() => server.count(extendedPath)).toBe(1);
-    expect(server.count(corePath)).toBe(0);
+    await expect.poll(() => server.count(fontPath)).toBe(1);
+    expect(await page.evaluate(() => document.fonts.check('64px "Miaixz Icons"'))).toBe(true);
   } finally {
     await server.close();
   }
 });
 
-test("keeps a failed Extended request isolated from Core", async ({ page }) => {
-  const server = await startFontTestServer({ failures: [extendedPath], fonts });
+test("serves low- and high-range glyphs from one request", async ({ page }) => {
+  const server = await startFontTestServer({ fonts });
   try {
     await mountFontSurface(
       page,
       server,
       `${String.fromCodePoint(0xf0000)}${String.fromCodePoint(0xf0040)}`,
     );
-    await expect.poll(() => server.count(corePath)).toBe(1);
-    await expect.poll(() => server.count(extendedPath)).toBe(1);
-    expect(server.requests.find((request) => request.path === corePath)?.status).toBe(200);
-    expect(server.requests.find((request) => request.path === extendedPath)?.status).toBe(404);
+    await expect.poll(() => server.count(fontPath)).toBe(1);
+    expect(server.requests).toEqual([{ method: "GET", path: fontPath, status: 200 }]);
   } finally {
     await server.close();
   }

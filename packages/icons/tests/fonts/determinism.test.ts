@@ -39,8 +39,7 @@ const { compareFontBuildHashes } = (await import(moduleUrl)) as {
   compareFontBuildHashes: CompareFontBuildHashes;
 };
 const deterministic = Object.freeze({
-  "miaixz-icons-extended.woff2": "extended-fixed-bytes",
-  "miaixz-icons.woff2": "core-fixed-bytes",
+  "miaixz-icons.woff2": "fixed-bytes",
 });
 
 describe("font build determinism", () => {
@@ -48,7 +47,7 @@ describe("font build determinism", () => {
     expect(() => compareFontBuildHashes(deterministic, deterministic)).not.toThrow();
   });
 
-  it("rejects a timestamp injected into either WOFF2", () => {
+  it("rejects a timestamp injected into the WOFF2", () => {
     const timestamped = {
       ...deterministic,
       "miaixz-icons.woff2": `${deterministic["miaixz-icons.woff2"]}:timestamp=1`,

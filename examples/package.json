@@ -1,0 +1,32 @@
+{
+  "name": "@miaixz/examples",
+  "version": "0.6.5",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "tsc --noEmit && vite build",
+    "check": "node scripts/check.mjs",
+    "preview": "vite preview --host 0.0.0.0 --port 3000",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@miaixz/icons": "file:../packages/icons",
+    "@miaixz/sdk": "file:../packages/sdk",
+    "@miaixz/ui": "file:../packages/ui",
+    "@miaixz/view": "file:../packages/view",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.2.2"
+  }
+}

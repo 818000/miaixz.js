@@ -26,6 +26,7 @@ export { Shell } from "./shell.js";
 export type {
   MiaixzShellOwnProps,
   ShellDesktopNavigation,
+  ShellMainComponent,
   ShellMobileNavigation,
   ShellOwnerState,
   ShellProps,

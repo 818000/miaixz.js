@@ -56,9 +56,14 @@
 }
 
 .miaixz-calendar-weekdays,
-.miaixz-calendar-grid {
+.miaixz-calendar-row {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--miaixz-space-2);
+}
+
+.miaixz-calendar-grid {
+  display: grid;
   gap: var(--miaixz-space-2);
 }
 
@@ -81,7 +86,10 @@
   outline-offset: calc(-1 * var(--miaixz-control-focus-width));
 }
 
-.miaixz-calendar-day[data-outside-month="true"],
+.miaixz-calendar-day[data-outside-month="true"] {
+  color: var(--miaixz-color-text-muted);
+}
+
 .miaixz-calendar-day[aria-disabled="true"] {
   color: var(--miaixz-color-text-disabled);
 }

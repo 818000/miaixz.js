@@ -106,4 +106,14 @@ describe("shared press interaction", () => {
       "data-miaixz-ripple",
     );
   });
+
+  it("preserves an explicit accessible label", () => {
+    render(
+      <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
+        <Button aria-label="Switch language">EN</Button>
+      </MiaixzLocaleProvider>,
+    );
+
+    expect(screen.getByRole("button", { name: "Switch language" })).toHaveTextContent("EN");
+  });
 });

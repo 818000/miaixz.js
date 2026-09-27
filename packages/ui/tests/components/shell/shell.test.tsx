@@ -64,4 +64,15 @@ describe("Shell", () => {
     );
     expect(screen.getByRole("navigation", { name: "移动导航" })).toBeVisible();
   });
+
+  it("can use a non-landmark main container when embedded in another page", () => {
+    const { container } = renderWithLocale(
+      <Shell header={<span>Header</span>} mainComponent="div" sidebar={<span>Sidebar</span>}>
+        Embedded content
+      </Shell>,
+    );
+
+    expect(container.querySelector(".miaixz-shell-main")).toHaveTextContent("Embedded content");
+    expect(screen.queryByRole("main")).not.toBeInTheDocument();
+  });
 });

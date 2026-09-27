@@ -25,10 +25,7 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 
-const fontPaths = Object.freeze([
-  "/assets/miaixz-icons-extended.woff2",
-  "/assets/miaixz-icons.woff2",
-]);
+const fontPaths = Object.freeze(["/assets/miaixz-icons.woff2"]);
 
 export interface FontRequestRecord {
   readonly method: string;
@@ -49,7 +46,7 @@ export interface FontTestServerOptions {
 }
 
 /**
- * Starts a loopback-only server for Core and Extended WOFF2 request assertions.
+ * Starts a loopback-only server for complete WOFF2 request assertions.
  *
  * @param options - Optional bytes and deterministic 404 paths.
  * @returns Running server contract.
