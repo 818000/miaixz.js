@@ -23,7 +23,11 @@
  */
 
 import { detectFormat } from "./detect-format.js";
-import type { ParseOutcome, ViewerDocument } from "../shared/contracts/document.js";
+import {
+  isSpreadsheetRenderDocument,
+  type ParseOutcome,
+  type ViewerDocument,
+} from "../shared/contracts/document.js";
 import type { ViewerProgress } from "../shared/contracts/driver.js";
 import type { FormatDecision } from "../shared/contracts/format.js";
 import type { ResourceBudget } from "../shared/contracts/resource-budget.js";
@@ -119,7 +123,7 @@ export async function openViewerDocument(
     if (decision.driver === undefined) throw new ViewerError("FORMAT_UNSUPPORTED", "detect", true);
     if (decision.conflicts.length > 0) throw new ViewerError("FORMAT_AMBIGUOUS", "detect", true);
     const driver = await registry.load(decision.driver);
-    const outcome = await driver.open({
+    const driverOutcome = await driver.open({
       resource: openedResource,
       decision,
       budget,
@@ -132,6 +136,23 @@ export async function openViewerDocument(
               provider.resolveRelated?.(request, signal) ?? Promise.resolve(undefined),
           }),
     });
+    const outcome: ParseOutcome =
+      driverOutcome.status === "complete" &&
+      driverOutcome.model.kind === "spreadsheet" &&
+      !isSpreadsheetRenderDocument(driverOutcome.model)
+        ? {
+            status: "partial",
+            model: driverOutcome.model,
+            warnings: [
+              ...driverOutcome.warnings,
+              {
+                code: "XLSX_LAYOUT_UNAVAILABLE",
+                messageKey: "xlsx.layoutUnavailable",
+              },
+            ],
+            skipped: [{ code: "XLSX_LAYOUT_SKIPPED" }],
+          }
+        : driverOutcome;
     handedOff = true;
     let disposed = false;
     return {

@@ -32,16 +32,22 @@ import type {
   DrawingTextStyle,
   DrawingTransform,
   Rectangle,
+  SpreadsheetSheetLayout,
 } from "../../shared/contracts/document.js";
 import {
   firstElementByLocalName as first,
   localAttribute as attribute,
   textFromElements as textContent,
+  type XmlDocument,
+  type XmlElement,
 } from "../xml/xml-codec.js";
 import { decodeOfficeGeometry } from "./geometry-codec.js";
+import { spreadsheetMarkerPosition } from "./spreadsheet-layout-codec.js";
 import { defaultOfficeTheme, resolveOfficeColor, type OfficeTheme } from "./theme-codec.js";
 
 const emuPerPixel = 9525;
+type Element = XmlElement;
+type XMLDocument = XmlDocument;
 
 /**
  * Describes one image resource resolved from the owning package part.
@@ -49,6 +55,7 @@ const emuPerPixel = 9525;
 export interface OfficeDrawingImage {
   readonly source: string;
   readonly mimeType: string;
+  readonly unsupportedRecords?: number;
 }
 
 /**
@@ -62,6 +69,7 @@ export interface OfficeDrawingOptions {
   readonly theme?: OfficeTheme;
   readonly images?: ReadonlyMap<string, OfficeDrawingImage>;
   readonly diagrams?: ReadonlyMap<string, DrawingScene>;
+  readonly layout?: SpreadsheetSheetLayout;
 }
 
 /**
@@ -283,14 +291,32 @@ function centeredTransform(transform: Element, width: number, height: number): D
  * @param shapeProperties - Shape properties containing an optional transform.
  * @param parent - Parent transform for nested groups.
  * @param fallback - Anchor-derived fallback geometry.
+ * @param useAnchorGeometry - Whether the worksheet anchor is authoritative.
  * @returns Local shape dimensions and composite transform.
  */
 function shapePlacement(
   shapeProperties: Element,
   parent: DrawingTransform,
   fallback: AnchorGeometry,
+  useAnchorGeometry = false,
 ): { readonly matrix: DrawingTransform; readonly width: number; readonly height: number } {
   const transform = child(shapeProperties, "xfrm");
+  if (useAnchorGeometry) {
+    return {
+      matrix:
+        transform === undefined
+          ? multiply(parent, fallback.matrix)
+          : multiply(
+              parent,
+              multiply(
+                fallback.matrix,
+                centeredTransform(transform, fallback.width, fallback.height),
+              ),
+            ),
+      width: fallback.width,
+      height: fallback.height,
+    };
+  }
   if (transform === undefined) {
     return {
       matrix: multiply(parent, fallback.matrix),
@@ -326,12 +352,14 @@ function shapePlacement(
  * @param group - Group shape element.
  * @param parent - Parent transform for nested groups.
  * @param fallback - Anchor-derived fallback geometry.
+ * @param useAnchorGeometry - Whether the worksheet anchor is authoritative.
  * @returns Composite transform applied to group children.
  */
 function groupTransform(
   group: Element,
   parent: DrawingTransform,
   fallback: AnchorGeometry,
+  useAnchorGeometry = false,
 ): DrawingTransform {
   const properties = child(group, "grpSpPr");
   const transform = properties === undefined ? undefined : child(properties, "xfrm");
@@ -360,6 +388,26 @@ function groupTransform(
     1,
     pixels(finite(attribute(childExtent ?? transform, "cy"), height * emuPerPixel)),
   );
+  if (useAnchorGeometry) {
+    const mapping = multiply(
+      scale(fallback.width / childWidth, fallback.height / childHeight),
+      translate(-childX, -childY),
+    );
+    const center = multiply(
+      translate(fallback.width / 2, fallback.height / 2),
+      multiply(
+        rotate(finite(attribute(transform, "rot")) / 60_000),
+        multiply(
+          scale(
+            attribute(transform, "flipH") === "1" ? -1 : 1,
+            attribute(transform, "flipV") === "1" ? -1 : 1,
+          ),
+          translate(-fallback.width / 2, -fallback.height / 2),
+        ),
+      ),
+    );
+    return multiply(parent, multiply(fallback.matrix, multiply(center, mapping)));
+  }
   const mapping = multiply(
     translate(x, y),
     multiply(scale(width / childWidth, height / childHeight), translate(-childX, -childY)),
@@ -416,14 +464,27 @@ function markerCell(marker: Element | undefined): string | undefined {
  * Derives approximate anchor coordinates for malformed shapes without transforms.
  *
  * @param marker - DrawingML row and column marker.
+ * @param layout - Optional worksheet coordinate index for real row and column sizes.
  * @returns Approximate position in CSS pixels.
  */
-function markerPosition(marker: Element | undefined): { readonly x: number; readonly y: number } {
+function markerPosition(
+  marker: Element | undefined,
+  layout?: SpreadsheetSheetLayout,
+): { readonly x: number; readonly y: number } {
   if (marker === undefined) return { x: 0, y: 0 };
   const column = finite(child(marker, "col")?.textContent ?? undefined);
   const row = finite(child(marker, "row")?.textContent ?? undefined);
   const columnOffset = pixels(finite(child(marker, "colOff")?.textContent ?? undefined));
   const rowOffset = pixels(finite(child(marker, "rowOff")?.textContent ?? undefined));
+  if (layout !== undefined) {
+    return spreadsheetMarkerPosition(
+      layout,
+      column,
+      row,
+      columnOffset * emuPerPixel,
+      rowOffset * emuPerPixel,
+    );
+  }
   return { x: column * 64 + columnOffset, y: row * 20 + rowOffset };
 }
 
@@ -431,9 +492,10 @@ function markerPosition(marker: Element | undefined): { readonly x: number; read
  * Converts one worksheet anchor into fallback drawing geometry.
  *
  * @param anchor - DrawingML worksheet anchor.
+ * @param layout - Optional worksheet coordinate index for real row and column sizes.
  * @returns Fallback placement and covered cell range.
  */
-function anchorGeometry(anchor: Element): AnchorGeometry {
+function anchorGeometry(anchor: Element, layout?: SpreadsheetSheetLayout): AnchorGeometry {
   const from = child(anchor, "from");
   const to = child(anchor, "to");
   const fromCell = markerCell(from);
@@ -445,8 +507,8 @@ function anchorGeometry(anchor: Element): AnchorGeometry {
         ? fromCell
         : `${fromCell}:${toCell}`;
   if (from !== undefined && to !== undefined) {
-    const start = markerPosition(from);
-    const end = markerPosition(to);
+    const start = markerPosition(from, layout);
+    const end = markerPosition(to, layout);
     return {
       matrix: translate(start.x, start.y),
       width: Math.max(1, end.x - start.x),
@@ -607,6 +669,7 @@ function includeBounds(accumulator: DrawingAccumulator, bounds: Rectangle): void
  * @param shape - DrawingML shape element.
  * @param parent - Parent group transform.
  * @param fallback - Anchor-derived fallback placement.
+ * @param useAnchorGeometry - Whether the worksheet anchor is authoritative.
  * @param options - Scene decoding options.
  * @param accumulator - Mutable scene output.
  */
@@ -614,6 +677,7 @@ function parseShape(
   shape: Element,
   parent: DrawingTransform,
   fallback: AnchorGeometry,
+  useAnchorGeometry: boolean,
   options: OfficeDrawingOptions,
   accumulator: DrawingAccumulator,
 ): void {
@@ -623,7 +687,7 @@ function parseShape(
     accumulator.features.unsupportedCount += 1;
     return;
   }
-  const placement = shapePlacement(properties, parent, fallback);
+  const placement = shapePlacement(properties, parent, fallback, useAnchorGeometry && !connector);
   const metadata = first(shape, "cNvPr");
   const shapeId = attribute(metadata ?? shape, "id") ?? `shape-${accumulator.shapes.length + 1}`;
   const name = attribute(metadata ?? shape, "name");
@@ -698,6 +762,7 @@ function parseShape(
  * @param picture - DrawingML picture element.
  * @param parent - Parent group transform.
  * @param fallback - Anchor-derived fallback placement.
+ * @param useAnchorGeometry - Whether the worksheet anchor is authoritative.
  * @param options - Scene decoding options.
  * @param accumulator - Mutable scene output.
  */
@@ -705,6 +770,7 @@ function parsePicture(
   picture: Element,
   parent: DrawingTransform,
   fallback: AnchorGeometry,
+  useAnchorGeometry: boolean,
   options: OfficeDrawingOptions,
   accumulator: DrawingAccumulator,
 ): void {
@@ -713,13 +779,26 @@ function parsePicture(
     accumulator.features.unsupportedCount += 1;
     return;
   }
-  const placement = shapePlacement(properties, parent, fallback);
+  const placement = shapePlacement(properties, parent, fallback, useAnchorGeometry);
   const metadata = first(picture, "cNvPr");
   const id = attribute(metadata ?? picture, "id") ?? `picture-${accumulator.shapes.length + 1}`;
   const name = attribute(metadata ?? picture, "name");
   const blip = first(picture, "blip");
   const relationId = attribute(blip ?? picture, "embed") ?? attribute(blip ?? picture, "link");
   const image = relationId === undefined ? undefined : options.images?.get(relationId);
+  const sourceRectangle = first(picture, "srcRect");
+  const imageCrop = {
+    left: Math.min(1, Math.max(0, finite(attribute(sourceRectangle ?? picture, "l")) / 100_000)),
+    top: Math.min(1, Math.max(0, finite(attribute(sourceRectangle ?? picture, "t")) / 100_000)),
+    right: Math.min(1, Math.max(0, finite(attribute(sourceRectangle ?? picture, "r")) / 100_000)),
+    bottom: Math.min(1, Math.max(0, finite(attribute(sourceRectangle ?? picture, "b")) / 100_000)),
+  };
+  const hasImageCrop = Object.values(imageCrop).some((value) => value > 0);
+  const alpha = first(picture, "alphaModFix");
+  const opacity = Math.min(
+    1,
+    Math.max(0, finite(attribute(alpha ?? picture, "amt"), 100_000) / 100_000),
+  );
   accumulator.shapes.push({
     id,
     kind: "image",
@@ -732,9 +811,12 @@ function parsePicture(
     transform: placement.matrix,
     ...(name === undefined ? {} : { name }),
     ...(image === undefined ? {} : { source: image.source, mimeType: image.mimeType }),
+    ...(hasImageCrop ? { imageCrop } : {}),
+    ...(opacity === 1 ? {} : { opacity }),
   });
   accumulator.features.pictureCount += 1;
   if (image === undefined) accumulator.features.unsupportedCount += 1;
+  else accumulator.features.unsupportedCount += image.unsupportedRecords ?? 0;
   includeBounds(
     accumulator,
     transformedBounds(placement.matrix, placement.width, placement.height),
@@ -747,6 +829,7 @@ function parsePicture(
  * @param frame - DrawingML graphic frame element.
  * @param parent - Parent group transform.
  * @param fallback - Anchor-derived fallback placement.
+ * @param useAnchorGeometry - Whether the worksheet anchor is authoritative.
  * @param options - Theme, image, and materialized diagram resources.
  * @param accumulator - Mutable scene output.
  */
@@ -754,13 +837,11 @@ function parseGraphicFrame(
   frame: Element,
   parent: DrawingTransform,
   fallback: AnchorGeometry,
+  useAnchorGeometry: boolean,
   options: OfficeDrawingOptions,
   accumulator: DrawingAccumulator,
 ): void {
-  const transform = child(frame, "xfrm");
-  const proxy = frame.ownerDocument.createElement("spPr");
-  if (transform !== undefined) proxy.append(transform.cloneNode(true));
-  const placement = shapePlacement(proxy, parent, fallback);
+  const placement = shapePlacement(frame, parent, fallback, useAnchorGeometry);
   const metadata = first(frame, "cNvPr");
   const id = attribute(metadata ?? frame, "id") ?? `graphic-${accumulator.shapes.length + 1}`;
   const name = attribute(metadata ?? frame, "name") ?? "Diagram";
@@ -858,6 +939,7 @@ function parseGraphicFrame(
  * @param object - Shape, connector, group, picture, or graphic frame.
  * @param parent - Parent group transform.
  * @param fallback - Anchor-derived fallback placement.
+ * @param useAnchorGeometry - Whether the worksheet anchor is authoritative.
  * @param options - Scene decoding options.
  * @param accumulator - Mutable scene output.
  */
@@ -865,20 +947,21 @@ function parseObject(
   object: Element,
   parent: DrawingTransform,
   fallback: AnchorGeometry,
+  useAnchorGeometry: boolean,
   options: OfficeDrawingOptions,
   accumulator: DrawingAccumulator,
 ): void {
   if (object.localName === "sp" || object.localName === "cxnSp") {
-    parseShape(object, parent, fallback, options, accumulator);
+    parseShape(object, parent, fallback, useAnchorGeometry, options, accumulator);
   } else if (object.localName === "pic") {
-    parsePicture(object, parent, fallback, options, accumulator);
+    parsePicture(object, parent, fallback, useAnchorGeometry, options, accumulator);
   } else if (object.localName === "graphicFrame") {
-    parseGraphicFrame(object, parent, fallback, options, accumulator);
+    parseGraphicFrame(object, parent, fallback, useAnchorGeometry, options, accumulator);
   } else if (object.localName === "grpSp") {
     accumulator.features.groupCount += 1;
-    const transform = groupTransform(object, parent, fallback);
+    const transform = groupTransform(object, parent, fallback, useAnchorGeometry);
     for (const nested of children(object, ["sp", "cxnSp", "grpSp", "pic", "graphicFrame"])) {
-      parseObject(nested, transform, fallback, options, accumulator);
+      parseObject(nested, transform, fallback, false, options, accumulator);
     }
   } else {
     accumulator.features.unsupportedCount += 1;
@@ -920,13 +1003,13 @@ export function parseOfficeDrawing(
     const fallback: AnchorGeometry = { matrix: identity(), width: 1, height: 1 };
     const shapeTree = first(source, "spTree") ?? source.documentElement;
     for (const object of children(shapeTree, ["sp", "cxnSp", "grpSp", "pic", "graphicFrame"])) {
-      parseObject(object, identity(), fallback, options, accumulator);
+      parseObject(object, identity(), fallback, false, options, accumulator);
     }
   } else {
     for (const anchor of anchors) {
-      const fallback = anchorGeometry(anchor);
+      const fallback = anchorGeometry(anchor, options.layout);
       for (const object of children(anchor, ["sp", "cxnSp", "grpSp", "pic", "graphicFrame"])) {
-        parseObject(object, identity(), fallback, options, accumulator);
+        parseObject(object, identity(), fallback, true, options, accumulator);
       }
     }
   }
@@ -953,8 +1036,8 @@ export function parseOfficeDrawing(
     id: options.id,
     kind: "drawing",
     title: options.title,
-    width: Math.max(1, accumulator.width),
-    height: Math.max(1, accumulator.height),
+    width: Math.max(1, options.layout?.width ?? 0, accumulator.width),
+    height: Math.max(1, options.layout?.height ?? 0, accumulator.height),
     shapes: accumulator.shapes,
     edges: accumulator.edges,
     graph: {

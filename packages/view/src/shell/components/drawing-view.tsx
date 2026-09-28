@@ -166,6 +166,15 @@ function ShapeElement({
       : `url(#${startMarkerId})`;
   const markerEnd =
     shape.endArrow === undefined || shape.endArrow === "none" ? undefined : `url(#${endMarkerId})`;
+  const horizontalCrop = Math.max(
+    0.0001,
+    1 - (shape.imageCrop?.left ?? 0) - (shape.imageCrop?.right ?? 0),
+  );
+  const verticalCrop = Math.max(
+    0.0001,
+    1 - (shape.imageCrop?.top ?? 0) - (shape.imageCrop?.bottom ?? 0),
+  );
+  const cropId = `${startMarkerId}-${shape.id.replaceAll(/[^a-z\d_-]/giu, "-")}-crop`;
   return (
     <g data-drawing-id={shape.id} transform={shapeTransform(shape)}>
       {shape.kind === "ellipse" ? (
@@ -196,14 +205,23 @@ function ShapeElement({
             />
           </g>
         ) : (
-          <image
-            height={shape.height}
-            href={shape.source}
-            preserveAspectRatio="xMidYMid meet"
-            width={shape.width}
-            x={shape.x}
-            y={shape.y}
-          />
+          <g>
+            {shape.imageCrop === undefined ? null : (
+              <clipPath id={cropId}>
+                <rect height={shape.height} width={shape.width} x={shape.x} y={shape.y} />
+              </clipPath>
+            )}
+            <image
+              clipPath={shape.imageCrop === undefined ? undefined : `url(#${cropId})`}
+              height={shape.height / verticalCrop}
+              href={shape.source}
+              opacity={shape.opacity}
+              preserveAspectRatio={shape.imageCrop === undefined ? "xMidYMid meet" : "none"}
+              width={shape.width / horizontalCrop}
+              x={shape.x - ((shape.imageCrop?.left ?? 0) * shape.width) / horizontalCrop}
+              y={shape.y - ((shape.imageCrop?.top ?? 0) * shape.height) / verticalCrop}
+            />
+          </g>
         )
       ) : shape.path !== undefined ? (
         <path {...common} d={shape.path} markerEnd={markerEnd} markerStart={markerStart} />
@@ -239,16 +257,28 @@ function ShapeElement({
  * @param root0 - Drawing scene and optional class name.
  * @param root0.scene - Scene being rendered.
  * @param root0.className - Optional CSS class applied to the SVG root.
+ * @param root0.instanceId - Optional suffix keeping SVG definition ids unique across frozen panes.
+ * @param root0.coordinateWidth - Optional host coordinate width used by anchored spreadsheet scenes.
+ * @param root0.coordinateHeight - Optional host coordinate height used by anchored spreadsheet scenes.
  * @returns Accessible SVG drawing.
  */
 export function DrawingView({
   scene,
   className = "miaixz-preview-drawing",
+  instanceId,
+  coordinateWidth = scene.width,
+  coordinateHeight = scene.height,
 }: {
   readonly scene: DrawingScene;
   readonly className?: string;
+  readonly instanceId?: string;
+  readonly coordinateWidth?: number;
+  readonly coordinateHeight?: number;
 }): React.ReactElement {
-  const safeId = scene.id.replaceAll(/[^a-z\d_-]/giu, "-");
+  const safeId = `${scene.id}${instanceId === undefined ? "" : `-${instanceId}`}`.replaceAll(
+    /[^a-z\d_-]/giu,
+    "-",
+  );
   const startMarkerId = `${safeId}-arrow-start`;
   const endMarkerId = `${safeId}-arrow-end`;
   return (
@@ -257,7 +287,7 @@ export function DrawingView({
       className={className}
       preserveAspectRatio="xMinYMin meet"
       role="img"
-      viewBox={`0 0 ${scene.width} ${scene.height}`}
+      viewBox={`0 0 ${coordinateWidth} ${coordinateHeight}`}
     >
       <defs>
         <marker

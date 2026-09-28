@@ -25,4 +25,10 @@
 export { MiaixzViewError } from "./view-error.js";
 export type { MiaixzViewErrorCode } from "./view-error.js";
 export { ViewerError } from "./viewer-error.js";
-export type { ViewerErrorCode, ViewerErrorStage } from "./viewer-error.js";
+export type {
+  ViewerErrorCategory,
+  ViewerErrorCode,
+  ViewerErrorStage,
+  ViewerRecoveryAction,
+  ViewerResourceLimit,
+} from "./viewer-error.js";

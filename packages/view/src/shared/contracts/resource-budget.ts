@@ -43,4 +43,12 @@ export interface ResourceBudget {
   readonly maxTaskMilliseconds: number;
   readonly maxEstimatedMemoryBytes: number;
   readonly maxPasswordAttempts: number;
+  readonly maxSpreadsheetSheets: number;
+  readonly maxSpreadsheetRows: number;
+  readonly maxSpreadsheetColumns: number;
+  readonly maxSpreadsheetCells: number;
+  readonly maxSpreadsheetStyles: number;
+  readonly maxDrawingObjects: number;
+  readonly maxVectorRecords: number;
+  readonly maxTileCacheBytes: number;
 }

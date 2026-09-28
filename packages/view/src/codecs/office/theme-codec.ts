@@ -22,7 +22,16 @@
  * Resolves DrawingML theme colors and direct shape paints.
  */
 
-import { firstElementByLocalName as first, localAttribute as attribute } from "../xml/xml-codec.js";
+import {
+  allElements,
+  firstElementByLocalName as first,
+  localAttribute as attribute,
+  type XmlDocument,
+  type XmlElement,
+} from "../xml/xml-codec.js";
+
+type Element = XmlElement;
+type XMLDocument = XmlDocument;
 
 /**
  * Contains the reusable color and line defaults declared by one Office theme.
@@ -119,7 +128,7 @@ function transformColor(color: string, source: Element): string {
  * @returns First supported color element.
  */
 function colorElement(source: Element): Element | undefined {
-  return [...source.querySelectorAll("*")].find((element) =>
+  return allElements(source).find((element) =>
     ["hslClr", "prstClr", "schemeClr", "scrgbClr", "srgbClr", "sysClr"].includes(element.localName),
   );
 }

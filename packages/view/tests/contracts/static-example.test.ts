@@ -19,7 +19,7 @@
 */
 
 /**
- * Freezes the offline viewer and format-runtime example.
+ * Freezes the local packed-package browser acceptance harness.
  */
 
 import { readFile, stat } from "node:fs/promises";
@@ -27,32 +27,29 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const exampleRoot = resolve(process.cwd(), "../../examples/view");
+const exampleRoot = resolve(process.cwd(), "tests/browser/support");
+const fixtureRoot = resolve(process.cwd(), "tests/fixtures/xlsx");
 
-describe("View static example", () => {
+describe("View browser acceptance harness", () => {
   it("ships a directly downloadable local Office fixture", async () => {
-    const fixture = await stat(resolve(exampleRoot, "assets/fixtures/system-flow.xlsx"));
+    const fixture = await stat(resolve(fixtureRoot, "system-flow.xlsx"));
     expect(fixture.size).toBeGreaterThan(100_000);
   });
 
-  it("covers real viewers, detection evidence, browser support, and budgets", async () => {
-    const [html, javascript] = await Promise.all([
+  it("loads the packed viewer, styles, worker result, and frozen workbook", async () => {
+    const [html, source] = await Promise.all([
       readFile(resolve(exampleRoot, "index.html"), "utf8"),
-      readFile(resolve(exampleRoot, "assets/view.js"), "utf8"),
+      readFile(resolve(exampleRoot, "main.tsx"), "utf8"),
     ]);
-    expect(html).toContain('<script defer src="./assets/view.js"></script>');
-    expect(html).not.toContain('type="module"');
+    expect(html).toContain('<script type="module" src="./main.tsx"></script>');
     for (const token of [
-      "FileView",
-      "ImageView",
       "OfficeView",
-      "detectFormat",
-      "getFormatDescriptors",
-      "getFormatParityRecords",
-      "detectBrowserSupport",
-      "defaultResourceBudget",
+      "../../../dist/index.js",
+      "../../../dist/styles.css",
+      "../../fixtures/xlsx/system-flow.xlsx",
+      "__XLSX_PREVIEW_RESULT__",
     ]) {
-      expect(javascript).toContain(token);
+      expect(source).toContain(token);
     }
   });
 });

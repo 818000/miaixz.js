@@ -291,6 +291,7 @@ describe("registries, errors, and document lifecycle", () => {
       "RESOURCE_LIMIT_EXCEEDED",
       "RENDER_FAILED",
       "SECURITY_BLOCKED",
+      "UNSUPPORTED_RUNTIME",
     ];
     for (const code of codes) {
       const error = new ViewerError(code, "parse");
@@ -340,6 +341,42 @@ describe("registries, errors, and document lifecycle", () => {
     expect(relatedRequestCount).toBe(1);
     opened.dispose();
     expect(() => opened.dispose()).not.toThrow();
+  });
+
+  it("never reports a layout-free spreadsheet model as complete", async () => {
+    const registry = new DriverRegistry();
+    registry.registerFormat(customDescriptor, async () => ({
+      id: "custom",
+      /**
+       * Returns the legacy spreadsheet shape used by third-party drivers.
+       *
+       * @returns Complete status which the runtime must normalize to partial.
+       */
+      async open() {
+        return {
+          status: "complete",
+          warnings: [],
+          model: {
+            schemaVersion: 1,
+            id: "legacy-sheet",
+            kind: "spreadsheet",
+            title: "Legacy sheet",
+            sheets: [],
+            drawings: [],
+          },
+        } as const;
+      },
+    }));
+    const opened = await openViewerDocument(
+      { data: new Blob(), name: "legacy.custom" },
+      { registry },
+    );
+    expect(opened.outcome).toMatchObject({
+      status: "partial",
+      warnings: [{ code: "XLSX_LAYOUT_UNAVAILABLE" }],
+      skipped: [{ code: "XLSX_LAYOUT_SKIPPED" }],
+    });
+    opened.dispose();
   });
 
   it("rejects unknown and ambiguous sources through sanitized errors", async () => {

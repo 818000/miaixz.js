@@ -28,7 +28,14 @@ import type {
   DrawingScene,
   DrawingShape,
 } from "../../shared/contracts/document.js";
-import { localAttribute as attribute, parseXmlDocument as parseXml } from "../xml/xml-codec.js";
+import {
+  allElements,
+  localAttribute as attribute,
+  parseXmlDocument as parseXml,
+  type XmlElement,
+} from "../xml/xml-codec.js";
+
+type Element = XmlElement;
 
 /**
  * Converts a VML or CSS length to CSS pixels.
@@ -117,6 +124,7 @@ function shapeKind(element: Element): DrawingShape["kind"] {
  * @param maxNodes - Maximum XML nodes accepted by the parser.
  * @param sheetId - Optional owning worksheet identifier.
  * @param sheetName - Optional owning worksheet name.
+ * @param maxDepth - Maximum XML nesting depth accepted by the parser.
  * @returns Legacy drawing scene.
  */
 export function parseVmlDrawing(
@@ -126,14 +134,15 @@ export function parseVmlDrawing(
   maxNodes: number,
   sheetId?: string,
   sheetName?: string,
+  maxDepth = 128,
 ): DrawingScene {
-  const document = parseXml(source, maxNodes);
+  const document = parseXml(source, maxNodes, maxDepth);
   const shapes: DrawingShape[] = [];
   const nodes: DiagramNode[] = [];
   const edges: DiagramEdge[] = [];
   let width = 1;
   let height = 1;
-  const candidates = [...document.querySelectorAll("*")].filter((element) =>
+  const candidates = allElements(document).filter((element) =>
     ["arc", "curve", "line", "oval", "polyline", "rect", "roundrect", "shape"].includes(
       element.localName,
     ),
@@ -153,7 +162,7 @@ export function parseVmlDrawing(
       length(style.get("height"), element.localName === "line" ? to[1] - from[1] : 60),
     );
     const shapeId = attribute(element, "id") ?? `vml-shape-${index + 1}`;
-    const text = element.textContent?.replaceAll(/\s+/gu, " ").trim() ?? "";
+    const text = element.textContent.replaceAll(/\s+/gu, " ").trim();
     const shape: DrawingShape = {
       id: shapeId,
       kind: shapeKind(element),

@@ -170,7 +170,12 @@ describe("installed format drivers", () => {
       const outcome = await driver.open(
         driverContext(descriptor.id, extension, fixtureBytes(descriptor.id)),
       );
-      if (descriptor.implementation === "ready") {
+      if (descriptor.id === "xlsx" && typeof Worker === "undefined") {
+        expect(outcome.status, descriptor.id).toBe("rejected");
+        if (outcome.status === "rejected") {
+          expect(outcome.error.code, descriptor.id).toBe("UNSUPPORTED_RUNTIME");
+        }
+      } else if (descriptor.implementation === "ready") {
         expect(outcome.status, descriptor.id).not.toBe("rejected");
       } else {
         expect(outcome.status, descriptor.id).toBe("rejected");

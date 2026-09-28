@@ -47,6 +47,14 @@ export const defaultResourceBudget: ResourceBudget = Object.freeze({
   maxTaskMilliseconds: 120_000,
   maxEstimatedMemoryBytes: 512 * 1024 * 1024,
   maxPasswordAttempts: 5,
+  maxSpreadsheetSheets: 256,
+  maxSpreadsheetRows: 1_048_576,
+  maxSpreadsheetColumns: 16_384,
+  maxSpreadsheetCells: 2_000_000,
+  maxSpreadsheetStyles: 65_536,
+  maxDrawingObjects: 100_000,
+  maxVectorRecords: 1_000_000,
+  maxTileCacheBytes: 128 * 1024 * 1024,
 });
 
 /**
@@ -56,6 +64,11 @@ export const hardResourceBudget: ResourceBudget = Object.freeze({
   ...defaultResourceBudget,
   maxSourceBytes: 1024 * 1024 * 1024,
   maxExpandedBytes: 2 * 1024 * 1024 * 1024,
+  maxSpreadsheetSheets: 1024,
+  maxSpreadsheetCells: 10_000_000,
+  maxDrawingObjects: 500_000,
+  maxVectorRecords: 5_000_000,
+  maxTileCacheBytes: 512 * 1024 * 1024,
 });
 
 /**
@@ -88,5 +101,13 @@ export function resolveResourceBudget(overrides?: Partial<ResourceBudget>): Reso
     maxTaskMilliseconds: value("maxTaskMilliseconds"),
     maxEstimatedMemoryBytes: value("maxEstimatedMemoryBytes"),
     maxPasswordAttempts: value("maxPasswordAttempts"),
+    maxSpreadsheetSheets: value("maxSpreadsheetSheets"),
+    maxSpreadsheetRows: value("maxSpreadsheetRows"),
+    maxSpreadsheetColumns: value("maxSpreadsheetColumns"),
+    maxSpreadsheetCells: value("maxSpreadsheetCells"),
+    maxSpreadsheetStyles: value("maxSpreadsheetStyles"),
+    maxDrawingObjects: value("maxDrawingObjects"),
+    maxVectorRecords: value("maxVectorRecords"),
+    maxTileCacheBytes: value("maxTileCacheBytes"),
   };
 }

@@ -43,3 +43,27 @@ function createObjectUrl(): string {
 
 Object.defineProperty(URL, "createObjectURL", { configurable: true, value: createObjectUrl });
 Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: (): void => undefined });
+
+/**
+ * Performs one inert canvas operation in layout-independent unit tests.
+ */
+function canvasOperation(): void {}
+
+const canvasContext = {
+  beginPath: canvasOperation,
+  clip: canvasOperation,
+  fillRect: canvasOperation,
+  lineTo: canvasOperation,
+  moveTo: canvasOperation,
+  rect: canvasOperation,
+  restore: canvasOperation,
+  save: canvasOperation,
+  setLineDash: canvasOperation,
+  setTransform: canvasOperation,
+  stroke: canvasOperation,
+} as unknown as CanvasRenderingContext2D;
+
+Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+  configurable: true,
+  value: (): CanvasRenderingContext2D => canvasContext,
+});

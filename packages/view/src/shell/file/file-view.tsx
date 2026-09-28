@@ -26,6 +26,8 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState }
 import { Icon } from "@miaixz/icons";
 
 import { ViewerController, type ViewerControllerState } from "../../runtime/viewer-controller.js";
+import { resolveResourceBudget } from "../../runtime/resource-budget.js";
+import { isSpreadsheetRenderDocument } from "../../shared/contracts/document.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
 import { clamp, classNames } from "../util/class-names.js";
 import { useLatestRef } from "../hooks/use-latest-ref.js";
@@ -59,6 +61,12 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
     labels: labelOverrides,
     actions,
     slotProps,
+    initialSheet,
+    spreadsheetView,
+    showGridLines,
+    showSheetTabs,
+    onSheetChange,
+    onDiagnostics,
     onProgress,
     onLoad,
     onError,
@@ -78,12 +86,43 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
   );
   const [state, setState] = useState<ViewerControllerState>(controller.getState());
   const [scale, setScale] = useState(1);
+  const [activeSpreadsheetSheetId, setActiveSpreadsheetSheetId] = useState<string>();
   const [retryVersion, setRetryVersion] = useState(0);
+  const maxTileCacheBytes = useMemo(
+    () => resolveResourceBudget(budget).maxTileCacheBytes,
+    [budget],
+  );
   const elementRef = useRef<HTMLDivElement>(null);
   const labels = { ...defaultLabels, ...labelOverrides };
   const onProgressRef = useLatestRef(onProgress);
   const onLoadRef = useLatestRef(onLoad);
   const onErrorRef = useLatestRef(onError);
+  const spreadsheetDocument =
+    state.status === "ready" &&
+    state.document.kind === "spreadsheet" &&
+    isSpreadsheetRenderDocument(state.document)
+      ? state.document
+      : undefined;
+  const visibleSpreadsheetSheets =
+    spreadsheetDocument?.sheets.filter((sheet) => sheet.state === "visible") ?? [];
+  const requestedInitialSheet =
+    typeof initialSheet === "number"
+      ? visibleSpreadsheetSheets[initialSheet]
+      : typeof initialSheet === "string"
+        ? visibleSpreadsheetSheets.find(
+            (sheet) => sheet.id === initialSheet || sheet.name === initialSheet,
+          )
+        : undefined;
+  const activeSpreadsheetSheet =
+    visibleSpreadsheetSheets.find((sheet) => sheet.id === activeSpreadsheetSheetId) ??
+    requestedInitialSheet ??
+    visibleSpreadsheetSheets.find((sheet) => sheet.id === spreadsheetDocument?.activeSheetId) ??
+    visibleSpreadsheetSheets[0];
+  const savedSpreadsheetZoom =
+    activeSpreadsheetSheet?.layout.viewMode === "pageLayout"
+      ? activeSpreadsheetSheet.layout.zoomScalePageLayout
+      : (activeSpreadsheetSheet?.layout.zoomScale ?? 100);
+  const displayedZoom = scale * (savedSpreadsheetZoom / 100);
 
   const zoomIn = (): void => setScale((value) => clamp(value + 0.25, 0.25, 4));
   const zoomOut = (): void => setScale((value) => clamp(value - 0.25, 0.25, 4));
@@ -127,6 +166,7 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
       ...(httpHeaders === undefined ? {} : { headers: httpHeaders }),
       ...(credentials === undefined ? {} : { credentials }),
     });
+    setActiveSpreadsheetSheetId(undefined);
     return undefined;
   }, [controller, credentials, httpHeaders, mimeType, name, onErrorRef, retryVersion, source, src]);
 
@@ -162,7 +202,7 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
           type="button"
         >
           <Icon name="rotate-ccw" size="control" />
-          <span>{Math.round(scale * 100)}%</span>
+          <span>{Math.round(displayedZoom * 100)}%</span>
         </button>
         <button
           aria-label={labels.zoomIn}
@@ -180,7 +220,25 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
         {...slotProps?.stage}
         className={classNames("miaixz-preview-stage", slotProps?.stage?.className)}
       >
-        {state.status === "ready" ? <ModelView document={state.document} scale={scale} /> : null}
+        {state.status === "ready" ? (
+          <ModelView
+            document={state.document}
+            maxTileCacheBytes={maxTileCacheBytes}
+            scale={scale}
+            spreadsheetDiagnostics={state.outcome.warnings}
+            spreadsheetOptions={{
+              ...(initialSheet === undefined ? {} : { initialSheet }),
+              ...(spreadsheetView === undefined ? {} : { spreadsheetView }),
+              ...(showGridLines === undefined ? {} : { showGridLines }),
+              ...(showSheetTabs === undefined ? {} : { showSheetTabs }),
+              onSheetChange: (sheet) => {
+                setActiveSpreadsheetSheetId(sheet.id);
+                onSheetChange?.(sheet);
+              },
+              ...(onDiagnostics === undefined ? {} : { onDiagnostics }),
+            }}
+          />
+        ) : null}
       </div>
       {state.status === "loading" || state.status === "error" ? (
         <div

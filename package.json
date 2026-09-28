@@ -42,7 +42,7 @@
     "format": "npm run headers:fix && prettier . --write --ignore-unknown --config packages/ui/prettier.config.js --ignore-path .gitignore",
     "format:check": "prettier . --check --ignore-unknown --config packages/ui/prettier.config.js --ignore-path .gitignore",
     "check:static": "npm run comments:check && npm run lockfile:check && npm run version:check && npm run plan:check && npm run build && npm run typecheck && npm run lint:boundaries && npm run icons:dependencies:check && npm run audit:css && npm run test:coverage && npm run format:check",
-    "check:browser": "npm run test:browser --workspace @miaixz/ui",
+    "check:browser": "npm run test:browser --workspace @miaixz/ui && npm run test:browser --workspace @miaixz/view",
     "check:package": "node .github/scripts/package/check-packages.mjs",
     "check:clean": "node .github/scripts/quality/check-clean.mjs",
     "check": "npm run check:static && npm run check:browser && npm run check:package && npm run check:clean"

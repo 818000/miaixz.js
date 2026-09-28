@@ -23,6 +23,7 @@
  */
 
 export type { DocumentEvent, ViewerCapabilities, ViewerCommand } from "./contracts/capability.js";
+export { isSpreadsheetRenderDocument } from "./contracts/document.js";
 export type {
   ArchiveDocument,
   BinaryDocument,
@@ -40,9 +41,28 @@ export type {
   SceneDocument,
   SceneMesh,
   SceneNode,
+  SkippedFeature,
+  SpreadsheetBorderSide,
+  SpreadsheetBorderStyle,
+  SpreadsheetCellStyle,
+  SpreadsheetColumnLayout,
+  SpreadsheetCoverageEntry,
+  SpreadsheetCoverageLedger,
   SpreadsheetDocument,
+  SpreadsheetFeatureId,
+  SpreadsheetFontStyle,
+  SpreadsheetPane,
+  SpreadsheetRange,
+  SpreadsheetRenderCell,
+  SpreadsheetRenderDocument,
+  SpreadsheetRenderSheet,
+  SpreadsheetRowLayout,
+  SpreadsheetSheet,
+  SpreadsheetSheetLayout,
+  SpreadsheetStyleTable,
   TextDocument,
   ViewerDocument,
+  ViewerWarning,
 } from "./contracts/document.js";
 export type {
   DriverContext,
@@ -76,6 +96,7 @@ export { ViewerError } from "./errors/viewer-error.js";
 export type {
   ViewerErrorCategory,
   ViewerErrorCode,
+  ViewerResourceLimit,
   ViewerErrorStage,
   ViewerRecoveryAction,
 } from "./errors/viewer-error.js";

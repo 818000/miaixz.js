@@ -73,15 +73,17 @@
     "typecheck": "npm run generate:formats:check && tsc -p tsconfig.json --noEmit",
     "lint": "eslint src tests *.config.js *.config.ts --no-error-on-unmatched-pattern && stylelint \"src/**/*.css\"",
     "lint:fix": "eslint src tests *.config.js *.config.ts --no-error-on-unmatched-pattern --fix && stylelint \"src/**/*.css\" --fix",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
+    "format": "prettier . --write --ignore-path ../../.gitignore",
+    "format:check": "prettier . --check --ignore-path ../../.gitignore",
     "test": "vitest run",
+    "test:browser": "npm run build && playwright test --config playwright.config.ts",
     "test:coverage": "vitest run --coverage",
     "generate:formats": "node ../../.github/scripts/modules/view/codegen/formats.mjs",
     "generate:formats:check": "node ../../.github/scripts/modules/view/codegen/formats.mjs --check",
     "audit:runtime-deps": "node ../../.github/scripts/modules/view/quality/audit-runtime.mjs",
+    "check:package": "npm run build && node ../../.github/scripts/modules/view/quality/check-package.mjs",
     "test:format-matrix": "vitest run tests/runtime/detect-format.test.ts",
-    "check": "npm run audit:runtime-deps && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
+    "check": "npm run audit:runtime-deps && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check && npm run check:package"
   },
   "peerDependencies": {
     "@miaixz/icons": ">=0.6.5 <0.7.0",
@@ -95,6 +97,7 @@
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
     "@miaixz/icons": "0.6.5",
+    "@playwright/test": "1.62.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "16.3.3",
@@ -118,6 +121,7 @@
     "stylelint-config-standard": "40.0.0",
     "stylelint-order": "8.1.1",
     "typescript": "7.0.2",
+    "vite": "8.2.2",
     "vitest": "4.1.11"
   },
   "publishConfig": {
