@@ -33,6 +33,29 @@ import type { ViewerControllerState } from "../../runtime/viewer-controller.js";
 import type { DriverRegistry } from "../../runtime/driver-registry.js";
 
 /**
+ * Summarizes one visible worksheet without exposing its internal cell model.
+ */
+export interface SpreadsheetSheetSummary {
+  readonly id: string;
+  readonly name: string;
+  readonly index: number;
+}
+
+/**
+ * Configures workbook-specific presentation and diagnostics.
+ */
+export interface SpreadsheetViewOptions {
+  readonly initialSheet?: string | number;
+  readonly spreadsheetView?: "sheet" | "page";
+  readonly showGridLines?: boolean;
+  readonly showSheetTabs?: boolean;
+  readonly onSheetChange?: (sheet: SpreadsheetSheetSummary) => void;
+  readonly onDiagnostics?: (
+    diagnostics: readonly import("../../shared/contracts/document.js").ViewerWarning[],
+  ) => void;
+}
+
+/**
  * Defines localized labels used by the unified viewer shell.
  */
 export interface FileViewLabels {
@@ -70,10 +93,10 @@ export interface FileViewHandle {
 /**
  * Configures a local or remote automatic file preview.
  */
-interface FileViewBaseProps extends Omit<
-  ComponentPropsWithoutRef<"div">,
-  "children" | "onError" | "onLoad" | "onProgress"
-> {
+interface FileViewBaseProps
+  extends
+    Omit<ComponentPropsWithoutRef<"div">, "children" | "onError" | "onLoad" | "onProgress">,
+    SpreadsheetViewOptions {
   /**
    * Supplies a filename when the source does not carry one.
    */

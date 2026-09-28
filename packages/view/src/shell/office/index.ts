@@ -24,3 +24,4 @@
 
 export { OfficeView } from "./office-view.js";
 export type { OfficeViewProps } from "./office-view.types.js";
+export type { SpreadsheetSheetSummary, SpreadsheetViewOptions } from "../file/file-view.types.js";

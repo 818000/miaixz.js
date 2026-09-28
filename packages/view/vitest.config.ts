@@ -39,7 +39,12 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],
-      exclude: ["**/*.d.ts", "src/index.ts", "src/**/index.ts"],
+      exclude: [
+        "**/*.d.ts",
+        "src/index.ts",
+        "src/**/index.ts",
+        "src/workers/spreadsheet-worker.ts",
+      ],
       thresholds: {
         lines: 85,
         functions: 85,

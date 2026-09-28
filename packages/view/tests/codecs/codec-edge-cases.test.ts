@@ -47,6 +47,7 @@ import {
   localAttribute,
   parseXmlDocument,
   textFromElements,
+  type XmlElement,
 } from "../../src/codecs/xml/xml-codec.js";
 import { defaultResourceBudget } from "../../src/runtime/resource-budget.js";
 import { formatDriver as pdfDriver } from "../../src/formats/pdf/driver.js";
@@ -128,7 +129,7 @@ function context(
  * @param source - Well-formed XML fragment.
  * @returns Parsed document element.
  */
-function element(source: string): Element {
+function element(source: string): XmlElement {
   return parseXmlDocument(source, 10_000).documentElement;
 }
 
@@ -180,9 +181,40 @@ describe("primitive codecs", () => {
     expect(() => parseXmlDocument("<root><a/><b/></root>", 2)).toThrow("[RESOURCE_LIMIT_EXCEEDED]");
   });
 
+  it("handles inert XML syntax while rejecting every malformed boundary", () => {
+    const document = parseXmlDocument(
+      "<?xml version=\"1.0\"?><root a='&quot;&apos;&#65;&#x42;'><!--ignored--><![CDATA[<safe>]]><child/>tail&amp;</root>",
+      3,
+      3,
+    );
+    expect(localAttribute(document.documentElement, "a")).toBe("\"'AB");
+    expect(document.documentElement.ownText).toBe("<safe>tail&");
+    expect(document.documentElement.textContent).toBe("<safe>tail&");
+    for (const source of [
+      "<root></other>",
+      "<root/><second/>",
+      "outside<root/>",
+      "<root a=value/>",
+      '<root a="open/>',
+      "<root>&unknown;</root>",
+      "<root>&#x110000;</root>",
+      "<root><!--open</root>",
+      "<root><?open</root>",
+      "<root><![CDATA[open</root>",
+      "<1root/>",
+      '<root bad?="x"/>',
+      "",
+    ]) {
+      expect(() => parseXmlDocument(source, 10)).toThrow("[PARSE_FAILED]");
+    }
+    expect(() => parseXmlDocument("<a><b><c/></b></a>", 10, 2)).toThrow(
+      "[RESOURCE_LIMIT_EXCEEDED]",
+    );
+  });
+
   it("validates the versioned worker boundary", () => {
-    expect(() => assertWorkerProtocolVersion(1)).not.toThrow();
-    expect(() => assertWorkerProtocolVersion(2)).toThrow("[INVALID_CONFIGURATION]");
+    expect(() => assertWorkerProtocolVersion(2)).not.toThrow();
+    expect(() => assertWorkerProtocolVersion(1)).toThrow("[INVALID_CONFIGURATION]");
   });
 });
 

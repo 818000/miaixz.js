@@ -28,6 +28,8 @@ export type {
   FileViewLabels,
   FileViewProps,
   FileViewSlotProps,
+  SpreadsheetSheetSummary,
+  SpreadsheetViewOptions,
 } from "./shell/file/file-view.types.js";
 export { MiaixzViewError } from "./shared/errors/view-error.js";
 export type { MiaixzViewErrorCode } from "./shared/errors/view-error.js";
@@ -35,6 +37,7 @@ export { ViewerError } from "./shared/errors/viewer-error.js";
 export type {
   ViewerErrorCategory,
   ViewerErrorCode,
+  ViewerResourceLimit,
   ViewerErrorStage,
   ViewerRecoveryAction,
 } from "./shared/errors/viewer-error.js";
@@ -50,6 +53,7 @@ export {
   assertWorkerProtocolVersion,
 } from "./workers/protocol/worker-protocol.js";
 export type { WorkerRequest, WorkerResponse } from "./workers/protocol/worker-protocol.js";
+export { isSpreadsheetRenderDocument } from "./shared/contracts/document.js";
 export {
   defaultResourceBudget,
   hardResourceBudget,
@@ -108,13 +112,32 @@ export type {
   MediaDocument,
   PagedDocument,
   ParseOutcome,
+  SkippedFeature,
   SceneDocument,
   SceneMesh,
   SceneNode,
   Rectangle,
+  SpreadsheetBorderSide,
+  SpreadsheetBorderStyle,
+  SpreadsheetCellStyle,
+  SpreadsheetColumnLayout,
+  SpreadsheetCoverageEntry,
+  SpreadsheetCoverageLedger,
   SpreadsheetDocument,
+  SpreadsheetFeatureId,
+  SpreadsheetFontStyle,
+  SpreadsheetPane,
+  SpreadsheetRange,
+  SpreadsheetRenderCell,
+  SpreadsheetRenderDocument,
+  SpreadsheetRenderSheet,
+  SpreadsheetRowLayout,
+  SpreadsheetSheet,
+  SpreadsheetSheetLayout,
+  SpreadsheetStyleTable,
   TextDocument,
   ViewerDocument,
+  ViewerWarning,
 } from "./shared/contracts/document.js";
 export { ImageView } from "./shell/image/image-view.js";
 export type {

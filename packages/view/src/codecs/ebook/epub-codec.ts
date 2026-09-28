@@ -32,6 +32,8 @@ import {
   firstElementByLocalName,
   localAttribute,
   parseXmlDocument,
+  type XmlDocument,
+  type XmlElement,
 } from "../xml/xml-codec.js";
 
 /**
@@ -57,10 +59,13 @@ function resolvePart(basePart: string, target: string): string {
  * @param document - Parsed flow-document XML tree.
  * @returns Whitespace-normalized inert text from the document body.
  */
-function normalizedBodyText(document: XMLDocument): string {
-  for (const element of [...document.querySelectorAll("script, style, object, iframe")])
-    element.remove();
-  return (document.documentElement.textContent ?? "").replaceAll(/\s+/gu, " ").trim();
+function normalizedBodyText(document: XmlDocument): string {
+  const excluded = new Set(["script", "style", "object", "iframe"]);
+  const safeText = (element: XmlElement): string => {
+    if (excluded.has(element.localName.toLowerCase())) return "";
+    return `${element.ownText} ${element.children.map((child) => safeText(child)).join(" ")}`;
+  };
+  return safeText(document.documentElement).replaceAll(/\s+/gu, " ").trim();
 }
 
 /**

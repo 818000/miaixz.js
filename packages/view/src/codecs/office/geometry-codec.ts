@@ -22,7 +22,13 @@
  * Converts DrawingML preset and custom geometry into deterministic SVG paths.
  */
 
-import { firstElementByLocalName as first, localAttribute as attribute } from "../xml/xml-codec.js";
+import {
+  firstElementByLocalName as first,
+  localAttribute as attribute,
+  type XmlElement,
+} from "../xml/xml-codec.js";
+
+type Element = XmlElement;
 
 /**
  * Describes a normalized local geometry ready for SVG rendering.

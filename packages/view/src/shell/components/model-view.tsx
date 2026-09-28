@@ -22,8 +22,14 @@
  * Renders format-neutral document models without reparsing source bytes.
  */
 
-import type { ViewerDocument } from "../../shared/contracts/document.js";
+import {
+  isSpreadsheetRenderDocument,
+  type ViewerWarning,
+  type ViewerDocument,
+} from "../../shared/contracts/document.js";
 import { DrawingView } from "./drawing-view.js";
+import { SpreadsheetView } from "./spreadsheet-view.js";
+import type { SpreadsheetViewOptions } from "../file/file-view.types.js";
 
 /**
  * Renders a framework model without reparsing source bytes.
@@ -31,14 +37,23 @@ import { DrawingView } from "./drawing-view.js";
  * @param root0 - Model and zoom properties supplied by the viewer shell.
  * @param root0.document - Format-neutral document model to render.
  * @param root0.scale - Current visual scale applied by the shell.
+ * @param root0.spreadsheetOptions - Workbook-specific view configuration.
+ * @param root0.maxTileCacheBytes - Maximum spreadsheet Canvas backing-store bytes.
+ * @param root0.spreadsheetDiagnostics - Parser diagnostics forwarded to the workbook host.
  * @returns Rendered React element for the document model.
  */
 export function ModelView({
   document,
   scale,
+  spreadsheetOptions,
+  maxTileCacheBytes,
+  spreadsheetDiagnostics,
 }: {
   readonly document: ViewerDocument;
   readonly scale: number;
+  readonly spreadsheetOptions?: SpreadsheetViewOptions;
+  readonly maxTileCacheBytes?: number;
+  readonly spreadsheetDiagnostics?: readonly ViewerWarning[];
 }): React.ReactElement {
   const style = { transform: `scale(${scale})`, transformOrigin: "top center" };
   switch (document.kind) {
@@ -139,6 +154,20 @@ export function ModelView({
         </article>
       );
     case "spreadsheet": {
+      if (isSpreadsheetRenderDocument(document)) {
+        return (
+          <SpreadsheetView
+            document={document}
+            {...(spreadsheetDiagnostics === undefined
+              ? {}
+              : { diagnostics: spreadsheetDiagnostics })}
+            {...(spreadsheetOptions === undefined ? {} : { options: spreadsheetOptions })}
+            key={`${document.id}:${String(spreadsheetOptions?.initialSheet ?? "active")}`}
+            {...(maxTileCacheBytes === undefined ? {} : { maxTileCacheBytes })}
+            scale={scale}
+          />
+        );
+      }
       return (
         <section className="miaixz-preview-workbook" style={style}>
           {document.sheets.map((sheet) => {
@@ -155,21 +184,6 @@ export function ModelView({
                     scene={drawing}
                   />
                 ))}
-                {sheet.cells.length === 0 ? null : (
-                  <details className="miaixz-preview-sheet-data">
-                    <summary>Cell data</summary>
-                    <table className="miaixz-preview-table">
-                      <tbody>
-                        {sheet.cells.map((cell) => (
-                          <tr key={cell.address}>
-                            <th>{cell.address}</th>
-                            <td>{String(cell.value ?? "")}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </details>
-                )}
               </article>
             );
           })}

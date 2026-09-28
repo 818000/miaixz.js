@@ -87,7 +87,10 @@ const resourceProvider: FileResourceProvider = {
 - Filename, MIME, signature, and container evidence are scored together; callers no longer pass `kind`.
 - The current installable modules are PDF, DOCX, DOC, XLSX, XLS, PPTX, PPT, ODT, ODS, ODP, EPUB, XPS/OXPS, OFD, ZIP, RAR, JPEG, PNG, GIF, SVG, MP3, MP4, Draw.io, XMind, GeoJSON/TopoJSON, DXF, OBJ, and WASM.
 - Every module owns a `format.json`, a driver boundary, and a generated lazy-loader entry. Deleting a module directory and regenerating removes that format without editing runtime code.
-- XLSX parsing includes sparse cells, cached formula values, all DrawingML anchor modes, recursive groups, affine transforms, theme colors, text styles, arrowheads, embedded pictures, preset/custom geometry, connector endpoints, semantic graph data, materialized SmartArt drawings, and legacy VML drawings.
+- XLSX parsing runs in a dedicated module Worker and includes saved row/column geometry, merged cells, panes, resolved styles and number formats, sparse cells, cached formula values, all DrawingML anchor modes, recursive groups, affine transforms, theme colors, text styles, arrowheads, bounded embedded pictures, local EMF decoding, preset/custom geometry, connector endpoints, semantic graph data, materialized SmartArt drawings, and legacy VML drawings.
+- XLSX renders one active worksheet at a time with synchronized Canvas cell styling, selectable HTML text, DrawingML SVG, sheet tabs, current-sheet search, and display-value copying. A runtime without module Worker support returns `UNSUPPORTED_RUNTIME`; it never falls back to blocking main-thread parsing.
+- XLSX defaults to the workbook's saved active sheet, view mode, zoom, selection, scroll origin, frozen panes, print area, page breaks, outline state, and tab color. Public sheet/view options are explicit overrides rather than replacement defaults.
+- Font substitution and glyph antialiasing are the only accepted platform differences for a `complete` XLSX result. Missing or approximate visible layout, color, geometry, clipping, stacking, image, drawing, or saved-view behavior must produce a named diagnostic and cannot be reported as complete.
 - Unsupported subformats return a stable rejected or partial result; metadata output is never presented as full preview support.
 
 The generated format matrix and the tests under `tests/` are the executable support contract. An extension being recognized does not imply that every vendor-specific feature is rendered.
@@ -135,6 +138,26 @@ const workbookFile = new File([], "workflow.xlsx");
 <OfficeView name="workflow.xlsx" source={workbookFile} />;
 ```
 
+Workbook presentation can be configured without changing the parsed document:
+
+```tsx compile
+import { OfficeView } from "@miaixz/view";
+
+declare const workbookFile: File;
+
+<OfficeView
+  initialSheet="System flow"
+  name="workflow.xlsx"
+  onSheetChange={(sheet) => console.log(sheet.id, sheet.name)}
+  showGridLines
+  showSheetTabs
+  source={workbookFile}
+  spreadsheetView="sheet"
+/>;
+```
+
+`initialSheet` accepts a visible sheet id, an exact visible sheet name, or a zero-based visible-sheet index. Hidden sheets are parsed for coverage but are not exposed as tabs. Invalid selections fall back to the saved active sheet and emit `XLSX_INITIAL_SHEET_NOT_FOUND` through `onDiagnostics`.
+
 ## Public entries
 
 | Entry          | Kind       |
@@ -152,6 +175,6 @@ The package exports file-preview components only and deliberately has no page-la
 
 ## Security boundary
 
-All parsing is treated as untrusted input. Sources are size-bounded, XML entities are rejected, archive paths and expansion are checked, remote requests use only caller-supplied authorization, embedded scripts and macros are not executed, and public errors do not retain source bytes, credentials, local paths, or internal stack traces.
+All parsing is treated as untrusted input. Sources are size-bounded, XML entities and excessive depth are rejected, archive paths and expansion are checked, spreadsheet sheets/cells/styles/drawings/vector records/Canvas backing stores have explicit budgets, remote requests use only caller-supplied authorization, embedded SVG scripts and external resources are blocked, macros are never executed, and public errors do not retain source bytes, credentials, local paths, or internal stack traces.
 
 Toolbar visibility is not an authorization boundary. Applications must still enforce permissions when issuing URLs or enabling download and print actions.

@@ -22,10 +22,12 @@
  * Verifies legacy VML drawings referenced by OOXML worksheets.
  */
 
-import { formatDriver } from "../../../src/formats/xlsx/driver.js";
+import { createOoxmlDriver } from "../../../src/codecs/office/ooxml-codec.js";
 import { defaultResourceBudget } from "../../../src/runtime/resource-budget.js";
 import type { DriverContext } from "../../../src/shared/contracts/driver.js";
 import { storedZip } from "../../support/stored-zip.js";
+
+const formatDriver = createOoxmlDriver("xlsx", "spreadsheet");
 
 /**
  * Creates a minimal workbook containing legacy VML process geometry.

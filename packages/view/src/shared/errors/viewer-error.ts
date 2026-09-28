@@ -42,7 +42,8 @@ export type ViewerErrorCode =
   | "RELATED_RESOURCE_REQUIRED"
   | "RESOURCE_LIMIT_EXCEEDED"
   | "RENDER_FAILED"
-  | "SECURITY_BLOCKED";
+  | "SECURITY_BLOCKED"
+  | "UNSUPPORTED_RUNTIME";
 
 /**
  * Identifies the pipeline stage at which a safe failure occurred.
@@ -70,6 +71,15 @@ export type ViewerRecoveryAction =
   "download" | "open-as-text" | "provide-related-resource" | "request-password" | "retry";
 
 /**
+ * Identifies the precise bounded resource which rejected an input.
+ */
+export interface ViewerResourceLimit {
+  readonly field: string;
+  readonly actual: number;
+  readonly allowed: number;
+}
+
+/**
  * Maps a stable viewer error code to its public category.
  *
  * @param code - Stable viewer error code being classified.
@@ -78,7 +88,11 @@ export type ViewerRecoveryAction =
 function errorCategory(code: ViewerErrorCode): ViewerErrorCategory {
   if (code === "ABORTED" || code === "DOCUMENT_DISPOSED") return "cancelled";
   if (code === "FORMAT_AMBIGUOUS" || code === "FORMAT_UNSUPPORTED") return "format";
-  if (code === "COMPATIBILITY_UNSUPPORTED" || code === "INVALID_CONFIGURATION")
+  if (
+    code === "COMPATIBILITY_UNSUPPORTED" ||
+    code === "INVALID_CONFIGURATION" ||
+    code === "UNSUPPORTED_RUNTIME"
+  )
     return "compatibility";
   if (code === "INVALID_SOURCE" || code === "NETWORK_FAILED") return "source";
   if (code === "INTERNAL_UNEXPECTED") return "internal";
@@ -99,7 +113,7 @@ function errorCategory(code: ViewerErrorCode): ViewerErrorCategory {
 function defaultRecoveryActions(code: ViewerErrorCode): readonly ViewerRecoveryAction[] {
   if (code === "NETWORK_FAILED") return ["retry", "download"];
   if (code === "FORMAT_AMBIGUOUS") return ["open-as-text", "download"];
-  if (code === "FORMAT_UNSUPPORTED") return ["download"];
+  if (code === "FORMAT_UNSUPPORTED" || code === "UNSUPPORTED_RUNTIME") return ["download"];
   if (code === "PASSWORD_REQUIRED" || code === "PASSWORD_REJECTED")
     return ["request-password", "download"];
   if (code === "RELATED_RESOURCE_REQUIRED") return ["provide-related-resource", "download"];
@@ -119,6 +133,7 @@ export class ViewerError extends Error {
   readonly category: ViewerErrorCategory;
   readonly recoveryActions: readonly ViewerRecoveryAction[];
   readonly diagnosticId: string;
+  readonly resourceLimit?: ViewerResourceLimit;
 
   /**
    * Creates a sanitized viewer error.
@@ -127,12 +142,14 @@ export class ViewerError extends Error {
    * @param stage - Pipeline stage at which the failure occurred.
    * @param recoverable - Whether the current session may attempt recovery.
    * @param recoveryActions - Explicit actions that a host may safely offer.
+   * @param resourceLimit - Optional non-sensitive resource-limit diagnostic.
    */
   constructor(
     code: ViewerErrorCode,
     stage: ViewerErrorStage,
     recoverable = false,
     recoveryActions: readonly ViewerRecoveryAction[] = defaultRecoveryActions(code),
+    resourceLimit?: ViewerResourceLimit,
   ) {
     super(`[${code}]`);
     this.name = "ViewerError";
@@ -141,6 +158,7 @@ export class ViewerError extends Error {
     this.recoverable = recoverable;
     this.category = errorCategory(code);
     this.recoveryActions = recoveryActions;
+    if (resourceLimit !== undefined) this.resourceLimit = resourceLimit;
     this.diagnosticId = `viewer-error-${nextDiagnosticId}`;
     nextDiagnosticId += 1;
   }

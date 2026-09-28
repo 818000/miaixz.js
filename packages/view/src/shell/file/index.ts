@@ -28,4 +28,6 @@ export type {
   FileViewLabels,
   FileViewProps,
   FileViewSlotProps,
+  SpreadsheetSheetSummary,
+  SpreadsheetViewOptions,
 } from "./file-view.types.js";

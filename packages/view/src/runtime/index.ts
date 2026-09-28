@@ -30,6 +30,7 @@ export type {
   ViewerCommand,
 } from "../shared/contracts/capability.js";
 export { ViewerController, openViewerDocument } from "./viewer-controller.js";
+export { isSpreadsheetRenderDocument } from "../shared/contracts/document.js";
 export type {
   OpenDocumentOptions,
   OpenedDocument,
@@ -57,6 +58,7 @@ export { ViewerError } from "../shared/errors/viewer-error.js";
 export type {
   ViewerErrorCategory,
   ViewerErrorCode,
+  ViewerResourceLimit,
   ViewerErrorStage,
   ViewerRecoveryAction,
 } from "../shared/errors/viewer-error.js";
@@ -77,9 +79,28 @@ export type {
   SceneDocument,
   SceneMesh,
   SceneNode,
+  SkippedFeature,
+  SpreadsheetBorderSide,
+  SpreadsheetBorderStyle,
+  SpreadsheetCellStyle,
+  SpreadsheetColumnLayout,
+  SpreadsheetCoverageEntry,
+  SpreadsheetCoverageLedger,
   SpreadsheetDocument,
+  SpreadsheetFeatureId,
+  SpreadsheetFontStyle,
+  SpreadsheetPane,
+  SpreadsheetRange,
+  SpreadsheetRenderCell,
+  SpreadsheetRenderDocument,
+  SpreadsheetRenderSheet,
+  SpreadsheetRowLayout,
+  SpreadsheetSheet,
+  SpreadsheetSheetLayout,
+  SpreadsheetStyleTable,
   TextDocument,
   ViewerDocument,
+  ViewerWarning,
 } from "../shared/contracts/document.js";
 export { DriverRegistry } from "./driver-registry.js";
 export { createDefaultRegistry } from "./default-registry.js";

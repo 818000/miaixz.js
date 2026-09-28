@@ -27,7 +27,7 @@ import { ViewerError } from "../../shared/errors/viewer-error.js";
 /**
  * Current main-thread/worker protocol version.
  */
-export const WORKER_PROTOCOL_VERSION = 1 as const;
+export const WORKER_PROTOCOL_VERSION = 2 as const;
 
 /**
  * Wraps every request sent to a viewer worker.
@@ -47,7 +47,7 @@ export interface WorkerResponse<TPayload = unknown> {
   readonly protocolVersion: typeof WORKER_PROTOCOL_VERSION;
   readonly requestId: string;
   readonly documentId: string;
-  readonly status: "error" | "partial" | "progress" | "success";
+  readonly status: "error" | "partial" | "progress" | "rejected" | "success";
   readonly payload: TPayload;
 }
 
@@ -56,7 +56,7 @@ export interface WorkerResponse<TPayload = unknown> {
  *
  * @param value - Untrusted protocol version supplied with a worker message.
  */
-export function assertWorkerProtocolVersion(value: unknown): asserts value is 1 {
+export function assertWorkerProtocolVersion(value: unknown): asserts value is 2 {
   if (value !== WORKER_PROTOCOL_VERSION) {
     throw new ViewerError("INVALID_CONFIGURATION", "parse");
   }

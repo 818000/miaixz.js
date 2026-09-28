@@ -22,9 +22,14 @@
  * Implements the xlsx format driver boundary.
  */
 
-import { createOoxmlDriver } from "../../codecs/office/ooxml-codec.js";
+import { openSpreadsheetInWorker } from "../../runtime/spreadsheet-worker-client.js";
+import type { SpreadsheetRenderDocument } from "../../shared/contracts/document.js";
+import type { ViewerDriver } from "../../shared/contracts/driver.js";
 
 /**
  * Parses XLSX-family packages and their DrawingML flowcharts.
  */
-export const formatDriver = createOoxmlDriver("xlsx", "spreadsheet");
+export const formatDriver: ViewerDriver<SpreadsheetRenderDocument> = {
+  id: "xlsx",
+  open: openSpreadsheetInWorker,
+};
