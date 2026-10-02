@@ -27,7 +27,11 @@ import { readFile, readdir } from "node:fs/promises";
 import { extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { getWorkspacePeerRange, readRepositoryVersion } from "../../../miaixz.mjs";
+
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../../../", import.meta.url)));
+const release = readRepositoryVersion(repositoryRoot);
+const expectedPeerRange = getWorkspacePeerRange(release);
 const corePackages = Object.freeze({
   "@miaixz/sdk": "packages/sdk",
   "@miaixz/icons": "packages/icons",
@@ -64,7 +68,7 @@ for (const [name, path] of Object.entries(corePackages)) {
     await readFile(resolve(repositoryRoot, path, "package.json"), "utf8"),
   );
   manifests.set(name, manifest);
-  if (manifest.version !== "0.6.5") failures.push(`${name} version is not 0.6.5`);
+  if (manifest.version !== release) failures.push(`${name} version does not match ${release}`);
 }
 
 const ui = manifests.get("@miaixz/ui");
@@ -74,10 +78,10 @@ for (const [manifest, dependency] of [
   [ui, "@miaixz/icons"],
   [view, "@miaixz/icons"],
 ]) {
-  if (manifest.peerDependencies?.[dependency] !== ">=0.6.5 <0.7.0") {
+  if (manifest.peerDependencies?.[dependency] !== expectedPeerRange) {
     failures.push(`${manifest.name} peer range for ${dependency} is incorrect`);
   }
-  if (manifest.devDependencies?.[dependency] !== "0.6.5") {
+  if (manifest.devDependencies?.[dependency] !== release) {
     failures.push(`${manifest.name} development version for ${dependency} is incorrect`);
   }
 }

@@ -7,10 +7,6 @@ on:
         description: "Existing Git tag to release."
         required: true
         type: string
-      version:
-        description: "Exact release version."
-        required: true
-        type: string
       prerelease:
         description: "Mark the GitHub Release as a pre-release."
         required: false
@@ -20,10 +16,6 @@ on:
     inputs:
       tag:
         description: "Existing Git tag to release."
-        required: true
-        type: string
-      version:
-        description: "Exact release version; must equal the tag."
         required: true
         type: string
       prerelease:
@@ -79,11 +71,11 @@ jobs:
       - name: Verify Existing Tag and Metadata
         env:
           RELEASE_TAG: ${{ inputs.tag }}
-          RELEASE_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          if [ "$RELEASE_TAG" != "$RELEASE_VERSION" ]; then
-            echo "::error::Release tag and version must be identical"
+          release_version="$(tr -d '\r\n' < VERSION)"
+          if [ "$RELEASE_TAG" != "$release_version" ]; then
+            echo "::error::Release tag '${RELEASE_TAG}' does not match VERSION '${release_version}'"
             exit 1
           fi
           git show-ref --verify --quiet "refs/tags/${RELEASE_TAG}" || {
@@ -96,19 +88,16 @@ jobs:
             echo "::error::Checked-out HEAD does not equal the peeled tag commit"
             exit 1
           fi
-          node .github/scripts/release/check-release-metadata.mjs "$RELEASE_VERSION"
+          node .github/scripts/release/check-release-metadata.mjs
           npm run check:clean
 
       - name: Confirm All npm Packages
-        env:
-          RELEASE_VERSION: ${{ inputs.version }}
-        run: node .github/scripts/release/check-published-packages.mjs "$RELEASE_VERSION"
+        run: node .github/scripts/release/check-published-packages.mjs
 
       - name: Create Release
         uses: ./.github/actions/create-release
         with:
           tag: ${{ inputs.tag }}
-          version: ${{ inputs.version }}
           prerelease: ${{ inputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

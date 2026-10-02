@@ -24,10 +24,18 @@
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
 const packageDirectory = resolve(import.meta.dirname, "../../..");
+const repositoryRoot = resolve(packageDirectory, "../..");
+const release = readFileSync(resolve(repositoryRoot, "VERSION"), "utf8").trim();
+const metadataUrl = pathToFileURL(resolve(repositoryRoot, ".github/scripts/miaixz.mjs")).href;
+const { getWorkspacePeerRange } = (await import(metadataUrl)) as {
+  getWorkspacePeerRange: (version: string) => string;
+};
+const expectedPeerRange = getWorkspacePeerRange(release);
 const manifest = JSON.parse(readFileSync(resolve(packageDirectory, "package.json"), "utf8")) as {
   readonly dependencies: Readonly<Record<string, string>>;
   readonly devDependencies: Readonly<Record<string, string>>;
@@ -37,8 +45,8 @@ const manifest = JSON.parse(readFileSync(resolve(packageDirectory, "package.json
 
 describe("icon package migration", () => {
   it("delegates the complete icon system to @miaixz/icons", () => {
-    expect(manifest.peerDependencies["@miaixz/icons"]).toBe(">=0.6.5 <0.7.0");
-    expect(manifest.devDependencies["@miaixz/icons"]).toBe("0.6.5");
+    expect(manifest.peerDependencies["@miaixz/icons"]).toBe(expectedPeerRange);
+    expect(manifest.devDependencies["@miaixz/icons"]).toBe(release);
     expect(manifest.exports["./icons"]).toBeUndefined();
     expect(manifest.exports["./icons/styles.css"]).toBeUndefined();
     expect(manifest.dependencies).not.toHaveProperty("lucide-react");

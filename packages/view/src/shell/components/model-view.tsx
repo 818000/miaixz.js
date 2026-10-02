@@ -208,7 +208,9 @@ export function ModelView({
               {page.drawing === undefined ? null : (
                 <DrawingView className="miaixz-preview-page-drawing" scene={page.drawing} />
               )}
-              {page.text === "" ? null : <p>{page.text}</p>}
+              {page.drawing !== undefined || page.text === "" ? null : (
+                <p className="miaixz-preview-page-text">{page.text}</p>
+              )}
             </article>
           ))}
         </section>

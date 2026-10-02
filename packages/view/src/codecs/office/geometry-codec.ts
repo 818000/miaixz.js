@@ -389,6 +389,21 @@ function presetGeometry(
       path: `M${centerX} 0 L${width} ${centerY} L${centerX} ${height} L0 ${centerY} Z`,
     };
   }
+  if (preset === "flowChartPredefinedProcess") {
+    const marker = Math.min(width * 0.12, height * 0.3);
+    return {
+      kind: "path",
+      path: `M0 0 H${width} V${height} H0 Z M${marker} 0 V${height} M${width - marker} 0 V${height}`,
+    };
+  }
+  if (preset === "flowChartInternalStorage") {
+    const markerX = Math.min(width * 0.14, height * 0.35);
+    const markerY = Math.min(height * 0.2, width * 0.2);
+    return {
+      kind: "path",
+      path: `M0 0 H${width} V${height} H0 Z M${markerX} 0 V${height} M0 ${markerY} H${width}`,
+    };
+  }
   if (/flowChartInputOutput|parallelogram/iu.test(preset)) {
     return {
       kind: "path",
@@ -400,6 +415,26 @@ function presetGeometry(
     return {
       kind: "path",
       path: `M0 ${cap} A${centerX} ${cap} 0 0 1 ${width} ${cap} L${width} ${height - cap} A${centerX} ${cap} 0 0 1 0 ${height - cap} Z M0 ${cap} A${centerX} ${cap} 0 0 0 ${width} ${cap}`,
+    };
+  }
+  if (preset === "flowChartMagneticDrum") {
+    const cap = Math.min(width / 4, height / 6);
+    return {
+      kind: "path",
+      path: `M${cap} 0 H${width - cap} A${cap} ${centerY} 0 0 1 ${width - cap} ${height} H${cap} A${cap} ${centerY} 0 0 1 ${cap} 0 Z M${width - cap} 0 A${cap} ${centerY} 0 0 0 ${width - cap} ${height}`,
+    };
+  }
+  if (preset === "flowChartOnlineStorage") {
+    const cap = Math.min(width / 5, height / 5);
+    return {
+      kind: "path",
+      path: `M${cap} 0 H${width} V${height} H${cap} Q${-cap} ${height / 2} ${cap} 0 Z M${cap} 0 Q${cap * 3} ${height / 2} ${cap} ${height}`,
+    };
+  }
+  if (preset === "flowChartOfflineStorage") {
+    return {
+      kind: "path",
+      path: `M${inset} 0 H${width} L${width - inset} ${height} H0 Z`,
     };
   }
   if (/flowChartMultidocument/iu.test(preset)) {
@@ -420,6 +455,12 @@ function presetGeometry(
   if (/triangle/iu.test(preset)) {
     return { kind: "path", path: `M${centerX} 0 L${width} ${height} H0 Z` };
   }
+  if (preset === "flowChartExtract") {
+    return { kind: "path", path: `M${centerX} 0 L${width} ${height} H0 Z` };
+  }
+  if (preset === "flowChartMerge") {
+    return { kind: "path", path: `M0 0 H${width} L${centerX} ${height} Z` };
+  }
   if (/hexagon/iu.test(preset)) {
     return {
       kind: "path",
@@ -436,6 +477,89 @@ function presetGeometry(
     return {
       kind: "path",
       path: `M0 0 H${width - inset} L${width} ${centerY} L${width - inset} ${height} H0 Z`,
+    };
+  }
+  if (preset === "flowChartTerminator" || preset === "flowChartAlternateProcess") {
+    const radius = Math.min(width / 2, height / 2);
+    return { kind: "rectangle", cornerRadius: radius };
+  }
+  if (preset === "flowChartPreparation") {
+    return {
+      kind: "path",
+      path: `M${inset} 0 H${width - inset} L${width} ${centerY} L${width - inset} ${height} H${inset} L0 ${centerY} Z`,
+    };
+  }
+  if (preset === "flowChartManualInput") {
+    return {
+      kind: "path",
+      path: `M${inset} 0 H${width} V${height} H0 V${inset} Z`,
+    };
+  }
+  if (preset === "flowChartManualOperation") {
+    return {
+      kind: "path",
+      path: `M0 0 H${width} L${width - inset} ${height} H${inset} Z`,
+    };
+  }
+  if (preset === "flowChartOffpageConnector") {
+    return {
+      kind: "path",
+      path: `M0 0 H${width} V${height * 0.68} L${centerX} ${height} L0 ${height * 0.68} Z`,
+    };
+  }
+  if (preset === "flowChartPunchedCard") {
+    return {
+      kind: "path",
+      path: `M${inset} 0 H${width} V${height} H0 V${inset} Z`,
+    };
+  }
+  if (preset === "flowChartPunchedTape") {
+    const wave = height * 0.12;
+    return {
+      kind: "path",
+      path: `M0 ${wave} Q${width * 0.25} ${-wave} ${width / 2} ${wave} Q${width * 0.75} ${wave * 3} ${width} ${wave} V${height - wave} Q${width * 0.75} ${height - wave * 3} ${width / 2} ${height - wave} Q${width * 0.25} ${height + wave} 0 ${height - wave} Z`,
+    };
+  }
+  if (preset === "flowChartDelay") {
+    return {
+      kind: "path",
+      path: `M0 0 H${centerX} A${centerX} ${centerY} 0 0 1 ${centerX} ${height} H0 Z`,
+    };
+  }
+  if (preset === "flowChartDisplay") {
+    return {
+      kind: "path",
+      path: `M${inset} 0 H${width - inset} Q${width} ${centerY} ${width - inset} ${height} H${inset} L0 ${centerY} Z`,
+    };
+  }
+  if (preset === "flowChartCollate") {
+    return {
+      kind: "path",
+      path: `M0 0 H${width} L0 ${height} H${width} Z`,
+    };
+  }
+  if (preset === "flowChartSort") {
+    return {
+      kind: "path",
+      path: `M${centerX} 0 L${width} ${centerY} L${centerX} ${height} L0 ${centerY} Z M0 ${centerY} H${width}`,
+    };
+  }
+  if (preset === "flowChartSummingJunction") {
+    return {
+      kind: "path",
+      path: `M${centerX} 0 A${centerX} ${centerY} 0 1 1 ${centerX - 0.01} 0 Z M${width * 0.18} ${height * 0.18} L${width * 0.82} ${height * 0.82} M${width * 0.82} ${height * 0.18} L${width * 0.18} ${height * 0.82}`,
+    };
+  }
+  if (preset === "flowChartOr") {
+    return {
+      kind: "path",
+      path: `M${centerX} 0 A${centerX} ${centerY} 0 1 1 ${centerX - 0.01} 0 Z M${centerX} ${height * 0.16} V${height * 0.84} M${width * 0.16} ${centerY} H${width * 0.84}`,
+    };
+  }
+  if (preset === "flowChartMagneticTape") {
+    return {
+      kind: "path",
+      path: `M${centerX} 0 A${centerX} ${centerY} 0 1 1 ${centerX - 0.01} 0 Z M${centerX} ${height} H${width}`,
     };
   }
   if (/flowChartDocument|document/iu.test(preset)) {
@@ -463,13 +587,14 @@ export function decodeOfficeGeometry(
   width: number,
   height: number,
   connector: boolean,
-): { readonly geometry: OfficeGeometry; readonly preset: string } {
+): { readonly geometry: OfficeGeometry; readonly preset: string; readonly supported: boolean } {
   const custom = first(shapeProperties, "custGeom");
   if (custom !== undefined) {
     const path = customPath(custom, width, height);
     return {
       geometry: { kind: "path", ...(path === undefined ? {} : { path }) },
       preset: "custom",
+      supported: path !== undefined,
     };
   }
   const presetElement = first(shapeProperties, "prstGeom");
@@ -479,5 +604,11 @@ export function decodeOfficeGeometry(
   return {
     geometry: presetGeometry(preset, width, height, presetElement ?? shapeProperties),
     preset,
+    supported:
+      connector ||
+      /^(?:rect|ellipse|roundRect|mathPlus|plus|triangle|hexagon|chevron|pentagon)$/u.test(
+        preset,
+      ) ||
+      /connector|flowChart|borderCallout/iu.test(preset),
   };
 }

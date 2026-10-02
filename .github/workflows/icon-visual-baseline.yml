@@ -39,7 +39,7 @@ jobs:
           cache: ""
 
       - name: Install Hash-Locked Font Tools
-        run: pip install --require-hashes -r .github/scripts/modules/icons/requirements-font.txt
+        run: pip install --require-hashes -r .github/scripts/modules/icons/fonts/font-toolchain.lock.txt
 
       - name: Install JavaScript Dependencies
         run: npm install --ignore-scripts --no-package-lock --legacy-peer-deps
@@ -54,12 +54,12 @@ jobs:
         run: npm run icons:font:render
 
       - name: Compare Committed Baselines
-        run: node .github/scripts/modules/icons/quality/visual/compare-visuals.mjs --mode compare
+        run: node packages/icons/tests/scripts/compare-visuals.mjs --mode compare
 
       - name: Upload Visual Evidence
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: icon-visual-evidence-${{ github.sha }}
-          path: packages/icons/tests/.artifacts/icon-visual
+          path: packages/icons/.artifacts/icon-visual
           if-no-files-found: error

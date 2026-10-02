@@ -29,8 +29,15 @@ import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(process.cwd(), "../..");
+const release = (await readFile(resolve(repositoryRoot, "VERSION"), "utf8")).trim();
+const fontVersionCore = release.split("-")[0]!;
+const [fontVersionMajor, fontVersionMinorPart, fontVersionPatch] = fontVersionCore
+  .split(".")
+  .map(Number);
+const fontVersionMinor = fontVersionMinorPart! * 100 + fontVersionPatch!;
+const openTypeVersion = `Version ${fontVersionMajor}.${String(fontVersionMinor).padStart(3, "0")}`;
 const validatorUrl = pathToFileURL(
-  resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate.mjs"),
+  resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate-icon-font.mjs"),
 ).href;
 const { EXPECTED_MASTER_DIRECTORIES, FONTBAKERY_EXCLUSIONS } = (await import(validatorUrl)) as {
   EXPECTED_MASTER_DIRECTORIES: readonly string[];
@@ -60,7 +67,7 @@ describe("FontBakery icon-font policy", () => {
       FONTBAKERY_EXCLUSIONS.length,
     );
     for (const exclusion of FONTBAKERY_EXCLUSIONS) {
-      expect(exclusion.throughVersion).toBe("0.6.5");
+      expect(exclusion.throughVersion).toBe(release);
       expect(exclusion.reason.length).toBeGreaterThan(24);
     }
   });
@@ -70,8 +77,8 @@ describe("FontBakery icon-font policy", () => {
       const source = await readFile(resolve(fontsRoot, directory, "fontinfo.plist"), "utf8");
       expect(source).toContain("<key>postscriptIsFixedPitch</key>\n  <true/>");
       expect(source).toContain("<key>openTypeOS2Panose</key>");
-      expect(source).toContain("<string>Version 0.605</string>");
-      expect(source).toContain(";0.6.5</string>");
+      expect(source).toContain(`<string>${openTypeVersion}</string>`);
+      expect(source).toContain(`;${release}</string>`);
     }
   });
 

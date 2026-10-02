@@ -10,7 +10,7 @@ Directory names do not change public symbols or CSS custom property names.
 Cross-component implementation helpers live in `src/shared/` (formerly `src/internal/`).
 This directory is package-private; consumers use existing public exports, not shared deep imports.
 `npm run build` compiles TypeScript, automatically runs
-`.github/scripts/modules/ui/codegen/theme-css.mjs` from the repository root, then copies both
+`.github/scripts/modules/ui/codegen/generate-theme-css.mjs` from the repository root, then copies both
 CSS trees to `dist`. The CSS package test detects generated-file drift; the generator also accepts
 `--runtime-dir` and `--output-dir` for isolated reproduction.
 

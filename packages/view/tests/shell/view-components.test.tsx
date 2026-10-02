@@ -309,6 +309,9 @@ describe("format-neutral model rendering", () => {
     const rendered = render(<DrawingView scene={drawing} />);
     expect(rendered.getByRole("img", { name: "Process drawing" })).toBeInTheDocument();
     expect(rendered.container.querySelectorAll("[data-drawing-id]")).toHaveLength(7);
+    const topText = rendered.getByText("Top");
+    expect(topText).toHaveAttribute("x", "14");
+    expect(topText.parentElement).toHaveAttribute("y", "156");
     expect(rendered.container.querySelectorAll("marker")).toHaveLength(2);
     expect(rendered.container.querySelectorAll("image")).toHaveLength(1);
     expect(rendered.container.querySelectorAll("tspan").length).toBeGreaterThan(3);

@@ -27,21 +27,36 @@ import { createRoot } from "react-dom/client";
 import { OfficeView } from "../../../dist/index.js";
 import "@miaixz/icons/styles.css";
 import "../../../dist/styles.css";
+import { browserPresentationFixture, browserWordFixture } from "./office-fixtures.js";
 
 declare global {
   interface Window {
     __XLSX_PREVIEW_RESULT__?: string;
+    __OFFICE_PREVIEW_RESULT__?: string;
   }
 }
 
 const workbookUrl = new URL("../../fixtures/xlsx/system-flow.xlsx", import.meta.url).href;
+const requestedFormat = new URLSearchParams(window.location.search).get("format") ?? "xlsx";
+const source =
+  requestedFormat === "pptx"
+    ? browserPresentationFixture()
+    : requestedFormat === "docx"
+      ? browserWordFixture()
+      : workbookUrl;
+const name =
+  requestedFormat === "pptx"
+    ? "flowchart.pptx"
+    : requestedFormat === "docx"
+      ? "flowchart.docx"
+      : "system-flow.xlsx";
 const root = document.querySelector("#root");
 if (root === null) throw new Error("Missing browser acceptance root");
 
 createRoot(root).render(
   createElement(OfficeView, {
-    source: workbookUrl,
-    name: "system-flow.xlsx",
+    source,
+    name,
     /**
      * Publishes successful readiness for the Playwright contract.
      *
@@ -49,6 +64,8 @@ createRoot(root).render(
      */
     onLoad(outcome) {
       window.__XLSX_PREVIEW_RESULT__ = outcome.status;
+      window.__OFFICE_PREVIEW_RESULT__ = outcome.status;
+      document.documentElement.dataset.officeReady = outcome.status;
       document.documentElement.dataset.xlsxReady = outcome.status;
     },
     /**
@@ -58,6 +75,8 @@ createRoot(root).render(
      */
     onError(error) {
       window.__XLSX_PREVIEW_RESULT__ = error.code;
+      window.__OFFICE_PREVIEW_RESULT__ = error.code;
+      document.documentElement.dataset.officeReady = `error:${error.code}`;
       document.documentElement.dataset.xlsxReady = `error:${error.code}`;
     },
   }),

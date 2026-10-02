@@ -24,8 +24,7 @@
 
 import { defineConfig } from "@playwright/test";
 
-const browserChannel =
-  process.env.MIAIXZ_PLAYWRIGHT_CHANNEL ?? (process.platform === "darwin" ? "chrome" : undefined);
+const browserChannel = process.env.MIAIXZ_PLAYWRIGHT_CHANNEL ?? "chromium";
 
 export default defineConfig({
   testDir: "./tests/browser",

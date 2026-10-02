@@ -5,9 +5,6 @@ inputs:
   tag:
     description: "Git tag to release."
     required: true
-  version:
-    description: "Release version."
-    required: true
   prerelease:
     description: "Mark the GitHub Release as a pre-release."
     required: false
@@ -15,10 +12,28 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Read Release Version
+      id: release
+      shell: bash
+      env:
+        RELEASE_TAG: ${{ inputs.tag }}
+      run: |
+        set -euo pipefail
+        version="$(tr -d '\r\n' < VERSION)"
+        if [ -z "$version" ]; then
+          echo "::error::VERSION is empty"
+          exit 1
+        fi
+        if [ "$RELEASE_TAG" != "$version" ]; then
+          echo "::error::Release tag '${RELEASE_TAG}' does not match VERSION '${version}'"
+          exit 1
+        fi
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
       with:
         tag_name: ${{ inputs.tag }}
-        name: ${{ inputs.version }}
+        name: ${{ steps.release.outputs.version }}
         prerelease: ${{ inputs.prerelease }}
         generate_release_notes: true

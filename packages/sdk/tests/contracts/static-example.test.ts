@@ -19,29 +19,21 @@
 */
 
 /**
- * Freezes the offline SDK workbench as a real package integration surface.
+ * Freezes the SDK module inside the unified examples application.
  */
 
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const exampleRoot = resolve(process.cwd(), "../../examples/sdk");
+const testRoot = dirname(fileURLToPath(import.meta.url));
+const exampleRoot = resolve(testRoot, "../../../../examples/src/module/sdk");
 
-describe("SDK static example", () => {
-  it("loads classic local files through file protocol compatible markup", async () => {
-    const html = await readFile(resolve(exampleRoot, "index.html"), "utf8");
-    expect(html).toContain('<script defer src="./assets/sdk.js"></script>');
-    expect(html).not.toContain('type="module"');
-    expect(html).not.toMatch(/(?:src|href)=["']https?:\/\//u);
-  });
-
+describe("SDK example module", () => {
   it("exercises the real context, grants, API, appearance, i18n, and events APIs", async () => {
-    const [html, javascript] = await Promise.all([
-      readFile(resolve(exampleRoot, "index.html"), "utf8"),
-      readFile(resolve(exampleRoot, "assets/sdk.js"), "utf8"),
-    ]);
+    const source = await readFile(resolve(exampleRoot, "sdk-guide.tsx"), "utf8");
     for (const token of [
       "createMiaixzSdk",
       "sdk.context.patch",
@@ -52,7 +44,7 @@ describe("SDK static example", () => {
       "normalizeMiaixzError",
       "typed event stream",
     ]) {
-      expect(`${html}\n${javascript}`.toLowerCase()).toContain(token.toLowerCase());
+      expect(source.toLowerCase()).toContain(token.toLowerCase());
     }
   });
 });

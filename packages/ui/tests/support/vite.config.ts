@@ -5,7 +5,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
-import { themePresetPlugin } from "../../../../.github/scripts/modules/ui/codegen/theme-preset-vite.mjs";
+import { themePresetPlugin } from "../../../../.github/scripts/modules/ui/codegen/vite-theme-plugin.mjs";
 
 const port = Number(process.env.MIAIXZ_UI_PORT ?? "4173");
 if (!Number.isInteger(port) || port < 1024 || port > 65535)

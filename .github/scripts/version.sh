@@ -43,38 +43,52 @@ import { pathToFileURL } from "node:url";
 
 const root = process.argv[2];
 const version = process.argv[3];
-const { assertReleaseVersion, getWorkspacePeerRange, loadWorkspaceRepository } = await import(
-  pathToFileURL(join(root, ".github/scripts/miaixz.mjs"))
-);
+const {
+  assertReleaseVersion,
+  getWorkspacePeerRange,
+  loadVersionedPackageManifests,
+  loadWorkspaceRepository,
+} = await import(pathToFileURL(join(root, ".github/scripts/miaixz.mjs")));
 assertReleaseVersion(version);
 
 const paths = {
   version: join(root, "VERSION"),
-  rootPackage: join(root, "package.json"),
 };
 const repository = loadWorkspaceRepository(root);
-const rootPackage = repository.rootManifest;
+const versionedPackages = loadVersionedPackageManifests(root);
+const packagesByPath = new Map(
+  versionedPackages.map((entry) => [entry.manifestPath, entry]),
+);
+const rootPackage = versionedPackages.find(
+  ({ relativePath }) => relativePath === "package.json",
+)?.manifest;
 const currentVersion = readFileSync(paths.version, "utf8").trim();
 
-if (rootPackage.name !== "miaixz.js") {
+if (rootPackage?.name !== "miaixz.js") {
   throw new Error("Unexpected root package name; refusing to update versions.");
 }
 
-rootPackage.version = version;
+for (const { manifest, relativePath } of versionedPackages) {
+  manifest.version = version;
+  if (manifest.miaixzUiContract === undefined) continue;
+  if (
+    manifest.miaixzUiContract === null ||
+    typeof manifest.miaixzUiContract !== "object" ||
+    Array.isArray(manifest.miaixzUiContract)
+  ) {
+    throw new Error(`${relativePath} miaixzUiContract must be an object when present.`);
+  }
+  manifest.miaixzUiContract.version = version;
+}
+
 const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
 const peerRange = getWorkspacePeerRange(version);
-for (const { manifest } of repository.workspaces) {
-  manifest.version = version;
-  if (manifest.miaixzUiContract !== undefined) {
-    if (
-      manifest.miaixzUiContract === null ||
-      typeof manifest.miaixzUiContract !== "object" ||
-      Array.isArray(manifest.miaixzUiContract)
-    ) {
-      throw new Error("miaixzUiContract must be an object when present.");
-    }
-    manifest.miaixzUiContract.version = version;
+for (const workspace of repository.workspaces) {
+  const versionedPackage = packagesByPath.get(workspace.manifestPath);
+  if (versionedPackage === undefined) {
+    throw new Error(`${workspace.directory}/package.json cannot opt out of synchronized versions.`);
   }
+  const { manifest } = versionedPackage;
   for (const dependencyName of Object.keys(manifest.peerDependencies ?? {})) {
     if (!workspaceNames.has(dependencyName)) continue;
     manifest.peerDependencies[dependencyName] = peerRange;
@@ -90,8 +104,7 @@ for (const { manifest } of repository.workspaces) {
 
 const updates = [
   [paths.version, `${version}\n`],
-  [paths.rootPackage, `${JSON.stringify(rootPackage, null, 2)}\n`],
-  ...repository.workspaces.map(({ manifest, manifestPath }) => [
+  ...versionedPackages.map(({ manifest, manifestPath }) => [
     manifestPath,
     `${JSON.stringify(manifest, null, 2)}\n`,
   ]),
@@ -105,7 +118,7 @@ for (const [path] of updates) {
 }
 
 const verifiedRepository = loadWorkspaceRepository(root);
-const verifiedRoot = verifiedRepository.rootManifest;
+const verifiedPackages = loadVersionedPackageManifests(root);
 const expectedPeerRange = getWorkspacePeerRange(version);
 const verifiedWorkspaceNames = new Set(
   verifiedRepository.workspaces.map(({ name }) => name),
@@ -131,8 +144,11 @@ const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest })
 });
 const versionsMatch =
   readFileSync(paths.version, "utf8").trim() === version &&
-  verifiedRoot.version === version &&
-  verifiedRepository.workspaces.every(({ manifest }) => manifest.version === version) &&
+  verifiedPackages.every(
+    ({ manifest }) =>
+      manifest.version === version &&
+      (manifest.miaixzUiContract === undefined || manifest.miaixzUiContract.version === version),
+  ) &&
   internalVersionsMatch;
 
 if (!versionsMatch) {
@@ -141,9 +157,11 @@ if (!versionsMatch) {
 
 console.log(`Version: ${currentVersion || "<empty>"} -> ${version}`);
 console.log(
-  `Updated: VERSION, package.json, ${repository.workspaces
-    .map(({ directory }) => `${directory}/package.json`)
-    .join(", ")}`,
+  `Updated: VERSION, ${versionedPackages.map(({ relativePath }) => relativePath).join(", ")}`,
 );
 console.log(`Internal workspace peer range: ${expectedPeerRange}`);
 NODE
+
+# Regenerate every committed icon artifact whose embedded release metadata is
+# derived from VERSION. The generator reads VERSION directly.
+node "${root}/.github/scripts/modules/icons/codegen/generate-icons.mjs" --write

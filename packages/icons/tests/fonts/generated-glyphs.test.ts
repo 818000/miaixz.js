@@ -33,7 +33,7 @@ const generatorUrl = pathToFileURL(
   resolve(repositoryRoot, ".github/scripts/modules/icons/codegen/generate-glyphs.mjs"),
 ).href;
 const validatorUrl = pathToFileURL(
-  resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate.mjs"),
+  resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate-icon-font.mjs"),
 ).href;
 const { generateGlyphs } = (await import(generatorUrl)) as {
   generateGlyphs: (check: boolean) => Promise<void>;

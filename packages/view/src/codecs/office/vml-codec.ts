@@ -137,16 +137,44 @@ export function parseVmlDrawing(
   maxDepth = 128,
 ): DrawingScene {
   const document = parseXml(source, maxNodes, maxDepth);
+  return parseVmlElements(
+    allElements(document).filter((element) =>
+      ["arc", "curve", "line", "oval", "polyline", "rect", "roundrect", "shape"].includes(
+        element.localName,
+      ),
+    ),
+    id,
+    title,
+    sheetId,
+    sheetName,
+  );
+}
+
+/**
+ * Converts a preselected VML object list into a drawing scene.
+ *
+ * This entry point lets WordprocessingML choose one AlternateContent branch
+ * before VML decoding, preventing duplicate DrawingML and fallback objects.
+ *
+ * @param candidates - Visible VML objects in source order.
+ * @param id - Stable scene identifier.
+ * @param title - Safe scene title.
+ * @param sheetId - Optional owning worksheet identifier.
+ * @param sheetName - Optional owning worksheet name.
+ * @returns Legacy drawing scene.
+ */
+export function parseVmlElements(
+  candidates: readonly Element[],
+  id: string,
+  title: string,
+  sheetId?: string,
+  sheetName?: string,
+): DrawingScene {
   const shapes: DrawingShape[] = [];
   const nodes: DiagramNode[] = [];
   const edges: DiagramEdge[] = [];
   let width = 1;
   let height = 1;
-  const candidates = allElements(document).filter((element) =>
-    ["arc", "curve", "line", "oval", "polyline", "rect", "roundrect", "shape"].includes(
-      element.localName,
-    ),
-  );
   for (const [index, element] of candidates.entries()) {
     const style = styleMap(attribute(element, "style"));
     const from = pair(attribute(element, "from"));

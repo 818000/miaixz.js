@@ -28,6 +28,7 @@ import { relative, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(process.cwd(), "../..");
+const release = (await readFile(resolve(repositoryRoot, "VERSION"), "utf8")).trim();
 const fontScriptRoot = resolve(repositoryRoot, ".github/scripts/modules/icons/fonts");
 const workspaceDirectory = "packages/icons";
 
@@ -50,10 +51,14 @@ async function findPythonFiles(directory: string): Promise<string[]> {
 
 describe("G0 toolchain activation", () => {
   it("keeps the font orchestrator Node-only and exact", async () => {
-    expect((await readdir(fontScriptRoot)).sort()).toEqual([
-      "build.mjs",
-      "inspect.mjs",
-      "validate.mjs",
+    const entries = (await readdir(fontScriptRoot))
+      .filter((entry) => !entry.startsWith("."))
+      .sort();
+    expect(entries).toEqual([
+      "build-icon-font.mjs",
+      "font-toolchain.lock.txt",
+      "inspect-icon-font.mjs",
+      "validate-icon-font.mjs",
     ]);
     expect(await findPythonFiles(repositoryRoot)).toEqual([]);
   });
@@ -73,7 +78,7 @@ describe("G0 toolchain activation", () => {
       expect(workflow).toContain(declaration);
     }
     const requirements = await readFile(
-      resolve(repositoryRoot, ".github/scripts/modules/icons/requirements-font.txt"),
+      resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/font-toolchain.lock.txt"),
       "utf8",
     );
     for (const requirement of [
@@ -99,7 +104,7 @@ describe("G0 toolchain activation", () => {
     const manifest = JSON.parse(
       await readFile(resolve(repositoryRoot, workspaceDirectory, "package.json"), "utf8"),
     ) as { readonly name: string; readonly version: string };
-    expect(manifest).toMatchObject({ name: "@miaixz/icons", version: "0.6.5" });
+    expect(manifest).toMatchObject({ name: "@miaixz/icons", version: release });
   });
 
   it("keeps visual validation automatic, read-only, and free of Git writes", async () => {

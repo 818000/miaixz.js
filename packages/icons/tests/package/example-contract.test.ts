@@ -19,53 +19,33 @@
 */
 
 /**
- * Freezes the directly openable static icons example.
+ * Freezes the icons module inside the unified examples application.
  */
 
-import { readFile, stat } from "node:fs/promises";
-import { resolve } from "node:path";
+import { readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const repositoryRoot = resolve(process.cwd(), "../..");
-const exampleRoot = resolve(repositoryRoot, "examples/icons");
+const testRoot = dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = resolve(testRoot, "../../../..");
+const exampleRoot = resolve(repositoryRoot, "examples/src/module/icons");
 
-describe("icons static example contract", () => {
-  it("uses only classic local assets", async () => {
-    const html = await readFile(resolve(exampleRoot, "index.html"), "utf8");
-    expect(html).toContain('<script defer src="./assets/icons.js"></script>');
-    expect(html).toContain('<link rel="stylesheet" href="./assets/icons.css" />');
-    expect(html).not.toContain('type="module"');
-    expect(html).not.toMatch(/(?:src|href)=["']https?:\/\//u);
-  });
-
-  it("ships one complete local variable font", async () => {
-    const font = await stat(resolve(exampleRoot, "assets/miaixz-icons.woff2"));
-    const css = await readFile(resolve(exampleRoot, "assets/icons.css"), "utf8");
-    expect(font.size).toBeGreaterThan(20_000);
-    expect(font.size).toBeLessThan(100_000);
-    expect(css).toContain('url("./miaixz-icons.woff2")');
-    expect(css).toContain('"FILL" var(--demo-fill)');
-    expect(css).toContain('"opsz" var(--demo-opsz)');
-  });
-
+describe("icons example module", () => {
   it("covers catalog, axes, inspection, accessibility, and failure status", async () => {
-    const html = await readFile(resolve(exampleRoot, "index.html"), "utf8");
-    const javascript = await readFile(resolve(exampleRoot, "assets/icons.js"), "utf8");
+    const source = await readFile(resolve(exampleRoot, "icons-guide.tsx"), "utf8");
     for (const token of [
-      "完整图标目录",
-      "实时轴控制",
-      "调用检查器",
-      "尺寸、方向与可访问性",
-      "[miaixz] Unable to load the icon font.",
       "ICON_CATALOG",
-      "resolveMiaixzIcon",
-      "visibleLimit += 160",
+      "Icon",
+      "fill",
+      "opsz",
+      "semanticSizes",
+      "accessibility",
+      "direction",
     ]) {
-      expect(`${html}\n${javascript}`).toContain(token);
+      expect(source).toContain(token);
     }
-    expect(`${html}\n${javascript}`).not.toMatch(
-      /IconProvider|icons-(?:lucide|phosphor|fontawesome|iconify)/u,
-    );
+    expect(source).not.toMatch(/IconProvider|icons-(?:lucide|phosphor|fontawesome|iconify)/u);
   });
 });
