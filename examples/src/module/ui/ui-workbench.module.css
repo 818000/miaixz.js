@@ -1,0 +1,99 @@
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1.2fr;
+  gap: 2rem;
+}
+
+.formGrid,
+.dataGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1rem;
+}
+
+.formDemo,
+.feedbackDemo,
+.chartPanel {
+  padding: 1.35rem;
+  border: 1px solid var(--miaixz-color-border, #cdcdcd);
+  border-radius: 0.8rem;
+  background: var(--miaixz-color-surface, #fff);
+}
+
+.formDemo {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.formDemo > label,
+.chartPanel > span {
+  color: var(--miaixz-color-text-secondary, #565656);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.formDemo > label:not(:first-child) {
+  margin-top: 0.55rem;
+}
+
+.feedbackDemo {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.statusRow,
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.chartPanel {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  min-width: 0;
+  min-height: 18rem;
+}
+
+.chartPanel svg {
+  max-width: 100%;
+}
+
+.paginationDemo {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-left: 3px solid var(--miaixz-color-brand, #62b52f);
+  background: var(--miaixz-color-brand-soft, #e8f4e1);
+}
+
+.actionRow {
+  margin-bottom: 1rem;
+}
+
+.catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.55rem;
+}
+
+.catalog code {
+  overflow: hidden;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--miaixz-color-border, #cdcdcd);
+  border-radius: 0.55rem;
+  color: var(--miaixz-color-text-secondary, #565656);
+  background: var(--miaixz-color-surface, #fff);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 760px) {
+  .stats,
+  .formGrid,
+  .dataGrid {
+    grid-template-columns: 1fr;
+  }
+}

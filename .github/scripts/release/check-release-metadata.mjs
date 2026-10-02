@@ -22,35 +22,34 @@
  * Validates release metadata before package publication.
  */
 
-import { readFileSync } from "node:fs";
-import { join, relative } from "node:path";
-import { getWorkspacePeerRange, loadWorkspaceRepository } from "../miaixz.mjs";
+import {
+  getWorkspacePeerRange,
+  loadVersionedPackageManifests,
+  loadWorkspaceRepository,
+  readRepositoryVersion,
+} from "../miaixz.mjs";
 
-const requestedVersion = process.argv[2]?.trim();
-const repository = loadWorkspaceRepository();
-const version = readFileSync(join(repository.root, "VERSION"), "utf8").trim();
-if (requestedVersion && requestedVersion !== version) {
-  throw new Error(`Requested version '${requestedVersion}' does not match VERSION '${version}'.`);
+if (process.argv.length !== 2) {
+  throw new Error("check-release-metadata.mjs accepts no version argument; it reads VERSION.");
 }
+const repository = loadWorkspaceRepository();
+const version = readRepositoryVersion(repository.root);
 
-const manifests = [
-  ["package.json", repository.rootManifest],
-  ...repository.workspaces.map(({ manifest, manifestPath }) => [
-    relative(repository.root, manifestPath),
-    manifest,
-  ]),
-];
+const manifests = loadVersionedPackageManifests(repository.root);
+const versionedManifestPaths = new Set(manifests.map(({ manifestPath }) => manifestPath));
 
 if (repository.rootManifest.name !== "miaixz.js") {
   throw new Error("The root package must be named 'miaixz.js'.");
 }
-for (const [path, manifest] of manifests) {
+for (const { manifest, relativePath } of manifests) {
   if (manifest.version !== version) {
-    throw new Error(`${path} version '${manifest.version ?? ""}' does not match '${version}'.`);
+    throw new Error(
+      `${relativePath} version '${manifest.version ?? ""}' does not match '${version}'.`,
+    );
   }
   if (manifest.miaixzUiContract !== undefined && manifest.miaixzUiContract?.version !== version) {
     throw new Error(
-      `${path} miaixzUiContract version '${manifest.miaixzUiContract?.version ?? ""}' does not match '${version}'.`,
+      `${relativePath} miaixzUiContract version '${manifest.miaixzUiContract?.version ?? ""}' does not match '${version}'.`,
     );
   }
 }
@@ -61,7 +60,10 @@ if (repository.rootManifest.private !== true) {
 
 const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
 const expectedPeerRange = getWorkspacePeerRange(version);
-for (const { directory, manifest } of repository.workspaces) {
+for (const { directory, manifest, manifestPath } of repository.workspaces) {
+  if (!versionedManifestPaths.has(manifestPath)) {
+    throw new Error(`${directory}/package.json cannot opt out of synchronized versions.`);
+  }
   for (const dependencyName of Object.keys(manifest.peerDependencies ?? {})) {
     if (!workspaceNames.has(dependencyName)) continue;
     if (manifest.peerDependencies[dependencyName] !== expectedPeerRange) {
@@ -98,5 +100,5 @@ for (const { directory, manifest } of repository.publicWorkspaces) {
 }
 
 console.log(
-  `Release metadata is valid for ${version} across ${repository.workspaces.length} workspaces.`,
+  `Release metadata is valid for ${version} across ${manifests.length} manifests and ${repository.workspaces.length} workspaces.`,
 );

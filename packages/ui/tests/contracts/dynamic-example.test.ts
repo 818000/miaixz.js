@@ -32,12 +32,13 @@ const testRoot = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(testRoot, "../..");
 const repositoryRoot = resolve(packageRoot, "../..");
 const exampleRoot = resolve(repositoryRoot, "examples");
+const release = (await readFile(resolve(repositoryRoot, "VERSION"), "utf8")).trim();
 
 describe("UI dynamic example", () => {
   it("runs as a private Next application against local Miaixz packages", async () => {
     const manifest = JSON.parse(await readFile(resolve(exampleRoot, "package.json"), "utf8"));
     expect(manifest.private).toBe(true);
-    expect(manifest.version).toBe("0.6.5");
+    expect(manifest.version).toBe(release);
     expect(manifest.scripts).toMatchObject({
       build: "next build",
       dev: "next dev -p 3000",

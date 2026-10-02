@@ -28,6 +28,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const packageDirectory = resolve(import.meta.dirname, "../..");
+const repositoryVersion = readFileSync(resolve(packageDirectory, "../../VERSION"), "utf8").trim();
 
 describe("core license artifacts", () => {
   it("ships an Apache-only notice and deterministic SPDX document", () => {
@@ -40,7 +41,7 @@ describe("core license artifacts", () => {
     expect(notice).not.toMatch(/Lucide|Font Awesome|Phosphor|Iconify/u);
     expect(sbom.spdxVersion).toBe("SPDX-2.3");
     expect(sbom.packages).toEqual([
-      expect.objectContaining({ name: "@miaixz/icons", versionInfo: "0.6.5" }),
+      expect.objectContaining({ name: "@miaixz/icons", versionInfo: repositoryVersion }),
     ]);
   });
 });

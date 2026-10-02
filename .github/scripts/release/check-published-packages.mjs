@@ -22,15 +22,17 @@
  * Checks published package metadata against the expected release contract.
  */
 
-import { assertReleaseVersion, loadWorkspaceRepository } from "../miaixz.mjs";
-import { readPackageVisibility } from "./npm-registry.mjs";
+import { loadWorkspaceRepository, readRepositoryVersion } from "../miaixz.mjs";
+import { readPackageVisibility } from "./npm-registry-client.mjs";
 
-const version = process.argv[2]?.trim();
-const registry = process.argv[3]?.trim() || "https://registry.npmjs.org/";
-if (!version) throw new Error("Usage: check-published-packages.mjs <version> [registry].");
-assertReleaseVersion(version);
+if (process.argv.length > 3) {
+  throw new Error("Usage: check-published-packages.mjs [registry].");
+}
+const registry = process.argv[2]?.trim() || "https://registry.npmjs.org/";
+const repository = loadWorkspaceRepository();
+const version = readRepositoryVersion(repository.root);
 
-const { publicWorkspaces } = loadWorkspaceRepository();
+const { publicWorkspaces } = repository;
 const visibility = await readPackageVisibility(publicWorkspaces, version, registry);
 const missingPackages = publicWorkspaces
   .filter(({ name }) => !visibility.get(name))

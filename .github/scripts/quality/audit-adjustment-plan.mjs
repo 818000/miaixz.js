@@ -282,7 +282,7 @@ function hasExportSource(directory, workspaceRoot, target) {
     return (
       existsSync(resolve(workspaceRoot, "src/assets/fonts/miaixz-icons.designspace")) &&
       existsSync(resolve(workspaceRoot, "src/assets/fonts/codepoints.json")) &&
-      existsSync(resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/build.mjs"))
+      existsSync(resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/build-icon-font.mjs"))
     );
   }
   const relativeTarget = target.slice("./dist/".length);
@@ -420,7 +420,11 @@ function auditReadmeCompileBlocks(sources, findings) {
         } catch (error) {
           const diagnostics =
             error !== null && typeof error === "object" && "stdout" in error
-              ? String(error.stdout).trim().split("\n").slice(0, 3).join(" ")
+              ? `${String(error.stdout)}\n${"stderr" in error ? String(error.stderr) : ""}`
+                  .trim()
+                  .split("\n")
+                  .slice(0, 6)
+                  .join(" ")
               : "";
           findings.push(
             `${readmePath} compile block ${blockIndex + 1} does not type-check${

@@ -23,7 +23,7 @@
  */
 
 import { defineConfig } from "vitest/config";
-import { themePresetPlugin } from "../../.github/scripts/modules/ui/codegen/theme-preset-vite.mjs";
+import { themePresetPlugin } from "../../.github/scripts/modules/ui/codegen/vite-theme-plugin.mjs";
 
 /**
  * Defines the jsdom unit-test environment for the UI package.

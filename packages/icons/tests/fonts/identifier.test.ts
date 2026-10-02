@@ -22,15 +22,18 @@
  * Verifies deterministic public identifier safety before code generation.
  */
 
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(process.cwd(), "../..");
-const moduleUrl = pathToFileURL(
-  resolve(repositoryRoot, ".github/scripts/modules/icons/codegen/generate-icons.mjs"),
-).href;
+const codegenPath = resolve(
+  repositoryRoot,
+  ".github/scripts/modules/icons/codegen/generate-icons.mjs",
+);
+const moduleUrl = pathToFileURL(codegenPath).href;
 const { toIconIdentifier, validateIconIdentifiers, validateTypeScriptIdentifier } = (await import(
   moduleUrl
 )) as {
@@ -40,6 +43,20 @@ const { toIconIdentifier, validateIconIdentifiers, validateTypeScriptIdentifier 
 };
 
 describe("generated icon identifiers", () => {
+  it("keeps the historical-name source independent from release versions", async () => {
+    const source = await readFile(codegenPath, "utf8");
+    const historicalNames = JSON.parse(
+      await readFile(
+        resolve(repositoryRoot, "packages/icons/src/assets/historical-icon-names.json"),
+        "utf8",
+      ),
+    ) as readonly string[];
+
+    expect(source).toContain('resolve(assetsRoot, "historical-icon-names.json")');
+    expect(source).not.toMatch(/historical-icon-names-\d+\.\d+\.\d+/u);
+    expect(new Set(historicalNames).size).toBe(1780);
+  });
+
   it("uses a keyword-safe suffix for canonical names", () => {
     expect(toIconIdentifier("delete")).toBe("DeleteIcon");
     expect(toIconIdentifier("class")).toBe("ClassIcon");

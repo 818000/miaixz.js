@@ -1,6 +1,6 @@
 # @miaixz/icons
 
-Miaixz 的独立 Web 图标系统，包含 1024 个原创可变字体图标、React `Icon`、语义尺寸、连续 FILL/opsz 动画和无障碍行为。版本固定为 0.6.5。
+Miaixz 的独立 Web 图标系统，包含 1024 个原创可变字体图标、React `Icon`、语义尺寸、连续 FILL/opsz 动画和无障碍行为。发布版本统一由仓库根目录的 `VERSION` 文件定义。
 
 ## 安装
 

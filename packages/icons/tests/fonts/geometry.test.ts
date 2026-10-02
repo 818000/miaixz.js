@@ -30,7 +30,7 @@ import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(process.cwd(), "../..");
 const moduleUrl = pathToFileURL(
-  resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate.mjs"),
+  resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate-icon-font.mjs"),
 ).href;
 const { validateInterpolatedGlyphGeometry } = (await import(moduleUrl)) as {
   validateInterpolatedGlyphGeometry: (

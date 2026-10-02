@@ -49,8 +49,8 @@
     "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2"
   },
   "scripts": {
-    "clean": "node ../../.github/scripts/modules/icons/lib/clean-package.mjs",
-    "build": "npm run clean && tsc -p tsconfig.build.json && node ../../.github/scripts/modules/icons/lib/finalize-package.mjs",
+    "clean": "node ../../.github/scripts/modules/icons/hooks/prepare-build.mjs",
+    "build": "npm run clean && tsc -p tsconfig.build.json && node ../../.github/scripts/modules/icons/hooks/finalize-build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src tests *.config.ts --config ../ui/eslint.config.js --no-error-on-unmatched-pattern && stylelint \"src/**/*.css\" --config ../ui/stylelint.config.js",
     "test": "vitest run",

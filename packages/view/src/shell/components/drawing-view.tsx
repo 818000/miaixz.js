@@ -74,9 +74,13 @@ function horizontalText(shape: DrawingShape): {
   readonly x: number;
   readonly anchor: "end" | "middle" | "start";
 } {
-  if (shape.textStyle?.align === "center") return { x: shape.width / 2, anchor: "middle" };
-  if (shape.textStyle?.align === "end") return { x: shape.width - 4, anchor: "end" };
-  return { x: 4, anchor: "start" };
+  if (shape.textStyle?.align === "center") {
+    return { x: shape.x + shape.width / 2, anchor: "middle" };
+  }
+  if (shape.textStyle?.align === "end") {
+    return { x: shape.x + shape.width - 4, anchor: "end" };
+  }
+  return { x: shape.x + 4, anchor: "start" };
 }
 
 /**
@@ -90,15 +94,15 @@ function verticalText(shape: DrawingShape, lineCount: number): number {
   const fontSize = shape.textStyle?.fontSize ?? 12;
   const lineHeight = fontSize * 1.2;
   if (shape.textStyle?.verticalAlign === "bottom") {
-    return Math.max(fontSize, shape.height - 4 - lineHeight * (lineCount - 1));
+    return shape.y + Math.max(fontSize, shape.height - 4 - lineHeight * (lineCount - 1));
   }
   if (shape.textStyle?.verticalAlign === "center") {
-    return Math.max(
-      fontSize,
-      shape.height / 2 - (lineHeight * (lineCount - 1)) / 2 + fontSize * 0.35,
+    return (
+      shape.y +
+      Math.max(fontSize, shape.height / 2 - (lineHeight * (lineCount - 1)) / 2 + fontSize * 0.35)
     );
   }
-  return fontSize + 4;
+  return shape.y + fontSize + 4;
 }
 
 /**
@@ -154,8 +158,12 @@ function ShapeElement({
   readonly startMarkerId: string;
   readonly endMarkerId: string;
 }): React.ReactElement {
+  const fillId = `${startMarkerId}-${shape.id.replaceAll(/[^a-z\d_-]/giu, "-")}-fill`;
+  const radians = (((shape.fillGradient?.angle ?? 0) - 90) * Math.PI) / 180;
+  const gradientX = Math.cos(radians) * 50;
+  const gradientY = Math.sin(radians) * 50;
   const common = {
-    fill: shape.fill ?? "none",
+    fill: shape.fillGradient === undefined ? (shape.fill ?? "none") : `url(#${fillId})`,
     stroke: shape.stroke ?? "currentColor",
     strokeDasharray: shape.strokeDasharray,
     strokeWidth: shape.strokeWidth ?? 1,
@@ -177,7 +185,26 @@ function ShapeElement({
   const cropId = `${startMarkerId}-${shape.id.replaceAll(/[^a-z\d_-]/giu, "-")}-crop`;
   return (
     <g data-drawing-id={shape.id} transform={shapeTransform(shape)}>
-      {shape.kind === "ellipse" ? (
+      {shape.fillGradient === undefined ? null : (
+        <defs>
+          <linearGradient
+            id={fillId}
+            x1={`${50 - gradientX}%`}
+            x2={`${50 + gradientX}%`}
+            y1={`${50 - gradientY}%`}
+            y2={`${50 + gradientY}%`}
+          >
+            {shape.fillGradient.stops.map((stop, index) => (
+              <stop
+                key={`${fillId}-${index}`}
+                offset={`${stop.offset * 100}%`}
+                stopColor={stop.color}
+              />
+            ))}
+          </linearGradient>
+        </defs>
+      )}
+      {shape.kind === "text" ? null : shape.kind === "ellipse" ? (
         <ellipse
           {...common}
           cx={shape.x + shape.width / 2}
@@ -315,6 +342,16 @@ export function DrawingView({
           <path d="M0 0 L6 3 L0 6 Z" fill="context-stroke" />
         </marker>
       </defs>
+      {scene.background === undefined ? null : (
+        <rect
+          data-scene-background="true"
+          fill={scene.background}
+          height={coordinateHeight}
+          width={coordinateWidth}
+          x="0"
+          y="0"
+        />
+      )}
       {scene.shapes.map((shape) => (
         <ShapeElement
           endMarkerId={endMarkerId}

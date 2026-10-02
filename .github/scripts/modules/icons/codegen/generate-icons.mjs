@@ -30,13 +30,15 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { format } from "prettier";
 
+import { readRepositoryVersion } from "../../../miaixz.mjs";
+
 const moduleRoot = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(moduleRoot, "../../../../../");
 const packageRoot = resolve(repositoryRoot, "packages/icons");
 const assetsRoot = resolve(packageRoot, "src/assets");
 const fontsRoot = resolve(assetsRoot, "fonts");
 const generatedRoot = resolve(packageRoot, "src/autogen");
-const release = "0.6.5";
+const release = readRepositoryVersion(repositoryRoot);
 const glyphPrefix = "miaixz.";
 const coreNames = Object.freeze(
   `add archive arrow-down arrow-left arrow-right arrow-up ban bell calendar-days chevron-down chevron-left chevron-right chevron-up circle-alert circle-check circle-minus circle-plus circle-x clock close confirm copy delete download external-link eye eye-off file folder funnel help home info key-round layout-grid link loading lock lock-open log-in log-out mail map-pin maximize menu more-horizontal palette pencil refresh-cw rocket rotate-ccw save search send settings shield-check shield-x snowflake star star-half upload user-plus user-round warning`.split(
@@ -294,6 +296,55 @@ function plistDocument(value) {
 }
 
 /**
+ * Creates versioned UFO metadata from the repository VERSION value.
+ *
+ * @param {Readonly<(typeof fontMasters)[number]>} master - Font master identity.
+ * @returns {Readonly<Record<string, unknown>>} Deterministic fontinfo property list.
+ */
+function fontInfoFor(master) {
+  const [versionCore] = release.split("-");
+  const [versionMajor, versionMinorPart, versionPatch] = versionCore.split(".").map(Number);
+  const versionMinor = versionMinorPart * 100 + versionPatch;
+  if (versionMinor > 65_535) {
+    throw new Error(`VERSION ${release} cannot be represented in OpenType font metadata.`);
+  }
+  return Object.freeze({
+    familyName: master.family,
+    styleName: master.style,
+    styleMapFamilyName: master.family,
+    styleMapStyleName: "regular",
+    openTypeNamePreferredFamilyName: master.family,
+    openTypeNamePreferredSubfamilyName: master.style,
+    postscriptFontName: master.postscript,
+    unitsPerEm: 960,
+    ascender: 800,
+    descender: -160,
+    xHeight: 480,
+    capHeight: 640,
+    openTypeHheaAscender: 800,
+    openTypeHheaDescender: -160,
+    openTypeHheaLineGap: 0,
+    openTypeOS2TypoAscender: 800,
+    openTypeOS2TypoDescender: -160,
+    openTypeOS2TypoLineGap: 0,
+    openTypeOS2WinAscent: 800,
+    openTypeOS2WinDescent: 160,
+    openTypeOS2WeightClass: 400,
+    openTypeOS2WidthClass: 5,
+    openTypeOS2Panose: [5, 0, 0, 9, 0, 0, 0, 0, 0, 0],
+    postscriptIsFixedPitch: true,
+    openTypeNameVersion: `Version ${versionMajor}.${String(versionMinor).padStart(3, "0")}`,
+    openTypeNameUniqueID: `${master.postscript};${release}`,
+    openTypeNameDescription: "Miaixz variable UI icon font source master.",
+    openTypeNameLicense: "Licensed under the Apache License, Version 2.0.",
+    openTypeNameLicenseURL: "https://www.apache.org/licenses/LICENSE-2.0",
+    copyright: "Copyright (c) 2015-2026 miaixz.org and other contributors.",
+    versionMajor,
+    versionMinor,
+  });
+}
+
+/**
  * Creates one empty canonical glyph ready for reviewed outline work.
  *
  * @param {{name: string, codepoint: number, glyphName: string}} icon - Ledger row.
@@ -366,43 +417,7 @@ async function bootstrapUfos() {
         "public.glyphOrder": [".notdef", ...codepointFile.icons.map(({ glyphName }) => glyphName)],
       }),
     );
-    await writeFile(
-      resolve(masterRoot, "fontinfo.plist"),
-      plistDocument({
-        familyName: master.family,
-        styleName: master.style,
-        styleMapFamilyName: master.family,
-        styleMapStyleName: "regular",
-        openTypeNamePreferredFamilyName: master.family,
-        openTypeNamePreferredSubfamilyName: master.style,
-        postscriptFontName: master.postscript,
-        unitsPerEm: 960,
-        ascender: 800,
-        descender: -160,
-        xHeight: 480,
-        capHeight: 640,
-        openTypeHheaAscender: 800,
-        openTypeHheaDescender: -160,
-        openTypeHheaLineGap: 0,
-        openTypeOS2TypoAscender: 800,
-        openTypeOS2TypoDescender: -160,
-        openTypeOS2TypoLineGap: 0,
-        openTypeOS2WinAscent: 800,
-        openTypeOS2WinDescent: 160,
-        openTypeOS2WeightClass: 400,
-        openTypeOS2WidthClass: 5,
-        openTypeOS2Panose: [5, 0, 0, 9, 0, 0, 0, 0, 0, 0],
-        postscriptIsFixedPitch: true,
-        openTypeNameVersion: "Version 0.605",
-        openTypeNameUniqueID: `${master.postscript};0.6.5`,
-        openTypeNameDescription: "Miaixz variable UI icon font source master.",
-        openTypeNameLicense: "Licensed under the Apache License, Version 2.0.",
-        openTypeNameLicenseURL: "https://www.apache.org/licenses/LICENSE-2.0",
-        copyright: "Copyright (c) 2015-2026 miaixz.org and other contributors.",
-        versionMajor: 0,
-        versionMinor: 605,
-      }),
-    );
+    await writeFile(resolve(masterRoot, "fontinfo.plist"), plistDocument(fontInfoFor(master)));
     await Promise.all(
       codepointFile.icons.map((icon) =>
         writeFile(resolve(glyphRoot, `${icon.glyphName}.glif`), emptyGlif(icon)),
@@ -675,19 +690,50 @@ async function synchronizeGeneratedAssets(check) {
       },
     };
   });
-  const nextBriefFile = { ...currentBriefFile, briefs };
+  const nextBriefFile = { ...currentBriefFile, release, briefs };
   if (JSON.stringify(currentBriefFile) !== JSON.stringify(nextBriefFile)) {
     if (check) throw new Error("Generated design-brief review evidence is stale.");
     await writeFormattedJson(briefPath, nextBriefFile);
   }
   const releasePlanPath = resolve(assetsRoot, "release-plan.json");
   const releasePlan = await readJson(releasePlanPath);
-  if (releasePlan.state !== "design") {
+  if (releasePlan.release !== release || releasePlan.state !== "design") {
     if (check) throw new Error("Release plan has not entered automated design state.");
     await writeFormattedJson(releasePlanPath, {
       ...releasePlan,
+      release,
       state: "design",
     });
+  }
+  const catalogPath = resolve(assetsRoot, "catalog.json");
+  const catalog = await readJson(catalogPath);
+  if (catalog.release !== release) {
+    if (check) throw new Error("Generated icon catalog release is stale.");
+    await writeFormattedJson(catalogPath, { ...catalog, release });
+  }
+  const usagePath = resolve(packageRoot, "tests/fixtures/ui-icon-usage.json");
+  const usage = await readJson(usagePath);
+  if (usage.release !== release) {
+    if (check) throw new Error("Generated icon usage fixture release is stale.");
+    await writeFormattedJson(usagePath, { ...usage, release });
+  }
+  const sbomPath = resolve(packageRoot, "SBOM.spdx.json");
+  const sbom = await readJson(sbomPath);
+  const nextSbom = {
+    ...sbom,
+    name: `@miaixz/icons-${release}`,
+    documentNamespace: `https://miaixz.org/spdx/icons/${release}`,
+    creationInfo: {
+      ...sbom.creationInfo,
+      creators: [`Tool: miaixz-icons-build-${release}`],
+    },
+    packages: sbom.packages.map((entry) =>
+      entry.name === "@miaixz/icons" ? { ...entry, versionInfo: release } : entry,
+    ),
+  };
+  if (JSON.stringify(sbom) !== JSON.stringify(nextSbom)) {
+    if (check) throw new Error("Generated icon SBOM release is stale.");
+    await writeFormattedJson(sbomPath, nextSbom);
   }
 }
 
@@ -714,7 +760,8 @@ async function synchronizeUfoManifests(check) {
     ...codepointFile.icons.map(({ glyphName }) => `${glyphName}.glif`),
   ]);
 
-  for (const { directory } of fontMasters) {
+  for (const master of fontMasters) {
+    const { directory } = master;
     const masterRoot = resolve(fontsRoot, directory);
     const glyphRoot = resolve(masterRoot, "glyphs");
     const staleGlyphs = (await readdir(glyphRoot)).filter(
@@ -728,6 +775,7 @@ async function synchronizeUfoManifests(check) {
     for (const [path, source] of [
       [resolve(glyphRoot, "contents.plist"), contents],
       [resolve(masterRoot, "lib.plist"), library],
+      [resolve(masterRoot, "fontinfo.plist"), plistDocument(fontInfoFor(master))],
     ]) {
       const current = await readFile(path, "utf8");
       if (current === source) continue;
@@ -747,7 +795,7 @@ function schemas() {
   return Object.freeze({
     "catalog.schema.json": {
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: "https://miaixz.org/schema/icons/catalog-0.6.5.json",
+      $id: `https://miaixz.org/schema/icons/catalog-${release}.json`,
       type: "object",
       additionalProperties: false,
       required: ["schemaVersion", "release", "icons"],
@@ -775,7 +823,7 @@ function schemas() {
     },
     "design-briefs.schema.json": {
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: "https://miaixz.org/schema/icons/design-briefs-0.6.5.json",
+      $id: `https://miaixz.org/schema/icons/design-briefs-${release}.json`,
       type: "object",
       additionalProperties: false,
       required: ["schemaVersion", "release", "briefs"],
@@ -844,7 +892,7 @@ function schemas() {
     },
     "release-plan.schema.json": {
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: "https://miaixz.org/schema/icons/release-plan-0.6.5.json",
+      $id: `https://miaixz.org/schema/icons/release-plan-${release}.json`,
       type: "object",
       additionalProperties: false,
       required: [
@@ -914,9 +962,7 @@ async function bootstrapAssets() {
       `Icon assets are already frozen; bootstrap refuses to overwrite: ${existing.join(", ")}.`,
     );
   }
-  const historicalNames = await readJson(
-    resolve(packageRoot, "tests/fixtures/icon-names-0.6.5.json"),
-  );
+  const historicalNames = await readJson(resolve(assetsRoot, "historical-icon-names.json"));
   const uniqueHistorical = [...new Set(historicalNames)].sort(compareUtf8);
   if (uniqueHistorical.length !== 1780) {
     throw new Error(`Expected 1780 historical names; received ${uniqueHistorical.length}.`);

@@ -76,13 +76,18 @@ jobs:
             echo "::error::Checked-out HEAD does not equal the peeled tag commit"
             exit 1
           fi
-          node .github/scripts/release/check-release-metadata.mjs "$TAG"
-          if [[ "$TAG" == *-* ]]; then
+          release_version="$(tr -d '\r\n' < VERSION)"
+          if [ "$TAG" != "$release_version" ]; then
+            echo "::error::Release tag '${TAG}' does not match VERSION '${release_version}'"
+            exit 1
+          fi
+          node .github/scripts/release/check-release-metadata.mjs
+          if [[ "$release_version" == *-* ]]; then
             is_prerelease=true
           else
             is_prerelease=false
           fi
-          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$release_version" >> "$GITHUB_OUTPUT"
           echo "is-prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
           npm run check:clean
 
@@ -95,7 +100,6 @@ jobs:
       - name: Publish All Packages to npm
         uses: ./.github/actions/npm-registry
         with:
-          version: ${{ steps.release.outputs.version }}
           registry: ${{ env.NPM_REGISTRY }}
           package-directory: ${{ runner.temp }}/packages
         env:
@@ -110,5 +114,4 @@ jobs:
     uses: ./.github/workflows/create-release.yml
     with:
       tag: ${{ needs.publish.outputs.version }}
-      version: ${{ needs.publish.outputs.version }}
       prerelease: ${{ needs.publish.outputs.is-prerelease == 'true' }}

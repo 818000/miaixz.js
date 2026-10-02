@@ -27,6 +27,7 @@ import type {
   DiagramNode,
   DiagramWarning,
   DrawingFeatures,
+  DrawingGradientFill,
   DrawingScene,
   DrawingShape,
   DrawingTextStyle,
@@ -35,6 +36,7 @@ import type {
   SpreadsheetSheetLayout,
 } from "../../shared/contracts/document.js";
 import {
+  allElements,
   firstElementByLocalName as first,
   localAttribute as attribute,
   textFromElements as textContent,
@@ -70,6 +72,18 @@ export interface OfficeDrawingOptions {
   readonly images?: ReadonlyMap<string, OfficeDrawingImage>;
   readonly diagrams?: ReadonlyMap<string, DrawingScene>;
   readonly layout?: SpreadsheetSheetLayout;
+  readonly canvas?: {
+    readonly width: number;
+    readonly height: number;
+    readonly background?: string;
+  };
+  readonly hostPlacement?: {
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+  };
+  readonly useHostPlacementForConnectors?: boolean;
 }
 
 /**
@@ -150,6 +164,25 @@ function child(parent: Element, localName: string): Element | undefined {
  */
 function children(parent: Element, localNames: readonly string[]): Element[] {
   return [...parent.children].filter((element) => localNames.includes(element.localName));
+}
+
+const drawingObjectNames = new Set(["sp", "cxnSp", "grpSp", "pic", "graphicFrame", "wsp", "wgp"]);
+
+/**
+ * Finds top-level drawing objects beneath namespace-specific wrapper elements.
+ *
+ * @param root - Shape tree, Word anchor, or graphic-data wrapper.
+ * @returns Drawing objects in source order.
+ */
+function drawingObjects(root: Element): Element[] {
+  if (drawingObjectNames.has(root.localName)) return [root];
+  if (root.localName === "graphicData" && first(root, "relIds") !== undefined) return [root];
+  const result: Element[] = [];
+  for (const element of root.children) {
+    if (drawingObjectNames.has(element.localName)) result.push(element);
+    else result.push(...drawingObjects(element));
+  }
+  return result;
 }
 
 /**
@@ -595,6 +628,31 @@ function shapeFill(
 }
 
 /**
+ * Resolves one DrawingML linear gradient into SVG-ready stops.
+ *
+ * @param properties - Shape properties containing an optional gradient fill.
+ * @param theme - Active Office theme.
+ * @returns Normalized gradient when at least two stops are declared.
+ */
+function shapeGradient(properties: Element, theme: OfficeTheme): DrawingGradientFill | undefined {
+  const gradient = child(properties, "gradFill");
+  if (gradient === undefined) return undefined;
+  const stops = allElements(gradient)
+    .filter((element) => element.localName === "gs")
+    .map((stop) => ({
+      offset: Math.min(1, Math.max(0, finite(attribute(stop, "pos")) / 100_000)),
+      color: resolveOfficeColor(stop, theme, "#FFFFFF"),
+    }))
+    .sort((left, right) => left.offset - right.offset);
+  if (stops.length < 2) return undefined;
+  const line = first(gradient, "lin");
+  return {
+    angle: finite(attribute(line ?? gradient, "ang")) / 60_000,
+    stops,
+  };
+}
+
+/**
  * Resolves the visible outline for one shape.
  *
  * @param properties - Shape properties containing a line declaration.
@@ -625,9 +683,9 @@ function shapeText(
   shape: Element,
   theme: OfficeTheme,
 ): { readonly text?: string; readonly textStyle?: DrawingTextStyle } {
-  const body = child(shape, "txBody");
+  const body = child(shape, "txBody") ?? child(shape, "txbx");
   if (body === undefined) return {};
-  const paragraphs = children(body, ["p"]);
+  const paragraphs = allElements(body).filter((element) => element.localName === "p");
   const text = paragraphs
     .map((paragraph) => textContent(paragraph).trim())
     .join("\n")
@@ -635,18 +693,52 @@ function shapeText(
   if (text === "") return {};
   const runProperties = first(body, "rPr") ?? first(body, "endParaRPr");
   const paragraphProperties = first(body, "pPr");
-  const bodyProperties = child(body, "bodyPr");
-  const alignment = attribute(paragraphProperties ?? body, "algn");
+  const bodyProperties = child(body, "bodyPr") ?? child(shape, "bodyPr");
+  const wordJustification = first(paragraphProperties ?? body, "jc");
+  const alignment =
+    attribute(paragraphProperties ?? body, "algn") ??
+    attribute(wordJustification ?? paragraphProperties ?? body, "val");
   const anchor = attribute(bodyProperties ?? body, "anchor");
-  const font = first(runProperties ?? body, "ea") ?? first(runProperties ?? body, "latin");
+  const wordFonts = first(runProperties ?? body, "rFonts");
+  const font =
+    first(runProperties ?? body, "ea") ?? first(runProperties ?? body, "latin") ?? wordFonts;
+  const wordColor = first(runProperties ?? body, "color");
+  const rawWordColor = attribute(wordColor ?? body, "val");
+  const wordSize = first(runProperties ?? body, "sz");
+  const wordBold = first(runProperties ?? body, "b");
+  const wordItalic = first(runProperties ?? body, "i");
+  const wordUnderline = first(runProperties ?? body, "u");
+  const enabled = (element: Element | undefined): boolean => {
+    if (element === undefined) return false;
+    return !["0", "false", "none", "off"].includes(attribute(element, "val") ?? "1");
+  };
+  const fontSize =
+    wordSize === undefined
+      ? Math.max(8, (finite(attribute(runProperties ?? body, "sz"), 900) / 100) * (4 / 3))
+      : Math.max(8, (finite(attribute(wordSize, "val"), 18) / 2) * (4 / 3));
   const textStyle: DrawingTextStyle = {
-    align: alignment === "ctr" ? "center" : alignment === "r" ? "end" : "start",
-    bold: attribute(runProperties ?? body, "b") === "1",
-    color: resolveOfficeColor(runProperties, theme, "#000000"),
-    fontFamily: attribute(font ?? body, "typeface") ?? "Arial, sans-serif",
-    fontSize: Math.max(8, (finite(attribute(runProperties ?? body, "sz"), 900) / 100) * (4 / 3)),
-    italic: attribute(runProperties ?? body, "i") === "1",
-    underline: ![undefined, "none"].includes(attribute(runProperties ?? body, "u")),
+    align:
+      alignment === "ctr" || alignment === "center"
+        ? "center"
+        : alignment === "r" || alignment === "right" || alignment === "end"
+          ? "end"
+          : "start",
+    bold: attribute(runProperties ?? body, "b") === "1" || enabled(wordBold),
+    color:
+      rawWordColor !== undefined && /^[\dA-F]{6}$/iu.test(rawWordColor)
+        ? `#${rawWordColor}`
+        : resolveOfficeColor(runProperties, theme, "#000000"),
+    fontFamily:
+      attribute(font ?? body, "typeface") ??
+      attribute(font ?? body, "eastAsia") ??
+      attribute(font ?? body, "ascii") ??
+      attribute(font ?? body, "hAnsi") ??
+      "Arial, sans-serif",
+    fontSize,
+    italic: attribute(runProperties ?? body, "i") === "1" || enabled(wordItalic),
+    underline:
+      ![undefined, "none"].includes(attribute(runProperties ?? body, "u")) ||
+      enabled(wordUnderline),
     verticalAlign: anchor === "b" ? "bottom" : anchor === "ctr" ? "center" : "top",
   };
   return { text, textStyle };
@@ -681,21 +773,34 @@ function parseShape(
   options: OfficeDrawingOptions,
   accumulator: DrawingAccumulator,
 ): void {
-  const connector = shape.localName === "cxnSp";
   const properties = child(shape, "spPr");
   if (properties === undefined) {
     accumulator.features.unsupportedCount += 1;
     return;
   }
-  const placement = shapePlacement(properties, parent, fallback, useAnchorGeometry && !connector);
+  const preset = attribute(first(properties, "prstGeom") ?? properties, "prst") ?? "";
+  const connector =
+    shape.localName === "cxnSp" ||
+    (shape.localName === "wsp" && /(?:connector|^line$)/iu.test(preset));
+  const placement = shapePlacement(
+    properties,
+    parent,
+    fallback,
+    useAnchorGeometry && (!connector || options.useHostPlacementForConnectors === true),
+  );
   const metadata = first(shape, "cNvPr");
   const shapeId = attribute(metadata ?? shape, "id") ?? `shape-${accumulator.shapes.length + 1}`;
   const name = attribute(metadata ?? shape, "name");
   const decoded = decodeOfficeGeometry(properties, placement.width, placement.height, connector);
+  if (!decoded.supported) accumulator.features.unsupportedCount += 1;
   const theme = options.theme ?? defaultOfficeTheme();
   const style = child(shape, "style");
   const line = child(properties, "ln");
   const text = shapeText(shape, theme);
+  const fillGradient = shapeGradient(properties, theme);
+  if (child(properties, "pattFill") !== undefined || first(properties, "effectLst") !== undefined) {
+    accumulator.features.unsupportedCount += 1;
+  }
   const dash = dashPattern(attribute(first(line ?? properties, "prstDash") ?? properties, "val"));
   const startArrow = attribute(child(line ?? properties, "headEnd") ?? properties, "type");
   const endArrow = attribute(child(line ?? properties, "tailEnd") ?? properties, "type");
@@ -707,6 +812,7 @@ function parseShape(
     width: placement.width,
     height: placement.height,
     fill: shapeFill(properties, style, theme, connector),
+    ...(fillGradient === undefined ? {} : { fillGradient }),
     stroke: shapeStroke(properties, style, theme),
     transform: placement.matrix,
     preset: decoded.preset,
@@ -951,16 +1057,16 @@ function parseObject(
   options: OfficeDrawingOptions,
   accumulator: DrawingAccumulator,
 ): void {
-  if (object.localName === "sp" || object.localName === "cxnSp") {
+  if (["sp", "cxnSp", "wsp"].includes(object.localName)) {
     parseShape(object, parent, fallback, useAnchorGeometry, options, accumulator);
   } else if (object.localName === "pic") {
     parsePicture(object, parent, fallback, useAnchorGeometry, options, accumulator);
-  } else if (object.localName === "graphicFrame") {
+  } else if (object.localName === "graphicFrame" || object.localName === "graphicData") {
     parseGraphicFrame(object, parent, fallback, useAnchorGeometry, options, accumulator);
-  } else if (object.localName === "grpSp") {
+  } else if (object.localName === "grpSp" || object.localName === "wgp") {
     accumulator.features.groupCount += 1;
     const transform = groupTransform(object, parent, fallback, useAnchorGeometry);
-    for (const nested of children(object, ["sp", "cxnSp", "grpSp", "pic", "graphicFrame"])) {
+    for (const nested of object.children.flatMap((element) => drawingObjects(element))) {
       parseObject(nested, transform, fallback, false, options, accumulator);
     }
   } else {
@@ -993,22 +1099,31 @@ export function parseOfficeDrawing(
       smartArtCount: 0,
       unsupportedCount: 0,
     },
-    width: 1,
-    height: 1,
+    width: Math.max(1, options.canvas?.width ?? 1),
+    height: Math.max(1, options.canvas?.height ?? 1),
   };
   const anchors = [...source.documentElement.children].filter((element) =>
     ["absoluteAnchor", "oneCellAnchor", "twoCellAnchor"].includes(element.localName),
   );
-  if (anchors.length === 0) {
+  if (options.hostPlacement !== undefined) {
+    const fallback: AnchorGeometry = {
+      matrix: translate(options.hostPlacement.x, options.hostPlacement.y),
+      width: Math.max(1, options.hostPlacement.width),
+      height: Math.max(1, options.hostPlacement.height),
+    };
+    for (const object of drawingObjects(source.documentElement)) {
+      parseObject(object, identity(), fallback, true, options, accumulator);
+    }
+  } else if (anchors.length === 0) {
     const fallback: AnchorGeometry = { matrix: identity(), width: 1, height: 1 };
     const shapeTree = first(source, "spTree") ?? source.documentElement;
-    for (const object of children(shapeTree, ["sp", "cxnSp", "grpSp", "pic", "graphicFrame"])) {
+    for (const object of drawingObjects(shapeTree)) {
       parseObject(object, identity(), fallback, false, options, accumulator);
     }
   } else {
     for (const anchor of anchors) {
       const fallback = anchorGeometry(anchor, options.layout);
-      for (const object of children(anchor, ["sp", "cxnSp", "grpSp", "pic", "graphicFrame"])) {
+      for (const object of drawingObjects(anchor)) {
         parseObject(object, identity(), fallback, true, options, accumulator);
       }
     }
@@ -1036,8 +1151,14 @@ export function parseOfficeDrawing(
     id: options.id,
     kind: "drawing",
     title: options.title,
-    width: Math.max(1, options.layout?.width ?? 0, accumulator.width),
-    height: Math.max(1, options.layout?.height ?? 0, accumulator.height),
+    width: Math.max(1, options.canvas?.width ?? 0, options.layout?.width ?? 0, accumulator.width),
+    height: Math.max(
+      1,
+      options.canvas?.height ?? 0,
+      options.layout?.height ?? 0,
+      accumulator.height,
+    ),
+    ...(options.canvas?.background === undefined ? {} : { background: options.canvas.background }),
     shapes: accumulator.shapes,
     edges: accumulator.edges,
     graph: {

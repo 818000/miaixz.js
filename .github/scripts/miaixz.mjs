@@ -23,16 +23,22 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { isAbsolute, join, relative, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 /**
- * Absolute path to the repository root that owns the shared script utilities.
- *
- * @type {string}
+ * URL used to resolve the repository root when modules retain file URLs.
  */
-export const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
+const repositoryRootUrl = new URL("../..", import.meta.url);
+
+/**
+ * Absolute path to the repository root that owns the shared script utilities.
+ */
+export const repositoryRoot =
+  repositoryRootUrl.protocol === "file:"
+    ? fileURLToPath(repositoryRootUrl)
+    : findRepositoryRoot(process.cwd());
 const internalDependencyFields = [
   "dependencies",
   "devDependencies",
@@ -44,6 +50,30 @@ const semanticVersionPattern =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$/u;
 
 /**
+ * Finds the repository root when a test runner rewrites import.meta.url to a non-file URL.
+ *
+ * @param {string} start Directory from which to search upward.
+ * @returns {string} Repository root containing VERSION and this shared script.
+ * @throws {Error} If no repository root can be located.
+ */
+function findRepositoryRoot(start) {
+  let current = resolve(start);
+  while (true) {
+    if (
+      existsSync(join(current, "VERSION")) &&
+      existsSync(join(current, ".github/scripts/miaixz.mjs"))
+    ) {
+      return current;
+    }
+    const parent = resolve(current, "..");
+    if (parent === current) {
+      throw new Error(`Unable to locate the repository root from '${start}'.`);
+    }
+    current = parent;
+  }
+}
+
+/**
  * Reads and parses a package.json file without caching its contents.
  *
  * @param {string} path Absolute or process-relative path to package.json.
@@ -52,6 +82,80 @@ const semanticVersionPattern =
  */
 function readPackageManifest(path) {
   return JSON.parse(readFileSync(path, "utf8"));
+}
+
+/**
+ * Discovers every first-party package manifest known to the repository checkout.
+ * Git supplies the file set so ignored dependencies and generated output never enter release
+ * metadata checks, while newly added and not-yet-committed manifests are included automatically.
+ *
+ * @param {string} [root=repositoryRoot] Absolute repository root to inspect.
+ * @returns {Array<{
+ *   directory: string,
+ *   manifest: PackageManifest,
+ *   manifestPath: string,
+ *   relativePath: string,
+ *   rootPath: string,
+ * }>} Stable package manifest records ordered by repository path.
+ * @throws {Error} If discovery fails, no root manifest exists, or an opt-out flag is invalid.
+ */
+export function loadRepositoryPackageManifests(root = repositoryRoot) {
+  const discovered = execFileSync(
+    "git",
+    [
+      "ls-files",
+      "-z",
+      "--cached",
+      "--others",
+      "--exclude-standard",
+      "--",
+      ":(glob)**/package.json",
+    ],
+    {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "inherit"],
+    },
+  )
+    .split("\0")
+    .filter(Boolean)
+    .sort((left, right) => left.localeCompare(right));
+
+  if (!discovered.includes("package.json")) {
+    throw new Error("Repository package discovery must include the root package.json.");
+  }
+
+  return discovered.map((relativePath) => {
+    const manifestPath = resolve(root, relativePath);
+    const manifest = readPackageManifest(manifestPath);
+    if (manifest.miaixzVersion !== undefined && typeof manifest.miaixzVersion !== "boolean") {
+      throw new Error(`${relativePath} miaixzVersion must be a boolean when present.`);
+    }
+    const rootPath = dirname(manifestPath);
+    return {
+      directory: relative(root, rootPath).replaceAll("\\", "/") || ".",
+      manifest,
+      manifestPath,
+      relativePath,
+      rootPath,
+    };
+  });
+}
+
+/**
+ * Returns package manifests that participate in the synchronized repository release version.
+ * A deliberately independent manifest may opt out locally with `"miaixzVersion": false`.
+ *
+ * @param {string} [root=repositoryRoot] Absolute repository root to inspect.
+ * @returns {ReturnType<typeof loadRepositoryPackageManifests>} Version-managed package records.
+ */
+export function loadVersionedPackageManifests(root = repositoryRoot) {
+  const manifests = loadRepositoryPackageManifests(root);
+  const rootManifest = manifests.find(({ relativePath }) => relativePath === "package.json");
+  if (rootManifest?.manifest.miaixzVersion === false) {
+    throw new Error("The root package.json cannot opt out of synchronized versions.");
+  }
+  return manifests.filter(({ manifest }) => manifest.miaixzVersion !== false);
 }
 
 /**
@@ -71,6 +175,19 @@ export function assertReleaseVersion(version) {
     major: Number(match[1]),
     minor: Number(match[2]),
   };
+}
+
+/**
+ * Reads the repository release version from the single authoritative VERSION file.
+ *
+ * @param {string} [root=repositoryRoot] Absolute repository root to inspect.
+ * @returns {string} Validated release version.
+ * @throws {Error} If VERSION is missing or does not contain a supported release version.
+ */
+export function readRepositoryVersion(root = repositoryRoot) {
+  const version = readFileSync(join(root, "VERSION"), "utf8").trim();
+  assertReleaseVersion(version);
+  return version;
 }
 
 /**

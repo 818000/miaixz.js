@@ -33,7 +33,7 @@ type CompareFontBuildHashes = (
 ) => void;
 
 const moduleUrl = pathToFileURL(
-  resolve(process.cwd(), "../../.github/scripts/modules/icons/fonts/build.mjs"),
+  resolve(process.cwd(), "../../.github/scripts/modules/icons/fonts/build-icon-font.mjs"),
 ).href;
 const { compareFontBuildHashes } = (await import(moduleUrl)) as {
   compareFontBuildHashes: CompareFontBuildHashes;

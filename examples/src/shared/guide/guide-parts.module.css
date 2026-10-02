@@ -1,0 +1,153 @@
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.42fr);
+  gap: 2rem;
+  align-items: end;
+  padding: 2rem 0 3.5rem;
+  border-bottom: 1px solid var(--miaixz-color-border, #cdcdcd);
+}
+
+.headingCopy {
+  max-width: 48rem;
+}
+
+.packageName {
+  margin: 0 0 0.8rem;
+  color: var(--miaixz-color-brand-strong, #266b1b);
+  font-family: var(--miaixz-font-family-mono, monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.headingCopy h1 {
+  max-width: 100%;
+  margin: 0;
+  font-size: clamp(2.35rem, 6vw, 5.4rem);
+  font-weight: 650;
+  letter-spacing: -0.065em;
+  line-height: 0.98;
+}
+
+.description {
+  max-width: 42rem;
+  margin: 1.35rem 0 0;
+  color: var(--miaixz-color-text-secondary, #565656);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.install {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--miaixz-color-border, #cdcdcd);
+  border-radius: 0.8rem;
+  background: var(--miaixz-color-surface-secondary, #fff);
+}
+
+.install span,
+.codeLabel {
+  color: var(--miaixz-color-text-muted, #5e5e5e);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.install code {
+  overflow: hidden;
+  color: var(--miaixz-color-text-primary, #1f1f1f);
+  font-family: var(--miaixz-font-family-mono, monospace);
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+}
+
+.section {
+  padding: 3.5rem 0;
+}
+
+.section + .section {
+  border-top: 1px solid var(--miaixz-color-border, #cdcdcd);
+}
+
+.sectionHeading {
+  max-width: 44rem;
+  margin-bottom: 1.75rem;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  font-size: clamp(1.55rem, 4vw, 2.5rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.sectionHeading p {
+  margin: 0.75rem 0 0;
+  color: var(--miaixz-color-text-secondary, #565656);
+  line-height: 1.7;
+}
+
+.codeBlock {
+  overflow: hidden;
+  border: 1px solid var(--miaixz-color-border, #cdcdcd);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--miaixz-color-surface-secondary, #fff) 84%, transparent);
+}
+
+.codeLabel {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--miaixz-color-border, #cdcdcd);
+}
+
+.codeBlock pre {
+  overflow: auto;
+  margin: 0;
+  padding: 1.15rem;
+  font-family: var(--miaixz-font-family-mono, monospace);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  white-space: pre;
+}
+
+.stat {
+  display: grid;
+  align-content: start;
+  min-height: 8.5rem;
+  padding: 1.25rem 0;
+  border-top: 2px solid var(--miaixz-color-border-strong, #666);
+}
+
+.stat span,
+.stat small {
+  color: var(--miaixz-color-text-muted, #5e5e5e);
+}
+
+.stat strong {
+  margin-top: 0.55rem;
+  font-family: var(--miaixz-font-family-mono, monospace);
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+}
+
+.stat small {
+  margin-top: 0.3rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .header {
+    grid-template-columns: 1fr;
+    padding-top: 1rem;
+  }
+
+  .headingCopy h1 {
+    max-width: none;
+  }
+
+  .section {
+    padding: 2.5rem 0;
+  }
+}

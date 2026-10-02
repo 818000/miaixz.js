@@ -622,10 +622,16 @@
 .miaixz-preview-page {
   box-sizing: border-box;
   min-block-size: 240px;
-  padding: var(--miaixz-space-24, 24px);
+  padding: 0;
   white-space: pre-wrap;
   background: var(--miaixz-surface-role-panel-background, #fff);
   box-shadow: var(--miaixz-shadow-medium, 0 4px 12px #0002);
+}
+
+.miaixz-preview-page-text {
+  box-sizing: border-box;
+  padding: var(--miaixz-space-24, 24px);
+  margin: 0;
 }
 
 .miaixz-preview-page-drawing {

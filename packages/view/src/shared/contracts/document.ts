@@ -377,6 +377,22 @@ export interface DrawingTextStyle {
 }
 
 /**
+ * Represents one normalized DrawingML gradient stop.
+ */
+export interface DrawingGradientStop {
+  readonly offset: number;
+  readonly color: string;
+}
+
+/**
+ * Represents one linear DrawingML gradient fill.
+ */
+export interface DrawingGradientFill {
+  readonly angle: number;
+  readonly stops: readonly DrawingGradientStop[];
+}
+
+/**
  * Represents one immutable vector shape.
  */
 export interface DrawingShape {
@@ -388,6 +404,7 @@ export interface DrawingShape {
   readonly height: number;
   readonly text?: string;
   readonly fill?: string;
+  readonly fillGradient?: DrawingGradientFill;
   readonly stroke?: string;
   readonly rotation?: number;
   readonly name?: string;
@@ -409,6 +426,25 @@ export interface DrawingShape {
   readonly endArrow?: string;
   readonly cornerRadius?: number;
   readonly textStyle?: DrawingTextStyle;
+}
+
+/**
+ * Records visible fixed-layout content discovered in an Office package.
+ */
+export interface OfficeCoverageEntry {
+  readonly feature: string;
+  readonly part: string;
+  readonly discovered: number;
+  readonly modeled: number;
+  readonly renderable: number;
+  readonly skipped: number;
+}
+
+/**
+ * Stores the fixed-layout coverage used to determine Office parse status.
+ */
+export interface OfficeCoverageLedger {
+  readonly entries: readonly OfficeCoverageEntry[];
 }
 
 /**
@@ -484,6 +520,7 @@ export interface DrawingScene extends DocumentBase {
   readonly kind: "drawing";
   readonly width: number;
   readonly height: number;
+  readonly background?: string;
   readonly shapes: readonly DrawingShape[];
   readonly edges: readonly DiagramEdge[];
   readonly graph?: DiagramGraph;
@@ -509,6 +546,7 @@ export interface PagedPage {
 export interface PagedDocument extends DocumentBase {
   readonly kind: "paged";
   readonly pages: readonly PagedPage[];
+  readonly coverage?: OfficeCoverageLedger;
 }
 
 /**
