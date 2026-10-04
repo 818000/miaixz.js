@@ -1,0 +1,95 @@
+{
+  "grid": {
+    "conceptUnits": 24,
+    "fontUnitsPerConceptUnit": 40,
+    "safeBounds": [
+      60,
+      -100,
+      900,
+      740
+    ],
+    "opticalCenter": [
+      480,
+      320
+    ]
+  },
+  "stroke": {
+    "outline": {
+      "compact": 82,
+      "standard": 70,
+      "display": 56
+    },
+    "filledDelta": 82,
+    "minimumGap": {
+      "compact": 74,
+      "standard": 64,
+      "display": 54
+    }
+  },
+  "corners": {
+    "compact": 48,
+    "standard": 56,
+    "display": 64,
+    "endpoint": "round",
+    "join": "round"
+  },
+  "opticalClasses": {
+    "regular": {
+      "longestEdge": [
+        750,
+        800
+      ],
+      "centerTolerance": 29,
+      "coverageTolerance": 0.2
+    },
+    "wide": {
+      "longestEdge": [
+        790,
+        830
+      ],
+      "centerTolerance": 32,
+      "coverageTolerance": 0.2
+    },
+    "tall": {
+      "longestEdge": [
+        790,
+        830
+      ],
+      "centerTolerance": 32,
+      "coverageTolerance": 0.2
+    },
+    "directional": {
+      "longestEdge": [
+        790,
+        830
+      ],
+      "centerTolerance": 36,
+      "coverageTolerance": 0.2
+    },
+    "compound": {
+      "longestEdge": [
+        770,
+        810
+      ],
+      "centerTolerance": 32,
+      "coverageTolerance": 0.2
+    },
+    "line-symbol": {
+      "longestEdge": [
+        730,
+        790
+      ],
+      "centerTolerance": 29,
+      "coverageTolerance": 0.2
+    }
+  },
+  "geometryPolicy": {
+    "origin": "miaixz",
+    "referencePolicy": "semantic-only",
+    "externalGeometry": false,
+    "thirdPartyGeometry": false
+  },
+  "limits": {
+    "fontBytes": 524288
+  }
+}

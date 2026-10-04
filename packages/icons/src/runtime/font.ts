@@ -22,18 +22,13 @@
  * Owns the font-only icon lookup and single-font loading state.
  */
 
-import { ICON_CODEPOINTS } from "../autogen/codepoints.js";
-import { ICON_NAME_LIST, type IconName } from "../autogen/names.js";
-
-export type IconVariant = "outline" | "filled";
-export type IconDirection = "none" | "mirror";
-
-export interface MiaixzIconRecord {
-  readonly name: IconName;
-  readonly codepoint: number;
-  readonly glyph: string;
-  readonly rtl: IconDirection;
-}
+import {
+  INTERNAL_ICON_BY_NAME,
+  INTERNAL_ICON_NAMES,
+  INTERNAL_ICON_RECORDS,
+  type IconName,
+  type InternalIconRecord,
+} from "../autogen/icons.js";
 
 interface PendingFont {
   readonly status: "pending";
@@ -51,28 +46,18 @@ interface FailedFont {
 
 type FontState = PendingFont | ResolvedFont | FailedFont;
 
-const iconNames = new Set<string>(ICON_NAME_LIST);
-const iconRecords = new Map<IconName, MiaixzIconRecord>(
-  ICON_CODEPOINTS.map((entry) => [
-    entry.name,
-    Object.freeze({
-      name: entry.name,
-      codepoint: entry.codepoint,
-      glyph: String.fromCodePoint(entry.codepoint),
-      rtl: entry.rtl,
-    }),
-  ]),
-);
 let fontState: FontState | undefined;
+const representativeGlyph = INTERNAL_ICON_RECORDS[0]?.glyph;
+if (representativeGlyph === undefined) throw new Error("[miaixz] Icon font contains no glyphs.");
 
 /**
- * Returns whether a string is one of the 1024 font-backed names.
+ * Returns whether a string is one of the generated stable font-backed names.
  *
  * @param value - Candidate public name.
  * @returns Whether the name is font-backed.
  */
 export function isIconName(value: string): value is IconName {
-  return iconNames.has(value);
+  return INTERNAL_ICON_NAMES.has(value);
 }
 
 /**
@@ -92,8 +77,8 @@ export function parseIconName(value: string): IconName {
  * @param name - Font-backed icon name.
  * @returns Immutable codepoint and direction metadata.
  */
-export function resolveMiaixzIcon(name: IconName): MiaixzIconRecord {
-  const record = iconRecords.get(name);
+function resolveIcon(name: IconName): Readonly<InternalIconRecord> {
+  const record = INTERNAL_ICON_BY_NAME.get(name);
   if (record === undefined) throw new TypeError(`[miaixz] Missing font record for "${name}".`);
   return record;
 }
@@ -104,7 +89,7 @@ export function resolveMiaixzIcon(name: IconName): MiaixzIconRecord {
  * @param glyph - Representative glyph from the complete font.
  * @returns Promise completed when the browser font is available.
  */
-export function loadMiaixzIconFont(glyph = String.fromCodePoint(0xf0000)): Promise<void> {
+function loadIconFont(glyph = representativeGlyph): Promise<void> {
   if (typeof document === "undefined" || document.fonts === undefined) return Promise.resolve();
   const current = fontState;
   if (current?.status === "resolved") return Promise.resolve();
@@ -135,23 +120,23 @@ export function loadMiaixzIconFont(glyph = String.fromCodePoint(0xf0000)): Promi
  * @param name - Font-backed icon name.
  * @returns Resolved record or null after a font failure.
  */
-export function readMiaixzIcon(name: IconName): MiaixzIconRecord | null {
-  const record = resolveMiaixzIcon(name);
+export function readIcon(name: IconName): Readonly<InternalIconRecord> | null {
+  const record = resolveIcon(name);
   if (typeof document === "undefined" || document.fonts === undefined) return record;
   const current = fontState;
   if (current?.status === "resolved") return record;
   if (current?.status === "failed") return null;
-  const pending = current?.promise ?? loadMiaixzIconFont(record.glyph);
+  const pending = current?.promise ?? loadIconFont(record.glyph);
   throw pending.catch(() => undefined);
 }
 
 /**
- * Preloads the complete 1024-glyph font.
+ * Preloads the complete stable icon font.
  *
  * @returns Promise completed when Core is ready, or immediately during SSR.
  */
-export function preloadMiaixzIconFont(): Promise<void> {
-  return loadMiaixzIconFont();
+export function preloadIconFont(): Promise<void> {
+  return loadIconFont();
 }
 
 /**
@@ -159,6 +144,6 @@ export function preloadMiaixzIconFont(): Promise<void> {
  *
  * @internal
  */
-export function resetMiaixzIconFontLoads(): void {
+export function resetIconFontLoads(): void {
   fontState = undefined;
 }

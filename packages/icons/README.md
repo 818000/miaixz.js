@@ -1,6 +1,6 @@
 # @miaixz/icons
 
-Miaixz 的独立 Web 图标系统，包含 1024 个原创可变字体图标、React `Icon`、语义尺寸、连续 FILL/opsz 动画和无障碍行为。发布版本统一由仓库根目录的 `VERSION` 文件定义。
+Miaixz 的独立 Web 图标系统，包含 1781 个原创可变字体图标、React `Icon`、语义尺寸、连续 FILL/opsz 动画和无障碍行为。发布版本统一由仓库根目录的 `VERSION` 文件定义。
 
 ## 安装
 
@@ -23,7 +23,7 @@ export function Example() {
 
 ## 字体加载
 
-`miaixz-icons.woff2` 是唯一字体文件，固定包含全部 1024 个 canonical 名称和 U+F0000–U+F03FF。64 个 Core 与 960 个 Extended 只保留为目录优先级标签，不再对应物理字体分包或独立网络请求。
+`miaixz-icons.woff2` 是唯一字体文件，包含全部 1781 个 canonical 名称和 `U+F0000–U+F06F4` 范围。Core 与 Extended 只表示目录层级，不对应字体分包或额外网络请求。
 
 首屏使用图标时可以预载完整字体：
 
@@ -36,9 +36,9 @@ export function Example() {
 运行时预热加载完整字体，所有并发请求共享同一个 Promise：
 
 ```ts
-import { preloadMiaixzIconFont } from "@miaixz/icons";
+import { preloadIconFont } from "@miaixz/icons";
 
-await preloadMiaixzIconFont();
+await preloadIconFont();
 ```
 
 ## API
@@ -56,9 +56,9 @@ const name: IconName = "rocket";
 - `size` 接受 `indicator`、`inline`、`control`、`navigation`、`feature`、`display` 或正数；数值同时驱动 12–40 的 opsz。
 - `motion="none"` 与系统 `prefers-reduced-motion: reduce` 都会关闭过渡。
 - `rtl="mirror"` 的名称只翻转内层字形，不改变根节点布局。
-- `name` 只能使用公共目录中的 1024 个名称；未知名称不会进入字体私有区，而是显示固定尺寸的安全占位。
+- `name` 只能使用公共目录中的 1781 个名称；`parseIconName` 会对未知名称抛出 `TypeError`。
 
-公共目录从 `@miaixz/icons/catalog` 提供。不要导入 `src`、`dist` 私有路径或直接书写 PUA 字符。
+`ICON_NAMES`、`ICON_CATALOG`、`isIconName` 和 `parseIconName` 均从根入口 `@miaixz/icons` 导出。不要导入 `src`、`dist` 私有路径或直接书写 PUA 字符。
 
 ## 第三方图标
 
@@ -79,6 +79,5 @@ npm install lucide-react
 | Entry          | Kind       |
 | -------------- | ---------- |
 | `.`            | JavaScript |
-| `./catalog`    | JavaScript |
 | `./styles.css` | CSS        |
 | `./font.woff2` | Asset      |

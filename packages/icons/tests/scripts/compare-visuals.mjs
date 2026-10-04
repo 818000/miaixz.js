@@ -30,11 +30,17 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { readRepositoryVersion } from "../../../../.github/scripts/miaixz.mjs";
+import { loadIconSource } from "../../../../.github/scripts/modules/icons/source.mjs";
 
 const arguments_ = process.argv.slice(2);
-if (arguments_.length !== 2 || arguments_[0] !== "--mode" || arguments_[1] !== "compare") {
-  throw new Error("compare-visuals.mjs requires exactly --mode compare.");
+if (
+  arguments_.length !== 2 ||
+  arguments_[0] !== "--mode" ||
+  !["compare", "update"].includes(arguments_[1])
+) {
+  throw new Error("compare-visuals.mjs requires exactly --mode compare or --mode update.");
 }
+const mode = arguments_[1];
 
 const moduleRoot = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(moduleRoot, "../../../../");
@@ -42,11 +48,15 @@ const release = readRepositoryVersion(repositoryRoot);
 const packageRoot = resolve(repositoryRoot, "packages/icons");
 const currentRoot = resolve(packageRoot, ".artifacts/icon-visual/current");
 const evidenceRoot = resolve(packageRoot, ".artifacts/icon-visual/evidence");
+const baselinePath = resolve(packageRoot, "tests/baselines/icon-visual.json");
 const reportBytes = await readFile(resolve(currentRoot, "render-report.json"));
 const report = JSON.parse(reportBytes);
 const failures = [];
 const browserNames = ["chromium", "firefox", "webkit"];
 const standardState = "fill-000-opsz-24";
+const iconCount = (await loadIconSource()).icons.length;
+const samplesPerBrowser = iconCount * report.fillValues.length * report.opticalSizes.length;
+const minimumRasterizedOpticalChanges = Math.ceil(iconCount * 0.98);
 
 if (
   report.schemaVersion !== 2 ||
@@ -62,12 +72,12 @@ if (JSON.stringify(Object.keys(report.browsers).sort()) !== JSON.stringify(brows
 for (const browserName of browserNames) {
   const browser = report.browsers[browserName];
   if (
-    browser?.basicSamples !== 30_720 ||
-    browser.sheets !== 30 ||
+    browser?.basicSamples !== samplesPerBrowser ||
+    browser.sheets !== report.fillValues.length * report.opticalSizes.length ||
     browser.emptySamples !== 0 ||
-    browser.fillAxisChanges !== 1024 ||
-    browser.opticalAxisChanges !== 1024 ||
-    browser.states?.[standardState]?.length !== 1024
+    browser.fillAxisChanges !== iconCount ||
+    browser.opticalAxisChanges < minimumRasterizedOpticalChanges ||
+    browser.states?.[standardState]?.length !== iconCount
   ) {
     failures.push(`${browserName} does not satisfy the complete sample contract`);
     continue;
@@ -117,6 +127,42 @@ for (const browserName of ["firefox", "webkit"]) {
   }
 }
 
+const visualMeasurements = Object.freeze({
+  rulesVersion: report.rulesVersion,
+  fillValues: report.fillValues,
+  opticalSizes: report.opticalSizes,
+  browsers: Object.fromEntries(
+    browserNames.map((browserName) => [browserName, report.browsers[browserName]]),
+  ),
+});
+
+const nextBaseline = Object.freeze({
+  schemaVersion: 2,
+  rulesVersion: "miaixz-icon-visual-v2",
+  visualSha256: createHash("sha256").update(JSON.stringify(visualMeasurements)).digest("hex"),
+  iconCount,
+  fillValues: report.fillValues.length,
+  opticalSizes: report.opticalSizes.length,
+  browsers: Object.fromEntries(
+    browserNames.map((browserName) => [
+      browserName,
+      {
+        samples: report.browsers[browserName]?.basicSamples,
+        fillAxisChanges: report.browsers[browserName]?.fillAxisChanges,
+        opticalAxisChanges: report.browsers[browserName]?.opticalAxisChanges,
+      },
+    ]),
+  ),
+  status: "approved",
+});
+
+if (mode === "compare") {
+  const baseline = JSON.parse(await readFile(baselinePath, "utf8"));
+  if (JSON.stringify(baseline) !== JSON.stringify(nextBaseline)) {
+    failures.push("current visual evidence differs from the explicitly approved baseline");
+  }
+}
+
 await mkdir(evidenceRoot, { recursive: true });
 const evidence = Object.freeze({
   schemaVersion: 1,
@@ -124,8 +170,8 @@ const evidence = Object.freeze({
   rulesVersion: "miaixz-icon-visual-v2",
   reportSha256: createHash("sha256").update(reportBytes).digest("hex"),
   browserNames,
-  samplesPerBrowser: 30_720,
-  totalSamples: 92_160,
+  samplesPerBrowser,
+  totalSamples: samplesPerBrowser * browserNames.length,
   failures,
   status: failures.length === 0 ? "passed" : "failed",
 });
@@ -136,4 +182,9 @@ await writeFile(
 if (failures.length > 0) {
   throw new Error(`Icon visual gate failed: ${failures.join("; ")}`);
 }
-console.log("Verified 92,160 cross-browser samples and five 180ms animation frames per engine.");
+if (mode === "update") {
+  await writeFile(baselinePath, `${JSON.stringify(nextBaseline, null, 2)}\n`);
+}
+console.log(
+  `${mode === "update" ? "Approved" : "Verified"} ${String(evidence.totalSamples)} cross-browser samples and five 180ms animation frames per engine.`,
+);

@@ -1,0 +1,129 @@
+{
+  "categories": [
+    {
+      "id": "actions",
+      "description": "Operations that create, change, transfer, or remove state; excludes direction-only navigation and content-format concepts."
+    },
+    {
+      "id": "animals",
+      "description": "Animal bodies and species; excludes people, habitats, plants, and animal-derived food."
+    },
+    {
+      "id": "buildings",
+      "description": "Buildings, rooms, institutions, and architectural structures; excludes vehicles, tools, and industrial machinery."
+    },
+    {
+      "id": "commerce",
+      "description": "Money, shopping, pricing, business, and transactions; excludes generic status badges and communication."
+    },
+    {
+      "id": "communication",
+      "description": "Messages, calls, links, sharing, and interpersonal communication; excludes media playback and network hardware."
+    },
+    {
+      "id": "data",
+      "description": "Charts, tables, databases, analytics, and structured information; excludes source code, text editing, and physical storage devices."
+    },
+    {
+      "id": "development",
+      "description": "Software development, source code, packages, and technical systems; excludes physical hardware and generic document editing."
+    },
+    {
+      "id": "devices",
+      "description": "Computing, electrical, household, and connected hardware; excludes media content, vehicles, and software concepts."
+    },
+    {
+      "id": "editing",
+      "description": "Files, documents, text editing, drawing, and content authoring; excludes educational books, data visualization, and software code."
+    },
+    {
+      "id": "education",
+      "description": "Books, learning, language, teaching, and academic institutions; excludes generic file and text editing."
+    },
+    {
+      "id": "entertainment",
+      "description": "Games, performance, celebration, and leisure; excludes competitive sports and media playback controls."
+    },
+    {
+      "id": "feedback",
+      "description": "Status, alerts, confirmation, ratings, and system feedback; excludes direct operations, timekeeping, and protection objects."
+    },
+    {
+      "id": "food",
+      "description": "Food, drink, ingredients, cooking, and dining; excludes wild plants, household appliances, and lifestyle objects."
+    },
+    {
+      "id": "health",
+      "description": "Health, medicine, accessibility, and the human body; excludes personal identity, generic feedback, and buildings."
+    },
+    {
+      "id": "industry",
+      "description": "Construction, utilities, manufacturing, and industrial infrastructure; excludes handheld tools, vehicles, and ordinary buildings."
+    },
+    {
+      "id": "interface",
+      "description": "Controls, layouts, selection, focus, and interface primitives; excludes content editing, directional navigation, and status feedback."
+    },
+    {
+      "id": "lifestyle",
+      "description": "Clothing, furniture, household objects, and daily life; excludes food, powered devices, and architectural structures."
+    },
+    {
+      "id": "media",
+      "description": "Audio, video, photography, playback, and media production; excludes communication, physical hardware, and entertainment games."
+    },
+    {
+      "id": "nature",
+      "description": "Weather, landscapes, plants, and natural phenomena; excludes animals, transport, and computing infrastructure."
+    },
+    {
+      "id": "navigation",
+      "description": "Direction, spatial movement, maps, location, and wayfinding; excludes vehicles and state-changing operations."
+    },
+    {
+      "id": "people",
+      "description": "People, identity, relationships, and organizations; excludes anatomy, medicine, and authentication objects."
+    },
+    {
+      "id": "science",
+      "description": "Mathematics, laboratory work, space, and scientific concepts; excludes data charts and general-purpose tools."
+    },
+    {
+      "id": "security",
+      "description": "Authentication, permissions, privacy, safety, and protection; excludes generic feedback, people, and navigation."
+    },
+    {
+      "id": "shapes",
+      "description": "Geometric shapes and spatial composition without a stronger semantic meaning; excludes shape containers carrying status, navigation, or domain symbols."
+    },
+    {
+      "id": "sports",
+      "description": "Sport, exercise, competition, and athletic equipment; excludes games, entertainment, and general-purpose tools."
+    },
+    {
+      "id": "symbols",
+      "description": "Abstract, cultural, typographic, and conventional symbols; excludes status feedback, geometric primitives, and mathematical science."
+    },
+    {
+      "id": "time",
+      "description": "Time, dates, schedules, history, and timers; excludes generic alerts and data timelines."
+    },
+    {
+      "id": "tools",
+      "description": "Hand tools, maintenance, measurement, and repair; excludes industrial machinery, editing instruments, and sports equipment."
+    },
+    {
+      "id": "transport",
+      "description": "Vehicles, travel, traffic, and transport infrastructure; excludes maps, direction controls, and geographic navigation."
+    }
+  ],
+  "shards": [
+    "icons/f0000-f00ff.json",
+    "icons/f0100-f01ff.json",
+    "icons/f0200-f02ff.json",
+    "icons/f0300-f03ff.json",
+    "icons/f0400-f04ff.json",
+    "icons/f0500-f05ff.json",
+    "icons/f0600-f06ff.json"
+  ]
+}

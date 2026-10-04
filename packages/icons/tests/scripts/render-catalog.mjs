@@ -19,7 +19,7 @@
 */
 
 /**
- * Renders and measures all 30,720 FILL/opsz states from the release WOFF2 file
+ * Renders and measures every configured FILL/opsz state from the release WOFF2 file
  * in Chromium, Firefox, and WebKit without an SVG or static-font substitute.
  */
 
@@ -33,6 +33,10 @@ import { chromium, firefox, webkit } from "@playwright/test";
 import { PNG } from "pngjs";
 
 import { readRepositoryVersion } from "../../../../.github/scripts/miaixz.mjs";
+import {
+  loadIconSource,
+  unicodeRangeFor,
+} from "../../../../.github/scripts/modules/icons/source.mjs";
 
 const arguments_ = process.argv.slice(2);
 if (
@@ -50,14 +54,17 @@ const release = readRepositoryVersion(repositoryRoot);
 const packageRoot = resolve(repositoryRoot, "packages/icons");
 const fontRoot = resolve(repositoryRoot, arguments_[1]);
 const outputRoot = resolve(packageRoot, ".artifacts/icon-visual/current");
-const codepoints = JSON.parse(
-  await readFile(resolve(packageRoot, "src/assets/fonts/codepoints.json"), "utf8"),
-).icons;
-const catalog = JSON.parse(
-  await readFile(resolve(packageRoot, "src/assets/catalog.json"), "utf8"),
-).icons;
+const source = await loadIconSource();
+const codepoints = source.icons;
+const catalog = source.icons.map(({ name, category, opticalClass, tier, rtl }) => ({
+  name,
+  category,
+  opticalClass,
+  tier,
+  rtl,
+}));
 const manifest = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
-if (manifest.name !== "@miaixz/icons" || codepoints.length !== 1024) {
+if (manifest.name !== "@miaixz/icons" || codepoints.length === 0) {
   throw new Error("Visual rendering requires the complete @miaixz/icons release catalog.");
 }
 
@@ -85,7 +92,8 @@ const fillValues = Object.freeze([0, 0.25, 0.5, 0.75, 1]);
 const opticalSizes = Object.freeze([12, 16, 20, 24, 32, 40]);
 const cellSize = 32;
 const columns = 32;
-const sheetSize = cellSize * columns;
+const sheetWidth = cellSize * columns;
+const sheetHeight = cellSize * Math.ceil(codepoints.length / columns);
 const browserTypes = Object.freeze({ chromium, firefox, webkit });
 
 /**
@@ -100,7 +108,7 @@ function stateId(fill, opticalSize) {
 }
 
 /**
- * Builds the fixed 32-by-32 catalog surface.
+ * Builds the dynamic 32-column catalog surface.
  *
  * @returns {string} Standalone font test document.
  */
@@ -112,12 +120,12 @@ function catalogSurface() {
     )
     .join("");
   return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.font}") format("woff2");font-display:block;unicode-range:U+F0000-F03FF}
+    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.font}") format("woff2");font-display:block;unicode-range:${unicodeRangeFor(source.icons)}}
     :root{--fill:0;--opsz:24}
     *{box-sizing:border-box}
-    html,body{margin:0;width:${sheetSize}px;height:${sheetSize}px;overflow:hidden;background:#fff}
+    html,body{margin:0;width:${sheetWidth}px;height:${sheetHeight}px;overflow:hidden;background:#fff}
     body{display:grid;grid-template-columns:repeat(${columns},${cellSize}px);grid-auto-rows:${cellSize}px}
-    .glyph{display:grid;width:${cellSize}px;height:${cellSize}px;place-items:center;color:#000;font:24px/1 "Miaixz Icons";font-variation-settings:"FILL" var(--fill),"opsz" var(--opsz);text-rendering:geometricPrecision}
+    .glyph{display:grid;width:${cellSize}px;height:${cellSize}px;place-items:center;color:#000;font:24px/1 "Miaixz Icons";font-variation-settings:"FILL" var(--fill),"opsz" var(--opsz);text-rendering:geometricPrecision;transition:font-variation-settings 180ms linear}
   </style></head><body>${glyphs}</body></html>`;
 }
 
@@ -129,7 +137,7 @@ function catalogSurface() {
  */
 function measureSheet(bytes) {
   const png = PNG.sync.read(bytes);
-  if (png.width !== sheetSize || png.height !== sheetSize) {
+  if (png.width !== sheetWidth || png.height !== sheetHeight) {
     throw new Error(`Unexpected visual sheet dimensions ${png.width}x${png.height}.`);
   }
   return Object.freeze(
@@ -189,7 +197,6 @@ async function measureAnimation(page) {
   return page.evaluate(async () => {
     const glyph = document.querySelector(".glyph");
     if (!(glyph instanceof HTMLElement)) throw new Error("Animation glyph is missing.");
-    glyph.style.transition = "font-variation-settings 180ms linear";
     document.documentElement.style.setProperty("--fill", "0");
     await new Promise((resolvePromise) => requestAnimationFrame(resolvePromise));
     document.documentElement.style.setProperty("--fill", "1");
@@ -204,6 +211,8 @@ async function measureAnimation(page) {
       if (match?.[1] === undefined) throw new Error(`Missing FILL in ${value}.`);
       samples.push(Number(match[1]));
     }
+    animation.cancel();
+    document.documentElement.style.setProperty("--fill", "0");
     glyph.style.transition = "none";
     return samples;
   });
@@ -223,7 +232,7 @@ for (const [browserName, browserType] of Object.entries(browserTypes)) {
     locale: "en-US",
     reducedMotion: "no-preference",
     timezoneId: "UTC",
-    viewport: { width: sheetSize, height: sheetSize },
+    viewport: { width: sheetWidth, height: sheetHeight },
   });
   const page = await context.newPage();
   const states = {};
@@ -231,7 +240,10 @@ for (const [browserName, browserType] of Object.entries(browserTypes)) {
     await page.setContent(catalogSurface(), { waitUntil: "load" });
     await page.evaluate(async () => {
       await document.fonts.load(`24px "Miaixz Icons"`, String.fromCodePoint(0xf0000));
-      await document.fonts.load(`24px "Miaixz Icons"`, String.fromCodePoint(0xf0040));
+      await document.fonts.load(
+        `24px "Miaixz Icons"`,
+        String.fromCodePoint(Number(document.body.lastElementChild?.textContent?.codePointAt(0))),
+      );
       await document.fonts.ready;
     });
     const animation = await measureAnimation(page);
@@ -315,4 +327,6 @@ await writeFile(
     2,
   )}\n`,
 );
-console.log("Rendered and measured 30,720 samples in each of Chromium, Firefox, and WebKit.");
+console.log(
+  `Rendered and measured ${String(codepoints.length * fillValues.length * opticalSizes.length)} samples in each browser engine.`,
+);

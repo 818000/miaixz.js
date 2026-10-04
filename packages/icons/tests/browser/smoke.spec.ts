@@ -32,6 +32,9 @@ import { startFontTestServer, type FontTestServer } from "./support/font-server.
 
 const fontPath = "/assets/miaixz-icons.woff2";
 const fontDirectory = resolve(process.cwd(), "dist/assets/fonts");
+const rangeStart = 0xf0000;
+const rangeEnd = 0xf06f4;
+const unicodeRange = "U+F0000-F06F4";
 const fonts = Object.freeze({
   [fontPath]: new Uint8Array(await readFile(resolve(fontDirectory, "miaixz-icons.woff2"))),
 });
@@ -58,7 +61,7 @@ async function mountFontSurface(
             font-family: "Miaixz Icons";
             src: url("${server.origin}${fontPath}") format("woff2");
             font-display: block;
-            unicode-range: U+F0000-F03FF;
+            unicode-range: ${unicodeRange};
           }
           .icon {
             --fill: 0;
@@ -81,7 +84,7 @@ async function mountFontSurface(
 test("loads the single font for a low-range glyph", async ({ page }) => {
   const server = await startFontTestServer({ fonts });
   try {
-    await mountFontSurface(page, server, String.fromCodePoint(0xf0000));
+    await mountFontSurface(page, server, String.fromCodePoint(rangeStart));
     await expect.poll(() => server.count(fontPath)).toBe(1);
     expect(await page.evaluate(() => document.fonts.check('64px "Miaixz Icons"'))).toBe(true);
     await expect(page.getByTestId("icon")).toHaveAttribute("aria-hidden", "true");
@@ -93,7 +96,7 @@ test("loads the single font for a low-range glyph", async ({ page }) => {
 test("loads the same single font for a high-range glyph", async ({ page }) => {
   const server = await startFontTestServer({ fonts });
   try {
-    await mountFontSurface(page, server, String.fromCodePoint(0xf0040));
+    await mountFontSurface(page, server, String.fromCodePoint(rangeEnd));
     await expect.poll(() => server.count(fontPath)).toBe(1);
     expect(await page.evaluate(() => document.fonts.check('64px "Miaixz Icons"'))).toBe(true);
   } finally {
@@ -107,7 +110,7 @@ test("serves low- and high-range glyphs from one request", async ({ page }) => {
     await mountFontSurface(
       page,
       server,
-      `${String.fromCodePoint(0xf0000)}${String.fromCodePoint(0xf0040)}`,
+      `${String.fromCodePoint(rangeStart)}${String.fromCodePoint(rangeEnd)}`,
     );
     await expect.poll(() => server.count(fontPath)).toBe(1);
     expect(server.requests).toEqual([{ method: "GET", path: fontPath, status: 200 }]);

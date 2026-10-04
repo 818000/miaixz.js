@@ -26,11 +26,12 @@ import { render } from "@testing-library/react";
 import { createRef } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { INTERNAL_ICON_BY_NAME } from "../../src/autogen/icons.js";
 import { Icon } from "../../src/react/index.js";
-import { resetMiaixzIconFontLoads } from "../../src/runtime/index.js";
+import { resetIconFontLoads } from "../../src/runtime/index.js";
 
 afterEach(() => {
-  resetMiaixzIconFontLoads();
+  resetIconFontLoads();
 });
 
 describe("Icon", () => {
@@ -48,7 +49,9 @@ describe("Icon", () => {
     const glyph = root.querySelector(".miaixz-icon-glyph");
     expect(glyph).not.toBeNull();
     expect(glyph?.textContent).toBe("");
-    expect(glyph?.getAttribute("data-miaixz-icon-glyph")).toBe(String.fromCodePoint(0xf0034));
+    expect(glyph?.getAttribute("data-miaixz-icon-glyph")).toBe(
+      INTERNAL_ICON_BY_NAME.get("search")?.glyph,
+    );
   });
 
   it("keeps decorative icons out of the accessibility tree", () => {

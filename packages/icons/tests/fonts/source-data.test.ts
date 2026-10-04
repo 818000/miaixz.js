@@ -19,81 +19,111 @@
 */
 
 /**
- * Verifies the frozen catalog, release plan, and pre-drawing design briefs.
+ * Verifies the complete JSON, Designspace, UFO, geometry, and topology source graph.
  */
 
 import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+const repositoryRoot = resolve(process.cwd(), "../..");
 const assetsRoot = resolve(process.cwd(), "src/assets");
+const packageRequire = createRequire(import.meta.url);
+const Ajv2020 = packageRequire("ajv/dist/2020").default as new (options: unknown) => {
+  addSchema: (schema: unknown) => void;
+  getSchema: (id: string) => ((value: unknown) => boolean) | undefined;
+};
+const loaderUrl = pathToFileURL(
+  resolve(repositoryRoot, ".github/scripts/modules/icons/source.mjs"),
+).href;
+const { loadIconSource } = (await import(loaderUrl)) as {
+  loadIconSource: (options?: { validateUfo?: boolean }) => Promise<{
+    icons: readonly { name: string; codepoint: number; category: string }[];
+    categories: readonly string[];
+    shardPaths: readonly string[];
+  }>;
+};
 
-/**
- * Reads one source-data JSON file.
- *
- * @param name - Asset filename.
- * @returns Parsed JSON data.
- */
-async function readAsset(name: string): Promise<Record<string, unknown>> {
-  return JSON.parse(await readFile(resolve(assetsRoot, name), "utf8")) as Record<string, unknown>;
-}
-
-describe("frozen icon source data", () => {
-  it("contains one complete non-empty brief for every canonical name", async () => {
-    const plan = await readAsset("release-plan.json");
-    const briefFile = await readAsset("design-briefs.json");
-    const schema = await readAsset("design-briefs.schema.json");
-    const canonicalNames = plan.canonicalNames as string[];
-    const briefs = briefFile.briefs as Record<string, unknown>[];
-    const itemSchema = (
-      (schema.properties as Record<string, unknown>).briefs as {
-        items: { required: string[] };
-      }
-    ).items;
-
-    expect(briefs).toHaveLength(1024);
-    expect(briefs.map(({ name }) => name)).toEqual(canonicalNames);
-    expect(new Set(briefs.map(({ name }) => name)).size).toBe(1024);
-    for (const brief of briefs) {
-      expect(Object.keys(brief)).toEqual(expect.arrayContaining(itemSchema.required));
-      for (const key of [
-        "intent",
-        "metaphor",
-        "primaryObject",
-        "compactAdjustments",
-        "standardConstruction",
-        "displayAdjustments",
-        "outlineStrategy",
-        "filledStrategy",
-        "topologyPlan",
-      ]) {
-        expect(String(brief[key]).trim().length).toBeGreaterThan(0);
-      }
-      expect(brief.forbiddenMeanings).toEqual([expect.any(String)]);
-      expect(brief.secondaryObjects).toEqual(expect.arrayContaining([expect.any(String)]));
-      expect(brief.degenerates).toEqual(expect.any(Object));
-      expect(brief.automatedReview).toEqual({
-        engine: "miaixz-icons-brief-validator",
-        rulesetVersion: 1,
-        sourceDigest: expect.stringMatching(/^[0-9a-f]{64}$/u),
-        status: "passed",
-      });
-      expect(brief).not.toHaveProperty("reviewers");
-      expect(brief).not.toHaveProperty("approvalCommit");
-    }
+describe("icon source graph", () => {
+  it("validates every source record and all six UFO masters", async () => {
+    const source = await loadIconSource({ validateUfo: true });
+    expect(source.icons).toHaveLength(1781);
+    expect(source.categories.length).toBeGreaterThan(1);
+    expect(source.shardPaths).toHaveLength(7);
+    expect(source.icons[0]).toMatchObject({ name: "accessibility", codepoint: 0xf0000 });
+    expect(source.icons.at(-1)).toMatchObject({ name: "zoom-out", codepoint: 0xf06f4 });
+    expect(new Set(source.icons.map(({ category }) => category))).toEqual(
+      new Set(source.categories),
+    );
   });
 
-  it("commits draft 2020-12 schemas for every source-data document", async () => {
-    for (const filename of [
-      "catalog.schema.json",
-      "design-briefs.schema.json",
-      "release-plan.schema.json",
-    ]) {
-      const schema = await readAsset(filename);
-      expect(schema.$schema).toBe("https://json-schema.org/draft/2020-12/schema");
-      expect(schema.type).toBe("object");
-      expect(schema.additionalProperties).toBe(false);
+  it("rejects unknown manifest fields through Draft 2020-12", async () => {
+    const schema = JSON.parse(
+      await readFile(resolve(assetsRoot, "source.schema.json"), "utf8"),
+    ) as Record<string, unknown>;
+    const manifest = JSON.parse(
+      await readFile(resolve(assetsRoot, "icons.json"), "utf8"),
+    ) as Record<string, unknown>;
+    const ajv = new Ajv2020({ allErrors: true, strict: true });
+    ajv.addSchema(schema);
+    const validate = ajv.getSchema("https://miaixz.org/schema/icons/source.json#/$defs/manifest");
+    expect(validate).toBeDefined();
+    expect(validate?.({ ...manifest, formatVersion: "0.6.5" })).toBe(false);
+  });
+
+  it("keeps one-word category boundaries and audited semantic assignments", async () => {
+    const manifest = JSON.parse(await readFile(resolve(assetsRoot, "icons.json"), "utf8")) as {
+      readonly categories: readonly { readonly id: string; readonly description: string }[];
+    };
+    expect(manifest.categories.every(({ id }) => /^[a-z]+$/u.test(id))).toBe(true);
+    expect(
+      manifest.categories.every(({ description }) => description.includes("; excludes ")),
+    ).toBe(true);
+    expect(manifest.categories.map(({ id }) => id)).not.toEqual(
+      expect.arrayContaining(["core", "misc", "other"]),
+    );
+
+    const source = await loadIconSource();
+    const categoryByName = new Map(source.icons.map(({ name, category }) => [name, category]));
+    expect(
+      Object.fromEntries(
+        [
+          "banana",
+          "bird",
+          "book",
+          "building",
+          "cable-car",
+          "card-sim",
+          "carrot",
+          "cloud-backup",
+          "mouse-pointer-ban",
+          "send-to-back",
+        ].map((name) => [name, categoryByName.get(name)]),
+      ),
+    ).toEqual({
+      banana: "food",
+      bird: "animals",
+      book: "education",
+      building: "buildings",
+      "cable-car": "transport",
+      "card-sim": "devices",
+      carrot: "food",
+      "cloud-backup": "development",
+      "mouse-pointer-ban": "interface",
+      "send-to-back": "actions",
+    });
+  });
+
+  it("keeps project versions out of every source JSON", async () => {
+    const source = await loadIconSource();
+    const documents = ["icons.json", "design.json", "source.schema.json", ...source.shardPaths];
+    for (const path of documents) {
+      const value = JSON.parse(await readFile(resolve(assetsRoot, path), "utf8")) as unknown;
+      const text = JSON.stringify(value);
+      expect(text).not.toMatch(/"(?:release|schemaVersion|formatVersion)"/u);
     }
   });
 });

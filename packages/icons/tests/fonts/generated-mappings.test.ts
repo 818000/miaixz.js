@@ -19,7 +19,7 @@
 */
 
 /**
- * Proves generated TypeScript is an exact projection of the frozen JSON data.
+ * Verifies the single generated TypeScript projection of the source shards.
  */
 
 import { readFile } from "node:fs/promises";
@@ -27,53 +27,62 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { ICON_CODEPOINTS, ICON_GLYPH_BY_NAME } from "../../src/autogen/codepoints.js";
-import { ICON_CATALOG, ICON_NAME_LIST } from "../../src/autogen/catalog.js";
+import {
+  ICON_CATALOG,
+  ICON_NAMES,
+  INTERNAL_ICON_BY_NAME,
+  INTERNAL_ICON_RECORDS,
+} from "../../src/autogen/icons.js";
 
 const assetsRoot = resolve(process.cwd(), "src/assets");
-const ledger = JSON.parse(await readFile(resolve(assetsRoot, "fonts/codepoints.json"), "utf8")) as {
-  icons: readonly {
-    name: string;
-    codepoint: number;
-    glyphName: string;
-    tier: "core" | "extended";
-  }[];
+const manifest = JSON.parse(await readFile(resolve(assetsRoot, "icons.json"), "utf8")) as {
+  readonly shards: readonly string[];
 };
-const catalog = JSON.parse(await readFile(resolve(assetsRoot, "catalog.json"), "utf8")) as {
-  icons: readonly { name: string; rtl: "none" | "mirror"; tier: "core" | "extended" }[];
-};
-const releasePlan = JSON.parse(
-  await readFile(resolve(assetsRoot, "release-plan.json"), "utf8"),
-) as {
-  coreNames: readonly string[];
-  extendedNames: readonly string[];
-};
+const icons = (
+  await Promise.all(
+    manifest.shards.map(async (path) => {
+      const shard = JSON.parse(await readFile(resolve(assetsRoot, path), "utf8")) as {
+        readonly icons: readonly {
+          readonly name: string;
+          readonly codepoint: number;
+          readonly category: string;
+          readonly opticalClass: string;
+          readonly tier: string;
+          readonly rtl: string;
+        }[];
+      };
+      return shard.icons;
+    }),
+  )
+).flat();
 
-describe("generated TypeScript mappings", () => {
-  it("matches all 1024 JSON ledger and catalog rows exactly", () => {
-    const rtlByName = new Map(catalog.icons.map((icon) => [icon.name, icon.rtl]));
-    const expected = ledger.icons.map((icon) => ({
-      ...icon,
-      rtl: rtlByName.get(icon.name),
-    }));
-
-    expect(ICON_CODEPOINTS).toHaveLength(1024);
-    expect(ICON_CATALOG).toHaveLength(1024);
-    expect(ICON_NAME_LIST).toHaveLength(1024);
-    expect(ICON_NAME_LIST).toEqual(ICON_CODEPOINTS.map(({ name }) => name));
-    expect(ICON_CODEPOINTS).toEqual(expected);
-    for (const icon of ICON_CODEPOINTS) {
-      expect(ICON_GLYPH_BY_NAME.get(icon.name)).toBe(String.fromCodePoint(icon.codepoint));
-      expect(catalog.icons.find(({ name }) => name === icon.name)?.tier).toBe(icon.tier);
-    }
+describe("generated icon mappings", () => {
+  it("projects all source records into one generated module", () => {
+    expect(Object.values(ICON_NAMES)).toEqual(icons.map(({ name }) => name));
+    expect(ICON_CATALOG).toEqual(
+      icons.map(({ name, category, opticalClass, tier, rtl }) => ({
+        name,
+        category,
+        opticalClass,
+        tier,
+        rtl,
+      })),
+    );
+    expect(INTERNAL_ICON_RECORDS).toEqual(
+      icons.map(({ name, codepoint, rtl }) => ({
+        name,
+        codepoint,
+        glyph: String.fromCodePoint(codepoint),
+        rtl,
+      })),
+    );
   });
 
-  it("matches the frozen 64/960 catalog priority partition", () => {
-    expect(ICON_CODEPOINTS.filter(({ tier }) => tier === "core").map(({ name }) => name)).toEqual(
-      releasePlan.coreNames,
+  it("keeps codepoints internal while retaining complete runtime lookup", () => {
+    expect(ICON_CATALOG.every((entry) => !("codepoint" in entry))).toBe(true);
+    expect(INTERNAL_ICON_BY_NAME.size).toBe(1781);
+    expect(INTERNAL_ICON_BY_NAME.get("search")?.glyph).toBe(
+      String.fromCodePoint(icons.find(({ name }) => name === "search")?.codepoint ?? 0),
     );
-    expect(
-      ICON_CODEPOINTS.filter(({ tier }) => tier === "extended").map(({ name }) => name),
-    ).toEqual(releasePlan.extendedNames);
   });
 });

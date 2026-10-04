@@ -19,58 +19,24 @@
 */
 
 /**
- * Verifies deterministic public identifier safety before code generation.
+ * Verifies deterministic canonical-name identifier generation.
  */
-
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const repositoryRoot = resolve(process.cwd(), "../..");
-const codegenPath = resolve(
-  repositoryRoot,
-  ".github/scripts/modules/icons/codegen/generate-icons.mjs",
-);
-const moduleUrl = pathToFileURL(codegenPath).href;
-const { toIconIdentifier, validateIconIdentifiers, validateTypeScriptIdentifier } = (await import(
-  moduleUrl
-)) as {
-  toIconIdentifier: (name: string) => string;
-  validateIconIdentifiers: (names: readonly string[]) => ReadonlyMap<string, string>;
-  validateTypeScriptIdentifier: (identifier: string) => void;
-};
+import { ICON_NAMES } from "../../src/autogen/icons.js";
 
 describe("generated icon identifiers", () => {
-  it("keeps the historical-name source independent from release versions", async () => {
-    const source = await readFile(codegenPath, "utf8");
-    const historicalNames = JSON.parse(
-      await readFile(
-        resolve(repositoryRoot, "packages/icons/src/assets/historical-icon-names.json"),
-        "utf8",
-      ),
-    ) as readonly string[];
-
-    expect(source).toContain('resolve(assetsRoot, "historical-icon-names.json")');
-    expect(source).not.toMatch(/historical-icon-names-\d+\.\d+\.\d+/u);
-    expect(new Set(historicalNames).size).toBe(1780);
+  it("uses unique SCREAMING_SNAKE_CASE keys", () => {
+    const keys = Object.keys(ICON_NAMES);
+    expect(keys).toHaveLength(1781);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(keys.every((key) => /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/u.test(key))).toBe(true);
   });
 
-  it("uses a keyword-safe suffix for canonical names", () => {
-    expect(toIconIdentifier("delete")).toBe("DeleteIcon");
-    expect(toIconIdentifier("class")).toBe("ClassIcon");
-  });
-
-  it("rejects a direct JavaScript keyword identifier", () => {
-    expect(() => validateTypeScriptIdentifier("class")).toThrow(
-      /Invalid TypeScript icon identifier/u,
-    );
-  });
-
-  it("rejects two names that collapse to the same identifier", () => {
-    expect(() => validateIconIdentifiers(["x-1", "x1"])).toThrow(
-      /collision: x-1 and x1 both become X1Icon/u,
-    );
+  it("uses canonical kebab-case values without aliases", () => {
+    const names = Object.values(ICON_NAMES);
+    expect(new Set(names).size).toBe(names.length);
+    expect(names.every((name) => /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u.test(name))).toBe(true);
   });
 });

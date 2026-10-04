@@ -19,38 +19,37 @@
 */
 
 /**
- * Verifies the font-only icon package boundary.
+ * Verifies the exact public package boundary.
  */
 
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
-import { ICON_NAME_LIST, resolveMiaixzIcon } from "../../src/index.js";
+
+import * as publicApi from "../../src/index.js";
 
 const repositoryRoot = resolve(process.cwd(), "../..");
 
 describe("icon package skeleton", () => {
-  it("exports exactly 1024 self-owned font names", () => {
-    expect(ICON_NAME_LIST).toHaveLength(1024);
-    expect(ICON_NAME_LIST.every((name) => resolveMiaixzIcon(name).name === name)).toBe(true);
+  it("exports exactly the frozen runtime values", () => {
+    expect(Object.keys(publicApi).sort()).toEqual([
+      "ICON_CATALOG",
+      "ICON_NAMES",
+      "Icon",
+      "isIconName",
+      "parseIconName",
+      "preloadIconFont",
+    ]);
+    expect(publicApi.ICON_CATALOG).toHaveLength(1781);
+    expect(Object.keys(publicApi.ICON_NAMES)).toHaveLength(1781);
   });
 
-  it("contains no provider workspace, protocol export, or implementation directory", () => {
-    const rootManifest = JSON.parse(
-      readFileSync(resolve(repositoryRoot, "package.json"), "utf8"),
-    ) as { readonly workspaces: readonly string[] };
-    const packageManifest = JSON.parse(
-      readFileSync(resolve(process.cwd(), "package.json"), "utf8"),
-    ) as { readonly exports: Readonly<Record<string, unknown>> };
-
-    expect(rootManifest.workspaces.some((workspace) => workspace.startsWith("providers/"))).toBe(
-      false,
-    );
-    expect(packageManifest.exports).not.toHaveProperty("./provider");
+  it("contains only the three supported package exports", () => {
+    const manifest = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf8")) as {
+      readonly exports: Readonly<Record<string, unknown>>;
+    };
+    expect(Object.keys(manifest.exports)).toEqual([".", "./styles.css", "./font.woff2"]);
     expect(existsSync(resolve(repositoryRoot, "providers"))).toBe(false);
-    for (const path of ["src/provider.ts", "src/schema", "src/runtime/registry.ts"]) {
-      expect(existsSync(resolve(process.cwd(), path))).toBe(false);
-    }
   });
 });

@@ -19,86 +19,65 @@
 */
 
 /**
- * Verifies deterministic font lookup and single-font loading.
+ * Verifies canonical lookup and the single-font loading state.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   isIconName,
-  loadMiaixzIconFont,
   parseIconName,
-  preloadMiaixzIconFont,
-  readMiaixzIcon,
-  resetMiaixzIconFontLoads,
-  resolveMiaixzIcon,
+  preloadIconFont,
+  readIcon,
+  resetIconFontLoads,
 } from "../../src/runtime/index.js";
 
 afterEach(() => {
-  resetMiaixzIconFontLoads();
+  resetIconFontLoads();
   Reflect.deleteProperty(document, "fonts");
 });
 
 describe("font icon runtime", () => {
-  it("exposes only font-backed names and immutable records", () => {
+  it("validates canonical names without exposing records", () => {
     expect(isIconName("search")).toBe(true);
-    expect(isIconName("zoom-in")).toBe(true);
     expect(isIconName("not-a-real-icon")).toBe(false);
     expect(parseIconName("search")).toBe("search");
     expect(() => parseIconName("not-a-real-icon")).toThrow("Unknown icon name");
-    expect(resolveMiaixzIcon("search")).toEqual(
-      expect.objectContaining({ glyph: String.fromCodePoint(0xf0034) }),
-    );
   });
 
-  it("deduplicates concurrent requests for any glyph in the complete font", async () => {
+  it("deduplicates public font preload requests", async () => {
     const load = vi.fn(async () => [Object.freeze({})] as FontFace[]);
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
-
-    await Promise.all([
-      ...Array.from({ length: 100 }, () => loadMiaixzIconFont("a")),
-      ...Array.from({ length: 100 }, () => loadMiaixzIconFont("b")),
-    ]);
-
-    expect(load).toHaveBeenCalledTimes(1);
-    await preloadMiaixzIconFont();
+    await Promise.all(Array.from({ length: 100 }, () => preloadIconFont()));
     expect(load).toHaveBeenCalledTimes(1);
   });
 
-  it("resolves immediately without the Font Loading API", async () => {
+  it("resolves immediately during SSR-like execution", async () => {
     Reflect.deleteProperty(document, "fonts");
-    await expect(loadMiaixzIconFont("a")).resolves.toBeUndefined();
-    expect(readMiaixzIcon("help")).toEqual(expect.objectContaining({ name: "help" }));
+    await expect(preloadIconFont()).resolves.toBeUndefined();
+    expect(readIcon("help")).toEqual(expect.objectContaining({ name: "help" }));
   });
 
-  it("suspends once and returns a record after the font resolves", async () => {
+  it("suspends once and returns the internal record after loading", async () => {
     const load = vi.fn(async () => [Object.freeze({})] as FontFace[]);
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
     let pending: unknown;
     try {
-      readMiaixzIcon("help");
+      readIcon("help");
     } catch (error: unknown) {
       pending = error;
     }
     expect(pending).toBeInstanceOf(Promise);
     await (pending as Promise<void>);
-    expect(readMiaixzIcon("help")).toEqual(expect.objectContaining({ name: "help" }));
+    expect(readIcon("help")).toEqual(expect.objectContaining({ name: "help" }));
   });
 
-  it("turns an empty font result into a controlled failed state", async () => {
+  it("retains a controlled failed state", async () => {
     const load = vi.fn(async () => [] as FontFace[]);
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
-    await expect(loadMiaixzIconFont("b")).rejects.toThrow("Unable to load the icon font");
-    expect(readMiaixzIcon("accessibility")).toBeNull();
-    await expect(loadMiaixzIconFont("b")).rejects.toThrow("Unable to load the icon font");
-  });
-
-  it("retains a rejected browser font error for deterministic retries", async () => {
-    const failure = new Error("font fixture failure");
-    const load = vi.fn(async () => Promise.reject(failure));
-    Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
-    await expect(loadMiaixzIconFont("a")).rejects.toBe(failure);
-    await expect(loadMiaixzIconFont("a")).rejects.toBe(failure);
+    await expect(preloadIconFont()).rejects.toThrow("Unable to load the icon font");
+    expect(readIcon("accessibility")).toBeNull();
+    await expect(preloadIconFont()).rejects.toThrow("Unable to load the icon font");
     expect(load).toHaveBeenCalledTimes(1);
   });
 });

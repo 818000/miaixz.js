@@ -28,6 +28,14 @@ const configuration = {
   semi: true,
   singleQuote: false,
   trailingComma: "all",
+  overrides: [
+    {
+      files: "../icons/src/assets/**/*.json",
+      options: {
+        parser: "json-stringify",
+      },
+    },
+  ],
 };
 
 export default configuration;

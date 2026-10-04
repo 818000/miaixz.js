@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://miaixz.org/schema/icons/source.json",
+  "$defs": {
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]+$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "categories",
+        "shards"
+      ],
+      "properties": {
+        "categories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/category"
+          }
+        },
+        "shards": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^icons/f[0-9a-f]{4}-f[0-9a-f]{4}\\.json$"
+          }
+        }
+      }
+    },
+    "icon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "codepoint",
+        "category",
+        "opticalClass",
+        "tier",
+        "rtl"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "codepoint": {
+          "type": "integer",
+          "minimum": 983040,
+          "maximum": 984820
+        },
+        "category": {
+          "type": "string",
+          "pattern": "^[a-z]+$"
+        },
+        "opticalClass": {
+          "enum": [
+            "regular",
+            "wide",
+            "tall",
+            "directional",
+            "compound",
+            "line-symbol"
+          ]
+        },
+        "tier": {
+          "enum": [
+            "core",
+            "extended"
+          ]
+        },
+        "rtl": {
+          "enum": [
+            "none",
+            "mirror"
+          ]
+        }
+      }
+    },
+    "shard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "icons"
+      ],
+      "properties": {
+        "icons": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/icon"
+          }
+        }
+      }
+    },
+    "positiveMetric": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "opticalMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "longestEdge",
+        "centerTolerance",
+        "coverageTolerance"
+      ],
+      "properties": {
+        "longestEdge": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/positiveMetric"
+            },
+            {
+              "$ref": "#/$defs/positiveMetric"
+            }
+          ],
+          "items": false
+        },
+        "centerTolerance": {
+          "$ref": "#/$defs/positiveMetric"
+        },
+        "coverageTolerance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grid",
+        "stroke",
+        "corners",
+        "opticalClasses",
+        "geometryPolicy",
+        "limits"
+      ],
+      "properties": {
+        "grid": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "conceptUnits",
+            "fontUnitsPerConceptUnit",
+            "safeBounds",
+            "opticalCenter"
+          ],
+          "properties": {
+            "conceptUnits": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "fontUnitsPerConceptUnit": {
+              "$ref": "#/$defs/positiveMetric"
+            },
+            "safeBounds": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "number"
+              }
+            },
+            "opticalCenter": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "stroke": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "outline",
+            "filledDelta",
+            "minimumGap"
+          ],
+          "properties": {
+            "outline": {
+              "$ref": "#/$defs/opticalSizes"
+            },
+            "filledDelta": {
+              "$ref": "#/$defs/positiveMetric"
+            },
+            "minimumGap": {
+              "$ref": "#/$defs/opticalSizes"
+            }
+          }
+        },
+        "corners": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "compact",
+            "standard",
+            "display",
+            "endpoint",
+            "join"
+          ],
+          "properties": {
+            "compact": {
+              "$ref": "#/$defs/positiveMetric"
+            },
+            "standard": {
+              "$ref": "#/$defs/positiveMetric"
+            },
+            "display": {
+              "$ref": "#/$defs/positiveMetric"
+            },
+            "endpoint": {
+              "const": "round"
+            },
+            "join": {
+              "const": "round"
+            }
+          }
+        },
+        "opticalClasses": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "regular",
+            "wide",
+            "tall",
+            "directional",
+            "compound",
+            "line-symbol"
+          ],
+          "properties": {
+            "regular": {
+              "$ref": "#/$defs/opticalMetrics"
+            },
+            "wide": {
+              "$ref": "#/$defs/opticalMetrics"
+            },
+            "tall": {
+              "$ref": "#/$defs/opticalMetrics"
+            },
+            "directional": {
+              "$ref": "#/$defs/opticalMetrics"
+            },
+            "compound": {
+              "$ref": "#/$defs/opticalMetrics"
+            },
+            "line-symbol": {
+              "$ref": "#/$defs/opticalMetrics"
+            }
+          }
+        },
+        "geometryPolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "origin",
+            "referencePolicy",
+            "externalGeometry",
+            "thirdPartyGeometry"
+          ],
+          "properties": {
+            "origin": {
+              "const": "miaixz"
+            },
+            "referencePolicy": {
+              "const": "semantic-only"
+            },
+            "externalGeometry": {
+              "const": false
+            },
+            "thirdPartyGeometry": {
+              "const": false
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fontBytes"
+          ],
+          "properties": {
+            "fontBytes": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "opticalSizes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "compact",
+        "standard",
+        "display"
+      ],
+      "properties": {
+        "compact": {
+          "$ref": "#/$defs/positiveMetric"
+        },
+        "standard": {
+          "$ref": "#/$defs/positiveMetric"
+        },
+        "display": {
+          "$ref": "#/$defs/positiveMetric"
+        }
+      }
+    }
+  }
+}

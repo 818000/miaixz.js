@@ -41,24 +41,26 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./catalog": {
-      "types": "./dist/autogen/catalog.d.ts",
-      "import": "./dist/autogen/catalog.js"
-    },
-    "./styles.css": "./dist/styles/index.css",
+    "./styles.css": "./dist/styles.css",
     "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2"
   },
   "scripts": {
     "clean": "node ../../.github/scripts/modules/icons/hooks/prepare-build.mjs",
-    "build": "npm run clean && tsc -p tsconfig.build.json && node ../../.github/scripts/modules/icons/hooks/finalize-build.mjs",
+    "generate": "node ../../.github/scripts/modules/icons/codegen/generate-icons.mjs --write",
+    "generate:check": "node ../../.github/scripts/modules/icons/codegen/generate-icons.mjs --check",
+    "source:check": "node ../../.github/scripts/modules/icons/quality/validate-icon-package.mjs --scope source",
+    "font:build": "node ../../.github/scripts/modules/icons/fonts/build-icon-font.mjs --write",
+    "font:check": "node ../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs --mode source",
+    "package:check": "node ../../.github/scripts/modules/icons/quality/validate-icon-package.mjs --scope package",
+    "build": "npm run clean && npm run source:check && npm run generate:check && npm run font:build && tsc -p tsconfig.build.json && node ../../.github/scripts/modules/icons/hooks/finalize-build.mjs && npm run package:check",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src tests *.config.ts --config ../ui/eslint.config.js --no-error-on-unmatched-pattern && stylelint \"src/**/*.css\" --config ../ui/stylelint.config.js",
     "test": "vitest run",
     "test:browser": "playwright test",
     "test:coverage": "vitest run --coverage",
-    "format": "prettier src tests README.md package.json *.config.ts --write --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
-    "format:check": "prettier src tests README.md package.json *.config.ts --check --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
-    "check": "npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
+    "format": "prettier src/autogen src/react src/runtime src/styles src/index.ts tests README.md package.json *.config.ts --write --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
+    "format:check": "prettier src/autogen src/react src/runtime src/styles src/index.ts tests README.md package.json *.config.ts --check --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
+    "check": "npm run source:check && npm run generate:check && npm run font:check && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
     "react": ">=18.3 <20",
@@ -73,6 +75,7 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "@vitest/coverage-v8": "4.1.11",
+    "ajv": "8.17.1",
     "eslint": "10.9.1",
     "jsdom": "29.1.1",
     "pixelmatch": "7.1.0",

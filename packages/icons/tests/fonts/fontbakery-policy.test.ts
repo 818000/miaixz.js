@@ -30,12 +30,6 @@ import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(process.cwd(), "../..");
 const release = (await readFile(resolve(repositoryRoot, "VERSION"), "utf8")).trim();
-const fontVersionCore = release.split("-")[0]!;
-const [fontVersionMajor, fontVersionMinorPart, fontVersionPatch] = fontVersionCore
-  .split(".")
-  .map(Number);
-const fontVersionMinor = fontVersionMinorPart! * 100 + fontVersionPatch!;
-const openTypeVersion = `Version ${fontVersionMajor}.${String(fontVersionMinor).padStart(3, "0")}`;
 const validatorUrl = pathToFileURL(
   resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate-icon-font.mjs"),
 ).href;
@@ -72,14 +66,21 @@ describe("FontBakery icon-font policy", () => {
     }
   });
 
-  it("declares fixed-pitch symbol metadata and an OpenType-compatible version", async () => {
+  it("keeps project release versions out of immutable UFO sources", async () => {
     for (const directory of EXPECTED_MASTER_DIRECTORIES) {
       const source = await readFile(resolve(fontsRoot, directory, "fontinfo.plist"), "utf8");
       expect(source).toContain("<key>postscriptIsFixedPitch</key>\n  <true/>");
       expect(source).toContain("<key>openTypeOS2Panose</key>");
-      expect(source).toContain(`<string>${openTypeVersion}</string>`);
-      expect(source).toContain(`;${release}</string>`);
+      expect(source).not.toMatch(
+        /<key>(?:openTypeNameVersion|openTypeNameUniqueID|versionMajor|versionMinor)<\/key>/u,
+      );
     }
+    const buildScript = await readFile(
+      resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/build-icon-font.mjs"),
+      "utf8",
+    );
+    expect(buildScript).toContain("readRepositoryVersion");
+    expect(buildScript).toContain("openTypeNameVersion");
   });
 
   it("defines every FILL and optical-size STAT axis value", async () => {

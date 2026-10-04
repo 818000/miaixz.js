@@ -19,7 +19,7 @@
 */
 
 /**
- * Defines the Miaixz icon font faces and stable renderers.
+ * Defines the Miaixz icon renderer styles.
  */
 
 :where(:root, [data-miaixz-theme]) {
@@ -30,15 +30,6 @@
   --miaixz-icon-size-feature: 24px;
   --miaixz-icon-size-display: 32px;
   --miaixz-icon-size-40: 40px;
-}
-
-@font-face {
-  font-family: "Miaixz Icons";
-  font-style: normal;
-  font-weight: 400;
-  src: url("../assets/fonts/miaixz-icons.woff2") format("woff2");
-  font-display: block;
-  unicode-range: U+F0000-F03FF;
 }
 
 @layer miaixz.icons {

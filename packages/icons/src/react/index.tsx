@@ -30,8 +30,8 @@ import {
   type ReactElement,
 } from "react";
 
-import type { IconName } from "../autogen/catalog.js";
-import { readMiaixzIcon, type IconVariant } from "../runtime/font.js";
+import type { IconName } from "../autogen/icons.js";
+import { readIcon } from "../runtime/font.js";
 
 export type IconSize = "indicator" | "inline" | "control" | "navigation" | "feature" | "display";
 export type IconMotion = "auto" | "none";
@@ -41,7 +41,7 @@ export interface IconProps extends Omit<
   "children" | "role" | "aria-label" | "aria-hidden" | "name"
 > {
   readonly name: IconName;
-  readonly variant?: IconVariant;
+  readonly variant?: "outline" | "filled";
   readonly fill?: number;
   readonly size?: IconSize | number;
   readonly motion?: IconMotion;
@@ -83,7 +83,7 @@ function resolveMetrics(size: IconSize | number): IconMetrics {
  * @param variant - Discrete default variant.
  * @returns A normalized FILL axis value.
  */
-function resolveFill(fill: number | undefined, variant: IconVariant): number {
+function resolveFill(fill: number | undefined, variant: "outline" | "filled"): number {
   if (fill === undefined) return variant === "filled" ? 1 : 0;
   if (!Number.isFinite(fill) || fill < 0 || fill > 1) {
     throw new TypeError("[miaixz] Icon fill must be a finite number from zero through one.");
@@ -102,7 +102,7 @@ interface ResolvedIconProps {
  * @returns Font glyph or controlled failure placeholder.
  */
 function ResolvedIcon(properties: ResolvedIconProps): ReactElement {
-  const definition = readMiaixzIcon(properties.name);
+  const definition = readIcon(properties.name);
   if (definition === null) {
     return <span aria-hidden="true" className="miaixz-icon-placeholder" data-state="failed" />;
   }
