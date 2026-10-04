@@ -27,17 +27,31 @@ import { readFile, readdir } from "node:fs/promises";
 import { extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { getWorkspacePeerRange, readRepositoryVersion } from "../../../miaixz.mjs";
+import {
+  getWorkspacePeerRange,
+  loadWorkspaceRepository,
+  readRepositoryVersion,
+} from "../../../miaixz.mjs";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../../../", import.meta.url)));
 const release = readRepositoryVersion(repositoryRoot);
 const expectedPeerRange = getWorkspacePeerRange(release);
-const corePackages = Object.freeze({
-  "@miaixz/sdk": "packages/sdk",
-  "@miaixz/icons": "packages/icons",
-  "@miaixz/ui": "packages/ui",
-  "@miaixz/view": "packages/view",
-});
+const workspaceRepository = loadWorkspaceRepository(repositoryRoot);
+const requiredPackageNames = Object.freeze([
+  "@miaixz/sdk",
+  "@miaixz/icons",
+  "@miaixz/ui",
+  "@miaixz/view",
+]);
+const corePackages = Object.freeze(
+  Object.fromEntries(
+    requiredPackageNames.map((name) => {
+      const workspace = workspaceRepository.workspaces.find((entry) => entry.name === name);
+      if (workspace === undefined) throw new Error(`Missing required workspace ${name}.`);
+      return [name, workspace.directory];
+    }),
+  ),
+);
 const expectedEdges = new Set([
   "@miaixz/ui->@miaixz/sdk",
   "@miaixz/ui->@miaixz/icons",
@@ -118,8 +132,7 @@ if ([...actualEdges].sort().join("\n") !== [...expectedEdges].sort().join("\n"))
 if (existsSync(resolve(repositoryRoot, "providers"))) {
   failures.push("the removed top-level providers directory still exists");
 }
-const rootManifest = JSON.parse(await readFile(resolve(repositoryRoot, "package.json"), "utf8"));
-if (rootManifest.workspaces.some((workspace) => workspace.startsWith("providers/"))) {
+if (workspaceRepository.workspaces.some(({ directory }) => directory.startsWith("providers/"))) {
   failures.push("root workspaces still include a Provider package");
 }
 

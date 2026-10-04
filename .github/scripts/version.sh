@@ -37,7 +37,7 @@ if [ "$#" -ne 1 ] || [ -z "$1" ]; then
 fi
 
 node --input-type=module - "$root" "$1" <<'NODE'
-import { readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -52,6 +52,7 @@ const {
 assertReleaseVersion(version);
 
 const paths = {
+  iconSbom: join(root, "packages/icons/SBOM.spdx.json"),
   version: join(root, "VERSION"),
 };
 const repository = loadWorkspaceRepository(root);
@@ -63,6 +64,9 @@ const rootPackage = versionedPackages.find(
   ({ relativePath }) => relativePath === "package.json",
 )?.manifest;
 const currentVersion = readFileSync(paths.version, "utf8").trim();
+const iconSbom = existsSync(paths.iconSbom)
+  ? JSON.parse(readFileSync(paths.iconSbom, "utf8"))
+  : undefined;
 
 if (rootPackage?.name !== "miaixz.js") {
   throw new Error("Unexpected root package name; refusing to update versions.");
@@ -102,8 +106,18 @@ for (const workspace of repository.workspaces) {
   }
 }
 
+if (iconSbom !== undefined) {
+  iconSbom.name = `@miaixz/icons-${version}`;
+  iconSbom.documentNamespace = `https://miaixz.org/spdx/icons/${version}`;
+  iconSbom.creationInfo.creators = [`Tool: miaixz-icons-build-${version}`];
+  const iconPackage = iconSbom.packages?.find(({ name }) => name === "@miaixz/icons");
+  if (iconPackage === undefined) throw new Error("Icon SBOM package entry is missing.");
+  iconPackage.versionInfo = version;
+}
+
 const updates = [
   [paths.version, `${version}\n`],
+  ...(iconSbom === undefined ? [] : [[paths.iconSbom, `${JSON.stringify(iconSbom, null, 2)}\n`]]),
   ...versionedPackages.map(({ manifest, manifestPath }) => [
     manifestPath,
     `${JSON.stringify(manifest, null, 2)}\n`,
@@ -161,7 +175,3 @@ console.log(
 );
 console.log(`Internal workspace peer range: ${expectedPeerRange}`);
 NODE
-
-# Regenerate every committed icon artifact whose embedded release metadata is
-# derived from VERSION. The generator reads VERSION directly.
-node "${root}/.github/scripts/modules/icons/codegen/generate-icons.mjs" --write

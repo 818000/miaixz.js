@@ -19,209 +19,202 @@
 */
 
 /**
- * Validates the font-only Miaixz icon package and repository boundary.
+ * Enforces the final icon source boundary and published package allowlist.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, extname, relative, resolve } from "node:path";
-import process from "node:process";
-import { fileURLToPath } from "node:url";
+import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readFile, readdir, stat } from "node:fs/promises";
+import { relative, resolve } from "node:path";
+import { promisify } from "node:util";
+import { pathToFileURL } from "node:url";
 
 import { readRepositoryVersion } from "../../../miaixz.mjs";
+import { assetsRoot, loadIconSource, packageRoot, repositoryRoot } from "../source.mjs";
 
-const scriptPath = fileURLToPath(import.meta.url);
-const repositoryRoot = resolve(dirname(scriptPath), "../../../../..");
-const release = readRepositoryVersion(repositoryRoot);
-const packageRoot = resolve(repositoryRoot, "packages/icons");
-const allowedScopes = new Set(["all", "catalog", "package", "structure"]);
-const namePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+const executeFile = promisify(execFile);
+const allowedScopes = new Set(["all", "package", "source", "structure"]);
 
 /**
- * Reads one required JSON document.
+ * Rejects a failed package invariant.
  *
- * @param {string} path - Absolute JSON path.
- * @returns {any} Parsed value.
+ * @param {unknown} condition Condition to require.
+ * @param {string} message Failure message.
+ * @returns {asserts condition} Nothing when the condition is satisfied.
  */
-function readJson(path) {
-  return JSON.parse(readFileSync(path, "utf8"));
+function invariant(condition, message) {
+  if (!condition) throw new Error(message);
 }
 
 /**
- * Collects relevant source files without entering generated output.
+ * Lists every file below a root using normalized relative paths.
  *
- * @param {string} directory - Source directory.
- * @returns {string[]} Absolute file paths.
+ * @param {string} root Absolute directory path.
+ * @param {string} [base] Original directory used for relative paths.
+ * @returns {Promise<string[]>} Sorted relative file paths.
  */
-function collectSourceFiles(directory) {
-  if (!existsSync(directory)) return [];
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    if (["coverage", "dist", "node_modules"].includes(entry.name)) return [];
-    const path = resolve(directory, entry.name);
-    if (entry.isDirectory()) return collectSourceFiles(path);
-    return [".ts", ".tsx"].includes(extname(path)) ? [path] : [];
-  });
+async function listFiles(root, base = root) {
+  const result = [];
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    const path = resolve(root, entry.name);
+    if (entry.isDirectory()) result.push(...(await listFiles(path, base)));
+    else result.push(relative(base, path));
+  }
+  return result.sort();
 }
 
 /**
- * Parses the fixed validation command line.
+ * Parses the package-validator scope argument.
  *
- * @param {string[]} arguments_ - Command-line arguments.
- * @returns {string} Selected scope.
+ * @param {readonly string[]} arguments_ Command-line arguments.
+ * @returns {string} Requested validation scope.
  */
 export function parseArguments(arguments_) {
   if (arguments_.length === 0) return "all";
-  if (arguments_.length !== 2 || arguments_[0] !== "--scope") {
-    throw new Error(
-      "validate-icon-package.mjs accepts only --scope all|catalog|package|structure.",
-    );
-  }
-  const scope = arguments_[1];
-  if (!allowedScopes.has(scope)) throw new Error(`Invalid icon validation scope: ${scope}`);
-  return scope;
+  invariant(
+    arguments_.length === 2 && arguments_[0] === "--scope",
+    "Expected --scope all|source|structure|package.",
+  );
+  invariant(allowedScopes.has(arguments_[1]), `Invalid icon validation scope: ${arguments_[1]}.`);
+  return arguments_[1];
 }
 
 /**
- * Requires one condition and records a stable diagnostic.
+ * Validates the complete canonical source graph.
  *
- * @param {unknown} condition - Condition to test.
- * @param {string} message - Failure text.
- * @param {string[]} failures - Mutable diagnostic list.
+ * @returns {Promise<void>} Completion promise.
  */
-function assert(condition, message, failures) {
-  if (!condition) failures.push(message);
+async function validateSource() {
+  await loadIconSource({ validateUfo: true });
 }
 
 /**
- * Validates exact self-owned catalog and codepoint alignment.
+ * Validates the exact source directory boundary.
+ *
+ * @returns {Promise<void>} Completion promise.
  */
-function validateCatalog() {
-  const assetsRoot = resolve(packageRoot, "src/assets");
-  const catalog = readJson(resolve(assetsRoot, "catalog.json"));
-  const plan = readJson(resolve(assetsRoot, "release-plan.json"));
-  const codepoints = readJson(resolve(assetsRoot, "fonts/codepoints.json"));
-  const failures = [];
-  const names = catalog.icons?.map((icon) => icon.name) ?? [];
-
-  assert(catalog.release === release, `Catalog release must be ${release}.`, failures);
-  assert(names.length === 1024, "Catalog must contain exactly 1024 icons.", failures);
-  assert(new Set(names).size === 1024, "Catalog names must be unique.", failures);
-  assert(
-    JSON.stringify(names) === JSON.stringify(plan.canonicalNames),
-    "Catalog names must equal the canonical release plan.",
-    failures,
+async function validateStructure() {
+  const rootEntries = (await readdir(assetsRoot)).sort();
+  invariant(
+    JSON.stringify(rootEntries) ===
+      JSON.stringify(["design.json", "fonts", "icons", "icons.json", "source.schema.json"]),
+    `Unexpected source asset set: ${rootEntries.join(", ")}.`,
   );
-  assert(
-    JSON.stringify(names) === JSON.stringify(codepoints.icons?.map((icon) => icon.name)),
-    "Catalog names must equal the codepoint ledger.",
-    failures,
+  const generated = (await readdir(resolve(packageRoot, "src/autogen"))).sort();
+  invariant(
+    JSON.stringify(generated) === JSON.stringify(["icons.ts"]),
+    "src/autogen must contain only icons.ts.",
   );
-  for (const [index, icon] of (catalog.icons ?? []).entries()) {
-    const label = `catalog.icons[${String(index)}]`;
-    assert(namePattern.test(icon.name), `${label}.name is invalid.`, failures);
-    assert(icon.source === "miaixz", `${label}.source must be miaixz.`, failures);
-    assert(icon.status === "stable", `${label}.status must be stable.`, failures);
-    assert(["core", "extended"].includes(icon.tier), `${label}.tier is invalid.`, failures);
-    assert(Array.isArray(icon.aliases), `${label}.aliases must be an array.`, failures);
-  }
-
-  const usedNames = new Set();
-  for (const sourceRoot of ["packages/ui/src", "packages/view/src"]) {
-    for (const file of collectSourceFiles(resolve(repositoryRoot, sourceRoot))) {
-      const source = readFileSync(file, "utf8");
-      for (const match of source.matchAll(/<Icon\b[^>]*\bname=["']([a-z0-9-]+)["']/gsu)) {
-        if (match[1] !== undefined) usedNames.add(match[1]);
-      }
-      for (const match of source.matchAll(/\bicon:\s*["']([a-z0-9-]+)["']/gu)) {
-        if (match[1] !== undefined) usedNames.add(match[1]);
-      }
-    }
-  }
-  for (const name of usedNames) {
-    assert(names.includes(name), `Core package usage is not a canonical icon: ${name}`, failures);
-  }
-  if (failures.length > 0) throw new Error(failures.sort().join("\n"));
+  const styles = (await readdir(resolve(packageRoot, "src/styles"))).sort();
+  invariant(
+    JSON.stringify(styles) === JSON.stringify(["index.css"]),
+    "src/styles must contain only index.css.",
+  );
 }
 
 /**
- * Validates that the implementation has no Provider, Registry, or SVG extension surface.
+ * Determines whether a compiled file belongs to the public package contract.
+ *
+ * @param {string} path Dist-relative file path.
+ * @returns {boolean} Whether the file is allowed.
  */
-function validateStructure() {
-  const failures = [];
-  for (const path of ["src/autogen", "src/react", "src/runtime", "src/styles"]) {
-    assert(
-      existsSync(resolve(packageRoot, path)),
-      `Required icon path is missing: ${path}`,
-      failures,
-    );
-  }
-  for (const path of [
-    "providers",
-    "packages/icons/src/provider.ts",
-    "packages/icons/src/schema",
-    "packages/icons/src/runtime/registry.ts",
-    "packages/icons/src/autogen/provider.ts",
-    "packages/icons/src/autogen/manifest.ts",
+function allowedDistFile(path) {
+  return (
+    path === "assets/fonts/miaixz-icons.woff2" ||
+    path === "styles.css" ||
+    /^(?:autogen|react|runtime)\/.*\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path) ||
+    /^(?:index)\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path)
+  );
+}
+
+/**
+ * Determines whether a packed file belongs to the published allowlist.
+ *
+ * @param {string} path Package-relative file path.
+ * @returns {boolean} Whether the file is allowed.
+ */
+function allowedPackedFile(path) {
+  return (
+    ["LICENSE", "NOTICE", "README.md", "SBOM.spdx.json", "package.json"].includes(path) ||
+    (path.startsWith("dist/") && allowedDistFile(path.slice("dist/".length)))
+  );
+}
+
+/**
+ * Validates compiled output and the dry-run package contents.
+ *
+ * @returns {Promise<void>} Completion promise.
+ */
+async function validatePackage() {
+  const release = readRepositoryVersion(repositoryRoot);
+  const manifest = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
+  invariant(manifest.name === "@miaixz/icons", "Unexpected icon package name.");
+  invariant(manifest.version === release, `Icon package version must be ${release}.`);
+  invariant(
+    JSON.stringify(Object.keys(manifest.exports)) ===
+      JSON.stringify([".", "./styles.css", "./font.woff2"]),
+    "Icon package exports must contain exactly root, styles.css, and font.woff2.",
+  );
+  invariant(
+    manifest.exports["./styles.css"] === "./dist/styles.css",
+    "styles.css export is invalid.",
+  );
+  invariant(
+    manifest.exports["./font.woff2"] === "./dist/assets/fonts/miaixz-icons.woff2",
+    "font.woff2 export is invalid.",
+  );
+  const distRoot = resolve(packageRoot, "dist");
+  invariant(existsSync(distRoot), "Icon dist directory is missing.");
+  const distFiles = await listFiles(distRoot);
+  for (const path of distFiles) invariant(allowedDistFile(path), `Unexpected dist file: ${path}.`);
+  for (const required of [
+    "index.js",
+    "index.d.ts",
+    "styles.css",
+    "assets/fonts/miaixz-icons.woff2",
   ]) {
-    assert(
-      !existsSync(resolve(repositoryRoot, path)),
-      `Forbidden icon path remains: ${path}`,
-      failures,
-    );
+    invariant(distFiles.includes(required), `Required dist file is missing: ${required}.`);
   }
-  const sourceFiles = collectSourceFiles(resolve(packageRoot, "src"));
-  for (const file of sourceFiles) {
-    const source = readFileSync(file, "utf8");
-    assert(
-      !/IconProvider|IconRegistry|SvgIconDefinition|fillTransition|crossfade/u.test(source),
-      `Removed extension API remains in ${relative(repositoryRoot, file)}.`,
-      failures,
-    );
-  }
-  if (failures.length > 0) throw new Error(failures.sort().join("\n"));
-}
-
-/**
- * Validates package metadata and the four-workspace repository boundary.
- */
-function validatePackage() {
-  const rootManifest = readJson(resolve(repositoryRoot, "package.json"));
-  const manifest = readJson(resolve(packageRoot, "package.json"));
-  const failures = [];
-  assert(manifest.name === "@miaixz/icons", "Core package name is invalid.", failures);
-  assert(manifest.version === release, `Core package version must be ${release}.`, failures);
-  assert(manifest.exports?.["./provider"] === undefined, "Provider export remains.", failures);
-  assert(
-    JSON.stringify(rootManifest.workspaces) ===
-      JSON.stringify(["packages/sdk", "packages/ui", "packages/view", "packages/icons"]),
-    "Root workspaces must contain exactly the four core packages.",
-    failures,
+  const source = await loadIconSource();
+  invariant(
+    (await stat(resolve(distRoot, "assets/fonts/miaixz-icons.woff2"))).size <=
+      source.design.limits.fontBytes,
+    "Published icon font exceeds its byte limit.",
   );
-  if (failures.length > 0) throw new Error(failures.sort().join("\n"));
+  const css = await readFile(resolve(distRoot, "styles.css"), "utf8");
+  invariant(!/@import\b/u.test(css), "Published styles.css contains @import.");
+  invariant(
+    css.includes('url("./assets/fonts/miaixz-icons.woff2")'),
+    "Published font URL is invalid.",
+  );
+  invariant(css.includes("unicode-range: U+F0000-F06F4;"), "Published Unicode range is invalid.");
+  const { stdout } = await executeFile("npm", ["pack", "--dry-run", "--json"], {
+    cwd: packageRoot,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  const pack = JSON.parse(stdout)[0];
+  for (const { path } of pack.files)
+    invariant(allowedPackedFile(path), `Unexpected packed file: ${path}.`);
 }
 
 /**
- * Runs one or all font-only icon validation scopes.
+ * Runs one or all icon-package validations.
  *
- * @param {string[]} [arguments_] - Command-line arguments.
- * @returns {{packageRoot: string, repositoryRoot: string}} Validated roots.
+ * @param {readonly string[]} [arguments_] Command-line arguments.
+ * @returns {Promise<Readonly<{packageRoot: string, repositoryRoot: string}>>} Validated roots.
  */
-export function run(arguments_ = process.argv.slice(2)) {
+export async function run(arguments_ = process.argv.slice(2)) {
   const scope = parseArguments(arguments_);
-  const selected = scope === "all" ? ["structure", "catalog", "package"] : [scope];
-  for (const current of selected) {
-    if (current === "structure") validateStructure();
-    else if (current === "catalog") validateCatalog();
-    else validatePackage();
-  }
+  if (scope === "all" || scope === "source") await validateSource();
+  if (scope === "all" || scope === "structure") await validateStructure();
+  if (scope === "all" || scope === "package") await validatePackage();
   return Object.freeze({ packageRoot, repositoryRoot });
 }
 
-if (resolve(process.argv[1] ?? "") === scriptPath) {
-  try {
-    run();
-    process.stdout.write("Font-only icon validation passed.\n");
-  } catch (error) {
-    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-    process.exitCode = 1;
-  }
+if (
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+  await run();
+  process.stdout.write("Icon package validation passed.\n");
 }

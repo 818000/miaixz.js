@@ -180,13 +180,8 @@ function validateManifest({ directory, manifest, name, rootPath }) {
   }
   if (name === "@miaixz/icons") {
     const fontBytes = statSync(join(rootPath, "dist/assets/fonts/miaixz-icons.woff2")).size;
-    const mappingBytes = gzipSync(
-      Buffer.concat([
-        readFileSync(join(rootPath, "dist/autogen/codepoints.js")),
-        readFileSync(join(rootPath, "dist/autogen/names.js")),
-      ]),
-    ).byteLength;
-    const cssBytes = gzipSync(readFileSync(join(rootPath, "dist/styles/index.css"))).byteLength;
+    const mappingBytes = gzipSync(readFileSync(join(rootPath, "dist/autogen/icons.js"))).byteLength;
+    const cssBytes = gzipSync(readFileSync(join(rootPath, "dist/styles.css"))).byteLength;
     if (fontBytes > 512 * 1024 || mappingBytes > 128 * 1024 || cssBytes > 12 * 1024) {
       throw new Error(`${directory} exceeds the frozen font, mapping, or CSS size budget`);
     }

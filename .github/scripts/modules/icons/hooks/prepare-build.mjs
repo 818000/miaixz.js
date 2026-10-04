@@ -19,32 +19,13 @@
 */
 
 /**
- * Prepares icon package build output while preserving separately validated icon fonts.
+ * Removes package build output before a self-contained build.
  */
 
-import { existsSync } from "node:fs";
-import { readFile, readdir, rm } from "node:fs/promises";
+import { rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import process from "node:process";
 
 const packageRoot = process.cwd();
-const manifest = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
 const outputRoot = resolve(packageRoot, "dist");
-
-if (manifest.name !== "@miaixz/icons") {
-  await rm(outputRoot, { force: true, recursive: true });
-} else if (existsSync(outputRoot)) {
-  for (const entry of await readdir(outputRoot)) {
-    if (entry !== "assets") {
-      await rm(resolve(outputRoot, entry), { force: true, recursive: true });
-    }
-  }
-  const assetRoot = resolve(outputRoot, "assets");
-  if (existsSync(assetRoot)) {
-    for (const entry of await readdir(assetRoot)) {
-      if (entry !== "fonts") {
-        await rm(resolve(assetRoot, entry), { force: true, recursive: true });
-      }
-    }
-  }
-}
+await rm(outputRoot, { force: true, recursive: true });

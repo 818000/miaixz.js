@@ -24,20 +24,24 @@
 
 import { createHash } from "node:crypto";
 import { rmSync } from "node:fs";
-import { copyFile, mkdir, mkdtemp, readFile, rename, rm } from "node:fs/promises";
+import { copyFile, cp, mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { inspectFonts } from "./inspect-icon-font.mjs";
 import { runFontTool, validateFontOutputs, validateFontSource } from "./validate-icon-font.mjs";
+import {
+  EXPECTED_MASTER_DIRECTORIES,
+  fontsRoot,
+  loadIconSource,
+  unicodeRangeFor,
+} from "../source.mjs";
+import { readRepositoryVersion } from "../../../miaixz.mjs";
 
 const moduleRoot = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(moduleRoot, "../../../../../");
-const designspacePath = resolve(
-  repositoryRoot,
-  "packages/icons/src/assets/fonts/miaixz-icons.designspace",
-);
+const release = readRepositoryVersion(repositoryRoot);
 const interruptSignals = Object.freeze({
   SIGHUP: 129,
   SIGINT: 130,
@@ -118,20 +122,46 @@ async function digest(path) {
 }
 
 /**
+ * Copies immutable UFO sources and injects the repository release into the copies.
+ *
+ * @param {string} outputDirectory - Candidate build directory.
+ * @returns {Promise<string>} Temporary Designspace path.
+ */
+async function prepareFontSource(outputDirectory) {
+  const sourceRoot = resolve(outputDirectory, "source");
+  await cp(fontsRoot, sourceRoot, { recursive: true });
+  const [major, minor, patch] = release.split(/[.-]/u).map(Number);
+  const versionMinor = minor * 100 + patch;
+  for (const master of EXPECTED_MASTER_DIRECTORIES) {
+    const path = resolve(sourceRoot, master, "fontinfo.plist");
+    const source = await readFile(path, "utf8");
+    const postscriptName = source.match(
+      /<key>postscriptFontName<\/key>\s*<string>([^<]+)<\/string>/u,
+    )?.[1];
+    if (postscriptName === undefined) throw new Error(`${master} has no PostScript name.`);
+    const metadata = `  <key>openTypeNameVersion</key>\n  <string>Version ${major}.${String(versionMinor).padStart(3, "0")}</string>\n  <key>openTypeNameUniqueID</key>\n  <string>${postscriptName};${release}</string>\n  <key>versionMajor</key>\n  <integer>${major}</integer>\n  <key>versionMinor</key>\n  <integer>${versionMinor}</integer>\n`;
+    await writeFile(path, source.replace("</dict>", `${metadata}</dict>`));
+  }
+  return resolve(sourceRoot, "miaixz-icons.designspace");
+}
+
+/**
  * Builds one temporary complete variable TTF and its complete WOFF2 output.
  *
  * @param {string} outputDirectory - Existing temporary output directory.
  * @returns {Promise<Readonly<Record<string, string>>>} Output hashes.
  */
 async function buildCandidate(outputDirectory) {
+  const source = await loadIconSource();
+  const temporaryDesignspace = await prepareFontSource(outputDirectory);
   const completeFont = resolve(outputDirectory, "miaixz-icons.ttf");
   const environment = { ...process.env, SOURCE_DATE_EPOCH: "0" };
   await runFontTool(
     "fontmake",
-    ["-m", designspacePath, "-o", "variable", "--output-path", completeFont, "--validate-ufo"],
+    ["-m", temporaryDesignspace, "-o", "variable", "--output-path", completeFont, "--validate-ufo"],
     { env: environment },
   );
-  const outputs = [["miaixz-icons.woff2", "U+F0000-F03FF"]];
+  const outputs = [["miaixz-icons.woff2", unicodeRangeFor(source.icons)]];
   for (const [filename, unicodes] of outputs) {
     await runFontTool(
       "fonttools",
@@ -150,7 +180,7 @@ async function buildCandidate(outputDirectory) {
     );
   }
   await inspectFonts(outputDirectory);
-  return Object.freeze(
+  const hashes = Object.freeze(
     Object.fromEntries(
       await Promise.all(
         outputs.map(async ([filename]) => [
@@ -160,6 +190,11 @@ async function buildCandidate(outputDirectory) {
       ),
     ),
   );
+  await Promise.all([
+    rm(resolve(outputDirectory, "source"), { recursive: true, force: true }),
+    rm(completeFont, { force: true }),
+  ]);
+  return hashes;
 }
 
 /**

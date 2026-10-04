@@ -281,9 +281,12 @@ function hasExportSource(directory, workspaceRoot, target) {
   if (directory === "packages/icons" && target.startsWith("./dist/assets/fonts/")) {
     return (
       existsSync(resolve(workspaceRoot, "src/assets/fonts/miaixz-icons.designspace")) &&
-      existsSync(resolve(workspaceRoot, "src/assets/fonts/codepoints.json")) &&
+      existsSync(resolve(workspaceRoot, "src/assets/icons.json")) &&
       existsSync(resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/build-icon-font.mjs"))
     );
+  }
+  if (directory === "packages/icons" && target === "./dist/styles.css") {
+    return existsSync(resolve(workspaceRoot, "src/styles/index.css"));
   }
   const relativeTarget = target.slice("./dist/".length);
   const sourceTarget = resolve(workspaceRoot, "src", relativeTarget);

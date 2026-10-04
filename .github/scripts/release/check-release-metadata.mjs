@@ -22,6 +22,9 @@
  * Validates release metadata before package publication.
  */
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import {
   getWorkspacePeerRange,
   loadVersionedPackageManifests,
@@ -34,6 +37,9 @@ if (process.argv.length !== 2) {
 }
 const repository = loadWorkspaceRepository();
 const version = readRepositoryVersion(repository.root);
+const iconSbom = JSON.parse(
+  readFileSync(resolve(repository.root, "packages/icons/SBOM.spdx.json"), "utf8"),
+);
 
 const manifests = loadVersionedPackageManifests(repository.root);
 const versionedManifestPaths = new Set(manifests.map(({ manifestPath }) => manifestPath));
@@ -97,6 +103,14 @@ for (const { directory, manifest } of repository.publicWorkspaces) {
   ) {
     throw new Error(`${path} must be a public package published through the public npm registry.`);
   }
+}
+
+if (
+  iconSbom.name !== `@miaixz/icons-${version}` ||
+  iconSbom.documentNamespace !== `https://miaixz.org/spdx/icons/${version}` ||
+  iconSbom.packages?.find(({ name }) => name === "@miaixz/icons")?.versionInfo !== version
+) {
+  throw new Error("packages/icons/SBOM.spdx.json does not match VERSION.");
 }
 
 console.log(
