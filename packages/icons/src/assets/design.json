@@ -1,7 +1,50 @@
 {
+  "font": {
+    "familyName": "Miaixz Icons",
+    "outputFile": "miaixz-icons.woff2",
+    "unitsPerEm": 960
+  },
+  "axes": {
+    "fill": {
+      "tag": "FILL",
+      "minimum": 0,
+      "default": 0,
+      "maximum": 1
+    },
+    "opticalSize": {
+      "tag": "opsz",
+      "minimum": 12,
+      "default": 24,
+      "maximum": 40
+    }
+  },
+  "sizes": {
+    "indicator": {
+      "pixels": 12,
+      "opticalSize": 12
+    },
+    "inline": {
+      "pixels": 16,
+      "opticalSize": 16
+    },
+    "control": {
+      "pixels": 16,
+      "opticalSize": 16
+    },
+    "navigation": {
+      "pixels": 20,
+      "opticalSize": 20
+    },
+    "feature": {
+      "pixels": 24,
+      "opticalSize": 24
+    },
+    "display": {
+      "pixels": 32,
+      "opticalSize": 32
+    }
+  },
   "grid": {
-    "conceptUnits": 24,
-    "fontUnitsPerConceptUnit": 40,
     "safeBounds": [
       60,
       -100,
@@ -11,27 +54,8 @@
     "opticalCenter": [
       480,
       320
-    ]
-  },
-  "stroke": {
-    "outline": {
-      "compact": 82,
-      "standard": 70,
-      "display": 56
-    },
-    "filledDelta": 82,
-    "minimumGap": {
-      "compact": 74,
-      "standard": 64,
-      "display": 54
-    }
-  },
-  "corners": {
-    "compact": 48,
-    "standard": 56,
-    "display": 64,
-    "endpoint": "round",
-    "join": "round"
+    ],
+    "lengthTolerance": 2
   },
   "opticalClasses": {
     "regular": {
@@ -39,57 +63,118 @@
         750,
         800
       ],
-      "centerTolerance": 29,
-      "coverageTolerance": 0.2
+      "width": [
+        750,
+        800
+      ],
+      "height": [
+        750,
+        800
+      ],
+      "aspectRatio": [
+        0.9,
+        1.1
+      ],
+      "centerTolerance": 29
     },
     "wide": {
       "longestEdge": [
         790,
         830
       ],
-      "centerTolerance": 32,
-      "coverageTolerance": 0.2
+      "width": [
+        790,
+        830
+      ],
+      "height": [
+        590,
+        650
+      ],
+      "aspectRatio": [
+        1.22,
+        1.42
+      ],
+      "centerTolerance": 32
     },
     "tall": {
       "longestEdge": [
         790,
         830
       ],
-      "centerTolerance": 32,
-      "coverageTolerance": 0.2
+      "width": [
+        610,
+        670
+      ],
+      "height": [
+        790,
+        830
+      ],
+      "aspectRatio": [
+        0.72,
+        0.84
+      ],
+      "centerTolerance": 32
     },
     "directional": {
       "longestEdge": [
         790,
         830
       ],
-      "centerTolerance": 36,
-      "coverageTolerance": 0.2
+      "width": [
+        790,
+        830
+      ],
+      "height": [
+        650,
+        710
+      ],
+      "aspectRatio": [
+        1.12,
+        1.3
+      ],
+      "centerTolerance": 36
     },
     "compound": {
       "longestEdge": [
         770,
         810
       ],
-      "centerTolerance": 32,
-      "coverageTolerance": 0.2
+      "width": [
+        770,
+        810
+      ],
+      "height": [
+        750,
+        810
+      ],
+      "aspectRatio": [
+        0.95,
+        1.12
+      ],
+      "centerTolerance": 32
     },
     "line-symbol": {
       "longestEdge": [
         730,
         790
       ],
-      "centerTolerance": 29,
-      "coverageTolerance": 0.2
+      "width": [
+        730,
+        790
+      ],
+      "height": [
+        570,
+        630
+      ],
+      "aspectRatio": [
+        1.17,
+        1.37
+      ],
+      "centerTolerance": 29
     }
   },
-  "geometryPolicy": {
-    "origin": "miaixz",
-    "referencePolicy": "semantic-only",
-    "externalGeometry": false,
-    "thirdPartyGeometry": false
-  },
   "limits": {
-    "fontBytes": 524288
+    "fontBytes": 524288,
+    "runtimeBytes": 163840
   }
 }

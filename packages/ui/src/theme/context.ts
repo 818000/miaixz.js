@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the context UI module.
+ * Defines the React context carrying resolved theme runtime state.
  */
 
 import { createContext, createElement, useContext, type ReactNode } from "react";

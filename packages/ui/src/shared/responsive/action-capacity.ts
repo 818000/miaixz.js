@@ -156,6 +156,11 @@ export function useActionCapacity(options: MiaixzActionCapacityOptions): number 
     }
     const ownerWindow = root.ownerDocument.defaultView;
     if (ownerWindow === null) return undefined;
+    /**
+     * Measures action widths, available space, gap, primary reservation, and overflow control to update capacity.
+     *
+     * @returns No return value.
+     */
     const recalculate = () => {
       const computed = ownerWindow.getComputedStyle(root);
       const parsedGap = Number.parseFloat(computed.columnGap);

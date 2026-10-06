@@ -22,7 +22,9 @@
  * Audits the G0 Node, font-tool, browser, package, and CI activation contract.
  */
 
-import { readdir, readFile } from "node:fs/promises";
+import { readdir, readFile, mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { relative, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -50,14 +52,46 @@ async function findPythonFiles(directory: string): Promise<string[]> {
 }
 
 describe("G0 toolchain activation", () => {
+  it("allows only the complete icons/source.mjs path and rejects another source.mjs", async () => {
+    const directory = await mkdtemp(resolve(tmpdir(), "miaixz-script-names-"));
+    try {
+      const checker = await readFile(
+        resolve(repositoryRoot, ".github/scripts/quality/check-script-names.mjs"),
+        "utf8",
+      );
+      const isolated = checker.replace(
+        'import { repositoryRoot } from "../miaixz.mjs";',
+        "const repositoryRoot = " + JSON.stringify(directory) + ";",
+      );
+      expect(isolated).not.toBe(checker);
+      for (const name of ["modules/icons", "modules/other", "package", "quality", "release"])
+        await mkdir(resolve(directory, ".github/scripts", name), { recursive: true });
+      const script = resolve(directory, "check.mjs");
+      await writeFile(script, isolated);
+      await writeFile(resolve(directory, ".github/scripts/modules/icons/source.mjs"), "");
+      expect(execFileSync(process.execPath, [script], { encoding: "utf8" })).toContain(
+        "Automation filenames",
+      );
+      await writeFile(resolve(directory, ".github/scripts/modules/other/source.mjs"), "");
+      expect(() =>
+        execFileSync(process.execPath, [script], {
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+        }),
+      ).toThrow(/other\/source\.mjs/u);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
   it("keeps the font orchestrator Node-only and exact", async () => {
     const entries = (await readdir(fontScriptRoot))
       .filter((entry) => !entry.startsWith("."))
       .sort();
     expect(entries).toEqual([
       "build-icon-font.mjs",
+      "font-geometry.mjs",
       "font-toolchain.lock.txt",
-      "inspect-icon-font.mjs",
+      "read-font-source.mjs",
       "validate-icon-font.mjs",
     ]);
     expect(await findPythonFiles(repositoryRoot)).toEqual([]);

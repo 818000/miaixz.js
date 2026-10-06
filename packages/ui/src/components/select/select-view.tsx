@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements select view support for the select component.
+ * Renders native select options, groups, and themed control presentation.
  */
 
 import type { ButtonHTMLAttributes, MouseEvent } from "react";
@@ -91,6 +91,12 @@ export function renderSelectEntries(
   setActiveId: (id: string) => void,
   choose: (option: SelectOption) => void,
 ) {
+  /**
+   * Renders a popup option with owned selection, focus, and disabled semantics.
+   *
+   * @param option - Validated select option to render.
+   * @returns Themed option element with its selection indicator.
+   */
   const renderOption = (option: SelectOption) => {
     const selected = option.value === value;
     const interactionDisabled = readOnly || option.disabled === true;

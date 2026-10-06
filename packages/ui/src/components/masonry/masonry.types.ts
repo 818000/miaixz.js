@@ -26,14 +26,26 @@ import type { HTMLAttributes, RefAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Masonry responsive column-count configuration permitted by the component contract.
+ */
 export type MasonryColumns = 1 | 2 | 3 | 4;
+/**
+ * Masonry gap tokens permitted by the component contract.
+ */
 export type MasonryGap = "none" | "tight" | "compact" | "default";
 
+/**
+ * Resolved Masonry state exposed to theme and slot overrides.
+ */
 export interface MasonryOwnerState {
   readonly columns: MasonryColumns;
   readonly gap: MasonryGap;
 }
 
+/**
+ * Attributes accepted by the Masonry Root slot.
+ */
 export interface MasonryRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-ui"?: "masonry";
@@ -41,10 +53,16 @@ export interface MasonryRootAttributes
   readonly "data-gap"?: MasonryGap;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Masonry.
+ */
 export interface MasonrySlotProps {
   readonly root?: MiaixzSlotProps<MasonryOwnerState, MasonryRootAttributes>;
 }
 
+/**
+ * Properties accepted by the Masonry renderer.
+ */
 export interface MasonryProps extends HTMLAttributes<HTMLDivElement> {
   readonly columns?: MasonryColumns;
   readonly gap?: MasonryGap;

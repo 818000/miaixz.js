@@ -39,6 +39,9 @@ const fixturePath = resolve(process.cwd(), "tests/fixtures/xlsx/system-flow.xlsx
 const inventoryPath = resolve(process.cwd(), "tests/fixtures/xlsx/system-flow.inventory.json");
 const formatDriver = createOoxmlDriver("xlsx", "spreadsheet");
 
+/**
+ * Workbook drawing counts and relationship paths recorded for fixture assertions.
+ */
 interface FixtureInventory {
   readonly sha256: string;
   readonly expectedStatus: "complete";

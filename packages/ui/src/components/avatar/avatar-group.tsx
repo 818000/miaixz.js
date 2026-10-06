@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements avatar group support for the avatar component.
+ * Groups avatar content and displays any configured overflow count.
  */
 
 import { Children, cloneElement, forwardRef, isValidElement, type CSSProperties } from "react";

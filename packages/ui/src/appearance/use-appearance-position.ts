@@ -63,6 +63,9 @@ export interface DragState {
   currentTop: number;
 }
 
+/**
+ * Controlled launcher position, drag enablement, and callbacks for movement and activation.
+ */
 interface AppearancePositionOptions {
   /**
    * Enables trigger movement.
@@ -105,6 +108,11 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
     if (!canMove) return undefined;
     const root = rootRef.current;
     if (root === null) return undefined;
+    /**
+     * Reclamps an existing uncontrolled trigger position after viewport resizing.
+     *
+     * @returns No return value.
+     */
     const handleResize = () => {
       if (positionBlockPx === undefined) {
         setUncontrolledPosition((value) =>
@@ -128,6 +136,13 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
     [],
   );
 
+  /**
+   * Clamps and stores the appearance trigger position, optionally reporting the change.
+   *
+   * @param proposedTop - Requested viewport-top position in CSS pixels.
+   * @param notify - Whether to notify the controlled-position callback.
+   * @returns No return value; leaves state unchanged when the root is absent.
+   */
   const moveTo = (proposedTop: number, notify = false) => {
     const root = rootRef.current;
     if (root === null) return;
@@ -135,6 +150,12 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
     setUncontrolledPosition(next);
     if (notify) onPositionBlockPxChange?.(next);
   };
+  /**
+   * Ends pointer dragging, commits moved positions, and suppresses the resulting click.
+   *
+   * @param drag - Pointer drag state being released.
+   * @returns No return value; clears pending animation and temporary transforms.
+   */
   const releaseDrag = (drag: DragState) => {
     if (animationFrameRef.current !== undefined) {
       window.cancelAnimationFrame(animationFrameRef.current);
@@ -151,6 +172,12 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
       suppressClickTimerRef.current = undefined;
     }, 0);
   };
+  /**
+   * Activates the appearance panel unless the click follows a drag.
+   *
+   * @param event - Trigger button click event.
+   * @returns No return value; a suppressed click is prevented.
+   */
   const onClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (suppressClickRef.current) {
       event.preventDefault();
@@ -159,6 +186,12 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
     }
     onActivate();
   };
+  /**
+   * Moves the appearance trigger up or down by its configured spacing step.
+   *
+   * @param event - Trigger keyboard event.
+   * @returns No return value; handled arrow keys prevent native scrolling.
+   */
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
     event.preventDefault();
@@ -170,10 +203,22 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
       true,
     );
   };
+  /**
+   * Releases a cancelled drag only when the pointer identifier matches.
+   *
+   * @param event - Cancelled trigger pointer event.
+   * @returns No return value; unrelated pointer events are ignored.
+   */
   const onPointerCancel = (event: PointerEvent<HTMLButtonElement>) => {
     const drag = dragRef.current;
     if (drag?.pointerId === event.pointerId) releaseDrag(drag);
   };
+  /**
+   * Starts a primary-button drag and captures its pointer on the trigger.
+   *
+   * @param event - Trigger pointer-down event.
+   * @returns No return value; non-primary button presses are ignored.
+   */
   const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0) return;
     const currentTop = position ?? rootRef.current?.getBoundingClientRect().top ?? 0;
@@ -186,6 +231,12 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
     };
     event.currentTarget.setPointerCapture?.(event.pointerId);
   };
+  /**
+   * Updates a captured drag after the movement threshold is crossed.
+   *
+   * @param event - Trigger pointer-move event.
+   * @returns No return value; visual movement is scheduled for the next animation frame.
+   */
   const onPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
     const drag = dragRef.current;
     if (drag?.pointerId !== event.pointerId) return;
@@ -205,6 +256,12 @@ export function useAppearancePosition(options: AppearancePositionOptions) {
       }
     });
   };
+  /**
+   * Commits the matching drag and prevents activation after actual movement.
+   *
+   * @param event - Trigger pointer-up event.
+   * @returns No return value; releases drag state and its temporary presentation.
+   */
   const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
     const drag = dragRef.current;
     if (drag?.pointerId !== event.pointerId) return;

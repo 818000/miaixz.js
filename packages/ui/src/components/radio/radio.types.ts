@@ -32,14 +32,23 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Named Radio parts available for slot and style customization.
+ */
 export type RadioSlot = "root" | "input" | "mark" | "content" | "label" | "description";
 
+/**
+ * Resolved Radio state exposed to theme and slot overrides.
+ */
 export interface RadioOwnerState {
   readonly checked: boolean;
   readonly disabled: boolean;
   readonly invalid: boolean;
 }
 
+/**
+ * Attributes accepted by the Radio Root slot.
+ */
 export interface RadioRootAttributes
   extends LabelHTMLAttributes<HTMLLabelElement>, RefAttributes<HTMLLabelElement> {
   readonly "data-disabled"?: boolean;
@@ -47,6 +56,9 @@ export interface RadioRootAttributes
   readonly "data-invalid"?: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Radio.
+ */
 export interface RadioSlotProps {
   readonly root?: MiaixzSlotProps<RadioOwnerState, RadioRootAttributes>;
   readonly input?: MiaixzSlotProps<

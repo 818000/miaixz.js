@@ -19,16 +19,14 @@
 */
 
 /**
- * Implements the message cache module.
+ * Tracks accepted bridge messages and cached responses for duplicate replay.
  */
 
 import type { MiaixzBridgeEnvelope } from "../contracts/post-message.js";
 import type { HostRequestState } from "./pending-requests.js";
 
 /**
-
  * Cached state for one accepted incoming message.
-
  */
 export interface CachedIncomingMessage {
   /**
@@ -65,9 +63,7 @@ function compactCache(cache: Map<string, CachedIncomingMessage>, now = Date.now(
 }
 
 /**
-
  * Owns incoming message deduplication and bounded retention.
-
  */
 export class MiaixzBridgeMessageCache extends Map<string, CachedIncomingMessage> {
   /**

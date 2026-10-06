@@ -26,15 +26,30 @@ import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 
+/**
+ * Status size tokens permitted by the component contract.
+ */
 export type StatusSize = "small" | "medium";
+/**
+ * Status content arrangements permitted by the component contract.
+ */
 export type StatusLayout = "inline" | "stacked" | "split";
+/**
+ * Named Status parts available for slot and style customization.
+ */
 export type StatusSlot = "root" | "marker" | "content" | "label";
+/**
+ * Resolved Status state exposed to theme and slot overrides.
+ */
 export interface StatusOwnerState {
   readonly tone: MiaixzFeedbackTone | "brand";
   readonly size: StatusSize;
   readonly layout: StatusLayout;
   readonly presentation: "default" | "workbench";
 }
+/**
+ * Attributes accepted by the Status Root slot.
+ */
 export type StatusRootAttributes = HTMLAttributes<HTMLSpanElement> &
   RefAttributes<HTMLSpanElement> & {
     readonly "data-tone"?: MiaixzFeedbackTone | "brand";
@@ -42,12 +57,18 @@ export type StatusRootAttributes = HTMLAttributes<HTMLSpanElement> &
     readonly "data-layout"?: StatusLayout;
     readonly "data-presentation"?: StatusOwnerState["presentation"];
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Status.
+ */
 export interface StatusSlotProps {
   readonly root?: MiaixzSlotProps<StatusOwnerState, StatusRootAttributes>;
   readonly marker?: MiaixzSlotProps<StatusOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly content?: MiaixzSlotProps<StatusOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly label?: MiaixzSlotProps<StatusOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Status properties composed with the permitted native attributes.
+ */
 export interface MiaixzStatusOwnProps {
   readonly tone: MiaixzFeedbackTone | "brand";
   readonly label: ReactNode;
@@ -57,5 +78,8 @@ export interface MiaixzStatusOwnProps {
   readonly presentation?: StatusOwnerState["presentation"];
   readonly slotProps?: StatusSlotProps;
 }
+/**
+ * Properties accepted by the Status renderer.
+ */
 export type StatusProps = MiaixzStatusOwnProps &
   Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzStatusOwnProps | "children">;

@@ -26,18 +26,27 @@ import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } f
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Resolved Disclosure state exposed to theme and slot overrides.
+ */
 export interface DisclosureOwnerState {
   readonly expanded: boolean;
   readonly disabled: boolean;
   readonly headingLevel: 2 | 3 | 4 | 5 | 6;
 }
 
+/**
+ * Attributes accepted by the Disclosure Root slot.
+ */
 export interface DisclosureRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-ui"?: "disclosure";
   readonly "data-expanded"?: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Disclosure.
+ */
 export interface DisclosureSlotProps {
   readonly root?: MiaixzSlotProps<DisclosureOwnerState, DisclosureRootAttributes>;
   readonly heading?: MiaixzSlotProps<DisclosureOwnerState, HTMLAttributes<HTMLHeadingElement>>;
@@ -46,6 +55,9 @@ export interface DisclosureSlotProps {
   readonly region?: MiaixzSlotProps<DisclosureOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Properties accepted by the Disclosure renderer.
+ */
 export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   readonly summary: ReactNode;
   readonly children: ReactNode;

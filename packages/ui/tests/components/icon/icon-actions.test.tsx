@@ -13,6 +13,9 @@ afterEach(cleanup);
 
 const removedHiddenClassName = ["miaixz", "visually", "hidden"].join("-");
 
+/**
+ * Inputs controlling the Icon Action Fixture test fixture.
+ */
 interface IconActionFixtureProps {
   /**
    * Visible and accessible action label.

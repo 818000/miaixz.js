@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports the public SDK factory, services, shared types, and runtime integration contracts.
  */
 
 export {

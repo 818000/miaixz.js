@@ -31,4 +31,7 @@ type PdfProps<T> = T extends unknown
   ? Omit<T, "mimeType" | "name"> & { readonly name?: string }
   : never;
 
+/**
+ * FileView properties constrained to PDF documents.
+ */
 export type PdfViewProps = PdfProps<FileViewProps>;

@@ -26,6 +26,9 @@ import type { FieldsetHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes }
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Labeled radio option with a stable value and optional disabled state.
+ */
 export interface RadioGroupItem {
   readonly id: string;
   readonly value: string;
@@ -34,6 +37,9 @@ export interface RadioGroupItem {
   readonly disabled?: boolean;
 }
 
+/**
+ * Resolved Radio Group state exposed to theme and slot overrides.
+ */
 export interface RadioGroupOwnerState {
   readonly orientation: "vertical" | "horizontal";
   readonly required: boolean;
@@ -42,6 +48,9 @@ export interface RadioGroupOwnerState {
   readonly readOnly: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Radio Group.
+ */
 export interface RadioGroupSlotProps {
   readonly root?: MiaixzSlotProps<
     RadioGroupOwnerState,
@@ -58,6 +67,9 @@ export interface RadioGroupSlotProps {
   readonly description?: MiaixzSlotProps<RadioGroupOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
 
+/**
+ * Component-specific Radio Group properties composed with the permitted native attributes.
+ */
 interface RadioGroupBaseProps extends Omit<
   FieldsetHTMLAttributes<HTMLFieldSetElement>,
   "children" | "name" | "onChange"
@@ -72,6 +84,9 @@ interface RadioGroupBaseProps extends Omit<
   readonly slotProps?: RadioGroupSlotProps;
 }
 
+/**
+ * Mutually exclusive controlled or uncontrolled radio-group selection.
+ */
 type RadioGroupValueState =
   | {
       readonly value: string | undefined;

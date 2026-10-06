@@ -33,12 +33,27 @@ import type {
 
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Dialog size tokens permitted by the component contract.
+ */
 export type DialogSize = "small" | "medium" | "large";
+/**
+ * Dialog scrolling modes permitted by the component contract.
+ */
 export type DialogScroll = "paper" | "body";
+/**
+ * Dialog dismissal reasons permitted by the component contract.
+ */
 export type DialogCloseReason = "escape" | "backdrop" | "closeButton" | "nativeClose";
+/**
+ * Named Dialog parts available for slot and style customization.
+ */
 export type DialogSlot =
   "root" | "paper" | "header" | "title" | "description" | "content" | "actions" | "closeButton";
 
+/**
+ * Resolved Dialog state exposed to theme and slot overrides.
+ */
 export interface DialogOwnerState {
   readonly size: DialogSize;
   readonly scroll: DialogScroll;
@@ -46,16 +61,25 @@ export interface DialogOwnerState {
   readonly showClose: boolean;
 }
 
+/**
+ * Replaceable slot components accepted by Dialog.
+ */
 export interface DialogSlots {
   readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Attributes accepted by the Dialog Root slot.
+ */
 export type DialogRootAttributes = DialogHTMLAttributes<HTMLDialogElement> &
   RefAttributes<HTMLDialogElement> & {
     readonly "data-size"?: DialogSize;
     readonly "data-scroll"?: DialogScroll;
   };
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Dialog.
+ */
 export interface DialogSlotProps {
   readonly root?: MiaixzSlotProps<DialogOwnerState, DialogRootAttributes>;
   readonly paper?: MiaixzSlotProps<
@@ -73,6 +97,9 @@ export interface DialogSlotProps {
   >;
 }
 
+/**
+ * Component-specific Dialog properties composed with the permitted native attributes.
+ */
 export interface MiaixzDialogOwnProps {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean, reason: DialogCloseReason) => void;
@@ -91,5 +118,8 @@ export interface MiaixzDialogOwnProps {
   readonly slotProps?: DialogSlotProps;
 }
 
+/**
+ * Properties accepted by the Dialog renderer.
+ */
 export type DialogProps = MiaixzDialogOwnProps &
   Omit<DialogHTMLAttributes<HTMLDialogElement>, keyof MiaixzDialogOwnProps | "role">;

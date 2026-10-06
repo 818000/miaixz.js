@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the binding UI module.
+ * Binds component defaults and slot overrides to the active theme registry.
  */
 
 import {
@@ -34,6 +34,9 @@ import { classNames } from "../shared/class-names.js";
 import type { MiaixzThemeComponentRegistry } from "./registry.js";
 import { useMiaixzThemeComponent } from "./context.js";
 
+/**
+ * Type-erased theme definition used inside the component-binding runtime.
+ */
 interface UntypedThemeComponent {
   readonly defaultProps?: Readonly<Record<string, unknown>>;
   readonly slotClassNames?: Readonly<Record<string, string>>;
@@ -43,6 +46,9 @@ interface UntypedThemeComponent {
   }[];
 }
 
+/**
+ * Type-erased slot override shape used only at the internal theme-binding boundary.
+ */
 type UntypedSlotProps =
   | Readonly<Record<string, unknown>>
   | ((ownerState: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>>);
@@ -62,6 +68,9 @@ export function withMiaixzThemeComponent<
   Component,
 >(name: Name, component: Component): Component {
   const implementation = component as ElementType;
+  /**
+   * Resolves component theme defaults and forwards the original ref to its implementation.
+   */
   const themed = forwardRef(function MiaixzThemedComponent(
     incomingProps: Record<string, unknown>,
     ref: ForwardedRef<unknown>,

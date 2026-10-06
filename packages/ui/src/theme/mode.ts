@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the mode UI module.
+ * Resolves color-mode preferences and observes system preference changes.
  */
 
 import type { MiaixzColorMode, MiaixzResolvedColorMode } from "@miaixz/sdk/appearance";
@@ -80,6 +80,12 @@ export function watchMiaixzSystemColorMode(
     return () => undefined;
   }
   const query = window.matchMedia("(prefers-color-scheme: dark)");
+  /**
+   * Reports the resolved light or dark mode after the system media query changes.
+   *
+   * @param event - System color-scheme media-query change event.
+   * @returns Return value of the mode listener, normally void.
+   */
   const handleChange = (event: MediaQueryListEvent) => listener(event.matches ? "dark" : "light");
   query.addEventListener("change", handleChange);
   let listening = true;

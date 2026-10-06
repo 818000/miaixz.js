@@ -20,9 +20,7 @@
 
 /**
  * Defines immutable resource limits used across parsing layers.
- */
-
-/**
+ *
  * Sets bounded limits for untrusted input processing.
  */
 export interface ResourceBudget {

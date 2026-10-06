@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports browser-compatible storage implementations and their contracts.
  */
 
 export {

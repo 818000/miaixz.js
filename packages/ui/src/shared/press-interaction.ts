@@ -57,6 +57,12 @@ interface PressOrigin {
  * @internal
  */
 export function bindPressInteractions(root: HTMLElement): () => void {
+  /**
+   * Starts a pointer-origin ripple on the nearest enabled action control.
+   *
+   * @param event - Primary pointer event within the registered interaction root.
+   * @returns No return value; prevented or non-primary presses do not animate.
+   */
   const handlePointerDown = (event: PointerEvent): void => {
     if (event.button !== 0 || event.defaultPrevented) return;
     const action = resolveAction(root, event.target);
@@ -68,6 +74,12 @@ export function bindPressInteractions(root: HTMLElement): () => void {
     });
   };
 
+  /**
+   * Starts a centered keyboard ripple for an enabled Enter or Space activation.
+   *
+   * @param event - Keyboard activation event within the interaction root.
+   * @returns No return value; repeated, modified, or prevented events are ignored.
+   */
   const handleKeyDown = (event: KeyboardEvent): void => {
     if (
       event.defaultPrevented ||
@@ -161,6 +173,11 @@ function appendRipple(action: HTMLElement, origin: PressOrigin): void {
   layer.append(ripple);
   action.append(layer);
 
+  /**
+   * Removes the temporary ripple layer when its owned animation completes.
+   *
+   * @returns No return value; detaches the ripple element.
+   */
   const remove = (): void => layer.remove();
   ripple.addEventListener("animationend", remove, { once: true });
   ripple.addEventListener("animationcancel", remove, { once: true });

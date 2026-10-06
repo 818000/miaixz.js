@@ -20,9 +20,7 @@
 
 /**
  * Defines the browser capability baseline used by the preview runtime.
- */
-
-/**
+ *
  * Stable platform features required or optionally used by the viewer.
  */
 export interface BrowserSupport {

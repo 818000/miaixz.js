@@ -19,12 +19,15 @@
 */
 
 /**
- * Implements list context support for the list component.
+ * Shares list layout and presentation defaults with descendant items.
  */
 
 import { createContext, useContext } from "react";
 import type { ListDensity, ListSurface } from "./list.types.js";
 
+/**
+ * Values shared between the List provider and its descendant components.
+ */
 interface ListContextValue {
   readonly density: ListDensity;
   readonly surface: ListSurface;

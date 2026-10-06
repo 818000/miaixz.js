@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports the canonical SDK error and diagnostic-sanitization APIs.
  */
 
 export {

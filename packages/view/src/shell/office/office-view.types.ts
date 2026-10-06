@@ -36,4 +36,7 @@ type OfficeProps<T> = T extends unknown
     }
   : never;
 
+/**
+ * FileView properties constrained to Office document formats.
+ */
 export type OfficeViewProps = OfficeProps<FileViewProps>;

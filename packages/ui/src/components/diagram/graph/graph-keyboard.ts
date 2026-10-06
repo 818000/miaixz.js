@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements graph keyboard support for the graph component.
+ * Maps graph keyboard input to node focus, selection, and viewport commands.
  */
 
 import type { GraphNode } from "./graph.types.js";

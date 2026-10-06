@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the tenant module.
+ * Defines tenant identity and lifecycle metadata at the security boundary.
  */
 
 import type { MiaixzIdentifier } from "../fabric/api/api.types.js";

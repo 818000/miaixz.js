@@ -25,14 +25,29 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Term and description content belonging to one description-list entry.
+ */
 export interface DescriptionsItem {
   readonly id: string;
   readonly label: ReactNode;
   readonly value: ReactNode;
 }
+/**
+ * Descriptions content arrangements permitted by the component contract.
+ */
 export type DescriptionsLayout = "grid" | "stacked";
+/**
+ * Descriptions spacing densities permitted by the component contract.
+ */
 export type DescriptionsDensity = "compact" | "standard" | "comfortable";
+/**
+ * Named Descriptions parts available for slot and style customization.
+ */
 export type DescriptionsSlot = "root" | "item" | "term" | "definition";
+/**
+ * Resolved Descriptions state exposed to theme and slot overrides.
+ */
 export interface DescriptionsOwnerState {
   readonly layout: DescriptionsLayout;
   readonly columns: 1 | 2 | 3;
@@ -40,6 +55,9 @@ export interface DescriptionsOwnerState {
   readonly itemId: string | undefined;
   readonly presentation: "default" | "status-grid";
 }
+/**
+ * Attributes accepted by the Descriptions Root slot.
+ */
 export type DescriptionsRootAttributes = HTMLAttributes<HTMLDListElement> &
   RefAttributes<HTMLDListElement> & {
     readonly "data-layout"?: DescriptionsLayout;
@@ -47,12 +65,18 @@ export type DescriptionsRootAttributes = HTMLAttributes<HTMLDListElement> &
     readonly "data-density"?: DescriptionsDensity;
     readonly "data-presentation"?: DescriptionsOwnerState["presentation"];
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Descriptions.
+ */
 export interface DescriptionsSlotProps {
   readonly root?: MiaixzSlotProps<DescriptionsOwnerState, DescriptionsRootAttributes>;
   readonly item?: MiaixzSlotProps<DescriptionsOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly term?: MiaixzSlotProps<DescriptionsOwnerState, HTMLAttributes<HTMLElement>>;
   readonly definition?: MiaixzSlotProps<DescriptionsOwnerState, HTMLAttributes<HTMLElement>>;
 }
+/**
+ * Component-specific Descriptions properties composed with the permitted native attributes.
+ */
 export interface MiaixzDescriptionsOwnProps {
   readonly items: readonly DescriptionsItem[];
   readonly layout?: DescriptionsLayout;

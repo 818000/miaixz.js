@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the organization module.
+ * Defines organization identity and its owning tenant.
  */
 
 import type { MiaixzIdentifier } from "../fabric/api/api.types.js";

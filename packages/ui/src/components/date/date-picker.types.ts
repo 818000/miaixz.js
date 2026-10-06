@@ -27,6 +27,9 @@ import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes } from "
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { DateControlLabel, IsoDate } from "./date.types.js";
 
+/**
+ * Resolved Date Picker state exposed to theme and slot overrides.
+ */
 export interface DatePickerOwnerState {
   readonly open: boolean;
   readonly invalid: boolean;
@@ -34,6 +37,9 @@ export interface DatePickerOwnerState {
   readonly readOnly: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Date Picker.
+ */
 export interface DatePickerSlotProps {
   readonly root?: MiaixzSlotProps<DatePickerOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly input?: MiaixzSlotProps<DatePickerOwnerState, InputHTMLAttributes<HTMLInputElement>>;
@@ -42,6 +48,9 @@ export interface DatePickerSlotProps {
   readonly content?: MiaixzSlotProps<DatePickerOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Properties accepted by the Date Picker renderer.
+ */
 export type DatePickerProps = DateControlLabel & {
   readonly referenceDate: IsoDate;
   readonly value?: IsoDate | null;

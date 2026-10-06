@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the response module.
+ * Defines normalized HTTP success envelopes and response-error handling.
  */
 
 import type { MiaixzApiEnvelope } from "./api.types.js";

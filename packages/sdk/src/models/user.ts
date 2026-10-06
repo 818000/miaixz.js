@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the user module.
+ * Defines user identity fields used by application display and context.
  */
 
 import type { MiaixzIdentifier } from "../fabric/api/api.types.js";

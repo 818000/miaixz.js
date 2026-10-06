@@ -27,16 +27,25 @@ import type { ButtonHTMLAttributes, HTMLAttributes, RefAttributes } from "react"
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { DateControlLabel, IsoDate, IsoMonth } from "./date.types.js";
 
+/**
+ * Resolved Calendar state exposed to theme and slot overrides.
+ */
 export interface CalendarOwnerState {
   readonly disabled: boolean;
   readonly readOnly: boolean;
 }
 
+/**
+ * Attributes accepted by the Calendar Root slot.
+ */
 export interface CalendarRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-ui"?: "calendar";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Calendar.
+ */
 export interface CalendarSlotProps {
   readonly root?: MiaixzSlotProps<CalendarOwnerState, CalendarRootAttributes>;
   readonly header?: MiaixzSlotProps<CalendarOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -49,6 +58,9 @@ export interface CalendarSlotProps {
   readonly day?: MiaixzSlotProps<CalendarOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
 }
 
+/**
+ * Properties accepted by the Calendar renderer.
+ */
 export type CalendarProps = DateControlLabel & {
   readonly referenceDate: IsoDate;
   readonly value?: IsoDate | null;

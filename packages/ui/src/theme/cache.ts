@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the cache UI module.
+ * Caches validated theme definitions and shares in-flight theme-loader requests.
  */
 
 import { MiaixzThemeError } from "./error.js";

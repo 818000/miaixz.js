@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements number input model support for the input component.
+ * Parses and normalizes numeric input against step and boundary configuration.
  */
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

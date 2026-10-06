@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the events module.
+ * Validates, sanitizes, and dispatches SDK events across local and browser-context channels.
  */
 
 import { MiaixzSdkError } from "../../errors/errors.js";

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the telemetry types module.
+ * Defines API telemetry callbacks that observe requests without changing their behavior.
  */
 
 import type { MiaixzHttpMethod } from "./request.js";

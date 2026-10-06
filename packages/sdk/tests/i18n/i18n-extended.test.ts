@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the i18n extended test module.
+ * Verifies asynchronous locale loading, extensions, and internationalization fallbacks.
  */
 
 import { describe, expect, it, vi } from "vitest";

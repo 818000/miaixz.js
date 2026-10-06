@@ -26,15 +26,37 @@ import { render } from "@testing-library/react";
 import { createRef } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { INTERNAL_ICON_BY_NAME } from "../../src/autogen/icons.js";
+import { ICON_NAMES } from "../../src/values/icons.js";
+import { ICON_AXES, ICON_SIZES, type IconSize } from "../../src/values/design.js";
 import { Icon } from "../../src/react/index.js";
-import { resetIconFontLoads } from "../../src/runtime/index.js";
+import { resetIconFontLoads } from "../../src/runtime/font.js";
 
 afterEach(() => {
   resetIconFontLoads();
 });
 
 describe("Icon", () => {
+  it.each(Object.keys(ICON_SIZES) as IconSize[])("derives semantic size %s from design", (size) => {
+    const { container } = render(<Icon name="help" size={size} />);
+    const root = container.firstElementChild as HTMLSpanElement;
+    expect(root.style.getPropertyValue("--miaixz-icon-size")).toBe(
+      String(ICON_SIZES[size].pixels) + "px",
+    );
+    expect(root.style.getPropertyValue("--miaixz-icon-opsz")).toBe(
+      String(ICON_SIZES[size].opticalSize),
+    );
+  });
+  it.each([0.5, 12, 24, 40, 100])(
+    "clamps numeric optical size %s without changing pixels",
+    (size) => {
+      const { container } = render(<Icon name="help" size={size} />);
+      const root = container.firstElementChild as HTMLSpanElement;
+      expect(root.style.getPropertyValue("--miaixz-icon-size")).toBe(String(size) + "px");
+      expect(root.style.getPropertyValue("--miaixz-icon-opsz")).toBe(
+        String(Math.min(ICON_AXES.opsz.maximum, Math.max(ICON_AXES.opsz.minimum, size))),
+      );
+    },
+  );
   it("renders a stable accessible span with continuous font axes", () => {
     const reference = createRef<HTMLSpanElement>();
     const result = render(
@@ -50,7 +72,7 @@ describe("Icon", () => {
     expect(glyph).not.toBeNull();
     expect(glyph?.textContent).toBe("");
     expect(glyph?.getAttribute("data-miaixz-icon-glyph")).toBe(
-      INTERNAL_ICON_BY_NAME.get("search")?.glyph,
+      String.fromCodePoint(ICON_NAMES.search[0]),
     );
   });
 

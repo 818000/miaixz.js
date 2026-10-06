@@ -32,13 +32,22 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Named Slider parts available for slot and style customization.
+ */
 export type SliderSlot = "root" | "output" | "marks" | "mark" | "markLabel";
 
+/**
+ * Numeric slider position with its optional displayed label.
+ */
 export interface SliderMark {
   readonly value: number;
   readonly label?: ReactNode;
 }
 
+/**
+ * Resolved Slider state exposed to theme and slot overrides.
+ */
 export interface SliderOwnerState {
   readonly disabled: boolean;
   readonly invalid: boolean;
@@ -47,6 +56,9 @@ export interface SliderOwnerState {
   readonly showValue: boolean;
 }
 
+/**
+ * Attributes accepted by the Slider Root slot.
+ */
 export interface SliderRootAttributes
   extends InputHTMLAttributes<HTMLInputElement>, RefAttributes<HTMLInputElement> {
   readonly "data-ui"?: "slider";
@@ -56,6 +68,9 @@ export interface SliderRootAttributes
   readonly "data-orientation"?: "horizontal" | "vertical";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Slider.
+ */
 export interface SliderSlotProps {
   readonly root?: MiaixzSlotProps<SliderOwnerState, SliderRootAttributes>;
   readonly output?: MiaixzSlotProps<SliderOwnerState, OutputHTMLAttributes<HTMLOutputElement>>;
@@ -64,6 +79,9 @@ export interface SliderSlotProps {
   readonly markLabel?: MiaixzSlotProps<SliderOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
 
+/**
+ * Properties accepted by the Slider renderer.
+ */
 export interface SliderProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   "children" | "defaultValue" | "readOnly" | "size" | "type" | "value"

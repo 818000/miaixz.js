@@ -20,9 +20,7 @@
 
 /**
  * Defines format support, evidence, and detection decision contracts.
- */
-
-/**
+ *
  * Describes the stable support levels used by the public format matrix.
  */
 export type SupportLevel = "R0" | "R1" | "R2" | "R3" | "R4" | "R5";

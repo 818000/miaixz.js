@@ -25,13 +25,31 @@
 import type { HTMLAttributes, ReactNode, Ref, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Shell sidebar overflow policies permitted by the component contract.
+ */
 export type ShellSidebarOverflow = "auto" | "contained";
+/**
+ * Shell permitted main-region element names permitted by the component contract.
+ */
 export type ShellMainComponent = "main" | "div";
+/**
+ * Navigation configuration for the shell's desktop presentation.
+ */
 export type ShellDesktopNavigation =
   { readonly mode: "sidebar" } | { readonly mode: "rail"; readonly expanded: boolean };
+/**
+ * Navigation configuration for the shell's mobile presentation.
+ */
 export type ShellMobileNavigation =
   { readonly mode: "none" } | { readonly mode: "bottom"; readonly content: ReactNode };
+/**
+ * Named Shell parts available for slot and style customization.
+ */
 export type ShellSlot = "root" | "header" | "sidebar" | "main" | "mobileNavigation";
+/**
+ * Resolved Shell state exposed to theme and slot overrides.
+ */
 export interface ShellOwnerState {
   readonly desktopNavigation: ShellDesktopNavigation;
   readonly mobileNavigation: ShellMobileNavigation;
@@ -39,6 +57,9 @@ export interface ShellOwnerState {
   readonly sidebarOverflow: ShellSidebarOverflow;
   readonly presentation: "default" | "workspace";
 }
+/**
+ * Attributes accepted by the Shell Root slot.
+ */
 export type ShellRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-desktop-navigation"?: "sidebar" | "rail";
@@ -46,9 +67,15 @@ export type ShellRootAttributes = HTMLAttributes<HTMLDivElement> &
     readonly "data-header-behavior"?: "fixed" | "scroll";
     readonly "data-presentation"?: "default" | "workspace";
   };
+/**
+ * Attributes accepted by the Shell Sidebar slot.
+ */
 export type ShellSidebarAttributes = HTMLAttributes<HTMLElement> & {
   readonly "data-overflow"?: ShellSidebarOverflow;
 };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Shell.
+ */
 export interface ShellSlotProps {
   readonly root?: MiaixzSlotProps<ShellOwnerState, ShellRootAttributes>;
   readonly header?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
@@ -56,6 +83,9 @@ export interface ShellSlotProps {
   readonly main?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
   readonly mobileNavigation?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Component-specific Shell properties composed with the permitted native attributes.
+ */
 export interface MiaixzShellOwnProps {
   readonly mainRef?: Ref<HTMLElement>;
   readonly mainComponent?: ShellMainComponent;

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the host context module.
+ * Defines the host capabilities available to integrated modules.
  */
 
 import type { MiaixzMessageCatalog } from "../../i18n/i18n.js";

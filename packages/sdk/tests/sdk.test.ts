@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the sdk test module.
+ * Verifies SDK construction, authentication-mode services, configuration, and disposal.
  */
 
 import { describe, expect, it } from "vitest";

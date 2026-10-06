@@ -11,7 +11,7 @@ The repository is organized as an npm workspace. All public packages use one syn
 | Package                             | npm                                                | Description                                                                                                                         |
 | ----------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | [`@miaixz/sdk`](./packages/sdk)     | [npm](https://www.npmjs.com/package/@miaixz/sdk)   | Browser API client, runtime context, configuration, permissions, events, files, appearance, i18n, types, formatters, and utilities. |
-| [`@miaixz/icons`](./packages/icons) | [npm](https://www.npmjs.com/package/@miaixz/icons) | 1024-icon variable font, React Icon, semantic sizes, continuous animation, and accessibility.                                       |
+| [`@miaixz/icons`](./packages/icons) | [npm](https://www.npmjs.com/package/@miaixz/icons) | Miaixz variable font, React Icon, semantic sizes, continuous animation, and accessibility.                                |
 | [`@miaixz/ui`](./packages/ui)       | [npm](https://www.npmjs.com/package/@miaixz/ui)    | React design system with components, design tokens, themes, density modes, styles, and interaction primitives.                      |
 | [`@miaixz/view`](./packages/view)   | [npm](https://www.npmjs.com/package/@miaixz/view)  | Independent React components for image, PDF, Office, and other local file previews.                                                 |
 
@@ -154,8 +154,9 @@ See the package documentation for authentication modes, API envelopes, service c
 │   ├── icons/          @miaixz/icons font source, runtime, React API, and tests
 │   ├── ui/             @miaixz/ui source and package configuration
 │   └── view/           @miaixz/view source and package configuration
-├── examples/
-│   └── icons/          Runnable variable-font icon catalog
+├── examples/           One Next.js guide application
+│   ├── src/module/     UI, icons, SDK, and view guide modules
+│   └── miaixz.org/     Standalone public website example
 ├── VERSION             Authoritative shared release version
 └── package.json        Private npm workspace root
 ```

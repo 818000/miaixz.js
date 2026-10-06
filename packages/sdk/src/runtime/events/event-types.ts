@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the event types module.
+ * Defines SDK event payloads and cross-context validation contracts.
  */
 
 import type { MiaixzLocale } from "../../i18n/i18n.js";

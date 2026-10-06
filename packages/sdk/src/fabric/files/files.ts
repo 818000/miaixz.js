@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the files module.
+ * Implements multipart uploads and file operations through the SDK HTTP client.
  */
 
 import type { MiaixzApiClient } from "../api/client.js";

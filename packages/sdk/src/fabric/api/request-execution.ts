@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the request execution module.
+ * Coordinates request preparation, authentication, retries, response parsing, and telemetry.
  */
 
 import { miaixzDefaultRequestTimeoutMs, miaixzHeaders } from "./constants.js";

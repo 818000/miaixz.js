@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the serialize UI module.
+ * Serializes validated theme values into deterministic CSS token output.
  */
 
 import type {

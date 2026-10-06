@@ -32,11 +32,17 @@ import type {
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
+/**
+ * Stable identifier, display label, and values of one column-chart series.
+ */
 export interface ColumnsSeries {
   readonly id: string;
   readonly label: string;
   readonly values: readonly number[];
 }
+/**
+ * Resolved Columns state exposed to theme and slot overrides.
+ */
 export interface ColumnsOwnerState {
   readonly orientation: "vertical" | "horizontal";
   readonly layout: "grouped" | "stacked";
@@ -53,6 +59,9 @@ export interface ColumnsOwnerState {
   readonly tone: MiaixzVisualTone;
   readonly state: "empty" | "ready";
 }
+/**
+ * Attributes accepted by the Columns Root slot.
+ */
 export interface ColumnsRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-orientation"?: ColumnsOwnerState["orientation"];
   readonly "data-layout"?: ColumnsOwnerState["layout"];
@@ -62,9 +71,15 @@ export interface ColumnsRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-tone"?: MiaixzVisualTone;
   readonly "data-state"?: ColumnsOwnerState["state"];
 }
+/**
+ * Attributes accepted by the Columns Bar slot.
+ */
 export interface ColumnsBarAttributes extends HTMLAttributes<HTMLSpanElement> {
   readonly "data-series"?: number;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Columns.
+ */
 export interface ColumnsSlotProps {
   readonly root?: MiaixzSlotProps<ColumnsOwnerState, ColumnsRootAttributes>;
   readonly legend?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -79,9 +94,15 @@ export interface ColumnsSlotProps {
   readonly tableHeader?: MiaixzSlotProps<ColumnsOwnerState, ThHTMLAttributes<HTMLTableCellElement>>;
   readonly tableCell?: MiaixzSlotProps<ColumnsOwnerState, TdHTMLAttributes<HTMLTableCellElement>>;
 }
+/**
+ * Requires an external description when the default accessible data table is disabled.
+ */
 type ColumnsAccessibility =
   | { readonly accessibleTable?: true; readonly "aria-describedby"?: string }
   | { readonly accessibleTable: false; readonly "aria-describedby": string };
+/**
+ * Component-specific Columns properties composed with the permitted native attributes.
+ */
 interface ColumnsBaseProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "aria-describedby" | "children" | "color"
@@ -102,4 +123,7 @@ interface ColumnsBaseProps extends Omit<
   readonly valueFormatter?: (value: number, series: ColumnsSeries, categoryIndex: number) => string;
   readonly slotProps?: ColumnsSlotProps;
 }
+/**
+ * Properties accepted by the Columns renderer.
+ */
 export type ColumnsProps = ColumnsBaseProps & ColumnsAccessibility;

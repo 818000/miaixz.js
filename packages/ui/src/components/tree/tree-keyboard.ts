@@ -19,11 +19,14 @@
 */
 
 /**
- * Implements tree keyboard support for the tree component.
+ * Resolves tree keyboard navigation into focus, expansion, and selection commands.
  */
 
 import type { TreeRecord } from "./tree-controller.js";
 
+/**
+ * Keyboard-navigation commands interpreted by the tree controller.
+ */
 export type TreeNavigationAction =
   | { readonly kind: "focus"; readonly id: string }
   | { readonly kind: "expand"; readonly id: string }

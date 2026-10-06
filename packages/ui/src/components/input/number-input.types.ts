@@ -27,16 +27,25 @@ import type { ButtonHTMLAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { InputOwnerState, InputProps, InputSlotProps } from "./input.types.js";
 
+/**
+ * Reason and metadata accompanying a normalized numeric-input change.
+ */
 export interface NumberInputChangeDetails {
   readonly reason: "input" | "increment" | "decrement" | "blur" | "reset";
   readonly rawValue: string;
 }
 
+/**
+ * Resolved Number Input state exposed to theme and slot overrides.
+ */
 export interface NumberInputOwnerState extends InputOwnerState {
   readonly canIncrement: boolean;
   readonly canDecrement: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Number Input.
+ */
 export interface NumberInputSlotProps extends InputSlotProps {
   readonly decrement?: MiaixzSlotProps<
     NumberInputOwnerState,
@@ -48,6 +57,9 @@ export interface NumberInputSlotProps extends InputSlotProps {
   >;
 }
 
+/**
+ * Properties accepted by the Number Input renderer.
+ */
 export interface NumberInputProps extends Omit<
   InputProps,
   "type" | "inputMode" | "value" | "defaultValue" | "onChange" | "slotProps"

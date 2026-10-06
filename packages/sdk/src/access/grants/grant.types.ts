@@ -20,9 +20,7 @@
 
 /**
  * Defines permission identifiers and resolved grant snapshots.
- */
-
-/**
+ *
  * Identifies a permission defined by the Miaixz authorization model.
  *
  * @public

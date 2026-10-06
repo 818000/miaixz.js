@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports user, organization, tenant, and workspace model contracts.
  */
 
 export type { MiaixzDepartmentSummary, MiaixzOrganizationSummary } from "./organization.js";

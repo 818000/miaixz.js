@@ -4,6 +4,9 @@ import { createMiaixzAppearanceManager, createMiaixzI18n } from "@miaixz/sdk";
 import { MiaixzDocumentLocale, MiaixzLocaleProvider, Theme } from "@miaixz/ui";
 import { useEffect, useState, type ReactNode } from "react";
 
+/**
+ * Content and configuration supplied to the Example Runtime example renderer.
+ */
 interface ExampleRuntimeProps {
   readonly children: ReactNode;
 }

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements more actions support for the action component.
+ * Renders action descriptors inside an accessible overflow dropdown.
  */
 
 import { useId } from "react";
@@ -32,6 +32,9 @@ import { Icon } from "@miaixz/icons";
 import type { ActionDescriptor, MoreActionsProps } from "./action.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * Properties accepted by the More Actions View renderer.
+ */
 interface MoreActionsViewProps extends MoreActionsProps {
   /**
    * Overrides the overflow trigger's accessible name.

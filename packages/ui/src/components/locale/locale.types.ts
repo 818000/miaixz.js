@@ -28,16 +28,28 @@ import type { HTMLAttributes, RefAttributes } from "react";
 import type { MiaixzUiError } from "../../errors/ui-error.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Named Locale parts available for slot and style customization.
+ */
 export type LocaleSlot = "root" | "search" | "list" | "option" | "empty" | "error";
 
+/**
+ * Resolved Locale state exposed to theme and slot overrides.
+ */
 export interface LocaleOwnerState {
   readonly disabled: boolean;
   readonly pending: boolean;
   readonly hasError: boolean;
 }
 
+/**
+ * Attributes accepted by the Locale Root slot.
+ */
 export type LocaleRootAttributes = HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>;
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Locale.
+ */
 export interface LocaleSlotProps {
   readonly root?: MiaixzSlotProps<LocaleOwnerState, LocaleRootAttributes>;
   readonly search?: MiaixzSlotProps<LocaleOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -47,6 +59,9 @@ export interface LocaleSlotProps {
   readonly error?: MiaixzSlotProps<LocaleOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Properties accepted by the Locale renderer.
+ */
 export interface LocaleProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "children" | "onChange" | "onError"

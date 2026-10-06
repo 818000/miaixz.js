@@ -26,14 +26,26 @@ import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Transfer Target size tokens permitted by the component contract.
+ */
 export type TransferTargetSize = "compact" | "standard";
+/**
+ * Transfer Mobile Pane size tokens permitted by the component contract.
+ */
 export type TransferMobilePaneSize = "compact" | "comfortable";
+/**
+ * Resolved Transfer state exposed to theme and slot overrides.
+ */
 export interface TransferOwnerState {
   readonly targetSize: TransferTargetSize;
   readonly mobilePaneSize: TransferMobilePaneSize;
   readonly sourceHeaderLayout: "stack" | "between";
   readonly targetHeaderLayout: "stack" | "between";
 }
+/**
+ * Attributes accepted by the Transfer Root slot.
+ */
 export type TransferRootAttributes = HTMLAttributes<HTMLElement> &
   RefAttributes<HTMLElement> & {
     readonly "data-target-size"?: TransferTargetSize;
@@ -41,9 +53,15 @@ export type TransferRootAttributes = HTMLAttributes<HTMLElement> &
     readonly "data-source-header-layout"?: "stack" | "between";
     readonly "data-target-header-layout"?: "stack" | "between";
   };
+/**
+ * Attributes accepted by the Transfer Header slot.
+ */
 export type TransferHeaderAttributes = HTMLAttributes<HTMLDivElement> & {
   readonly "data-layout"?: "stack" | "between";
 };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Transfer.
+ */
 export interface TransferSlotProps {
   readonly root?: MiaixzSlotProps<TransferOwnerState, TransferRootAttributes>;
   readonly sourcePane?: MiaixzSlotProps<TransferOwnerState, HTMLAttributes<HTMLElement>>;
@@ -53,6 +71,9 @@ export interface TransferSlotProps {
   readonly targetHeader?: MiaixzSlotProps<TransferOwnerState, TransferHeaderAttributes>;
   readonly targetBody?: MiaixzSlotProps<TransferOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Properties accepted by the Transfer renderer.
+ */
 export interface TransferProps extends Omit<
   HTMLAttributes<HTMLElement>,
   "aria-label" | "children"

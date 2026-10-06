@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements graph model support for the graph component.
+ * Validates graph identities and resolves node, edge, and layout models.
  */
 
 import { MiaixzUiError } from "../../../errors/ui-error.js";

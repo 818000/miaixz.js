@@ -27,25 +27,49 @@ import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js
 import type { ButtonProps } from "../button/button.types.js";
 import type { IconButtonProps } from "../action/action.types.js";
 
+/**
+ * Toast semantic color tones permitted by the component contract.
+ */
 export type ToastTone = "neutral" | "success" | "warning" | "danger" | "info";
+/**
+ * Toast dismissal reasons permitted by the component contract.
+ */
 export type ToastCloseReason = "dismiss" | "timeout" | "action" | "programmatic";
+/**
+ * Optional labeled action displayed inside a toast.
+ */
 export interface ToastAction {
   readonly label: string;
   readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
 }
+/**
+ * Named Toast parts available for slot and style customization.
+ */
 export type ToastSlot =
   "root" | "icon" | "content" | "title" | "message" | "actions" | "action" | "dismiss";
+/**
+ * Resolved Toast state exposed to theme and slot overrides.
+ */
 export interface ToastOwnerState {
   readonly tone: ToastTone;
   readonly actionable: boolean;
   readonly dismissible: boolean;
 }
+/**
+ * Replaceable slot components accepted by Toast.
+ */
 export interface ToastSlots {
   readonly title?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
   readonly message?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Attributes accepted by the Toast Root slot.
+ */
 export type ToastRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & { readonly "data-tone"?: ToastTone };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Toast.
+ */
 export interface ToastSlotProps {
   readonly root?: MiaixzSlotProps<ToastOwnerState, ToastRootAttributes>;
   readonly icon?: MiaixzSlotProps<ToastOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -56,6 +80,9 @@ export interface ToastSlotProps {
   readonly action?: MiaixzSlotProps<ToastOwnerState, Omit<ButtonProps, "children">>;
   readonly dismiss?: MiaixzSlotProps<ToastOwnerState, IconButtonProps>;
 }
+/**
+ * Component-specific Toast properties composed with the permitted native attributes.
+ */
 export interface MiaixzToastOwnProps {
   readonly id: string;
   readonly title: ReactNode;
@@ -67,6 +94,9 @@ export interface MiaixzToastOwnProps {
   readonly slots?: ToastSlots;
   readonly slotProps?: ToastSlotProps;
 }
+/**
+ * Properties accepted by the Toast renderer.
+ */
 export type ToastProps = MiaixzToastOwnProps &
   Omit<
     HTMLAttributes<HTMLDivElement>,

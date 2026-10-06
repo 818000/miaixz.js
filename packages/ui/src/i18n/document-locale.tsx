@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the document locale UI module.
+ * Owns document language/direction updates and restores the previous values on cleanup.
  */
 
 import { useEffect, useRef } from "react";
@@ -32,11 +32,17 @@ import { useMiaixzLocale } from "./i18n.js";
  */
 const documentLocaleOwners = new WeakMap<Document, symbol>();
 
+/**
+ * Document language and direction currently managed by the locale provider.
+ */
 interface ControlledDocumentLocale {
   lang: string;
   dir: string;
 }
 
+/**
+ * Original document language and direction restored when locale ownership ends.
+ */
 interface PreviousDocumentLocale {
   lang: string | null;
   dir: string | null;

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the validation module.
+ * Validates, normalizes, and freezes appearance settings at the persistence boundary.
  */
 
 import { MiaixzSdkError } from "../errors/errors.js";

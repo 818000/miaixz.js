@@ -30,7 +30,13 @@ import {
   type XmlElement,
 } from "../xml/xml-codec.js";
 
+/**
+ * Local alias for the format-neutral parsed XML element contract.
+ */
 type Element = XmlElement;
+/**
+ * Local alias for the parsed XML document contract used by Office codecs.
+ */
 type XMLDocument = XmlDocument;
 
 /**

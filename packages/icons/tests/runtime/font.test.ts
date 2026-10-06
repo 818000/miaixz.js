@@ -24,13 +24,10 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  isIconName,
-  parseIconName,
-  preloadIconFont,
-  readIcon,
-  resetIconFontLoads,
-} from "../../src/runtime/index.js";
+import { isIconName, parseIconName, preloadIconFont } from "../../src/runtime/index.js";
+import { readIcon, resetIconFontLoads } from "../../src/runtime/font.js";
+import { FONT_FAMILY, ICON_SIZES } from "../../src/values/design.js";
+import { ICON_NAMES } from "../../src/values/icons.js";
 
 afterEach(() => {
   resetIconFontLoads();
@@ -38,6 +35,32 @@ afterEach(() => {
 });
 
 describe("font icon runtime", () => {
+  it("constructs frozen glyph and direction records on demand", () => {
+    Reflect.deleteProperty(document, "fonts");
+    for (const name of ["search", "arrow-left"] as const) {
+      const [codepoint, rtlFlag] = ICON_NAMES[name];
+      const record = readIcon(name);
+      expect(record).toEqual({
+        name,
+        codepoint,
+        glyph: String.fromCodePoint(codepoint),
+        rtl: rtlFlag === 1 ? "mirror" : "none",
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+      expect(readIcon(name)).not.toBe(record);
+    }
+  });
+  it("controls rejected font-loading requests without retrying", async () => {
+    const error = new Error("network unavailable");
+    const load = vi.fn(async () => {
+      throw error;
+    });
+    Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
+    await expect(preloadIconFont()).rejects.toBe(error);
+    expect(readIcon("search")).toBeNull();
+    await expect(preloadIconFont()).rejects.toBe(error);
+    expect(load).toHaveBeenCalledTimes(1);
+  });
   it("validates canonical names without exposing records", () => {
     expect(isIconName("search")).toBe(true);
     expect(isIconName("not-a-real-icon")).toBe(false);
@@ -50,6 +73,10 @@ describe("font icon runtime", () => {
     Object.defineProperty(document, "fonts", { configurable: true, value: { load } });
     await Promise.all(Array.from({ length: 100 }, () => preloadIconFont()));
     expect(load).toHaveBeenCalledTimes(1);
+    expect(load).toHaveBeenCalledWith(
+      `${String(ICON_SIZES.inline.pixels)}px ${JSON.stringify(FONT_FAMILY)}`,
+      String.fromCodePoint(Object.values(ICON_NAMES)[0]![0]),
+    );
   });
 
   it("resolves immediately during SSR-like execution", async () => {

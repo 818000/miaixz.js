@@ -34,6 +34,9 @@ import type { IconName } from "@miaixz/icons";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ButtonLinkSlotProps, ButtonSlotProps, ButtonTone } from "../button/button.types.js";
 
+/**
+ * Identity, display label, icon, and presentation shared by command and navigation actions.
+ */
 export interface ActionBase {
   readonly id: string;
   readonly label: string;
@@ -43,6 +46,9 @@ export interface ActionBase {
   readonly description?: string;
 }
 
+/**
+ * Button action invoking a callback; navigation-only href configuration is forbidden.
+ */
 export interface CommandAction extends ActionBase {
   readonly kind: "command";
   readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -55,6 +61,9 @@ export interface CommandAction extends ActionBase {
   readonly href?: never;
 }
 
+/**
+ * Anchor action targeting an href; command callbacks, loading, and disabled state are forbidden.
+ */
 export interface NavigationAction extends ActionBase {
   readonly kind: "navigation";
   readonly href: string;
@@ -64,14 +73,23 @@ export interface NavigationAction extends ActionBase {
   readonly loading?: never;
 }
 
+/**
+ * Discriminated command or navigation action accepted by action renderers.
+ */
 export type ActionDescriptor = CommandAction | NavigationAction;
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Action Text.
+ */
 export interface ActionTextSlotProps {
   readonly root?: ButtonSlotProps["root"] | ButtonLinkSlotProps["root"];
   readonly label?: ButtonSlotProps["label"];
   readonly startIcon?: ButtonSlotProps["startIcon"];
 }
 
+/**
+ * Properties accepted by the Action Text renderer.
+ */
 export interface ActionTextProps {
   readonly action: ActionDescriptor;
   readonly labelVisibility?: "always" | "responsive" | "hidden";
@@ -79,6 +97,9 @@ export interface ActionTextProps {
   readonly slotProps?: ActionTextSlotProps;
 }
 
+/**
+ * Resolved Icon Button state exposed to theme and slot overrides.
+ */
 export interface IconButtonOwnerState {
   readonly tone: ButtonTone;
   readonly size: "small" | "medium" | "large";
@@ -88,6 +109,9 @@ export interface IconButtonOwnerState {
   readonly pressed?: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Icon Button.
+ */
 export interface IconButtonSlotProps {
   readonly root?: MiaixzSlotProps<IconButtonOwnerState, IconButtonRootAttributes>;
   readonly icon?: MiaixzSlotProps<IconButtonOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -97,6 +121,9 @@ export interface IconButtonSlotProps {
   >;
 }
 
+/**
+ * Attributes accepted by the Icon Button Root slot.
+ */
 export interface IconButtonRootAttributes
   extends ButtonHTMLAttributes<HTMLButtonElement>, RefAttributes<HTMLButtonElement> {
   readonly "data-loading"?: boolean;
@@ -107,6 +134,9 @@ export interface IconButtonRootAttributes
   readonly "data-appearance"?: "control" | "glyph" | "favorite";
 }
 
+/**
+ * Properties accepted by the Icon Button renderer.
+ */
 export interface IconButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "aria-label" | "children"
@@ -122,39 +152,63 @@ export interface IconButtonProps extends Omit<
   readonly slotProps?: IconButtonSlotProps;
 }
 
+/**
+ * Properties accepted by the More Actions renderer.
+ */
 export interface MoreActionsProps {
   readonly actions: readonly ActionDescriptor[];
 }
 
+/**
+ * Resolved Row Actions state exposed to theme and slot overrides.
+ */
 export interface RowActionsOwnerState {
   readonly overflow: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Row Actions.
+ */
 export interface RowActionsSlotProps {
   readonly root?: MiaixzSlotProps<RowActionsOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Properties accepted by the Row Actions renderer.
+ */
 export interface RowActionsProps {
   readonly actions: readonly ActionDescriptor[];
   readonly overflowLabel?: string;
   readonly slotProps?: RowActionsSlotProps;
 }
 
+/**
+ * Resolved Action Bar state exposed to theme and slot overrides.
+ */
 export interface ActionBarOwnerState {
   readonly hasPrimary: boolean;
   readonly overflow: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Action Bar.
+ */
 export interface ActionBarSlotProps {
   readonly root?: MiaixzSlotProps<ActionBarOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Properties accepted by the Action Bar renderer.
+ */
 export interface ActionBarProps {
   readonly primary?: ActionDescriptor;
   readonly actions: readonly ActionDescriptor[];
   readonly slotProps?: ActionBarSlotProps;
 }
 
+/**
+ * Cancel action configuration used alongside a form submission control.
+ */
 export interface FormCancelAction {
   readonly id: string;
   readonly label: string;
@@ -167,6 +221,9 @@ export interface FormCancelAction {
   >;
 }
 
+/**
+ * Submission label and presentation bound to the native form submit action.
+ */
 export interface FormSubmitAction {
   readonly id: string;
   readonly label: string;
@@ -180,21 +237,33 @@ export interface FormSubmitAction {
   >;
 }
 
+/**
+ * Resolved Form Actions state exposed to theme and slot overrides.
+ */
 export interface FormActionsOwnerState {
   readonly fixed: boolean;
   readonly loading: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Form Actions.
+ */
 export interface FormActionsSlotProps {
   readonly root?: MiaixzSlotProps<FormActionsOwnerState, FormActionsRootAttributes>;
   readonly cancel?: ButtonSlotProps;
   readonly submit?: ButtonSlotProps;
 }
 
+/**
+ * Attributes accepted by the Form Actions Root slot.
+ */
 export interface FormActionsRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-fixed"?: string;
 }
 
+/**
+ * Properties accepted by the Form Actions renderer.
+ */
 export interface FormActionsProps {
   readonly cancel?: FormCancelAction;
   readonly submit: FormSubmitAction;

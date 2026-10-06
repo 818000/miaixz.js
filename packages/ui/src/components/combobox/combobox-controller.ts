@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements combobox controller support for the combobox component.
+ * Coordinates combobox queries, selection, asynchronous pages, and keyboard-active options.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the i18n UI module.
+ * Connects the SDK locale runtime to UI translation hooks and providers.
  */
 
 import type {

@@ -19,203 +19,128 @@
 */
 
 /**
- * Generates the single committed TypeScript projection of icon source assets.
+ * Generates three deterministic projections exclusively from canonical JSON.
  */
-
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { format, resolveConfig } from "prettier";
-
-import { loadIconSource, packageRoot } from "../source.mjs";
-
-const moduleRoot = dirname(fileURLToPath(import.meta.url));
-const outputPath = resolve(packageRoot, "src/autogen/icons.ts");
-const prettierConfig = resolve(moduleRoot, "../../../../../packages/ui/prettier.config.js");
-const header = `/*
- ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
- ~                                                                           ~
- ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
- ~                                                                           ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
- ~ you may not use this file except in compliance with the License.          ~
- ~ You may obtain a copy of the License at                                   ~
- ~                                                                           ~
- ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
- ~                                                                           ~
- ~ Unless required by applicable law or agreed to in writing, software       ~
- ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
- ~ See the License for the specific language governing permissions and       ~
- ~ limitations under the License.                                            ~
- ~                                                                           ~
- ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-*/`;
-
-/**
- * Converts one canonical name to its public constant key.
- *
- * @param {string} name Canonical icon name.
- * @returns {string} SCREAMING_SNAKE_CASE key.
- */
-function identifierFor(name) {
-  return name.replaceAll("-", "_").toUpperCase();
-}
-
+import { loadIconSource, packageRoot, repositoryRoot } from "../source.mjs";
+const header =
+  '/*\n ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n ~                                                                           ~\n ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~\n ~                                                                           ~\n ~ Licensed under the Apache License, Version 2.0 (the "License");           ~\n ~ you may not use this file except in compliance with the License.          ~\n ~ You may obtain a copy of the License at                                   ~\n ~                                                                           ~\n ~      https://www.apache.org/licenses/LICENSE-2.0                          ~\n ~                                                                           ~\n ~ Unless required by applicable law or agreed to in writing, software       ~\n ~ distributed under the License is distributed on an "AS IS" BASIS,         ~\n ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~\n ~ See the License for the specific language governing permissions and       ~\n ~ limitations under the License.                                            ~\n ~                                                                           ~\n ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n*/';
 /**
  * Serializes one generated literal deterministically.
- *
- * @param {unknown} value Serializable value.
- * @returns {string} Pretty JSON literal.
+ * @param {unknown} value JSON-serializable design or directory value.
+ * @returns {string} JSON literal text with two-space indentation.
  */
-function json(value) {
-  return JSON.stringify(value, null, 2);
-}
+const literal = (value) => JSON.stringify(value, null, 2);
 
 /**
- * Produces deterministic TypeScript source without writing the repository.
- *
- * @returns {Promise<string>} Formatted module source.
+ * Produces all three modules without reading or writing generated files.
+ * @param {{assetsRoot?:string}} options Strict JSON source root.
+ * @returns {Promise<Record<string,string>>} Filename to canonical TypeScript content.
  */
-export async function generateIcons() {
-  const source = await loadIconSource({ validateUfo: true });
-  const identifiers = Object.fromEntries(
-    source.icons.map(({ name }) => [identifierFor(name), name]),
+export async function generateIcons(options = {}) {
+  const source = await loadIconSource(options);
+  const icons =
+    "/**\n * Immutable name-to-codepoint and RTL tuples.\n */\nexport const ICON_NAMES = Object.freeze({\n" +
+    source.icons
+      .map(
+        (i) =>
+          JSON.stringify(i.name) +
+          ": Object.freeze([" +
+          i.codepoint +
+          ", " +
+          (i.rtl === "mirror" ? 1 : 0) +
+          "] as const),",
+      )
+      .join("\n") +
+    "\n} as const);\n/**\n * Canonical icon name, derived from the keys of the generated mapping.\n */\nexport type IconName = keyof typeof ICON_NAMES;\n";
+  const metadata =
+    '/**\n * Defines the public icon directory names and categories.\n */\nimport type { IconName } from "./icons.js";\n' +
+    "/**\n * Category identifiers declared by the canonical icon manifest.\n */\nexport type IconCategory = " +
+    source.categories.map(literal).join(" | ") +
+    ";\n" +
+    "/**\n * Public catalog projection containing only an icon's canonical name and category.\n */\nexport interface IconCatalogEntry {\n /**\n * Canonical name accepted by the Icon component.\n */\n readonly name: IconName;\n /**\n * Manifest category used for browsing and filtering.\n */\n readonly category: IconCategory;\n}\n" +
+    "const entries: readonly IconCatalogEntry[] = " +
+    "[\n" +
+    source.icons
+      .map(({ name, category }) => literal({ name, category }) + " as IconCatalogEntry")
+      .join(",\n") +
+    "\n];\n" +
+    "/**\n * Immutable public icon directory.\n */\nexport const ICON_CATALOG: readonly Readonly<IconCatalogEntry>[] = Object.freeze(entries.map((entry) => Object.freeze(entry)));\n";
+  const axes = Object.fromEntries(
+    Object.values(source.design.axes).map(({ tag, minimum, default: defaultValue, maximum }) => [
+      tag,
+      { minimum, default: defaultValue, maximum },
+    ]),
   );
-  if (Object.keys(identifiers).length !== source.icons.length) {
-    throw new Error("Generated ICON_NAMES identifiers are not unique.");
+  /**
+   * Serializes a two-level design object with frozen entries and literal keys.
+   * @param {object} value Axis bounds or semantic size records from design.json.
+   * @returns {string} TypeScript expression freezing the object and each entry.
+   */
+  const freezeObject = (value) =>
+    "Object.freeze({" +
+    Object.entries(value)
+      .map(([key, v]) => JSON.stringify(key) + ": Object.freeze(" + literal(v) + ")")
+      .join(",") +
+    "} as const)";
+  const design =
+    "/**\n * Shared font family.\n */\nexport const FONT_FAMILY = " +
+    literal(source.design.font.familyName) +
+    ";\n" +
+    "/**\n * Shared variable-font axis bounds.\n */\nexport const ICON_AXES = " +
+    freezeObject(axes) +
+    ";\n" +
+    "/**\n * Shared semantic size tokens.\n */\nexport const ICON_SIZES = " +
+    freezeObject(source.design.sizes) +
+    ";\n" +
+    "/**\n * Semantic size token derived from the generated size records.\n */\nexport type IconSize = keyof typeof ICON_SIZES;\n";
+  const output = {};
+  for (const [filename, text] of Object.entries({
+    "icons.ts": icons,
+    "metadata.ts": metadata,
+    "design.ts": design,
+  })) {
+    const filepath = resolve(packageRoot, "src/values", filename);
+    const config = {
+      ...(await resolveConfig(filepath, {
+        config: resolve(repositoryRoot, "packages/ui/prettier.config.js"),
+      })),
+      filepath,
+    };
+    output[filename] = await format(await format(header + "\n\n" + text, config), config);
   }
-  const catalog = source.icons.map(({ name, category, opticalClass, tier, rtl }) => ({
-    name,
-    category,
-    opticalClass,
-    tier,
-    rtl,
-  }));
-  const records = source.icons.map(({ name, codepoint, rtl }) => ({
-    name,
-    codepoint,
-    glyph: String.fromCodePoint(codepoint),
-    rtl,
-  }));
-  const categoryUnion = source.categories.map((value) => JSON.stringify(value)).join(" | ");
-  const opticalUnion = Object.keys(source.design.opticalClasses)
-    .map((value) => JSON.stringify(value))
-    .join(" | ");
-  const body = `${header}
-
-/**
- * Generated by .github/scripts/modules/icons/codegen/generate-icons.mjs. Do not edit.
- */
-
-/**
- * Maps public SCREAMING_SNAKE_CASE identifiers to canonical icon names.
- */
-export const ICON_NAMES = Object.freeze(${json(identifiers)} as const);
-
-export type IconName = (typeof ICON_NAMES)[keyof typeof ICON_NAMES];
-export type IconCategory = ${categoryUnion};
-export type OpticalClass = ${opticalUnion};
-export type IconTier = "core" | "extended";
-export type IconDirection = "none" | "mirror";
-
-export interface IconCatalogEntry {
-  readonly name: IconName;
-  readonly category: IconCategory;
-  readonly opticalClass: OpticalClass;
-  readonly tier: IconTier;
-  readonly rtl: IconDirection;
+  return output;
 }
 
 /**
- * Contains public icon metadata in codepoint order.
+ * Writes or compares the same computed module bytes.
+ * @param {{mode:"write"|"check",assetsRoot?:string,outputRoot?:string}} options Mode and optional isolated roots.
+ * @returns {Promise<void>} Completion.
  */
-export const ICON_CATALOG: readonly Readonly<IconCatalogEntry>[] = Object.freeze(
-  ${json(catalog)}.map((entry) => Object.freeze(entry as IconCatalogEntry)),
-);
-
-export interface InternalIconRecord {
-  readonly name: IconName;
-  readonly codepoint: number;
-  readonly glyph: string;
-  readonly rtl: IconDirection;
-}
-
-/**
- * Contains private font records for runtime rendering.
- *
- * @internal
- */
-export const INTERNAL_ICON_RECORDS: readonly Readonly<InternalIconRecord>[] = Object.freeze(
-  ${json(records)}.map((entry) => Object.freeze(entry as InternalIconRecord)),
-);
-
-/**
- * Supports private constant-time name validation.
- *
- * @internal
- */
-export const INTERNAL_ICON_NAMES = new Set<string>(Object.values(ICON_NAMES));
-/**
- * Supports private constant-time font record lookup.
- *
- * @internal
- */
-export const INTERNAL_ICON_BY_NAME = new Map<IconName, Readonly<InternalIconRecord>>(
-  INTERNAL_ICON_RECORDS.map((entry) => [entry.name, entry]),
-);
-`;
-  const configuration = {
-    ...(await resolveConfig(outputPath, { config: prettierConfig })),
-    filepath: outputPath,
-  };
-  return format(await format(body, configuration), configuration);
-}
-
-/**
- * Writes the one committed generated source module.
- *
- * @returns {Promise<void>} Completion promise.
- */
-async function writeGeneratedSource() {
-  await mkdir(dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, await generateIcons());
-}
-
-/**
- * Compares a temporary regenerated module with the committed source.
- *
- * @returns {Promise<void>} Completion promise.
- */
-async function checkGeneratedSource() {
-  const temporaryRoot = await mkdtemp(join(tmpdir(), "miaixz-icons-generate-"));
-  try {
-    const candidate = resolve(temporaryRoot, "icons.ts");
-    await writeFile(candidate, await generateIcons());
-    const [expected, actual] = await Promise.all([
-      readFile(candidate, "utf8"),
-      readFile(outputPath, "utf8"),
-    ]);
-    if (expected !== actual) {
-      throw new Error(
-        "src/autogen/icons.ts is stale; run npm run generate --workspace @miaixz/icons.",
-      );
-    }
-  } finally {
-    await rm(temporaryRoot, { recursive: true, force: true });
+export async function processGeneratedIcons({
+  mode,
+  assetsRoot,
+  outputRoot = resolve(packageRoot, "src/values"),
+}) {
+  if (!["write", "check"].includes(mode)) throw new Error("Expected write or check mode.");
+  const generated = await generateIcons(assetsRoot === undefined ? {} : { assetsRoot });
+  if (mode === "write") await mkdir(outputRoot, { recursive: true });
+  for (const [filename, text] of Object.entries(generated)) {
+    const path = resolve(outputRoot, filename);
+    if (mode === "write") await writeFile(path, text);
+    else if ((await readFile(path, "utf8")) !== text)
+      throw new Error(filename + " is stale; run icons:generate.");
   }
 }
-
 if (
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(resolve(process.argv[1])).href
 ) {
-  const arguments_ = process.argv.slice(2);
-  if (arguments_.length !== 1 || !["--write", "--check"].includes(arguments_[0])) {
-    throw new Error("generate-icons.mjs requires exactly --write or --check.");
-  }
-  if (arguments_[0] === "--write") await writeGeneratedSource();
-  else await checkGeneratedSource();
+  const args = process.argv.slice(2);
+  if (args.length !== 1 || !["--write", "--check"].includes(args[0]))
+    throw new Error("Expected exactly --write or --check.");
+  await processGeneratedIcons({ mode: args[0].slice(2) });
 }

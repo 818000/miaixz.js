@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports module manifests, lifecycle, routes, host capabilities, and bridge contracts.
  */
 
 export type {

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the direct host bridge test module.
+ * Verifies capability-limited direct host calls and lifecycle ownership.
  */
 
 import { describe, expect, it, vi } from "vitest";

@@ -27,6 +27,9 @@ import type { HTMLAttributes, ReactNode, SVGAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
+/**
+ * Resolved Sparkline state exposed to theme and slot overrides.
+ */
 export interface SparklineOwnerState {
   readonly variant: "line" | "area";
   readonly size: "small" | "medium" | "large";
@@ -34,12 +37,18 @@ export interface SparklineOwnerState {
   readonly showGrid: boolean;
   readonly state: "empty" | "ready";
 }
+/**
+ * Attributes accepted by the Sparkline Root slot.
+ */
 export interface SparklineRootAttributes extends SVGAttributes<SVGSVGElement> {
   readonly "data-state"?: "empty" | "ready";
   readonly "data-tone"?: MiaixzVisualTone;
   readonly "data-variant"?: "line" | "area";
   readonly "data-size"?: "small" | "medium" | "large";
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Sparkline.
+ */
 export interface SparklineSlotProps {
   readonly root?: MiaixzSlotProps<SparklineOwnerState, SparklineRootAttributes>;
   readonly grid?: MiaixzSlotProps<SparklineOwnerState, SVGAttributes<SVGPathElement>>;
@@ -49,6 +58,9 @@ export interface SparklineSlotProps {
   readonly title?: MiaixzSlotProps<SparklineOwnerState, HTMLAttributes<HTMLTitleElement>>;
   readonly description?: MiaixzSlotProps<SparklineOwnerState, SVGAttributes<SVGDescElement>>;
 }
+/**
+ * Properties accepted by the Sparkline renderer.
+ */
 export interface SparklineProps extends Omit<
   SVGAttributes<SVGSVGElement>,
   "aria-label" | "children" | "color" | "values"

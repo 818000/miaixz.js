@@ -11,6 +11,9 @@ import { lockMiaixzDocumentScroll } from "../../../src/shared/overlay/document-s
 import { useMiaixzDismissibleLayer } from "../../../src/shared/overlay/dismissible-layer.js";
 import type { MiaixzDismissReason } from "../../../src/shared/overlay/types.js";
 
+/**
+ * Inputs controlling the Layer Fixture test fixture.
+ */
 interface LayerFixtureProps {
   /**
    * Supplies a unique accessible label.

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the parse UI module.
+ * Parses untrusted theme input into the supported theme-definition contract.
  */
 
 import type { MiaixzThemeDefinition } from "./types.js";

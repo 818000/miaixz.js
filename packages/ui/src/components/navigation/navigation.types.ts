@@ -32,9 +32,21 @@ import type {
 import type { IconName, IconProps } from "@miaixz/icons";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Navigation layout orientations permitted by the component contract.
+ */
 export type NavigationOrientation = "horizontal" | "vertical";
+/**
+ * Navigation spacing densities permitted by the component contract.
+ */
 export type NavigationDensity = "compact" | "standard" | "comfortable";
+/**
+ * Navigation surface treatments permitted by the component contract.
+ */
 export type NavigationSurface = "plain" | "filled";
+/**
+ * Navigation link with stable identity, visible label, and plain-text overflow/search label.
+ */
 export interface NavigationEntry {
   readonly id: string;
   readonly label: ReactNode;
@@ -48,6 +60,9 @@ export interface NavigationEntry {
     "aria-current" | "children" | "href"
   >;
 }
+/**
+ * Resolved Navigation state exposed to theme and slot overrides.
+ */
 export interface NavigationOwnerState {
   readonly orientation: NavigationOrientation;
   readonly density: NavigationDensity;
@@ -55,19 +70,34 @@ export interface NavigationOwnerState {
   readonly current: AriaAttributes["aria-current"] | undefined;
   readonly itemId: string | undefined;
 }
+/**
+ * Named Navigation parts available for slot and style customization.
+ */
 export type NavigationSlot = "root" | "item" | "icon" | "label" | "meta";
+/**
+ * Attributes accepted by the Navigation Root slot.
+ */
 export type NavigationRootAttributes = HTMLAttributes<HTMLElement> &
   RefAttributes<HTMLElement> & {
     readonly "data-orientation"?: NavigationOrientation;
     readonly "data-density"?: NavigationDensity;
     readonly "data-surface"?: NavigationSurface;
   };
+/**
+ * Attributes accepted by the Navigation Icon slot.
+ */
 export type NavigationIconAttributes = Omit<IconProps, "label"> & {
   readonly "aria-hidden": true;
 };
+/**
+ * Replaceable slot components accepted by Navigation.
+ */
 export interface NavigationSlots {
   readonly icon?: MiaixzSlotComponent<NavigationIconAttributes>;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Navigation.
+ */
 export interface NavigationSlotProps {
   readonly root?: MiaixzSlotProps<NavigationOwnerState, NavigationRootAttributes>;
   readonly item?: MiaixzSlotProps<
@@ -78,6 +108,9 @@ export interface NavigationSlotProps {
   readonly label?: MiaixzSlotProps<NavigationOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly meta?: MiaixzSlotProps<NavigationOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Navigation properties composed with the permitted native attributes.
+ */
 export interface MiaixzNavigationOwnProps {
   readonly items: readonly NavigationEntry[];
   readonly orientation?: NavigationOrientation;

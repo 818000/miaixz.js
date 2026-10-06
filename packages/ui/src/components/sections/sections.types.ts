@@ -25,11 +25,17 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Content and identity of a section-navigation item.
+ */
 export interface SectionsItem {
   readonly id: string;
   readonly title: ReactNode;
   readonly description?: ReactNode;
 }
+/**
+ * Section entry with the metadata used by section layout and navigation.
+ */
 export interface SectionsEntry {
   readonly id: string;
   readonly label: ReactNode;
@@ -37,7 +43,13 @@ export interface SectionsEntry {
   readonly items: readonly SectionsItem[];
   readonly empty?: ReactNode;
 }
+/**
+ * Sections content arrangements permitted by the component contract.
+ */
 export type SectionsLayout = "columns" | "rows";
+/**
+ * Named Sections parts available for slot and style customization.
+ */
 export type SectionsSlot =
   | "root"
   | "grid"
@@ -50,13 +62,22 @@ export type SectionsSlot =
   | "title"
   | "description"
   | "empty";
+/**
+ * Resolved Sections state exposed to theme and slot overrides.
+ */
 export interface SectionsOwnerState {
   readonly layout: SectionsLayout;
   readonly sectionId: string | undefined;
   readonly itemId: string | undefined;
 }
+/**
+ * Attributes accepted by the Sections Root slot.
+ */
 export type SectionsRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & { readonly "data-layout"?: SectionsLayout };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Sections.
+ */
 export interface SectionsSlotProps {
   readonly root?: MiaixzSlotProps<SectionsOwnerState, SectionsRootAttributes>;
   readonly grid?: MiaixzSlotProps<SectionsOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -70,6 +91,9 @@ export interface SectionsSlotProps {
   readonly description?: MiaixzSlotProps<SectionsOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly empty?: MiaixzSlotProps<SectionsOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Component-specific Sections properties composed with the permitted native attributes.
+ */
 export interface MiaixzSectionsOwnProps {
   readonly sections: readonly SectionsEntry[];
   readonly layout?: SectionsLayout;

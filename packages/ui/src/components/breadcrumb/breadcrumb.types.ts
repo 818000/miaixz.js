@@ -25,11 +25,17 @@
 import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Visible breadcrumb content shared by static and navigation entries.
+ */
 interface BreadcrumbPresentation {
   readonly id: string;
   readonly label: ReactNode;
   readonly icon?: ReactNode;
 }
+/**
+ * Discriminated breadcrumb entry enforcing the permitted current-item and navigation shapes.
+ */
 export type BreadcrumbEntry =
   | (BreadcrumbPresentation & {
       readonly current: true;
@@ -46,9 +52,21 @@ export type BreadcrumbEntry =
       >;
       readonly spanProps?: never;
     });
+/**
+ * Named Breadcrumb parts available for slot and style customization.
+ */
 export type BreadcrumbSlot = "root" | "list" | "item" | "icon" | "label";
+/**
+ * Resolved Breadcrumb state exposed to theme and slot overrides.
+ */
 export type BreadcrumbOwnerState = Record<never, never>;
+/**
+ * Attributes accepted by the Breadcrumb Root slot.
+ */
 export type BreadcrumbRootAttributes = HTMLAttributes<HTMLElement> & RefAttributes<HTMLElement>;
+/**
+ * Per-slot attributes and state-dependent override callbacks for Breadcrumb.
+ */
 export interface BreadcrumbSlotProps {
   readonly root?: MiaixzSlotProps<BreadcrumbOwnerState, BreadcrumbRootAttributes>;
   readonly list?: MiaixzSlotProps<BreadcrumbOwnerState, HTMLAttributes<HTMLOListElement>>;
@@ -56,6 +74,9 @@ export interface BreadcrumbSlotProps {
   readonly icon?: MiaixzSlotProps<BreadcrumbOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly label?: MiaixzSlotProps<BreadcrumbOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Breadcrumb properties composed with the permitted native attributes.
+ */
 export interface MiaixzBreadcrumbOwnProps {
   readonly label?: string;
   readonly items: readonly BreadcrumbEntry[];

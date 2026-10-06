@@ -40,6 +40,9 @@ export interface SkippedFeature {
   readonly count?: number;
 }
 
+/**
+ * Schema version, document identifier, and title shared by preview document variants.
+ */
 interface DocumentBase {
   readonly schemaVersion: 1;
   readonly id: string;

@@ -26,6 +26,9 @@ import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ToastAction, ToastCloseReason, ToastTone } from "../toast/toast.types.js";
 
+/**
+ * Content, tone, actions, and lifetime accepted when creating or updating a managed toast.
+ */
 export interface ToastOptions {
   readonly id?: string;
   readonly title: ReactNode;
@@ -35,16 +38,28 @@ export interface ToastOptions {
   readonly duration?: number;
   readonly dismissLabel?: string;
 }
+/**
+ * Toast identity and options retained by the toaster manager.
+ */
 export interface ToastRecord extends ToastOptions {
   readonly id: string;
 }
+/**
+ * Named Toaster parts available for slot and style customization.
+ */
 export type ToasterSlot = "root" | "politeRegion" | "assertiveRegion";
+/**
+ * Resolved Toaster state exposed to theme and slot overrides.
+ */
 export interface ToasterOwnerState {
   readonly visibleCount: number;
   readonly queuedCount: number;
   readonly maxVisible: number;
   readonly presentation: "default" | "silent";
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Toaster.
+ */
 export interface ToasterSlotProps {
   readonly root?: MiaixzSlotProps<
     ToasterOwnerState,
@@ -53,6 +68,9 @@ export interface ToasterSlotProps {
   readonly politeRegion?: MiaixzSlotProps<ToasterOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly assertiveRegion?: MiaixzSlotProps<ToasterOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Properties accepted by the Toaster renderer.
+ */
 export interface ToasterProps {
   readonly children: ReactNode;
   readonly defaultDuration?: number;
@@ -64,6 +82,9 @@ export interface ToasterProps {
   readonly presentation?: "default" | "silent";
   readonly slotProps?: ToasterSlotProps;
 }
+/**
+ * Values shared between the Toast provider and its descendant components.
+ */
 export interface ToastContextValue {
   readonly notify: (options: ToastOptions) => string;
   readonly dismiss: (id: string) => void;

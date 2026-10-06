@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements date picker support for the date component.
+ * Connects date input, popup calendar selection, and form-value state.
  */
 
 import { forwardRef, useEffect, useState } from "react";
@@ -74,16 +74,33 @@ export const DatePicker = withMiaixzThemeComponent(
     const coarsePointer = useMedia("(pointer: coarse)");
     const { t } = useMiaixzLocale();
     useEffect(() => setRawValue(resolvedValue ?? ""), [resolvedValue]);
+    /**
+     * Updates uncontrolled popup visibility and reports the requested visibility in both modes.
+     *
+     * @param next - Requested popup visibility.
+     * @returns No return value.
+     */
     const setOpen = (next: boolean) => {
       if (open === undefined) setUncontrolledOpen(next);
       onOpenChange?.(next);
     };
+    /**
+     * Commits a nullable ISO date, synchronizes input text, and clears validation feedback.
+     *
+     * @param next - ISO date to commit, or null to clear an optional field.
+     * @returns No return value.
+     */
     const commit = (next: IsoDate | null) => {
       if (value === undefined) setUncontrolledValue(next);
       setRawValue(next ?? "");
       setInvalid(false);
       onValueChange?.(next);
     };
+    /**
+     * Commits empty optional input or a valid allowed date; invalid input retains validation feedback.
+     *
+     * @returns No return value.
+     */
     const commitRaw = () => {
       if (rawValue === "" && !required) {
         commit(null);

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the telemetry module.
+ * Builds immutable API lifecycle observations with bounded credential redaction.
  */
 
 import { miaixzHeaders } from "./constants.js";

@@ -23,6 +23,11 @@
  */
 export interface MiaixzUploadContext {
   readonly signal: AbortSignal;
+  /**
+   * Reports upload progress for the current attempt.
+   * @param value - Progress percentage normalized by the upload queue.
+   * @returns No return value.
+   */
   reportProgress(value: number): void;
 }
 
@@ -92,7 +97,22 @@ export interface UseUploadQueueOptions {
  */
 export interface UploadQueueController {
   readonly files: readonly UploadFileRecord[];
+  /**
+   * Adds selected local files to the upload queue.
+   * @param files - Browser files accepted by the upload component.
+   * @returns No return value.
+   */
   add(files: readonly File[]): void;
+  /**
+   * Schedules another upload attempt for the matching failed local record.
+   * @param id - Stable upload-record identifier.
+   * @returns No return value.
+   */
   retry(id: string): void;
+  /**
+   * Removes a queued record and cancels any owned in-flight attempt.
+   * @param id - Stable upload-record identifier.
+   * @returns No return value.
+   */
   remove(id: string): void;
 }

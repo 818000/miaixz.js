@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the define UI module.
+ * Creates validated theme definitions from developer-authored configuration.
  */
 
 import type { MiaixzThemeDefinition } from "./types.js";

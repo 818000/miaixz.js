@@ -42,6 +42,11 @@ function dxfDrawing(source: string, id: string, title: string): DrawingScene {
   const lines = source.split(/\r?\n/u);
   const shapes: DrawingShape[] = [];
   let entity: Record<string, string> | undefined;
+  /**
+   * Converts the current supported DXF entity into a format-neutral scene shape.
+   *
+   * @returns No return value; unsupported or absent entities add no shape.
+   */
   const commit = (): void => {
     if (entity === undefined) return;
     const type = entity.type;

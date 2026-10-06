@@ -25,11 +25,17 @@
 import type { ResourceBudget } from "../../shared/contracts/resource-budget.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
 
+/**
+ * Two-dimensional EMF drawing coordinate before viewport and world transforms.
+ */
 interface Point {
   readonly x: number;
   readonly y: number;
 }
 
+/**
+ * Six coefficients of the affine world transform used by the EMF device context.
+ */
 interface Matrix {
   readonly a: number;
   readonly b: number;
@@ -39,6 +45,9 @@ interface Matrix {
   readonly f: number;
 }
 
+/**
+ * Selected EMF stroke object, including width, color, dash pattern, and no-stroke state.
+ */
 interface Pen {
   readonly kind: "pen";
   readonly color: string;
@@ -47,14 +56,23 @@ interface Pen {
   readonly dash?: string;
 }
 
+/**
+ * Selected EMF fill object, including color and no-fill state.
+ */
 interface Brush {
   readonly kind: "brush";
   readonly color: string;
   readonly none: boolean;
 }
 
+/**
+ * Pen or brush stored in the EMF GDI object table.
+ */
 type GdiObject = Brush | Pen;
 
+/**
+ * EMF device-context mapping, selected drawing objects, fill rule, and current position.
+ */
 interface DcState {
   readonly windowOrigin: Point;
   readonly windowExtent: Point;
@@ -320,6 +338,14 @@ export function decodeEmf(bytes: Uint8Array, budget: ResourceBudget): EmfDecodeR
   let offset = 0;
   let recordCount = 0;
   let emfPlusDual = false;
+  /**
+   * Appends an EMF polyline to the active SVG path and updates the current point.
+   *
+   * @param items - Ordered polyline coordinates.
+   * @param close - Whether to close the path after the final point.
+   * @param move - Whether the first coordinate starts a new subpath.
+   * @returns No return value; empty polylines leave path state unchanged.
+   */
   const appendPolyline = (items: readonly Point[], close: boolean, move: boolean): void => {
     if (items.length === 0) return;
     const [firstPoint, ...remaining] = items;
@@ -344,8 +370,26 @@ export function decodeEmf(bytes: Uint8Array, budget: ResourceBudget): EmfDecodeR
         allowed: budget.maxVectorRecords,
       });
     }
+    /**
+     * Resolves an offset inside the current EMF record to its buffer position.
+     *
+     * @param position - Byte offset relative to the current record.
+     * @returns Absolute byte position in the input buffer.
+     */
     const relative = (position: number): number => offset + position;
+    /**
+     * Reads a little-endian signed integer from the current EMF record.
+     *
+     * @param position - Record-relative byte offset.
+     * @returns Signed 32-bit integer at that buffer position.
+     */
     const int32 = (position: number): number => view.getInt32(relative(position), true);
+    /**
+     * Reads a little-endian unsigned integer from the current EMF record.
+     *
+     * @param position - Record-relative byte offset.
+     * @returns Unsigned 32-bit integer at that buffer position.
+     */
     const uint32 = (position: number): number => view.getUint32(relative(position), true);
     if (type === 9) state = { ...state, windowExtent: { x: int32(8), y: int32(12) } };
     else if (type === 10) state = { ...state, windowOrigin: { x: int32(8), y: int32(12) } };

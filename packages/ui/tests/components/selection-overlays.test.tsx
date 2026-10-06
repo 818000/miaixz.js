@@ -321,6 +321,13 @@ describe("Combobox and Picker", () => {
       filled: false,
       loading: false,
     } as const;
+    /**
+     * Creates a combobox popup fixture with the requested loading state and empty-content flag.
+     *
+     * @param state - Combobox loading or feedback state to render.
+     * @param empty - Whether the popup fixture has no matching options.
+     * @returns Combobox popup fixture element for the requested state.
+     */
     const popup = (state: "idle" | "loading" | "error" | "limit", empty = false) => (
       <ComboboxPopup
         component="combobox"

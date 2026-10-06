@@ -32,9 +32,21 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Textarea size tokens permitted by the component contract.
+ */
 export type TextareaSize = "small" | "medium" | "large";
+/**
+ * Textarea native resize directions permitted by the component contract.
+ */
 export type TextareaResize = "none" | "vertical" | "horizontal" | "both";
+/**
+ * Named Textarea parts available for slot and style customization.
+ */
 export type TextareaSlot = "root" | "textarea" | "count";
+/**
+ * Mutually exclusive fixed-row or auto-growing textarea sizing settings.
+ */
 export type TextareaSizingProps =
   | {
       readonly autoResize?: false;
@@ -49,6 +61,9 @@ export type TextareaSizingProps =
       readonly maxRows?: number;
     };
 
+/**
+ * Resolved Textarea state exposed to theme and slot overrides.
+ */
 export interface TextareaOwnerState {
   readonly size: TextareaSize;
   readonly resize: TextareaResize;
@@ -60,6 +75,9 @@ export interface TextareaOwnerState {
   readonly showCount: boolean;
 }
 
+/**
+ * Attributes accepted by the Textarea Root slot.
+ */
 export interface TextareaRootAttributes
   extends HTMLAttributes<HTMLSpanElement>, RefAttributes<HTMLSpanElement> {
   readonly "data-disabled"?: boolean;
@@ -69,12 +87,18 @@ export interface TextareaRootAttributes
   readonly "data-size"?: TextareaSize;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Textarea.
+ */
 export interface TextareaSlotProps {
   readonly root?: MiaixzSlotProps<TextareaOwnerState, TextareaRootAttributes>;
   readonly textarea?: MiaixzSlotProps<TextareaOwnerState, TextareaControlAttributes>;
   readonly count?: MiaixzSlotProps<TextareaOwnerState, OutputHTMLAttributes<HTMLOutputElement>>;
 }
 
+/**
+ * Attributes accepted by the Textarea Control slot.
+ */
 export interface TextareaControlAttributes
   extends TextareaHTMLAttributes<HTMLTextAreaElement>, RefAttributes<HTMLTextAreaElement> {
   readonly "data-resize"?: TextareaResize;
@@ -97,4 +121,7 @@ interface TextareaBaseProps extends Omit<
   readonly slotProps?: TextareaSlotProps;
 }
 
+/**
+ * Properties accepted by the Textarea renderer.
+ */
 export type TextareaProps = TextareaBaseProps & TextareaSizingProps;

@@ -32,18 +32,39 @@ import type {
 
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Drawer width tokens permitted by the component contract.
+ */
 export type DrawerWidth = "small" | "medium" | "large" | "xlarge" | "wide" | "content" | number;
+/**
+ * Drawer spacing densities permitted by the component contract.
+ */
 export type DrawerDensity = "compact" | "standard" | "comfortable";
+/**
+ * Drawer edge placements permitted by the component contract.
+ */
 export type DrawerPlacement = "left" | "right" | "bottom";
+/**
+ * Drawer dismissal reasons permitted by the component contract.
+ */
 export type DrawerCloseReason = "escape" | "backdrop" | "closeButton" | "nativeClose";
+/**
+ * Named Drawer parts available for slot and style customization.
+ */
 export type DrawerSlot =
   "root" | "paper" | "header" | "title" | "description" | "content" | "footer" | "closeButton";
 
+/**
+ * Viewport-edge insets applied when resolving drawer geometry.
+ */
 export interface DrawerInset {
   readonly block?: number;
   readonly inline?: number;
 }
 
+/**
+ * Resolved Drawer state exposed to theme and slot overrides.
+ */
 export interface DrawerOwnerState {
   readonly open: boolean;
   readonly placement: DrawerPlacement;
@@ -54,10 +75,16 @@ export interface DrawerOwnerState {
   readonly showClose: boolean;
 }
 
+/**
+ * Replaceable slot components accepted by Drawer.
+ */
 export interface DrawerSlots {
   readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Attributes accepted by the Drawer Root slot.
+ */
 export type DrawerRootAttributes = DialogHTMLAttributes<HTMLDialogElement> &
   RefAttributes<HTMLDialogElement> & {
     readonly "data-placement"?: DrawerPlacement;
@@ -67,6 +94,9 @@ export type DrawerRootAttributes = DialogHTMLAttributes<HTMLDialogElement> &
     readonly "data-positioned"?: boolean;
   };
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Drawer.
+ */
 export interface DrawerSlotProps {
   readonly root?: MiaixzSlotProps<DrawerOwnerState, DrawerRootAttributes>;
   readonly paper?: MiaixzSlotProps<DrawerOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -78,6 +108,9 @@ export interface DrawerSlotProps {
   readonly closeButton?: MiaixzSlotProps<DrawerOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
 }
 
+/**
+ * Component-specific Drawer properties composed with the permitted native attributes.
+ */
 interface DrawerSharedProps {
   readonly boundary?: HTMLElement | null;
   readonly inset?: number | DrawerInset;
@@ -97,16 +130,25 @@ interface DrawerSharedProps {
   readonly slotProps?: DrawerSlotProps;
 }
 
+/**
+ * Geometry settings permitted for a drawer anchored to a side edge.
+ */
 type DrawerSideGeometry = {
   readonly placement?: "left" | "right";
   readonly width?: DrawerWidth;
 };
 
+/**
+ * Geometry settings permitted for a bottom-anchored drawer.
+ */
 type DrawerBottomGeometry = {
   readonly placement: "bottom";
   readonly width?: never;
 };
 
+/**
+ * Properties accepted by the Drawer renderer.
+ */
 export type DrawerProps = DrawerSharedProps &
   (DrawerSideGeometry | DrawerBottomGeometry) &
   Omit<

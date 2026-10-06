@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements number input support for the input component.
+ * Coordinates numeric input editing, stepping, validation, and change details.
  */
 
 import { forwardRef, useEffect, useRef, useState } from "react";
@@ -87,6 +87,11 @@ export const NumberInput = withMiaixzThemeComponent(
     useEffect(() => {
       const form = inputRef.current?.form;
       if (form === null || form === undefined) return;
+      /**
+       * Restores default numeric input text and reports the native form-reset change.
+       *
+       * @returns No return value.
+       */
       const reset = () => {
         const next = defaultValue;
         setRawValue(formatNumberInput(next, precision));
@@ -97,10 +102,24 @@ export const NumberInput = withMiaixzThemeComponent(
       return () => form.removeEventListener("reset", reset);
     }, [controlled, defaultValue, onValueChange, precision]);
 
+    /**
+     * Updates an uncontrolled numeric value and reports its change details in both modes.
+     *
+     * @param next - Numeric value to commit, or null for an empty field.
+     * @param details - Numeric change reason and associated raw input text.
+     * @returns No return value.
+     */
     const commit = (next: number | null, details: NumberInputChangeDetails) => {
       if (!controlled) setCurrentValue(next);
       onValueChange?.(next, details);
     };
+    /**
+     * Steps an editable numeric value within its bounds and synchronizes the displayed input text.
+     *
+     * @param delta - Signed number of numeric steps to apply.
+     * @param reason - User action responsible for the requested state change.
+     * @returns No return value.
+     */
     const move = (delta: number, reason: "increment" | "decrement") => {
       if (disabled || readOnly) return;
       const next = stepNumberInput(resolvedValue, delta, step, precision, min, max);

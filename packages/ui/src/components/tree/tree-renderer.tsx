@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements tree renderer support for the tree component.
+ * Renders indexed tree nodes with hierarchy semantics and asynchronous child states.
  */
 
 import type { KeyboardEvent, MouseEvent, RefObject } from "react";
@@ -34,6 +34,9 @@ import {
 } from "./tree-controller.js";
 import type { TreeNode, TreeOwnerState, TreeSlotProps } from "./tree.types.js";
 
+/**
+ * Properties accepted by the Tree Renderer renderer.
+ */
 export interface TreeRendererProps<Value> {
   readonly nodes: readonly TreeNode<Value>[];
   readonly index: TreeIndex<Value>;
@@ -68,6 +71,12 @@ export interface TreeRendererProps<Value> {
  * @returns Nested accessible tree item elements.
  */
 export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
+  /**
+   * Renders sibling tree items recursively with owned ARIA state and child-loading feedback.
+   *
+   * @param nodes - Nodes belonging to the current hierarchy group.
+   * @returns Tree-item elements and expanded child groups.
+   */
   const renderNodes = (nodes: readonly TreeNode<Value>[]) =>
     nodes.map((node) => {
       const record = props.index.byId.get(node.id)!;

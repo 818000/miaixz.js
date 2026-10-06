@@ -20,9 +20,7 @@
 
 /**
  * Defines sanitized runtime errors and stable recovery metadata.
- */
-
-/**
+ *
  * Identifies stable, language-neutral viewer failures.
  */
 export type ViewerErrorCode =

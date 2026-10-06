@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements picker model support for the picker component.
+ * Resolves multi-selection picker values and associated option-state operations.
  */
 
 import { MiaixzUiError } from "../../errors/ui-error.js";

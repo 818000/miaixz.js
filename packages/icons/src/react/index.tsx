@@ -30,37 +30,56 @@ import {
   type ReactElement,
 } from "react";
 
-import type { IconName } from "../autogen/icons.js";
+import type { IconName } from "../values/icons.js";
+import { ICON_AXES, ICON_SIZES, type IconSize } from "../values/design.js";
 import { readIcon } from "../runtime/font.js";
 
-export type IconSize = "indicator" | "inline" | "control" | "navigation" | "feature" | "display";
+export type { IconSize } from "../values/design.js";
+/**
+ * Controls whether CSS icon motion follows user preferences or is disabled.
+ */
 export type IconMotion = "auto" | "none";
 
+/**
+ * Configures a font-backed icon and its accessible label; children and ARIA roles are owned by the component.
+ */
 export interface IconProps extends Omit<
   ComponentPropsWithoutRef<"span">,
   "children" | "role" | "aria-label" | "aria-hidden" | "name"
 > {
+  /**
+   * Canonical font-backed name from the generated mapping.
+   */
   readonly name: IconName;
+  /**
+   * Default FILL-axis endpoint when no explicit fill is provided; defaults to outline.
+   */
   readonly variant?: "outline" | "filled";
+  /**
+   * Continuous FILL-axis override from zero through one, taking precedence over variant.
+   */
   readonly fill?: number;
+  /**
+   * Semantic size token or positive CSS pixel size; numeric values clamp opsz to its bounds.
+   */
   readonly size?: IconSize | number;
+  /**
+   * Motion policy; auto follows reduced-motion preferences and none disables icon motion.
+   */
   readonly motion?: IconMotion;
+  /**
+   * Accessible image name; omission marks the icon decorative, while blank labels are rejected.
+   */
   readonly label?: string;
 }
 
+/**
+ * Resolved CSS pixel size and clamped opsz-axis value used to render an icon.
+ */
 interface IconMetrics {
   readonly pixels: number;
   readonly opticalSize: number;
 }
-
-const semanticMetrics: Readonly<Record<IconSize, IconMetrics>> = Object.freeze({
-  indicator: Object.freeze({ pixels: 12, opticalSize: 12 }),
-  inline: Object.freeze({ pixels: 16, opticalSize: 16 }),
-  control: Object.freeze({ pixels: 16, opticalSize: 16 }),
-  navigation: Object.freeze({ pixels: 20, opticalSize: 20 }),
-  feature: Object.freeze({ pixels: 24, opticalSize: 24 }),
-  display: Object.freeze({ pixels: 32, opticalSize: 32 }),
-});
 
 /**
  * Resolves and validates semantic or numeric icon metrics.
@@ -69,11 +88,14 @@ const semanticMetrics: Readonly<Record<IconSize, IconMetrics>> = Object.freeze({
  * @returns Pixel and optical size values.
  */
 function resolveMetrics(size: IconSize | number): IconMetrics {
-  if (typeof size === "string") return semanticMetrics[size];
+  if (typeof size === "string") return ICON_SIZES[size];
   if (!Number.isFinite(size) || size <= 0) {
     throw new TypeError("[miaixz] Icon size must be a finite number greater than zero.");
   }
-  return { pixels: size, opticalSize: Math.min(40, Math.max(12, size)) };
+  return {
+    pixels: size,
+    opticalSize: Math.min(ICON_AXES.opsz.maximum, Math.max(ICON_AXES.opsz.minimum, size)),
+  };
 }
 
 /**
@@ -84,13 +106,17 @@ function resolveMetrics(size: IconSize | number): IconMetrics {
  * @returns A normalized FILL axis value.
  */
 function resolveFill(fill: number | undefined, variant: "outline" | "filled"): number {
-  if (fill === undefined) return variant === "filled" ? 1 : 0;
-  if (!Number.isFinite(fill) || fill < 0 || fill > 1) {
+  if (fill === undefined)
+    return variant === "filled" ? ICON_AXES.FILL.maximum : ICON_AXES.FILL.default;
+  if (!Number.isFinite(fill) || fill < ICON_AXES.FILL.minimum || fill > ICON_AXES.FILL.maximum) {
     throw new TypeError("[miaixz] Icon fill must be a finite number from zero through one.");
   }
   return fill;
 }
 
+/**
+ * Validated icon settings passed to the Suspense-backed glyph renderer.
+ */
 interface ResolvedIconProps {
   readonly name: IconName;
 }

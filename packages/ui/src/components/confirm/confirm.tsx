@@ -84,15 +84,33 @@ function Confirm({
     setInternalError(undefined);
   }, [confirmationText, open]);
 
+  /**
+   * Requests confirmation dismissal only when no confirmation operation is pending.
+   *
+   * @param reason - User action that requested dismissal.
+   * @returns No return value; pending operations keep the confirmation open.
+   */
   const requestClose = (reason: ConfirmCloseReason): void => {
     if (isPending) return;
     onOpenChange(false, reason);
   };
 
+  /**
+   * Forwards only escape and backdrop dismissal reasons from the underlying dialog.
+   *
+   * @param _nextOpen - Underlying dialog open-state proposal, intentionally unused.
+   * @param reason - Underlying dialog dismissal reason.
+   * @returns No return value; other dialog reasons are ignored.
+   */
   const handleDialogClose = (_nextOpen: boolean, reason: DialogCloseReason): void => {
     if (reason === "escape" || reason === "backdrop") requestClose(reason);
   };
 
+  /**
+   * Runs one confirmation operation, closes on success, and displays a formatted failure.
+   *
+   * @returns Promise resolving after success or controlled error handling and pending-state cleanup.
+   */
   const handleConfirm = async (): Promise<void> => {
     if (pending || internalPendingRef.current || !canConfirm) return;
     internalPendingRef.current = true;

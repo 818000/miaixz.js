@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements calendar support for the date component.
+ * Renders an accessible month grid with date selection and keyboard navigation.
  */
 
 import { forwardRef, useMemo, useRef, useState } from "react";
@@ -103,27 +103,63 @@ export const Calendar = withMiaixzThemeComponent(
       () => new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }),
       [locale],
     );
+    /**
+     * Converts a validated ISO calendar date into a UTC Date without local-time shifts.
+     *
+     * @param date - Validated ISO calendar date to inspect or activate.
+     * @returns UTC Date representing the same calendar day.
+     */
     const asDate = (date: IsoDate) => {
       const parts = parseIsoDate(date)!;
       return new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
     };
+    /**
+     * Updates an uncontrolled visible month and reports the requested month in both modes.
+     *
+     * @param month - ISO year-month requested for the calendar viewport.
+     * @returns No return value.
+     */
     const setMonth = (month: IsoMonth) => {
       if (visibleMonth === undefined) setUncontrolledMonth(month);
       onVisibleMonthChange?.(month);
     };
+    /**
+     * Moves calendar focus to a date, reveals its month, and focuses the rendered day button.
+     *
+     * @param date - Validated ISO calendar date to inspect or activate.
+     * @returns No return value.
+     */
     const focusDate = (date: IsoDate) => {
       setFocusedDate(date);
       const nextMonth = monthOf(date);
       if (nextMonth !== resolvedMonth) setMonth(nextMonth);
       queueMicrotask(() => buttonRefs.current.get(date)?.focus());
     };
+    /**
+     * Combines component disabled state, date bounds, and the per-date exclusion predicate.
+     *
+     * @param date - Validated ISO calendar date to inspect or activate.
+     * @returns Whether the date cannot be selected.
+     */
     const dateDisabled = (date: IsoDate) =>
       disabled || !isIsoDateInRange(date, min, max) || isDateDisabled?.(date) === true;
+    /**
+     * Selects an enabled date unless read-only and reports the controlled or uncontrolled change.
+     *
+     * @param date - Validated ISO calendar date to inspect or activate.
+     * @returns No return value.
+     */
     const select = (date: IsoDate) => {
       if (readOnly || dateDisabled(date)) return;
       if (value === undefined) setUncontrolledValue(date);
       onValueChange?.(date);
     };
+    /**
+     * Moves by the requested month count and focuses the first day of the resulting month.
+     *
+     * @param amount - Signed count of choices or months to move.
+     * @returns No return value.
+     */
     const moveMonth = (amount: number) => {
       const next = addCalendarMonths(`${resolvedMonth}-01`, amount);
       setMonth(monthOf(next));

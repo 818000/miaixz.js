@@ -31,6 +31,9 @@ import type {
 
 import type { MiaixzSlotProps } from "../shared/slots.js";
 
+/**
+ * Appearance settings scopes permitted by the component contract.
+ */
 export type AppearanceScope =
   | {
       readonly scope: "entry";
@@ -43,6 +46,9 @@ export type AppearanceScope =
       readonly onHeaderBehaviorChange?: (value: "fixed" | "scroll") => void;
     };
 
+/**
+ * Appearance position choices permitted by the component contract.
+ */
 export type AppearancePosition =
   | {
       readonly positionBlockPx: number;
@@ -53,8 +59,14 @@ export type AppearancePosition =
       readonly onPositionBlockPxChange?: (value: number) => void;
     };
 
+/**
+ * Named Appearance parts available for slot and style customization.
+ */
 export type AppearanceSlot = "root" | "trigger" | "drawer" | "section" | "option";
 
+/**
+ * Resolved Appearance state exposed to theme and slot overrides.
+ */
 export interface AppearanceOwnerState {
   readonly scope: "entry" | "authenticated";
   readonly open: boolean;
@@ -62,11 +74,17 @@ export interface AppearanceOwnerState {
   readonly readOnlyPosition: boolean;
 }
 
+/**
+ * Attributes accepted by the Appearance Root slot.
+ */
 export interface AppearanceRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-dragging"?: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Appearance.
+ */
 export interface AppearanceSlotProps {
   readonly root?: MiaixzSlotProps<AppearanceOwnerState, AppearanceRootAttributes>;
   readonly trigger?: MiaixzSlotProps<AppearanceOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
@@ -75,9 +93,15 @@ export interface AppearanceSlotProps {
   readonly option?: MiaixzSlotProps<AppearanceOwnerState, LabelHTMLAttributes<HTMLLabelElement>>;
 }
 
+/**
+ * Component-specific Appearance properties composed with the permitted native attributes.
+ */
 export interface AppearanceBaseProps {
   readonly draggable?: boolean;
   readonly slotProps?: AppearanceSlotProps;
 }
 
+/**
+ * Properties accepted by the Appearance renderer.
+ */
 export type AppearanceProps = AppearanceBaseProps & AppearanceScope & AppearancePosition;

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the message loader module.
+ * Loads developer-owned language modules by namespace and locale.
  */
 
 import { MiaixzSdkError } from "../errors/errors.js";

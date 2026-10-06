@@ -19,62 +19,256 @@
 */
 
 /**
- * Verifies the complete JSON, Designspace, UFO, geometry, and topology source graph.
+ * Exercises isolated icon architecture inputs and immutable output contracts.
  */
 
-import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
+import { mkdtemp, readFile, writeFile, rm, readdir, symlink, rename } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-
-import { describe, expect, it } from "vitest";
-
+import { afterEach, describe, expect, it } from "vitest";
 const repositoryRoot = resolve(process.cwd(), "../..");
-const assetsRoot = resolve(process.cwd(), "src/assets");
-const packageRequire = createRequire(import.meta.url);
-const Ajv2020 = packageRequire("ajv/dist/2020").default as new (options: unknown) => {
-  addSchema: (schema: unknown) => void;
-  getSchema: (id: string) => ((value: unknown) => boolean) | undefined;
+/**
+ * Loads one repository tool without running its CLI.
+ *
+ * @param name - Repository-relative icon tool path.
+ * @returns Imported tool exports.
+ */
+const importScript = async (name: string) =>
+  import(pathToFileURL(resolve(repositoryRoot, ".github/scripts/modules/icons/" + name)).href);
+const { createIconFixture, fixtureDesign } = await import(
+  pathToFileURL(resolve(process.cwd(), "tests/fixtures/icon-geometry/create-fixtures.mjs")).href
+);
+const temporary: string[] = [];
+afterEach(async () => {
+  for (const path of temporary.splice(0)) await rm(path, { recursive: true, force: true });
+});
+/**
+ * Creates a fresh temporary six-master test source.
+ *
+ * @param records - Complete test icon records.
+ * @returns Isolated fixture roots and written files.
+ */
+const make = async (
+  records = [
+    {
+      name: "alpha",
+      codepoint: 0xf0000,
+      category: "actions",
+      opticalClass: "regular",
+      rtl: "none",
+    },
+  ],
+) => {
+  const directory = await mkdtemp(resolve(tmpdir(), "miaixz-icon-test-"));
+  temporary.push(directory);
+  return createIconFixture({
+    directory,
+    categories: [{ id: "actions", description: "Actions; excludes navigation" }],
+    records,
+    design: structuredClone(fixtureDesign),
+  });
 };
-const loaderUrl = pathToFileURL(
-  resolve(repositoryRoot, ".github/scripts/modules/icons/source.mjs"),
-).href;
-const { loadIconSource } = (await import(loaderUrl)) as {
-  loadIconSource: (options?: { validateUfo?: boolean }) => Promise<{
-    icons: readonly { name: string; codepoint: number; category: string }[];
-    categories: readonly string[];
-    shardPaths: readonly string[];
-  }>;
+/**
+ * Mutates an isolated fixture to construct a negative input.
+ *
+ * @param path - Temporary fixture path.
+ * @param change - Exact test mutation.
+ * @returns File-write completion.
+ */
+const edit = async (path: string, change: (value: string) => string) =>
+  writeFile(path, change(await readFile(path, "utf8")));
+/**
+ * Captures fixture bytes for zero-write and determinism assertions.
+ *
+ * @param root - Isolated fixture root.
+ * @returns Relative file paths and their text.
+ */
+const snapshot = async (root: string): Promise<Record<string, string>> => {
+  const result: Record<string, string> = {};
+  /**
+   * Captures every fixture file recursively for byte-preservation assertions.
+   *
+   * @param path - Directory path relative to the isolated fixture root.
+   * @returns Promise resolving after all descendant file contents are recorded.
+   */
+  const walk = async (path: string) => {
+    for (const entry of await readdir(resolve(root, path), { withFileTypes: true })) {
+      const p = path ? path + "/" + entry.name : entry.name;
+      if (entry.isDirectory()) await walk(p);
+      else result[p] = await readFile(resolve(root, p), "utf8");
+    }
+  };
+  await walk("");
+  return result;
 };
 
-describe("icon source graph", () => {
-  it("validates every source record and all six UFO masters", async () => {
-    const source = await loadIconSource({ validateUfo: true });
-    expect(source.icons).toHaveLength(1781);
-    expect(source.categories.length).toBeGreaterThan(1);
-    expect(source.shardPaths).toHaveLength(7);
-    expect(source.icons[0]).toMatchObject({ name: "accessibility", codepoint: 0xf0000 });
-    expect(source.icons.at(-1)).toMatchObject({ name: "zoom-out", codepoint: 0xf06f4 });
-    expect(new Set(source.icons.map(({ category }) => category))).toEqual(
-      new Set(source.categories),
+const { loadIconSource, readIconRecords, canonicalJson, unicodeRangeFor } =
+  await importScript("source.mjs");
+describe("canonical JSON source", () => {
+  it("loads schema.json without changing its bytes or falling back to the retired filename", async () => {
+    const fixture = await make();
+    const schemaPath = resolve(fixture.assetsRoot, "schema.json");
+    expect(fixture.writtenFiles).toContain("schema.json");
+    expect(await readFile(schemaPath, "utf8")).toBe(
+      await readFile(resolve(process.cwd(), "src/assets/schema.json"), "utf8"),
+    );
+    expect(await readdir(resolve(process.cwd(), "src/assets"))).not.toContain("source.schema.json");
+    expect((await loadIconSource({ assetsRoot: fixture.assetsRoot })).icons).toHaveLength(1);
+    await rename(schemaPath, resolve(fixture.assetsRoot, "source.schema.json"));
+    await expect(loadIconSource({ assetsRoot: fixture.assetsRoot })).rejects.toThrow(
+      /ENOENT.*schema\.json/u,
     );
   });
-
-  it("rejects unknown manifest fields through Draft 2020-12", async () => {
-    const schema = JSON.parse(
-      await readFile(resolve(assetsRoot, "source.schema.json"), "utf8"),
-    ) as Record<string, unknown>;
-    const manifest = JSON.parse(
-      await readFile(resolve(assetsRoot, "icons.json"), "utf8"),
-    ) as Record<string, unknown>;
-    const ajv = new Ajv2020({ allErrors: true, strict: true });
-    ajv.addSchema(schema);
-    const validate = ajv.getSchema("https://miaixz.org/schema/icons/source.json#/$defs/manifest");
-    expect(validate).toBeDefined();
-    expect(validate?.({ ...manifest, formatVersion: "0.6.5" })).toBe(false);
+  it("derives dynamic windows and never reads fonts", async () => {
+    const records = Array.from({ length: 257 }, (_, i) => ({
+      name: "icon-" + String(i).padStart(3, "0"),
+      codepoint: 0xf0000 + i,
+      category: "actions",
+      opticalClass: "regular",
+      rtl: "none",
+    }));
+    const fixture = await make(records);
+    await rm(fixture.fontsRoot, { recursive: true });
+    const source = await loadIconSource({ assetsRoot: fixture.assetsRoot });
+    expect(Object.keys(source)).toEqual([
+      "manifest",
+      "design",
+      "icons",
+      "categories",
+      "shardPaths",
+    ]);
+    expect(source.icons).toHaveLength(records.length);
+    expect(source.shardPaths).toEqual(["icons/f0000-f00ff.json", "icons/f0100-f01ff.json"]);
+    expect(unicodeRangeFor([...source.icons].reverse())).toBe("U+F0000-F0100");
+    expect(
+      unicodeRangeFor([
+        { codepoint: 0xffffd },
+        { codepoint: 0xf0002 },
+        { codepoint: 0xf0000 },
+        { codepoint: 0xf0000 },
+      ]),
+    ).toBe("U+F0000, U+F0002, U+FFFFD");
   });
-
+  it.each(["tier", "alias", "release", "schemaVersion", "unknown"])(
+    "rejects legacy/unknown %s",
+    async (key) => {
+      const f = await make();
+      const p = resolve(f.assetsRoot, "icons/f0000-f00ff.json");
+      await edit(p, (text) => {
+        const v = JSON.parse(text);
+        v.icons[0][key] = "unexpected";
+        return JSON.stringify(v, null, 2) + "\n";
+      });
+      await expect(loadIconSource({ assetsRoot: f.assetsRoot })).rejects.toThrow();
+    },
+  );
+  it.each(["name", "category", "opticalClass", "rtl", "codepoint"])(
+    "rejects invalid %s",
+    async (key) => {
+      const f = await make();
+      const p = resolve(f.assetsRoot, "icons/f0000-f00ff.json");
+      await edit(p, (text) => {
+        const v = JSON.parse(text);
+        v.icons[0][key] = key === "codepoint" ? 0xeffff : "INVALID";
+        return canonicalJson(v, "shard");
+      });
+      await expect(loadIconSource({ assetsRoot: f.assetsRoot })).rejects.toThrow();
+    },
+  );
+  it.each(["BOM", "CRLF", "extra LF", "key order"])("rejects noncanonical %s", async (mode) => {
+    const f = await make();
+    const p = resolve(f.assetsRoot, "icons.json");
+    await edit(p, (text) =>
+      mode === "BOM"
+        ? "\ufeff" + text
+        : mode === "CRLF"
+          ? text.replace(/\n/gu, "\r\n")
+          : mode === "extra LF"
+            ? text + "\n"
+            : JSON.stringify(
+                { shards: JSON.parse(text).shards, categories: JSON.parse(text).categories },
+                null,
+                2,
+              ) + "\n",
+    );
+    await expect(loadIconSource({ assetsRoot: f.assetsRoot })).rejects.toThrow();
+  });
+  it("rejects obsolete loader options", async () => {
+    await expect(loadIconSource({ validateUfo: true })).rejects.toThrow("Only assetsRoot");
+    await expect(readIconRecords({ anything: true })).rejects.toThrow("Only assetsRoot");
+  });
+  it("raw projection only skips mapping invariants", async () => {
+    const f = await make([
+      {
+        name: "beta",
+        codepoint: 0xf0000,
+        category: "actions",
+        opticalClass: "regular",
+        rtl: "mirror",
+      },
+      {
+        name: "alpha",
+        codepoint: 0xf0000,
+        category: "actions",
+        opticalClass: "regular",
+        rtl: "none",
+      },
+    ]);
+    expect((await readIconRecords({ assetsRoot: f.assetsRoot })).icons).toHaveLength(2);
+    await expect(loadIconSource({ assetsRoot: f.assetsRoot })).rejects.toThrow();
+    await edit(resolve(f.assetsRoot, "icons/f0000-f00ff.json"), (t) => {
+      const v = JSON.parse(t);
+      v.icons[1].name = "beta";
+      return canonicalJson(v, "shard");
+    });
+    await expect(readIconRecords({ assetsRoot: f.assetsRoot })).rejects.toThrow(
+      "Duplicate icon names",
+    );
+  });
+  it.each(["extra", "duplicate", "empty", "gap"])(
+    "rejects invalid shard layout %s",
+    async (mode) => {
+      const f = await make();
+      if (mode === "extra")
+        await writeFile(resolve(f.assetsRoot, "icons/f0100-f01ff.json"), '{"icons":[]}\n');
+      if (mode === "duplicate")
+        await edit(resolve(f.assetsRoot, "icons.json"), (t) => {
+          const v = JSON.parse(t);
+          v.shards.push(v.shards[0]);
+          return canonicalJson(v, "manifest");
+        });
+      if (mode === "empty")
+        await edit(resolve(f.assetsRoot, "icons/f0000-f00ff.json"), () =>
+          canonicalJson({ icons: [] }, "shard"),
+        );
+      if (mode === "gap")
+        await edit(resolve(f.assetsRoot, "icons/f0000-f00ff.json"), (t) => {
+          const v = JSON.parse(t);
+          v.icons[0].codepoint++;
+          return canonicalJson(v, "shard");
+        });
+      await expect(loadIconSource({ assetsRoot: f.assetsRoot })).rejects.toThrow();
+    },
+  );
+  it("rejects unused, duplicate or empty category definitions", async () => {
+    for (const category of [
+      { id: "unused", description: "Unused" },
+      { id: "actions", description: "Duplicate" },
+      { id: "blank", description: "   " },
+    ]) {
+      const f = await make();
+      await edit(resolve(f.assetsRoot, "icons.json"), (t) => {
+        const v = JSON.parse(t);
+        v.categories.push(category);
+        v.categories.sort((a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : 1));
+        return canonicalJson(v, "manifest");
+      });
+      await expect(loadIconSource({ assetsRoot: f.assetsRoot })).rejects.toThrow();
+    }
+  });
   it("keeps one-word category boundaries and audited semantic assignments", async () => {
+    const assetsRoot = resolve(process.cwd(), "src/assets");
     const manifest = JSON.parse(await readFile(resolve(assetsRoot, "icons.json"), "utf8")) as {
       readonly categories: readonly { readonly id: string; readonly description: string }[];
     };
@@ -87,7 +281,12 @@ describe("icon source graph", () => {
     );
 
     const source = await loadIconSource();
-    const categoryByName = new Map(source.icons.map(({ name, category }) => [name, category]));
+    const categoryByName = new Map(
+      source.icons.map(({ name, category }: { name: string; category: string }) => [
+        name,
+        category,
+      ]),
+    );
     expect(
       Object.fromEntries(
         [
@@ -118,8 +317,9 @@ describe("icon source graph", () => {
   });
 
   it("keeps project versions out of every source JSON", async () => {
+    const assetsRoot = resolve(process.cwd(), "src/assets");
     const source = await loadIconSource();
-    const documents = ["icons.json", "design.json", "source.schema.json", ...source.shardPaths];
+    const documents = ["icons.json", "design.json", "schema.json", ...source.shardPaths];
     for (const path of documents) {
       const value = JSON.parse(await readFile(resolve(assetsRoot, path), "utf8")) as unknown;
       const text = JSON.stringify(value);

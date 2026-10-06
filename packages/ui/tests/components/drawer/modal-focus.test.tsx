@@ -11,6 +11,9 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Drawer } from "../../../src/components/drawer/index.js";
 import { MiaixzLocaleProvider, miaixzUiMessages } from "../../../src/i18n/index.js";
 
+/**
+ * Inputs controlling the Provider test fixture.
+ */
 interface ProviderProps {
   /**
    * Supplies the fixture content.
@@ -18,6 +21,9 @@ interface ProviderProps {
   readonly children: ReactNode;
 }
 
+/**
+ * Inputs controlling the Example test fixture.
+ */
 interface ExampleProps {
   /**
    * Overrides whether the fixture closes from a backdrop click.

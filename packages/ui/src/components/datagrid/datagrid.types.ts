@@ -24,11 +24,20 @@
 
 import type { HTMLAttributes, ReactNode } from "react";
 
+/**
+ * Datagrid sort directions permitted by the component contract.
+ */
 export type DatagridSortDirection = "ascending" | "descending";
+/**
+ * Column identifier and direction of the active datagrid sort.
+ */
 export interface DatagridSort {
   readonly columnId: string;
   readonly direction: DatagridSortDirection;
 }
+/**
+ * Column identity, heading, value rendering, and optional sorting configuration.
+ */
 export interface DatagridColumn<Row> {
   readonly id: string;
   readonly header: ReactNode;
@@ -38,6 +47,9 @@ export interface DatagridColumn<Row> {
   readonly widthPercent?: number;
 }
 
+/**
+ * Exclusive disabled, single-row, or multiple-row controlled selection settings.
+ */
 export type DatagridSelectionProps =
   | {
       readonly selectionMode?: "none";
@@ -58,6 +70,9 @@ export type DatagridSelectionProps =
       readonly selectionWidthPercent?: number;
     };
 
+/**
+ * Component-specific Datagrid properties composed with the permitted native attributes.
+ */
 export interface MiaixzDatagridBaseProps<Row> {
   readonly rows: readonly Row[];
   readonly columns: readonly DatagridColumn<Row>[];
@@ -76,6 +91,9 @@ export interface MiaixzDatagridBaseProps<Row> {
   readonly captionVisibility?: "visible" | "hidden";
 }
 
+/**
+ * Component-specific Datagrid properties composed with the permitted native attributes.
+ */
 export type MiaixzDatagridOwnProps<Row> = MiaixzDatagridBaseProps<Row> & DatagridSelectionProps;
 /**
  * Configures a semantic server-owned data table, not an ARIA grid. @public

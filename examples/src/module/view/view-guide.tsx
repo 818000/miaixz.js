@@ -17,6 +17,9 @@ import { useEffect, useMemo, useState } from "react";
 import { CodeBlock, GuideHeader, GuideSection, Stat } from "../../shared/guide/guide-parts";
 import styles from "./view-guide.module.css";
 
+/**
+ * Document category selected by the interactive file-preview guide.
+ */
 type PreviewMode = "office" | "image" | "file";
 
 const modes: readonly { id: PreviewMode; label: string }[] = [
@@ -25,6 +28,12 @@ const modes: readonly { id: PreviewMode; label: string }[] = [
   { id: "file", label: "FileView" },
 ];
 
+/**
+ * Formats determinate or indeterminate viewer progress for the guide status line.
+ *
+ * @param progress - Latest parsing progress, or null before a preview starts.
+ * @returns Stage label with counts when a total is available.
+ */
 function progressLabel(progress: ViewerProgress | null): string {
   if (!progress) return "等待预览";
   if (progress.indeterminate || progress.total === undefined) return progress.stage;

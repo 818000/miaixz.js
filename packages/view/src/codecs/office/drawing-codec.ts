@@ -48,7 +48,13 @@ import { spreadsheetMarkerPosition } from "./spreadsheet-layout-codec.js";
 import { defaultOfficeTheme, resolveOfficeColor, type OfficeTheme } from "./theme-codec.js";
 
 const emuPerPixel = 9525;
+/**
+ * Local alias for the format-neutral parsed XML element contract.
+ */
 type Element = XmlElement;
+/**
+ * Local alias for the parsed XML document contract used by Office codecs.
+ */
 type XMLDocument = XmlDocument;
 
 /**
@@ -708,6 +714,12 @@ function shapeText(
   const wordBold = first(runProperties ?? body, "b");
   const wordItalic = first(runProperties ?? body, "i");
   const wordUnderline = first(runProperties ?? body, "u");
+  /**
+   * Interprets an optional Office effect node and its explicit disabled values.
+   *
+   * @param element - Optional parsed effect element.
+   * @returns Whether the effect exists and its val attribute does not disable it.
+   */
   const enabled = (element: Element | undefined): boolean => {
     if (element === undefined) return false;
     return !["0", "false", "none", "off"].includes(attribute(element, "val") ?? "1");

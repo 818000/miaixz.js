@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements navigation rail layout support for the navigation component.
+ * Partitions measured rail items and groups into visible and overflow sets.
  */
 
 import { createElement } from "react";
@@ -95,6 +95,12 @@ export function resolveRailLayout(
   if (measurements.available <= 0) {
     return { visibleIds, overflowItems: [], protectedOverflow: false };
   }
+  /**
+   * Measures the current visible rail allocation including group chrome.
+   *
+   * @param reserveOverflow - Whether to reserve the overflow control height.
+   * @returns Required block-axis extent in CSS pixels.
+   */
   const required = (reserveOverflow: boolean) => {
     let total = reserveOverflow ? measurements.overflow : 0;
     for (const group of groups) {

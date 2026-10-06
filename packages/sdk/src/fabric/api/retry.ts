@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the retry module.
+ * Combines request cancellation and timeouts with bounded retry scheduling.
  */
 
 import {
@@ -62,6 +62,11 @@ export function createAbortContext(
 ): MiaixzAbortContext {
   const controller = new AbortController();
   let didTimeout = false;
+  /**
+   * Propagates parent cancellation and its reason to the timed request controller.
+   *
+   * @returns No return value; aborts the child request signal.
+   */
   const abortFromParent = () => controller.abort(signal?.reason);
   signal?.addEventListener("abort", abortFromParent, { once: true });
   if (signal?.aborted) abortFromParent();
@@ -108,11 +113,21 @@ export async function wait(milliseconds: number, signal: AbortSignal | undefined
   if (milliseconds <= 0) return;
   if (signal?.aborted) throw new MiaixzAbortError({ cause: signal.reason });
   await new Promise<void>((resolve, reject) => {
+    /**
+     * Removes cancellation tracking and resolves the completed retry delay.
+     *
+     * @returns No return value.
+     */
     const complete = () => {
       signal?.removeEventListener("abort", abort);
       resolve();
     };
     const timeout = setTimeout(complete, milliseconds);
+    /**
+     * Clears the retry timer and rejects the delay with the caller cancellation reason.
+     *
+     * @returns No return value.
+     */
     const abort = () => {
       clearTimeout(timeout);
       signal?.removeEventListener("abort", abort);

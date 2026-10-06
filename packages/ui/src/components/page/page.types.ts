@@ -24,12 +24,21 @@
 
 import type { HTMLAttributes } from "react";
 
+/**
+ * Component-specific Page properties composed with the permitted native attributes.
+ */
 type PageBaseProps = { readonly fullWidth?: boolean };
+/**
+ * Properties accepted by the Div Page renderer.
+ */
 type DivPageProps = PageBaseProps &
   Omit<HTMLAttributes<HTMLDivElement>, "aria-labelledby"> & {
     readonly component?: "div";
     readonly "aria-labelledby"?: never;
   };
+/**
+ * Properties accepted by the Section Page renderer.
+ */
 type SectionPageProps = PageBaseProps &
   Omit<HTMLAttributes<HTMLElement>, "aria-label" | "aria-labelledby"> & {
     readonly component: "section";

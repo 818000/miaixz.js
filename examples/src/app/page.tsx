@@ -1,3 +1,6 @@
+/**
+ * Presents the guide landing page and navigation to the four Miaixz package examples.
+ */
 import { Icon, type IconName } from "@miaixz/icons";
 import Link from "next/link";
 
@@ -45,6 +48,11 @@ const modules: readonly {
   },
 ];
 
+/**
+ * Renders the four-package guide directory and its navigation cards.
+ *
+ * @returns Guide landing-page element.
+ */
 export default function HomePage() {
   return (
     <div className={styles.page}>

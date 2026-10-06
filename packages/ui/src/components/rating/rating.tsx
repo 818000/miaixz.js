@@ -62,6 +62,12 @@ export const Rating = withMiaixzThemeComponent(
     if (precision !== 1 && precision !== 0.5) {
       throw new MiaixzUiError({ code: "UI_RATING_PRECISION_INVALID" });
     }
+    /**
+     * Accepts absent values or finite in-range ratings aligned to the configured precision.
+     *
+     * @param candidate - Nullable or absent rating candidate to validate.
+     * @returns Whether the absent or numeric rating satisfies the configured value contract.
+     */
     const validateValue = (candidate: number | null | undefined) =>
       candidate === undefined ||
       candidate === null ||
@@ -84,6 +90,12 @@ export const Rating = withMiaixzThemeComponent(
       getLabelText ??
       ((next: number, total: number) => t("ui.rating.value", { value: next, max: total }));
     const ownerState: RatingOwnerState = { max, precision, size, disabled, readOnly };
+    /**
+     * Reports an editable rating change while preventing required ratings from being cleared.
+     *
+     * @param next - Rating value to commit or focus; null requests clearing when allowed.
+     * @returns No return value.
+     */
     const commit = (next: number | null) => {
       if (disabled || readOnly || (required && next === null)) return;
       if (value === undefined) setUncontrolledValue(next);
@@ -94,6 +106,11 @@ export const Rating = withMiaixzThemeComponent(
       if (value !== undefined) return undefined;
       const form = rootRef.current?.closest("form");
       if (form === undefined || form === null) return undefined;
+      /**
+       * Restores the uncontrolled default rating and clears transient hover preview.
+       *
+       * @returns No return value.
+       */
       const reset = () => {
         setUncontrolledValue(defaultValue);
         setPreview(null);
@@ -101,9 +118,22 @@ export const Rating = withMiaixzThemeComponent(
       form.addEventListener("reset", reset);
       return () => form.removeEventListener("reset", reset);
     }, [defaultValue, value]);
+    /**
+     * Focuses the native rating input associated with the requested numeric value.
+     *
+     * @param next - Rating value to commit or focus; null requests clearing when allowed.
+     * @returns No return value.
+     */
     const focusValue = (next: number) => {
       inputRefs.current.get(next)?.focus();
     };
+    /**
+     * Moves within the rating choices, commits the resulting value, and focuses its input.
+     *
+     * @param current - Rating choice from which keyboard movement starts.
+     * @param amount - Signed count of choices or months to move.
+     * @returns No return value.
+     */
     const move = (current: number, amount: number) => {
       const index = values.indexOf(current);
       const next = values[Math.min(values.length - 1, Math.max(0, index + amount))];

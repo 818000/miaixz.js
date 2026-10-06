@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements context support for the metrics component.
+ * Shares metric-group presentation defaults with descendant metrics.
  */
 
 import { createContext } from "react";

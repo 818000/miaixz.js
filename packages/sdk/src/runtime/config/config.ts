@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the config module.
+ * Loads and validates SDK configuration using the declared source precedence.
  */
 
 import { normalizeMiaixzApiEndpoint } from "../../fabric/api/endpoint.js";

@@ -61,6 +61,12 @@ function resolvePart(basePart: string, target: string): string {
  */
 function normalizedBodyText(document: XmlDocument): string {
   const excluded = new Set(["script", "style", "object", "iframe"]);
+  /**
+   * Collects readable XML text while excluding non-content element subtrees.
+   *
+   * @param element - EPUB content element to traverse.
+   * @returns Plain text from the allowed subtree, or an empty string for excluded elements.
+   */
   const safeText = (element: XmlElement): string => {
     if (excluded.has(element.localName.toLowerCase())) return "";
     return `${element.ownText} ${element.children.map((child) => safeText(child)).join(" ")}`;

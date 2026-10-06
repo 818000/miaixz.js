@@ -33,6 +33,22 @@ const repositoryRoot = resolve(testRoot, "../../../..");
 const exampleRoot = resolve(repositoryRoot, "examples/src/module/icons");
 
 describe("icons example module", () => {
+  it.each(["avatar", "feedback", "toast", "upload"])(
+    "keeps %s on the lightweight name API",
+    async (name) => {
+      const source = await readFile(
+        resolve(repositoryRoot, "packages/ui/src/components", name, name + ".tsx"),
+        "utf8",
+      );
+      expect(source).toContain('from "@miaixz/icons"');
+      expect(source).not.toMatch(
+        /ICON_NAMES|@miaixz\/icons\/catalog|IconTier|OpticalClass|IconDirection/u,
+      );
+      expect(source).toMatch(
+        /"(?:(?:user-round)|info|circle-check|warning|circle-alert|loading|file)"/u,
+      );
+    },
+  );
   it("covers catalog, axes, inspection, accessibility, and failure status", async () => {
     const source = await readFile(resolve(exampleRoot, "icons-guide.tsx"), "utf8");
     for (const token of [
@@ -46,6 +62,10 @@ describe("icons example module", () => {
     ]) {
       expect(source).toContain(token);
     }
+    expect(source).toMatch(/import \{ ICON_CATALOG \} from "@miaixz\/icons\/catalog"/u);
+    expect(source).toContain("record.name.includes(normalizedQuery)");
+    expect(source).toContain("record.category.includes(normalizedQuery)");
+    expect(source).not.toMatch(/record\.aliases|ICON_NAMES|(?:autogen|values)\//u);
     expect(source).not.toMatch(/IconProvider|icons-(?:lucide|phosphor|fontawesome|iconify)/u);
   });
 });

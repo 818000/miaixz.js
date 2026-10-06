@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the builtin UI module.
+ * Resolves built-in theme definitions and their generated preset metadata.
  */
 
 import type { MiaixzThemeTokens } from "./types.js";

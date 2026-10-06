@@ -32,8 +32,14 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Named Checkbox parts available for slot and style customization.
+ */
 export type CheckboxSlot = "root" | "input" | "mark" | "content" | "label" | "description";
 
+/**
+ * Resolved Checkbox state exposed to theme and slot overrides.
+ */
 export interface CheckboxOwnerState {
   readonly checked: boolean;
   readonly indeterminate: boolean;
@@ -41,6 +47,9 @@ export interface CheckboxOwnerState {
   readonly invalid: boolean;
 }
 
+/**
+ * Attributes accepted by the Checkbox Root slot.
+ */
 export interface CheckboxRootAttributes
   extends LabelHTMLAttributes<HTMLLabelElement>, RefAttributes<HTMLLabelElement> {
   readonly "data-disabled"?: boolean;
@@ -48,6 +57,9 @@ export interface CheckboxRootAttributes
   readonly "data-invalid"?: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Checkbox.
+ */
 export interface CheckboxSlotProps {
   readonly root?: MiaixzSlotProps<CheckboxOwnerState, CheckboxRootAttributes>;
   readonly input?: MiaixzSlotProps<

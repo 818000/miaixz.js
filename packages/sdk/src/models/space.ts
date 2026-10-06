@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the space module.
+ * Defines workspace identity, tenant association, and lifecycle status.
  */
 
 import type { MiaixzIdentifier } from "../fabric/api/api.types.js";

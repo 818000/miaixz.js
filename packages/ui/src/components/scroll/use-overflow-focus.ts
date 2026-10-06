@@ -38,6 +38,11 @@ export function useOverflowFocus(enabled: boolean) {
     if (!enabled) return;
     const element = elementRef.current;
     if (element === null) return;
+    /**
+     * Records whether the scroll container overflows on either axis.
+     *
+     * @returns No return value.
+     */
     const update = () => {
       setOverflowing(
         element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight,

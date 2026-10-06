@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the post message host module.
+ * Validates host-side handshake messages and dispatches granted bridge capabilities.
  */
 
 import {
@@ -303,6 +303,11 @@ export class PostMessageHost implements MiaixzPostMessageHost {
       );
     });
     if (typeof rawUnsubscribe !== "function") throw bridgeError("BRIDGE_MESSAGE_INVALID");
+    /**
+     * Releases one host subscription once and awaits the provider cleanup callback.
+     *
+     * @returns Promise resolving after subscription ownership and provider resources are released.
+     */
     const unsubscribe = async (): Promise<void> => {
       if (cancelled) return;
       cancelled = true;

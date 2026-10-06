@@ -395,6 +395,12 @@ export function parseSpreadsheetStyles(
   };
   const cellStyles: SpreadsheetCellStyle[] = children(cellXfsRoot, "xf").map((xf) => {
     const base = styleXfs[number(attribute(xf, "xfId"))];
+    /**
+     * Reads an explicit cell-format attribute before falling back to its base format.
+     *
+     * @param name - Spreadsheet cell-format attribute name.
+     * @returns Explicit or inherited attribute text, or undefined when both formats omit it.
+     */
     const inherited = (name: string): string | undefined =>
       attribute(xf, name) ?? (base === undefined ? undefined : attribute(base, name));
     const alignment = child(xf, "alignment") ?? child(base, "alignment");

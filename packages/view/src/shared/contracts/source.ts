@@ -20,9 +20,7 @@
 
 /**
  * Defines public source descriptors and random-access resource contracts.
- */
-
-/**
+ *
  * Describes a remote file without requiring its URL to expose a useful filename.
  */
 export interface RemoteFileSource {
@@ -73,9 +71,29 @@ export interface RandomAccessResource {
   readonly mimeType: string | undefined;
   readonly size: number | undefined;
   readonly etag: string | undefined;
+  /**
+   * Reads a range without transferring ownership of the resource to the caller.
+   * @param start - Zero-based byte offset from the start of the resource.
+   * @param length - Requested number of bytes.
+   * @param signal - Optional cancellation signal for this read.
+   * @returns Promise resolving to the available bytes in the requested range.
+   */
   read(start: number, length: number, signal?: AbortSignal): Promise<Uint8Array>;
+  /**
+   * Reads the complete resource for a driver that requires contiguous bytes.
+   * @param signal - Optional cancellation signal for the read.
+   * @returns Promise resolving to the complete byte sequence.
+   */
   readAll(signal?: AbortSignal): Promise<Uint8Array>;
+  /**
+   * Creates a browser URL for rendering the resource without exposing its original location.
+   * @returns Promise resolving to the resource-owned object URL.
+   */
   createObjectUrl(): Promise<string>;
+  /**
+   * Releases resource-owned caches and object URLs after document use ends.
+   * @returns No return value.
+   */
   dispose(): void;
 }
 
@@ -83,10 +101,22 @@ export interface RandomAccessResource {
  * Opens primary and related resources through one host-controlled policy boundary.
  */
 export interface FileResourceProvider {
+  /**
+   * Opens the primary source through the host's resource-access policy.
+   * @param source - File bytes, remote location, or descriptor with request metadata.
+   * @param signal - Cancellation signal of the owning document session.
+   * @returns Promise resolving to a resource owned by that session.
+   */
   open(
     source: FileViewSource | FileViewSourceDescriptor,
     signal: AbortSignal,
   ): Promise<RandomAccessResource>;
+  /**
+   * Resolves a companion, embedded, or external resource requested by a driver.
+   * @param request - Relationship and path to resolve under the host policy.
+   * @param signal - Cancellation signal of the owning document session.
+   * @returns Promise resolving to the related resource, or undefined when it is unavailable.
+   */
   resolveRelated?(
     request: RelatedResourceRequest,
     signal: AbortSignal,

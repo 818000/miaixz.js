@@ -32,6 +32,9 @@ import type {
 import type { MiaixzSlotProps } from "../../../shared/slots.js";
 import type { MiaixzVisualTone } from "../../shared.types.js";
 
+/**
+ * Graph vertex with a stable identifier, label, layout coordinates, and visual tone.
+ */
 export interface GraphNode {
   readonly id: string;
   readonly label: string;
@@ -40,6 +43,9 @@ export interface GraphNode {
   readonly y: number;
   readonly tone: MiaixzVisualTone;
 }
+/**
+ * Graph connection between source and target node identifiers, with optional direction and label.
+ */
 export interface GraphEdge {
   readonly id: string;
   readonly sourceId: string;
@@ -47,16 +53,28 @@ export interface GraphEdge {
   readonly label?: string;
   readonly directed?: boolean;
 }
+/**
+ * Named Graph parts available for slot and style customization.
+ */
 export type GraphSlot = "root" | "toolbar" | "viewport" | "canvas" | "edge" | "node" | "table";
+/**
+ * Resolved Graph state exposed to theme and slot overrides.
+ */
 export interface GraphOwnerState {
   readonly disabled: boolean;
   readonly zoom: number;
   readonly selectedNodeId: string | undefined;
   readonly activeNodeId: string | undefined;
 }
+/**
+ * Attributes accepted by the Graph Node slot.
+ */
 export type GraphNodeAttributes = SVGAttributes<SVGGElement> & {
   readonly "data-tone"?: MiaixzVisualTone;
 };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Graph.
+ */
 export interface GraphSlotProps {
   readonly root?: MiaixzSlotProps<
     GraphOwnerState,
@@ -69,6 +87,9 @@ export interface GraphSlotProps {
   readonly node?: MiaixzSlotProps<GraphOwnerState, GraphNodeAttributes>;
   readonly table?: MiaixzSlotProps<GraphOwnerState, TableHTMLAttributes<HTMLTableElement>>;
 }
+/**
+ * Properties accepted by the Graph renderer.
+ */
 export interface GraphProps extends Omit<
   HTMLAttributes<HTMLElement>,
   "aria-disabled" | "aria-label" | "children"

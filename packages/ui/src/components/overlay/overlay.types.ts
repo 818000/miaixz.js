@@ -25,11 +25,20 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Named Overlay parts available for slot and style customization.
+ */
 export type OverlaySlot = "root" | "content" | "surface" | "indicator";
+/**
+ * Resolved Overlay state exposed to theme and slot overrides.
+ */
 export interface OverlayOwnerState {
   readonly active: boolean;
   readonly blocking: boolean;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Overlay.
+ */
 export interface OverlaySlotProps {
   readonly root?: MiaixzSlotProps<
     OverlayOwnerState,
@@ -40,6 +49,9 @@ export interface OverlaySlotProps {
   readonly surface?: MiaixzSlotProps<OverlayOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly indicator?: MiaixzSlotProps<OverlayOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Overlay properties composed with the permitted native attributes.
+ */
 export interface MiaixzOverlayOwnProps {
   readonly active: boolean;
   readonly blocking?: boolean;
@@ -47,5 +59,8 @@ export interface MiaixzOverlayOwnProps {
   readonly children: ReactNode;
   readonly slotProps?: OverlaySlotProps;
 }
+/**
+ * Properties accepted by the Overlay renderer.
+ */
 export type OverlayProps = MiaixzOverlayOwnProps &
   Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzOverlayOwnProps | "aria-busy">;

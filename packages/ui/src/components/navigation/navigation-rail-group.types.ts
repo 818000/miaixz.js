@@ -25,22 +25,37 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Named Navigation Rail Group parts available for slot and style customization.
+ */
 export type NavigationRailGroupSlot = "root" | "marker" | "line" | "label";
+/**
+ * Resolved Navigation Rail Group state exposed to theme and slot overrides.
+ */
 export interface NavigationRailGroupOwnerState {
   readonly separated: boolean;
   readonly labelVisible: boolean;
 }
+/**
+ * Attributes accepted by the Navigation Rail Group Root slot.
+ */
 export type NavigationRailGroupRootAttributes = HTMLAttributes<HTMLElement> &
   RefAttributes<HTMLElement> & {
     readonly "data-separated"?: boolean;
     readonly "data-label-hidden"?: boolean;
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Navigation Rail Group.
+ */
 export interface NavigationRailGroupSlotProps {
   readonly root?: MiaixzSlotProps<NavigationRailGroupOwnerState, NavigationRailGroupRootAttributes>;
   readonly marker?: MiaixzSlotProps<NavigationRailGroupOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly line?: MiaixzSlotProps<NavigationRailGroupOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly label?: MiaixzSlotProps<NavigationRailGroupOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Navigation Rail Group properties composed with the permitted native attributes.
+ */
 export interface MiaixzNavigationRailGroupOwnProps {
   readonly label: ReactNode;
   readonly labelVisible?: boolean;

@@ -52,6 +52,9 @@ export interface XmlDocument {
   readonly documentElement: XmlElement;
 }
 
+/**
+ * Writable XML parse-tree node populated while SAX events are processed.
+ */
 interface MutableXmlElement {
   readonly name: string;
   readonly localName: string;
@@ -289,6 +292,12 @@ export function parseXmlDocument(source: string, maxNodes: number, maxDepth = 12
  */
 export function allElements(root: XmlDocument | XmlElement): XmlElement[] {
   const result: XmlElement[] = [];
+  /**
+   * Collects all descendant XML elements in depth-first source order.
+   *
+   * @param element - Element whose children are traversed.
+   * @returns No return value; appends descendants without including the starting element.
+   */
   const visit = (element: XmlElement): void => {
     for (const child of element.children) {
       result.push(child);

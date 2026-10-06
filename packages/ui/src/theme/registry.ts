@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the registry UI module.
+ * Defines the closed component theme registry and validates its matching contracts.
  */
 
 import type {
@@ -226,19 +226,37 @@ import type { ViewOwnerState, ViewProps } from "../components/view/view.types.js
 import type { AppearanceOwnerState, AppearanceProps } from "../appearance/appearance.types.js";
 import { classNames } from "../shared/class-names.js";
 
+/**
+ * Scalar values eligible for theme-variant state matching.
+ */
 type MiaixzPrimitive = string | number | boolean | null | undefined;
+/**
+ * Selects state keys whose values can participate in scalar theme-variant matching.
+ */
 type MiaixzPrimitiveKeys<State> = {
   [Key in keyof State]-?: State[Key] extends MiaixzPrimitive ? Key : never;
 }[keyof State];
+/**
+ * Owner-state projection containing only scalar variant-matchable fields.
+ */
 type MiaixzThemeVariantState<State> = Pick<State, MiaixzPrimitiveKeys<State>>;
+/**
+ * Slot names inferred from component slotProps, falling back to root when no slots are declared.
+ */
 type MiaixzThemeSlots<Props> = Props extends { readonly slotProps?: infer SlotProps }
   ? Extract<keyof NonNullable<SlotProps>, string>
   : "root";
+/**
+ * Registry association between a component's props, owner state, and available slot names.
+ */
 type MiaixzThemeEntry<Props, OwnerState> = {
   readonly props: Props;
   readonly ownerState: OwnerState;
   readonly slot: MiaixzThemeSlots<Props>;
 };
+/**
+ * Empty owner-state contract for components without theme-variant state.
+ */
 type MiaixzEmptyOwnerState = Readonly<Record<never, never>>;
 
 /**
@@ -534,6 +552,9 @@ export function getMiaixzThemeSlotClassNames<Props, OwnerState extends object, S
   return classes;
 }
 
+/**
+ * Type-erased component theme used while resolving registry-defined defaults and styles.
+ */
 interface UntypedComponentTheme {
   readonly defaultProps?: Readonly<Record<string, unknown>>;
   readonly slotClassNames?: Readonly<Record<string, string>>;

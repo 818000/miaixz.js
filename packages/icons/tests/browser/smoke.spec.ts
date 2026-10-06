@@ -25,6 +25,7 @@
 
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -32,11 +33,40 @@ import { startFontTestServer, type FontTestServer } from "./support/font-server.
 
 const fontPath = "/assets/miaixz-icons.woff2";
 const fontDirectory = resolve(process.cwd(), "dist/assets/fonts");
-const rangeStart = 0xf0000;
-const rangeEnd = 0xf06f4;
-const unicodeRange = "U+F0000-F06F4";
+const { loadIconSource, unicodeRangeFor } = await import(
+  pathToFileURL(resolve(process.cwd(), "../../.github/scripts/modules/icons/source.mjs")).href
+);
+const source = await loadIconSource();
+const rangeStart = source.icons[0].codepoint;
+const rangeEnd = source.icons.at(-1).codepoint;
+const unicodeRange = unicodeRangeFor(source.icons);
+const family = source.design.font.familyName;
+const sampleCodepoint = source.icons.find(
+  (icon: { name: string }) => icon.name === "search",
+).codepoint;
 const fonts = Object.freeze({
-  [fontPath]: new Uint8Array(await readFile(resolve(fontDirectory, "miaixz-icons.woff2"))),
+  [fontPath]: new Uint8Array(await readFile(resolve(fontDirectory, source.design.font.outputFile))),
+});
+
+test("keeps the built root and catalog public boundaries separate", async () => {
+  const root = await import(pathToFileURL(resolve(process.cwd(), "dist/index.js")).href);
+  const catalog = await import(
+    pathToFileURL(resolve(process.cwd(), "dist/values/metadata.js")).href
+  );
+  expect(Object.keys(root).sort()).toEqual([
+    "Icon",
+    "isIconName",
+    "parseIconName",
+    "preloadIconFont",
+  ]);
+  expect(Object.keys(catalog)).toEqual(["ICON_CATALOG"]);
+  expect(catalog.ICON_CATALOG.map((entry: { name: string }) => entry.name)).toEqual(
+    source.icons.map((icon: { name: string }) => icon.name),
+  );
+  for (const entry of catalog.ICON_CATALOG)
+    expect(Object.keys(entry)).toEqual(["name", "category"]);
+  expect(root.isIconName("toString")).toBe(false);
+  expect(() => root.parseIconName("__proto__")).toThrow(TypeError);
 });
 
 /**
@@ -58,7 +88,7 @@ async function mountFontSurface(
       <head>
         <style>
           @font-face {
-            font-family: "Miaixz Icons";
+            font-family: ${JSON.stringify(family)};
             src: url("${server.origin}${fontPath}") format("woff2");
             font-display: block;
             unicode-range: ${unicodeRange};
@@ -70,7 +100,7 @@ async function mountFontSurface(
             width: 64px;
             height: 64px;
             color: #000;
-            font: 64px/1 "Miaixz Icons";
+            font: 64px/1 ${JSON.stringify(family)};
             font-variation-settings: "FILL" var(--fill), "opsz" var(--opsz);
             transition: font-variation-settings 180ms cubic-bezier(0.2, 0, 0, 1);
           }
@@ -86,7 +116,9 @@ test("loads the single font for a low-range glyph", async ({ page }) => {
   try {
     await mountFontSurface(page, server, String.fromCodePoint(rangeStart));
     await expect.poll(() => server.count(fontPath)).toBe(1);
-    expect(await page.evaluate(() => document.fonts.check('64px "Miaixz Icons"'))).toBe(true);
+    expect(
+      await page.evaluate((name) => document.fonts.check(`64px ${JSON.stringify(name)}`), family),
+    ).toBe(true);
     await expect(page.getByTestId("icon")).toHaveAttribute("aria-hidden", "true");
   } finally {
     await server.close();
@@ -98,7 +130,9 @@ test("loads the same single font for a high-range glyph", async ({ page }) => {
   try {
     await mountFontSurface(page, server, String.fromCodePoint(rangeEnd));
     await expect.poll(() => server.count(fontPath)).toBe(1);
-    expect(await page.evaluate(() => document.fonts.check('64px "Miaixz Icons"'))).toBe(true);
+    expect(
+      await page.evaluate((name) => document.fonts.check(`64px ${JSON.stringify(name)}`), family),
+    ).toBe(true);
   } finally {
     await server.close();
   }
@@ -125,7 +159,7 @@ test("interpolates FILL over 180ms and keeps RTL on the glyph layer", async ({ p
     await mountFontSurface(
       page,
       server,
-      String.fromCodePoint(0xf0003),
+      String.fromCodePoint(sampleCodepoint),
       '.icon[data-mirror="true"] { transform: scaleX(-1); }',
     );
     const samples = await page.getByTestId("icon").evaluate(async (element) => {
@@ -171,7 +205,7 @@ test.describe("reduced motion", () => {
       await mountFontSurface(
         page,
         server,
-        String.fromCodePoint(0xf0000),
+        String.fromCodePoint(rangeStart),
         "@media (prefers-reduced-motion: reduce) { .icon { transition: none !important; } }",
       );
       await expect(page.getByTestId("icon")).toHaveCSS("transition-duration", "0s");

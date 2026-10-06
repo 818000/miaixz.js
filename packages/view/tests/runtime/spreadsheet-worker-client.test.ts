@@ -47,6 +47,9 @@ const model: SpreadsheetRenderDocument = {
   coverage: { entries: [] },
 };
 
+/**
+ * Test callback that receives a worker command and can emit correlated replies.
+ */
 type Responder = (worker: FakeWorker, request: WorkerRequest<unknown>) => void;
 
 /**

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the i18n runtime module.
+ * Resolves locale messages, fallbacks, interpolation, and asynchronous language loading.
  */
 
 import {

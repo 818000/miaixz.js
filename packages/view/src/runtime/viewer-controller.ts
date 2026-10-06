@@ -60,6 +60,10 @@ export interface OpenDocumentOptions {
 export interface OpenedDocument {
   readonly decision: FormatDecision;
   readonly outcome: ParseOutcome;
+  /**
+   * Ends the document session and releases all controller-owned resources.
+   * @returns No return value.
+   */
   dispose(): void;
 }
 
@@ -100,6 +104,11 @@ export async function openViewerDocument(
 ): Promise<OpenedDocument> {
   const budget = resolveResourceBudget(options.budget);
   const abortController = new AbortController();
+  /**
+   * Forwards cancellation to the document session abort controller.
+   *
+   * @returns No return value; cancels controller-owned parsing and resources.
+   */
   const abort = (): void => abortController.abort();
   options.signal?.addEventListener("abort", abort, { once: true });
   const provider: FileResourceProvider =

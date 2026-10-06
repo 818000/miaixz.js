@@ -26,18 +26,30 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, MouseEvent, ReactNode 
 
 import type { PopoverChangeReason, PopoverProps } from "../popover/popover.types.js";
 
+/**
+ * Dropdown semantic color tones permitted by the component contract.
+ */
 export type DropdownTone = "neutral" | "danger";
 
+/**
+ * Properties accepted by the Dropdown Button renderer.
+ */
 export type DropdownButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "aria-checked" | "children" | "disabled" | "id" | "onClick" | "role" | "tabIndex" | "type"
 >;
 
+/**
+ * Properties accepted by the Dropdown Anchor renderer.
+ */
 export type DropdownAnchorProps = Omit<
   AnchorHTMLAttributes<HTMLAnchorElement>,
   "aria-checked" | "children" | "href" | "id" | "role" | "tabIndex"
 >;
 
+/**
+ * Common visible label, icon, and descriptive content of a dropdown entry.
+ */
 export interface DropdownPresentation {
   readonly id: string;
   readonly label: ReactNode;
@@ -47,6 +59,9 @@ export interface DropdownPresentation {
   readonly tone?: DropdownTone;
 }
 
+/**
+ * Dropdown button command with its callback and disabled state.
+ */
 export interface DropdownActionEntry extends DropdownPresentation {
   readonly kind: "action";
   readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -57,6 +72,9 @@ export interface DropdownActionEntry extends DropdownPresentation {
   readonly items?: never;
 }
 
+/**
+ * Dropdown anchor entry with a required navigation target.
+ */
 export interface DropdownLinkEntry extends DropdownPresentation {
   readonly kind: "link";
   readonly href: string;
@@ -67,6 +85,9 @@ export interface DropdownLinkEntry extends DropdownPresentation {
   readonly items?: never;
 }
 
+/**
+ * Independently checked dropdown entry and its change callback.
+ */
 export interface DropdownCheckboxEntry extends DropdownPresentation {
   readonly kind: "checkbox";
   readonly checked: boolean;
@@ -78,6 +99,9 @@ export interface DropdownCheckboxEntry extends DropdownPresentation {
   readonly items?: never;
 }
 
+/**
+ * One labeled value in a mutually exclusive dropdown radio group.
+ */
 export interface DropdownRadioOption {
   readonly id: string;
   readonly value: string;
@@ -86,6 +110,9 @@ export interface DropdownRadioOption {
   readonly disabled?: boolean;
 }
 
+/**
+ * Dropdown radio options with group selection and change handling.
+ */
 export interface DropdownRadioGroupEntry {
   readonly kind: "radioGroup";
   readonly id: string;
@@ -95,12 +122,18 @@ export interface DropdownRadioGroupEntry {
   readonly onValueChange: (value: string, event: MouseEvent<HTMLButtonElement>) => void;
 }
 
+/**
+ * Non-interactive text heading displayed inside a dropdown menu.
+ */
 export interface DropdownLabelEntry {
   readonly kind: "label";
   readonly id: string;
   readonly label: ReactNode;
 }
 
+/**
+ * Non-command identity content displayed in a dropdown menu.
+ */
 export interface DropdownIdentityEntry {
   readonly kind: "identity";
   readonly id: string;
@@ -109,11 +142,17 @@ export interface DropdownIdentityEntry {
   readonly meta?: ReactNode;
 }
 
+/**
+ * Non-interactive separator between dropdown menu sections.
+ */
 export interface DropdownDividerEntry {
   readonly kind: "divider";
   readonly id: string;
 }
 
+/**
+ * Entry shapes accepted inside a dropdown submenu.
+ */
 export type DropdownSubmenuItem =
   | DropdownActionEntry
   | DropdownLinkEntry
@@ -123,6 +162,9 @@ export type DropdownSubmenuItem =
   | DropdownIdentityEntry
   | DropdownDividerEntry;
 
+/**
+ * Nested menu entry owning its child dropdown entries.
+ */
 export interface DropdownSubmenuEntry extends DropdownPresentation {
   readonly kind: "submenu";
   readonly items: readonly DropdownSubmenuItem[];
@@ -132,10 +174,19 @@ export interface DropdownSubmenuEntry extends DropdownPresentation {
   readonly checked?: never;
 }
 
+/**
+ * Discriminated union of all supported dropdown item kinds.
+ */
 export type DropdownEntry = DropdownSubmenuItem | DropdownSubmenuEntry;
 
+/**
+ * Dropdown change notification reasons permitted by the component contract.
+ */
 export type DropdownChangeReason = PopoverChangeReason | "selection";
 
+/**
+ * Dropdown controlled or uncontrolled open-state alternatives permitted by the component contract.
+ */
 export type DropdownOpenState =
   | {
       readonly open: boolean;

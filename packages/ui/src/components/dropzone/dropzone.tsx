@@ -144,6 +144,12 @@ export const Dropzone = withMiaixzThemeComponent(
       hasError: rejections.length > 0,
     };
 
+    /**
+     * Validates a nonempty enabled file selection and reports accepted files and rejections separately.
+     *
+     * @param files - Selected or dropped files to validate.
+     * @returns No return value.
+     */
     const processFiles = (files: readonly File[]) => {
       if (disabled || files.length === 0) return;
       const result = validateDropzoneFiles(files, {
@@ -155,28 +161,58 @@ export const Dropzone = withMiaixzThemeComponent(
       if (result.accepted.length > 0) onFiles(result.accepted);
       if (result.rejections.length > 0) onReject?.(result.rejections);
     };
+    /**
+     * Captures selected files, clears the native input for reselection, and validates the selection.
+     *
+     * @param event - Native file-input change event.
+     * @returns No return value.
+     */
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
       const files = event.currentTarget.files === null ? [] : Array.from(event.currentTarget.files);
       event.currentTarget.value = "";
       processFiles(files);
     };
+    /**
+     * Tracks nested file drag entries and activates the enabled drop target.
+     *
+     * @param event - File drag event received by the drop target.
+     * @returns No return value.
+     */
     const handleDragEnter = (event: DragEvent<HTMLDivElement>) => {
       if (disabled || !event.dataTransfer.types.includes("Files")) return;
       event.preventDefault();
       dragDepthRef.current += 1;
       setDragActive(true);
     };
+    /**
+     * Allows an enabled file drop and presents the copy operation to the drag source.
+     *
+     * @param event - File drag event received by the drop target.
+     * @returns No return value.
+     */
     const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
       if (disabled || !event.dataTransfer.types.includes("Files")) return;
       event.preventDefault();
       event.dataTransfer.dropEffect = "copy";
     };
+    /**
+     * Balances nested file drag entries and deactivates the target after the last leave.
+     *
+     * @param event - File drag event received by the drop target.
+     * @returns No return value.
+     */
     const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
       if (disabled || !event.dataTransfer.types.includes("Files")) return;
       event.preventDefault();
       dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
       if (dragDepthRef.current === 0) setDragActive(false);
     };
+    /**
+     * Resets drag tracking and validates dropped files on an enabled target.
+     *
+     * @param event - File drag event received by the drop target.
+     * @returns No return value.
+     */
     const handleDrop = (event: DragEvent<HTMLDivElement>) => {
       if (disabled || !event.dataTransfer.types.includes("Files")) return;
       event.preventDefault();

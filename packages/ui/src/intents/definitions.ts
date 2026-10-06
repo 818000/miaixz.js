@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the definitions UI module.
+ * Defines business-intent descriptors used to select consistent UI presentation.
  */
 
 import type { IconName } from "@miaixz/icons";

@@ -66,6 +66,9 @@ export interface MiaixzLinkProviderProps {
   readonly children: ReactNode;
 }
 
+/**
+ * Properties accepted by the Anchor renderer.
+ */
 interface AnchorProps extends AnchorRenderProps {
   readonly renderAnchor?: AnchorRenderer | undefined;
 }

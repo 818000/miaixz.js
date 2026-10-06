@@ -81,14 +81,32 @@ export const Tooltip = withMiaixzThemeComponent(
     const disabledTrigger = children.type === "button" && children.props.disabled === true;
     const portalTarget = useMiaixzPortalTarget(anchor);
     const ownerState: TooltipOwnerState = { open, placement, disabledTrigger };
+    /**
+     * Updates tooltip visibility only when it differs from the current state.
+     *
+     * @param next - Requested popup visibility.
+     * @returns No return value.
+     */
     const request = (next: boolean): void => {
       if (next !== open) state.setValue(next);
     };
+    /**
+     * Cancels the pending tooltip visibility timer and clears its stored identifier.
+     *
+     * @returns No return value.
+     */
     const clearTimer = (): void => {
       if (timerRef.current === undefined) return;
       window.clearTimeout(timerRef.current);
       timerRef.current = undefined;
     };
+    /**
+     * Replaces the visibility timer and applies its request only if hover and focus still justify it.
+     *
+     * @param next - Requested popup visibility.
+     * @param delay - Visibility delay in milliseconds.
+     * @returns No return value.
+     */
     const schedule = (next: boolean, delay: number): void => {
       clearTimer();
       timerRef.current = window.setTimeout(() => {

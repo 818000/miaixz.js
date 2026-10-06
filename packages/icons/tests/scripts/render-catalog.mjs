@@ -56,11 +56,10 @@ const fontRoot = resolve(repositoryRoot, arguments_[1]);
 const outputRoot = resolve(packageRoot, ".artifacts/icon-visual/current");
 const source = await loadIconSource();
 const codepoints = source.icons;
-const catalog = source.icons.map(({ name, category, opticalClass, tier, rtl }) => ({
+const catalog = source.icons.map(({ name, category, opticalClass, rtl }) => ({
   name,
   category,
   opticalClass,
-  tier,
   rtl,
 }));
 const manifest = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
@@ -120,12 +119,12 @@ function catalogSurface() {
     )
     .join("");
   return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @font-face{font-family:"Miaixz Icons";src:url("${dataUrls.font}") format("woff2");font-display:block;unicode-range:${unicodeRangeFor(source.icons)}}
+    @font-face{font-family:${JSON.stringify(source.design.font.familyName)};src:url("${dataUrls.font}") format("woff2");font-display:block;unicode-range:${unicodeRangeFor(source.icons)}}
     :root{--fill:0;--opsz:24}
     *{box-sizing:border-box}
     html,body{margin:0;width:${sheetWidth}px;height:${sheetHeight}px;overflow:hidden;background:#fff}
     body{display:grid;grid-template-columns:repeat(${columns},${cellSize}px);grid-auto-rows:${cellSize}px}
-    .glyph{display:grid;width:${cellSize}px;height:${cellSize}px;place-items:center;color:#000;font:24px/1 "Miaixz Icons";font-variation-settings:"FILL" var(--fill),"opsz" var(--opsz);text-rendering:geometricPrecision;transition:font-variation-settings 180ms linear}
+    .glyph{display:grid;width:${cellSize}px;height:${cellSize}px;place-items:center;color:#000;font:24px/1 ${JSON.stringify(source.design.font.familyName)};font-variation-settings:"FILL" var(--fill),"opsz" var(--opsz);text-rendering:geometricPrecision;transition:font-variation-settings 180ms linear}
   </style></head><body>${glyphs}</body></html>`;
 }
 
@@ -238,14 +237,20 @@ for (const [browserName, browserType] of Object.entries(browserTypes)) {
   const states = {};
   try {
     await page.setContent(catalogSurface(), { waitUntil: "load" });
-    await page.evaluate(async () => {
-      await document.fonts.load(`24px "Miaixz Icons"`, String.fromCodePoint(0xf0000));
-      await document.fonts.load(
-        `24px "Miaixz Icons"`,
-        String.fromCodePoint(Number(document.body.lastElementChild?.textContent?.codePointAt(0))),
-      );
-      await document.fonts.ready;
-    });
+    await page.evaluate(
+      async ({ family, firstCodepoint }) => {
+        await document.fonts.load(
+          `24px ${JSON.stringify(family)}`,
+          String.fromCodePoint(firstCodepoint),
+        );
+        await document.fonts.load(
+          `24px ${JSON.stringify(family)}`,
+          String.fromCodePoint(Number(document.body.lastElementChild?.textContent?.codePointAt(0))),
+        );
+        await document.fonts.ready;
+      },
+      { family: source.design.font.familyName, firstCodepoint: source.icons[0].codepoint },
+    );
     const animation = await measureAnimation(page);
     for (const fill of fillValues) {
       for (const opticalSize of opticalSizes) {

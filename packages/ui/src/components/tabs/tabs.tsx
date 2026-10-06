@@ -91,10 +91,23 @@ export const Tabs = withMiaixzThemeComponent(
       disabled: false,
       value: effectiveValue,
     };
+    /**
+     * Changes the selected tab only when writable and different from the current value.
+     *
+     * @param value - Stable tab value associated with selection or keyboard navigation.
+     * @returns No return value.
+     */
     const select = (value: string) => {
       if (state.readOnly || value === effectiveValue) return;
       state.setValue(value);
     };
+    /**
+     * Moves focus among enabled tabs using orientation and text direction, respecting the activation mode.
+     *
+     * @param event - Keyboard event whose key and prevented state control navigation.
+     * @param value - Stable tab value associated with selection or keyboard navigation.
+     * @returns No return value.
+     */
     const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, value: string) => {
       if (state.readOnly) return;
       const enabledItems = items.filter((item) => !item.disabled);

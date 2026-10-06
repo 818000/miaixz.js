@@ -82,6 +82,11 @@ export function useMiaixzFloatingPosition(
     const viewport = ownerDocument.defaultView;
     if (viewport === null) return undefined;
 
+    /**
+     * Calculates direction-aware floating placement and applies viewport coordinates and positioning markers.
+     *
+     * @returns No return value.
+     */
     const update = () => {
       const position = calculateMiaixzFloatingPosition(
         trigger.getBoundingClientRect(),

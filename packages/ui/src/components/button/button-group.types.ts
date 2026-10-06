@@ -27,6 +27,9 @@ import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ButtonSize, ButtonTone, ButtonVariant } from "./button.types.js";
 
+/**
+ * Resolved Button Group state exposed to theme and slot overrides.
+ */
 export interface ButtonGroupOwnerState {
   readonly orientation: "horizontal" | "vertical";
   readonly fullWidth: boolean;
@@ -36,6 +39,9 @@ export interface ButtonGroupOwnerState {
   readonly disabled: boolean;
 }
 
+/**
+ * Attributes accepted by the Button Group Root slot.
+ */
 export interface ButtonGroupRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-ui"?: "button-group";
@@ -43,14 +49,23 @@ export interface ButtonGroupRootAttributes
   readonly "data-full-width"?: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Button Group.
+ */
 export interface ButtonGroupSlotProps {
   readonly root?: MiaixzSlotProps<ButtonGroupOwnerState, ButtonGroupRootAttributes>;
 }
 
+/**
+ * Button Group accessible naming alternatives permitted by the component contract.
+ */
 type ButtonGroupLabel =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
 
+/**
+ * Properties accepted by the Button Group renderer.
+ */
 export type ButtonGroupProps = Omit<HTMLAttributes<HTMLDivElement>, "aria-label"> &
   ButtonGroupLabel & {
     readonly children: ReactNode;

@@ -24,7 +24,7 @@
 
 import type { HTMLAttributes, ReactElement } from "react";
 
-import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
+import { Icon, type IconName } from "@miaixz/icons";
 import { IconButton } from "../action/icon-button.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 import type { MiaixzFeedbackLive, MiaixzFeedbackProps } from "./feedback.types.js";
@@ -79,9 +79,9 @@ export function MiaixzFeedback(props: MiaixzFeedbackProps): ReactElement {
 }
 
 const feedbackIcons: Record<MiaixzFeedbackTone, IconName> = {
-  neutral: ICON_NAMES.INFO,
-  info: ICON_NAMES.INFO,
-  success: ICON_NAMES.CIRCLE_CHECK,
-  warning: ICON_NAMES.WARNING,
-  danger: ICON_NAMES.CIRCLE_ALERT,
+  neutral: "info",
+  info: "info",
+  success: "circle-check",
+  warning: "warning",
+  danger: "circle-alert",
 };

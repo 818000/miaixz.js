@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements avatar picker support for the avatar component.
+ * Combines avatar presentation with image selection and its input callbacks.
  */
 
 import { forwardRef, type HTMLAttributes, type ReactElement } from "react";

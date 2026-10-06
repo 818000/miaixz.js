@@ -38,6 +38,8 @@ const requireStrictComments = {
     fixable: "whitespace",
     schema: [],
     messages: {
+      adjacentJsdoc:
+        "Consecutive JSDoc blocks must be merged into one comment while preserving descriptions and directives.",
       finalLineText:
         "Only a validated @ts-expect-error directive may share the JSDoc closing line.",
       invalidTypeScriptDirective:
@@ -66,7 +68,7 @@ const requireStrictComments = {
       Program() {
         const moduleBody = sourceCode.text
           .replace(/^#![^\n]*(?:\n|$)/u, "")
-          .replace(/^\/\*[\s\S]*?miaixz\.org[\s\S]*?\*\/\s*/u, "");
+          .replace(/^\/\*(?:(?!\*\/)[\s\S])*?miaixz\.org(?:(?!\*\/)[\s\S])*?\*\/\s*/u, "");
         if (!moduleBody.startsWith("/**\n")) {
           context.report({
             loc: { line: 1, column: 0 },
@@ -79,7 +81,10 @@ const requireStrictComments = {
              * @returns {object} ESLint fix that inserts the missing module description.
              */
             fix(fixer) {
-              const header = /^\/\*[\s\S]*?miaixz\.org[\s\S]*?\*\/\s*/u.exec(sourceCode.text);
+              const header =
+                /^\/\*(?:(?!\*\/)[\s\S])*?miaixz\.org(?:(?!\*\/)[\s\S])*?\*\/\s*/u.exec(
+                  sourceCode.text,
+                );
               const insertionOffset = header?.[0].length ?? 0;
               const filename = context.filename.split(/[\\/]/u).at(-1) ?? "source";
               const label = filename
@@ -93,8 +98,18 @@ const requireStrictComments = {
             },
           });
         }
-        for (const comment of sourceCode.getAllComments()) {
+        const comments = sourceCode.getAllComments();
+        for (const [index, comment] of comments.entries()) {
           const raw = sourceCode.getText(comment);
+          const previous = comments[index - 1];
+          if (
+            raw.startsWith("/**") &&
+            previous !== undefined &&
+            sourceCode.getText(previous).startsWith("/**") &&
+            sourceCode.text.slice(previous.range[1], comment.range[0]).trim() === ""
+          ) {
+            context.report({ loc: comment.loc, messageId: "adjacentJsdoc" });
+          }
           const isRepositoryHeader =
             comment.type === "Block" &&
             raw.startsWith("/*\n") &&

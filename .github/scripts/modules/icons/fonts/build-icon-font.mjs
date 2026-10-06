@@ -29,14 +29,14 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { inspectFonts } from "./inspect-icon-font.mjs";
-import { runFontTool, validateFontOutputs, validateFontSource } from "./validate-icon-font.mjs";
+import { inspectFontSource } from "./read-font-source.mjs";
 import {
-  EXPECTED_MASTER_DIRECTORIES,
-  fontsRoot,
-  loadIconSource,
-  unicodeRangeFor,
-} from "../source.mjs";
+  inspectFonts,
+  runFontTool,
+  validateFontOutputs,
+  validateFontSource,
+} from "./validate-icon-font.mjs";
+import { fontsRoot, loadIconSource, unicodeRangeFor } from "../source.mjs";
 import { readRepositoryVersion } from "../../../miaixz.mjs";
 
 const moduleRoot = dirname(fileURLToPath(import.meta.url));
@@ -83,6 +83,11 @@ export async function withFontBuildWorkspace(operation) {
   const second = resolve(root, "round-b");
   await Promise.all([mkdir(first), mkdir(second)]);
   let cleaned = false;
+  /**
+   * Removes the isolated build directory exactly once during exit or signal cleanup.
+   *
+   * @returns No return value; repeated cleanup calls are ignored.
+   */
   const cleanSynchronously = () => {
     if (cleaned) return;
     cleaned = true;
@@ -132,7 +137,8 @@ async function prepareFontSource(outputDirectory) {
   await cp(fontsRoot, sourceRoot, { recursive: true });
   const [major, minor, patch] = release.split(/[.-]/u).map(Number);
   const versionMinor = minor * 100 + patch;
-  for (const master of EXPECTED_MASTER_DIRECTORIES) {
+  const fontSource = await inspectFontSource({ fontsRoot });
+  for (const { relativePath: master } of fontSource.masters) {
     const path = resolve(sourceRoot, master, "fontinfo.plist");
     const source = await readFile(path, "utf8");
     const postscriptName = source.match(

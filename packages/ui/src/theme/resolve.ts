@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the resolve UI module.
+ * Combines theme definitions, color modes, density, and override precedence.
  */
 
 import type { MiaixzThemeColorOverrides } from "@miaixz/sdk/appearance";
@@ -47,6 +47,12 @@ export function resolveThemeDefinitions(
   const resolved = new Map<string, Readonly<MiaixzResolvedThemeDefinition>>();
   const visiting: string[] = [];
 
+  /**
+   * Resolves and caches one theme inheritance chain, rejecting cycles and depth overflow.
+   *
+   * @param name - Theme identifier whose parent chain is resolved.
+   * @returns Validated complete immutable theme with inherited tokens and modes.
+   */
   const resolveOne = (name: string): Readonly<MiaixzResolvedThemeDefinition> => {
     const existing = resolved.get(name);
     if (existing !== undefined) return existing;

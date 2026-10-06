@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the post message bridge module.
+ * Exports host and child factories for the validated iframe postMessage bridge.
  */
 
 import type { MiaixzHostBridge } from "../contracts/host-context.js";

@@ -49,6 +49,9 @@ import type {
 } from "./datagrid.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * Stable row identity paired with its application-defined cell data.
+ */
 interface DatagridRow<Row> {
   readonly id: string;
   readonly value: Row;
@@ -210,6 +213,13 @@ function DatagridImplementation<Row>(
         ? "empty"
         : "ready";
 
+  /**
+   * Reports one row-selection change according to the active selection mode.
+   *
+   * @param rowId - Stable identifier of the row being toggled.
+   * @param checked - Whether that row should be selected.
+   * @returns No return value; disabled selection mode does not report changes.
+   */
   const changeRowSelection = (rowId: string, checked: boolean) => {
     if (selectionMode === "single") {
       (onSelectedRowIdsChange as ((ids: readonly [] | readonly [string]) => void) | undefined)?.(
@@ -223,6 +233,11 @@ function DatagridImplementation<Row>(
     else next.delete(rowId);
     (onSelectedRowIdsChange as ((ids: readonly string[]) => void) | undefined)?.([...next]);
   };
+  /**
+   * Toggles all rows on the current page while retaining selections on other pages.
+   *
+   * @returns No return value; only multiple-selection mode supports page-wide changes.
+   */
   const changePageSelection = () => {
     if (selectionMode !== "multiple") return;
     const next = new Set(selectedIds);

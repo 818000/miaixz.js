@@ -62,6 +62,11 @@ export const Disclosure = withMiaixzThemeComponent(
       disabled,
       headingLevel,
     };
+    /**
+     * Toggles an enabled disclosure and reports expansion changes in both state modes.
+     *
+     * @returns No return value.
+     */
     const toggle = () => {
       if (disabled) return;
       const next = !resolvedExpanded;

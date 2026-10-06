@@ -76,6 +76,16 @@ export interface ProbeResult {
  */
 export interface ViewerDriver<TDocument extends ViewerDocument = ViewerDocument> {
   readonly id: FormatDriverId;
+  /**
+   * Optionally evaluates a bounded prefix before the complete document is opened.
+   * @param context - Prefix bytes, source metadata, and cancellation signal.
+   * @returns Driver confidence and its diagnostic reason, synchronously or asynchronously.
+   */
   probe?(context: ProbeContext): ProbeResult | Promise<ProbeResult>;
+  /**
+   * Parses the resource under the session's cancellation and resource-budget policies.
+   * @param context - Owned resource, format decision, limits, and progress callbacks.
+   * @returns Promise resolving to a document outcome or controlled failure diagnostics.
+   */
   open(context: DriverContext): Promise<ParseOutcome<TDocument>>;
 }

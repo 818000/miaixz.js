@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the errors module.
+ * Defines language-independent SDK errors with sanitized diagnostic metadata.
  */
 
 import { getMiaixzSdkErrorMessageKey } from "./error-codes.js";

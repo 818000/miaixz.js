@@ -26,10 +26,19 @@ import type { HTMLAttributes, InputHTMLAttributes, ReactNode, RefAttributes } fr
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Input size tokens permitted by the component contract.
+ */
 export type InputSize = "small" | "medium" | "large";
 
+/**
+ * Named Input parts available for slot and style customization.
+ */
 export type InputSlot = "root" | "input" | "startAdornment" | "endAdornment";
 
+/**
+ * Resolved Input state exposed to theme and slot overrides.
+ */
 export interface InputOwnerState {
   readonly size: InputSize;
   readonly invalid: boolean;
@@ -38,6 +47,9 @@ export interface InputOwnerState {
   readonly filled: boolean;
 }
 
+/**
+ * Attributes accepted by the Input Root slot.
+ */
 export interface InputRootAttributes
   extends HTMLAttributes<HTMLSpanElement>, RefAttributes<HTMLSpanElement> {
   readonly "data-disabled"?: boolean;
@@ -47,6 +59,9 @@ export interface InputRootAttributes
   readonly "data-size"?: InputSize;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Input.
+ */
 export interface InputSlotProps {
   readonly root?: MiaixzSlotProps<InputOwnerState, InputRootAttributes>;
   readonly input?: MiaixzSlotProps<

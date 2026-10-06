@@ -145,6 +145,12 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     filled: valueState.value !== "",
     widthPreset,
   };
+  /**
+   * Resolves theme classes for one select slot using the current owner state.
+   *
+   * @param slot - Component slot whose theme classes are resolved.
+   * @returns Theme class names for the requested select slot.
+   */
   const themeClasses = (slot: SelectSlot) => getMiaixzThemeSlotClassNames(theme, ownerState, slot);
 
   const close = useCallback((restoreFocus: boolean) => {
@@ -205,6 +211,12 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     onDismiss: () => close(true),
   });
 
+  /**
+   * Handles trigger opening, popup dismissal, listbox navigation, and active-option selection.
+   *
+   * @param event - Keyboard event whose key and prevented state control navigation.
+   * @returns No return value.
+   */
   const internalKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === "Escape" && open) {
       event.preventDefault();

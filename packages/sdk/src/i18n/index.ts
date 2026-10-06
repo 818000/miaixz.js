@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports locale catalogs, message loading, translation, and formatter APIs.
  */
 
 export {

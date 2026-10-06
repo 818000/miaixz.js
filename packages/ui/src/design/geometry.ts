@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the geometry UI module.
+ * Defines reusable geometry, spacing, and size contracts for UI presentation.
  */
 
 import { miaixzDensities } from "@miaixz/sdk/appearance";

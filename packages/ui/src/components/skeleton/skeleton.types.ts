@@ -25,21 +25,42 @@
 import type { HTMLAttributes, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Skeleton visual variants permitted by the component contract.
+ */
 export type SkeletonVariant = "text" | "circular" | "rectangular" | "rounded" | "custom";
+/**
+ * Named Skeleton parts available for slot and style customization.
+ */
 export type SkeletonSlot = "root";
+/**
+ * Resolved Skeleton state exposed to theme and slot overrides.
+ */
 export interface SkeletonOwnerState {
   readonly variant: SkeletonVariant;
 }
+/**
+ * Attributes accepted by the Skeleton Root slot.
+ */
 export type SkeletonRootAttributes = HTMLAttributes<HTMLSpanElement> &
   RefAttributes<HTMLSpanElement> & { readonly "data-variant"?: SkeletonVariant };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Skeleton.
+ */
 export interface SkeletonSlotProps {
   readonly root?: MiaixzSlotProps<SkeletonOwnerState, SkeletonRootAttributes>;
 }
+/**
+ * Component-specific Skeleton properties composed with the permitted native attributes.
+ */
 export interface MiaixzSkeletonOwnProps {
   readonly variant?: SkeletonVariant;
   readonly width?: number | string;
   readonly height?: number | string;
   readonly slotProps?: SkeletonSlotProps;
 }
+/**
+ * Properties accepted by the Skeleton renderer.
+ */
 export type SkeletonProps = MiaixzSkeletonOwnProps &
   Omit<HTMLAttributes<HTMLSpanElement>, keyof MiaixzSkeletonOwnProps | "children" | "aria-hidden">;

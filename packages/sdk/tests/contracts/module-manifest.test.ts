@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the module manifest test module.
+ * Verifies manifest validation and semantic-version compatibility boundaries.
  */
 
 import { describe, expect, it } from "vitest";

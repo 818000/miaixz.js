@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the config types module.
+ * Defines serializable SDK configuration and execution-environment contracts.
  */
 
 import type { MiaixzAppearanceSettings } from "../../display/appearance.types.js";

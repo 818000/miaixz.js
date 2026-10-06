@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the provider UI module.
+ * Coordinates theme loading, resolution, DOM scopes, and React theme context.
  */
 
 import {

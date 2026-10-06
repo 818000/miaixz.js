@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements radio group support for the radio component.
+ * Renders labeled radio options with controlled or uncontrolled group selection.
  */
 
 import { forwardRef, useRef } from "react";

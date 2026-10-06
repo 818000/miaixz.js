@@ -25,19 +25,34 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Pagination visual variants permitted by the component contract.
+ */
 export type PaginationVariant = "default" | "plain";
+/**
+ * Named Pagination parts available for slot and style customization.
+ */
 export type PaginationSlot = "root" | "summary" | "list" | "item" | "ellipsis";
+/**
+ * Resolved Pagination state exposed to theme and slot overrides.
+ */
 export interface PaginationOwnerState {
   readonly variant: PaginationVariant;
   readonly inset: boolean;
   readonly page: number;
   readonly pageCount: number;
 }
+/**
+ * Attributes accepted by the Pagination Root slot.
+ */
 export type PaginationRootAttributes = HTMLAttributes<HTMLElement> &
   RefAttributes<HTMLElement> & {
     readonly "data-variant"?: PaginationVariant;
     readonly "data-inset"?: boolean;
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Pagination.
+ */
 export interface PaginationSlotProps {
   readonly root?: MiaixzSlotProps<PaginationOwnerState, PaginationRootAttributes>;
   readonly summary?: MiaixzSlotProps<PaginationOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -45,6 +60,9 @@ export interface PaginationSlotProps {
   readonly item?: MiaixzSlotProps<PaginationOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
   readonly ellipsis?: MiaixzSlotProps<PaginationOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Pagination properties composed with the permitted native attributes.
+ */
 export interface MiaixzPaginationOwnProps {
   readonly variant?: PaginationVariant;
   readonly inset?: boolean;

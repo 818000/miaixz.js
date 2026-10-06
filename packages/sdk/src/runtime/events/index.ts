@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports the event bus, channel options, and typed SDK event contracts.
  */
 
 export { createMiaixzEventBus, MiaixzEventBus } from "./events.js";

@@ -31,6 +31,9 @@ import { renderWithLocale } from "../../support/test-utils.js";
 
 afterEach(cleanup);
 
+/**
+ * Row identity and cell values used by datagrid interaction fixtures.
+ */
 interface Row {
   /**
    * Stable fixture identifier.

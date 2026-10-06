@@ -32,9 +32,18 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Switch size tokens permitted by the component contract.
+ */
 export type SwitchSize = "small" | "medium";
+/**
+ * Named Switch parts available for slot and style customization.
+ */
 export type SwitchSlot = "root" | "input" | "track" | "thumb" | "content" | "label" | "description";
 
+/**
+ * Resolved Switch state exposed to theme and slot overrides.
+ */
 export interface SwitchOwnerState {
   readonly size: SwitchSize;
   readonly checked: boolean;
@@ -42,6 +51,9 @@ export interface SwitchOwnerState {
   readonly invalid: boolean;
 }
 
+/**
+ * Attributes accepted by the Switch Root slot.
+ */
 export interface SwitchRootAttributes
   extends LabelHTMLAttributes<HTMLLabelElement>, RefAttributes<HTMLLabelElement> {
   readonly "data-disabled"?: boolean;
@@ -50,6 +62,9 @@ export interface SwitchRootAttributes
   readonly "data-size"?: SwitchSize;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Switch.
+ */
 export interface SwitchSlotProps {
   readonly root?: MiaixzSlotProps<SwitchOwnerState, SwitchRootAttributes>;
   readonly input?: MiaixzSlotProps<

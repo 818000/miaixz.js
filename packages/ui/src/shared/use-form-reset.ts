@@ -48,6 +48,11 @@ export function useFormReset(
   useEffect(() => {
     const form = controlRef.current?.form;
     if (form === null || form === undefined) return undefined;
+    /**
+     * Runs the latest control reset callback after the native form reset completes.
+     *
+     * @returns No return value.
+     */
     const handleReset = () => queueMicrotask(() => callbackRef.current());
     form.addEventListener("reset", handleReset);
     return () => form.removeEventListener("reset", handleReset);

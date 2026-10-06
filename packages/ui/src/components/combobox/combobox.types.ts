@@ -33,11 +33,17 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Stable grouping identity and visible heading for combobox options.
+ */
 export interface MiaixzOptionGroup {
   readonly id: string;
   readonly label: string;
 }
 
+/**
+ * Selectable combobox value with visible content, keyboard-search text, and optional grouping.
+ */
 export interface MiaixzOption<Value extends string = string> {
   readonly value: Value;
   readonly label: ReactNode;
@@ -47,11 +53,17 @@ export interface MiaixzOption<Value extends string = string> {
   readonly group?: MiaixzOptionGroup;
 }
 
+/**
+ * One asynchronous combobox result page and the cursor for the following page.
+ */
 export interface MiaixzOptionPage<Value extends string = string> {
   readonly options: readonly MiaixzOption<Value>[];
   readonly nextCursor: string | null;
 }
 
+/**
+ * Mutually exclusive static options or abortable asynchronous option loading.
+ */
 export type MiaixzOptionSource<Value extends string = string> =
   | {
       readonly options: readonly MiaixzOption<Value>[];
@@ -66,6 +78,9 @@ export type MiaixzOptionSource<Value extends string = string> =
       }) => Promise<MiaixzOptionPage<Value>>;
     };
 
+/**
+ * Mutually exclusive controlled value or uncontrolled initial combobox selection.
+ */
 export type MiaixzComboboxValueState<Value extends string = string> =
   | {
       readonly value: MiaixzOption<Value> | null;
@@ -78,6 +93,9 @@ export type MiaixzComboboxValueState<Value extends string = string> =
       readonly onValueChange?: (option: MiaixzOption<Value> | null) => void;
     };
 
+/**
+ * Mutually exclusive controlled query text or uncontrolled initial query text.
+ */
 export type MiaixzComboboxInputState =
   | {
       readonly inputValue: string;
@@ -90,11 +108,17 @@ export type MiaixzComboboxInputState =
       readonly onInputValueChange?: (value: string) => void;
     };
 
+/**
+ * Selection and keyboard-active state supplied to an option renderer.
+ */
 export interface MiaixzOptionRenderState {
   readonly selected: boolean;
   readonly active: boolean;
 }
 
+/**
+ * Named Combobox parts available for slot and style customization.
+ */
 export type ComboboxSlot =
   | "root"
   | "label"
@@ -113,6 +137,9 @@ export type ComboboxSlot =
   | "message"
   | "hiddenInput";
 
+/**
+ * Resolved Combobox state exposed to theme and slot overrides.
+ */
 export interface ComboboxOwnerState {
   readonly disabled: boolean;
   readonly readOnly: boolean;
@@ -122,6 +149,9 @@ export interface ComboboxOwnerState {
   readonly loading: boolean;
 }
 
+/**
+ * Attributes accepted by the Combobox Root slot.
+ */
 export interface ComboboxRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-disabled"?: boolean;
   readonly "data-filled"?: boolean;
@@ -130,6 +160,9 @@ export interface ComboboxRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-state"?: "open" | "closed";
 }
 
+/**
+ * Attributes accepted by the Combobox Control slot.
+ */
 export interface ComboboxControlAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-disabled"?: boolean;
   readonly "data-filled"?: boolean;
@@ -138,17 +171,26 @@ export interface ComboboxControlAttributes extends HTMLAttributes<HTMLDivElement
   readonly "data-state"?: "open" | "closed";
 }
 
+/**
+ * Attributes accepted by the Combobox Surface slot.
+ */
 export interface ComboboxSurfaceAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly popover?: "manual";
   readonly "data-state"?: "loading" | "error" | "ready" | "limit";
 }
 
+/**
+ * Attributes accepted by the Combobox Option slot.
+ */
 export interface ComboboxOptionAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-disabled"?: boolean;
   readonly "data-state"?: "active" | "idle";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Combobox.
+ */
 export interface ComboboxSlotProps {
   readonly root?: MiaixzSlotProps<ComboboxOwnerState, ComboboxRootAttributes>;
   readonly label?: MiaixzSlotProps<ComboboxOwnerState, LabelHTMLAttributes<HTMLLabelElement>>;
@@ -171,6 +213,9 @@ export interface ComboboxSlotProps {
   readonly hiddenInput?: MiaixzSlotProps<ComboboxOwnerState, InputHTMLAttributes<HTMLInputElement>>;
 }
 
+/**
+ * Component-specific Combobox properties composed with the permitted native attributes.
+ */
 export interface MiaixzComboboxOwnProps<Value extends string = string> {
   readonly label: ReactNode;
   readonly id?: string;

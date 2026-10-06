@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements button content support for the button component.
+ * Composes button label, leading/trailing icons, and loading presentation.
  */
 
 import type { ReactElement, ReactNode } from "react";

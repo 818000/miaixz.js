@@ -26,6 +26,9 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Tree item identity, application value, display content, and optional child-loading metadata.
+ */
 export interface TreeNode<Value = unknown> {
   readonly id: string;
   readonly label: ReactNode;
@@ -38,6 +41,9 @@ export interface TreeNode<Value = unknown> {
   readonly disabled?: boolean;
 }
 
+/**
+ * Mutually exclusive controlled or uncontrolled tree-selection settings.
+ */
 export type TreeSelectionProps =
   | {
       readonly selectionMode: "none";
@@ -58,6 +64,9 @@ export type TreeSelectionProps =
         }
     ));
 
+/**
+ * Mutually exclusive controlled or uncontrolled expanded-node settings.
+ */
 export type TreeExpansionProps =
   | {
       readonly expandedIds: readonly string[];
@@ -70,10 +79,22 @@ export type TreeExpansionProps =
       readonly onExpandedIdsChange?: (ids: readonly string[]) => void;
     };
 
+/**
+ * Tree surface treatments permitted by the component contract.
+ */
 export type TreeSurface = "framed" | "plain";
+/**
+ * Tree divider treatments permitted by the component contract.
+ */
 export type TreeDividerStyle = "none" | "dashed";
+/**
+ * Tree spacing densities permitted by the component contract.
+ */
 export type TreeDensity = "compact" | "standard" | "comfortable";
 
+/**
+ * Resolved Tree state exposed to theme and slot overrides.
+ */
 export interface TreeOwnerState {
   readonly surface: TreeSurface;
   readonly connectors: boolean;
@@ -89,15 +110,24 @@ export interface TreeOwnerState {
   readonly error: boolean;
 }
 
+/**
+ * Attributes accepted by the Tree Item slot.
+ */
 export interface TreeItemAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-state"?: "leaf" | "collapsed" | "expanded" | "loading" | "error";
   readonly "data-disabled"?: boolean;
 }
 
+/**
+ * Attributes accepted by the Tree Icon slot.
+ */
 export interface TreeIconAttributes extends HTMLAttributes<HTMLSpanElement> {
   readonly "data-state"?: "leaf" | "collapsed" | "expanded";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Tree.
+ */
 export interface TreeSlotProps {
   readonly item?: MiaixzSlotProps<TreeOwnerState, TreeItemAttributes>;
   readonly label?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -107,6 +137,9 @@ export interface TreeSlotProps {
   readonly error?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Component-specific Tree properties composed with the permitted native attributes.
+ */
 export interface MiaixzTreeBaseProps<Value = unknown> {
   readonly nodes: readonly TreeNode<Value>[];
   readonly label: string;
@@ -122,6 +155,9 @@ export interface MiaixzTreeBaseProps<Value = unknown> {
   readonly slotProps?: TreeSlotProps;
 }
 
+/**
+ * Component-specific Tree properties composed with the permitted native attributes.
+ */
 export type MiaixzTreeOwnProps<Value = unknown> = MiaixzTreeBaseProps<Value> &
   TreeSelectionProps &
   TreeExpansionProps;

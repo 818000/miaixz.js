@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements navigation rail overflow support for the navigation component.
+ * Renders overflowed rail groups and links while preserving current-item semantics.
  */
 
 import { forwardRef, type RefObject } from "react";
@@ -37,6 +37,9 @@ import type {
   NavigationRailSlotProps,
 } from "./navigation-rail.types.js";
 
+/**
+ * Properties accepted by the Structured Rail Group renderer.
+ */
 interface StructuredRailGroupProps {
   /**
    * Supplies the structured group to render.
@@ -110,6 +113,9 @@ export function StructuredRailGroup(props: StructuredRailGroupProps) {
   );
 }
 
+/**
+ * Properties accepted by the Rail Overflow renderer.
+ */
 interface RailOverflowProps {
   /**
    * Supplies Dropdown entries representing overflow items.

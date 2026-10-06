@@ -29,6 +29,9 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 import type { SliderOwnerState, SliderProps, SliderRootAttributes } from "./slider.types.js";
 
+/**
+ * CSS custom properties used to position or size the Slider Mark visual.
+ */
 interface SliderMarkStyle extends CSSProperties {
   readonly "--miaixz-slider-mark-position": string;
 }

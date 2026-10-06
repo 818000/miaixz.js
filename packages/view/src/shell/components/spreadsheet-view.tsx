@@ -86,6 +86,9 @@ function columnLabel(index: number): string {
   return label;
 }
 
+/**
+ * Collapsible row interval and its resolved spreadsheet outline level.
+ */
 interface SpreadsheetOutlineGroup {
   readonly level: number;
   readonly startRow: number;
@@ -457,6 +460,11 @@ export function SpreadsheetView({
       : activeSheet.cells.filter((cell) =>
           cell.displayValue.toLocaleLowerCase().includes(normalizedSearchQuery),
         );
+  /**
+   * Selects the next search match and scrolls it into the unfrozen viewport.
+   *
+   * @returns No return value; an empty search clears the active match.
+   */
   const findNext = (): void => {
     if (searchQuery.trim() === "" || searchMatches.length === 0) {
       setSearchIndex(-1);
@@ -477,6 +485,12 @@ export function SpreadsheetView({
       updateViewport();
     }
   };
+  /**
+   * Restores saved sheet scroll offsets or derives them from pane and zoom settings.
+   *
+   * @param sheet - Sheet becoming active.
+   * @returns No return value; updates the viewport after restoring offsets.
+   */
   const restoreSheetState = (sheet: SpreadsheetRenderSheet): void => {
     const target = viewportReference.current;
     const saved = scrollPositions.current.get(sheet.id);
@@ -504,6 +518,12 @@ export function SpreadsheetView({
       updateViewport();
     }
   };
+  /**
+   * Saves the current sheet position and restores the selected sheet state.
+   *
+   * @param sheetId - Stable identifier of the target sheet.
+   * @returns No return value; reports the sheet change and schedules scroll restoration.
+   */
   const changeSheet = (sheetId: string): void => {
     const element = viewportReference.current;
     if (element !== null) {
@@ -522,6 +542,11 @@ export function SpreadsheetView({
         name: selected.name,
         index: visibleSheets.indexOf(selected),
       });
+      /**
+       * Restores the selected sheet viewport after its render has been scheduled.
+       *
+       * @returns No return value; delegates to the sheet-state restoration routine.
+       */
       const restoreScroll = (): void => restoreSheetState(selected);
       if (globalThis.requestAnimationFrame === undefined) globalThis.setTimeout(restoreScroll, 0);
       else globalThis.requestAnimationFrame(restoreScroll);

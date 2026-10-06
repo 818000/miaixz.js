@@ -1,5 +1,5 @@
 /**
- * Implements the signer test module.
+ * Verifies deterministic REST gateway canonicalization and authentication-dependent signing.
  */
 
 import assert from "node:assert/strict";

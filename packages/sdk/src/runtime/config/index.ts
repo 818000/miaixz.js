@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports SDK configuration loading and its public option types.
  */
 
 export {

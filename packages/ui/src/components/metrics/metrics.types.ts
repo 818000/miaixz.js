@@ -25,6 +25,9 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Resolved Metrics state exposed to theme and slot overrides.
+ */
 export interface MetricsOwnerState {
   readonly layout: "strip" | "grid";
   readonly columns: 3 | 4 | 5;
@@ -34,17 +37,29 @@ export interface MetricsOwnerState {
   readonly presentation: "default" | "summary-strip";
 }
 
+/**
+ * Attributes accepted by the Metrics Scroll slot.
+ */
 export type MetricsScrollAttributes = Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "aria-labelledby" | "children" | "role" | "tabIndex"
 >;
+/**
+ * Per-slot attributes and state-dependent override callbacks for Metrics.
+ */
 export type MetricsSlotProps = {
   readonly scroll?: MiaixzSlotProps<MetricsOwnerState, MetricsScrollAttributes>;
 };
 
+/**
+ * Accessible naming alternatives for a group of metrics.
+ */
 type MetricsName =
   | { readonly "aria-label"?: string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby"?: string };
+/**
+ * Properties accepted by the Metrics renderer.
+ */
 export type MetricsProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "aria-labelledby" | "children"

@@ -25,20 +25,38 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Empty visual variants permitted by the component contract.
+ */
 export type EmptyVariant = "framed" | "plain";
+/**
+ * Named Empty parts available for slot and style customization.
+ */
 export type EmptySlot = "root" | "content" | "icon" | "title" | "description" | "actions";
+/**
+ * Resolved Empty state exposed to theme and slot overrides.
+ */
 export interface EmptyOwnerState {
   readonly variant: EmptyVariant;
   readonly compact: boolean;
 }
+/**
+ * Replaceable slot components accepted by Empty.
+ */
 export interface EmptySlots {
   readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Attributes accepted by the Empty Root slot.
+ */
 export type EmptyRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-variant"?: EmptyVariant;
     readonly "data-compact"?: boolean;
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Empty.
+ */
 export interface EmptySlotProps {
   readonly root?: MiaixzSlotProps<EmptyOwnerState, EmptyRootAttributes>;
   readonly content?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -47,6 +65,9 @@ export interface EmptySlotProps {
   readonly description?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly actions?: MiaixzSlotProps<EmptyOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Component-specific Empty properties composed with the permitted native attributes.
+ */
 export interface MiaixzEmptyOwnProps {
   readonly variant?: EmptyVariant;
   readonly title: ReactNode;
@@ -58,5 +79,8 @@ export interface MiaixzEmptyOwnProps {
   readonly slots?: EmptySlots;
   readonly slotProps?: EmptySlotProps;
 }
+/**
+ * Properties accepted by the Empty renderer.
+ */
 export type EmptyProps = MiaixzEmptyOwnProps &
   Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzEmptyOwnProps | "children">;

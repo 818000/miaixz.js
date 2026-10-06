@@ -19,85 +19,112 @@
 */
 
 /**
- * Produces local release evidence from the final source graph and package output.
+ * Records actual fixed check results; never treats file existence as a pass.
  */
+import { spawn } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { sourceSha256 } from "../fonts/validate-icon-font.mjs";
+import { packageRoot, repositoryRoot } from "../source.mjs";
 
-import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
-import { relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-import { readRepositoryVersion } from "../../../miaixz.mjs";
-import {
-  EXPECTED_MASTER_DIRECTORIES,
-  assetsRoot,
-  fontsRoot,
-  loadIconSource,
-  packageRoot,
-  repositoryRoot,
-} from "../source.mjs";
-
-const scriptPath = fileURLToPath(import.meta.url);
+const scriptsRoot = ".github/scripts/modules/icons/";
+const fixedChecks = [
+  ["source", ["node", scriptsRoot + "quality/validate-icon-package.mjs", "--scope", "source"]],
+  ["assignment", ["node", scriptsRoot + "quality/assign-icon-codepoints.mjs", "--check"]],
+  ["font-source", ["node", scriptsRoot + "fonts/validate-icon-font.mjs", "--mode", "source"]],
+  ["geometry", ["node", scriptsRoot + "fonts/validate-icon-font.mjs", "--mode", "validate"]],
+  [
+    "font-inspect",
+    [
+      "node",
+      scriptsRoot + "fonts/validate-icon-font.mjs",
+      "--mode",
+      "inspect",
+      "--input",
+      "packages/icons/dist/assets/fonts",
+    ],
+  ],
+  ["generated", ["node", scriptsRoot + "codegen/generate-icons.mjs", "--check"]],
+  ["package-all", ["node", scriptsRoot + "quality/validate-icon-package.mjs", "--scope", "all"]],
+  ["package-contracts", ["npm", "run", "check:package"]],
+  ["script-names", ["npm", "run", "scripts:names:check"]],
+  ["dependencies", ["npm", "run", "icons:dependencies:check"]],
+  ...["test:coverage", "typecheck", "lint", "format:check", "test:browser"].map((name) => [
+    "icons-" + name,
+    ["npm", "run", name, "--workspace", "@miaixz/icons"],
+  ]),
+  ["ui-typecheck", ["npm", "run", "typecheck", "--workspace", "@miaixz/ui"]],
+  ["examples-typecheck", ["npm", "--prefix", "examples", "run", "typecheck"]],
+  ["visual", ["npm", "run", "icons:visual:check"]],
+];
 
 /**
- * Describes one release file by path, size, and digest.
- *
- * @param {string} path Absolute file path.
- * @returns {Promise<Readonly<{path: string, bytes: number, sha256: string}>>} File description.
+ * Runs one exact argument vector without a shell.
+ * @param {string[]} command Fixed command.
+ * @returns {Promise<number>} Actual exit code (127 for missing executable).
  */
-async function describe(path) {
-  const bytes = await readFile(path);
-  return Object.freeze({
-    path: relative(repositoryRoot, path),
-    bytes: bytes.byteLength,
-    sha256: createHash("sha256").update(bytes).digest("hex"),
+function execute(command) {
+  return new Promise((resolvePromise) => {
+    const child = spawn(command[0], command.slice(1), {
+      cwd: repositoryRoot,
+      shell: false,
+      stdio: "inherit",
+    });
+    child.once("error", () => resolvePromise(127));
+    child.once("close", (code) => resolvePromise(code ?? 1));
   });
 }
 
 /**
- * Hashes the ordered GLIF set of one UFO master.
- *
- * @param {string} directory UFO master directory.
- * @returns {Promise<Readonly<{directory: string, glyphs: number, sha256: string}>>} Master digest.
+ * Always writes evidence, marking remaining checks not_run after the first failure.
+ * @returns {Promise<any>} Automated-checks report; does not replace human signoff.
  */
-async function hashMaster(directory) {
-  const glyphRoot = resolve(fontsRoot, directory, "glyphs");
-  const files = (await readdir(glyphRoot)).filter((name) => name.endsWith(".glif")).sort();
-  const hash = createHash("sha256");
-  for (const name of files) hash.update(await readFile(resolve(glyphRoot, name)));
-  return Object.freeze({ directory, glyphs: files.length, sha256: hash.digest("hex") });
+export async function generateReleaseEvidence() {
+  let initial = null,
+    final = null,
+    error = null,
+    failed = false;
+  try {
+    initial = await sourceSha256();
+  } catch (cause) {
+    failed = true;
+    error = String(cause);
+  }
+  const checks = [];
+  for (const [name, command] of fixedChecks) {
+    const exitCode = failed ? null : await execute(command);
+    const status = exitCode === null ? "not_run" : exitCode === 0 ? "passed" : "failed";
+    checks.push({ name, command, exitCode, status, sourceSha256: initial });
+    if (status === "failed") failed = true;
+  }
+  try {
+    final = await sourceSha256();
+  } catch (cause) {
+    failed = true;
+    error = String(cause);
+  }
+  if (initial !== final) failed = true;
+  const report = {
+    scope: "automated-checks",
+    status: failed ? "failed" : "passed",
+    sourceSha256: initial,
+    finalSourceSha256: final,
+    checks,
+    error,
+  };
+  const output = resolve(packageRoot, ".artifacts/release-evidence.json");
+  await mkdir(resolve(output, ".."), { recursive: true });
+  await writeFile(output, JSON.stringify(report, null, 2) + "\n");
+  return report;
 }
-
-const release = readRepositoryVersion(repositoryRoot);
-const source = await loadIconSource({ validateUfo: true });
-const fontPath = resolve(packageRoot, "dist/assets/fonts/miaixz-icons.woff2");
-const font = await describe(fontPath);
-if ((await stat(fontPath)).size > source.design.limits.fontBytes) {
-  throw new Error("The icon font exceeds design.json limits.fontBytes.");
+if (
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+  if (process.argv.length !== 2)
+    throw new Error("generate-release-evidence.mjs accepts no arguments.");
+  const report = await generateReleaseEvidence();
+  process.stdout.write("Icon automated checks: " + report.status + ".\n");
+  if (report.status !== "passed") process.exitCode = 1;
 }
-const sourceFiles = [
-  resolve(assetsRoot, "icons.json"),
-  resolve(assetsRoot, "design.json"),
-  resolve(assetsRoot, "source.schema.json"),
-  ...source.shardPaths.map((path) => resolve(assetsRoot, path)),
-  resolve(fontsRoot, "miaixz-icons.designspace"),
-];
-const report = Object.freeze({
-  release,
-  status: "passed",
-  generatedBy: relative(repositoryRoot, scriptPath),
-  totals: Object.freeze({
-    icons: source.icons.length,
-    categories: source.categories.length,
-    shards: source.shardPaths.length,
-    masters: EXPECTED_MASTER_DIRECTORIES.length,
-    sourceGlyphFiles: source.icons.length * EXPECTED_MASTER_DIRECTORIES.length,
-  }),
-  font,
-  sourceFiles: await Promise.all(sourceFiles.map(describe)),
-  masters: await Promise.all(EXPECTED_MASTER_DIRECTORIES.map(hashMaster)),
-});
-const outputPath = resolve(packageRoot, ".artifacts/release-evidence.json");
-await mkdir(resolve(packageRoot, ".artifacts"), { recursive: true });
-await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`);
-process.stdout.write(`Icon release evidence passed for ${report.totals.icons} icons.\n`);

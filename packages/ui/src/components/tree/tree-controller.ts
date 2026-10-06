@@ -19,12 +19,15 @@
 */
 
 /**
- * Implements tree controller support for the tree component.
+ * Builds tree hierarchy indices and derives visible nodes, selection, and expansion.
  */
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import type { TreeNode } from "./tree.types.js";
 
+/**
+ * Tree node together with its parent and ARIA hierarchy position metadata.
+ */
 export interface TreeRecord<Value> {
   readonly node: Readonly<TreeNode<Value>>;
   readonly parentId: string | null;
@@ -33,6 +36,9 @@ export interface TreeRecord<Value> {
   readonly setSize: number;
 }
 
+/**
+ * Tree roots and validated node records keyed by stable node identifier.
+ */
 export interface TreeIndex<Value> {
   readonly byId: ReadonlyMap<string, TreeRecord<Value>>;
   readonly roots: readonly TreeNode<Value>[];
@@ -83,6 +89,14 @@ export function buildTreeIndex<Value>(
   childCache: ReadonlyMap<string, readonly TreeNode<Value>[]>,
 ): TreeIndex<Value> {
   const byId = new Map<string, TreeRecord<Value>>();
+  /**
+   * Indexes sibling nodes recursively while validating identifiers and search text.
+   *
+   * @param siblings - Nodes sharing the same parent.
+   * @param parentId - Parent node identifier, or null for tree roots.
+   * @param level - One-based ARIA hierarchy level.
+   * @returns No return value; inserts hierarchy records into the shared index.
+   */
   const visit = (siblings: readonly TreeNode<Value>[], parentId: string | null, level: number) => {
     siblings.forEach((node, index) => {
       if (node.textValue.trim().length === 0) {
@@ -128,6 +142,12 @@ export function getVisibleTreeRecords<Value>(
   expandedIds: ReadonlySet<string>,
 ): readonly TreeRecord<Value>[] {
   const visible: TreeRecord<Value>[] = [];
+  /**
+   * Flattens indexed nodes whose ancestors are expanded into visible render order.
+   *
+   * @param nodes - Sibling nodes to append in source order.
+   * @returns No return value; appends existing records to the visible-node list.
+   */
   const append = (nodes: readonly TreeNode<Value>[]) => {
     for (const node of nodes) {
       const record = index.byId.get(node.id);

@@ -8,6 +8,9 @@ import type { ReactNode } from "react";
 
 import styles from "./guide-shell.module.css";
 
+/**
+ * Content and configuration supplied to the Guide Shell example renderer.
+ */
 interface GuideShellProps {
   readonly children: ReactNode;
 }

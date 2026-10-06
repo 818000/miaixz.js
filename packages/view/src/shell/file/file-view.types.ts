@@ -81,12 +81,40 @@ export interface FileViewSlotProps {
  * Exposes stable viewer commands without leaking parser implementation details.
  */
 export interface FileViewHandle {
+  /**
+   * Reads the currently mounted viewer root without exposing parser-owned elements.
+   * @returns Root element, or null before mount or after unmount.
+   */
   getElement(): HTMLDivElement | null;
+  /**
+   * Reads the document controller's current lifecycle snapshot.
+   * @returns Current controller state.
+   */
   getState(): ViewerControllerState;
+  /**
+   * Increases viewer zoom within the renderer's supported limits.
+   * @returns No return value.
+   */
   zoomIn(): void;
+  /**
+   * Decreases viewer zoom within the renderer's supported limits.
+   * @returns No return value.
+   */
   zoomOut(): void;
+  /**
+   * Restores the viewer's default zoom level.
+   * @returns No return value.
+   */
   resetZoom(): void;
+  /**
+   * Starts a new attempt to open the currently configured source.
+   * @returns No return value.
+   */
   retry(): void;
+  /**
+   * Stops the active document session and releases its resources.
+   * @returns No return value.
+   */
   dispose(): void;
 }
 

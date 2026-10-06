@@ -383,10 +383,16 @@ void [
   miaixzDarkThemeColors,
 ];
 
+/**
+ * Compile-time assertion that removed relation-map names are absent from the public API.
+ */
 type RemovedRelationMapTypes = RelationMapProps | MiaixzRelationNode | MiaixzRelationEdge;
 declare const removedRelationMapTypes: RemovedRelationMapTypes;
 void removedRelationMapTypes;
 
+/**
+ * Compile-time assertion that removed compatibility names are absent from the public API.
+ */
 type RemovedCompatibilityTypes =
   | ConfirmDialogProps
   | InlineMessageProps

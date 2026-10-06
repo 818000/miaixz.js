@@ -1,5 +1,5 @@
 /**
- * Implements the appearance test module.
+ * Verifies appearance normalization, persistence, migration, and change events.
  */
 
 import assert from "node:assert/strict";

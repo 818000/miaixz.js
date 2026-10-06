@@ -22,15 +22,8 @@
  * Exports the complete public @miaixz/icons API.
  */
 
-export { ICON_CATALOG, ICON_NAMES } from "./autogen/icons.js";
-export type {
-  IconCatalogEntry,
-  IconCategory,
-  IconDirection,
-  IconName,
-  IconTier,
-  OpticalClass,
-} from "./autogen/icons.js";
+export type { IconName } from "./values/icons.js";
+export type { IconSize } from "./values/design.js";
 export { Icon } from "./react/index.js";
-export type { IconMotion, IconProps, IconSize } from "./react/index.js";
+export type { IconMotion, IconProps } from "./react/index.js";
 export { isIconName, parseIconName, preloadIconFont } from "./runtime/index.js";

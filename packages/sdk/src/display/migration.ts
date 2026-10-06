@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the migration module.
+ * Migrates persisted appearance settings to the validated current schema.
  */
 
 import type { MiaixzStorageMigration } from "../runtime/storage/storage.js";

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports configuration, events, storage, and host-integration runtime APIs.
  */
 
 export type {

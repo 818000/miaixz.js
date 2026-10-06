@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the protocol test module.
+ * Verifies bridge envelope validation, origin restrictions, and remote-error contracts.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";

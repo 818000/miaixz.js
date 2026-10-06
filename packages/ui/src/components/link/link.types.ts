@@ -27,15 +27,30 @@ import type { AnchorHTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { AnchorRenderer, AnchorRenderProps } from "../../shared/anchor.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Link semantic color tones permitted by the component contract.
+ */
 export type LinkTone = "brand" | "inherit";
+/**
+ * Link underline treatments permitted by the component contract.
+ */
 export type LinkUnderline = "hover" | "always";
+/**
+ * Named Link parts available for slot and style customization.
+ */
 export type LinkSlot = "root";
 
+/**
+ * Resolved Link state exposed to theme and slot overrides.
+ */
 export interface LinkOwnerState {
   readonly tone: LinkTone;
   readonly underline: LinkUnderline;
 }
 
+/**
+ * Attributes accepted by the Link Root slot.
+ */
 export interface LinkRootAttributes
   extends AnchorHTMLAttributes<HTMLAnchorElement>, RefAttributes<HTMLAnchorElement> {
   readonly "data-tone"?: LinkTone;
@@ -43,10 +58,16 @@ export interface LinkRootAttributes
   readonly "data-ui"?: "link";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Link.
+ */
 export interface LinkSlotProps {
   readonly root?: MiaixzSlotProps<LinkOwnerState, LinkRootAttributes>;
 }
 
+/**
+ * Properties accepted by the Link Render renderer.
+ */
 export type LinkRenderProps = AnchorRenderProps;
 
 /**

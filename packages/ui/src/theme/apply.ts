@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the apply UI module.
+ * Applies validated theme tokens, attributes, and styles to owned DOM scopes.
  */
 
 import { MiaixzThemeError } from "./error.js";

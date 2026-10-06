@@ -32,27 +32,45 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Dropzone file rejection reasons permitted by the component contract.
+ */
 export type DropzoneRejectionReason = "type" | "size" | "count" | "duplicate";
 
+/**
+ * Rejected file paired with the reason the dropzone did not accept it.
+ */
 export interface DropzoneRejection {
   readonly file: File;
   readonly reason: DropzoneRejectionReason;
 }
 
+/**
+ * Named Dropzone parts available for slot and style customization.
+ */
 export type DropzoneSlot = "root" | "input" | "trigger" | "content" | "error";
 
+/**
+ * Resolved Dropzone state exposed to theme and slot overrides.
+ */
 export interface DropzoneOwnerState {
   readonly disabled: boolean;
   readonly dragActive: boolean;
   readonly hasError: boolean;
 }
 
+/**
+ * Attributes accepted by the Dropzone Root slot.
+ */
 export interface DropzoneRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-disabled"?: boolean;
   readonly "data-state"?: "active" | "idle";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Dropzone.
+ */
 export interface DropzoneSlotProps {
   readonly root?: MiaixzSlotProps<DropzoneOwnerState, DropzoneRootAttributes>;
   readonly input?: MiaixzSlotProps<
@@ -64,6 +82,9 @@ export interface DropzoneSlotProps {
   readonly error?: MiaixzSlotProps<DropzoneOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
 
+/**
+ * Exclusive single-file or multiple-file acceptance configuration.
+ */
 export type DropzoneMultiplicity =
   | {
       readonly multiple?: false;
@@ -74,6 +95,9 @@ export type DropzoneMultiplicity =
       readonly maxFiles?: number;
     };
 
+/**
+ * Component-specific Dropzone properties composed with the permitted native attributes.
+ */
 export interface MiaixzDropzoneOwnProps {
   readonly accept?: string;
   readonly maxSizeBytes?: number;

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the catalog UI module.
+ * Exposes generated theme preset descriptors and their lazy loading boundary.
  */
 
 import { MiaixzThemeError } from "./error.js";

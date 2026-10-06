@@ -143,12 +143,24 @@ export const Toolbar = withMiaixzThemeComponent(
         if (element.tabIndex !== tabIndex) element.tabIndex = tabIndex;
       }
     }, [behavior, elements, roving]);
+    /**
+     * Forwards focus events and updates the toolbar roving target unless the event was prevented.
+     *
+     * @param event - Toolbar focus event and its focused target.
+     * @returns No return value.
+     */
     const handleFocus = (event: FocusEvent<HTMLDivElement>) => {
       onFocus?.(event);
       if (event.defaultPrevented || behavior !== "toolbar") return;
       const target = event.target as HTMLElement;
       if (elements.includes(target)) roving.setActiveElement(target);
     };
+    /**
+     * Forwards keyboard events and delegates unprevented toolbar navigation to the roving controller.
+     *
+     * @param event - Keyboard event whose key and prevented state control navigation.
+     * @returns No return value.
+     */
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
       onKeyDown?.(event);
       if (!event.defaultPrevented && behavior === "toolbar") roving.onKeyDown(event);

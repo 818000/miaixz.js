@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements button group support for the button component.
+ * Renders a labeled group of buttons with shared presentation defaults.
  */
 
 import { forwardRef } from "react";

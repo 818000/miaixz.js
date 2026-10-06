@@ -25,8 +25,17 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Tabs layout orientations permitted by the component contract.
+ */
 export type TabsOrientation = "horizontal" | "vertical";
+/**
+ * Tabs keyboard tab-activation modes permitted by the component contract.
+ */
 export type TabsActivationMode = "manual" | "automatic";
+/**
+ * Tab identifier, visible heading, and associated panel content.
+ */
 export interface TabsEntry {
   readonly value: string;
   readonly label: ReactNode;
@@ -35,6 +44,9 @@ export interface TabsEntry {
   readonly disabled?: boolean;
   readonly panelTabIndex?: 0 | -1;
 }
+/**
+ * Mutually exclusive controlled or uncontrolled active-tab settings.
+ */
 export type TabsValueState =
   | {
       readonly value: string;
@@ -46,7 +58,13 @@ export type TabsValueState =
       readonly defaultValue?: string;
       readonly onValueChange?: (value: string) => void;
     };
+/**
+ * Named Tabs parts available for slot and style customization.
+ */
 export type TabsSlot = "root" | "header" | "list" | "actions" | "tab" | "label" | "count" | "panel";
+/**
+ * Resolved Tabs state exposed to theme and slot overrides.
+ */
 export interface TabsOwnerState {
   readonly orientation: TabsOrientation;
   readonly activationMode: TabsActivationMode;
@@ -54,16 +72,25 @@ export interface TabsOwnerState {
   readonly disabled: boolean;
   readonly value: string | undefined;
 }
+/**
+ * Attributes accepted by the Tabs Root slot.
+ */
 export type TabsRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-orientation"?: TabsOrientation;
     readonly "data-variant"?: "default" | "navigation" | "editor";
     readonly "data-panel-padding"?: "default" | "none";
   };
+/**
+ * Attributes accepted by the Tabs Header slot.
+ */
 export type TabsHeaderAttributes = HTMLAttributes<HTMLDivElement> & {
   readonly "data-actions-placement"?: "end" | "adjacent";
   readonly "data-inset"?: boolean;
 };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Tabs.
+ */
 export interface TabsSlotProps {
   readonly root?: MiaixzSlotProps<TabsOwnerState, TabsRootAttributes>;
   readonly header?: MiaixzSlotProps<TabsOwnerState, TabsHeaderAttributes>;
@@ -74,6 +101,9 @@ export interface TabsSlotProps {
   readonly count?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly panel?: MiaixzSlotProps<TabsOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Component-specific Tabs properties composed with the permitted native attributes.
+ */
 export interface MiaixzTabsOwnProps {
   readonly items: readonly TabsEntry[];
   readonly label: string;

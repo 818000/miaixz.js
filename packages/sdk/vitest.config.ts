@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the vitest config module.
+ * Configures SDK unit tests and the repository-approved coverage boundary.
  */
 
 import { defineConfig } from "vitest/config";

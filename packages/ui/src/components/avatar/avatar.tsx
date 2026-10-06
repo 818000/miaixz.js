@@ -24,7 +24,7 @@
 
 import { forwardRef, useState } from "react";
 
-import { ICON_NAMES, Icon } from "@miaixz/icons";
+import { Icon } from "@miaixz/icons";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { AvatarOwnerState, AvatarProps, AvatarRootAttributes } from "./avatar.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -67,9 +67,7 @@ function createAltFallback(alt: string): string {
  * @returns Decorative user silhouette from the configured icon provider.
  */
 function createGenericAvatarFallback() {
-  return (
-    <Icon className="miaixz-avatar-generic-icon" name={ICON_NAMES.USER_ROUND} size="control" />
-  );
+  return <Icon className="miaixz-avatar-generic-icon" name={"user-round"} size="control" />;
 }
 
 /**

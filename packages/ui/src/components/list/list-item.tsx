@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements list item support for the list component.
+ * Composes list-item content, graphics, metadata, and its selected interaction mode.
  */
 
 import { forwardRef } from "react";
@@ -32,6 +32,9 @@ import { ListItemControl } from "./list-item-control.js";
 import type { ListItemOwnerState, ListItemProps, ListItemRootAttributes } from "./list.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * Attributes accepted by the Internal List Item Root slot.
+ */
 type InternalListItemRootAttributes = ListItemRootAttributes &
   Pick<HTMLAttributes<HTMLLIElement>, "id"> & {
     readonly "data-tone"?: string;

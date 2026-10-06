@@ -25,23 +25,44 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Sidebar size tokens permitted by the component contract.
+ */
 export type SidebarSize = "default" | "wide";
+/**
+ * Named Sidebar parts available for slot and style customization.
+ */
 export type SidebarSlot = "root" | "sidebar" | "content" | "footer";
+/**
+ * Resolved Sidebar state exposed to theme and slot overrides.
+ */
 export interface SidebarOwnerState {
   readonly size: SidebarSize;
   readonly stickySidebar: boolean;
 }
+/**
+ * Attributes accepted by the Sidebar Root slot.
+ */
 export type SidebarRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & { readonly "data-size"?: SidebarSize };
+/**
+ * Attributes accepted by the Sidebar Aside slot.
+ */
 export type SidebarAsideAttributes = HTMLAttributes<HTMLElement> & {
   readonly "data-sticky"?: boolean;
 };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Sidebar.
+ */
 export interface SidebarSlotProps {
   readonly root?: MiaixzSlotProps<SidebarOwnerState, SidebarRootAttributes>;
   readonly sidebar?: MiaixzSlotProps<SidebarOwnerState, SidebarAsideAttributes>;
   readonly content?: MiaixzSlotProps<SidebarOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly footer?: MiaixzSlotProps<SidebarOwnerState, HTMLAttributes<HTMLElement>>;
 }
+/**
+ * Component-specific Sidebar properties composed with the permitted native attributes.
+ */
 export interface MiaixzSidebarOwnProps {
   readonly sidebar: ReactNode;
   readonly sidebarLabel?: string;

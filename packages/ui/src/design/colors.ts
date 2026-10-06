@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the colors UI module.
+ * Defines shared semantic color contracts used by component presentation.
  */
 
 import {

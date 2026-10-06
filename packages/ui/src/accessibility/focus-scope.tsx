@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the focus scope UI module.
+ * Coordinates focus containment, restoration, and autofocus inside an owned scope.
  */
 
 import { Fragment, useEffect, type ReactElement, type ReactNode, type RefObject } from "react";

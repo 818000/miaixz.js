@@ -31,6 +31,9 @@ import { Icon } from "@miaixz/icons";
 import type { SegmentedItem, SegmentedOwnerState, SegmentedProps } from "./segmented.types.js";
 import type { ReactElement, RefAttributes } from "react";
 
+/**
+ * Generic callable component preserving the segmented value type through its forwarded ref.
+ */
 type SegmentedComponent = <Value extends string>(
   props: SegmentedProps<Value> & RefAttributes<HTMLDivElement>,
 ) => ReactElement | null;
@@ -70,11 +73,24 @@ const SegmentedImplementation = forwardRef(function Segmented<Value extends stri
   const refs = useRef(new Map<Value, HTMLButtonElement>());
   const ownerState: SegmentedOwnerState = { orientation, disabled };
 
+  /**
+   * Selects an enabled segment and reports a change only when its value differs.
+   *
+   * @param item - Segment candidate including its value and disabled state.
+   * @returns No return value.
+   */
   const select = (item: SegmentedItem<Value>) => {
     if (disabled || item.disabled === true) return;
     if (value === undefined) setUncontrolledValue(item.value);
     if (item.value !== selectedValue) onValueChange?.(item.value);
   };
+  /**
+   * Wraps focus through enabled segments and selects the resulting segment.
+   *
+   * @param current - Segment value from which keyboard movement starts.
+   * @param direction - Signed movement through enabled segment choices.
+   * @returns No return value.
+   */
   const move = (current: Value, direction: number) => {
     const index = enabledItems.findIndex((item) => item.value === current);
     const next = enabledItems[(index + direction + enabledItems.length) % enabledItems.length]!;

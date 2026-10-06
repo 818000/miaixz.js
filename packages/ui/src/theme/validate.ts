@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the validate UI module.
+ * Validates theme identifiers, tokens, modes, and component override shapes.
  */
 
 import { miaixzThemeColorTokens, type MiaixzThemeColorToken } from "../design/colors.js";

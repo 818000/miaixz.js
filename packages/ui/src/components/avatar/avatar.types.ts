@@ -27,8 +27,17 @@ import type { HTMLAttributes, ImgHTMLAttributes, ReactNode, RefAttributes } from
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
 
+/**
+ * Named Avatar parts available for slot and style customization.
+ */
 export type AvatarSlot = "root" | "image" | "fallback" | "indicator";
+/**
+ * Avatar visual variants permitted by the component contract.
+ */
 export type AvatarVariant = "circular" | "rounded" | "square";
+/**
+ * Resolved Avatar state exposed to theme and slot overrides.
+ */
 export interface AvatarOwnerState {
   readonly size: MiaixzComponentSize;
   readonly state: "image" | "fallback";
@@ -36,12 +45,18 @@ export interface AvatarOwnerState {
   readonly hasIndicator: boolean;
   readonly variant: AvatarVariant;
 }
+/**
+ * Attributes accepted by the Avatar Root slot.
+ */
 export type AvatarRootAttributes = HTMLAttributes<HTMLSpanElement> &
   RefAttributes<HTMLSpanElement> & {
     readonly "data-size"?: MiaixzComponentSize;
     readonly "data-state"?: "image" | "fallback";
     readonly "data-variant"?: AvatarVariant;
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Avatar.
+ */
 export interface AvatarSlotProps {
   readonly root?: MiaixzSlotProps<AvatarOwnerState, AvatarRootAttributes>;
   readonly image?: MiaixzSlotProps<AvatarOwnerState, ImgHTMLAttributes<HTMLImageElement>>;
@@ -128,21 +143,36 @@ export interface AvatarProps
     >,
     MiaixzAvatarOwnProps {}
 
+/**
+ * Avatar Group spacing tokens permitted by the component contract.
+ */
 export type AvatarGroupSpacing = "medium" | "small" | number;
+/**
+ * Named Avatar Group parts available for slot and style customization.
+ */
 export type AvatarGroupSlot = "root" | "surplus";
 
+/**
+ * Resolved Avatar Group state exposed to theme and slot overrides.
+ */
 export interface AvatarGroupOwnerState {
   readonly spacing: AvatarGroupSpacing;
   readonly surplus: number;
   readonly variant: AvatarVariant;
 }
 
+/**
+ * Attributes accepted by the Avatar Group Root slot.
+ */
 export type AvatarGroupRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-spacing"?: "medium" | "small" | "custom";
     readonly "data-variant"?: AvatarVariant;
   };
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Avatar Group.
+ */
 export interface AvatarGroupSlotProps {
   readonly root?: MiaixzSlotProps<AvatarGroupOwnerState, AvatarGroupRootAttributes>;
   readonly surplus?: MiaixzSlotProps<AvatarGroupOwnerState, HTMLAttributes<HTMLSpanElement>>;

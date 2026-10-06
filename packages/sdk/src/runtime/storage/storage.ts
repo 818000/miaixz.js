@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the storage module.
+ * Provides memory and browser storage adapters for serialized SDK state.
  */
 
 import { MiaixzSdkError } from "../../errors/errors.js";

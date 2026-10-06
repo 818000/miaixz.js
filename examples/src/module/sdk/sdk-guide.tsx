@@ -11,6 +11,9 @@ import { useEffect, useState } from "react";
 import { CodeBlock, GuideHeader, GuideSection, Stat } from "../../shared/guide/guide-parts";
 import styles from "./sdk-guide.module.css";
 
+/**
+ * Payload returned by the SDK guide's deterministic local Fetch adapter.
+ */
 interface DemoResponse {
   readonly id: string;
   readonly path: string;
@@ -25,6 +28,13 @@ const initialContext: MiaixzRuntimeContext = {
   timezone: "Asia/Shanghai",
 };
 
+/**
+ * Returns deterministic local success or failure envelopes without contacting a backend.
+ *
+ * @param input - Requested URL or Request input.
+ * @param init - Request options whose context headers are displayed by the guide.
+ * @returns Promise resolving to a local JSON Response.
+ */
 const mockFetch: typeof fetch = async (input, init) => {
   const path = new URL(String(input)).pathname;
   if (path === "/fail") {
@@ -44,6 +54,11 @@ const mockFetch: typeof fetch = async (input, init) => {
   });
 };
 
+/**
+ * Creates an isolated guide SDK using memory storage and the local Fetch adapter.
+ *
+ * @returns Cookie-mode SDK instance configured for the guide.
+ */
 function createGuideSdk() {
   return createMiaixzSdk({
     appId: "sdk-example",
@@ -66,6 +81,9 @@ function createGuideSdk() {
   });
 }
 
+/**
+ * SDK instance type inferred from the guide's cookie-mode factory.
+ */
 type GuideSdk = ReturnType<typeof createGuideSdk>;
 
 /**
@@ -98,6 +116,11 @@ export function SdkGuide() {
     };
   }, []);
 
+  /**
+   * Switches the example workspace and starts a new trace identifier.
+   *
+   * @returns No return value; does nothing before the SDK is ready.
+   */
   const patchContext = () => {
     if (!sdk) return;
     sdk.context.patch({
@@ -106,6 +129,12 @@ export function SdkGuide() {
     });
   };
 
+  /**
+   * Executes a local demo request and records its normalized result or error.
+   *
+   * @param path - Demo endpoint selecting a success or failure response.
+   * @returns Promise resolving after the displayed response and request log are updated.
+   */
   const runRequest = async (path: "/projects" | "/fail") => {
     if (!sdk) return;
     try {
@@ -119,6 +148,11 @@ export function SdkGuide() {
     }
   };
 
+  /**
+   * Switches the guide between Chinese and English and synchronizes context locale.
+   *
+   * @returns Promise resolving after locale loading and context updates.
+   */
   const switchLocale = async () => {
     if (!sdk) return;
     const nextLocale = sdk.i18n.getSnapshot().locale === "zh-CN" ? "en-US" : "zh-CN";
@@ -126,6 +160,11 @@ export function SdkGuide() {
     sdk.context.patch({ locale: nextLocale });
   };
 
+  /**
+   * Cycles light, dark, and system appearance modes and records the change.
+   *
+   * @returns No return value; does nothing before the SDK is ready.
+   */
   const switchColorMode = () => {
     if (!sdk) return;
     const current = sdk.appearance.getSnapshot().colorMode;

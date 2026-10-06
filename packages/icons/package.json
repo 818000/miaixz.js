@@ -41,26 +41,31 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./catalog": {
+      "types": "./dist/values/metadata.d.ts",
+      "import": "./dist/values/metadata.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2"
   },
   "scripts": {
-    "clean": "node ../../.github/scripts/modules/icons/hooks/prepare-build.mjs",
+    "clean": "node ../../.github/scripts/modules/icons/hooks/package-assets.mjs --mode clean",
     "generate": "node ../../.github/scripts/modules/icons/codegen/generate-icons.mjs --write",
     "generate:check": "node ../../.github/scripts/modules/icons/codegen/generate-icons.mjs --check",
     "source:check": "node ../../.github/scripts/modules/icons/quality/validate-icon-package.mjs --scope source",
     "font:build": "node ../../.github/scripts/modules/icons/fonts/build-icon-font.mjs --write",
-    "font:check": "node ../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs --mode source",
+    "font:check": "node ../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs --mode validate",
     "package:check": "node ../../.github/scripts/modules/icons/quality/validate-icon-package.mjs --scope package",
-    "build": "npm run clean && npm run source:check && npm run generate:check && npm run font:build && tsc -p tsconfig.build.json && node ../../.github/scripts/modules/icons/hooks/finalize-build.mjs && npm run package:check",
+    "build": "npm run clean && npm run source:check && npm run generate:check && npm run font:build && tsc -p tsconfig.build.json && node ../../.github/scripts/modules/icons/hooks/package-assets.mjs --mode finalize && npm run package:check",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src tests *.config.ts --config ../ui/eslint.config.js --no-error-on-unmatched-pattern && stylelint \"src/**/*.css\" --config ../ui/stylelint.config.js",
     "test": "vitest run",
     "test:browser": "playwright test",
     "test:coverage": "vitest run --coverage",
-    "format": "prettier src/autogen src/react src/runtime src/styles src/index.ts tests README.md package.json *.config.ts --write --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
-    "format:check": "prettier src/autogen src/react src/runtime src/styles src/index.ts tests README.md package.json *.config.ts --check --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
-    "check": "npm run source:check && npm run generate:check && npm run font:check && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
+    "format": "prettier src/values src/react src/runtime src/styles src/index.ts tests README.md package.json *.config.ts --write --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
+    "format:check": "prettier src/values src/react src/runtime src/styles src/index.ts tests README.md package.json *.config.ts --check --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
+    "check": "npm run source:check && npm run generate:check && npm run font:check && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check",
+    "geometry:measure": "node ../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs --mode measure"
   },
   "peerDependencies": {
     "react": ">=18.3 <20",

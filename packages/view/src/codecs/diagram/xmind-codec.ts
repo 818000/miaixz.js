@@ -29,6 +29,9 @@ import { ViewerError } from "../../shared/errors/viewer-error.js";
 import { ZipArchive } from "../archive/zip-codec.js";
 import { arrayField, objectField, stringField } from "../json/field-codec.js";
 
+/**
+ * XMind topic content and ordered children decoded from a workbook entry.
+ */
 interface TopicNode {
   readonly id?: unknown;
   readonly title?: unknown;

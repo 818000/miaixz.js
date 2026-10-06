@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements context support for the popover component.
+ * Shares popover trigger, surface, open state, and dismissal bindings.
  */
 
 import { createContext, useContext, type RefObject } from "react";

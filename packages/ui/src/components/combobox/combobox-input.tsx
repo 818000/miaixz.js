@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements combobox input support for the combobox component.
+ * Renders the combobox text input and its selection-clearing control.
  */
 
 import type { KeyboardEvent, ReactNode, RefObject } from "react";

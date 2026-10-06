@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the appearance module.
+ * Manages appearance snapshots, persistence, and appearance-change events.
  */
 
 import { MiaixzSdkError } from "../errors/errors.js";

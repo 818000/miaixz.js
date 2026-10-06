@@ -20,9 +20,7 @@
 
 /**
  * Provides safe document titles and deterministic model identifiers.
- */
-
-/**
+ *
  * Produces deterministic model identifiers from bounded source facts.
  *
  * @param name - Optional source name included in the stable hash.
@@ -31,6 +29,12 @@
  */
 export function stableDocumentId(name: string | undefined, bytes: Uint8Array): string {
   let hash = 0x811c9dc5;
+  /**
+   * Feeds one numeric unit into the rolling FNV-style document-identity hash.
+   *
+   * @param value - Numeric unit mixed into the current hash.
+   * @returns No return value; updates the hash accumulator.
+   */
   const update = (value: number): void => {
     hash ^= value;
     hash = Math.imul(hash, 0x01000193);

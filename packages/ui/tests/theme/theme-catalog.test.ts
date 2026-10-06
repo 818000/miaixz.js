@@ -33,6 +33,9 @@ import {
   themePresets,
 } from "../../src/theme/index.js";
 
+/**
+ * Generated preset descriptor fields verified by theme-catalog tests.
+ */
 interface PresetMetadata {
   readonly name: string;
   readonly label: string;

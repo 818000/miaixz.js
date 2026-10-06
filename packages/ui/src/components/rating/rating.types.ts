@@ -26,9 +26,18 @@ import type { HTMLAttributes, InputHTMLAttributes, RefAttributes } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Rating value step sizes permitted by the component contract.
+ */
 export type RatingPrecision = 1 | 0.5;
+/**
+ * Rating size tokens permitted by the component contract.
+ */
 export type RatingSize = "small" | "medium" | "large";
 
+/**
+ * Resolved Rating state exposed to theme and slot overrides.
+ */
 export interface RatingOwnerState {
   readonly max: number;
   readonly precision: RatingPrecision;
@@ -37,12 +46,18 @@ export interface RatingOwnerState {
   readonly readOnly: boolean;
 }
 
+/**
+ * Attributes accepted by the Rating Root slot.
+ */
 export interface RatingRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-ui"?: "rating";
   readonly "data-size"?: RatingSize;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Rating.
+ */
 export interface RatingSlotProps {
   readonly root?: MiaixzSlotProps<RatingOwnerState, RatingRootAttributes>;
   readonly item?: MiaixzSlotProps<RatingOwnerState, HTMLAttributes<HTMLLabelElement>>;
@@ -50,10 +65,16 @@ export interface RatingSlotProps {
   readonly icon?: MiaixzSlotProps<RatingOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
 
+/**
+ * Accessible naming alternatives required by the rating control.
+ */
 type RatingLabel =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
 
+/**
+ * Properties accepted by the Rating renderer.
+ */
 export type RatingProps = RatingLabel & {
   readonly value?: number | null;
   readonly defaultValue?: number | null;

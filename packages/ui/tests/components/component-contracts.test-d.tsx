@@ -642,6 +642,9 @@ const tabsWithChildren: ViewProps = {
 };
 void [validViews, tabsWithChildren];
 
+/**
+ * Row shape shared by the compile-time datagrid component fixtures.
+ */
 type FixtureRow = { readonly id: string };
 const datagridBase = {
   caption: "数据",

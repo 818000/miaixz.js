@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements metric support for the metrics component.
+ * Renders a metric as static content, a navigation link, or a command button.
  */
 
 import {

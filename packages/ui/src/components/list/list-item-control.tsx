@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements list item control support for the list component.
+ * Renders static, navigation, or command controls without nesting conflicting interactions.
  */
 
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";

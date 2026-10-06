@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the post message bridge test module.
+ * Verifies host/child handshake, request correlation, subscriptions, and disconnection.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -45,6 +45,9 @@ const manifest = {
   requiredCapabilities: ["context", "events", "i18n", "navigation", "permissions"],
 } as const;
 
+/**
+ * Window-like test transport that delivers bridge messages to its connected peer.
+ */
 class LoopbackWindow {
   readonly listeners = new Set<(event: MessageEvent) => void>();
   readonly posted: MiaixzBridgeEnvelope[] = [];

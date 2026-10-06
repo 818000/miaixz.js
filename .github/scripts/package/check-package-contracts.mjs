@@ -29,9 +29,11 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import { loadWorkspaceRepository, readRepositoryVersion, repositoryRoot } from "../miaixz.mjs";
+import { loadIconSource } from "../modules/icons/source.mjs";
 
 const root = repositoryRoot;
 const release = readRepositoryVersion(root);
+const iconSource = await loadIconSource();
 const temporaryDirectory = mkdtempSync(join(tmpdir(), "miaixz-packed-"));
 const requestedOutputDirectory = process.env.MIAIXZ_PACKAGE_OUTPUT?.trim();
 const packageOutputDirectory = requestedOutputDirectory
@@ -180,11 +182,23 @@ function validateManifest({ directory, manifest, name, rootPath }) {
   }
   if (name === "@miaixz/icons") {
     const fontBytes = statSync(join(rootPath, "dist/assets/fonts/miaixz-icons.woff2")).size;
-    const mappingBytes = gzipSync(readFileSync(join(rootPath, "dist/autogen/icons.js"))).byteLength;
+    const mappingBytes = statSync(join(rootPath, "dist/values/icons.js")).size;
     const cssBytes = gzipSync(readFileSync(join(rootPath, "dist/styles.css"))).byteLength;
-    if (fontBytes > 512 * 1024 || mappingBytes > 128 * 1024 || cssBytes > 12 * 1024) {
+    if (
+      fontBytes > iconSource.design.limits.fontBytes ||
+      mappingBytes > iconSource.design.limits.runtimeBytes ||
+      cssBytes > 12 * 1024
+    ) {
       throw new Error(`${directory} exceeds the frozen font, mapping, or CSS size budget`);
     }
+    const expectedExports = {
+      ".": { types: "./dist/index.d.ts", import: "./dist/index.js" },
+      "./catalog": { types: "./dist/values/metadata.d.ts", import: "./dist/values/metadata.js" },
+      "./styles.css": "./dist/styles.css",
+      "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2",
+    };
+    if (JSON.stringify(manifest.exports) !== JSON.stringify(expectedExports))
+      throw new Error(`${directory} icon exports differ from the public contract`);
   }
 }
 
@@ -226,6 +240,31 @@ function pack({ directory, name }) {
     }
   }
   if (name === "@miaixz/icons") {
+    const permittedDist = new Set([
+      "dist/styles.css",
+      "dist/assets/fonts/" + iconSource.design.font.outputFile,
+      ...[
+        "index",
+        "runtime/index",
+        "runtime/font",
+        "react/index",
+        "values/icons",
+        "values/metadata",
+        "values/design",
+      ].flatMap((entry) =>
+        [".js", ".js.map", ".d.ts", ".d.ts.map"].map((suffix) => "dist/" + entry + suffix),
+      ),
+    ]);
+    for (const path of packedFiles) {
+      if (path.startsWith("dist/") && !permittedDist.has(path))
+        throw new Error(directory + " tarball contains unsupported output " + path);
+    }
+    for (const entry of ["values/icons", "values/metadata", "values/design"]) {
+      for (const suffix of [".js", ".d.ts"]) {
+        if (!packedFiles.includes("dist/" + entry + suffix))
+          throw new Error(directory + " tarball is missing " + entry + suffix);
+      }
+    }
     const fontFiles = packedFiles.filter((path) => /\.(?:ttf|otf|woff2?)$/u.test(path));
     const expectedFonts = ["dist/assets/fonts/miaixz-icons.woff2"];
     if (JSON.stringify(fontFiles.sort()) !== JSON.stringify(expectedFonts)) {

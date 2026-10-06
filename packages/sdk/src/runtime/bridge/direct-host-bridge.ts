@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the direct host bridge module.
+ * Validates capability-limited direct calls between a host and an integrated module.
  */
 
 import { MiaixzSdkError } from "../../errors/errors.js";
@@ -292,6 +292,11 @@ class MiaixzDirectHostBridge implements MiaixzHostBridge {
       }
 
       let cancelled = false;
+      /**
+       * Releases this bridge subscription once and awaits its provider cleanup.
+       *
+       * @returns Promise resolving after the subscription cleanup completes.
+       */
       const cancel = async (): Promise<void> => {
         if (cancelled) return;
         cancelled = true;

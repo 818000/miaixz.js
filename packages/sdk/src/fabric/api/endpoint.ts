@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the endpoint module.
+ * Validates API base URLs against environment-specific transport restrictions.
  */
 
 import type { MiaixzEnvironment } from "../../runtime/config/config.types.js";

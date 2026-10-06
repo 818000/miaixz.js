@@ -83,6 +83,12 @@ export const Radio = withMiaixzThemeComponent(
       const input = inputRef.current;
       if (checked !== undefined || input === null) return undefined;
       const root = input.form ?? input.ownerDocument;
+      /**
+       * Resynchronizes checked state after another native radio in the same named group changes.
+       *
+       * @param event - Native radio change event identifying the affected named group.
+       * @returns No return value.
+       */
       const synchronizeGroup = (event: Event) => {
         const target = event.target;
         if (

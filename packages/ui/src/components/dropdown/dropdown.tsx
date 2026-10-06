@@ -125,6 +125,9 @@ export const Dropdown = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Properties accepted by the Dropdown Menu Behavior renderer.
+ */
 interface DropdownMenuBehaviorProps {
   readonly initialFocusRef: RefObject<"first" | "last">;
   readonly children: ReactNode;
@@ -151,6 +154,12 @@ function DropdownMenuBehavior({ initialFocusRef, children }: DropdownMenuBehavio
       const target = initialFocusRef.current === "last" ? items.at(-1) : items[0];
       target?.focus({ preventScroll: true });
     });
+    /**
+     * Handles keyboard navigation only for this menu, excluding nested menu events.
+     *
+     * @param event - Keyboard event whose key and prevented state control navigation.
+     * @returns No return value.
+     */
     const handleKeyDown = (event: globalThis.KeyboardEvent): void => {
       if (event.target instanceof Element && event.target.closest('[role="menu"]') !== menu) return;
       handleMenuKeyDown(event, menu, typeaheadRef, (reason) => popover.requestClose(reason));
@@ -169,6 +178,11 @@ function DropdownMenuBehavior({ initialFocusRef, children }: DropdownMenuBehavio
  */
 function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
   const popover = useMiaixzPopoverContext();
+  /**
+   * Requests popover dismissal after a dropdown item is selected.
+   *
+   * @returns No return value; does nothing when no popover context is present.
+   */
   const close = (): void => popover?.requestClose("selection");
   if (entry.kind === "label") {
     return (

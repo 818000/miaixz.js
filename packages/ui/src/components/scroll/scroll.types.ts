@@ -24,14 +24,26 @@
 
 import type { HTMLAttributes } from "react";
 
+/**
+ * Native scroll-region attributes before focusability and naming are selected.
+ */
 type ScrollNativeProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "aria-labelledby" | "role" | "tabIndex"
 >;
+/**
+ * Accessible naming alternatives for a focusable scroll region.
+ */
 type ScrollName =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
+/**
+ * Named scroll-region configuration eligible for keyboard focus.
+ */
 type NamedScrollProps = ScrollNativeProps & ScrollName & { readonly focusable?: "auto" | "always" };
+/**
+ * Scroll-region configuration that does not add a keyboard-focus target.
+ */
 type UnfocusableScrollProps = ScrollNativeProps & {
   readonly focusable: "never";
   readonly "aria-label"?: never;

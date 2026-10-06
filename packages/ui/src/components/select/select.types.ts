@@ -32,8 +32,14 @@ import type {
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Select size tokens permitted by the component contract.
+ */
 export type SelectSize = "small" | "medium" | "large";
 
+/**
+ * Selectable value with visible label, plain-text search label, and disabled state.
+ */
 export interface SelectOption {
   readonly kind: "option";
   readonly id: string;
@@ -43,6 +49,9 @@ export interface SelectOption {
   readonly disabled?: boolean;
 }
 
+/**
+ * Labeled group of native select options.
+ */
 export interface SelectGroup {
   readonly kind: "group";
   readonly id: string;
@@ -50,8 +59,14 @@ export interface SelectGroup {
   readonly options: readonly SelectOption[];
 }
 
+/**
+ * Selectable option or labeled option group accepted by Select.
+ */
 export type SelectEntry = SelectOption | SelectGroup;
 
+/**
+ * Named Select parts available for slot and style customization.
+ */
 export type SelectSlot =
   | "root"
   | "trigger"
@@ -64,6 +79,9 @@ export type SelectSlot =
   | "hiddenInput"
   | "validationMessage";
 
+/**
+ * Resolved Select state exposed to theme and slot overrides.
+ */
 export interface SelectOwnerState {
   readonly size: SelectSize;
   readonly invalid: boolean;
@@ -74,6 +92,9 @@ export interface SelectOwnerState {
   readonly widthPreset: "fill" | "compact";
 }
 
+/**
+ * Attributes accepted by the Select Root slot.
+ */
 export interface SelectRootAttributes
   extends HTMLAttributes<HTMLSpanElement>, RefAttributes<HTMLSpanElement> {
   readonly "data-disabled"?: boolean;
@@ -84,11 +105,17 @@ export interface SelectRootAttributes
   readonly "data-state"?: "open" | "closed";
 }
 
+/**
+ * Attributes accepted by the Select Option slot.
+ */
 export interface SelectOptionAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-disabled"?: boolean;
   readonly "data-state"?: "active" | "idle";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Select.
+ */
 export interface SelectSlotProps {
   readonly root?: MiaixzSlotProps<SelectOwnerState, SelectRootAttributes>;
   readonly trigger?: MiaixzSlotProps<
@@ -108,6 +135,9 @@ export interface SelectSlotProps {
   readonly validationMessage?: MiaixzSlotProps<SelectOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
 
+/**
+ * Mutually exclusive controlled or uncontrolled native select value settings.
+ */
 export type SelectValueState =
   | {
       readonly value: string;
@@ -120,6 +150,9 @@ export type SelectValueState =
       readonly onValueChange?: (value: string) => void;
     };
 
+/**
+ * Component-specific Select properties composed with the permitted native attributes.
+ */
 interface SelectOwnProps {
   readonly items: readonly SelectEntry[];
   readonly size?: SelectSize;

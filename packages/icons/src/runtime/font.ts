@@ -22,33 +22,51 @@
  * Owns the font-only icon lookup and single-font loading state.
  */
 
-import {
-  INTERNAL_ICON_BY_NAME,
-  INTERNAL_ICON_NAMES,
-  INTERNAL_ICON_RECORDS,
-  type IconName,
-  type InternalIconRecord,
-} from "../autogen/icons.js";
+import { ICON_NAMES, type IconName } from "../values/icons.js";
+import { FONT_FAMILY, ICON_SIZES } from "../values/design.js";
 
+/**
+ * Immutable glyph record constructed from the canonical name-to-codepoint mapping.
+ */
+interface InternalIconRecord {
+  readonly name: IconName;
+  readonly codepoint: number;
+  readonly glyph: string;
+  readonly rtl: "none" | "mirror";
+}
+
+/**
+ * Font-load state retaining the promise shared by concurrent icon requests.
+ */
 interface PendingFont {
   readonly status: "pending";
   readonly promise: Promise<void>;
 }
 
+/**
+ * Terminal state indicating the complete icon font is available.
+ */
 interface ResolvedFont {
   readonly status: "resolved";
 }
 
+/**
+ * Terminal font-load state retaining the error until an explicit reset.
+ */
 interface FailedFont {
   readonly status: "failed";
   readonly error: unknown;
 }
 
+/**
+ * Discriminated pending, resolved, or failed state of the shared font loader.
+ */
 type FontState = PendingFont | ResolvedFont | FailedFont;
 
 let fontState: FontState | undefined;
-const representativeGlyph = INTERNAL_ICON_RECORDS[0]?.glyph;
-if (representativeGlyph === undefined) throw new Error("[miaixz] Icon font contains no glyphs.");
+const firstTuple = Object.values(ICON_NAMES)[0];
+if (firstTuple === undefined) throw new Error("[miaixz] Icon font contains no glyphs.");
+const representativeGlyph = String.fromCodePoint(firstTuple[0]);
 
 /**
  * Returns whether a string is one of the generated stable font-backed names.
@@ -57,7 +75,7 @@ if (representativeGlyph === undefined) throw new Error("[miaixz] Icon font conta
  * @returns Whether the name is font-backed.
  */
 export function isIconName(value: string): value is IconName {
-  return INTERNAL_ICON_NAMES.has(value);
+  return Object.hasOwn(ICON_NAMES, value);
 }
 
 /**
@@ -65,6 +83,7 @@ export function isIconName(value: string): value is IconName {
  *
  * @param value - Candidate name.
  * @returns Valid public name.
+ * @throws TypeError when the name is absent from the generated mapping.
  */
 export function parseIconName(value: string): IconName {
   if (!isIconName(value)) throw new TypeError(`[miaixz] Unknown icon name "${value}".`);
@@ -78,9 +97,14 @@ export function parseIconName(value: string): IconName {
  * @returns Immutable codepoint and direction metadata.
  */
 function resolveIcon(name: IconName): Readonly<InternalIconRecord> {
-  const record = INTERNAL_ICON_BY_NAME.get(name);
-  if (record === undefined) throw new TypeError(`[miaixz] Missing font record for "${name}".`);
-  return record;
+  if (!isIconName(name)) throw new TypeError(`[miaixz] Missing font record for "${name}".`);
+  const [codepoint, rtlFlag] = ICON_NAMES[name];
+  return Object.freeze({
+    name,
+    codepoint,
+    glyph: String.fromCodePoint(codepoint),
+    rtl: rtlFlag === 1 ? "mirror" : "none",
+  });
 }
 
 /**
@@ -96,16 +120,18 @@ function loadIconFont(glyph = representativeGlyph): Promise<void> {
   if (current?.status === "pending") return current.promise;
   if (current?.status === "failed") return Promise.reject(current.error);
 
-  const promise = document.fonts.load('16px "Miaixz Icons"', glyph).then(
-    (faces) => {
-      if (faces.length === 0) throw new Error("[miaixz] Unable to load the icon font.");
-      fontState = { status: "resolved" };
-    },
-    (error: unknown) => {
-      fontState = { status: "failed", error };
-      throw error;
-    },
-  );
+  const promise = document.fonts
+    .load(`${String(ICON_SIZES.inline.pixels)}px ${JSON.stringify(FONT_FAMILY)}`, glyph)
+    .then(
+      (faces) => {
+        if (faces.length === 0) throw new Error("[miaixz] Unable to load the icon font.");
+        fontState = { status: "resolved" };
+      },
+      (error: unknown) => {
+        fontState = { status: "failed", error };
+        throw error;
+      },
+    );
   fontState = { status: "pending", promise };
   void promise.catch((error: unknown) => {
     fontState = { status: "failed", error };
@@ -119,6 +145,7 @@ function loadIconFont(glyph = representativeGlyph): Promise<void> {
  *
  * @param name - Font-backed icon name.
  * @returns Resolved record or null after a font failure.
+ * @throws TypeError when the name is invalid, or a Promise while font loading is pending.
  */
 export function readIcon(name: IconName): Readonly<InternalIconRecord> | null {
   const record = resolveIcon(name);
@@ -133,7 +160,7 @@ export function readIcon(name: IconName): Readonly<InternalIconRecord> | null {
 /**
  * Preloads the complete stable icon font.
  *
- * @returns Promise completed when Core is ready, or immediately during SSR.
+ * @returns Promise resolving when the font is ready or during SSR, rejecting on font-load failure.
  */
 export function preloadIconFont(): Promise<void> {
   return loadIconFont();

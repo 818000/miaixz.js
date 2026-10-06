@@ -63,6 +63,9 @@ function createToastId(): string {
   return `miaixz-toast-${Date.now()}-${toastSequence}`;
 }
 
+/**
+ * Properties accepted by the Managed Toast renderer.
+ */
 interface ManagedToastProps {
   readonly toast: ToastRecord;
   readonly close: (id: string, reason: ToastCloseReason) => void;
@@ -86,6 +89,11 @@ function ManagedToast({ toast, close }: ManagedToastProps) {
   }, [toast]);
   useEffect(() => {
     const ownerDocument = document;
+    /**
+     * Pauses toast timers while the owning document is hidden and resumes them when visible.
+     *
+     * @returns No return value.
+     */
     const update = (): void => setDocumentPaused(ownerDocument.hidden);
     update();
     ownerDocument.addEventListener("visibilitychange", update);
@@ -104,6 +112,12 @@ function ManagedToast({ toast, close }: ManagedToastProps) {
     };
   }, [close, documentPaused, focusPaused, pointerPaused, toast]);
 
+  /**
+   * Resumes toast timers after focus leaves the toast container.
+   *
+   * @param event - Toast-container blur event and its next focus target.
+   * @returns No return value; focus moving within the container keeps timers paused.
+   */
   const handleBlur = (event: FocusEvent<HTMLDivElement>): void => {
     if (!event.currentTarget.contains(event.relatedTarget)) setFocusPaused(false);
   };

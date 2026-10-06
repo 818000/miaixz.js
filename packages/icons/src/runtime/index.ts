@@ -22,4 +22,5 @@
  * Exposes the font-only icon runtime through one source boundary.
  */
 
-export * from "./font.js";
+export { isIconName, parseIconName, preloadIconFont } from "./font.js";
+export type { IconName } from "../values/icons.js";

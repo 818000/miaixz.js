@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports HTTP clients, request signing, response contracts, and telemetry types.
  */
 
 export { appendMiaixzQuery, createApiClient } from "./client.js";

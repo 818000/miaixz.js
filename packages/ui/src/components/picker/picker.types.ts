@@ -34,6 +34,9 @@ import type {
 } from "../combobox/combobox.types.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Mutually exclusive controlled or uncontrolled picker value settings.
+ */
 export type PickerValueState<Value extends string = string> =
   | {
       readonly value: readonly MiaixzOption<Value>[];
@@ -46,12 +49,18 @@ export type PickerValueState<Value extends string = string> =
       readonly onValueChange?: (value: readonly MiaixzOption<Value>[]) => void;
     };
 
+/**
+ * Removal action and disabled or read-only state passed to a selected-value renderer.
+ */
 export interface PickerRenderValueState<Value extends string = string> {
   readonly remove: (option: MiaixzOption<Value>) => void;
   readonly disabled: boolean;
   readonly readOnly: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Picker.
+ */
 export interface PickerSlotProps extends ComboboxSlotProps {
   readonly values?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly value?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -60,6 +69,9 @@ export interface PickerSlotProps extends ComboboxSlotProps {
   readonly count?: MiaixzSlotProps<ComboboxOwnerState, HTMLAttributes<HTMLOutputElement>>;
 }
 
+/**
+ * Component-specific Picker properties composed with the permitted native attributes.
+ */
 export interface MiaixzPickerOwnProps<Value extends string = string> extends Omit<
   ComboboxProps<Value>,
   "value" | "defaultValue" | "onValueChange" | "slotProps"

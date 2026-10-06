@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the module manifest module.
+ * Validates module manifests and semantic-version compatibility.
  */
 
 import { MiaixzSdkError } from "../../errors/errors.js";
@@ -134,6 +134,9 @@ export interface MiaixzModuleManifestParseOptions {
   readonly hostVersion?: string;
 }
 
+/**
+ * Numeric version components and prerelease identifiers parsed from a module version.
+ */
 interface MiaixzParsedSemanticVersion {
   /**
    * Major semantic-version number.

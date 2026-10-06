@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the client module.
+ * Creates typed HTTP clients backed by the shared request execution pipeline.
  */
 
 import { MiaixzSdkError } from "../../errors/errors.js";
@@ -149,6 +149,13 @@ export function createApiClient(options: MiaixzApiClientOptions): MiaixzApiClien
   const baseUrl = normalizeBaseUrl(options.baseUrl, options.environment ?? "production");
   const fetchImplementation = options.fetch ?? globalThis.fetch;
   if (!fetchImplementation) throw new MiaixzSdkError({ code: "FETCH_UNAVAILABLE" });
+  /**
+   * Executes a typed API request through the shared client pipeline.
+   *
+   * @param path - Path resolved against the configured API base URL.
+   * @param requestOptions - Per-request method, body, response, timeout, and authentication options.
+   * @returns Promise resolving to the normalized typed API response.
+   */
   const request = <TResponse, TBody extends MiaixzRequestBody = MiaixzRequestBody>(
     path: string,
     requestOptions: MiaixzRequestOptions<TResponse, TBody> = {},

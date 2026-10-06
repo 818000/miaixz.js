@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements heatmap legend support for the heatmap component.
+ * Renders labeled heatmap intensity swatches using the shared level contract.
  */
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";

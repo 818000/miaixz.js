@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports file-operation helpers and service-managed file contracts.
  */
 
 export {

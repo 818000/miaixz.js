@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements combobox option support for the combobox component.
+ * Renders one selectable combobox option with active and selected state.
  */
 
 import type { MouseEvent } from "react";

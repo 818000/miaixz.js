@@ -28,6 +28,9 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { ProgressOwnerState, ProgressProps } from "./progress.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * CSS custom properties used to position or size the Progress Indicator visual.
+ */
 interface ProgressIndicatorStyle extends CSSProperties {
   readonly "--miaixz-progress-value"?: string;
 }

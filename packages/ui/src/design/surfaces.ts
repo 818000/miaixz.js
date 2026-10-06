@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the surfaces UI module.
+ * Defines shared surface treatments and their presentation contracts.
  */
 
 import type { MiaixzThemeColorToken } from "./colors.js";

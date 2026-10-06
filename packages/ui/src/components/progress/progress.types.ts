@@ -26,26 +26,44 @@ import type { HTMLAttributes, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
+/**
+ * Progress size tokens permitted by the component contract.
+ */
 export type ProgressSize = "small" | "medium";
+/**
+ * Named Progress parts available for slot and style customization.
+ */
 export type ProgressSlot = "root" | "track" | "indicator" | "value";
+/**
+ * Resolved Progress state exposed to theme and slot overrides.
+ */
 export interface ProgressOwnerState {
   readonly size: ProgressSize;
   readonly tone: MiaixzVisualTone;
   readonly determinate: boolean;
   readonly showValue: boolean;
 }
+/**
+ * Attributes accepted by the Progress Root slot.
+ */
 export type ProgressRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-state"?: "determinate" | "indeterminate";
     readonly "data-tone"?: MiaixzVisualTone;
     readonly "data-size"?: ProgressSize;
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Progress.
+ */
 export interface ProgressSlotProps {
   readonly root?: MiaixzSlotProps<ProgressOwnerState, ProgressRootAttributes>;
   readonly track?: MiaixzSlotProps<ProgressOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly indicator?: MiaixzSlotProps<ProgressOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly value?: MiaixzSlotProps<ProgressOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Progress properties composed with the permitted native attributes.
+ */
 export interface MiaixzProgressOwnProps {
   readonly value?: number;
   readonly max?: number;
@@ -56,6 +74,9 @@ export interface MiaixzProgressOwnProps {
   readonly size?: ProgressSize;
   readonly slotProps?: ProgressSlotProps;
 }
+/**
+ * Properties accepted by the Progress renderer.
+ */
 export type ProgressProps = MiaixzProgressOwnProps &
   Omit<
     HTMLAttributes<HTMLDivElement>,

@@ -20,9 +20,7 @@
 
 /**
  * Provides bounded JSON field normalization for untrusted structured data.
- */
-
-/**
+ *
  * Narrows an unknown JSON value to a finite number.
  *
  * @param value - Unknown JSON value being normalized.

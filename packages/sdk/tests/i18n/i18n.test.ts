@@ -1,5 +1,5 @@
 /**
- * Implements the i18n test module.
+ * Verifies locale selection, message interpolation, and translated fallback behavior.
  */
 
 import assert from "node:assert/strict";

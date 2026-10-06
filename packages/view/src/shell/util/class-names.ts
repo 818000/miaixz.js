@@ -20,9 +20,7 @@
 
 /**
  * Provides bounded presentation helpers for the viewer shell.
- */
-
-/**
+ *
  * Joins optional CSS class names.
  *
  * @param values - Class names and disabled values.

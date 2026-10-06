@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the sanitize module.
+ * Redacts credentials and bounds traversal of untrusted error diagnostics.
  */
 
 const sensitiveKeys = new Set([

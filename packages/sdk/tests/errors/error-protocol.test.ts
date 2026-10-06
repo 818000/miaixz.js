@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the error protocol test module.
+ * Verifies canonical SDK errors and credential-safe diagnostic serialization.
  */
 
 import { describe, expect, it } from "vitest";

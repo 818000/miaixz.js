@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements action text support for the action component.
+ * Renders labeled actions with shared icon, priority, and visibility presentation.
  */
 
 import { forwardRef } from "react";

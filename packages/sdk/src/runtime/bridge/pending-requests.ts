@@ -19,15 +19,13 @@
 */
 
 /**
- * Implements the pending requests module.
+ * Tracks bridge request completion, cancellation, timeout, and cleanup.
  */
 
 import type { MiaixzSdkError } from "../../errors/errors.js";
 
 /**
-
  * State for one pending Child request.
-
  */
 export interface PendingRequest {
   /**
@@ -53,9 +51,7 @@ export interface PendingRequest {
 }
 
 /**
-
  * State for one request being processed by the Host.
-
  */
 export interface HostRequestState {
   /**

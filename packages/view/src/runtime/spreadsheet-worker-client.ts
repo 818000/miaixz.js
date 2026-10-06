@@ -97,6 +97,12 @@ export async function openSpreadsheetInWorker(
 
   return new Promise((resolve) => {
     let settled = false;
+    /**
+     * Settles a worker parse once, clears timeout and cancellation tracking, and terminates the worker.
+     *
+     * @param outcome - Final spreadsheet parse result used to settle the worker request.
+     * @returns No return value.
+     */
     const finish = (outcome: ParseOutcome<SpreadsheetRenderDocument>): void => {
       if (settled) return;
       settled = true;
@@ -105,6 +111,11 @@ export async function openSpreadsheetInWorker(
       worker.terminate();
       resolve(outcome);
     };
+    /**
+     * Attempts worker cancellation and settles parsing with a recoverable ABORTED error.
+     *
+     * @returns No return value.
+     */
     const abort = (): void => {
       const request: WorkerRequest<undefined> = {
         protocolVersion: WORKER_PROTOCOL_VERSION,

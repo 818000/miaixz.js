@@ -111,6 +111,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     (props.disabled ?? group?.disabled ?? themeDefaults?.disabled) === true || loading;
   const type = props.type ?? themeDefaults?.type ?? "button";
   const ownerState: ButtonOwnerState = { variant, tone, size, block, loading, disabled };
+  /**
+   * Resolves theme classes for one button slot using the current owner state.
+   *
+   * @param slot - Component slot whose theme classes are resolved.
+   * @returns Theme class names for the requested button slot.
+   */
   const slotThemeClasses = (slot: ButtonSlot) =>
     getMiaixzThemeSlotClassNames(theme, ownerState, slot);
   const rootProps = mergeMiaixzSlotProps<ButtonOwnerState, ButtonRootAttributes, HTMLButtonElement>(
@@ -204,6 +210,12 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       loading: false,
       disabled,
     };
+    /**
+     * Resolves theme classes for one button slot using the current owner state.
+     *
+     * @param slot - Component slot whose theme classes are resolved.
+     * @returns Theme class names for the requested button slot.
+     */
     const slotThemeClasses = (slot: ButtonSlot) =>
       getMiaixzThemeSlotClassNames(theme, ownerState, slot);
     const rootProps = mergeMiaixzSlotProps<

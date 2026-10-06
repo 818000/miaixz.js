@@ -25,6 +25,9 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Step identity, display content, and completion or current-step presentation.
+ */
 export interface StepsItem {
   readonly id: string;
   readonly label: ReactNode;
@@ -32,10 +35,25 @@ export interface StepsItem {
   readonly marker?: ReactNode;
   readonly status?: "pending" | "current" | "complete" | "error" | "disabled";
 }
+/**
+ * Steps layout orientations permitted by the component contract.
+ */
 export type StepsOrientation = "horizontal" | "vertical";
+/**
+ * Steps surface treatments permitted by the component contract.
+ */
 export type StepsSurface = "plain" | "cards";
+/**
+ * Steps spacing densities permitted by the component contract.
+ */
 export type StepsDensity = "compact" | "standard" | "comfortable";
+/**
+ * Named Steps parts available for slot and style customization.
+ */
 export type StepsSlot = "root" | "item" | "connector" | "icon" | "label" | "description";
+/**
+ * Resolved Steps state exposed to theme and slot overrides.
+ */
 export interface StepsOwnerState {
   readonly orientation: StepsOrientation;
   readonly surface: StepsSurface;
@@ -44,6 +62,9 @@ export interface StepsOwnerState {
   readonly status: NonNullable<StepsItem["status"]> | undefined;
   readonly interactive: boolean;
 }
+/**
+ * Attributes accepted by the Steps Root slot.
+ */
 export type StepsRootAttributes = HTMLAttributes<HTMLOListElement> &
   RefAttributes<HTMLOListElement> & {
     readonly "data-orientation"?: StepsOrientation;
@@ -51,9 +72,15 @@ export type StepsRootAttributes = HTMLAttributes<HTMLOListElement> &
     readonly "data-density"?: StepsDensity;
     readonly "data-connector"?: boolean;
   };
+/**
+ * Attributes accepted by the Steps Item slot.
+ */
 export type StepsItemAttributes = HTMLAttributes<HTMLLIElement> & {
   readonly "data-status"?: NonNullable<StepsItem["status"]>;
 };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Steps.
+ */
 export interface StepsSlotProps {
   readonly root?: MiaixzSlotProps<StepsOwnerState, StepsRootAttributes>;
   readonly item?: MiaixzSlotProps<StepsOwnerState, StepsItemAttributes>;
@@ -62,6 +89,9 @@ export interface StepsSlotProps {
   readonly label?: MiaixzSlotProps<StepsOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly description?: MiaixzSlotProps<StepsOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Component-specific Steps properties composed with the permitted native attributes.
+ */
 export interface MiaixzStepsOwnProps {
   readonly label: string;
   readonly items: readonly StepsItem[];

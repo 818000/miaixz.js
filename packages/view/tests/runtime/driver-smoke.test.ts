@@ -36,6 +36,12 @@ const encoder = new TextEncoder();
  * @returns Source bytes accepted by the selected driver.
  */
 function fixtureBytes(id: string): Uint8Array {
+  /**
+   * Encodes a textual fixture into the byte input accepted by format drivers.
+   *
+   * @param source - Fixture source text.
+   * @returns UTF-8 fixture bytes.
+   */
   const text = (source: string): Uint8Array => encoder.encode(source);
   const fixtures: Readonly<Record<string, () => Uint8Array>> = {
     docx: () =>

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements date model support for the date component.
+ * Validates date/time strings and builds calendar arithmetic and month-cell models.
  */
 
 import type {

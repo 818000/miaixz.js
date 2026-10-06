@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the script UI module.
+ * Serializes the first-paint theme bootstrap used before React hydration.
  */
 
 import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";

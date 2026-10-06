@@ -48,6 +48,9 @@ interface MiaixzSlotEvent {
   readonly defaultPrevented: boolean;
 }
 
+/**
+ * Internal data attributes added while composing themed component slots.
+ */
 interface MiaixzInternalAttributes {
   /**
    * Stable public selector owned by the component implementation.

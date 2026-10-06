@@ -25,14 +25,29 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Named Brand parts available for slot and style customization.
+ */
 export type BrandSlot = "root" | "logo" | "name";
+/**
+ * Resolved Brand state exposed to theme and slot overrides.
+ */
 export type BrandOwnerState = Record<never, never>;
+/**
+ * Attributes accepted by the Brand Root slot.
+ */
 export type BrandRootAttributes = HTMLAttributes<HTMLSpanElement> & RefAttributes<HTMLSpanElement>;
+/**
+ * Per-slot attributes and state-dependent override callbacks for Brand.
+ */
 export interface BrandSlotProps {
   readonly root?: MiaixzSlotProps<BrandOwnerState, BrandRootAttributes>;
   readonly logo?: MiaixzSlotProps<BrandOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly name?: MiaixzSlotProps<BrandOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Brand properties composed with the permitted native attributes.
+ */
 export interface MiaixzBrandOwnProps {
   readonly name: string;
   readonly logo?: ReactNode;

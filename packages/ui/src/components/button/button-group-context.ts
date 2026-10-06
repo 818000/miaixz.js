@@ -19,13 +19,16 @@
 */
 
 /**
- * Implements button group context support for the button component.
+ * Shares button-group size, presentation, and disabled defaults with descendant buttons.
  */
 
 import { createContext, useContext } from "react";
 
 import type { ButtonSize, ButtonTone, ButtonVariant } from "./button.types.js";
 
+/**
+ * Values shared between the Button Group provider and its descendant components.
+ */
 export interface ButtonGroupContextValue {
   readonly size: ButtonSize;
   readonly tone: ButtonTone;

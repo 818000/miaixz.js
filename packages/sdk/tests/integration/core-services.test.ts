@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the core services test module.
+ * Verifies shared SDK services, browser event channels, and lifecycle cleanup together.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -170,6 +170,9 @@ describe("configuration", () => {
   });
 });
 
+/**
+ * In-memory test event channel with explicit subscriber cleanup.
+ */
 class TestChannel extends EventTarget {
   readonly posted: unknown[] = [];
   closeCount = 0;
@@ -206,6 +209,9 @@ class TestChannel extends EventTarget {
 
 describe("event bus", () => {
   it("delivers local events in order, once, unsubscribe, clear, and close", () => {
+    /**
+     * Local event payload fixture for ordered delivery and subscription cleanup.
+     */
     type Events = { changed: { value: number } };
     const bus = createMiaixzEventBus<Events>();
     const values: number[] = [];
@@ -230,6 +236,9 @@ describe("event bus", () => {
   });
 
   it("validates broadcast envelopes, payloads, deduplication, and credentials", () => {
+    /**
+     * Validated and unvalidated event payload fixtures for broadcast policy assertions.
+     */
     type Events = { changed: { value: number }; unchecked: { value: number } };
     const channel = new TestChannel();
     const bus = new MiaixzEventBus<Events>({
@@ -283,6 +292,9 @@ describe("event bus", () => {
     expect(() => new MiaixzEventBus({ channelName: "invalid channel" })).toThrowError(
       expect.objectContaining({ code: "EVENT_CHANNEL_INVALID" }),
     );
+    /**
+     * Non-cloneable callback payload fixture for broadcast rejection assertions.
+     */
     type Events = { changed: { callback: () => void } };
     const bus = new MiaixzEventBus<Events>({
       channelName: "miaixz:v1:test:events",

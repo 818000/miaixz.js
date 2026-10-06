@@ -33,8 +33,17 @@ import type {
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
+/**
+ * Metric visual variants permitted by the component contract.
+ */
 export type MetricVariant = "standard" | "summary" | "strip" | "card";
+/**
+ * Metric spacing densities permitted by the component contract.
+ */
 export type MetricDensity = "compact" | "standard" | "comfortable";
+/**
+ * Resolved Metric state exposed to theme and slot overrides.
+ */
 export interface MetricOwnerState {
   readonly variant: MetricVariant;
   readonly density: MetricDensity;
@@ -42,6 +51,9 @@ export interface MetricOwnerState {
   readonly emphasized: boolean;
   readonly interactive: boolean;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Metric.
+ */
 export interface MetricSlotProps {
   readonly icon?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly label?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -51,6 +63,9 @@ export interface MetricSlotProps {
   readonly trend?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly visual?: MiaixzSlotProps<MetricOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Shared metric title, value, and supplementary content before interaction is selected.
+ */
 interface MetricContentProps {
   readonly variant?: MetricVariant;
   readonly density?: MetricDensity;
@@ -65,16 +80,25 @@ interface MetricContentProps {
   readonly visual?: ReactNode;
   readonly slotProps?: MetricSlotProps;
 }
+/**
+ * Non-interactive metric variant with native static-root attributes.
+ */
 export type MetricStaticProps = MetricContentProps &
   Omit<HTMLAttributes<HTMLElement>, keyof MetricContentProps | "children"> & {
     readonly href?: never;
     readonly onAction?: never;
   };
+/**
+ * Navigable metric variant rendered through an anchor.
+ */
 export type MetricLinkProps = MetricContentProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof MetricContentProps | "children" | "href"> & {
     readonly href: string;
     readonly onAction?: never;
   };
+/**
+ * Command metric variant rendered through a button.
+ */
 export type MetricActionProps = MetricContentProps &
   Omit<
     ButtonHTMLAttributes<HTMLButtonElement>,

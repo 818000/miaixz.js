@@ -27,6 +27,9 @@ import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } f
 import type { IconName } from "@miaixz/icons";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Labeled value and disabled state for one segmented-control option.
+ */
 export interface SegmentedItem<Value extends string = string> {
   readonly value: Value;
   readonly label: ReactNode;
@@ -35,17 +38,26 @@ export interface SegmentedItem<Value extends string = string> {
   readonly disabled?: boolean;
 }
 
+/**
+ * Resolved Segmented state exposed to theme and slot overrides.
+ */
 export interface SegmentedOwnerState {
   readonly orientation: "horizontal" | "vertical";
   readonly disabled: boolean;
 }
 
+/**
+ * Attributes accepted by the Segmented Root slot.
+ */
 export interface SegmentedRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-ui"?: "segmented";
   readonly "data-orientation"?: "horizontal" | "vertical";
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Segmented.
+ */
 export interface SegmentedSlotProps {
   readonly root?: MiaixzSlotProps<SegmentedOwnerState, SegmentedRootAttributes>;
   readonly item?: MiaixzSlotProps<SegmentedOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
@@ -53,10 +65,16 @@ export interface SegmentedSlotProps {
   readonly label?: MiaixzSlotProps<SegmentedOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
 
+/**
+ * Accessible naming alternatives required by a segmented control.
+ */
 type SegmentedLabel =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
 
+/**
+ * Properties accepted by the Segmented renderer.
+ */
 export type SegmentedProps<Value extends string = string> = SegmentedLabel & {
   readonly items: readonly SegmentedItem<Value>[];
   readonly value?: Value;

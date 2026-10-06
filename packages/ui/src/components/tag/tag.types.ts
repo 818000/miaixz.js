@@ -34,9 +34,18 @@ import type {
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
+/**
+ * Tag visual variants permitted by the component contract.
+ */
 export type TagVariant = "filled" | "outlined";
+/**
+ * Named Tag parts available for slot and style customization.
+ */
 export type TagSlot = "root" | "action" | "icon" | "avatar" | "label" | "remove";
 
+/**
+ * Resolved Tag state exposed to theme and slot overrides.
+ */
 export interface TagOwnerState {
   readonly tone: MiaixzVisualTone;
   readonly variant: TagVariant;
@@ -46,6 +55,9 @@ export interface TagOwnerState {
   readonly removable: boolean;
 }
 
+/**
+ * Attributes accepted by the Tag Root slot.
+ */
 export interface TagRootAttributes
   extends HTMLAttributes<HTMLSpanElement>, RefAttributes<HTMLSpanElement> {
   readonly "data-ui"?: "tag";
@@ -55,6 +67,9 @@ export interface TagRootAttributes
   readonly "data-selected"?: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Tag.
+ */
 export interface TagSlotProps {
   readonly root?: MiaixzSlotProps<TagOwnerState, TagRootAttributes>;
   readonly action?: MiaixzSlotProps<
@@ -67,6 +82,9 @@ export interface TagSlotProps {
   readonly remove?: MiaixzSlotProps<TagOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
 }
 
+/**
+ * Component-specific Tag properties composed with the permitted native attributes.
+ */
 interface TagBaseProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
   readonly children: ReactNode;
   readonly tone?: MiaixzVisualTone;
@@ -77,13 +95,22 @@ interface TagBaseProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children">
   readonly slotProps?: TagSlotProps;
 }
 
+/**
+ * Mutually exclusive graphic choices for the tag leading visual.
+ */
 type TagGraphic =
   | { readonly icon?: ReactElement; readonly avatar?: never }
   | { readonly icon?: never; readonly avatar?: ReactElement };
 
+/**
+ * Interaction alternatives constraining whether a tag is static or actionable.
+ */
 type TagInteraction =
   | { readonly href?: never; readonly onAction?: never; readonly selected?: never }
   | { readonly href?: never; readonly onAction: () => void; readonly selected?: boolean }
   | { readonly href: string; readonly onAction?: never; readonly selected?: never };
 
+/**
+ * Properties accepted by the Tag renderer.
+ */
 export type TagProps = TagBaseProps & TagGraphic & TagInteraction;

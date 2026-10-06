@@ -26,6 +26,9 @@ export interface UseMediaOptions {
   readonly defaultMatches?: boolean;
 }
 
+/**
+ * Shared MediaQueryList state and subscriptions reused for one responsive query.
+ */
 interface MediaStore {
   readonly getSnapshot: () => boolean;
   readonly subscribe: (listener: () => void) => () => void;
@@ -49,6 +52,11 @@ export function getMediaStore(query: string, options: UseMediaOptions): MediaSto
   if (existing !== undefined) return existing;
   const media = window.matchMedia(query);
   const listeners = new Set<() => void>();
+  /**
+   * Notifies all current subscribers after a media-query change.
+   *
+   * @returns No return value; each registered listener is invoked once.
+   */
   const notify = () => listeners.forEach((listener) => listener());
   const store: MediaStore = {
     getSnapshot: () => media.matches,

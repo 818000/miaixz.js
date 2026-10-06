@@ -1,6 +1,6 @@
 # @miaixz/icons
 
-Miaixz 的独立 Web 图标系统，包含 1781 个原创可变字体图标、React `Icon`、语义尺寸、连续 FILL/opsz 动画和无障碍行为。发布版本统一由仓库根目录的 `VERSION` 文件定义。
+Miaixz 的独立 Web 图标系统，包含原创可变字体图标、React `Icon`、语义尺寸、连续 FILL/opsz 动画和无障碍行为。发布版本统一由仓库根目录的 `VERSION` 文件定义。
 
 ## 安装
 
@@ -23,7 +23,7 @@ export function Example() {
 
 ## 字体加载
 
-`miaixz-icons.woff2` 是唯一字体文件，包含全部 1781 个 canonical 名称和 `U+F0000–U+F06F4` 范围。Core 与 Extended 只表示目录层级，不对应字体分包或额外网络请求。
+`miaixz-icons.woff2` 是唯一字体文件，覆盖当前源中的全部 canonical 名称；CSS 字符范围从实际码点集合派生，不按分类拆分字体或增加请求。
 
 首屏使用图标时可以预载完整字体：
 
@@ -56,9 +56,17 @@ const name: IconName = "rocket";
 - `size` 接受 `indicator`、`inline`、`control`、`navigation`、`feature`、`display` 或正数；数值同时驱动 12–40 的 opsz。
 - `motion="none"` 与系统 `prefers-reduced-motion: reduce` 都会关闭过渡。
 - `rtl="mirror"` 的名称只翻转内层字形，不改变根节点布局。
-- `name` 只能使用公共目录中的 1781 个名称；`parseIconName` 会对未知名称抛出 `TypeError`。
+- `name` 只能使用当前映射中的 canonical 名称；`parseIconName` 会对未知名称抛出 `TypeError`。
 
-`ICON_NAMES`、`ICON_CATALOG`、`isIconName` 和 `parseIconName` 均从根入口 `@miaixz/icons` 导出。不要导入 `src`、`dist` 私有路径或直接书写 PUA 字符。
+根入口只提供 `Icon`、`isIconName`、`parseIconName`、`preloadIconFont`，以及 `IconProps`、`IconMotion`、`IconName`、`IconSize` 类型。普通消费直接使用受 `IconName` 约束的字符串。
+
+完整目录通过独立入口加载，不进入轻量根入口：
+
+```ts
+import { ICON_CATALOG, type IconCatalogEntry, type IconCategory } from "@miaixz/icons/catalog";
+```
+
+目录每项只含 `name` 和 `category`，数组及条目均冻结。不要导入 `src`、`dist` 私有路径或直接书写 PUA 字符。
 
 ## 第三方图标
 
@@ -79,5 +87,14 @@ npm install lucide-react
 | Entry          | Kind       |
 | -------------- | ---------- |
 | `.`            | JavaScript |
+| `./catalog`    | JavaScript |
 | `./styles.css` | CSS        |
 | `./font.woff2` | Asset      |
+
+## 源维护
+
+业务源唯一来自 `src/assets/icons.json`、`icons/*.json`、`design.json` 和统一 Schema；字体源唯一来自 Designspace 声明的六套 UFO。`src/values/` 下的 icons/metadata/design 模块由生成器维护，不作为输入，也不保留旧 autogen 目录或转发层。
+
+首次 npm 发布前，名称集合变更后按 ASCII 名称顺序从 U+F0000 全量重算码点，并同步六母版 Unicode/order，不承诺旧未发布映射兼容。首次发布后已有名称和码点不重排，新增名称只占用下一个合法码点；达到 U+FFFFD 后拒绝新增。
+
+新增/删除、几何复核、各工具的只读/写入模式及报告位置见 [源维护说明](../../docs/icon-assets-structure.md)。分类与修形必须遵循 [架构方案](../../docs/icon-architecture-remediation-v2.md)，不为单图标放宽阈值。

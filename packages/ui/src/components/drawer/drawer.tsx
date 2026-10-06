@@ -49,6 +49,9 @@ import type {
 } from "./drawer.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * Resolved drawer bounds used by the positioning renderer.
+ */
 interface DrawerFrame {
   readonly left: number;
   readonly top: number;
@@ -166,6 +169,11 @@ export const Drawer = withMiaixzThemeComponent(
       const view = ownerDocument.defaultView;
       if (view === null) return undefined;
       let animationFrame = 0;
+      /**
+       * Intersects the connected drawer boundary with the visual viewport and updates changed frame bounds.
+       *
+       * @returns No return value.
+       */
       const update = (): void => {
         animationFrame = 0;
         if (boundary !== undefined && !boundary.isConnected) {
@@ -195,6 +203,11 @@ export const Drawer = withMiaixzThemeComponent(
       const requestFrame =
         view.requestAnimationFrame?.bind(view) ?? ((callback) => view.setTimeout(callback, 0));
       const cancelFrame = view.cancelAnimationFrame?.bind(view) ?? view.clearTimeout.bind(view);
+      /**
+       * Coalesces drawer frame measurements into one pending animation-frame callback.
+       *
+       * @returns No return value.
+       */
       const scheduleUpdate = (): void => {
         if (animationFrame === 0) animationFrame = requestFrame(update);
       };
@@ -234,6 +247,12 @@ export const Drawer = withMiaixzThemeComponent(
       showClose,
     };
 
+    /**
+     * Reports a drawer close request with the originating dismissal reason.
+     *
+     * @param reason - User action responsible for the requested state change.
+     * @returns No return value.
+     */
     const requestClose = (reason: DrawerCloseReason): void => onOpenChange(false, reason);
     const geometry: CSSProperties & Record<`--${string}`, string | number> = {};
     if (typeof width === "number") geometry["--miaixz-drawer-width"] = `${width}px`;

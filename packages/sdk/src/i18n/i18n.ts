@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the i18n module.
+ * Exports the internationalization runtime and its configuration contracts.
  */
 
 export {

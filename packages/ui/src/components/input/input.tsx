@@ -116,6 +116,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
     readOnly: readOnly === true,
     filled: presentationFilled,
   };
+  /**
+   * Resolves theme classes for one input slot using the current owner state.
+   *
+   * @param slot - Component slot whose theme classes are resolved.
+   * @returns Theme class names for the requested input slot.
+   */
   const themeClasses = (slot: InputSlot) => getMiaixzThemeSlotClassNames(theme, ownerState, slot);
   const rootProps = mergeMiaixzSlotProps<InputOwnerState, InputRootAttributes, HTMLSpanElement>({
     ownerState,

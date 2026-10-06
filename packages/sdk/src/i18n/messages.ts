@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the messages module.
+ * Defines flat message collections and interpolation values used by translation.
  */
 
 import { MiaixzSdkError } from "../errors/errors.js";

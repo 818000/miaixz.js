@@ -23,7 +23,7 @@
  */
 
 import { forwardRef, useId } from "react";
-import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
+import { Icon, type IconName } from "@miaixz/icons";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { IconButton } from "../action/icon-button.js";
@@ -32,11 +32,11 @@ import type { ToastOwnerState, ToastProps, ToastTone } from "./toast.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 const toneIcons: Record<ToastTone, IconName> = {
-  neutral: ICON_NAMES.INFO,
-  success: ICON_NAMES.CIRCLE_CHECK,
-  warning: ICON_NAMES.WARNING,
-  danger: ICON_NAMES.CIRCLE_ALERT,
-  info: ICON_NAMES.INFO,
+  neutral: "info",
+  success: "circle-check",
+  warning: "warning",
+  danger: "circle-alert",
+  info: "info",
 };
 
 /**

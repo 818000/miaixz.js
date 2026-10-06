@@ -31,8 +31,17 @@ import type {
 } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Popover change notification reasons permitted by the component contract.
+ */
 export type PopoverChangeReason = "trigger" | "escape" | "outsidePress";
+/**
+ * Popover accessible popup roles permitted by the component contract.
+ */
 export type PopoverPopupRole = "dialog" | "menu" | "listbox" | "tree" | "grid";
+/**
+ * Popover controlled or uncontrolled open-state alternatives permitted by the component contract.
+ */
 export type PopoverOpenState =
   | {
       readonly open: boolean;
@@ -44,20 +53,35 @@ export type PopoverOpenState =
       readonly defaultOpen?: boolean;
       readonly onOpenChange?: (open: boolean, reason: PopoverChangeReason) => void;
     };
+/**
+ * Properties accepted by the Popover Trigger renderer.
+ */
 export type PopoverTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> &
   RefAttributes<HTMLButtonElement> & {
     readonly "data-dropdown-presentation"?: "default" | "account";
   };
+/**
+ * Named Popover parts available for slot and style customization.
+ */
 export type PopoverSlot = "trigger" | "content";
+/**
+ * Resolved Popover state exposed to theme and slot overrides.
+ */
 export interface PopoverOwnerState {
   readonly open: boolean;
   readonly placement: "bottom-start" | "bottom-end" | "top-start" | "top-end";
   readonly popupRole?: PopoverPopupRole;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Popover.
+ */
 export interface PopoverSlotProps {
   readonly trigger?: MiaixzSlotProps<PopoverOwnerState, PopoverTriggerProps>;
   readonly content?: MiaixzSlotProps<PopoverOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Properties accepted by the Popover renderer.
+ */
 export type PopoverProps = PopoverOpenState & {
   readonly trigger: ReactElement<PopoverTriggerProps>;
   readonly children: ReactNode;

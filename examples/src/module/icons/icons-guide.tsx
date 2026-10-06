@@ -1,6 +1,7 @@
 "use client";
 
-import { ICON_CATALOG, Icon, type IconName, type IconSize } from "@miaixz/icons";
+import { Icon, type IconName, type IconSize } from "@miaixz/icons";
+import { ICON_CATALOG } from "@miaixz/icons/catalog";
 import { useMemo, useState } from "react";
 
 import { CodeBlock, GuideHeader, GuideSection, Stat } from "../../shared/guide/guide-parts";
@@ -39,7 +40,7 @@ export function IconsGuide() {
       const queryMatches =
         normalizedQuery === "" ||
         record.name.includes(normalizedQuery) ||
-        (record.aliases as readonly string[]).some((alias) => alias.includes(normalizedQuery));
+        record.category.includes(normalizedQuery);
       return categoryMatches && queryMatches;
     });
   }, [category, query]);
@@ -57,7 +58,7 @@ export function IconsGuide() {
 
       <GuideSection title="目录概览" description="数据来自包内生成目录，不维护第二份演示清单。">
         <div className={styles.stats}>
-          <Stat label="图标记录" value={ICON_CATALOG.length} detail="稳定目录与扩展层" />
+          <Stat label="图标记录" value={ICON_CATALOG.length} detail="独立图标目录" />
           <Stat label="分类" value={categories.length} detail="按使用语境分组" />
           <Stat label="渲染方式" value="WOFF2" detail="单一可变字体" />
         </div>

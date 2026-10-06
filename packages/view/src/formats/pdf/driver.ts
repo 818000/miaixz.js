@@ -27,6 +27,9 @@ import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
 
+/**
+ * PDF object source text and its source offset retained by the bounded preview parser.
+ */
 interface PdfObject {
   readonly source: string;
   readonly sourceOffset: number;

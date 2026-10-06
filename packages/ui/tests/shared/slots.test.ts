@@ -27,7 +27,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import { mergeMiaixzSlotProps } from "../../src/shared/slots.js";
 
+/**
+ * Inputs controlling the Test Slot test fixture.
+ */
 type TestSlotProps = HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>;
+/**
+ * Disabled flag supplied to state-dependent slot callbacks in slot-composition tests.
+ */
 type TestOwnerState = Readonly<Record<"disabled", boolean>>;
 
 describe("slot property merging", () => {

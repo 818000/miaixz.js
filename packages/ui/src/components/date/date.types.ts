@@ -23,26 +23,44 @@
  */
 
 export type IsoDate = string;
+/**
+ * String carrying the ISO calendar month representation used by date controls.
+ */
 export type IsoMonth = string;
+/**
+ * String carrying the local clock-time representation used by time controls.
+ */
 export type IsoTime = string;
 
+/**
+ * Year, month, and day components of a validated calendar date.
+ */
 export interface CalendarDateParts {
   readonly year: number;
   readonly month: number;
   readonly day: number;
 }
 
+/**
+ * Clock components extracted from a validated local time.
+ */
 export interface CalendarTimeParts {
   readonly hour: number;
   readonly minute: number;
   readonly second: number;
 }
 
+/**
+ * Date and display state of one cell in the rendered calendar month grid.
+ */
 export interface CalendarMonthCell extends CalendarDateParts {
   readonly date: IsoDate;
   readonly outsideMonth: boolean;
 }
 
+/**
+ * Accessible naming alternatives accepted by calendar and picker controls.
+ */
 export type DateControlLabel =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };

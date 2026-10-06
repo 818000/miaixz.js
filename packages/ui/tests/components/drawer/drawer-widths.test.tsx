@@ -205,6 +205,12 @@ describe("Drawer widths", () => {
       y: 100,
       toJSON: () => undefined,
     });
+    /**
+     * Renders the positioned drawer fixture for the requested placement and width policy.
+     *
+     * @param placement - Drawer edge placement used by the positioned fixture.
+     * @returns Localized positioned drawer fixture element.
+     */
     const renderDrawer = (placement: "bottom" | "left" | "right") => (
       <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
         <Drawer

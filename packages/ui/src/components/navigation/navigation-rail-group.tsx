@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements navigation rail group support for the navigation component.
+ * Renders a labeled navigation-rail group and its current-item presentation.
  */
 
 import { forwardRef, useId } from "react";

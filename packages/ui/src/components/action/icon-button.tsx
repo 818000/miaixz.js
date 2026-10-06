@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements icon button support for the action component.
+ * Renders accessible icon-only commands with pressed, disabled, and loading state.
  */
 
 import { forwardRef } from "react";

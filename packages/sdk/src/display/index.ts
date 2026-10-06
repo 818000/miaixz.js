@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports appearance management, validation, migration, and their public contracts.
  */
 
 export {

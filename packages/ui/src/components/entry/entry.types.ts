@@ -25,16 +25,25 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Resolved Entry state exposed to theme and slot overrides.
+ */
 export interface EntryOwnerState {
   readonly layout: "split" | "centered";
   readonly contentComponent: "div" | "main";
   readonly hasAside: boolean;
 }
+/**
+ * Attributes accepted by the Entry Root slot.
+ */
 export type EntryRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-layout"?: EntryOwnerState["layout"];
     readonly "data-has-aside"?: boolean;
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Entry.
+ */
 export interface EntrySlotProps {
   readonly root?: MiaixzSlotProps<EntryOwnerState, EntryRootAttributes>;
   readonly aside?: MiaixzSlotProps<EntryOwnerState, HTMLAttributes<HTMLElement>>;

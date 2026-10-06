@@ -24,9 +24,21 @@
 
 import type { HTMLAttributes, ReactNode } from "react";
 
+/**
+ * Toolbar surface treatments permitted by the component contract.
+ */
 export type ToolbarSurface = "plain" | "filled";
+/**
+ * Toolbar spacing densities permitted by the component contract.
+ */
 export type ToolbarDensity = "compact" | "standard" | "comfortable";
+/**
+ * Toolbar layout orientations permitted by the component contract.
+ */
 export type ToolbarOrientation = "horizontal" | "vertical";
+/**
+ * Toolbar visual variants permitted by the component contract.
+ */
 export type ToolbarVariant =
   | "default"
   | "actions"
@@ -38,13 +50,22 @@ export type ToolbarVariant =
   | "batch"
   | "editor"
   | "grid";
+/**
+ * Toolbar accessible naming alternatives permitted by the component contract.
+ */
 type ToolbarName =
   | { readonly "aria-label": string; readonly "aria-labelledby"?: never }
   | { readonly "aria-label"?: never; readonly "aria-labelledby": string };
+/**
+ * Toolbar No accessible naming alternatives permitted by the component contract.
+ */
 type ToolbarNoName = {
   readonly "aria-label"?: never;
   readonly "aria-labelledby"?: never;
 };
+/**
+ * Properties accepted by the Toolbar Native renderer.
+ */
 type ToolbarNativeProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "aria-labelledby" | "aria-orientation" | "children" | "role"
@@ -60,7 +81,13 @@ type ToolbarNativeProps = Omit<
   readonly variant?: ToolbarVariant;
   readonly label?: string;
 };
+/**
+ * Properties accepted by the Semantic Toolbar renderer.
+ */
 type SemanticToolbarProps = ToolbarNativeProps & ToolbarName & { readonly behavior: "toolbar" };
+/**
+ * Properties accepted by the Group Toolbar renderer.
+ */
 type GroupToolbarProps = ToolbarNativeProps &
   (ToolbarName | ToolbarNoName) & { readonly behavior?: "group" };
 /**

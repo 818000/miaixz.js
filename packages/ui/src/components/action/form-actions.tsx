@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements form actions support for the action component.
+ * Renders native form submission and cancellation controls with shared action styling.
  */
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

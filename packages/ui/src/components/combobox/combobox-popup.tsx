@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements combobox popup support for the combobox component.
+ * Positions the combobox popup and connects dismissal and listbox presentation.
  */
 
 import type { ReactNode, RefObject, UIEvent } from "react";

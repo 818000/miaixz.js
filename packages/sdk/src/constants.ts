@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the constants module.
+ * Re-exports canonical request timeout, header names, and persisted-storage keys.
  */
 
 export { miaixzDefaultRequestTimeoutMs, miaixzHeaders } from "./fabric/api/constants.js";

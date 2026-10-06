@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the post message protocol module.
+ * Defines and validates bridge envelopes, origins, identifiers, and sanitized remote errors.
  */
 
 import {

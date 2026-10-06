@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements panel context support for the panel component.
+ * Shares panel presentation defaults with header, footer, and row descendants.
  */
 
 import { createContext, useContext } from "react";

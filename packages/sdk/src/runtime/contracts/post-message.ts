@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the post message module.
+ * Defines validated cross-origin bridge messages and transport options.
  */
 
 import type { MiaixzHostAdapter, MiaixzHostBridge } from "./host-context.js";

@@ -140,6 +140,12 @@ function getMiaixzDismissibleLayerStore(ownerDocument: Document): MiaixzDismissi
   if (existing !== undefined) return existing;
 
   const entries: MiaixzDismissibleLayerEntry[] = [];
+  /**
+   * Dismisses only the top registered layer for an unhandled Escape key.
+   *
+   * @param event - Native keyboard event dispatched in the owning document.
+   * @returns No return value; handled Escape prevents its default action.
+   */
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key !== "Escape" || event.defaultPrevented) return;
     const topLayer = entries.at(-1);
@@ -147,6 +153,12 @@ function getMiaixzDismissibleLayerStore(ownerDocument: Document): MiaixzDismissi
     event.preventDefault();
     topLayer.dismiss("escape");
   };
+  /**
+   * Dismisses layers above the deepest layer containing the pointer-event path.
+   *
+   * @param event - Native pointer event including its composed DOM path.
+   * @returns No return value; already prevented events are ignored.
+   */
   const handlePointerDown = (event: PointerEvent) => {
     if (event.defaultPrevented) return;
     const path = event.composedPath();

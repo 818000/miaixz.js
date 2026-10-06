@@ -88,6 +88,13 @@ export const Popover = withMiaixzThemeComponent(
       placement,
       ...(popupRole === undefined ? {} : { popupRole }),
     };
+    /**
+     * Records the visibility-change reason and focus-restoration policy before updating popover state.
+     *
+     * @param nextOpen - Requested popover visibility.
+     * @param reason - User action responsible for the requested state change.
+     * @returns No return value.
+     */
     const requestOpenChange = (nextOpen: boolean, reason: MiaixzOverlayChangeReason): void => {
       if (nextOpen === isOpen) return;
       pendingReasonRef.current = reason;

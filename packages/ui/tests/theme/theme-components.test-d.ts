@@ -24,6 +24,9 @@
 
 import type { ThemeComponents } from "../../src/theme/registry.js";
 
+/**
+ * Closed set of component names required in the theme registry.
+ */
 type ExpectedComponentName =
   | "Pressable"
   | "Button"
@@ -147,12 +150,21 @@ type ExpectedComponentName =
   | "Heatmap"
   | "HeatmapLegend";
 
+/**
+ * Requires a compile-time registry assertion to evaluate to true.
+ */
 type Assert<T extends true> = T;
+/**
+ * Compares types through generic conditional functions for registry assertions.
+ */
 type Equal<Left, Right> =
   (<Value>() => Value extends Left ? 1 : 2) extends <Value>() => Value extends Right ? 1 : 2
     ? true
     : false;
 
+/**
+ * Compile-time comparison between the declared and expected theme component names.
+ */
 type RegistryIsExact = Assert<Equal<keyof ThemeComponents, ExpectedComponentName>>;
 
 const buttonTheme: NonNullable<ThemeComponents["Button"]> = {
@@ -188,4 +200,7 @@ void buttonTheme;
 void invalidComponent;
 void invalidSlot;
 void invalidOwnerState;
+/**
+ * Forces the exact theme-registry comparison to satisfy the true constraint.
+ */
 type _RegistryIsExact = RegistryIsExact;

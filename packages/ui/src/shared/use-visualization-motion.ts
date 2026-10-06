@@ -28,9 +28,18 @@ import type { ForwardedRef, PointerEventHandler, RefCallback } from "react";
 import { useMedia } from "./responsive/use-media.js";
 import { useMergedRef } from "./use-merged-ref.js";
 
+/**
+ * HTML or SVG root element supported by visualization motion bindings.
+ */
 type VisualizationElement = HTMLElement | SVGSVGElement;
+/**
+ * Pending, entry-animation, or completed state of visualization motion.
+ */
 type VisualizationMotionState = "complete" | "enter" | "pending";
 
+/**
+ * Paired pointer listeners that start and stop visualization replay.
+ */
 interface VisualizationReplayListeners {
   /**
    * Starts replay when the pointer enters the visualization.
@@ -42,6 +51,9 @@ interface VisualizationReplayListeners {
   readonly leave: EventListener;
 }
 
+/**
+ * Root ref, consumer pointer handlers, and replay lifetime for one visualization.
+ */
 interface VisualizationMotionOptions<T extends VisualizationElement> {
   /**
    * Receives the visualization root element.
@@ -132,15 +144,30 @@ export function useVisualizationMotion<T extends VisualizationElement>({
     const element = localRef.current;
     if (!element) return undefined;
 
+    /**
+     * Cancels and clears the visualization entry-completion timer.
+     *
+     * @returns No return value.
+     */
     const clearCompletionTimer = () => {
       if (completionTimerRef.current === undefined) return;
       window.clearTimeout(completionTimerRef.current);
       completionTimerRef.current = undefined;
     };
+    /**
+     * Marks visualization entry complete and releases its tracked completion timer.
+     *
+     * @returns No return value.
+     */
     const complete = () => {
       setMotionState("complete");
       completionTimerRef.current = undefined;
     };
+    /**
+     * Starts visualization entry and schedules completion after the configured replay duration.
+     *
+     * @returns No return value.
+     */
     const enter = () => {
       clearCompletionTimer();
       setMotionState("enter");
@@ -276,10 +303,22 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
     const replayTimers = new Map<HTMLElement, number>();
     const replayListeners = new Map<HTMLElement, VisualizationReplayListeners>();
 
+    /**
+     * Marks visualization entry complete and releases its tracked completion timer.
+     *
+     * @param visualization - Visualization element whose motion state and timers are managed.
+     * @returns No return value.
+     */
     const complete = (visualization: HTMLElement) => {
       visualization.dataset.motionState = "complete";
       completionTimers.delete(visualization);
     };
+    /**
+     * Starts entry only for a pending visualization and schedules its completion timer.
+     *
+     * @param visualization - Visualization element whose motion state and timers are managed.
+     * @returns No return value.
+     */
     const enter = (visualization: HTMLElement) => {
       if (visualization.dataset.motionState !== "pending") return;
       visualization.dataset.motionState = "enter";
@@ -288,6 +327,12 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
         window.setTimeout(() => complete(visualization), replayDuration),
       );
     };
+    /**
+     * Restarts the visualization replay marker unless reduced motion is active, replacing previous timers.
+     *
+     * @param visualization - Visualization element whose motion state and timers are managed.
+     * @returns No return value.
+     */
     const replay = (visualization: HTMLElement) => {
       if (reduced) return;
       const completionTimer = completionTimers.get(visualization);
@@ -309,6 +354,12 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
         }, replayDuration),
       );
     };
+    /**
+     * Cancels visualization timers, removes replay styling, and marks its entry complete.
+     *
+     * @param visualization - Visualization element whose motion state and timers are managed.
+     * @returns No return value.
+     */
     const stopReplay = (visualization: HTMLElement) => {
       const completionTimer = completionTimers.get(visualization);
       if (completionTimer !== undefined) {
@@ -326,7 +377,17 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
     visualizations.forEach((visualization) => {
       visualization.dataset.motionState = reduced ? "complete" : "pending";
       if (reduced) return;
+      /**
+       * Replays the bound visualization when its interaction entry event fires.
+       *
+       * @returns No return value.
+       */
       const enterListener: EventListener = () => replay(visualization);
+      /**
+       * Stops replay for the bound visualization when its interaction exit event fires.
+       *
+       * @returns No return value.
+       */
       const leaveListener: EventListener = () => stopReplay(visualization);
       visualization.addEventListener("pointerenter", enterListener);
       visualization.addEventListener("pointerleave", leaveListener);
@@ -349,6 +410,11 @@ export function useVisualizationGroupMotion<T extends HTMLElement>({
       visualizations.forEach((visualization) => observer?.observe(visualization));
     }
 
+    /**
+     * Starts pending visualizations entering the viewport and releases their intersection observations.
+     *
+     * @returns No return value.
+     */
     const activateVisibleVisualizations = () => {
       visualizations.forEach((visualization) => {
         if (visualization.dataset.motionState !== "pending") return;

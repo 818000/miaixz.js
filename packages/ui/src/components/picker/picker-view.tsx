@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements picker view support for the picker component.
+ * Renders selected picker values, option controls, and query-result presentation.
  */
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";

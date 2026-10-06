@@ -25,11 +25,17 @@
 import type { HTMLAttributes, ReactElement, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Properties accepted by the Tooltip Trigger renderer.
+ */
 export interface MiaixzTooltipTriggerProps
   extends HTMLAttributes<HTMLElement>, RefAttributes<HTMLElement> {
   readonly disabled?: boolean;
   readonly "aria-describedby"?: string;
 }
+/**
+ * Tooltip controlled or uncontrolled open-state alternatives permitted by the component contract.
+ */
 export type TooltipOpenState =
   | {
       readonly open: boolean;
@@ -41,16 +47,28 @@ export type TooltipOpenState =
       readonly defaultOpen?: boolean;
       readonly onOpenChange?: (open: boolean) => void;
     };
+/**
+ * Named Tooltip parts available for slot and style customization.
+ */
 export type TooltipSlot = "trigger" | "content";
+/**
+ * Resolved Tooltip state exposed to theme and slot overrides.
+ */
 export interface TooltipOwnerState {
   readonly open: boolean;
   readonly placement: "top" | "right" | "bottom" | "left";
   readonly disabledTrigger: boolean;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Tooltip.
+ */
 export interface TooltipSlotProps {
   readonly trigger?: MiaixzSlotProps<TooltipOwnerState, MiaixzTooltipTriggerProps>;
   readonly content?: MiaixzSlotProps<TooltipOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Properties accepted by the Tooltip renderer.
+ */
 export type TooltipProps = TooltipOpenState & {
   readonly content: string | number;
   readonly children: ReactElement<MiaixzTooltipTriggerProps>;

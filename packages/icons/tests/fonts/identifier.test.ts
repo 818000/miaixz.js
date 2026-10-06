@@ -23,20 +23,30 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { ICON_NAMES } from "../../src/values/icons.js";
+import { isIconName, parseIconName } from "../../src/runtime/index.js";
 
-import { ICON_NAMES } from "../../src/autogen/icons.js";
-
-describe("generated icon identifiers", () => {
-  it("uses unique SCREAMING_SNAKE_CASE keys", () => {
-    const keys = Object.keys(ICON_NAMES);
-    expect(keys).toHaveLength(1781);
-    expect(new Set(keys).size).toBe(keys.length);
-    expect(keys.every((key) => /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/u.test(key))).toBe(true);
-  });
-
-  it("uses canonical kebab-case values without aliases", () => {
-    const names = Object.values(ICON_NAMES);
-    expect(new Set(names).size).toBe(names.length);
+describe("canonical icon identifiers", () => {
+  it("uses exactly the mapping own keys as valid names", () => {
+    const names = Object.keys(ICON_NAMES);
+    expect(names.length).toBeGreaterThan(0);
     expect(names.every((name) => /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u.test(name))).toBe(true);
+    for (const name of names) {
+      expect(Object.hasOwn(ICON_NAMES, name)).toBe(true);
+      expect(isIconName(name)).toBe(true);
+      expect(parseIconName(name)).toBe(name);
+    }
+  });
+  it.each([
+    "not-a-real-icon",
+    "",
+    "SEARCH",
+    "toString",
+    "constructor",
+    "__proto__",
+    "hasOwnProperty",
+  ])("rejects unknown or prototype name %s", (name) => {
+    expect(isIconName(name)).toBe(false);
+    expect(() => parseIconName(name)).toThrow(TypeError);
   });
 });

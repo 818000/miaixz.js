@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements time picker support for the date component.
+ * Normalizes time input and exposes accessible time-selection controls.
  */
 
 import { forwardRef, useEffect, useMemo, useState } from "react";
@@ -95,16 +95,34 @@ export const TimePicker = withMiaixzThemeComponent(
     const coarsePointer = useMedia("(pointer: coarse)");
     const { t } = useMiaixzLocale();
     useEffect(() => setRawValue(resolvedValue ?? ""), [resolvedValue]);
+    /**
+     * Updates uncontrolled popup visibility and reports the requested visibility in both modes.
+     *
+     * @param next - Requested popup visibility.
+     * @returns No return value.
+     */
     const setOpen = (next: boolean) => {
       if (open === undefined) setUncontrolledOpen(next);
       onOpenChange?.(next);
     };
+    /**
+     * Commits a nullable ISO time, synchronizes input text, and clears validation feedback.
+     *
+     * @param next - ISO time to commit, or null to clear an optional field.
+     * @returns No return value.
+     */
     const commit = (next: IsoTime | null) => {
       if (value === undefined) setUncontrolledValue(next);
       setRawValue(next ?? "");
       setInvalid(false);
       onValueChange?.(next);
     };
+    /**
+     * Checks time syntax, inclusive bounds, and step alignment relative to the minimum time.
+     *
+     * @param candidate - ISO time candidate including seconds when configured.
+     * @returns Whether the candidate is syntactically valid, within bounds, and step-aligned.
+     */
     const isValid = (candidate: IsoTime) => {
       const seconds = secondsOf(candidate, includeSeconds);
       return (
@@ -114,6 +132,11 @@ export const TimePicker = withMiaixzThemeComponent(
         (seconds - minSeconds) % step === 0
       );
     };
+    /**
+     * Commits empty optional input or a valid step-aligned time; invalid input remains uncommitted.
+     *
+     * @returns No return value.
+     */
     const commitRaw = () => {
       if (rawValue === "" && !required) {
         commit(null);

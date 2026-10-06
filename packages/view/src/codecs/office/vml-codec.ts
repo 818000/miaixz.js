@@ -35,6 +35,9 @@ import {
   type XmlElement,
 } from "../xml/xml-codec.js";
 
+/**
+ * Local alias for the format-neutral parsed XML element contract.
+ */
 type Element = XmlElement;
 
 /**

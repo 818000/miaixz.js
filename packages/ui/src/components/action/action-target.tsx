@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements action target support for the action component.
+ * Renders a command button or navigation anchor from an action descriptor.
  */
 
 import type { ReactElement, ReactNode, Ref } from "react";
@@ -28,6 +28,9 @@ import { Button, ButtonLink } from "../button/button.js";
 import { type ButtonLinkSlotProps, type ButtonSlotProps } from "../button/button.types.js";
 import type { ActionDescriptor, ActionTextSlotProps } from "./action.types.js";
 
+/**
+ * Properties accepted by the Action Target renderer.
+ */
 interface ActionTargetProps {
   /**
    * Resolved command or navigation action.

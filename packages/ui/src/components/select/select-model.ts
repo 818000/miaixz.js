@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements select model support for the select component.
+ * Validates native select option identities and resolves display/selection models.
  */
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
@@ -49,6 +49,12 @@ export interface FlatSelectOption {
 export function validateAndFlattenSelectEntries(items: readonly SelectEntry[]): FlatSelectOption[] {
   const ids = new Set<string>();
   const options: FlatSelectOption[] = [];
+  /**
+   * Records a select entry identifier and rejects duplicates before rendering.
+   *
+   * @param id - Stable option or group identifier.
+   * @returns No return value; duplicate identifiers throw a canonical collection error.
+   */
   const registerId = (id: string) => {
     if (ids.has(id)) throw new MiaixzUiError({ code: "UI_COLLECTION_DUPLICATE_ID" });
     ids.add(id);

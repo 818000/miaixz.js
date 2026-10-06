@@ -19,13 +19,16 @@
 */
 
 /**
- * Implements tree async loader support for the tree component.
+ * Loads and caches tree children while tracking cancellation, loading, and error state.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { TreeNode } from "./tree.types.js";
 
+/**
+ * Abortable child-loading operations and cached results owned by a tree instance.
+ */
 export interface TreeAsyncLoader<Value> {
   readonly childCache: ReadonlyMap<string, readonly TreeNode<Value>[]>;
   readonly loadingIds: ReadonlySet<string>;

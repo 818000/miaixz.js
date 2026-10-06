@@ -27,10 +27,19 @@ import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNo
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { InputProps, InputRootAttributes, InputSize } from "../input/input.types.js";
 
+/**
+ * Search change notification reasons permitted by the component contract.
+ */
 export type SearchChangeReason = "input" | "clear";
+/**
+ * Named Search parts available for slot and style customization.
+ */
 export type SearchSlot =
   "root" | "input" | "startAdornment" | "endAdornment" | "clear" | "shortcut";
 
+/**
+ * Resolved Search state exposed to theme and slot overrides.
+ */
 export interface SearchOwnerState {
   readonly variant: "default" | "header";
   readonly width: "fill" | "medium";
@@ -40,6 +49,9 @@ export interface SearchOwnerState {
   readonly filled: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Search.
+ */
 export interface SearchSlotProps {
   readonly root?: MiaixzSlotProps<SearchOwnerState, InputRootAttributes>;
   readonly input?: MiaixzSlotProps<SearchOwnerState, InputHTMLAttributes<HTMLInputElement>>;
@@ -49,6 +61,9 @@ export interface SearchSlotProps {
   readonly shortcut?: MiaixzSlotProps<SearchOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
 
+/**
+ * Component-specific Search properties composed with the permitted native attributes.
+ */
 interface SearchBaseProps extends Omit<
   InputProps,
   | "children"
@@ -69,6 +84,9 @@ interface SearchBaseProps extends Omit<
   readonly slotProps?: SearchSlotProps;
 }
 
+/**
+ * Mutually exclusive controlled or uncontrolled search query configuration.
+ */
 export type SearchValueState =
   | {
       readonly value: string;

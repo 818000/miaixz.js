@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the sdk module.
+ * Creates authentication-mode-specific SDK instances and coordinates service lifecycle cleanup.
  */
 
 import {
@@ -620,6 +620,14 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
         })
       : undefined;
 
+  /**
+   * Creates an HTTP client using the active SDK authentication, locale, and context policies.
+   *
+   * @param baseUrl - Validated API base URL.
+   * @param environment - Execution environment governing transport restrictions.
+   * @param timeoutMs - Optional request timeout in milliseconds.
+   * @returns Client bound to the SDK context and authentication providers.
+   */
   const createClient = (
     baseUrl: string,
     environment: MiaixzSdkConfig["environment"],

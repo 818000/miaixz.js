@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the request state test module.
+ * Verifies request completion, duplicate replay, cancellation, and timeout cleanup.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";

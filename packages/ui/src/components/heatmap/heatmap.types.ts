@@ -32,8 +32,17 @@ import type {
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
+/**
+ * Discrete intensity level assigned to a heatmap cell.
+ */
 export type HeatmapLevel = 0 | 1 | 2 | 3 | 4 | 5;
+/**
+ * Accessible descriptions corresponding to the heatmap intensity levels.
+ */
 export type HeatmapLevelLabels = readonly [string, string, string, string, string, string];
+/**
+ * Row and column labels, indices, and intensity supplied to heatmap formatters.
+ */
 export interface HeatmapCellContext {
   readonly rowLabel: string;
   readonly columnLabel: string;
@@ -41,21 +50,33 @@ export interface HeatmapCellContext {
   readonly rowIndex: number;
   readonly columnIndex: number;
 }
+/**
+ * Resolved Heatmap state exposed to theme and slot overrides.
+ */
 export interface HeatmapOwnerState {
   readonly density: "compact" | "standard" | "comfortable" | "workbench";
   readonly captionVisibility: "visible" | "hidden";
   readonly tone: MiaixzVisualTone;
   readonly state: "empty" | "ready";
 }
+/**
+ * Attributes accepted by the Heatmap Root slot.
+ */
 export interface HeatmapRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-tone"?: MiaixzVisualTone;
   readonly "data-density"?: HeatmapOwnerState["density"];
   readonly "data-caption-visibility"?: HeatmapOwnerState["captionVisibility"];
   readonly "data-state"?: HeatmapOwnerState["state"];
 }
+/**
+ * Attributes accepted by the Heatmap Cell slot.
+ */
 export interface HeatmapCellAttributes extends TdHTMLAttributes<HTMLTableCellElement> {
   readonly "data-level"?: HeatmapLevel;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Heatmap.
+ */
 export interface HeatmapSlotProps {
   readonly root?: MiaixzSlotProps<HeatmapOwnerState, HeatmapRootAttributes>;
   readonly viewport?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -71,6 +92,9 @@ export interface HeatmapSlotProps {
   readonly cellText?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly legend?: MiaixzSlotProps<HeatmapOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Properties accepted by the Heatmap renderer.
+ */
 export interface HeatmapProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "children" | "color"
@@ -86,15 +110,27 @@ export interface HeatmapProps extends Omit<
   readonly getCellLabel?: (context: HeatmapCellContext) => string;
   readonly slotProps?: HeatmapSlotProps;
 }
+/**
+ * Resolved Heatmap Legend state exposed to theme and slot overrides.
+ */
 export interface HeatmapLegendOwnerState {
   readonly tone: MiaixzVisualTone;
 }
+/**
+ * Attributes accepted by the Heatmap Legend Root slot.
+ */
 export interface HeatmapLegendRootAttributes extends HTMLAttributes<HTMLSpanElement> {
   readonly "data-tone"?: MiaixzVisualTone;
 }
+/**
+ * Attributes accepted by the Heatmap Legend Swatch slot.
+ */
 export interface HeatmapLegendSwatchAttributes extends HTMLAttributes<HTMLElement> {
   readonly "data-level"?: number;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Heatmap Legend.
+ */
 export interface HeatmapLegendSlotProps {
   readonly root?: MiaixzSlotProps<HeatmapLegendOwnerState, HeatmapLegendRootAttributes>;
   readonly lowLabel?: MiaixzSlotProps<HeatmapLegendOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -103,6 +139,9 @@ export interface HeatmapLegendSlotProps {
   readonly highLabel?: MiaixzSlotProps<HeatmapLegendOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly description?: MiaixzSlotProps<HeatmapLegendOwnerState, HTMLAttributes<HTMLOListElement>>;
 }
+/**
+ * Properties accepted by the Heatmap Legend renderer.
+ */
 export interface HeatmapLegendProps extends Omit<
   HTMLAttributes<HTMLSpanElement>,
   "children" | "color"

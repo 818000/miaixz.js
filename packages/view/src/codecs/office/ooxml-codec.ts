@@ -76,6 +76,9 @@ import {
 } from "./theme-codec.js";
 import { parseVmlDrawing, parseVmlElements } from "./vml-codec.js";
 
+/**
+ * Local alias for the parsed XML document contract used by Office codecs.
+ */
 type XMLDocument = XmlDocument;
 
 /**
@@ -876,6 +879,12 @@ function hasPart(archive: ZipArchive, path: string): boolean {
  */
 function prefixScene(scene: DrawingScene, prefix: string): DrawingScene {
   const idMap = new Map(scene.shapes.map((shape) => [shape.id, `${prefix}-${shape.id}`]));
+  /**
+   * Namespaces an Office drawing relationship identifier within its scene.
+   *
+   * @param id - Local relationship or shape identifier.
+   * @returns Scene-prefixed identifier used by diagram edges.
+   */
   const edgeId = (id: string): string => `${prefix}-${id}`;
   const edges: DiagramEdge[] = scene.edges.map((edge) => ({
     ...edge,
@@ -1280,6 +1289,9 @@ async function parsePresentation(
   };
 }
 
+/**
+ * Word page dimensions and margins used when positioning document drawings.
+ */
 interface WordPageMetrics {
   readonly width: number;
   readonly height: number;
@@ -1353,6 +1365,12 @@ function wordText(element: XmlElement): string {
  */
 function selectedWordElements(root: XmlElement, localNames: ReadonlySet<string>): XmlElement[] {
   const result: XmlElement[] = [];
+  /**
+   * Collects drawing elements while selecting one AlternateContent branch.
+   *
+   * @param element - Parsed Word XML element to traverse.
+   * @returns No return value; appends accepted elements without duplicating alternate branches.
+   */
   const visit = (element: XmlElement): void => {
     if (element.localName === "AlternateContent") {
       const choice = element.children.find(
@@ -1541,6 +1559,11 @@ async function parseWord(
   let paragraphIndex = 0;
   let drawingIndex = 0;
   const body = first(document, "body") ?? document.documentElement;
+  /**
+   * Starts a new Word preview page and resets its vertical layout cursor.
+   *
+   * @returns No return value; adds empty background, foreground, and text collections.
+   */
   const newPage = (): void => {
     pageIndex += 1;
     pageBehindScenes.push([]);

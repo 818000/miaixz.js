@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the assert accessible name UI module.
+ * Checks required accessible names before rendering labeled UI controls.
  */
 
 import { MiaixzUiError } from "../errors/ui-error.js";

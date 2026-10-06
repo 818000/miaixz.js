@@ -149,6 +149,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
     const slotProps = props.slotProps;
     const themeSlotProps = defaults?.slotProps;
     const ownerState: DialogOwnerState = { size, scroll, open, showClose };
+    /**
+     * Resolves theme classes for one dialog slot using the current owner state.
+     *
+     * @param slot - Component slot whose theme classes are resolved.
+     * @returns Theme class names for the requested dialog slot.
+     */
     const themeClasses = (slot: DialogSlot) =>
       getMiaixzThemeSlotClassNames(theme, ownerState, slot);
     const dialogRef = useRef<HTMLDialogElement>(null);
@@ -159,6 +165,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
     const descriptionId = useId();
     const portalTarget = useMiaixzPortalTarget();
 
+    /**
+     * Reports a dialog close request with the originating dismissal reason.
+     *
+     * @param reason - User action responsible for the requested state change.
+     * @returns No return value.
+     */
     const requestClose = (reason: DialogCloseReason): void => onOpenChange(false, reason);
     const restoreFocusRef = useMiaixzNativeModal(dialogRef, open, portalTarget);
 

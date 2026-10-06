@@ -75,6 +75,12 @@ export const Heatmap = withMiaixzThemeComponent(
     const state = rowLabels.length === 0 || columnLabels.length === 0 ? "empty" : "ready";
     const ownerState: HeatmapOwnerState = { density, captionVisibility, tone, state };
     const { elementRef: viewportRef, overflowing } = useOverflowFocus(true);
+    /**
+     * Uses a custom cell label or a localized description of its row, column, and level.
+     *
+     * @param context - Cell row, column, and level values used to construct its accessible label.
+     * @returns No return value.
+     */
     const formatCell = (context: HeatmapCellContext) =>
       getCellLabel?.(context) ??
       t("ui.heatmap.cellLabel", {

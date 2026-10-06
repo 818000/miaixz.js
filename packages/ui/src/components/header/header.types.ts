@@ -25,20 +25,38 @@
 import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
+/**
+ * Header spacing densities permitted by the component contract.
+ */
 export type HeaderDensity = "compact" | "standard" | "comfortable";
+/**
+ * Named Header parts available for slot and style customization.
+ */
 export type HeaderSlot = "root" | "content" | "eyebrow" | "title" | "description" | "actions";
+/**
+ * Resolved Header state exposed to theme and slot overrides.
+ */
 export interface HeaderOwnerState {
   readonly density: HeaderDensity;
   readonly spacing: "default" | "none";
 }
+/**
+ * Replaceable slot components accepted by Header.
+ */
 export interface HeaderSlots {
   readonly description?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Attributes accepted by the Header Root slot.
+ */
 export type HeaderRootAttributes = HTMLAttributes<HTMLElement> &
   RefAttributes<HTMLElement> & {
     readonly "data-density"?: HeaderDensity;
     readonly "data-spacing"?: "default" | "none";
   };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Header.
+ */
 export interface HeaderSlotProps {
   readonly root?: MiaixzSlotProps<HeaderOwnerState, HeaderRootAttributes>;
   readonly content?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -47,6 +65,9 @@ export interface HeaderSlotProps {
   readonly description?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly actions?: MiaixzSlotProps<HeaderOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
+/**
+ * Component-specific Header properties composed with the permitted native attributes.
+ */
 export interface MiaixzHeaderOwnProps {
   readonly density?: HeaderDensity;
   readonly spacing?: "default" | "none";

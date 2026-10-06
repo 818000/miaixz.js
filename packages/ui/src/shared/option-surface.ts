@@ -101,6 +101,11 @@ export function useMiaixzOptionSurface(
     const surface = surfaceRef.current;
     if (!open || anchor === null || surface === null) return undefined;
     const viewport = anchor.ownerDocument.defaultView!;
+    /**
+     * Matches popup width to its anchor, updates the row-height cap, and reveals the active option.
+     *
+     * @returns No return value.
+     */
     const update = () => {
       surface.style.width = `${anchor.getBoundingClientRect().width}px`;
       const height = measureMiaixzOptionSurfaceHeight(surface);
@@ -113,6 +118,11 @@ export function useMiaixzOptionSurface(
       revealMiaixzOption(surface, activeOptionRef.current);
     };
     const resize = typeof ResizeObserver === "function" ? new ResizeObserver(update) : undefined;
+    /**
+     * Refreshes resize observations for the anchor, surface, and current options before remeasuring.
+     *
+     * @returns No return value.
+     */
     const observeRows = () => {
       resize?.disconnect();
       resize?.observe(anchor);

@@ -124,8 +124,23 @@ export const FileView = forwardRef<FileViewHandle, FileViewProps>(function FileV
       : (activeSpreadsheetSheet?.layout.zoomScale ?? 100);
   const displayedZoom = scale * (savedSpreadsheetZoom / 100);
 
+  /**
+   * Increases viewer scale by one quarter, capped at four times the default scale.
+   *
+   * @returns No return value.
+   */
   const zoomIn = (): void => setScale((value) => clamp(value + 0.25, 0.25, 4));
+  /**
+   * Decreases viewer scale by one quarter, capped at one quarter of the default scale.
+   *
+   * @returns No return value.
+   */
   const zoomOut = (): void => setScale((value) => clamp(value - 0.25, 0.25, 4));
+  /**
+   * Restores the default viewer scale of one.
+   *
+   * @returns No return value.
+   */
   const resetZoom = (): void => setScale(1);
 
   useImperativeHandle(

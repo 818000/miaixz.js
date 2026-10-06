@@ -30,7 +30,13 @@ import { promisify } from "node:util";
 import { pathToFileURL } from "node:url";
 
 import { readRepositoryVersion } from "../../../miaixz.mjs";
-import { assetsRoot, loadIconSource, packageRoot, repositoryRoot } from "../source.mjs";
+import {
+  assetsRoot,
+  loadIconSource,
+  packageRoot,
+  repositoryRoot,
+  unicodeRangeFor,
+} from "../source.mjs";
 
 const executeFile = promisify(execFile);
 const allowedScopes = new Set(["all", "package", "source", "structure"]);
@@ -85,7 +91,7 @@ export function parseArguments(arguments_) {
  * @returns {Promise<void>} Completion promise.
  */
 async function validateSource() {
-  await loadIconSource({ validateUfo: true });
+  await loadIconSource();
 }
 
 /**
@@ -97,13 +103,21 @@ async function validateStructure() {
   const rootEntries = (await readdir(assetsRoot)).sort();
   invariant(
     JSON.stringify(rootEntries) ===
-      JSON.stringify(["design.json", "fonts", "icons", "icons.json", "source.schema.json"]),
+      JSON.stringify(["design.json", "fonts", "icons", "icons.json", "schema.json"]),
     `Unexpected source asset set: ${rootEntries.join(", ")}.`,
   );
-  const generated = (await readdir(resolve(packageRoot, "src/autogen"))).sort();
   invariant(
-    JSON.stringify(generated) === JSON.stringify(["icons.ts"]),
-    "src/autogen must contain only icons.ts.",
+    !existsSync(resolve(packageRoot, "src/autogen")),
+    "src/autogen is retired; generated icon definitions belong in src/values.",
+  );
+  const generated = (await readdir(resolve(packageRoot, "src/values"))).sort();
+  invariant(
+    JSON.stringify(generated) === JSON.stringify(["design.ts", "icons.ts", "metadata.ts"]),
+    "src/values must contain exactly design.ts, icons.ts and metadata.ts.",
+  );
+  invariant(
+    !existsSync(resolve(packageRoot, "src/catalog.ts")),
+    "Catalog must be exported directly from values/metadata; src/catalog.ts is forbidden.",
   );
   const styles = (await readdir(resolve(packageRoot, "src/styles"))).sort();
   invariant(
@@ -118,12 +132,12 @@ async function validateStructure() {
  * @param {string} path Dist-relative file path.
  * @returns {boolean} Whether the file is allowed.
  */
-function allowedDistFile(path) {
+export function allowedDistFile(path) {
   return (
     path === "assets/fonts/miaixz-icons.woff2" ||
     path === "styles.css" ||
-    /^(?:autogen|react|runtime)\/.*\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path) ||
-    /^(?:index)\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path)
+    /^values\/(?:metadata|design|icons)\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path) ||
+    /^(?:react\/index|runtime\/(?:index|font)|index)\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path)
   );
 }
 
@@ -152,9 +166,19 @@ async function validatePackage() {
   invariant(manifest.version === release, `Icon package version must be ${release}.`);
   invariant(
     JSON.stringify(Object.keys(manifest.exports)) ===
-      JSON.stringify([".", "./styles.css", "./font.woff2"]),
-    "Icon package exports must contain exactly root, styles.css, and font.woff2.",
+      JSON.stringify([".", "./catalog", "./styles.css", "./font.woff2"]),
+    "Icon package exports must contain exactly root, catalog, styles.css, and font.woff2.",
   );
+  for (const [key, filename] of [
+    [".", "index"],
+    ["./catalog", "values/metadata"],
+  ]) {
+    invariant(
+      JSON.stringify(manifest.exports[key]) ===
+        JSON.stringify({ types: `./dist/${filename}.d.ts`, import: `./dist/${filename}.js` }),
+      `${key} export is invalid.`,
+    );
+  }
   invariant(
     manifest.exports["./styles.css"] === "./dist/styles.css",
     "styles.css export is invalid.",
@@ -170,12 +194,20 @@ async function validatePackage() {
   for (const required of [
     "index.js",
     "index.d.ts",
+    ...["icons", "metadata", "design"].flatMap((name) => [
+      `values/${name}.js`,
+      `values/${name}.d.ts`,
+    ]),
     "styles.css",
     "assets/fonts/miaixz-icons.woff2",
   ]) {
     invariant(distFiles.includes(required), `Required dist file is missing: ${required}.`);
   }
   const source = await loadIconSource();
+  invariant(
+    (await stat(resolve(distRoot, "values/icons.js"))).size <= source.design.limits.runtimeBytes,
+    "Icon mapping exceeds its raw byte limit.",
+  );
   invariant(
     (await stat(resolve(distRoot, "assets/fonts/miaixz-icons.woff2"))).size <=
       source.design.limits.fontBytes,
@@ -187,7 +219,10 @@ async function validatePackage() {
     css.includes('url("./assets/fonts/miaixz-icons.woff2")'),
     "Published font URL is invalid.",
   );
-  invariant(css.includes("unicode-range: U+F0000-F06F4;"), "Published Unicode range is invalid.");
+  invariant(
+    css.includes(`unicode-range: ${unicodeRangeFor(source.icons)};`),
+    "Published Unicode range is invalid.",
+  );
   const { stdout } = await executeFile("npm", ["pack", "--dry-run", "--json"], {
     cwd: packageRoot,
     maxBuffer: 10 * 1024 * 1024,

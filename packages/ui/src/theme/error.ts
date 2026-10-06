@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the error UI module.
+ * Defines stable theme-validation errors and safe diagnostic details.
  */
 
 import { MiaixzUiError } from "../errors/ui-error.js";

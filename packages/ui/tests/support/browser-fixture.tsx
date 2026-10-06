@@ -322,6 +322,9 @@ function ActionShowcase() {
   );
 }
 
+/**
+ * Closed set of browser fixture identifiers exposed by the accessibility test harness.
+ */
 export type AccessibilityFixtureName =
   | "alert"
   | "avatar"

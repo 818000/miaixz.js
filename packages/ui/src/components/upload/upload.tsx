@@ -26,7 +26,7 @@ import { forwardRef, useMemo, useState, type ReactElement } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
-import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
+import { Icon, type IconName } from "@miaixz/icons";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { UploadFileRecord } from "../../shared/upload/types.js";
 import { useUploadQueue } from "../../shared/upload/use-upload-queue.js";
@@ -140,11 +140,23 @@ export const Upload = withMiaixzThemeComponent(
       [queue.files],
     );
 
+    /**
+     * Stores immutable file-validation errors and reports each rejected file with its matching error.
+     *
+     * @param rejections - File rejection records to convert into reported validation errors.
+     * @returns No return value.
+     */
     const reportRejections = (rejections: readonly DropzoneRejection[]): void => {
       const errors = rejections.map(createRejectionError);
       setValidationErrors(Object.freeze(errors));
       rejections.forEach((rejection, index) => onError(rejection.file, errors[index]));
     };
+    /**
+     * Validates selected files against remaining queue capacity, type signatures, and size limits before enqueueing.
+     *
+     * @param selected - Files selected for validation and insertion into the upload queue.
+     * @returns No return value.
+     */
     const handleFiles = (selected: readonly File[]): void => {
       const availableCount = Math.max(0, effectiveMaxFiles - queue.files.length);
       if (availableCount === 0) {
@@ -164,6 +176,12 @@ export const Upload = withMiaixzThemeComponent(
       if (result.accepted.length > 0) queue.add(result.accepted);
       if (result.rejections.length > 0) reportRejections(result.rejections);
     };
+    /**
+     * Removes an enabled upload immediately or records it for confirmation according to policy.
+     *
+     * @param record - Queued upload record requested for removal.
+     * @returns No return value.
+     */
     const requestRemove = (record: UploadFileRecord): void => {
       if (disabled) return;
       if (removePolicy === "immediate") queue.remove(record.id);
@@ -299,8 +317,8 @@ function getStatusKey(status: UploadFileRecord["status"]): string {
  * @returns Stable icon name for the state.
  */
 function getStatusIcon(status: UploadFileRecord["status"]): IconName {
-  if (status === "uploading") return ICON_NAMES.LOADING;
-  if (status === "succeeded") return ICON_NAMES.CIRCLE_CHECK;
-  if (status === "failed") return ICON_NAMES.CIRCLE_ALERT;
-  return ICON_NAMES.FILE;
+  if (status === "uploading") return "loading";
+  if (status === "succeeded") return "circle-check";
+  if (status === "failed") return "circle-alert";
+  return "file";
 }

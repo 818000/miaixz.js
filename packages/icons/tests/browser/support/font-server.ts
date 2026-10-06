@@ -27,19 +27,37 @@ import type { AddressInfo } from "node:net";
 
 const fontPaths = Object.freeze(["/assets/miaixz-icons.woff2"]);
 
+/**
+ * HTTP font request and response observations recorded by the browser test server.
+ */
 export interface FontRequestRecord {
   readonly method: string;
   readonly path: string;
   readonly status: number;
 }
 
+/**
+ * Running test font server with request observations and an explicit shutdown operation.
+ */
 export interface FontTestServer {
   readonly origin: string;
   readonly requests: readonly FontRequestRecord[];
+  /**
+   * Stops the loopback HTTP server and waits for its listener to close.
+   * @returns Server shutdown completion.
+   */
   close(): Promise<void>;
+  /**
+   * Counts requests recorded for one exact URL pathname.
+   * @param path - Pathname to match, including its leading slash.
+   * @returns Number of recorded requests for that path.
+   */
   count(path: string): number;
 }
 
+/**
+ * Provides test font bytes and paths that return deterministic HTTP 404 failures.
+ */
 export interface FontTestServerOptions {
   readonly failures?: readonly string[];
   readonly fonts?: Readonly<Record<string, Uint8Array>>;

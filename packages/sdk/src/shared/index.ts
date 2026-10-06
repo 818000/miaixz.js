@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the index module.
+ * Exports shared date, number, object, and string validation utilities.
  */
 
 export { isValidDate } from "./date.js";

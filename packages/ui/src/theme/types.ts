@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the types UI module.
+ * Defines theme tokens, preset metadata, component overrides, and runtime state contracts.
  */
 
 import type {
@@ -42,16 +42,6 @@ import type { MiaixzThemeShadow } from "../design/shadow.js";
 import type { MiaixzThemeSurfaces } from "../design/surfaces.js";
 import type { MiaixzThemeTypography } from "../design/typography.js";
 
-/**
- * Defines the supported theme runtime failures.
- *
- * @public
- */
-/**
- * Describes a typed theme failure before the concrete error class is instantiated.
- *
- * @public
- */
 /**
  * Defines theme-controlled non-color tokens.
  *

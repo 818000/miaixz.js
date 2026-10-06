@@ -219,6 +219,12 @@ describe("Appearance", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "ui.appearance.open" }));
+    /**
+     * Finds the appearance radio fixture with the requested value.
+     *
+     * @param value - Appearance radio value to locate.
+     * @returns Radio fixture element with the requested value.
+     */
     const choice = (value: string) =>
       screen.getAllByRole("radio").find((input) => input.getAttribute("value") === value)!;
     fireEvent.click(choice("forest"));

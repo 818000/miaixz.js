@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the eslint config module.
+ * Configures JavaScript/TypeScript linting and strict JSDoc requirements for the SDK package.
  */
 
 import babelParser from "@babel/eslint-parser";

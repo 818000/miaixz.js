@@ -33,6 +33,9 @@ import {
   useAppearancePosition,
 } from "../../src/appearance/use-appearance-position.js";
 
+/**
+ * Inputs controlling the Harness test fixture.
+ */
 interface HarnessProps {
   readonly draggable?: boolean;
   readonly position?: number;

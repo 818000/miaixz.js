@@ -34,12 +34,18 @@ import type {
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzVisualTone } from "../shared.types.js";
 
+/**
+ * Named numeric contribution and visual tone for one donut-chart segment.
+ */
 export interface DonutSegment {
   readonly id: string;
   readonly label: string;
   readonly value: number;
   readonly tone: MiaixzVisualTone;
 }
+/**
+ * Resolved Donut state exposed to theme and slot overrides.
+ */
 export interface DonutOwnerState {
   readonly size: "small" | "medium" | "large";
   readonly variant: "ring" | "distribution";
@@ -47,12 +53,18 @@ export interface DonutOwnerState {
   readonly state: "empty" | "ready";
   readonly animate: boolean;
 }
+/**
+ * Attributes accepted by the Donut Root slot.
+ */
 export interface DonutRootAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-size"?: DonutOwnerState["size"];
   readonly "data-variant"?: DonutOwnerState["variant"];
   readonly "data-state"?: DonutOwnerState["state"];
   readonly "data-animate"?: boolean;
 }
+/**
+ * Per-slot attributes and state-dependent override callbacks for Donut.
+ */
 export interface DonutSlotProps {
   readonly root?: MiaixzSlotProps<DonutOwnerState, DonutRootAttributes>;
   readonly visual?: MiaixzSlotProps<DonutOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -67,6 +79,9 @@ export interface DonutSlotProps {
   readonly tableHeader?: MiaixzSlotProps<DonutOwnerState, ThHTMLAttributes<HTMLTableCellElement>>;
   readonly tableCell?: MiaixzSlotProps<DonutOwnerState, TdHTMLAttributes<HTMLTableCellElement>>;
 }
+/**
+ * Properties accepted by the Donut renderer.
+ */
 export interface DonutProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "aria-label" | "children" | "color"

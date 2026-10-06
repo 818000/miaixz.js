@@ -85,6 +85,12 @@ describe("built-in format matrix", () => {
   });
 
   it("recognizes binary signatures independently from filename evidence", () => {
+    /**
+     * Encodes textual format fixtures as UTF-8 bytes.
+     *
+     * @param value - Textual fixture contents to encode.
+     * @returns UTF-8 encoded fixture bytes.
+     */
     const ascii = (value: string): Uint8Array => new TextEncoder().encode(value);
     const signatures: readonly Uint8Array[] = [
       ascii("%PDF-1.7"),

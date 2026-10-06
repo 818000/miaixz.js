@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the file types module.
+ * Defines service-managed file metadata shared by upload and download APIs.
  */
 
 import type { MiaixzTimestamp } from "../api/api.types.js";

@@ -40,6 +40,9 @@ export interface MiaixzFormValidationControl {
   readonly focus?: () => void;
 }
 
+/**
+ * Controls and submit/reset handlers retained for a shared native form.
+ */
 interface MiaixzFormValidationRegistry {
   /**
    * Contains currently mounted controls.
@@ -86,6 +89,12 @@ function orderControls(
  */
 function createRegistry(form: HTMLFormElement): MiaixzFormValidationRegistry {
   const controls = new Set<MiaixzFormValidationControl>();
+  /**
+   * Validates form controls in DOM order and focuses the first invalid control.
+   *
+   * @param event - Native form submission event.
+   * @returns No return value; invalid forms prevent native submission.
+   */
   const onSubmit = (event: SubmitEvent) => {
     let firstInvalid: MiaixzFormValidationControl | undefined;
     for (const control of orderControls(controls)) {
@@ -96,6 +105,11 @@ function createRegistry(form: HTMLFormElement): MiaixzFormValidationRegistry {
     const invalidControl = firstInvalid;
     (invalidControl.focus ?? (() => invalidControl.element.focus({ preventScroll: true })))();
   };
+  /**
+   * Defers control-state resets until after the native form reset event.
+   *
+   * @returns No return value; schedules registered control resets in a microtask.
+   */
   const onReset = () => {
     queueMicrotask(() => {
       for (const control of controls) control.reset();

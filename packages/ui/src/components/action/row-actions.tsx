@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements row actions support for the action component.
+ * Coordinates the primary and overflow actions belonging to a data row.
  */
 
 import { type HTMLAttributes } from "react";

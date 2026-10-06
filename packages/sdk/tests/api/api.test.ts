@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the api test module.
+ * Verifies API request preparation, response parsing, retries, and telemetry behavior.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";

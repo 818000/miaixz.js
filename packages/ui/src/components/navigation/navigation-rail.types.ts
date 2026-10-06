@@ -26,12 +26,24 @@ import type { HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { NavigationEntry } from "./navigation.types.js";
 
+/**
+ * Navigation Rail visual variants permitted by the component contract.
+ */
 export type NavigationRailVariant = "default" | "brand";
+/**
+ * Navigation Rail spacing densities permitted by the component contract.
+ */
 export type NavigationRailDensity = "compact" | "standard" | "comfortable";
+/**
+ * Navigation item contract reused by rail entries and their overflow presentation.
+ */
 export type NavigationRailItem = NavigationEntry & {
   readonly overflow?: "auto" | "never";
   readonly priority?: number;
 };
+/**
+ * Labeled group of navigation-rail items identified as one overflow unit.
+ */
 export interface NavigationRailGroupModel {
   readonly id: string;
   readonly label: ReactNode;
@@ -39,14 +51,23 @@ export interface NavigationRailGroupModel {
   readonly items: readonly NavigationRailItem[];
   readonly placement?: "start" | "end";
 }
+/**
+ * Named Navigation Rail parts available for slot and style customization.
+ */
 export type NavigationRailSlot =
   "root" | "header" | "toggle" | "brand" | "body" | "groups" | "utility" | "overflow";
+/**
+ * Resolved Navigation Rail state exposed to theme and slot overrides.
+ */
 export interface NavigationRailOwnerState {
   readonly expanded: boolean;
   readonly variant: NavigationRailVariant;
   readonly density: NavigationRailDensity;
   readonly measured: boolean;
 }
+/**
+ * Attributes accepted by the Navigation Rail Root slot.
+ */
 export type NavigationRailRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & {
     readonly "data-expanded"?: boolean;
@@ -54,9 +75,15 @@ export type NavigationRailRootAttributes = HTMLAttributes<HTMLDivElement> &
     readonly "data-density"?: NavigationRailDensity;
     readonly "data-measured"?: boolean;
   };
+/**
+ * Attributes accepted by the Navigation Rail Overflow slot.
+ */
 export type NavigationRailOverflowAttributes = HTMLAttributes<HTMLDivElement> & {
   readonly "data-measuring"?: boolean;
 };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Navigation Rail.
+ */
 export interface NavigationRailSlotProps {
   readonly root?: MiaixzSlotProps<NavigationRailOwnerState, NavigationRailRootAttributes>;
   readonly header?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -67,6 +94,9 @@ export interface NavigationRailSlotProps {
   readonly utility?: MiaixzSlotProps<NavigationRailOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly overflow?: MiaixzSlotProps<NavigationRailOwnerState, NavigationRailOverflowAttributes>;
 }
+/**
+ * Component-specific Navigation Rail properties composed with the permitted native attributes.
+ */
 export interface MiaixzNavigationRailOwnProps {
   readonly brand: ReactNode;
   readonly toggle: ReactNode;

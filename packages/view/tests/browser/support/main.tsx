@@ -30,6 +30,9 @@ import "../../../dist/styles.css";
 import { browserPresentationFixture, browserWordFixture } from "./office-fixtures.js";
 
 declare global {
+  /**
+   * Browser test window augmented with the fixture controls and observations used by assertions.
+   */
   interface Window {
     __XLSX_PREVIEW_RESULT__?: string;
     __OFFICE_PREVIEW_RESULT__?: string;

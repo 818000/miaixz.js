@@ -105,6 +105,9 @@ for (const record of formatManifest) {
   }
 }
 
+/**
+ * Detected binary signature with its format and associated detection evidence.
+ */
 interface SignatureMatch {
   readonly driver: FormatDriverId;
   readonly extension?: string;
@@ -234,6 +237,13 @@ export function detectFormat(
   const normalizedMime = mimeType?.split(";", 1)[0]?.trim().toLowerCase() || undefined;
   const evidence: FormatEvidence[] = [];
   const scores = new Map<FormatDriverId, number>();
+  /**
+   * Records format evidence and adds its score to the matching driver.
+   *
+   * @param driver - Driver receiving the detection score.
+   * @param item - Evidence item contributing to that driver.
+   * @returns No return value; updates the accumulated evidence and scores.
+   */
   const add = (driver: FormatDriverId, item: FormatEvidence): void => {
     evidence.push(item);
     scores.set(driver, (scores.get(driver) ?? 0) + item.score);

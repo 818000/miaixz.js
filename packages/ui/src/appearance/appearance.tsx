@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the appearance UI module.
+ * Renders appearance controls and binds them to the SDK appearance manager.
  */
 
 import type { MiaixzColorMode, MiaixzDensity } from "@miaixz/sdk/appearance";
@@ -131,6 +131,15 @@ function Appearance(props: AppearanceProps) {
     defaultProps: { className: "miaixz-appearance-option" },
     slotProps: slotProps?.option,
   });
+  /**
+   * Renders a decorative appearance preview beside its visible option label.
+   *
+   * @param kind - Appearance setting illustrated by the preview.
+   * @param value - Setting value exposed to preview styling.
+   * @param label - Visible option label.
+   * @param style - Optional CSS preview overrides.
+   * @returns Decorative preview and its visible label.
+   */
   const preview = (
     kind: "theme" | "mode" | "density" | "header",
     value: string,
@@ -152,6 +161,14 @@ function Appearance(props: AppearanceProps) {
     </span>
   );
 
+  /**
+   * Wraps appearance options in a labeled fieldset.
+   *
+   * @param label - Visible group legend.
+   * @param children - Option controls belonging to the group.
+   * @param className - Optional additional options-container class.
+   * @returns Fieldset element with the shared section-slot attributes.
+   */
   const group = (label: string, children: ReactNode, className = "") => (
     <fieldset {...sectionSlotProps}>
       <legend>{label}</legend>

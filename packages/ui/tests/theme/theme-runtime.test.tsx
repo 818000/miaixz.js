@@ -120,10 +120,16 @@ function ThemeProbe() {
   );
 }
 
+/**
+ * Inputs controlling the Root Theme Probe test fixture.
+ */
 interface RootThemeProbeProps extends HTMLAttributes<HTMLDivElement> {
   readonly active?: boolean;
 }
 
+/**
+ * Exposes root theme defaults and owner-state classes through the themed Bar test fixture.
+ */
 const RootThemeProbe = withMiaixzThemeComponent(
   "Bar",
   forwardRef<HTMLDivElement, RootThemeProbeProps>(function RootThemeProbe(
@@ -134,10 +140,16 @@ const RootThemeProbe = withMiaixzThemeComponent(
   }),
 );
 
+/**
+ * Static attributes or owner-state callback supplied to the theme-runtime probe slot.
+ */
 type ProbeSlot =
   | Readonly<Record<string, unknown>>
   | ((ownerState: Readonly<Record<string, unknown>>) => Readonly<Record<string, unknown>>);
 
+/**
+ * Inputs controlling the Slot Theme Probe test fixture.
+ */
 interface SlotThemeProbeProps extends HTMLAttributes<HTMLDivElement> {
   readonly mode?: "content" | "navigation" | "tabs";
   readonly slotProps?: Readonly<Record<string, ProbeSlot | undefined>>;
@@ -158,6 +170,9 @@ function resolveProbeSlot(
   return typeof slot === "function" ? slot(ownerState) : (slot ?? {});
 }
 
+/**
+ * Exposes slot property composition through the themed View test fixture.
+ */
 const SlotThemeProbe = withMiaixzThemeComponent(
   "View",
   forwardRef<HTMLDivElement, SlotThemeProbeProps>(function SlotThemeProbe(

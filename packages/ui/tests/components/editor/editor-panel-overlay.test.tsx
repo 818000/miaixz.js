@@ -247,6 +247,12 @@ describe("Panel", () => {
   });
 
   it("rejects missing, duplicate, and blank semantic names", () => {
+    /**
+     * Renders a panel with deliberately invalid properties for contract rejection assertions.
+     *
+     * @param props - Invalid panel properties supplied to the rejection fixture.
+     * @returns Testing Library render result when the supplied properties are accepted; invalid properties throw.
+     */
     const invalid = (props: Record<string, unknown>) =>
       render(<Panel {...(props as never)}>Body</Panel>);
     expect(() => invalid({ as: "section" })).toThrowError(

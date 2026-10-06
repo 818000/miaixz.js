@@ -19,7 +19,7 @@
 */
 
 /**
- * Defines the standalone source formatter configuration for @miaixz/ui.
+ * Defines shared source formatting and scoped generated-icon overrides for this repository.
  *
  * @public
  */
@@ -29,6 +29,15 @@ const configuration = {
   singleQuote: false,
   trailingComma: "all",
   overrides: [
+    /**
+     * Keeps all generated icon-name keys quoted without changing other source formatting.
+     */
+    {
+      files: "../icons/src/values/icons.ts",
+      options: {
+        quoteProps: "preserve",
+      },
+    },
     {
       files: "../icons/src/assets/**/*.json",
       options: {

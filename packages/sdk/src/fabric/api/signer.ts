@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the signer module.
+ * Canonicalizes REST gateway parameters and produces authentication-dependent request headers.
  */
 
 import type { MiaixzApiClient } from "./client.js";

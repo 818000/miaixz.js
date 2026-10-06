@@ -72,6 +72,12 @@ export const Graph = withMiaixzThemeComponent(
     );
     const nodeRefs = useRef(new Map<string, SVGGElement>());
     const nodesById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
+    /**
+     * Uses the custom node label or a localized label including its optional description.
+     *
+     * @param node - Graph node being described, revealed, or focused.
+     * @returns Accessible node description from the formatter or localized fallback.
+     */
     const formatNode = (node: GraphNode): string =>
       nodeFormatter?.(node) ??
       (node.description === undefined
@@ -80,6 +86,14 @@ export const Graph = withMiaixzThemeComponent(
             label: node.label,
             description: node.description,
           }));
+    /**
+     * Uses a custom edge description, explicit edge label, or localized relationship fallback.
+     *
+     * @param edge - Graph edge whose relationship is described.
+     * @param source - Source node of the described graph edge.
+     * @param target - Target node of the described graph edge.
+     * @returns Accessible edge relationship description.
+     */
     const formatEdge = (edge: GraphEdge, source: GraphNode, target: GraphNode): string =>
       edgeFormatter?.(edge, source, target) ??
       edge.label ??
@@ -96,6 +110,12 @@ export const Graph = withMiaixzThemeComponent(
       setActiveNodeId(nodes[0]?.id);
     }, [activeNodeId, nodes, nodesById]);
 
+    /**
+     * Pans only as far as needed to keep the complete node inside the current zoomed viewport.
+     *
+     * @param node - Graph node being described, revealed, or focused.
+     * @returns No return value.
+     */
     const ensureNodeVisible = (node: GraphNode): void => {
       setView((current) => {
         const size = 100 / current.zoom;
@@ -111,12 +131,25 @@ export const Graph = withMiaixzThemeComponent(
       });
     };
 
+    /**
+     * Sets the active node, focuses it without page scrolling, and reveals it in the graph viewport.
+     *
+     * @param node - Graph node being described, revealed, or focused.
+     * @returns No return value.
+     */
     const focusNode = (node: GraphNode): void => {
       setActiveNodeId(node.id);
       nodeRefs.current.get(node.id)?.focus({ preventScroll: true });
       ensureNodeVisible(node);
     };
 
+    /**
+     * Handles node selection, zoom, shift-arrow panning, and directional node navigation.
+     *
+     * @param event - Keyboard event whose key and prevented state control navigation.
+     * @param node - Graph node being described, revealed, or focused.
+     * @returns No return value.
+     */
     const handleNodeKeyDown = (event: KeyboardEvent<SVGGElement>, node: GraphNode): void => {
       if (disabled) return;
       if (event.key === "Enter" || event.key === " ") {

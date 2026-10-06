@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the types module.
+ * Re-exports shared API, appearance, configuration, context, file, permission, and model contracts.
  */
 
 export type {

@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the locale catalog module.
+ * Defines supported locale metadata and validates trusted locale extensions.
  */
 
 import { MiaixzSdkError } from "../errors/errors.js";

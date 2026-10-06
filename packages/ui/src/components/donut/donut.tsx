@@ -31,6 +31,9 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { DonutOwnerState, DonutProps } from "./donut.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * CSS custom properties used to position or size the Donut Segment visual.
+ */
 interface DonutSegmentStyle extends CSSProperties {
   readonly "--miaixz-donut-segment": string;
   readonly "--miaixz-donut-offset": string;

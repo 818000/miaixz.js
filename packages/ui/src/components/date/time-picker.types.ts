@@ -27,6 +27,9 @@ import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes } from "
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { DateControlLabel, IsoTime } from "./date.types.js";
 
+/**
+ * Resolved Time Picker state exposed to theme and slot overrides.
+ */
 export interface TimePickerOwnerState {
   readonly open: boolean;
   readonly invalid: boolean;
@@ -34,6 +37,9 @@ export interface TimePickerOwnerState {
   readonly readOnly: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Time Picker.
+ */
 export interface TimePickerSlotProps {
   readonly root?: MiaixzSlotProps<TimePickerOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly input?: MiaixzSlotProps<TimePickerOwnerState, InputHTMLAttributes<HTMLInputElement>>;
@@ -42,6 +48,9 @@ export interface TimePickerSlotProps {
   readonly option?: MiaixzSlotProps<TimePickerOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
 }
 
+/**
+ * Properties accepted by the Time Picker renderer.
+ */
 export type TimePickerProps = DateControlLabel & {
   readonly value?: IsoTime | null;
   readonly defaultValue?: IsoTime | null;

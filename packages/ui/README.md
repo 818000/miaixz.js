@@ -321,12 +321,12 @@ Components can be imported from the package root or from stable subpaths:
 ```tsx
 import { Button } from "@miaixz/ui/button";
 import { Graph } from "@miaixz/ui/diagram/graph";
-import { ICON_NAMES, Icon, type IconName } from "@miaixz/icons";
+import { Icon, type IconName } from "@miaixz/icons";
 import "@miaixz/icons/styles.css";
 import "@miaixz/ui/button/styles.css";
 import "@miaixz/ui/diagram/graph/styles.css";
 
-const tenantIcon: IconName = ICON_NAMES.BLOCKS;
+const tenantIcon: IconName = "blocks";
 
 <Icon name={tenantIcon} size="navigation" />;
 ```

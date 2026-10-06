@@ -38,11 +38,26 @@ import type {
   SpreadsheetWorkerResultPayload,
 } from "./protocol/spreadsheet-worker-types.js";
 
+/**
+ * Minimal worker-global contract used to receive commands and send spreadsheet results.
+ */
 interface SpreadsheetWorkerScope {
+  /**
+   * Registers the worker's incoming command listener.
+   * @param type - The message event supported by this worker boundary.
+   * @param listener - Handler receiving a correlated worker request.
+   * @returns No return value.
+   */
   addEventListener(
     type: "message",
     listener: (event: MessageEvent<WorkerRequest<unknown>>) => void,
   ): void;
+  /**
+   * Sends a correlated response, optionally transferring ownership of its buffers.
+   * @param message - Result, progress, or error response for the client.
+   * @param transfer - Buffers and other transferable objects moved to the client.
+   * @returns No return value.
+   */
   postMessage(message: WorkerResponse<unknown>, transfer?: readonly Transferable[]): void;
 }
 
@@ -166,6 +181,12 @@ async function open(
   const controller = new AbortController();
   requests.set(request.requestId, controller);
   try {
+    /**
+     * Sends one progress update correlated with the active spreadsheet worker request.
+     *
+     * @param value - Parsing progress emitted by the spreadsheet codec.
+     * @returns No return value; posts a progress response to the owning client.
+     */
     const progress = (value: ViewerProgress): void => respond(request, "progress", value);
     progress({ stage: "opening", indeterminate: true });
     const outcome = await driver.open({

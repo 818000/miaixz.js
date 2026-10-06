@@ -31,6 +31,9 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { ColumnsOwnerState, ColumnsProps } from "./columns.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * CSS custom properties used to position or size the Columns Bar visual.
+ */
 interface ColumnsBarStyle extends CSSProperties {
   readonly "--miaixz-columns-value": string;
   readonly "--miaixz-columns-offset": string;

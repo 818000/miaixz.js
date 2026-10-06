@@ -327,6 +327,12 @@ export function parseSpreadsheetLayout(
       ? {}
       : { fitToHeight: Math.max(0, Math.floor(number(fitToHeight))) }),
   };
+  /**
+   * Reads explicit non-hidden spreadsheet row or column page-break identifiers.
+   *
+   * @param containerName - Row-break or column-break container to inspect.
+   * @returns Normalized nonnegative break identifiers in source order.
+   */
   const breakIds = (containerName: "colBreaks" | "rowBreaks"): number[] => {
     const container = first(document, containerName);
     if (container === undefined) return [];

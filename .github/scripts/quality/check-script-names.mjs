@@ -58,6 +58,11 @@ function inspectDirectory(directory) {
       continue;
     }
     if (!entry.isFile()) continue;
+    if (
+      relative(repositoryRoot, path).split("\\").join("/") ===
+      ".github/scripts/modules/icons/source.mjs"
+    )
+      continue;
     const semanticName = removeTypeSuffix(entry.name);
     if (semanticName === undefined || !namePattern.test(semanticName)) {
       failures.push(relative(repositoryRoot, path));

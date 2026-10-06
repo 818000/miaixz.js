@@ -20,9 +20,7 @@
 
 /**
  * Defines the domain-neutral event-bus port used by SDK stores.
- */
-
-/**
+ *
  * Configures one event publication.
  */
 export interface MiaixzEventEmitOptions {

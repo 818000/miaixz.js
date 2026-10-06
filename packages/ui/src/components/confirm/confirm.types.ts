@@ -27,10 +27,22 @@ import type { HTMLAttributes, ReactNode } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { ButtonProps } from "../button/button.types.js";
 
+/**
+ * Confirm semantic color tones permitted by the component contract.
+ */
 export type ConfirmTone = "normal" | "danger";
+/**
+ * Confirm dismissal reasons permitted by the component contract.
+ */
 export type ConfirmCloseReason = "cancel" | "confirm" | "escape" | "backdrop";
+/**
+ * Named Confirm parts available for slot and style customization.
+ */
 export type ConfirmSlot = "root" | "confirmationInput" | "error" | "cancelButton" | "confirmButton";
 
+/**
+ * Resolved Confirm state exposed to theme and slot overrides.
+ */
 export interface ConfirmOwnerState {
   readonly open: boolean;
   readonly tone: ConfirmTone;
@@ -39,6 +51,9 @@ export interface ConfirmOwnerState {
   readonly confirmationMatches: boolean;
 }
 
+/**
+ * Per-slot attributes and state-dependent override callbacks for Confirm.
+ */
 export interface ConfirmSlotProps {
   readonly root?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly confirmationInput?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
@@ -47,6 +62,9 @@ export interface ConfirmSlotProps {
   readonly confirmButton?: MiaixzSlotProps<ConfirmOwnerState, Omit<ButtonProps, "children">>;
 }
 
+/**
+ * Properties accepted by the Confirm renderer.
+ */
 export interface ConfirmProps {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean, reason: ConfirmCloseReason) => void;

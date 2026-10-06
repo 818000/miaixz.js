@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the post message child module.
+ * Coordinates child handshake, correlated requests, subscriptions, and disconnection.
  */
 
 import { MIAIXZ_MODULE_PROTOCOL_VERSION } from "../contracts/module-manifest.js";
@@ -55,6 +55,9 @@ import {
   uuidPattern,
 } from "./post-message-protocol.js";
 
+/**
+ * Event name and callback registered by the child-side bridge.
+ */
 interface ChildEventListener {
   /**
    * Module-owned event type expected by the listener.

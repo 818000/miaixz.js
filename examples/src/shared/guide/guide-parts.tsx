@@ -2,6 +2,9 @@ import type { ReactNode } from "react";
 
 import styles from "./guide-parts.module.css";
 
+/**
+ * Content and configuration supplied to the Guide Header example renderer.
+ */
 interface GuideHeaderProps {
   readonly packageName: string;
   readonly title: string;
@@ -29,6 +32,9 @@ export function GuideHeader({ packageName, title, description, children }: Guide
   );
 }
 
+/**
+ * Content and configuration supplied to the Guide Section example renderer.
+ */
 interface GuideSectionProps {
   readonly title: string;
   readonly description?: string;
@@ -51,6 +57,9 @@ export function GuideSection({ title, description, children, id }: GuideSectionP
   );
 }
 
+/**
+ * Content and configuration supplied to the Code Block example renderer.
+ */
 interface CodeBlockProps {
   readonly children: string;
   readonly label?: string;
@@ -70,6 +79,9 @@ export function CodeBlock({ children, label = "示例代码" }: CodeBlockProps) 
   );
 }
 
+/**
+ * Content and configuration supplied to the Stat example renderer.
+ */
 interface StatProps {
   readonly label: string;
   readonly value: ReactNode;

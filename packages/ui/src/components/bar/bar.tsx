@@ -29,6 +29,9 @@ import { classNames } from "../../shared/class-names.js";
 import type { BarProps } from "./bar.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * CSS custom properties used to position or size the Bar visual.
+ */
 interface BarStyle extends CSSProperties {
   readonly "--miaixz-bar-progress"?: number;
 }

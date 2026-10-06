@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the styles UI module.
+ * Produces first-paint light and dark CSS from trusted application theme definitions.
  */
 
 import { ThemeCatalog } from "./catalog.js";

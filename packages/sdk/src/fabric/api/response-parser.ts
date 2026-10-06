@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the response parser module.
+ * Parses HTTP bodies using explicit response modes or their declared content type.
  */
 
 import { MiaixzSdkError } from "../../errors/errors.js";

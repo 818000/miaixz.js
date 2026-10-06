@@ -135,6 +135,12 @@ export const Locale = withMiaixzThemeComponent(
       ownedProps: ["role"],
     });
 
+    /**
+     * Applies an optimistic locale change, ignores stale completions, and restores the last successful locale on failure.
+     *
+     * @param nextLocale - Locale identifier requested by the user.
+     * @returns No return value.
+     */
     const selectLocale = (nextLocale: string): void => {
       if (disabled || nextLocale === selectedLocale) return;
       requestSequenceRef.current += 1;

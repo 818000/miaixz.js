@@ -78,6 +78,12 @@ export const hardResourceBudget: ResourceBudget = Object.freeze({
  * @returns Fully resolved immutable budget values for a viewer session.
  */
 export function resolveResourceBudget(overrides?: Partial<ResourceBudget>): ResourceBudget {
+  /**
+   * Normalizes one requested resource limit against default and hard caps.
+   *
+   * @param key - Resource-budget field being resolved.
+   * @returns Positive integer limit capped by the repository hard budget.
+   */
   const value = (key: keyof ResourceBudget): number => {
     const requested = overrides?.[key] ?? defaultResourceBudget[key];
     if (!Number.isFinite(requested) || requested <= 0) return defaultResourceBudget[key];

@@ -33,8 +33,7 @@ const release = (await readFile(resolve(repositoryRoot, "VERSION"), "utf8")).tri
 const validatorUrl = pathToFileURL(
   resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/validate-icon-font.mjs"),
 ).href;
-const { EXPECTED_MASTER_DIRECTORIES, FONTBAKERY_EXCLUSIONS } = (await import(validatorUrl)) as {
-  EXPECTED_MASTER_DIRECTORIES: readonly string[];
+const { FONTBAKERY_EXCLUSIONS } = (await import(validatorUrl)) as {
   FONTBAKERY_EXCLUSIONS: readonly {
     id: string;
     reason: string;
@@ -42,6 +41,11 @@ const { EXPECTED_MASTER_DIRECTORIES, FONTBAKERY_EXCLUSIONS } = (await import(val
   }[];
 };
 const fontsRoot = resolve(process.cwd(), "src/assets/fonts");
+const readerUrl = pathToFileURL(
+  resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/read-font-source.mjs"),
+).href;
+const { inspectFontSource } = await import(readerUrl);
+const fontSource = await inspectFontSource({ fontsRoot });
 
 describe("FontBakery icon-font policy", () => {
   it("uses an exact release-scoped exclusion set with recorded reasons", () => {
@@ -67,7 +71,7 @@ describe("FontBakery icon-font policy", () => {
   });
 
   it("keeps project release versions out of immutable UFO sources", async () => {
-    for (const directory of EXPECTED_MASTER_DIRECTORIES) {
+    for (const { relativePath: directory } of fontSource.masters) {
       const source = await readFile(resolve(fontsRoot, directory, "fontinfo.plist"), "utf8");
       expect(source).toContain("<key>postscriptIsFixedPitch</key>\n  <true/>");
       expect(source).toContain("<key>openTypeOS2Panose</key>");

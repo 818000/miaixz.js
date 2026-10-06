@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements action bar support for the action component.
+ * Measures action widths and partitions primary actions from the overflow menu.
  */
 
 import { createRef, useMemo, useRef, type HTMLAttributes } from "react";
@@ -38,6 +38,9 @@ import type { ActionBarOwnerState, ActionBarProps, ActionDescriptor } from "./ac
 import { MoreActions } from "./more-actions.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * Properties accepted by the Primary Action renderer.
+ */
 interface PrimaryActionProps {
   /**
    * Supplies the resolved primary action.
@@ -45,6 +48,9 @@ interface PrimaryActionProps {
   readonly action: ActionDescriptor;
 }
 
+/**
+ * Properties accepted by the Action Measurement renderer.
+ */
 interface ActionMeasurementProps {
   /**
    * Supplies the action whose intrinsic width is measured.

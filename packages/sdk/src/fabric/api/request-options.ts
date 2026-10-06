@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the request options module.
+ * Normalizes request options and resolves request identifiers, context headers, and credentials.
  */
 
 import { miaixzDefaultRequestTimeoutMs, miaixzHeaders } from "./constants.js";

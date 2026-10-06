@@ -27,14 +27,26 @@ import type { MiaixzFeedbackLive } from "../feedback/feedback.types.js";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzFeedbackTone } from "../shared.types.js";
 
+/**
+ * Named Alert parts available for slot and style customization.
+ */
 export type AlertSlot = "root" | "icon" | "content" | "title" | "message" | "actions" | "dismiss";
+/**
+ * Resolved Alert state exposed to theme and slot overrides.
+ */
 export interface AlertOwnerState {
   readonly tone: MiaixzFeedbackTone;
   readonly live: MiaixzFeedbackLive;
   readonly dismissible: boolean;
 }
+/**
+ * Attributes accepted by the Alert Root slot.
+ */
 export type AlertRootAttributes = HTMLAttributes<HTMLDivElement> &
   RefAttributes<HTMLDivElement> & { readonly "data-tone"?: MiaixzFeedbackTone };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Alert.
+ */
 export interface AlertSlotProps {
   readonly root?: MiaixzSlotProps<AlertOwnerState, AlertRootAttributes>;
   readonly icon?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -44,6 +56,9 @@ export interface AlertSlotProps {
   readonly actions?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly dismiss?: MiaixzSlotProps<AlertOwnerState, HTMLAttributes<HTMLSpanElement>>;
 }
+/**
+ * Component-specific Alert properties composed with the permitted native attributes.
+ */
 export interface MiaixzAlertOwnProps {
   readonly tone?: MiaixzFeedbackTone;
   readonly live?: MiaixzFeedbackLive;
@@ -54,5 +69,8 @@ export interface MiaixzAlertOwnProps {
   readonly onDismiss?: () => void;
   readonly slotProps?: AlertSlotProps;
 }
+/**
+ * Properties accepted by the Alert renderer.
+ */
 export type AlertProps = MiaixzAlertOwnProps &
   Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzAlertOwnProps | "role" | "aria-live">;

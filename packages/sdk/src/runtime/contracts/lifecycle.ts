@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the lifecycle module.
+ * Defines module mount resources and lifecycle cleanup responsibilities.
  */
 
 import type { MiaixzHostBridge } from "./host-context.js";

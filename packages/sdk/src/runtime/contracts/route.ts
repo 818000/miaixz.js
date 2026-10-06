@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements the route module.
+ * Defines module-contributed routes and their host-relative navigation paths.
  */
 
 import { isMiaixzModulePermission } from "./permission.js";

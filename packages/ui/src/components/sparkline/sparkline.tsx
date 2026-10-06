@@ -29,6 +29,9 @@ import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { SparklineOwnerState, SparklineProps } from "./sparkline.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
+/**
+ * Projected point coordinates used to construct the sparkline path.
+ */
 interface SparklinePoint {
   readonly x: number;
   readonly y: number;

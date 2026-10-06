@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements combobox listbox support for the combobox component.
+ * Renders grouped combobox options and loading, error, or empty-result messages.
  */
 
 import type { UIEvent } from "react";

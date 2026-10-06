@@ -64,14 +64,26 @@ export interface TableContainerProps extends HTMLAttributes<HTMLDivElement> {
  * @public
  */
 export type TableDensity = "compact" | "standard" | "comfortable";
+/**
+ * Table divider treatments permitted by the component contract.
+ */
 export type TableDividerStyle = "solid" | "dashed" | "none";
+/**
+ * Named Table parts available for slot and style customization.
+ */
 export type TableSlot = "root";
+/**
+ * Resolved Table state exposed to theme and slot overrides.
+ */
 export interface TableOwnerState {
   readonly density: TableDensity;
   readonly dividerStyle: TableDividerStyle;
   readonly stickyHeader: boolean;
   readonly presentation: "default" | "resource-tree";
 }
+/**
+ * Attributes accepted by the Table Root slot.
+ */
 export type TableRootAttributes = TableHTMLAttributes<HTMLTableElement> &
   RefAttributes<HTMLTableElement> & {
     readonly "data-density"?: TableDensity;
@@ -79,6 +91,9 @@ export type TableRootAttributes = TableHTMLAttributes<HTMLTableElement> &
     readonly "data-sticky-header"?: boolean;
     readonly "data-presentation"?: TableOwnerState["presentation"];
   };
+/**
+ * Properties accepted by the Table renderer.
+ */
 export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   /**
    * Selects the default, dashed, or compact semantic table presentation.
@@ -106,7 +121,13 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
  * @public
  */
 export type TableHeaderSlot = "root";
+/**
+ * Empty owner-state contract for table-header slot overrides.
+ */
 export type TableHeaderOwnerState = Record<never, never>;
+/**
+ * Properties accepted by the Table Header renderer.
+ */
 export interface TableHeaderProps extends HTMLAttributes<HTMLTableSectionElement> {
   readonly slotProps?: {
     readonly root?: MiaixzSlotProps<

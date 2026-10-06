@@ -19,7 +19,7 @@
 */
 
 /**
- * Implements navigation rail support for the navigation component.
+ * Measures and renders navigation-rail content with responsive overflow handling.
  */
 
 import { forwardRef, useId, useMemo, useRef, useState } from "react";
@@ -92,6 +92,11 @@ export const NavigationRail = withMiaixzThemeComponent(
         ((callback: FrameRequestCallback) => window.setTimeout(callback, 0));
       const cancelFrame =
         window.cancelAnimationFrame?.bind(window) ?? window.clearTimeout.bind(window);
+      /**
+       * Coalesces rail measurements into a frame and records available space, overflow, group, and item sizes.
+       *
+       * @returns No return value.
+       */
       const update = () => {
         cancelFrame(frame);
         frame = requestFrame(() => {

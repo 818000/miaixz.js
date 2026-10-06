@@ -29,12 +29,24 @@ import type { IconProps } from "@miaixz/icons";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 import type { MiaixzComponentSize } from "../shared.types.js";
 
+/**
+ * Named Spinner parts available for slot and style customization.
+ */
 export type SpinnerSlot = "root" | "indicator" | "label";
+/**
+ * Resolved Spinner state exposed to theme and slot overrides.
+ */
 export interface SpinnerOwnerState {
   readonly size: MiaixzComponentSize;
 }
+/**
+ * Attributes accepted by the Spinner Root slot.
+ */
 export type SpinnerRootAttributes = HTMLAttributes<HTMLSpanElement> &
   RefAttributes<HTMLSpanElement> & { readonly "data-size"?: MiaixzComponentSize };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Spinner.
+ */
 export interface SpinnerSlotProps {
   readonly root?: MiaixzSlotProps<SpinnerOwnerState, SpinnerRootAttributes>;
   readonly indicator?: MiaixzSlotProps<SpinnerOwnerState, IconProps>;

@@ -116,6 +116,12 @@ export const CSS_GEOMETRY_EXCEPTIONS = Object.freeze([
  */
 export function geometryException({ fileName, selector, property, value }) {
   const file = fileName.split("/").at(-1);
+  /**
+   * Normalizes whitespace before comparing CSS geometry declarations.
+   *
+   * @param text - Declaration text to compare.
+   * @returns Trimmed text with each whitespace run replaced by one space.
+   */
   const normalize = (text) => text.trim().replace(/\s+/gu, " ");
   return CSS_GEOMETRY_EXCEPTIONS.find(
     ([name, rule, prop, literal]) =>
