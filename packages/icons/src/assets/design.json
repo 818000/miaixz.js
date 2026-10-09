@@ -60,115 +60,43 @@
   "opticalClasses": {
     "regular": {
       "longestEdge": [
-        750,
+        680,
         800
-      ],
-      "width": [
-        750,
-        800
-      ],
-      "height": [
-        750,
-        800
-      ],
-      "aspectRatio": [
-        0.9,
-        1.1
       ],
       "centerTolerance": 29
     },
     "wide": {
       "longestEdge": [
-        790,
-        830
-      ],
-      "width": [
-        790,
-        830
-      ],
-      "height": [
-        590,
-        650
-      ],
-      "aspectRatio": [
-        1.22,
-        1.42
+        740,
+        840
       ],
       "centerTolerance": 32
     },
     "tall": {
       "longestEdge": [
-        790,
-        830
-      ],
-      "width": [
-        610,
-        670
-      ],
-      "height": [
-        790,
-        830
-      ],
-      "aspectRatio": [
-        0.72,
-        0.84
+        740,
+        840
       ],
       "centerTolerance": 32
     },
     "directional": {
       "longestEdge": [
-        790,
-        830
-      ],
-      "width": [
-        790,
-        830
-      ],
-      "height": [
-        650,
-        710
-      ],
-      "aspectRatio": [
-        1.12,
-        1.3
+        640,
+        840
       ],
       "centerTolerance": 36
     },
     "compound": {
       "longestEdge": [
-        770,
-        810
-      ],
-      "width": [
-        770,
-        810
-      ],
-      "height": [
-        750,
-        810
-      ],
-      "aspectRatio": [
-        0.95,
-        1.12
+        720,
+        840
       ],
       "centerTolerance": 32
     },
     "line-symbol": {
       "longestEdge": [
-        730,
-        790
-      ],
-      "width": [
-        730,
-        790
-      ],
-      "height": [
-        570,
-        630
-      ],
-      "aspectRatio": [
-        1.17,
-        1.37
+        560,
+        800
       ],
       "centerTolerance": 29
     }
@@ -176,5 +104,34 @@
   "limits": {
     "fontBytes": 524288,
     "runtimeBytes": 163840
+  },
+  "visual": {
+    "strokeWidths": {
+      "compact": {
+        "target": 82,
+        "tolerance": 6
+      },
+      "standard": {
+        "target": 70,
+        "tolerance": 4
+      },
+      "display": {
+        "target": 62,
+        "tolerance": 4
+      }
+    },
+    "frameCornerRadius": {
+      "standard": 40
+    },
+    "circleApproximationError": 0.5,
+    "comparison": {
+      "alphaThreshold": 128,
+      "boundaryPixels": 1,
+      "areaRelativeError": 0.05,
+      "centroidPixels": 0.5,
+      "paddingCssPixels": 2,
+      "compiledOutlineUnits": 1,
+      "subdivisionUnits": 0.05
+    }
   }
 }

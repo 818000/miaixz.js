@@ -15,7 +15,24 @@ const semanticSizes: readonly IconSize[] = [
   "feature",
   "display",
 ];
-const pageSize = 120;
+const pageSize = 96;
+const orderedCatalog = [...ICON_CATALOG].sort((left, right) =>
+  left.name < right.name ? -1 : left.name > right.name ? 1 : 0,
+);
+const refinementFills = [0, 0.25, 0.5, 0.75, 1] as const;
+
+/** Exact pilot names and real font sizes for source refinement previews. */
+const refinementPilots: readonly IconName[] = [
+  "layout-dashboard",
+  "folder",
+  "building",
+  "shield-check",
+  "workflow",
+  "scroll-text",
+  "server-cog",
+  "settings",
+];
+const refinementSizes = [12, 16, 20, 24, 32, 40] as const;
 
 /**
  * Presents the complete variable-font icon catalog with live React controls.
@@ -23,28 +40,36 @@ const pageSize = 120;
 export function IconsGuide() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const [family, setFamily] = useState("all");
   const [fill, setFill] = useState(0);
   const [opsz, setOpsz] = useState(24);
   const [direction, setDirection] = useState<"ltr" | "rtl">("ltr");
-  const [visibleLimit, setVisibleLimit] = useState(pageSize);
+  const [page, setPage] = useState(0);
+  const [matrixExpanded, setMatrixExpanded] = useState(false);
   const [selected, setSelected] = useState<IconName>(ICON_CATALOG[0]!.name);
 
   const categories = useMemo(
     () => [...new Set(ICON_CATALOG.map((record) => record.category))].sort(),
     [],
   );
+  const families = useMemo(
+    () => [...new Set(orderedCatalog.map((record) => record.name.split("-")[0]!))].sort(),
+    [],
+  );
   const matches = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return ICON_CATALOG.filter((record) => {
+    return orderedCatalog.filter((record) => {
       const categoryMatches = category === "all" || record.category === category;
+      const familyMatches = family === "all" || record.name.split("-")[0] === family;
       const queryMatches =
         normalizedQuery === "" ||
         record.name.includes(normalizedQuery) ||
         record.category.includes(normalizedQuery);
-      return categoryMatches && queryMatches;
+      return categoryMatches && familyMatches && queryMatches;
     });
-  }, [category, query]);
-  const visible = matches.slice(0, visibleLimit);
+  }, [category, family, query]);
+  const pageCount = Math.max(1, Math.ceil(matches.length / pageSize));
+  const visible = matches.slice(page * pageSize, (page + 1) * pageSize);
   const selectedRecord = ICON_CATALOG.find((record) => record.name === selected)!;
   const accessibility = selectedRecord.name.replaceAll("-", " ");
 
@@ -137,8 +162,40 @@ export function IconsGuide() {
       </GuideSection>
 
       <GuideSection
+        title="首批精修实尺寸对照"
+        description="八个首批图标使用生产字体与真实字号，同时显示 outline 和 filled；本区域不缩放图形。"
+      >
+        <div className={styles.refinementGrid} dir={direction}>
+          {refinementPilots.map((name) => (
+            <div className={styles.refinementRow} key={name}>
+              <code>{name}</code>
+              {refinementSizes.map((size) => (
+                <div className={styles.refinementCell} key={size}>
+                  <span>{size}px</span>
+                  <div>
+                    <Icon
+                      label={`${name} outline ${size}px`}
+                      name={name}
+                      size={size}
+                      variant="outline"
+                    />
+                    <Icon
+                      label={`${name} filled ${size}px`}
+                      name={name}
+                      size={size}
+                      variant="filled"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </GuideSection>
+
+      <GuideSection
         title="完整图标目录"
-        description="搜索同时匹配规范名称与别名。选择任意字形后，上方检查器会立即更新。"
+        description="搜索匹配规范名称与分类。选择任意字形后，上方检查器会立即更新。"
       >
         <div className={styles.filters}>
           <label>
@@ -146,7 +203,7 @@ export function IconsGuide() {
             <input
               onChange={(event) => {
                 setQuery(event.currentTarget.value);
-                setVisibleLimit(pageSize);
+                setPage(0);
               }}
               placeholder="例如 arrow、file、user"
               type="search"
@@ -158,12 +215,29 @@ export function IconsGuide() {
             <select
               onChange={(event) => {
                 setCategory(event.currentTarget.value);
-                setVisibleLimit(pageSize);
+                setPage(0);
               }}
               value={category}
             >
               <option value="all">全部分类</option>
               {categories.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>完整族名</span>
+            <select
+              value={family}
+              onChange={(event) => {
+                setFamily(event.currentTarget.value);
+                setPage(0);
+              }}
+            >
+              <option value="all">全部族</option>
+              {families.map((value) => (
                 <option key={value} value={value}>
                   {value}
                 </option>
@@ -183,7 +257,11 @@ export function IconsGuide() {
                 onClick={() => setSelected(record.name)}
                 type="button"
               >
-                <Icon fill={fill} name={record.name} size={opsz} />
+                <span className={styles.catalogPreviews}>
+                  <Icon name={record.name} size={16} variant="outline" />
+                  <Icon name={record.name} size={24} variant="outline" />
+                  <Icon name={record.name} size={24} variant="filled" />
+                </span>
                 <span>{record.name}</span>
               </button>
             ))}
@@ -194,15 +272,53 @@ export function IconsGuide() {
           </div>
         )}
 
-        {visible.length < matches.length ? (
+        <nav className={styles.pagination} aria-label="图标目录分页">
           <button
-            className={styles.more}
-            onClick={() => setVisibleLimit((current) => current + pageSize)}
+            disabled={page === 0}
+            onClick={() => setPage((current) => current - 1)}
             type="button"
           >
-            加载更多
+            上一页
           </button>
-        ) : null}
+          <span aria-live="polite">
+            第 {page + 1} / {pageCount} 页
+          </span>
+          <button
+            disabled={page + 1 >= pageCount}
+            onClick={() => setPage((current) => current + 1)}
+            type="button"
+          >
+            下一页
+          </button>
+        </nav>
+        <details onToggle={(event) => setMatrixExpanded(event.currentTarget.open)}>
+          <summary>本页完整六尺寸 × 五填充对照</summary>
+          {matrixExpanded && (
+            <div className={styles.refinementGrid} dir={direction}>
+              {visible.map((record) => (
+                <div className={styles.refinementRow} key={record.name}>
+                  <code>{record.name}</code>
+                  {refinementSizes.map((size) => (
+                    <div className={styles.refinementCell} key={size}>
+                      <span>{size}px</span>
+                      <div>
+                        {refinementFills.map((value) => (
+                          <Icon
+                            key={value}
+                            label={`${record.name} ${size}px FILL ${value}`}
+                            name={record.name}
+                            size={size}
+                            fill={value}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </details>
       </GuideSection>
     </div>
   );

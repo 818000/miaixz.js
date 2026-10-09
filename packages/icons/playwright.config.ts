@@ -23,6 +23,16 @@
  */
 
 import { defineConfig, devices } from "@playwright/test";
+import { mkdtempSync, rmSync } from "node:fs";
+import { devNull, tmpdir } from "node:os";
+import path from "node:path";
+
+/**
+ * Discards last-run metadata instead of retaining an execution record.
+ */
+process.env.PLAYWRIGHT_LAST_RUN_OUTPUT_FILE = devNull;
+const outputDir = mkdtempSync(path.join(tmpdir(), "miaixz-icons-playwright-"));
+process.once("exit", () => rmSync(outputDir, { recursive: true, force: true }));
 
 /**
  * Defines deterministic desktop projects for every supported browser engine.
@@ -30,14 +40,18 @@ import { defineConfig, devices } from "@playwright/test";
  * @public
  */
 export default defineConfig({
-  testDir: "./tests/browser",
-  outputDir: "./tests/.artifacts/playwright",
+  testDir: "./tests",
+  testMatch: "icon.browser.spec.ts",
+  outputDir,
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   workers: 1,
   reporter: "line",
   use: {
+    screenshot: "off",
+    trace: "off",
+    video: "off",
     colorScheme: "light",
     locale: "en-US",
     timezoneId: "UTC",

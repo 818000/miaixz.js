@@ -2,17 +2,18 @@
  * Verifies locale selection, message interpolation, and translated fallback behavior.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import assert from "node:assert/strict";
 import { test } from "vitest";
 
 import { createMiaixzI18n, defineLocale, MiaixzLocaleCatalog } from "../../src/i18n/index.js";
 
 const japanese = defineLocale({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   id: "ja-JP",
   label: "日本語",
   shortLabel: "日",
-  version: "1.0.0",
   aliases: ["ja"],
   keywords: ["Japanese", "日本語"],
   fallback: "en-US",
@@ -40,11 +41,10 @@ test("duplicate locale identifiers and aliases are rejected atomically", () => {
       new MiaixzLocaleCatalog([
         japanese,
         defineLocale({
-          schemaVersion: 1,
+          schemaVersion: VERSION,
           id: "ja",
           label: "Japanese",
           shortLabel: "JA",
-          version: "1.0.0",
         }),
       ]),
     (error: unknown) =>

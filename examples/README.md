@@ -18,7 +18,7 @@ src/
 Install and run from this directory:
 
 ```bash
-npm install
+npm ci --package-lock=true --ignore-scripts --legacy-peer-deps
 npm run dev
 ```
 

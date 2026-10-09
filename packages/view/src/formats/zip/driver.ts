@@ -22,11 +22,14 @@
  * Implements the bounded archive format driver.
  */
 
+import { VERSION } from "../../version.js";
+
 import { ZipArchive } from "../../codecs/archive/zip-codec.js";
 import type { ArchiveDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import { getResourceBudgetGuard } from "../../runtime/resource-budget-guard.js";
 
 /**
  * Lists ZIP entries while rejecting unsupported archive codecs explicitly.
@@ -44,12 +47,16 @@ export const formatDriver: ViewerDriver<ArchiveDocument> = {
     if (context.decision.extension !== "zip") {
       return { status: "rejected", error: new ViewerError("FORMAT_UNSUPPORTED", "parse", true) };
     }
-    const archive = new ZipArchive(bytes, context.budget);
+    const archive = new ZipArchive(bytes, {
+      budget: context.budget,
+      guard: getResourceBudgetGuard(context.budget, context.signal),
+      signal: context.signal,
+    });
     return {
       status: "complete",
       warnings: [],
       model: {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: stableDocumentId(context.resource.name, bytes),
         kind: "archive",
         title: documentTitle(context.resource.name),

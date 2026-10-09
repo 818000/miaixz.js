@@ -55,7 +55,7 @@ const name: IconName = "rocket";
 - `fill` 接受 0–1 连续值，并以 180ms 过渡。
 - `size` 接受 `indicator`、`inline`、`control`、`navigation`、`feature`、`display` 或正数；数值同时驱动 12–40 的 opsz。
 - `motion="none"` 与系统 `prefers-reduced-motion: reduce` 都会关闭过渡。
-- `rtl="mirror"` 的名称只翻转内层字形，不改变根节点布局。
+- 源目录标记 `rtl="mirror"` 的名称仅在实际 RTL 上下文翻转内层字形；LTR 与非镜像名称不翻转，根节点布局不变。
 - `name` 只能使用当前映射中的 canonical 名称；`parseIconName` 会对未知名称抛出 `TypeError`。
 
 根入口只提供 `Icon`、`isIconName`、`parseIconName`、`preloadIconFont`，以及 `IconProps`、`IconMotion`、`IconName`、`IconSize` 类型。普通消费直接使用受 `IconName` 约束的字符串。
@@ -97,4 +97,16 @@ npm install lucide-react
 
 首次 npm 发布前，名称集合变更后按 ASCII 名称顺序从 U+F0000 全量重算码点，并同步六母版 Unicode/order，不承诺旧未发布映射兼容。首次发布后已有名称和码点不重排，新增名称只占用下一个合法码点；达到 U+FFFFD 后拒绝新增。
 
-新增/删除、几何复核、各工具的只读/写入模式及报告位置见 [源维护说明](../../docs/icon-assets-structure.md)。分类与修形必须遵循 [架构方案](../../docs/icon-architecture-remediation-v2.md)，不为单图标放宽阈值。
+现有图标精修遵循 [精修方案](../../docs/icon-refinement-plan.md) 和 [逐文件任务](../../docs/TODO.md)。本轮不重算名称和码点，不导入外部图形，不增加逐图 CSS 补偿；功能全部完成后才进行最终统一验收。
+
+精修直接处理六母版源并逐图核实，不保留精修状态、审计和验收记录；扫描不能替代语义、风格及创作来源核实。
+
+全部GLIF、plist和Designspace源文件在XML声明之后放置唯一完整的Miaixz/Apache 2.0版权注释，使用用户指定的波浪线格式；模板由字体读取工具统一维护。WOFF2不插入文本注释，实际name表保留版权、完整许可正文和许可URL（name ID 0/13/14）。源与成品检查均拒绝缺失或冲突声明；声明不代替图形的真实创作依据。
+
+Outline 的 compact/standard/display 主笔画分别为 82±6、70±4、62±4 字体单位；standard 普通框圆角为 40，其他光学母版按线宽比例处理。尺寸依据安全边界、最长边与光学校核，不强制每个图标同宽同高。filled 保留正确负空间和语义特征，不套用空心笔画门槛。
+
+实际显示对照同时设置 CSS 字号和 opsz 为 12/16/20/24/32/40，FILL 取 0/0.25/0.5/0.75/1。独立源 SVG 对照当前唯一 WOFF2，覆盖 Chromium、Firefox、WebKit 与 DPR 1/2；全部名称 LTR 加镜像名称 RTL，共 336780 对，不跨浏览器比较截图。固定黑色前景/白色采样背景，在内存中验证不透明灰度后精确还原 alpha 覆盖率；不保存截图、不降低既定阈值。
+
+`refinement:scan` 只读扫描并输出终端结果。`icons:visual:check` 执行当前源/字体几何及完整内存显示对照；不读取基线、不保存报告、截图或差异图。单元覆盖率只输出文本，浏览器检查关闭持久化记录。任何失败必须保留真实退出码。
+
+版本只从根目录 `VERSION` 读取；源 JSON 不保存独立版本字段。发布包必需元数据与字体内嵌版本由 VERSION 派生，并校验一致性。包内通过后才进行本地测试安装，真实业务检查通过后才完成交付。

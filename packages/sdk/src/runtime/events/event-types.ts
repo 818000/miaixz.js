@@ -22,6 +22,8 @@
  * Defines SDK event payloads and cross-context validation contracts.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { MiaixzLocale } from "../../i18n/i18n.js";
 import type { MiaixzAppearancePayload } from "../../display/appearance.types.js";
 import type { MiaixzRuntimeContext } from "../../access/context/context.types.js";
@@ -110,7 +112,7 @@ export interface MiaixzEventEnvelope {
   /**
    * Identifies the frozen event-envelope schema.
    */
-  readonly version: 1;
+  readonly version: typeof VERSION;
   /**
    * Uniquely identifies one broadcast operation for deduplication.
    */

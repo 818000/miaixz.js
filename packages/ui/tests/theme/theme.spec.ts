@@ -2,6 +2,8 @@
  * Verifies theme behavior in the UI package.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { expect, test } from "@playwright/test";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
@@ -114,7 +116,7 @@ test("theme delegates pointer and keyboard ripple feedback to semantic actions",
   expect(keyboardFeedback).toBe(true);
 });
 
-test("a schema-one custom theme inherits newly added compact typography defaults", async ({
+test("a versioned custom theme inherits newly added compact typography defaults", async ({
   page,
 }) => {
   await page.goto("/tests/?theme=legacy-custom&colorMode=dark&density=compact");
@@ -126,12 +128,11 @@ test("a schema-one custom theme inherits newly added compact typography defaults
   await expect(page.getByRole("button", { name: "打开长内容抽屉" })).toBeVisible();
 });
 
-test("schema-one non-color roles parse, resolve and serialize through one contract", () => {
+test("versioned non-color roles parse, resolve and serialize through one contract", () => {
   const definition = parseTheme({
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     name: "legacy-non-color",
     label: "Legacy non-color",
-    version: "1.0.0",
     extends: miaixzTheme.name,
     tokens: {
       opacity: { navigationSelected: 0.42 },

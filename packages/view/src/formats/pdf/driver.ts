@@ -22,10 +22,19 @@
  * Implements the local PDF parser without PDF.js.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { PagedDocument, PagedPage, ViewerWarning } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import { decompressBounded } from "../../runtime/decompress-bounded.js";
+import { shouldYieldParser, yieldParserTask } from "../../runtime/cooperative-yield.js";
+import {
+  getResourceBudgetGuard,
+  type ResourceBudgetGuard,
+} from "../../runtime/resource-budget-guard.js";
+import type { ResourceBudget } from "../../shared/contracts/resource-budget.js";
 
 /**
  * PDF object source text and its source offset retained by the bounded preview parser.
@@ -42,16 +51,30 @@ const utf8Decoder = new TextDecoder();
  * Indexes classic indirect PDF objects from decoded source text.
  *
  * @param source - Windows-1252 decoded PDF source.
+ * @param sourceBytes - Complete bounded source byte length.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
  * @returns Object-number map containing source slices and byte offsets.
  */
-function parseObjects(source: string): Map<number, PdfObject> {
+async function parseObjects(
+  source: string,
+  sourceBytes: number,
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+): Promise<Map<number, PdfObject>> {
   const objects = new Map<number, PdfObject>();
+  let count = 0;
   for (const match of source.matchAll(/(\d+)\s+\d+\s+obj\b([\s\S]*?)\bendobj\b/gu)) {
     if (match.index === undefined || match[2] === undefined) continue;
+    if ((count & 0xff) === 0) guard.checkpoint(signal);
+    count += 1;
+    guard.assertLimit("maxVectorRecords", count);
+    guard.consumeEstimatedMemory(match[2].length * 2);
     objects.set(Number(match[1]), {
       source: match[2],
       sourceOffset: match.index + match[0].indexOf(match[2]),
     });
+    if (shouldYieldParser(sourceBytes, count)) await yieldParserTask(signal);
   }
   return objects;
 }
@@ -62,8 +85,8 @@ function parseObjects(source: string): Map<number, PdfObject> {
  * @param value - PDF syntax fragment containing zero or more references.
  * @returns Referenced object numbers in source order.
  */
-function references(value: string): number[] {
-  return [...value.matchAll(/(\d+)\s+\d+\s+R/gu)].map((match) => Number(match[1]));
+function* references(value: string): IterableIterator<number> {
+  for (const match of value.matchAll(/(\d+)\s+\d+\s+R/gu)) yield Number(match[1]);
 }
 
 /**
@@ -162,9 +185,18 @@ function extractText(content: string): string {
  *
  * @param object - Indexed PDF object containing stream metadata.
  * @param bytes - Complete PDF source bytes.
+ * @param budget - Resolved security limits.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
  * @returns Decoded stream text, or undefined for unsupported filters.
  */
-async function streamContent(object: PdfObject, bytes: Uint8Array): Promise<string | undefined> {
+async function streamContent(
+  object: PdfObject,
+  bytes: Uint8Array,
+  budget: ResourceBudget,
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+): Promise<string | undefined> {
   const marker = /stream\r?\n/u.exec(object.source);
   if (marker?.index === undefined) return undefined;
   const end = object.source.lastIndexOf("endstream");
@@ -174,12 +206,17 @@ async function streamContent(object: PdfObject, bytes: Uint8Array): Promise<stri
   while (streamBytes.at(-1) === 0x0a || streamBytes.at(-1) === 0x0d)
     streamBytes = streamBytes.subarray(0, -1);
   if (/\/Filter\s*\/FlateDecode\b/u.test(object.source)) {
-    const stream = new Blob([Uint8Array.from(streamBytes).buffer])
-      .stream()
-      .pipeThrough(new DecompressionStream("deflate"));
-    streamBytes = new Uint8Array(await new Response(stream).arrayBuffer());
+    streamBytes = await decompressBounded(streamBytes, {
+      budget,
+      format: "deflate",
+      guard,
+      maxOutputBytes: budget.maxArchiveEntryBytes,
+      signal,
+    });
   } else if (/\/Filter\b/u.test(object.source)) return undefined;
-  return utf8Decoder.decode(streamBytes);
+  const content = utf8Decoder.decode(streamBytes);
+  guard.consumeTextCharacters(content.length);
+  return content;
 }
 
 /**
@@ -196,6 +233,8 @@ export const formatDriver: ViewerDriver<PagedDocument> = {
   async open(context) {
     const bytes = await context.resource.readAll(context.signal);
     const source = latinDecoder.decode(bytes);
+    const guard = getResourceBudgetGuard(context.budget, context.signal);
+    guard.consumeEstimatedMemory(source.length * 2);
     if (!source.startsWith("%PDF-")) {
       return { status: "rejected", error: new ViewerError("PARSE_FAILED", "parse") };
     }
@@ -203,10 +242,20 @@ export const formatDriver: ViewerDriver<PagedDocument> = {
       return { status: "rejected", error: new ViewerError("FORMAT_UNSUPPORTED", "parse", true) };
     }
     const id = stableDocumentId(context.resource.name, bytes);
-    const objects = parseObjects(source);
-    const pageObjects = [...objects.values()].filter((object) =>
-      /\/Type\s*\/Page\b/u.test(object.source),
-    );
+    const objects = await parseObjects(source, bytes.byteLength, guard, context.signal);
+    const pageObjects: PdfObject[] = [];
+    let scannedObjects = 0;
+    for (const object of objects.values()) {
+      scannedObjects += 1;
+      if (/\/Type\s*\/Page\b/u.test(object.source)) {
+        guard.assertLimit("maxPages", pageObjects.length + 1);
+        pageObjects.push(object);
+      }
+      if (shouldYieldParser(bytes.byteLength, scannedObjects)) {
+        await yieldParserTask(context.signal);
+      }
+    }
+    guard.consumePages(pageObjects.length);
     const pages: PagedPage[] = [];
     const warnings: ViewerWarning[] = [];
     for (const [index, page] of pageObjects.entries()) {
@@ -217,11 +266,13 @@ export const formatDriver: ViewerDriver<PagedDocument> = {
         const object = objects.get(reference);
         if (object === undefined) continue;
         try {
-          const content = await streamContent(object, bytes);
+          const content = await streamContent(object, bytes, context.budget, guard, context.signal);
           if (content === undefined)
             warnings.push({ code: "PDF_FILTER_UNSUPPORTED", messageKey: "pdf.filterUnsupported" });
           else chunks.push(extractText(content));
-        } catch {
+        } catch (error) {
+          if (error instanceof ViewerError && error.code !== "PARSE_FAILED") throw error;
+          context.signal.throwIfAborted();
           warnings.push({ code: "PDF_STREAM_FAILED", messageKey: "pdf.streamFailed" });
         }
       }
@@ -234,7 +285,7 @@ export const formatDriver: ViewerDriver<PagedDocument> = {
     if (pages.length === 0)
       return { status: "rejected", error: new ViewerError("PARSE_FAILED", "parse") };
     const model: PagedDocument = {
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id,
       kind: "paged",
       title: documentTitle(context.resource.name),

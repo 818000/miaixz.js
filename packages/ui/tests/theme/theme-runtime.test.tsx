@@ -22,6 +22,8 @@
  * Verifies theme runtime behavior in the UI package.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { createMiaixzAppearanceManager, miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import "@testing-library/jest-dom/vitest";
 import { act, cleanup, renderHook, screen, waitFor } from "@testing-library/react";
@@ -44,7 +46,7 @@ import { Theme } from "../../src/theme/provider.js";
 import { themePresets } from "../../src/theme/presets/index.js";
 import type { MiaixzSerializedThemeApplication } from "../../src/theme/serialize.js";
 import { withMiaixzThemeComponent } from "../../src/theme/binding.js";
-import { renderWithLocale } from "../support/test-utils.js";
+import { renderWithLocale } from "../test-utils.helper.js";
 
 afterEach(() => {
   cleanup();
@@ -52,10 +54,9 @@ afterEach(() => {
 });
 
 const remoteTheme = defineTheme({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   name: "remote",
   label: "Remote",
-  version: "1.0.0",
   extends: miaixzDefaultAppearance.theme,
   modes: {
     light: { colors: { brand: "#123456" } },
@@ -444,7 +445,7 @@ describe("Theme infrastructure", () => {
     expect(second).toBe(first);
     await expect(first).resolves.toEqual(remoteTheme);
     await expect(cache.load("remote", loader, signal)).resolves.toEqual(remoteTheme);
-    expect(cache.key("remote")).toBe("remote:1:1.0.0");
+    expect(cache.key("remote")).toBe(`remote:${VERSION}`);
     expect(loader).toHaveBeenCalledTimes(1);
 
     await expect(

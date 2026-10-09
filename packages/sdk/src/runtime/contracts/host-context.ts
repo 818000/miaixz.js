@@ -22,6 +22,8 @@
  * Defines the host capabilities available to integrated modules.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { MiaixzMessageCatalog } from "../../i18n/i18n.js";
 import type { MiaixzRuntimeContext } from "../../access/context/context.types.js";
 
@@ -59,7 +61,7 @@ export interface MiaixzHostBridge {
   /**
    * Micro-frontend protocol version implemented by the bridge.
    */
-  readonly protocolVersion: "1.0.0";
+  readonly protocolVersion: typeof VERSION;
 
   /**
    * Reads the current non-sensitive host runtime context.

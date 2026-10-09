@@ -25,7 +25,7 @@
 import { createOoxmlDriver } from "../../../src/codecs/office/ooxml-codec.js";
 import { defaultResourceBudget } from "../../../src/runtime/resource-budget.js";
 import type { DriverContext } from "../../../src/shared/contracts/driver.js";
-import { storedZip } from "../../support/stored-zip.js";
+import { storedZip } from "../archive/stored-zip.helper.js";
 
 const driver = createOoxmlDriver("pptx", "presentation");
 

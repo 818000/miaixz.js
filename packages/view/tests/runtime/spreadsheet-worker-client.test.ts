@@ -22,6 +22,8 @@
  * Verifies the strict XLSX worker boundary, including every terminal path.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { openSpreadsheetInWorker } from "../../src/runtime/spreadsheet-worker-client.js";
 import { defaultResourceBudget } from "../../src/runtime/resource-budget.js";
 import type { SpreadsheetRenderDocument } from "../../src/shared/contracts/document.js";
@@ -35,11 +37,11 @@ import {
 import type { SpreadsheetWorkerResultPayload } from "../../src/workers/protocol/spreadsheet-worker-types.js";
 
 const model: SpreadsheetRenderDocument = {
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   id: "worker-model",
   kind: "spreadsheet",
   title: "Worker model",
-  layoutVersion: 1,
+  layoutVersion: VERSION,
   activeSheetId: "",
   sheets: [],
   drawings: [],

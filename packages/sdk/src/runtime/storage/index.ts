@@ -24,6 +24,7 @@
 
 export {
   createMiaixzStorageKey,
+  createMiaixzStorageVersionPredicate,
   getMiaixzBrowserStorage,
   MiaixzMemoryStorage,
   MiaixzNamespacedStorage,

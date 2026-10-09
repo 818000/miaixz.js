@@ -24,6 +24,16 @@
 
 import { defineConfig } from "@playwright/test";
 import path from "node:path";
+import { mkdtempSync, rmSync } from "node:fs";
+import { devNull, tmpdir } from "node:os";
+
+const iconNoRecords = process.env.MIAIXZ_ICON_NO_RECORDS === "1";
+const temporaryOutputDir = mkdtempSync(path.join(tmpdir(), "miaixz-ui-playwright-"));
+const outputDir = path.resolve(process.env.MIAIXZ_UI_OUTPUT_DIR ?? temporaryOutputDir);
+process.once("exit", () => rmSync(temporaryOutputDir, { recursive: true, force: true }));
+if (iconNoRecords) {
+  process.env.PLAYWRIGHT_LAST_RUN_OUTPUT_FILE = devNull;
+}
 
 const port = Number(process.env.MIAIXZ_UI_PORT ?? "4173");
 if (!Number.isInteger(port) || port < 1024 || port > 65535)
@@ -44,12 +54,6 @@ if (!new Set(["source", "packed"]).has(packageStage)) {
 }
 const runId = process.env.MIAIXZ_UI_RUN_ID ?? "local";
 if (!/^[a-zA-Z0-9_-]+$/.test(runId)) throw new Error("Invalid MIAIXZ_UI_RUN_ID");
-const artifactsRoot = path.resolve("tests/.artifacts");
-const outputDir = path.resolve(process.env.MIAIXZ_UI_OUTPUT_DIR ?? "tests/.artifacts/playwright");
-if (outputDir !== artifactsRoot && !outputDir.startsWith(`${artifactsRoot}${path.sep}`)) {
-  throw new Error("MIAIXZ_UI_OUTPUT_DIR must remain inside tests/.artifacts");
-}
-
 /**
  * Defines the real-browser theme, CSP, responsive, and visual test runtime.
  *
@@ -59,6 +63,7 @@ export default defineConfig({
   testDir: "./tests",
   testMatch: "**/*.spec.ts",
   outputDir,
+  ...(iconNoRecords ? { reporter: "line" as const } : {}),
   metadata: { packageStage, runId },
   fullyParallel: false,
   retries: 0,
@@ -87,13 +92,16 @@ export default defineConfig({
   ],
   use: {
     baseURL,
+    ...(iconNoRecords
+      ? { screenshot: "off" as const, trace: "off" as const, video: "off" as const }
+      : {}),
     deviceScaleFactor: 1,
     contextOptions: {
       reducedMotion: "reduce",
     },
   },
   webServer: {
-    command: "npm exec -- vite --config tests/support/vite.config.ts",
+    command: "npm exec -- vite --config tests/vite.config.ts",
     url: `${baseURL}/tests/`,
     env: {
       MIAIXZ_UI_BASE_URL: baseURL,

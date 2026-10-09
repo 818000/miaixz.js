@@ -28,6 +28,8 @@ import { packageRoot, loadIconSource, unicodeRangeFor } from "../source.mjs";
 
 /**
  * Produces resource CSS without duplicating source design defaults.
+ * Includes space in face selection so the line-box strut uses icon-font metrics, not fallback metrics.
+ * This CSS range does not add a space glyph or change the font cmap.
  * @param {any} source Validated JSON projection.
  * @param {string} styles Structural CSS.
  * @returns {string} Complete CSS resource.
@@ -42,6 +44,7 @@ export function packageStyles(source, styles) {
     ';\n  font-style: normal;\n  font-weight: 400;\n  src: url("./assets/fonts/' +
     font.outputFile +
     '") format("woff2");\n  font-display: block;\n  unicode-range: ' +
+    "U+0020, " +
     unicodeRangeFor(source.icons) +
     ";\n}\n\n" +
     ":where(:root, [data-miaixz-theme]) {\n  --miaixz-icon-font-family: " +

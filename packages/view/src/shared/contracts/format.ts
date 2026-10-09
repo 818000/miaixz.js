@@ -23,6 +23,8 @@
  *
  * Describes the stable support levels used by the public format matrix.
  */
+import { VERSION } from "../../version.js";
+
 export type SupportLevel = "R0" | "R1" | "R2" | "R3" | "R4" | "R5";
 
 /**
@@ -37,7 +39,7 @@ export type FormatDriverId = string;
  * Describes one independently installable format module.
  */
 export interface FormatDescriptor {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: typeof VERSION;
   readonly id: FormatDriverId;
   readonly label: string;
   readonly category: string;

@@ -22,6 +22,8 @@
  * Verifies format-neutral rendering and public shell controls.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { createRef } from "react";
 import { DriverRegistry } from "../../src/runtime/driver-registry.js";
@@ -44,7 +46,7 @@ import { PdfView } from "../../src/shell/pdf/pdf-view.js";
 import { clamp, classNames } from "../../src/shell/util/class-names.js";
 
 const drawing: DrawingScene = {
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   id: "drawing:fixture",
   kind: "drawing",
   title: "Process drawing",
@@ -152,7 +154,7 @@ const drawing: DrawingScene = {
  */
 function textDocument(content: string): TextDocument {
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "shell-text",
     kind: "text",
     title: "Shell text",
@@ -173,7 +175,7 @@ function shellRegistry(
   extensions: readonly string[] = ["shell"],
 ): DriverRegistry {
   const descriptor: FormatDescriptor = {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "shell-test",
     label: "Shell test",
     category: "text",
@@ -213,7 +215,7 @@ describe("format-neutral model rendering", () => {
   it("renders every document model without reparsing source content", () => {
     const documents: readonly ViewerDocument[] = [
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "image",
         kind: "media",
         title: "Image",
@@ -221,7 +223,7 @@ describe("format-neutral model rendering", () => {
         sourceUrl: "blob:image",
       },
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "audio",
         kind: "media",
         title: "Audio",
@@ -229,7 +231,7 @@ describe("format-neutral model rendering", () => {
         sourceUrl: "blob:audio",
       },
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "video",
         kind: "media",
         title: "Video",
@@ -238,7 +240,7 @@ describe("format-neutral model rendering", () => {
       },
       textDocument("plain text"),
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "archive",
         kind: "archive",
         title: "Archive",
@@ -248,7 +250,7 @@ describe("format-neutral model rendering", () => {
         ],
       },
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "binary",
         kind: "binary",
         title: "Binary",
@@ -257,7 +259,7 @@ describe("format-neutral model rendering", () => {
         summary: [{ label: "Size", value: "4" }],
       },
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "scene",
         kind: "scene",
         title: "Scene",
@@ -266,7 +268,7 @@ describe("format-neutral model rendering", () => {
         preview: drawing,
       },
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "flow",
         kind: "flow",
         title: "Flow",
@@ -276,7 +278,7 @@ describe("format-neutral model rendering", () => {
         ],
       },
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "book",
         kind: "spreadsheet",
         title: "Book",
@@ -288,7 +290,7 @@ describe("format-neutral model rendering", () => {
       },
       drawing,
       {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: "pages",
         kind: "paged",
         title: "Pages",

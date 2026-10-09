@@ -22,34 +22,70 @@
  * Provides the GeoJSON and TopoJSON coordinate codec.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { DrawingScene, DrawingShape } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import {
+  getResourceBudgetGuard,
+  type ResourceBudgetGuard,
+} from "../../runtime/resource-budget-guard.js";
+import { shouldYieldParser, yieldParserTask } from "../../runtime/cooperative-yield.js";
 import { objectField } from "../json/field-codec.js";
 
 const decoder = new TextDecoder();
 
 /**
- * Recursively collects coordinate pairs from GeoJSON-family data.
+ * Iteratively collects finite coordinate pairs from GeoJSON-family data.
  *
  * @param value - Unknown JSON subtree being inspected.
  * @param output - Mutable collection receiving longitude-latitude pairs.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
+ * @param sourceBytes - Complete bounded source byte length.
  */
-function collectCoordinates(value: unknown, output: number[][]): void {
-  if (
-    Array.isArray(value) &&
-    value.length >= 2 &&
-    typeof value[0] === "number" &&
-    typeof value[1] === "number"
-  )
-    output.push([value[0], value[1]]);
-  else if (Array.isArray(value)) for (const child of value) collectCoordinates(child, output);
-  else {
-    const object = objectField(value);
-    if (object !== undefined) {
-      for (const child of Object.values(object)) collectCoordinates(child, output);
+async function collectCoordinates(
+  value: unknown,
+  output: number[][],
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+  sourceBytes: number,
+): Promise<void> {
+  const pending: Array<{ readonly depth: number; readonly value: unknown }> = [{ depth: 0, value }];
+  guard.consumeVectorRecords();
+  let visited = 0;
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (current === undefined) break;
+    if ((visited & 0x3ff) === 0) guard.checkpoint(signal);
+    visited += 1;
+    guard.assertDepth(current.depth, "maxRecursionDepth");
+    if (
+      Array.isArray(current.value) &&
+      current.value.length >= 2 &&
+      typeof current.value[0] === "number" &&
+      Number.isFinite(current.value[0]) &&
+      typeof current.value[1] === "number" &&
+      Number.isFinite(current.value[1])
+    ) {
+      output.push([current.value[0], current.value[1]]);
+      guard.consumeDrawingObjects();
+      if (shouldYieldParser(sourceBytes, visited)) await yieldParserTask(signal);
+      continue;
     }
+    const children = Array.isArray(current.value)
+      ? current.value
+      : Object.values(objectField(current.value) ?? {});
+    if (children.length > 0) {
+      guard.assertDepth(current.depth + 1, "maxRecursionDepth");
+      guard.consumeVectorRecords(children.length);
+    }
+    for (let index = children.length - 1; index >= 0; index -= 1) {
+      pending.push({ depth: current.depth + 1, value: children[index] });
+    }
+    if (shouldYieldParser(sourceBytes, visited)) await yieldParserTask(signal);
   }
 }
 
@@ -69,9 +105,12 @@ export const geojsonDriver: ViewerDriver<DrawingScene> = {
     if (context.decision.extension !== "geojson" && context.decision.extension !== "topojson") {
       return { status: "rejected", error: new ViewerError("FORMAT_UNSUPPORTED", "parse", true) };
     }
-    const value = JSON.parse(decoder.decode(bytes)) as unknown;
+    const source = decoder.decode(bytes);
+    const guard = getResourceBudgetGuard(context.budget, context.signal);
+    guard.consumeTextCharacters(source.length);
+    const value = JSON.parse(source) as unknown;
     const coordinates: number[][] = [];
-    collectCoordinates(value, coordinates);
+    await collectCoordinates(value, coordinates, guard, context.signal, bytes.byteLength);
     const id = stableDocumentId(context.resource.name, bytes);
     const shapes: DrawingShape[] = coordinates.map(([longitude = 0, latitude = 0], index) => ({
       id: `point-${index + 1}`,
@@ -85,7 +124,7 @@ export const geojsonDriver: ViewerDriver<DrawingScene> = {
       status: "complete",
       warnings: [],
       model: {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id,
         kind: "drawing",
         title: documentTitle(context.resource.name),

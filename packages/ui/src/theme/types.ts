@@ -22,6 +22,8 @@
  * Defines theme tokens, preset metadata, component overrides, and runtime state contracts.
  */
 
+import { VERSION } from "../version.js";
+
 import type {
   MiaixzAppearanceManager,
   MiaixzColorMode,
@@ -99,7 +101,7 @@ export interface MiaixzThemeDefinition {
   /**
    * Theme definition schema version.
    */
-  readonly schemaVersion: 1;
+  readonly schemaVersion: typeof VERSION;
   /**
    * Stable theme identifier.
    */
@@ -108,10 +110,6 @@ export interface MiaixzThemeDefinition {
    * Human-readable theme label.
    */
   readonly label: string;
-  /**
-   * Semantic version of the theme data.
-   */
-  readonly version: string;
   /**
    * Parent theme identifier for a custom theme.
    */
@@ -156,7 +154,7 @@ export interface MiaixzResolvedThemeDefinition {
   /**
    * Theme definition schema version.
    */
-  readonly schemaVersion: 1;
+  readonly schemaVersion: typeof VERSION;
   /**
    * Stable theme identifier.
    */
@@ -165,10 +163,6 @@ export interface MiaixzResolvedThemeDefinition {
    * Human-readable theme label.
    */
   readonly label: string;
-  /**
-   * Semantic theme-data version.
-   */
-  readonly version: string;
   /**
    * Complete typography, radius, shadow, geometry, and surface values.
    */
@@ -370,10 +364,6 @@ export interface MiaixzThemeDescriptor {
    * Human-readable theme label.
    */
   readonly label: string;
-  /**
-   * Semantic theme-data version.
-   */
-  readonly version: string;
   /**
    * Stable catalog group used to organize preset selectors.
    */

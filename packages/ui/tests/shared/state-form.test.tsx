@@ -3,7 +3,7 @@
  */
 
 import "@testing-library/jest-dom/vitest";
-import { act, cleanup, render, renderHook, screen } from "@testing-library/react";
+import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { createRef, type InputHTMLAttributes } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -131,8 +131,7 @@ describe("stable identifiers and native-derived state", () => {
     input.click();
     expect(screen.getByText("false")).toBeInTheDocument();
     act(() => input.form?.reset());
-    await act(() => Promise.resolve());
-    expect(screen.getByText("true")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText("true")).toBeInTheDocument());
   });
 });
 

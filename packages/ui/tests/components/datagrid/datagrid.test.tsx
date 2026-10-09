@@ -27,7 +27,7 @@ import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Datagrid, type DatagridColumn } from "../../../src/components/datagrid/index.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 afterEach(cleanup);
 

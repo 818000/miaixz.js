@@ -150,6 +150,7 @@ function relative(file) {
 function classifyUi(file) {
   const source = path.relative(uiSourceRoot, file).replaceAll(path.sep, "/");
   if (
+    source === "version.ts" ||
     source === "components/shared.types.ts" ||
     source === "shared/class-names.ts" ||
     source.startsWith("design/") ||

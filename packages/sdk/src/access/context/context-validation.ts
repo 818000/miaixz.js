@@ -22,6 +22,8 @@
  * Validates, normalizes, merges, and compares runtime-context values.
  */
 
+import { VERSION } from "../../version.js";
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import { isRecord } from "../../shared/object.js";
 import type { MiaixzRuntimeContext } from "./context.types.js";
@@ -29,7 +31,7 @@ import type { MiaixzRuntimeContext } from "./context.types.js";
 /**
  * Defines the current persisted runtime-context schema version.
  */
-export const CONTEXT_SCHEMA_VERSION = 1;
+export const CONTEXT_SCHEMA_VERSION = VERSION;
 
 /**
  * Determines whether a value is a valid runtime context.

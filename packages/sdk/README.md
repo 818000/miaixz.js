@@ -6,7 +6,7 @@ This is the official Miaixz browser SDK. It gives independently deployed fronten
 
 The SDK has no third-party runtime dependencies and can be built and published independently with npm.
 
-The Host Bridge protocol version is `1.0.0`; repository checks keep this statement aligned with the exported protocol constant.
+The Host Bridge protocol version is read from the root `VERSION`; repository checks keep this statement aligned with the exported protocol constant.
 
 ## Installation
 
@@ -148,13 +148,13 @@ The SDK contains only foundational error messages and the built-in `zh-CN` and `
 
 ```ts
 import { defineLocale } from "@miaixz/sdk/i18n";
+import { VERSION } from "@miaixz/sdk";
 
 const japanese = defineLocale({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   id: "ja-JP",
   label: "日本語",
   shortLabel: "日",
-  version: "1.0.0",
   aliases: ["ja"],
   keywords: ["Japanese", "日语"],
   fallback: "en-US",
@@ -216,7 +216,7 @@ Backend business errors can use `api.error.<errcode>` as a project message key, 
 
 ## Appearance, themes, and density
 
-The SDK is the source of truth for Appearance state across services. Schema v2 persists a theme ID,
+The SDK is the source of truth for Appearance state across services. The VERSION-bound schema persists a theme ID,
 Light/Dark preference, Density, and optional mode-specific color overrides. It does not import CSS or
 write DOM attributes; `@miaixz/ui` owns validation against the theme catalog and atomic rendering.
 
@@ -261,8 +261,8 @@ export function Root() {
 Supported color preferences are `light`, `dark`, and `system`. Supported Density values are
 `compact`, `standard`, and `comfortable`. The SDK uses browser persistence by default and scopes the
 record by `appId` and optional tenant ID. For `appId="portal"` without a tenant, the physical key is
-`miaixz:v1:global:portal:appearance`. The stored payload has `schemaVersion: 2`; persisted v1 records
-are migrated to the built-in `miaixz` theme on read.
+`miaixz:global:portal:appearance`. New envelopes use `schemaVersion: VERSION`. The reader migrates
+legacy numeric envelopes and their former storage keys without losing successfully parsed preferences.
 
 The composed SDK defaults to `appearanceScope: "tenant"` for tenant-specific preferences. Set
 `appearanceScope: "global"` when theme, color mode, and density are application-wide user interface
@@ -330,6 +330,11 @@ try {
 ```
 
 Never record tokens, cookies, authorization headers, CSRF values, personal information, request bodies, or file contents in logs or telemetry. Frontend errors support interaction only; the server must still perform authorization and input validation.
+
+Request telemetry never exposes body content. Use `event.bodySummary.type` and
+`event.bodySummary.bytes` for coarse operational metrics; the deprecated `event.body` property is
+never emitted. Record any additional non-sensitive business metric explicitly at its owning call
+site instead of reconstructing it from a request body.
 
 ## Grants
 
@@ -410,12 +415,13 @@ import {
   type MiaixzIntegratedModule,
   type MiaixzModuleManifest,
 } from "@miaixz/sdk/contracts";
+import { VERSION } from "@miaixz/sdk";
 
 const manifest = {
   protocolVersion: MIAIXZ_MODULE_PROTOCOL_VERSION,
   id: "spaces",
-  version: "1.2.0",
-  hostVersion: "^1.0.0",
+  version: VERSION,
+  hostVersion: `^${VERSION}`,
   kind: "integrated",
   basePath: "/spaces",
   entry: "@miaixz/spaces",
@@ -441,7 +447,7 @@ const manifest = {
 
 const verifiedManifest = parseMiaixzModuleManifest(manifest, {
   environment: "production",
-  hostVersion: "1.3.0",
+  hostVersion: VERSION,
 });
 
 export const module: MiaixzIntegratedModule = {
@@ -475,10 +481,15 @@ bridge.dispose();
 
 Modules must not obtain context through shared globals or direct access to the host DOM. See the [repository examples](https://github.com/818000/miaixz.js/tree/main/packages/sdk/tests/examples) for complete compilable examples.
 
+PostMessage Hosts apply request, subscription, payload, catalog, and adapter-response limits by
+default. Existing initialization code does not need to change. A Host with a measured need for a
+larger catalog or event payload may pass `limits`, but values remain capped by SDK hard limits;
+exceeding a limit returns `BRIDGE_RESOURCE_LIMIT_EXCEEDED`.
+
 ## Local development
 
 ```bash
-npm install
+npm ci --package-lock=true --ignore-scripts --legacy-peer-deps
 npm run check
 ```
 

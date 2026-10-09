@@ -49,6 +49,7 @@ export type {
   MiaixzQueryPrimitive,
   MiaixzQueryValue,
   MiaixzRequestBody,
+  MiaixzRequestBodySummary,
   MiaixzRequestEvent,
   MiaixzRequestInterceptor,
   MiaixzRequestOptions,
@@ -72,6 +73,7 @@ export {
   isMiaixzThemeId,
   MiaixzAppearanceManager,
   miaixzAppearanceMigrationV1ToV2,
+  miaixzAppearanceMigration,
   miaixzAppearanceSchemaVersion,
   miaixzColorModes,
   miaixzDefaultAppearance,
@@ -138,6 +140,7 @@ export type {
   MiaixzNavigationRequest,
   MiaixzPostMessageChildOptions,
   MiaixzPostMessageHost,
+  MiaixzPostMessageHostLimits,
   MiaixzPostMessageHostOptions,
 } from "./runtime/contracts/index.js";
 export {
@@ -292,3 +295,5 @@ export type {
   MiaixzUserSummary,
 } from "./types.js";
 export { clamp, isNonEmptyString, isRecord, isValidDate } from "./shared/index.js";
+
+export { VERSION } from "./version.js";

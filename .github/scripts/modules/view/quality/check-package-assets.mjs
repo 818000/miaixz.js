@@ -25,6 +25,7 @@
 import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { promisify } from "node:util";
+import { readRepositoryVersion } from "../../../miaixz.mjs";
 
 const execute = promisify(execFile);
 const packageRoot = process.cwd();
@@ -61,8 +62,8 @@ if (
 const publicApi = await import(
   new URL("../../../../../packages/view/dist/index.js", import.meta.url).href
 );
-if (publicApi.WORKER_PROTOCOL_VERSION !== 2) {
-  throw new Error("Packed viewer does not expose worker protocol v2");
+if (publicApi.WORKER_PROTOCOL_VERSION !== readRepositoryVersion()) {
+  throw new Error("Packed viewer worker protocol must match VERSION");
 }
 
 process.stdout.write(

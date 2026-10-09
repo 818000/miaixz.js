@@ -22,6 +22,8 @@
  * Validates theme identifiers, tokens, modes, and component override shapes.
  */
 
+import { VERSION } from "../version.js";
+
 import { miaixzThemeColorTokens, type MiaixzThemeColorToken } from "../design/colors.js";
 import {
   miaixzThemeCompositionFields,
@@ -51,15 +53,7 @@ import {
 import { MiaixzThemeError } from "./error.js";
 import type { MiaixzResolvedThemeDefinition, MiaixzThemeDefinition } from "./types.js";
 
-const themeKeys = new Set([
-  "schemaVersion",
-  "name",
-  "label",
-  "version",
-  "extends",
-  "tokens",
-  "modes",
-]);
+const themeKeys = new Set(["schemaVersion", "name", "label", "extends", "tokens", "modes"]);
 const tokenGroupKeys = new Set([
   "opacity",
   "composition",
@@ -73,8 +67,6 @@ const modeKeys = new Set(["light", "dark"]);
 const themeModeKeys = new Set(["colors"]);
 const geometryKeys = new Set([...miaixzDensities, "layout"]);
 const themeIdPattern = /^[a-z][a-z0-9-]{0,63}$/;
-const semanticVersionPattern =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 const colorPattern = /^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$/;
 const forbiddenFontPattern = /url\(|var\(|[;{}]/i;
 const colorTokenSet = new Set<string>(miaixzThemeColorTokens);
@@ -114,16 +106,13 @@ interface MiaixzNumberRange {
 export function validateThemeDefinition(value: unknown): Readonly<MiaixzThemeDefinition> {
   const record = readRecord(value, "theme");
   assertOnlyKeys(record, themeKeys, "theme");
-  if (record.schemaVersion !== 1) {
+  if (record.schemaVersion !== VERSION) {
     throw new MiaixzThemeError("UI_THEME_SCHEMA_UNSUPPORTED", {
       details: { path: "schemaVersion" },
     });
   }
   if (!isThemeId(record.name)) invalid("name");
   if (!isThemeLabel(record.label)) invalid("label", record.name as string);
-  if (typeof record.version !== "string" || !semanticVersionPattern.test(record.version)) {
-    invalid("version", record.name as string);
-  }
   if (record.extends !== undefined && !isThemeId(record.extends)) {
     invalid("extends", record.name as string);
   }
@@ -134,10 +123,9 @@ export function validateThemeDefinition(value: unknown): Readonly<MiaixzThemeDef
   const light = parseMode(modesRecord.light, "modes.light", record.name as string);
   const dark = parseMode(modesRecord.dark, "modes.dark", record.name as string);
   return deepFreeze({
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     name: record.name,
     label: record.label,
-    version: record.version,
     ...(record.extends === undefined ? {} : { extends: record.extends }),
     ...(tokens === undefined ? {} : { tokens }),
     modes: { light, dark },

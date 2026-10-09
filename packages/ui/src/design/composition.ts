@@ -57,7 +57,7 @@ export const miaixzThemeCompositionValues = Object.freeze({
 });
 
 /**
- * Defines schema-version-one composition defaults.
+ * Defines current-schema composition defaults.
  *
  * @public
  */

@@ -27,7 +27,7 @@ import { cleanup, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { Sections } from "../../../src/components/sections/index.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 afterEach(cleanup);
 

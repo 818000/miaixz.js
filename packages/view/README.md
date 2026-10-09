@@ -104,7 +104,7 @@ The generated format matrix and the tests under `tests/` are the executable supp
 Applications can extend the default registry without modifying `@miaixz/view`. A custom format declares its identity, extensions, MIME types, and lazy driver, then passes that registry to `FileView`:
 
 ```tsx compile
-import { createDefaultRegistry, FileView, type ViewerDriver } from "@miaixz/view";
+import { createDefaultRegistry, FileView, VERSION, type ViewerDriver } from "@miaixz/view";
 
 const registry = createDefaultRegistry();
 const file = new File([], "drawing.amap", { type: "application/vnd.acme.map" });
@@ -112,7 +112,7 @@ declare const loadAcmeMapDriver: () => Promise<ViewerDriver>;
 
 registry.registerFormat(
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "acme-map",
     label: "Acme map",
     category: "geospatial",
@@ -179,6 +179,13 @@ The package exports file-preview components only and deliberately has no page-la
 
 ## Security boundary
 
-All parsing is treated as untrusted input. Sources are size-bounded, XML entities and excessive depth are rejected, archive paths and expansion are checked, spreadsheet sheets/cells/styles/drawings/vector records/Canvas backing stores have explicit budgets, remote requests use only caller-supplied authorization, embedded SVG scripts and external resources are blocked, macros are never executed, and public errors do not retain source bytes, credentials, local paths, or internal stack traces.
+All parsing is treated as untrusted input. Remote bodies and decompression output are counted while
+streaming, stalled streams are cancelled, and one document-level guard bounds cumulative expanded
+bytes, text, pages, drawing objects, vector records, memory estimates, nesting, and total task time.
+XML entities and excessive depth are rejected; ZIP paths, directory metadata, entry sizes, and
+compression ratios are validated. Spreadsheet sheets/cells/styles and Canvas backing stores retain
+their dedicated budgets. Remote requests use only caller-supplied authorization, embedded SVG
+scripts and external resources are blocked, macros are never executed, and public errors do not
+retain source bytes, credentials, local paths, or internal stack traces.
 
 Toolbar visibility is not an authorization boundary. Applications must still enforce permissions when issuing URLs or enabling download and print actions.

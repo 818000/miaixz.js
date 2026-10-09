@@ -85,10 +85,7 @@ const buttonSource = await readFile(
 const findings = [];
 const definitions = new Set();
 const uses = [];
-const iconStyleSource = await readFile(
-  resolve(iconsWorkspace.rootPath, "src/styles/index.css"),
-  "utf8",
-);
+const iconStyleSource = await readFile(resolve(iconsWorkspace.rootPath, "dist/styles.css"), "utf8");
 for (const match of iconStyleSource.matchAll(/(--miaixz-[a-z0-9-]+)\s*:/g)) {
   definitions.add(match[1]);
 }

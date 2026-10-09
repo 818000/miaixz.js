@@ -8,7 +8,7 @@ import { createRef } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Slider } from "../../../src/components/slider/index.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 afterEach(cleanup);
 

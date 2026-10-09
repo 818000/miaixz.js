@@ -37,5 +37,6 @@ export type {
   MiaixzBridgeEnvelope,
   MiaixzPostMessageChildOptions,
   MiaixzPostMessageHost,
+  MiaixzPostMessageHostLimits,
   MiaixzPostMessageHostOptions,
 } from "./contracts/index.js";

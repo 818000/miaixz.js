@@ -22,6 +22,8 @@
  * Verifies the supplied production workbook against the complete DrawingML path.
  */
 
+import { VERSION } from "../../../src/version.js";
+
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
@@ -35,8 +37,8 @@ import type { DriverContext } from "../../../src/shared/contracts/driver.js";
 import { isSpreadsheetRenderDocument } from "../../../src/shared/contracts/document.js";
 import { ModelView } from "../../../src/shell/components/model-view.js";
 
-const fixturePath = resolve(process.cwd(), "tests/fixtures/xlsx/system-flow.xlsx");
-const inventoryPath = resolve(process.cwd(), "tests/fixtures/xlsx/system-flow.inventory.json");
+const fixturePath = resolve(process.cwd(), "tests/formats/xlsx/system-flow.fixture.xlsx");
+const inventoryPath = resolve(process.cwd(), "tests/formats/xlsx/system-flow.fixture.json");
 const formatDriver = createOoxmlDriver("xlsx", "spreadsheet");
 
 /**
@@ -172,7 +174,7 @@ describe("XLSX DrawingML flowcharts", () => {
     expect(outcome.model.sheets).toHaveLength(inventory.workbook.sheetCount);
     expect(isSpreadsheetRenderDocument(outcome.model)).toBe(true);
     if (!isSpreadsheetRenderDocument(outcome.model)) return;
-    expect(outcome.model.layoutVersion).toBe(1);
+    expect(outcome.model.layoutVersion).toBe(VERSION);
     expect(outcome.model.sheets.map((sheet) => sheet.layout.dimension.reference)).toEqual(
       inventory.workbook.dimensions,
     );

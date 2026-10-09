@@ -25,7 +25,7 @@
 import { formatDescriptors, formatLoaders } from "../../src/autogen/format-registry.js";
 import { defaultResourceBudget } from "../../src/runtime/resource-budget.js";
 import type { DriverContext } from "../../src/shared/contracts/driver.js";
-import { storedZip } from "../support/stored-zip.js";
+import { storedZip } from "../codecs/archive/stored-zip.helper.js";
 
 const encoder = new TextEncoder();
 

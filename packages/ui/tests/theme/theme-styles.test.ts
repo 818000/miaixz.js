@@ -22,6 +22,8 @@
  * Verifies theme styles behavior in the UI package.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { readFileSync } from "node:fs";
 import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
 import { describe, expect, it } from "vitest";
@@ -33,15 +35,82 @@ import { createThemeScript } from "../../src/theme/script.js";
 import { serializeThemeStyles } from "../../src/theme/serialize.js";
 
 const customer = defineTheme({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   name: "customer",
   label: "Customer",
-  version: "1.0.0",
   extends: miaixzDefaultAppearance.theme,
   modes: { light: { colors: { brand: "#123456" } }, dark: { colors: { brand: "#ABCDEF" } } },
 });
 
 describe("application theme first paint", () => {
+  it("reads legacy keys and earlier releases but never applies future or malformed versions", () => {
+    const key = "miaixz:global:first-paint:appearance";
+    const legacyKey = key.replace(/^miaixz:/, "miaixz:v1:");
+    const run = () =>
+      new Function(
+        "matchMedia",
+        createThemeScript({
+          storageKey: key,
+          themes: [miaixzDefaultAppearance.theme, customer.name],
+        }),
+      )(() => ({ matches: false }));
+    try {
+      for (const schemaVersion of [1, 2, "0.0.0", VERSION, `${VERSION.split("-")[0]}-0`]) {
+        localStorage.setItem(
+          legacyKey,
+          JSON.stringify({
+            schemaVersion,
+            value: {
+              theme: customer.name,
+              colorMode: "dark",
+              density: "compact",
+            },
+          }),
+        );
+        run();
+        expect(document.documentElement.dataset.miaixzTheme).toBe(customer.name);
+        expect(document.documentElement.dataset.miaixzColorMode).toBe("dark");
+      }
+      for (const schemaVersion of [
+        3,
+        "999999.0.0",
+        "invalid",
+        "01.0.0",
+        "0.0.0+metadata",
+        "0.0.0-01",
+      ]) {
+        localStorage.setItem(
+          legacyKey,
+          JSON.stringify({
+            schemaVersion,
+            value: {
+              theme: customer.name,
+              colorMode: "dark",
+            },
+          }),
+        );
+        run();
+        expect(document.documentElement.dataset.miaixzTheme).toBe(miaixzDefaultAppearance.theme);
+        expect(document.documentElement.dataset.miaixzColorMode).toBe("light");
+      }
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          schemaVersion: VERSION,
+          value: {
+            theme: miaixzDefaultAppearance.theme,
+            colorMode: "light",
+          },
+        }),
+      );
+      run();
+      expect(document.documentElement.dataset.miaixzTheme).toBe(miaixzDefaultAppearance.theme);
+    } finally {
+      localStorage.removeItem(key);
+      localStorage.removeItem(legacyKey);
+    }
+  });
+
   it("advertises lazy presets and appends registered themes in order", () => {
     const presetDescriptors = new ThemeCatalog().descriptors();
     expect(presetDescriptors).toEqual(themePresets);
@@ -81,11 +150,12 @@ describe("application theme first paint", () => {
     expect(() => createThemeStyles([customer, customer])).toThrow();
     expect(() => createThemeStyles([{ ...customer, extends: "missing" }])).toThrow();
     expect(() => createThemeStyles([{ ...customer, name: "</style>" }])).toThrow();
+    expect(() => defineTheme({ ...customer, version: VERSION } as typeof customer)).toThrow();
     const key = "customer-first-paint";
     localStorage.setItem(
       key,
       JSON.stringify({
-        schemaVersion: 2,
+        schemaVersion: VERSION,
         value: { theme: "customer", colorMode: "dark", density: "compact" },
       }),
     );
@@ -103,5 +173,17 @@ describe("application theme first paint", () => {
     } finally {
       localStorage.removeItem(key);
     }
+  });
+
+  it("escapes inline-script breakouts without restricting valid custom storage keys", () => {
+    const key = "</script><script>globalThis.__themeInjected=true</script>\u2028&";
+    const script = createThemeScript({
+      storageKey: key,
+      themes: [miaixzDefaultAppearance.theme],
+    });
+    expect(script.toLowerCase()).not.toContain("</script");
+    expect(script).not.toContain("\u2028");
+    expect(script).toContain("\\u003c/script\\u003e");
+    expect(() => new Function("matchMedia", script)(() => ({ matches: false }))).not.toThrow();
   });
 });

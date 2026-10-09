@@ -56,6 +56,7 @@ export const miaixzSdkErrorMessageKeys = Object.freeze({
   BRIDGE_NAVIGATION_STATE_INVALID: "sdk.error.bridge.navigationStateInvalid",
   BRIDGE_ORIGIN_INVALID: "sdk.error.bridge.originInvalid",
   BRIDGE_MESSAGE_INVALID: "sdk.error.bridge.messageInvalid",
+  BRIDGE_RESOURCE_LIMIT_EXCEEDED: "sdk.error.bridge.resourceLimitExceeded",
   BRIDGE_NOT_READY: "sdk.error.bridge.notReady",
   BRIDGE_TIMEOUT: "sdk.error.bridge.timeout",
   BRIDGE_DISPOSED: "sdk.error.bridge.disposed",

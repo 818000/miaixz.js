@@ -144,18 +144,17 @@ export function loadRepositoryPackageManifests(root = repositoryRoot) {
 
 /**
  * Returns package manifests that participate in the synchronized repository release version.
- * A deliberately independent manifest may opt out locally with `"miaixzVersion": false`.
+ * Every first-party manifest participates; independent version opt-outs are rejected.
  *
  * @param {string} [root=repositoryRoot] Absolute repository root to inspect.
  * @returns {ReturnType<typeof loadRepositoryPackageManifests>} Version-managed package records.
  */
 export function loadVersionedPackageManifests(root = repositoryRoot) {
   const manifests = loadRepositoryPackageManifests(root);
-  const rootManifest = manifests.find(({ relativePath }) => relativePath === "package.json");
-  if (rootManifest?.manifest.miaixzVersion === false) {
-    throw new Error("The root package.json cannot opt out of synchronized versions.");
+  if (manifests.some(({ manifest }) => manifest.miaixzVersion === false)) {
+    throw new Error("First-party package manifests cannot opt out of VERSION.");
   }
-  return manifests.filter(({ manifest }) => manifest.miaixzVersion !== false);
+  return manifests;
 }
 
 /**

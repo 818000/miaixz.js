@@ -1,0 +1,297 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Exercises isolated icon architecture inputs and immutable output contracts.
+ */
+
+import { mkdtemp, readFile, writeFile, rm, readdir, symlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { afterEach, describe, expect, it } from "vitest";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { format, resolveConfig } from "prettier";
+const repositoryRoot = resolve(process.cwd(), "../..");
+/**
+ * Loads one repository tool without running its CLI.
+ *
+ * @param name - Repository-relative icon tool path.
+ * @returns Imported tool exports.
+ */
+const importScript = async (name: string) =>
+  import(pathToFileURL(resolve(repositoryRoot, ".github/scripts/modules/icons/" + name)).href);
+const { createIconFixture, fixtureDesign } = await import(
+  pathToFileURL(resolve(process.cwd(), "tests/assets/fonts/create-fixtures.helper.mjs")).href
+);
+const temporary: string[] = [];
+afterEach(async () => {
+  for (const path of temporary.splice(0)) await rm(path, { recursive: true, force: true });
+});
+/**
+ * Creates a fresh temporary six-master test source.
+ *
+ * @param records - Complete test icon records.
+ * @returns Isolated fixture roots and written files.
+ */
+const make = async (
+  records = [
+    {
+      name: "alpha",
+      codepoint: 0xf0000,
+      category: "actions",
+      opticalClass: "regular",
+      rtl: "none",
+    },
+  ],
+) => {
+  const directory = await mkdtemp(resolve(tmpdir(), "miaixz-icon-test-"));
+  temporary.push(directory);
+  return createIconFixture({
+    directory,
+    categories: [{ id: "actions", description: "Actions; excludes navigation" }],
+    records,
+    design: structuredClone(fixtureDesign),
+  });
+};
+/**
+ * Mutates an isolated fixture to construct a negative input.
+ *
+ * @param path - Temporary fixture path.
+ * @param change - Exact test mutation.
+ * @returns File-write completion.
+ */
+const edit = async (path: string, change: (value: string) => string) =>
+  writeFile(path, change(await readFile(path, "utf8")));
+/**
+ * Captures fixture bytes for zero-write and determinism assertions.
+ *
+ * @param root - Isolated fixture root.
+ * @returns Relative file paths and their text.
+ */
+const snapshot = async (root: string): Promise<Record<string, string>> => {
+  const result: Record<string, string> = {};
+  /**
+   * Captures every fixture file recursively for byte-preservation assertions.
+   *
+   * @param path - Directory path relative to the isolated fixture root.
+   * @returns Promise resolving after all descendant file contents are recorded.
+   */
+  const walk = async (path: string) => {
+    for (const entry of await readdir(resolve(root, path), {
+      withFileTypes: true,
+    })) {
+      const p = path ? path + "/" + entry.name : entry.name;
+      if (entry.isDirectory()) await walk(p);
+      else result[p] = await readFile(resolve(root, p), "utf8");
+    }
+  };
+  await walk("");
+  return result;
+};
+
+const { generateIcons, processGeneratedIcons } = await importScript("codegen/generate-icons.mjs");
+const { packageStyles } = await importScript("hooks/package-assets.mjs");
+describe("separated generated modules", () => {
+  it("keeps descriptive comments without generation notices or consecutive documentation blocks", async () => {
+    const f = await make();
+    const output = await generateIcons({ assetsRoot: f.assetsRoot });
+    for (const source of Object.values(output) as string[]) {
+      expect(source).not.toContain("Generated by");
+      expect(source).not.toMatch(/\/\*\*(?:(?!\*\/)[\s\S])*\*\/\s*\/\*\*/u);
+    }
+    expect(output["icons.ts"]).toContain(
+      "/**\n * Immutable name-to-codepoint and RTL tuples.\n */\nexport const ICON_NAMES",
+    );
+    expect(output["design.ts"]).toContain(
+      "/**\n * Shared font family.\n */\nexport const FONT_FAMILY",
+    );
+    expect(output["metadata.ts"]).toContain(
+      "Defines the public icon directory names and categories.",
+    );
+  });
+  it("preserves double-quoted name keys through formatting without changing other modules", async () => {
+    const f = await make([
+      {
+        name: "alpha",
+        codepoint: 0xf0000,
+        category: "actions",
+        opticalClass: "regular",
+        rtl: "none",
+      },
+      {
+        name: "alpha-beta",
+        codepoint: 0xf0001,
+        category: "actions",
+        opticalClass: "regular",
+        rtl: "none",
+      },
+    ]);
+    const output = await generateIcons({ assetsRoot: f.assetsRoot });
+    const configPath = resolve(repositoryRoot, "packages/ui/prettier.config.js");
+    const filepath = resolve(process.cwd(), "src/values/icons.ts");
+    const config = await resolveConfig(filepath, { config: configPath });
+    expect(output["icons.ts"]).toContain('"alpha": Object.freeze([983040, 0] as const)');
+    expect(output["icons.ts"]).toContain('"alpha-beta": Object.freeze([983041, 0] as const)');
+    expect(await format(output["icons.ts"], { ...config, filepath })).toBe(output["icons.ts"]);
+    const ordinaryPath = resolve(process.cwd(), "src/runtime/font.ts");
+    const ordinaryConfig = await resolveConfig(ordinaryPath, {
+      config: configPath,
+    });
+    expect(ordinaryConfig?.quoteProps).toBeUndefined();
+    expect(
+      await format('export const value = { "alpha": 1 };', {
+        ...ordinaryConfig,
+        filepath: ordinaryPath,
+      }),
+    ).toBe("export const value = { alpha: 1 };\n");
+  });
+  it("generates frozen mapping tuples, a name/category-only catalog, and design tokens", async () => {
+    const f = await make();
+    const output = await generateIcons({ assetsRoot: f.assetsRoot });
+    expect(Object.keys(output)).toEqual(["icons.ts", "metadata.ts", "design.ts"]);
+    const outputRoot = resolve(f.assetsRoot, "generated");
+    await processGeneratedIcons({
+      assetsRoot: f.assetsRoot,
+      mode: "write",
+      outputRoot,
+    });
+    await writeFile(resolve(outputRoot, "package.json"), '{"type":"module"}\n');
+    await promisify(execFile)(process.execPath, [
+      resolve(repositoryRoot, "node_modules/typescript/bin/tsc"),
+      "--ignoreConfig",
+      "--module",
+      "NodeNext",
+      "--target",
+      "ES2022",
+      "--skipLibCheck",
+      ...Object.keys(output).map((name) => resolve(outputRoot, name)),
+    ]);
+    const compiled: Record<string, string> = {};
+    for (const filename of Object.keys(output))
+      compiled[filename] = await readFile(
+        resolve(outputRoot, filename.replace(/\.ts$/u, ".js")),
+        "utf8",
+      );
+    const mappingUrl =
+      "data:text/javascript;base64," + Buffer.from(compiled["icons.ts"]!).toString("base64");
+    const mapping = await import(mappingUrl);
+    expect(Object.keys(mapping)).toEqual(["ICON_NAMES"]);
+    expect(mapping.ICON_NAMES).toEqual({ alpha: [0xf0000, 0] });
+    expect(output["icons.ts"]).toContain('"alpha": Object.freeze([983040, 0] as const)');
+    expect(Object.isFrozen(mapping.ICON_NAMES)).toBe(true);
+    expect(Object.isFrozen(mapping.ICON_NAMES.alpha)).toBe(true);
+    const catalog = await import(
+      "data:text/javascript;base64," + Buffer.from(compiled["metadata.ts"]!).toString("base64")
+    );
+    expect(catalog.ICON_CATALOG).toEqual([{ name: "alpha", category: "actions" }]);
+    expect(Object.isFrozen(catalog.ICON_CATALOG)).toBe(true);
+    expect(Object.isFrozen(catalog.ICON_CATALOG[0])).toBe(true);
+    const design = await import(
+      "data:text/javascript;base64," + Buffer.from(compiled["design.ts"]!).toString("base64")
+    );
+    expect(design.FONT_FAMILY).toBe(fixtureDesign.font.familyName);
+    expect(design.ICON_SIZES).toEqual(fixtureDesign.sizes);
+    expect(design.ICON_AXES.opsz).toEqual({
+      minimum: 12,
+      default: 24,
+      maximum: 40,
+    });
+    expect(output["icons.ts"]).not.toMatch(
+      /ICON_CATALOG|new (?:Map|Set)|category|opticalClass|glyph:/u,
+    );
+    expect(output["design.ts"]).not.toContain("opticalClasses");
+    expect(output["metadata.ts"]).not.toMatch(/opticalClass|codepoint|rtl|tier/u);
+  });
+  it("keeps private visual rules outside every generated public module", async () => {
+    const f = await make();
+    const before = await generateIcons({ assetsRoot: f.assetsRoot });
+    const { canonicalJson } = await importScript("source.mjs");
+    const after = await generateIcons({ assetsRoot: f.assetsRoot });
+    expect(after).toEqual(before);
+    for (const text of Object.values(after) as string[])
+      expect(text).not.toMatch(/strokeWidths|visual|review|sourceSha256/u);
+    await edit(resolve(f.assetsRoot, "design.json"), (text) => {
+      const design = JSON.parse(text);
+      design.visual.strokeWidths.standard.target = 72;
+      return canonicalJson(design, "design");
+    });
+    await expect(generateIcons({ assetsRoot: f.assetsRoot })).rejects.toThrow("constant");
+  });
+  it("uses one byte-exact function for write/check and keeps check read-only", async () => {
+    const f = await make(),
+      outputRoot = resolve(f.assetsRoot, "generated");
+    await processGeneratedIcons({
+      assetsRoot: f.assetsRoot,
+      mode: "write",
+      outputRoot,
+    });
+    const first = await snapshot(f.assetsRoot);
+    await processGeneratedIcons({
+      assetsRoot: f.assetsRoot,
+      mode: "write",
+      outputRoot,
+    });
+    expect(await snapshot(f.assetsRoot)).toEqual(first);
+    await processGeneratedIcons({
+      assetsRoot: f.assetsRoot,
+      mode: "check",
+      outputRoot,
+    });
+    expect(await snapshot(f.assetsRoot)).toEqual(first);
+    await edit(resolve(outputRoot, "icons.ts"), (text) => text + "\n");
+    const changed = await snapshot(f.assetsRoot);
+    await expect(
+      processGeneratedIcons({
+        assetsRoot: f.assetsRoot,
+        mode: "check",
+        outputRoot,
+      }),
+    ).rejects.toThrow("stale");
+    expect(await snapshot(f.assetsRoot)).toEqual(changed);
+  });
+  it("generates resource defaults/ranges from the exact JSON projection", async () => {
+    const { loadIconSource } = await importScript("source.mjs");
+    const f = await make(),
+      source = await loadIconSource({ assetsRoot: f.assetsRoot });
+    const css = packageStyles(source, ".structure { display: block; }\n");
+    expect(css).toContain("unicode-range: U+0020, U+F0000;");
+    const { validatePublishedUnicodeRange } = await importScript(
+      "quality/validate-icon-package.mjs",
+    );
+    expect(() => validatePublishedUnicodeRange(css, source.icons)).not.toThrow();
+    for (const invalid of [
+      css.replace("U+0020, ", ""),
+      css.replace("U+F0000;", "U+F0000-F0001;"),
+      css.replace("U+0020", "U+0021"),
+      css.replace(/unicode-range:[^;]+;/u, ""),
+      css + "\n@font-face { unicode-range: U+0020, U+F0000; }",
+    ])
+      expect(() => validatePublishedUnicodeRange(invalid, source.icons)).toThrow("Unicode range");
+    expect(css).toContain('--miaixz-icon-font-family: "Miaixz Icons";');
+    expect(css).toContain("--miaixz-icon-opsz: 16;");
+    expect(css).toContain("--miaixz-icon-size: 16px;");
+    for (const name of Object.keys(fixtureDesign.sizes))
+      expect(css).toContain("--miaixz-icon-size-" + name + ":");
+    expect(css).not.toContain("--miaixz-icon-size-40");
+    expect(() => packageStyles(source, "@import 'old';")).toThrow("@import");
+  });
+});

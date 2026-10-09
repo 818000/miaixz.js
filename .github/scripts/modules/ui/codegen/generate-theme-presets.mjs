@@ -89,7 +89,6 @@ const descriptors = records.map((record) => {
   return {
     name: record.metadata.name,
     label: record.metadata.label,
-    version: record.definition.version,
     group: record.metadata.group,
     source: record.metadata.builtin ? "builtin" : "preset",
     preview: {

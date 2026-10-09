@@ -37,7 +37,7 @@ import { Locale } from "../../../src/components/locale/locale.js";
 import { Upload } from "../../../src/components/upload/upload.js";
 import { validateUploadRecords } from "../../../src/shared/upload/use-upload-queue.js";
 import type { UploadFileRecord } from "../../../src/shared/upload/types.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal ??= function () {

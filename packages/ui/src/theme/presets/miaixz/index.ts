@@ -22,6 +22,8 @@
  * Exposes the miaixz public module.
  */
 
+import { VERSION } from "../../../version.js";
+
 import { defineBuiltInTheme } from "../../builtin.js";
 
 /**
@@ -30,10 +32,9 @@ import { defineBuiltInTheme } from "../../builtin.js";
  * @public
  */
 export const miaixzTheme = defineBuiltInTheme({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   name: "miaixz",
   label: "Miaixz",
-  version: "1.0.0",
   modes: {
     light: {
       colors: {

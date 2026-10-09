@@ -23,11 +23,25 @@
  */
 
 import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
+import { createMiaixzStorageVersionPredicate } from "@miaixz/sdk/storage";
 import type { MiaixzThemeScriptOptions } from "./types.js";
 import { MiaixzThemeError } from "./error.js";
 import { themePresets } from "./presets/index.js";
 
 const themeIdPattern = /^[a-z][a-z0-9-]{0,63}$/;
+
+/**
+ * Serializes configuration for an inline script without permitting an HTML parser breakout.
+ *
+ * @param value - JSON-compatible configuration value.
+ * @returns JSON source with HTML-significant and JavaScript line-separator characters escaped.
+ */
+function serializeInlineScriptValue(value: unknown): string {
+  return JSON.stringify(value).replaceAll(/[<>&\u2028\u2029]/gu, (character) => {
+    const codePoint = character.codePointAt(0);
+    return `\\u${(codePoint ?? 0).toString(16).padStart(4, "0")}`;
+  });
+}
 
 /**
  * Creates a synchronous CSP-compatible first-paint Appearance script.
@@ -53,5 +67,5 @@ export function createThemeScript(options: MiaixzThemeScriptOptions): string {
   ) {
     throw new MiaixzThemeError("UI_THEME_FALLBACK_INVALID", { theme: fallback });
   }
-  return `(()=>{try{const k=${JSON.stringify(options.storageKey)},a=${JSON.stringify(themes)},f=${JSON.stringify(fallback)},d={theme:f,colorMode:"system",density:"standard"};let s=d;try{const e=JSON.parse(localStorage.getItem(k)||"null");if(e&&e.schemaVersion===2&&e.value&&typeof e.value==="object")s=e.value;else if(e&&e.schemaVersion===1&&e.value&&typeof e.value==="object")s={theme:f,colorMode:e.value.colorMode,density:e.value.density}}catch{}const t=a.includes(s.theme)?s.theme:f,p=["light","dark","system"].includes(s.colorMode)?s.colorMode:"system",m=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p,n=["compact","standard","comfortable"].includes(s.density)?s.density:"standard",r=document.documentElement;r.setAttribute("data-miaixz-theme",t);r.setAttribute("data-miaixz-color-mode",m);r.setAttribute("data-miaixz-color-preference",p);r.setAttribute("data-miaixz-density",n)}catch{}})();`;
+  return `(()=>{try{const k=${serializeInlineScriptValue(options.storageKey)},c=${createMiaixzStorageVersionPredicate()},a=${serializeInlineScriptValue(themes)},f=${serializeInlineScriptValue(fallback)},d={theme:f,colorMode:"system",density:"standard"};let s=d;try{const raw=localStorage.getItem(k)??(/^miaixz:[^:]+:[^:]+:appearance$/.test(k)?localStorage.getItem(k.replace(/^miaixz:/,"miaixz:v1:")):null),e=JSON.parse(raw||"null");if(e&&c(e.schemaVersion)&&e.value&&typeof e.value==="object"&&!Array.isArray(e.value))s={...e.value,theme:e.value.theme||f}}catch{}const t=a.includes(s.theme)?s.theme:f,p=["light","dark","system"].includes(s.colorMode)?s.colorMode:"system",m=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p,n=["compact","standard","comfortable"].includes(s.density)?s.density:"standard",r=document.documentElement;r.setAttribute("data-miaixz-theme",t);r.setAttribute("data-miaixz-color-mode",m);r.setAttribute("data-miaixz-color-preference",p);r.setAttribute("data-miaixz-density",n)}catch{}})();`;
 }

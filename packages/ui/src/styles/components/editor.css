@@ -146,6 +146,7 @@
 .miaixz-editor-section {
   display: grid;
   gap: var(--miaixz-space-12);
+  align-content: start;
   min-width: 0;
 }
 
@@ -307,7 +308,7 @@
 
 .miaixz-editor-fieldset {
   display: grid;
-  gap: var(--miaixz-space-8);
+  gap: var(--miaixz-space-16);
   padding: 0;
   margin: 0;
   border: 0;

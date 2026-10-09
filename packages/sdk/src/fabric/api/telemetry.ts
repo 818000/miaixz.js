@@ -29,6 +29,7 @@ import { sanitizeErrorUrl } from "./response-parser.js";
 import type {
   MiaixzApiTelemetryHooks,
   MiaixzErrorEvent,
+  MiaixzRequestBodySummary,
   MiaixzRequestEvent,
   MiaixzResponseEvent,
 } from "./telemetry.types.js";
@@ -91,17 +92,7 @@ export const circularValue = "[CIRCULAR]";
 /**
  * Describes a non-JSON value without retaining its content.
  */
-export interface MiaixzTelemetryValueSummary {
-  /**
-   * Contains the runtime value category.
-   */
-  readonly type: string;
-
-  /**
-   * Contains the measurable byte size, or undefined when size cannot be determined safely.
-   */
-  readonly bytes: number | undefined;
-}
+export type MiaixzTelemetryValueSummary = MiaixzRequestBodySummary;
 
 /**
  * Reports whether an object can be traversed without invoking custom collection behavior.
@@ -152,20 +143,20 @@ export function summarizeTelemetryValue(value: unknown): Readonly<MiaixzTelemetr
     type = "URLSearchParams";
     bytes = new TextEncoder().encode(value.toString()).byteLength;
   } else if (value instanceof Blob) {
-    type = value.constructor.name || "Blob";
+    type = "Blob";
     bytes = value.size;
   } else if (value instanceof ArrayBuffer) {
     type = "ArrayBuffer";
     bytes = value.byteLength;
   } else if (ArrayBuffer.isView(value)) {
-    type = value.constructor.name;
+    type = value instanceof DataView ? "DataView" : "ArrayBufferView";
     bytes = value.byteLength;
   } else if (value instanceof FormData) {
     type = "FormData";
   } else if (typeof ReadableStream !== "undefined" && value instanceof ReadableStream) {
     type = "ReadableStream";
   } else if (value !== null && typeof value === "object") {
-    type = value.constructor?.name || "Object";
+    type = "Object";
   }
   return Object.freeze({ type, bytes });
 }
@@ -238,20 +229,35 @@ export function sanitizeTelemetryValue(
 }
 
 /**
- * Sanitizes a request body while reducing every non-JSON body to a safe summary.
+ * Summarizes a request body without retaining or recursively traversing its content.
  *
  * @param body - Original or interceptor-produced request body.
- * @returns Frozen redacted JSON value or fixed non-JSON body summary.
+ * @returns Frozen metadata-only body summary.
  */
-export function sanitizeTelemetryBody(body: unknown): unknown {
-  if (
-    body !== null &&
-    typeof body === "object" &&
-    (Array.isArray(body) || isPlainTelemetryObject(body))
-  ) {
-    return sanitizeTelemetryValue(body);
+export function summarizeTelemetryBody(body: unknown): Readonly<MiaixzRequestBodySummary> {
+  try {
+    if (
+      body !== null &&
+      typeof body === "object" &&
+      (Array.isArray(body) || isPlainTelemetryObject(body))
+    ) {
+      return Object.freeze({ type: "JSON", bytes: undefined });
+    }
+    return summarizeTelemetryValue(body);
+  } catch {
+    return Object.freeze({ type: "unknown", bytes: undefined });
   }
-  return summarizeTelemetryValue(body);
+}
+
+/**
+ * Backward-compatible alias for metadata-only request-body summaries.
+ *
+ * @param body - Original or interceptor-produced request body.
+ * @returns Frozen metadata-only body summary.
+ * @deprecated Use summarizeTelemetryBody.
+ */
+export function sanitizeTelemetryBody(body: unknown): Readonly<MiaixzRequestBodySummary> {
+  return summarizeTelemetryBody(body);
 }
 
 /**
@@ -355,7 +361,7 @@ export async function emitRequestTelemetry(
     url: sanitizeTelemetryUrl(prepared.url),
     attempt: prepared.attempt,
     headers: sanitizeTelemetryHeaders(prepared.init.headers),
-    ...(body === undefined ? {} : { body: sanitizeTelemetryBody(body) }),
+    ...(body === undefined ? {} : { bodySummary: summarizeTelemetryBody(body) }),
     started,
   });
   await invokeTelemetryHook(telemetry, "request", telemetry?.onRequest, event);

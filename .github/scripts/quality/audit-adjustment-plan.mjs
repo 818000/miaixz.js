@@ -105,10 +105,11 @@ const protocolSource = readFileSync(
   resolve(sdkWorkspace.rootPath, "src/runtime/contracts/module-manifest.ts"),
   "utf8",
 );
-const protocolVersion = /MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*"([^"]+)"/u.exec(protocolSource)?.[1];
 if (
-  protocolVersion === undefined ||
-  !readmes.get(sdkReadmePath)?.includes(`Host Bridge protocol version is \`${protocolVersion}\``)
+  !/MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*VERSION/u.test(protocolSource) ||
+  !readmes
+    .get(sdkReadmePath)
+    ?.includes("Host Bridge protocol version is read from the root `VERSION`")
 ) {
   failures.push("SDK README Host Bridge protocol version is not aligned with its constant");
 }
@@ -122,8 +123,15 @@ if (/\bselected\s*:/u.test(uiReadme)) {
 if (!/\bcurrent:\s*"page"/u.test(uiReadme) || !/\btextValue:/u.test(uiReadme)) {
   failures.push("UI README NavigationRail examples must show current and textValue");
 }
-if (!/npm install --no-package-lock --legacy-peer-deps/u.test(readmes.get("README.md") ?? "")) {
-  failures.push("root README must document the lockfile-free npm install command");
+if (
+  !/npm ci --package-lock=true --ignore-scripts --legacy-peer-deps/u.test(
+    readmes.get("README.md") ?? "",
+  ) ||
+  !/npm --prefix examples ci --package-lock=true --ignore-scripts --legacy-peer-deps/u.test(
+    readmes.get("README.md") ?? "",
+  )
+) {
+  failures.push("root README must document both reproducible npm ci commands");
 }
 if (/npm install[^\n]*\blucide(?:-react)?\b/iu.test(uiReadme)) {
   failures.push("UI README must not require consumers to install Lucide");

@@ -61,7 +61,7 @@ export class ThemeCache {
             details: { reason: "loader-name-mismatch" },
           });
         }
-        const key = `${theme.name}:${theme.schemaVersion}:${theme.version}`;
+        const key = `${theme.name}:${theme.schemaVersion}`;
         const first = this.#values.get(name);
         if (first !== undefined) return first;
         this.#values.set(name, theme);

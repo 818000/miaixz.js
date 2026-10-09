@@ -22,6 +22,8 @@
  * Exposes the porcelain public module.
  */
 
+import { VERSION } from "../../../version.js";
+
 import { defineTheme } from "../../define.js";
 
 /**
@@ -30,10 +32,9 @@ import { defineTheme } from "../../define.js";
  * @public
  */
 export const porcelainTheme = defineTheme({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   name: "porcelain",
   label: "Porcelain",
-  version: "1.0.0",
   extends: "miaixz",
   tokens: {
     surfaces: {

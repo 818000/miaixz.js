@@ -30,12 +30,15 @@ import {
 import type {
   MiaixzBridgeEnvelope,
   MiaixzPostMessageHost,
+  MiaixzPostMessageHostLimits,
   MiaixzPostMessageHostOptions,
 } from "../contracts/post-message.js";
 import type { MiaixzHostAdapter } from "../contracts/host-context.js";
 import { MiaixzSdkError } from "../../errors/errors.js";
 import { MiaixzBridgeMessageCache } from "./message-cache.js";
 import { MiaixzPendingRequestRegistry, type HostRequestState } from "./pending-requests.js";
+import { resolvePostMessageHostLimits } from "./bridge-limits.js";
+import { assertBridgePayloadWithinLimits } from "./payload-budget.js";
 import {
   bridgeError,
   createEnvelope,
@@ -69,8 +72,10 @@ export class PostMessageHost implements MiaixzPostMessageHost {
   readonly #manifest: Readonly<MiaixzModuleManifest>;
   readonly #adapter: MiaixzHostAdapter;
   readonly #capabilities: readonly string[];
+  readonly #limits: Readonly<MiaixzPostMessageHostLimits>;
   readonly #incoming = new MiaixzBridgeMessageCache();
   readonly #subscriptions = new Map<string, () => Promise<void>>();
+  readonly #subscriptionReservations = new Set<string>();
   readonly #requests = new MiaixzPendingRequestRegistry();
   readonly #resolveReady: () => void;
   readonly #rejectReady: (error: MiaixzSdkError) => void;
@@ -99,6 +104,7 @@ export class PostMessageHost implements MiaixzPostMessageHost {
     if (!isPlainRecord(options.adapter)) throw bridgeError("BRIDGE_MESSAGE_INVALID");
     this.#adapter = options.adapter;
     this.#capabilities = getCapabilities(this.#adapter);
+    this.#limits = resolvePostMessageHostLimits(options.limits);
     const timeoutMs = parseTimeout(options.timeoutMs);
     let resolveReady!: () => void;
     let rejectReady!: (error: MiaixzSdkError) => void;
@@ -137,6 +143,7 @@ export class PostMessageHost implements MiaixzPostMessageHost {
       void unsubscribe().catch(() => undefined);
     }
     this.#subscriptions.clear();
+    this.#subscriptionReservations.clear();
     this.#requests.clearHost();
     this.#incoming.clear();
   }
@@ -168,13 +175,30 @@ export class PostMessageHost implements MiaixzPostMessageHost {
       }
       return;
     }
-    this.#incoming.accept(envelope.messageId);
+    const activeRequest = this.#requests.getHost(envelope.messageId);
+    if (activeRequest !== undefined) {
+      if (activeRequest.responseSent) {
+        this.#respondWithError(envelope, bridgeError("BRIDGE_TIMEOUT"));
+      } else {
+        activeRequest.replayRequested = true;
+      }
+      return;
+    }
     if (envelope.kind !== "request") return;
     if (!this.#isReady() && envelope.method !== "bridge.handshake") {
       this.#respondWithError(envelope, bridgeError("BRIDGE_NOT_READY"));
       return;
     }
-    const requestState: HostRequestState = this.#requests.createHost(envelope.messageId);
+    if (this.#requests.hostSize >= this.#limits.maxInFlightRequests) {
+      this.#respondWithError(envelope, bridgeError("BRIDGE_RESOURCE_LIMIT_EXCEEDED"));
+      return;
+    }
+    this.#incoming.accept(envelope.messageId);
+    const requestState: HostRequestState = this.#requests.createHost(
+      envelope.messageId,
+      this.#limits.requestTimeoutMilliseconds,
+      (state) => this.#timeoutRequest(envelope, state),
+    );
     this.#incoming.recordRequest(envelope.messageId, requestState);
     void this.#handleRequest(envelope).then(
       (payload) => this.#completeRequest(envelope, payload),
@@ -205,7 +229,7 @@ export class PostMessageHost implements MiaixzPostMessageHost {
         if (envelope.payload !== undefined) throw bridgeError("BRIDGE_MESSAGE_INVALID");
         return parseRuntimeContext(await this.#requireCapability("getContext")());
       case "navigation.navigate":
-        await this.#requireCapability("navigate")(parseNavigation(envelope.payload));
+        await this.#requireCapability("navigate")(parseNavigation(envelope.payload, this.#limits));
         return undefined;
       case "permissions.has": {
         if (
@@ -214,7 +238,7 @@ export class PostMessageHost implements MiaixzPostMessageHost {
         )
           throw bridgeError("BRIDGE_MESSAGE_INVALID");
         const allowed = await this.#requireCapability("hasPermissions")(
-          parsePermissions(envelope.payload.permissions),
+          parsePermissions(envelope.payload.permissions, this.#limits),
         );
         return Object.freeze({ allowed });
       }
@@ -227,7 +251,7 @@ export class PostMessageHost implements MiaixzPostMessageHost {
           throw bridgeError("BRIDGE_MESSAGE_INVALID");
         await this.#requireCapability("registerMessages")(
           envelope.payload.namespace,
-          parseMessageCatalog(envelope.payload.namespace, envelope.payload.catalog),
+          parseMessageCatalog(envelope.payload.namespace, envelope.payload.catalog, this.#limits),
         );
         return undefined;
       }
@@ -237,6 +261,7 @@ export class PostMessageHost implements MiaixzPostMessageHost {
           !hasOnlyKeys(envelope.payload, new Set(["type", "payload"]))
         )
           throw bridgeError("BRIDGE_MESSAGE_INVALID");
+        assertBridgePayloadWithinLimits(envelope.payload.payload, this.#limits);
         await this.#requireCapability("emit")(
           parseEventType(this.#manifest.id, envelope.payload.type),
           envelope.payload.payload,
@@ -244,7 +269,7 @@ export class PostMessageHost implements MiaixzPostMessageHost {
         return undefined;
       }
       case "events.subscribe":
-        return this.#subscribe(envelope.payload);
+        return this.#subscribe(envelope.payload, envelope.messageId);
       case "events.unsubscribe":
         await this.#unsubscribe(envelope.payload);
         return undefined;
@@ -284,25 +309,52 @@ export class PostMessageHost implements MiaixzPostMessageHost {
    * Registers one Host event subscription and returns its secure identifier.
    *
    * @param payload - Subscribe request payload.
+   * @param requestId - Request identifier used to reserve a concurrent slot.
    * @returns Subscription response payload.
    */
-  async #subscribe(payload: unknown): Promise<Readonly<SubscriptionResponse>> {
+  async #subscribe(payload: unknown, requestId: string): Promise<Readonly<SubscriptionResponse>> {
     if (!isPlainRecord(payload) || !hasOnlyKeys(payload, new Set(["type"])))
       throw bridgeError("BRIDGE_MESSAGE_INVALID");
     const type = parseEventType(this.#manifest.id, payload.type);
+    if (
+      this.#subscriptions.size + this.#subscriptionReservations.size >=
+      this.#limits.maxSubscriptions
+    ) {
+      throw bridgeError("BRIDGE_RESOURCE_LIMIT_EXCEEDED");
+    }
+    this.#subscriptionReservations.add(requestId);
     const subscriptionId = createMessageId();
     let cancelled = false;
-    const rawUnsubscribe = await this.#requireCapability("subscribe")(type, (eventPayload) => {
-      if (cancelled || this.#disposed) return;
-      this.#post(
-        createEnvelope(this.#manifest.id, "event", "events.message", createMessageId(), {
-          subscriptionId,
-          type,
-          payload: eventPayload,
-        }),
-      );
-    });
-    if (typeof rawUnsubscribe !== "function") throw bridgeError("BRIDGE_MESSAGE_INVALID");
+    let rawUnsubscribe: (() => void | Promise<void>) | undefined;
+    try {
+      rawUnsubscribe = await this.#requireCapability("subscribe")(type, (eventPayload) => {
+        if (cancelled || this.#disposed) return;
+        try {
+          assertBridgePayloadWithinLimits(eventPayload, this.#limits);
+        } catch {
+          return;
+        }
+        this.#post(
+          createEnvelope(this.#manifest.id, "event", "events.message", createMessageId(), {
+            subscriptionId,
+            type,
+            payload: eventPayload,
+          }),
+        );
+      });
+      if (typeof rawUnsubscribe !== "function") throw bridgeError("BRIDGE_MESSAGE_INVALID");
+      if (this.#disposed) {
+        await Promise.resolve().then(rawUnsubscribe);
+        throw bridgeError("BRIDGE_DISPOSED");
+      }
+      const requestState = this.#requests.getHost(requestId);
+      if (requestState?.cancelled === true || requestState?.responseSent === true) {
+        await Promise.resolve().then(rawUnsubscribe);
+        throw bridgeError(requestState.cancelled ? "BRIDGE_DISPOSED" : "BRIDGE_TIMEOUT");
+      }
+    } finally {
+      this.#subscriptionReservations.delete(requestId);
+    }
     /**
      * Releases one host subscription once and awaits the provider cleanup callback.
      *
@@ -343,28 +395,62 @@ export class PostMessageHost implements MiaixzPostMessageHost {
    */
   #completeRequest(request: MiaixzBridgeEnvelope, payload?: unknown, error?: unknown): void {
     const state = this.#requests.completeHost(request.messageId);
-    if (state?.cancelled === true || this.#disposed) return;
+    if (state === undefined || state.cancelled || state.responseSent || this.#disposed) return;
+    state.responseSent = true;
+    let responsePayload = payload;
+    let responseError = error;
+    if (responseError === undefined) {
+      try {
+        assertBridgePayloadWithinLimits(responsePayload, this.#limits);
+      } catch (value) {
+        responsePayload = undefined;
+        responseError = value;
+      }
+    }
     const response = createEnvelope(
       this.#manifest.id,
       "response",
       request.method,
       request.messageId,
-      payload,
-      error === undefined ? undefined : serializeError(error),
+      responsePayload,
+      responseError === undefined ? undefined : serializeError(responseError),
     );
     this.#incoming.recordResponse(request.messageId, response);
     this.#post(response);
     if (state?.replayRequested === true) this.#post(response);
     if (request.method === "bridge.handshake") {
-      if (error === undefined) this.#resolveStartup();
+      if (responseError === undefined) this.#resolveStartup();
       else {
         this.#rejectStartup(
-          error instanceof MiaixzSdkError ? error : bridgeError("BRIDGE_MESSAGE_INVALID"),
+          responseError instanceof MiaixzSdkError
+            ? responseError
+            : bridgeError("BRIDGE_MESSAGE_INVALID"),
         );
         this.dispose();
       }
     }
-    if (request.method === "bridge.dispose" && error === undefined) this.dispose();
+    if (request.method === "bridge.dispose" && responseError === undefined) this.dispose();
+  }
+
+  /**
+   * Emits one timeout while retaining the request slot until the adapter task settles.
+   *
+   * @param request - Timed-out request envelope.
+   * @param state - Retained Host request state.
+   */
+  #timeoutRequest(request: MiaixzBridgeEnvelope, state: HostRequestState): void {
+    if (this.#disposed || state.cancelled) return;
+    const response = createEnvelope(
+      this.#manifest.id,
+      "response",
+      request.method,
+      request.messageId,
+      undefined,
+      serializeError(bridgeError("BRIDGE_TIMEOUT")),
+    );
+    this.#incoming.recordResponse(request.messageId, response);
+    this.#post(response);
+    if (state.replayRequested) this.#post(response);
   }
 
   /**

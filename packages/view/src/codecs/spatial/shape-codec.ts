@@ -22,6 +22,8 @@
  * Provides format-neutral shape conversion for spatial codecs.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { DrawingScene, DrawingShape } from "../../shared/contracts/document.js";
 
 /**
@@ -37,20 +39,30 @@ export function createShapeScene(
   id: string,
   shapes: readonly DrawingShape[],
 ): DrawingScene {
-  const minimumX = Math.min(0, ...shapes.map((shape) => shape.x));
-  const minimumY = Math.min(0, ...shapes.map((shape) => shape.y));
+  let minimumX = 0;
+  let minimumY = 0;
+  for (const shape of shapes) {
+    minimumX = Math.min(minimumX, shape.x);
+    minimumY = Math.min(minimumY, shape.y);
+  }
   const normalized = shapes.map((shape) => ({
     ...shape,
     x: shape.x - minimumX + 10,
     y: shape.y - minimumY + 10,
   }));
+  let width = 100;
+  let height = 100;
+  for (const shape of normalized) {
+    width = Math.max(width, shape.x + shape.width + 10);
+    height = Math.max(height, shape.y + shape.height + 10);
+  }
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id,
     kind: "drawing",
     title,
-    width: Math.max(100, ...normalized.map((shape) => shape.x + shape.width + 10)),
-    height: Math.max(100, ...normalized.map((shape) => shape.y + shape.height + 10)),
+    width,
+    height,
     shapes: normalized,
     edges: [],
   };

@@ -72,17 +72,8 @@ if (rootPackage?.name !== "miaixz.js") {
   throw new Error("Unexpected root package name; refusing to update versions.");
 }
 
-for (const { manifest, relativePath } of versionedPackages) {
+for (const { manifest } of versionedPackages) {
   manifest.version = version;
-  if (manifest.miaixzUiContract === undefined) continue;
-  if (
-    manifest.miaixzUiContract === null ||
-    typeof manifest.miaixzUiContract !== "object" ||
-    Array.isArray(manifest.miaixzUiContract)
-  ) {
-    throw new Error(`${relativePath} miaixzUiContract must be an object when present.`);
-  }
-  manifest.miaixzUiContract.version = version;
 }
 
 const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
@@ -123,6 +114,10 @@ const updates = [
     `${JSON.stringify(manifest, null, 2)}\n`,
   ]),
 ];
+const { renderProjectVersions } = await import(
+  pathToFileURL(join(root, ".github/scripts/release/generate-project-version.mjs")),
+);
+updates.push(...renderProjectVersions(root, version));
 
 for (const [path, contents] of updates) {
   writeFileSync(`${path}.tmp`, contents);
@@ -138,8 +133,6 @@ const verifiedWorkspaceNames = new Set(
   verifiedRepository.workspaces.map(({ name }) => name),
 );
 const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest }) => {
-  const contractVersionMatches =
-    manifest.miaixzUiContract === undefined || manifest.miaixzUiContract.version === version;
   const peersMatch = Object.entries(manifest.peerDependencies ?? {}).every(
     ([name, range]) =>
       !verifiedWorkspaceNames.has(name) ||
@@ -154,15 +147,11 @@ const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest })
       ([name, range]) => !verifiedWorkspaceNames.has(name) || range === version,
     ),
   );
-  return contractVersionMatches && peersMatch && otherDependenciesMatch;
+  return peersMatch && otherDependenciesMatch;
 });
 const versionsMatch =
   readFileSync(paths.version, "utf8").trim() === version &&
-  verifiedPackages.every(
-    ({ manifest }) =>
-      manifest.version === version &&
-      (manifest.miaixzUiContract === undefined || manifest.miaixzUiContract.version === version),
-  ) &&
+  verifiedPackages.every(({ manifest }) => manifest.version === version) &&
   internalVersionsMatch;
 
 if (!versionsMatch) {

@@ -22,6 +22,8 @@
  * Manages appearance snapshots, persistence, and appearance-change events.
  */
 
+import { VERSION } from "../version.js";
+
 import { MiaixzSdkError } from "../errors/errors.js";
 import type { MiaixzEventBusPort, MiaixzSdkEventMap } from "../runtime/events/event-types.js";
 import {
@@ -39,7 +41,7 @@ import type {
   MiaixzDensity,
   MiaixzThemeOverrides,
 } from "./appearance.types.js";
-import { miaixzAppearanceMigrationV1ToV2 } from "./migration.js";
+import { miaixzAppearanceMigration } from "./migration.js";
 import { miaixzDefaultAppearance, parseMiaixzAppearanceSettings } from "./validation.js";
 
 /**
@@ -47,7 +49,7 @@ import { miaixzDefaultAppearance, parseMiaixzAppearanceSettings } from "./valida
  *
  * @public
  */
-export const miaixzAppearanceSchemaVersion = 2 as const;
+export const miaixzAppearanceSchemaVersion = VERSION;
 
 /**
  * Configures a Miaixz Appearance manager.
@@ -76,7 +78,7 @@ export interface MiaixzAppearanceManagerOptions {
   readonly storage?: MiaixzKeyValueStorage;
 
   /**
-   * Supplies optional migrations that precede the built-in v1-to-v2 migration.
+   * Supplies optional migrations that precede the built-in legacy-to-VERSION migration.
    */
   readonly migrations?: readonly MiaixzStorageMigration[];
 
@@ -113,10 +115,7 @@ export class MiaixzAppearanceManager {
     this.#appId = options.appId;
     this.#tenantId = options.tenantId;
     this.#storage = options.storage ?? getMiaixzBrowserStorage();
-    this.#migrations = Object.freeze([
-      ...(options.migrations ?? []),
-      miaixzAppearanceMigrationV1ToV2,
-    ]);
+    this.#migrations = Object.freeze([...(options.migrations ?? []), miaixzAppearanceMigration]);
     this.#events = options.events;
 
     const scope = this.#createScope(this.#tenantId);
@@ -317,7 +316,7 @@ export class MiaixzAppearanceManager {
   }
 
   /**
-   * Parses a complete v2 event payload without surfacing untrusted failures.
+   * Parses a complete current-release event payload without surfacing untrusted failures.
    *
    * @param value - Untrusted event payload.
    * @returns Normalized settings, or undefined for an invalid payload.
@@ -345,7 +344,7 @@ export class MiaixzAppearanceManager {
    * Persists then commits one already-normalized snapshot.
    *
    * @param appearance - Deeply frozen settings to commit.
-   * @param broadcast - Whether to publish a complete v2 event payload.
+   * @param broadcast - Whether to publish a complete current-release event payload.
    * @throws MiaixzSdkError When persistence fails before the in-memory commit.
    */
   #commit(appearance: MiaixzAppearanceSettings, broadcast: boolean): void {

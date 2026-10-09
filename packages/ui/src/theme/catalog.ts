@@ -144,7 +144,6 @@ export class ThemeCatalog {
           Object.freeze({
             name: theme.name,
             label: theme.label,
-            version: theme.version,
             source: sources.get(theme.name) ?? "registered",
             preview: Object.freeze({
               light: themePreview(complete, "light"),

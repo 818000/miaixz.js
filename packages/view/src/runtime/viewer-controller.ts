@@ -104,23 +104,46 @@ export async function openViewerDocument(
 ): Promise<OpenedDocument> {
   const budget = resolveResourceBudget(options.budget);
   const abortController = new AbortController();
+  let taskTimedOut = false;
+  const taskTimer = setTimeout(() => {
+    taskTimedOut = true;
+    abortController.abort(new DOMException("Viewer task timed out", "AbortError"));
+  }, budget.maxTaskMilliseconds);
+  const cancellation = new Promise<never>((_resolve, reject) => {
+    abortController.signal.addEventListener(
+      "abort",
+      () => reject(abortController.signal.reason ?? new DOMException("Aborted", "AbortError")),
+      { once: true },
+    );
+  });
+  /**
+   * Races asynchronous pipeline work against controller-owned cancellation.
+   *
+   * @param promise - Pipeline operation to bound.
+   * @returns The operation result unless cancellation wins first.
+   */
+  function bounded<T>(promise: Promise<T>): Promise<T> {
+    return Promise.race([promise, cancellation]);
+  }
   /**
    * Forwards cancellation to the document session abort controller.
    *
    * @returns No return value; cancels controller-owned parsing and resources.
    */
-  const abort = (): void => abortController.abort();
+  const abort = (): void => abortController.abort(options.signal?.reason);
   options.signal?.addEventListener("abort", abort, { once: true });
   const provider: FileResourceProvider =
     options.resourceProvider ?? new DefaultFileResourceProvider(budget);
   let resource: RandomAccessResource | undefined;
   let handedOff = false;
   try {
-    resource = await provider.open(source, abortController.signal);
+    resource = await bounded(provider.open(source, abortController.signal));
     const openedResource = resource;
     options.onProgress?.({ stage: "opening", indeterminate: true });
     const metadata = sourceMetadata(source);
-    const prefix = await openedResource.read(0, budget.maxProbeBytes, abortController.signal);
+    const prefix = await bounded(
+      openedResource.read(0, budget.maxProbeBytes, abortController.signal),
+    );
     options.onProgress?.({ stage: "detecting", indeterminate: true });
     const registry = options.registry ?? createDefaultRegistry();
     const decision = detectFormat(
@@ -131,20 +154,22 @@ export async function openViewerDocument(
     );
     if (decision.driver === undefined) throw new ViewerError("FORMAT_UNSUPPORTED", "detect", true);
     if (decision.conflicts.length > 0) throw new ViewerError("FORMAT_AMBIGUOUS", "detect", true);
-    const driver = await registry.load(decision.driver);
-    const driverOutcome = await driver.open({
-      resource: openedResource,
-      decision,
-      budget,
-      signal: abortController.signal,
-      reportProgress: (progress) => options.onProgress?.(progress),
-      ...(provider.resolveRelated === undefined
-        ? {}
-        : {
-            resolveRelated: (request, signal = abortController.signal) =>
-              provider.resolveRelated?.(request, signal) ?? Promise.resolve(undefined),
-          }),
-    });
+    const driver = await bounded(registry.load(decision.driver));
+    const driverOutcome = await bounded(
+      driver.open({
+        resource: openedResource,
+        decision,
+        budget,
+        signal: abortController.signal,
+        reportProgress: (progress) => options.onProgress?.(progress),
+        ...(provider.resolveRelated === undefined
+          ? {}
+          : {
+              resolveRelated: (request, signal = abortController.signal) =>
+                provider.resolveRelated?.(request, signal) ?? Promise.resolve(undefined),
+            }),
+      }),
+    );
     const outcome: ParseOutcome =
       driverOutcome.status === "complete" &&
       driverOutcome.model.kind === "spreadsheet" &&
@@ -163,6 +188,7 @@ export async function openViewerDocument(
           }
         : driverOutcome;
     handedOff = true;
+    clearTimeout(taskTimer);
     let disposed = false;
     return {
       decision,
@@ -174,6 +200,7 @@ export async function openViewerDocument(
         if (disposed) return;
         disposed = true;
         abortController.abort();
+        clearTimeout(taskTimer);
         openedResource.dispose();
         options.signal?.removeEventListener("abort", abort);
       },
@@ -181,6 +208,14 @@ export async function openViewerDocument(
   } catch (error) {
     if (!handedOff) resource?.dispose();
     options.signal?.removeEventListener("abort", abort);
+    clearTimeout(taskTimer);
+    if (taskTimedOut) {
+      throw new ViewerError("RESOURCE_LIMIT_EXCEEDED", "parse", false, [], {
+        field: "maxTaskMilliseconds",
+        actual: budget.maxTaskMilliseconds + 1,
+        allowed: budget.maxTaskMilliseconds,
+      });
+    }
     throw sanitizeViewerError(error, "parse");
   }
 }

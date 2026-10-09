@@ -7,6 +7,49 @@
   gap: 2rem;
 }
 
+.refinementGrid {
+  overflow-x: auto;
+  border: 1px solid var(--miaixz-color-border, #cdcdcd);
+  border-radius: 0.8rem;
+  background: var(--miaixz-color-surface, #fff);
+}
+
+.refinementRow {
+  display: grid;
+  grid-template-columns: 11rem repeat(6, 15rem);
+  align-items: center;
+  min-width: 101rem;
+  padding: 0.75rem;
+}
+
+.refinementRow + .refinementRow {
+  border-top: 1px solid var(--miaixz-color-border, #cdcdcd);
+}
+
+.refinementRow > code {
+  font-size: 0.75rem;
+}
+
+.refinementCell {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  min-height: 5rem;
+  padding: 0.25rem;
+}
+
+.refinementCell > span {
+  color: var(--miaixz-color-text-muted, #5e5e5e);
+  font-size: 0.75rem;
+}
+
+.refinementCell > div {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 40px;
+}
+
 .inspector {
   display: grid;
   grid-template-columns: minmax(16rem, 0.8fr) minmax(20rem, 1.2fr);
@@ -88,7 +131,7 @@
 }
 
 .controls button,
-.more {
+.pagination button {
   min-height: 2.5rem;
   padding: 0 1rem;
   border: 1px solid var(--miaixz-color-border, #cdcdcd);
@@ -130,10 +173,30 @@
 
 .filters {
   display: grid;
-  grid-template-columns: minmax(14rem, 1fr) minmax(11rem, 0.4fr) auto;
+  grid-template-columns: minmax(14rem, 1fr) repeat(2, minmax(11rem, 0.4fr)) auto;
   gap: 1rem;
   align-items: end;
   margin-bottom: 1.25rem;
+}
+
+.catalogPreviews {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-block: 1rem;
+}
+
+.pagination button:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 
 .filters input,

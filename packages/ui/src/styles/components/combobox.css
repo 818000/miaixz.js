@@ -33,9 +33,17 @@
 
 .miaixz-combobox-label,
 .miaixz-picker-label {
+  min-width: 0;
   font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-medium);
   line-height: var(--miaixz-text-body-line-height);
-  color: var(--miaixz-color-brand-strong);
+  color: var(--miaixz-color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.miaixz-combobox[data-disabled="true"] > .miaixz-combobox-label,
+.miaixz-picker[data-disabled="true"] > .miaixz-picker-label {
+  color: var(--miaixz-color-text-disabled);
 }
 
 .miaixz-combobox-control,
@@ -253,6 +261,13 @@
 }
 
 @media (forced-colors: active) {
+  .miaixz-combobox-label,
+  .miaixz-picker-label,
+  .miaixz-combobox[data-disabled="true"] > .miaixz-combobox-label,
+  .miaixz-picker[data-disabled="true"] > .miaixz-picker-label {
+    color: CanvasText;
+  }
+
   .miaixz-combobox-option[data-state="active"],
   .miaixz-picker-option[data-state="active"] {
     outline: 2px solid Highlight;

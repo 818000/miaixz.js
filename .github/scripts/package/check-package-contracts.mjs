@@ -134,43 +134,74 @@ function validateManifest({ directory, manifest, name, rootPath }) {
     }
   }
   if (name === "@miaixz/ui") {
-    const contract = manifest.miaixzUiContract;
+    const contract = manifest.miaixz;
+    const expectedFields = ["attributes", "components", "props", "selectors", "values"];
     if (
-      contract?.schemaVersion !== 1 ||
-      contract.version !== release ||
-      !Array.isArray(contract.deprecatedProps) ||
-      contract.deprecatedProps.length !== 0 ||
-      contract.exports !== undefined
+      contract === null ||
+      typeof contract !== "object" ||
+      Array.isArray(contract) ||
+      JSON.stringify(Object.keys(contract).sort()) !== JSON.stringify(expectedFields) ||
+      contract.props === null ||
+      typeof contract.props !== "object" ||
+      Array.isArray(contract.props) ||
+      contract.values === null ||
+      typeof contract.values !== "object" ||
+      Array.isArray(contract.values)
     ) {
-      throw new Error(`${directory}/package.json contains an invalid or stale miaixzUiContract`);
+      throw new Error(`${directory}/package.json contains invalid miaixz metadata`);
     }
-    for (const field of ["publicDomComponents", "stableSelectors", "runtimeAttributes"]) {
+    for (const field of ["components", "selectors", "attributes"]) {
       const values = contract[field];
       if (
         !Array.isArray(values) ||
         values.some((value) => typeof value !== "string" || value === "") ||
         new Set(values).size !== values.length
       ) {
+        throw new Error(`${directory}/package.json miaixz.${field} must contain unique names`);
+      }
+    }
+    const sortedComponents = [...contract.components].sort((left, right) =>
+      left.localeCompare(right),
+    );
+    if (JSON.stringify(contract.components) !== JSON.stringify(sortedComponents)) {
+      throw new Error(`${directory}/package.json miaixz.components must be sorted`);
+    }
+    for (const [componentName, props] of Object.entries(contract.props)) {
+      if (!contract.components.includes(componentName)) {
         throw new Error(
-          `${directory}/package.json miaixzUiContract.${field} must contain unique names`,
+          `${directory}/package.json miaixz.props.${componentName} is not a public component`,
+        );
+      }
+      if (
+        !Array.isArray(props) ||
+        props.some((value) => typeof value !== "string" || value === "") ||
+        new Set(props).size !== props.length
+      ) {
+        throw new Error(
+          `${directory}/package.json miaixz.props.${componentName} must contain unique names`,
         );
       }
     }
-    const sortedComponents = [...contract.publicDomComponents].sort((left, right) =>
-      left.localeCompare(right),
-    );
-    if (JSON.stringify(contract.publicDomComponents) !== JSON.stringify(sortedComponents)) {
-      throw new Error(`${directory}/package.json publicDomComponents must be sorted`);
-    }
-    for (const [componentName, component] of Object.entries(contract.components ?? {})) {
-      if (component.deprecatedProps !== undefined) {
-        throw new Error(`${directory}/package.json ${componentName} retains removed properties`);
-      }
+    for (const [componentName, properties] of Object.entries(contract.values)) {
       if (
-        !Array.isArray(component.supportedProps) ||
-        new Set(component.supportedProps).size !== component.supportedProps.length
+        !contract.components.includes(componentName) ||
+        properties === null ||
+        typeof properties !== "object" ||
+        Array.isArray(properties)
       ) {
-        throw new Error(`${directory}/package.json ${componentName}.supportedProps must be unique`);
+        throw new Error(`${directory}/package.json miaixz.values.${componentName} is invalid`);
+      }
+      for (const [property, values] of Object.entries(properties)) {
+        if (
+          !contract.props[componentName]?.includes(property) ||
+          !Array.isArray(values) ||
+          values.some((value) => typeof value !== "string" || value === "") ||
+          new Set(values).size !== values.length
+        ) {
+          throw new Error(
+            `${directory}/package.json miaixz.values.${componentName}.${property} is invalid`,
+          );
+        }
       }
     }
   }
@@ -193,7 +224,10 @@ function validateManifest({ directory, manifest, name, rootPath }) {
     }
     const expectedExports = {
       ".": { types: "./dist/index.d.ts", import: "./dist/index.js" },
-      "./catalog": { types: "./dist/values/metadata.d.ts", import: "./dist/values/metadata.js" },
+      "./catalog": {
+        types: "./dist/values/metadata.d.ts",
+        import: "./dist/values/metadata.js",
+      },
       "./styles.css": "./dist/styles.css",
       "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2",
     };
@@ -228,6 +262,9 @@ function pack({ directory, name }) {
   ]);
   const packedFiles = (result[0].files ?? []).map((file) => file.path);
   for (const file of result[0].files ?? []) {
+    if (file.path.endsWith(".map")) {
+      throw new Error(`${directory} tarball contains forbidden source map ${file.path}`);
+    }
     const topLevel = file.path.split("/")[0];
     if (forbiddenPackageFiles.has(topLevel)) {
       throw new Error(`${directory} tarball contains duplicate package-local policy ${topLevel}`);
@@ -251,9 +288,7 @@ function pack({ directory, name }) {
         "values/icons",
         "values/metadata",
         "values/design",
-      ].flatMap((entry) =>
-        [".js", ".js.map", ".d.ts", ".d.ts.map"].map((suffix) => "dist/" + entry + suffix),
-      ),
+      ].flatMap((entry) => [".js", ".d.ts"].map((suffix) => "dist/" + entry + suffix)),
     ]);
     for (const path of packedFiles) {
       if (path.startsWith("dist/") && !permittedDist.has(path))
@@ -419,7 +454,7 @@ for (const specifier of ${JSON.stringify(specifiers)}) {
     throw new Error(\`Packed export resolved outside the consumer: \${specifier} -> \${resolved}\`);
   }
 }
-for (const name of ${JSON.stringify(uiManifest.miaixzUiContract.publicDomComponents)}) {
+for (const name of ${JSON.stringify(uiManifest.miaixz.components)}) {
   if (!Object.hasOwn(packedUiRoot, name)) {
     throw new Error(\`Packed UI contract value is missing from the root export: \${name}\`);
   }

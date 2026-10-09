@@ -31,11 +31,17 @@ import { defineConfig } from "vitest/config";
  */
 export default defineConfig({
   test: {
+    cache: false,
+    /**
+     * Six-master filesystem fixtures run serially to avoid competing bulk reads and writes.
+     */
+    fileParallelism: false,
     environment: "jsdom",
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     restoreMocks: true,
     coverage: {
       provider: "v8",
+      reporter: ["text"],
       include: ["src/**/*.{ts,tsx}"],
       exclude: ["src/index.ts", "src/values/**"],
       thresholds: {

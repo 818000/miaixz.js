@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { HeatmapLegend } from "../../../src/components/heatmap/index.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 const levelLabels = ["无", "很低", "低", "中", "高", "很高"] as const;
 

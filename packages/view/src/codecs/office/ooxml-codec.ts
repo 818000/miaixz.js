@@ -22,6 +22,8 @@
  * Provides the local OOXML codec and Office diagram recognition.
  */
 
+import { VERSION } from "../../version.js";
+
 import { ZipArchive } from "../archive/zip-codec.js";
 import {
   allElements,
@@ -54,6 +56,10 @@ import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import type { ResourceBudget } from "../../shared/contracts/resource-budget.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError, sanitizeViewerError } from "../../shared/errors/viewer-error.js";
+import {
+  getResourceBudgetGuard,
+  type ResourceBudgetGuard,
+} from "../../runtime/resource-budget-guard.js";
 import { parseOfficeDrawing, type OfficeDrawingImage } from "./drawing-codec.js";
 import { decodeEmf } from "./emf-codec.js";
 import { buildSpreadsheetCoverage, spreadsheetParseOutcome } from "./spreadsheet-feature-codec.js";
@@ -806,11 +812,11 @@ export async function parseSpreadsheet(
     sheets[0]?.id ??
     "";
   const modelWithoutCoverage: Omit<SpreadsheetRenderDocument, "coverage"> = {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: documentId,
     kind: "spreadsheet",
     title,
-    layoutVersion: 1,
+    layoutVersion: VERSION,
     activeSheetId,
     styles,
     sheets,
@@ -962,7 +968,7 @@ function mergeScenes(
     totals.unsupportedCount += features.unsupportedCount;
   }
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id,
     kind: "drawing",
     title,
@@ -1117,7 +1123,7 @@ async function parsePresentation(
   const coverage: OfficeCoverageEntry[] = [];
   if (!hasPart(archive, presentationPath)) {
     return {
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id,
       kind: "paged",
       title,
@@ -1154,6 +1160,7 @@ async function parsePresentation(
       return related.get(relationId ?? attribute(slide, "id") ?? "");
     })
     .filter((path): path is string => path !== undefined && hasPart(archive, path));
+  assertResourceLimit("maxPages", slidePaths.length, budget.maxPages);
   coverage.push({
     feature: "presentation-metadata",
     part: presentationPath,
@@ -1280,7 +1287,7 @@ async function parsePresentation(
     });
   }
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id,
     kind: "paged",
     title,
@@ -1771,9 +1778,10 @@ async function parseWord(
       skipped: unmodeledRelatedParts.length,
     });
   }
+  assertResourceLimit("maxPages", pageForegroundScenes.length, budget.maxPages);
   const pages = pageForegroundScenes.map((foregroundScenes, index) => {
     const textScene: DrawingScene = {
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id: `${id}-word-text-${index + 1}`,
       kind: "drawing",
       title: `Page ${index + 1} text`,
@@ -1808,7 +1816,7 @@ async function parseWord(
     };
   });
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id,
     kind: "paged",
     title,
@@ -1860,6 +1868,28 @@ function containsMacroProject(archive: ZipArchive): boolean {
 }
 
 /**
+ * Applies document-wide page and drawing totals after package-specific parsing.
+ *
+ * @param model - Complete Office model to account.
+ * @param guard - Shared session resource-accounting guard.
+ */
+function accountOfficeModel(model: ViewerDocument, guard: ResourceBudgetGuard): void {
+  if (model.kind === "paged") {
+    guard.consumePages(model.pages.length);
+    for (const page of model.pages) {
+      const drawing = page.drawing;
+      if (drawing !== undefined) {
+        guard.consumeDrawingObjects(drawing.shapes.length + drawing.edges.length);
+      }
+    }
+  } else if (model.kind === "spreadsheet") {
+    for (const drawing of model.drawings) {
+      guard.consumeDrawingObjects(drawing.shapes.length + drawing.edges.length);
+    }
+  }
+}
+
+/**
  * Creates one format-owned OOXML driver over the shared package decoder.
  *
  * @param id - Canonical format identifier exposed by the driver.
@@ -1883,7 +1913,12 @@ export function createOoxmlDriver(
         context.reportProgress({ stage: "parsing", indeterminate: true });
         const bytes = await context.resource.readAll(context.signal);
         const title = documentTitle(context.resource.name);
-        const archive = new ZipArchive(bytes, context.budget);
+        const guard = getResourceBudgetGuard(context.budget, context.signal);
+        const archive = new ZipArchive(bytes, {
+          budget: context.budget,
+          guard,
+          signal: context.signal,
+        });
         const warnings = containsMacroProject(archive)
           ? [{ code: "OFFICE_MACRO_IGNORED", messageKey: "office.macroIgnored" }]
           : [];
@@ -1895,6 +1930,7 @@ export function createOoxmlDriver(
             context.budget,
             context.signal,
           );
+          accountOfficeModel(model, guard);
           return spreadsheetParseOutcome(model, warnings);
         }
         const model: ViewerDocument =
@@ -1904,6 +1940,7 @@ export function createOoxmlDriver(
         if (model.kind !== "paged") {
           throw new ViewerError("PARSE_FAILED", "parse");
         }
+        accountOfficeModel(model, guard);
         return officeParseOutcome(model, warnings);
       } catch (value) {
         return { status: "rejected", error: sanitizeViewerError(value, "parse") };

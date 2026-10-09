@@ -26,6 +26,10 @@ import type { DrawingScene, DrawingShape } from "../../shared/contracts/document
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import {
+  getResourceBudgetGuard,
+  type ResourceBudgetGuard,
+} from "../../runtime/resource-budget-guard.js";
 import { createShapeScene } from "./shape-codec.js";
 
 const decoder = new TextDecoder();
@@ -36,9 +40,17 @@ const decoder = new TextDecoder();
  * @param source - Decoded ASCII DXF source.
  * @param id - Stable document identifier.
  * @param title - Safe display title for the drawing.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
  * @returns Drawing scene containing supported DXF entities.
  */
-function dxfDrawing(source: string, id: string, title: string): DrawingScene {
+function dxfDrawing(
+  source: string,
+  id: string,
+  title: string,
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+): DrawingScene {
   const lines = source.split(/\r?\n/u);
   const shapes: DrawingShape[] = [];
   let entity: Record<string, string> | undefined;
@@ -61,6 +73,7 @@ function dxfDrawing(source: string, id: string, title: string): DrawingScene {
         width: Number(entity["11"] ?? x) - x,
         height: -Number(entity["21"] ?? -y) - y,
       });
+      guard.consumeDrawingObjects();
     } else if (type === "CIRCLE") {
       const radius = Number(entity["40"] ?? 1);
       shapes.push({
@@ -71,6 +84,7 @@ function dxfDrawing(source: string, id: string, title: string): DrawingScene {
         width: radius * 2,
         height: radius * 2,
       });
+      guard.consumeDrawingObjects();
     } else if (type === "TEXT" || type === "MTEXT") {
       shapes.push({
         id: `entity-${shapes.length + 1}`,
@@ -81,9 +95,12 @@ function dxfDrawing(source: string, id: string, title: string): DrawingScene {
         height: 24,
         text: entity["1"] ?? "",
       });
+      guard.consumeDrawingObjects();
     }
   };
   for (let index = 0; index + 1 < lines.length; index += 2) {
+    if ((index & 0x7ff) === 0) guard.checkpoint(signal);
+    guard.consumeVectorRecords();
     const code = lines[index]?.trim() ?? "";
     const value = lines[index + 1]?.trim() ?? "";
     if (code === "0") {
@@ -111,10 +128,15 @@ export const dxfDriver: ViewerDriver<DrawingScene> = {
       return { status: "rejected", error: new ViewerError("FORMAT_UNSUPPORTED", "parse", true) };
     }
     const bytes = await context.resource.readAll(context.signal);
+    const source = decoder.decode(bytes);
+    const guard = getResourceBudgetGuard(context.budget, context.signal);
+    guard.consumeTextCharacters(source.length);
     const model = dxfDrawing(
-      decoder.decode(bytes),
+      source,
       stableDocumentId(context.resource.name, bytes),
       documentTitle(context.resource.name),
+      guard,
+      context.signal,
     );
     return { status: "complete", model, warnings: [] };
   },

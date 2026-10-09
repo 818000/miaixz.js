@@ -105,14 +105,14 @@
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
-    "build": "npm run clean && tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "node ../../.github/scripts/release/generate-project-version.mjs --check && npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "node ../../.github/scripts/release/generate-project-version.mjs --check && tsc -p tsconfig.json --noEmit",
     "lint": "eslint src tests *.config.js *.config.ts",
     "lint:fix": "eslint src tests *.config.js *.config.ts --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run",
+    "test:coverage": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run --coverage",
     "check": "npm run typecheck && npm run lint && npm run test:coverage && npm run format:check"
   },
   "devDependencies": {

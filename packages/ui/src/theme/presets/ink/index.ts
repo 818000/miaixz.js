@@ -22,6 +22,8 @@
  * Exposes the ink public module.
  */
 
+import { VERSION } from "../../../version.js";
+
 import { defineTheme } from "../../define.js";
 
 /**
@@ -30,10 +32,9 @@ import { defineTheme } from "../../define.js";
  * @public
  */
 export const inkTheme = defineTheme({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   name: "ink",
   label: "Ink",
-  version: "1.0.0",
   extends: "miaixz",
   tokens: {
     surfaces: {

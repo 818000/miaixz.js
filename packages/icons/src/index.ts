@@ -24,6 +24,7 @@
 
 export type { IconName } from "./values/icons.js";
 export type { IconSize } from "./values/design.js";
+export { VERSION } from "./version.js";
 export { Icon } from "./react/index.js";
 export type { IconMotion, IconProps } from "./react/index.js";
 export { isIconName, parseIconName, preloadIconFont } from "./runtime/index.js";

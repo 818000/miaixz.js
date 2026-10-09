@@ -30,7 +30,7 @@ import { Columns } from "../../src/components/columns/index.js";
 import { Donut } from "../../src/components/donut/index.js";
 import { Heatmap } from "../../src/components/heatmap/index.js";
 import { Sparkline } from "../../src/components/sparkline/index.js";
-import { renderWithLocale } from "../support/test-utils.js";
+import { renderWithLocale } from "../test-utils.helper.js";
 
 afterEach(cleanup);
 

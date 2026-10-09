@@ -290,8 +290,8 @@ This table is checked directly against the package export map.
 | `./core.css`                 | CSS        |
 | `./reset.css`                | CSS        |
 
-The `miaixzUiContract.deprecatedProps` list is empty in the current package version; removed APIs are not published as
-package metadata.
+The package manifest publishes its machine-readable UI contract under `miaixz`, covering public components, audited
+properties and values, stable selectors, and runtime attributes. Removed APIs are not published as package metadata.
 
 ## Basic usage
 
@@ -560,7 +560,7 @@ Avatar interaction remains compositional. Use `Pressable` around an Avatar for c
 ## Local development
 
 ```bash
-npm install
+npm ci --package-lock=true --ignore-scripts --legacy-peer-deps
 npm run check
 ```
 

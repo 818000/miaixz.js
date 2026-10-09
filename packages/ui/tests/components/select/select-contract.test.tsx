@@ -34,7 +34,7 @@ import {
 } from "../../../src/components/select/select-model.js";
 import { getSelectTriggerProps } from "../../../src/components/select/select-view.js";
 import type { SelectEntry } from "../../../src/components/select/select.types.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 afterEach(cleanup);
 

@@ -33,6 +33,7 @@ import { readRepositoryVersion } from "../../../miaixz.mjs";
 import {
   assetsRoot,
   loadIconSource,
+  measureIconRuntime,
   packageRoot,
   repositoryRoot,
   unicodeRangeFor,
@@ -50,6 +51,22 @@ const allowedScopes = new Set(["all", "package", "source", "structure"]);
  */
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+/**
+ * Requires the exact single published face-selection range, including the space strut.
+ * Space belongs only to CSS selection; the icon codepoint set remains unchanged.
+ *
+ * @param {string} css Published stylesheet.
+ * @param {any[]} icons Validated source icons.
+ * @returns {void} Nothing when the selection range is exact.
+ */
+export function validatePublishedUnicodeRange(css, icons) {
+  const ranges = [...css.matchAll(/unicode-range\s*:\s*([^;{}]+);/gu)];
+  invariant(
+    ranges.length === 1 && ranges[0][1].trim() === `U+0020, ${unicodeRangeFor(icons)}`,
+    "Published Unicode range is invalid.",
+  );
 }
 
 /**
@@ -136,8 +153,8 @@ export function allowedDistFile(path) {
   return (
     path === "assets/fonts/miaixz-icons.woff2" ||
     path === "styles.css" ||
-    /^values\/(?:metadata|design|icons)\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path) ||
-    /^(?:react\/index|runtime\/(?:index|font)|index)\.(?:js|js\.map|d\.ts|d\.ts\.map)$/u.test(path)
+    /^values\/(?:metadata|design|icons)\.(?:js|d\.ts)$/u.test(path) ||
+    /^(?:react\/index|runtime\/(?:index|font)|index|version)\.(?:js|d\.ts)$/u.test(path)
   );
 }
 
@@ -175,7 +192,10 @@ async function validatePackage() {
   ]) {
     invariant(
       JSON.stringify(manifest.exports[key]) ===
-        JSON.stringify({ types: `./dist/${filename}.d.ts`, import: `./dist/${filename}.js` }),
+        JSON.stringify({
+          types: `./dist/${filename}.d.ts`,
+          import: `./dist/${filename}.js`,
+        }),
       `${key} export is invalid.`,
     );
   }
@@ -194,6 +214,8 @@ async function validatePackage() {
   for (const required of [
     "index.js",
     "index.d.ts",
+    "version.js",
+    "version.d.ts",
     ...["icons", "metadata", "design"].flatMap((name) => [
       `values/${name}.js`,
       `values/${name}.d.ts`,
@@ -205,7 +227,7 @@ async function validatePackage() {
   }
   const source = await loadIconSource();
   invariant(
-    (await stat(resolve(distRoot, "values/icons.js"))).size <= source.design.limits.runtimeBytes,
+    (await measureIconRuntime(distRoot)).bytes <= source.design.limits.runtimeBytes,
     "Icon mapping exceeds its raw byte limit.",
   );
   invariant(
@@ -219,10 +241,7 @@ async function validatePackage() {
     css.includes('url("./assets/fonts/miaixz-icons.woff2")'),
     "Published font URL is invalid.",
   );
-  invariant(
-    css.includes(`unicode-range: ${unicodeRangeFor(source.icons)};`),
-    "Published Unicode range is invalid.",
-  );
+  validatePublishedUnicodeRange(css, source.icons);
   const { stdout } = await executeFile("npm", ["pack", "--dry-run", "--json"], {
     cwd: packageRoot,
     maxBuffer: 10 * 1024 * 1024,

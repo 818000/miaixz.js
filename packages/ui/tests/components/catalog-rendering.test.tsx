@@ -23,7 +23,7 @@
  */
 
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -57,7 +57,7 @@ import {
   Toast,
   Toolbar,
 } from "../../src/index.js";
-import { renderWithLocale } from "../support/test-utils.js";
+import { renderWithLocale } from "../test-utils.helper.js";
 
 afterEach(cleanup);
 
@@ -177,21 +177,65 @@ describe("catalog presentation components", () => {
 });
 
 describe("catalog input components", () => {
-  it("keeps native date and time picker labels floated before a value is selected", () => {
+  it.each([
+    ["date", "2026-10-09"],
+    ["datetime-local", "2026-10-09T10:30"],
+    ["month", "2026-10"],
+    ["time", "10:30"],
+    ["week", "2026-W41"],
+  ])("tracks real values and reset for native %s inputs", async (type, value) => {
     renderWithLocale(
-      <>
-        <Input aria-label="Birth date" defaultValue="" type="date" />
-        <Input aria-label="Start time" defaultValue="" type="time" />
-      </>,
+      <form data-testid="native-picker-form">
+        <Input
+          aria-label="Native picker"
+          defaultValue=""
+          type={type}
+          slotProps={{
+            root: (state) => ({ "data-owner-filled": String(state.filled) }),
+          }}
+        />
+      </form>,
     );
+    const input = screen.getByLabelText("Native picker");
+    expect(input.parentElement).not.toHaveAttribute("data-filled");
+    expect(input.parentElement).toHaveAttribute("data-owner-filled", "false");
+    fireEvent.change(input, { target: { value } });
+    expect(input).toHaveValue(value);
+    expect(input.parentElement).toHaveAttribute("data-filled", "true");
+    expect(input.parentElement).toHaveAttribute("data-owner-filled", "true");
+    (screen.getByTestId("native-picker-form") as HTMLFormElement).reset();
+    await waitFor(() => {
+      expect(input).toHaveValue("");
+      expect(input.parentElement).not.toHaveAttribute("data-filled");
+      expect(input.parentElement).toHaveAttribute("data-owner-filled", "false");
+    });
+  });
 
-    expect(screen.getByLabelText("Birth date").parentElement).toHaveAttribute(
+  it.each([
+    ["date", "2026-10-09"],
+    ["datetime-local", "2026-10-09T10:30"],
+    ["month", "2026-10"],
+    ["time", "10:30"],
+    ["week", "2026-W41"],
+  ])("tracks controlled native %s values", (type, value) => {
+    const { rerender } = renderWithLocale(
+      <Input aria-label="Controlled picker" onChange={() => undefined} type={type} value="" />,
+    );
+    expect(screen.getByLabelText("Controlled picker").parentElement).not.toHaveAttribute(
+      "data-filled",
+    );
+    rerender(
+      <Input aria-label="Controlled picker" onChange={() => undefined} type={type} value={value} />,
+    );
+    expect(screen.getByLabelText("Controlled picker").parentElement).toHaveAttribute(
       "data-filled",
       "true",
     );
-    expect(screen.getByLabelText("Start time").parentElement).toHaveAttribute(
+    rerender(
+      <Input aria-label="Controlled picker" onChange={() => undefined} type={type} value="" />,
+    );
+    expect(screen.getByLabelText("Controlled picker").parentElement).not.toHaveAttribute(
       "data-filled",
-      "true",
     );
   });
 

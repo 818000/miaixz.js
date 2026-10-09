@@ -114,7 +114,6 @@ export const presetThemeDescriptors = Object.freeze(metadata.map((entry) => {
   return Object.freeze({
     name: entry.name,
     label: entry.label,
-    version: theme.version,
     group: entry.group,
     source: entry.builtin ? "builtin" : "preset",
     preview: Object.freeze({ light: preview(complete, "light"), dark: preview(complete, "dark") }),

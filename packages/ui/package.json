@@ -24,11 +24,8 @@
     "theme",
     "css"
   ],
-  "miaixzUiContract": {
-    "schemaVersion": 1,
-    "version": "0.6.5",
-    "deprecatedProps": [],
-    "publicDomComponents": [
+  "miaixz": {
+    "components": [
       "ActionBar",
       "ActionText",
       "Alert",
@@ -144,67 +141,129 @@
       "Upload",
       "View"
     ],
-    "components": {
-      "Shell": {
-        "supportedProps": [
-          "desktopNavigation",
-          "mainComponent",
-          "mobileNavigation",
-          "slotProps"
-        ]
-      },
-      "Tabs": {
-        "supportedProps": [
-          "items",
-          "label",
-          "orientation",
-          "activationMode",
-          "actions",
-          "actionsPlacement",
-          "headerInset",
-          "headerVariant",
-          "panelPadding",
-          "variant",
-          "value",
-          "defaultValue",
-          "onValueChange",
-          "slotProps"
-        ]
-      },
-      "Panel": {
-        "supportedProps": [
-          "surface",
-          "frame",
-          "density",
-          "bodyPadding",
-          "bodyGap",
-          "bodyLayout",
-          "minHeight",
-          "interaction",
-          "presentation",
-          "title",
-          "description",
-          "leading",
-          "actions",
-          "headingLevel",
-          "footer",
-          "slotProps"
-        ]
-      },
+    "props": {
+      "Shell": [
+        "desktopNavigation",
+        "mainComponent",
+        "mobileNavigation",
+        "slotProps"
+      ],
+      "Tabs": [
+        "items",
+        "label",
+        "orientation",
+        "activationMode",
+        "actions",
+        "actionsPlacement",
+        "headerInset",
+        "headerVariant",
+        "panelPadding",
+        "variant",
+        "value",
+        "defaultValue",
+        "onValueChange",
+        "slotProps"
+      ],
+      "Panel": [
+        "surface",
+        "frame",
+        "density",
+        "bodyPadding",
+        "bodyGap",
+        "bodyLayout",
+        "minHeight",
+        "interaction",
+        "presentation",
+        "title",
+        "description",
+        "leading",
+        "actions",
+        "headingLevel",
+        "footer",
+        "slotProps"
+      ],
+      "Drawer": [
+        "width",
+        "placement",
+        "density",
+        "open",
+        "onOpenChange",
+        "title",
+        "description",
+        "children",
+        "footer",
+        "slotProps"
+      ],
+      "Toolbar": [
+        "behavior",
+        "search",
+        "filters",
+        "actions",
+        "surface",
+        "density",
+        "orientation",
+        "wrap",
+        "variant",
+        "label"
+      ],
+      "Transfer": [
+        "label",
+        "source",
+        "sourceLabel",
+        "sourceHeader",
+        "target",
+        "targetLabel",
+        "targetHeader",
+        "targetSize",
+        "mobilePaneSize",
+        "sourceHeaderLayout",
+        "targetHeaderLayout",
+        "slotProps"
+      ],
+      "Link": [
+        "href",
+        "children",
+        "tone",
+        "underline",
+        "renderAnchor",
+        "slotProps"
+      ],
+      "List": [
+        "items",
+        "variant",
+        "layout",
+        "density",
+        "surface",
+        "dividers",
+        "bordered",
+        "slotProps"
+      ],
+      "Tree": [
+        "showSelectionIndicator"
+      ],
+      "Columns": [
+        "size",
+        "presentation"
+      ],
+      "Progress": [
+        "data-miaixz-progress-group"
+      ],
+      "Status": [
+        "tone",
+        "label",
+        "children",
+        "size",
+        "layout",
+        "presentation",
+        "slotProps"
+      ],
+      "EditorForm": [
+        "presentation"
+      ]
+    },
+    "values": {
       "Drawer": {
-        "supportedProps": [
-          "width",
-          "placement",
-          "density",
-          "open",
-          "onOpenChange",
-          "title",
-          "description",
-          "children",
-          "footer",
-          "slotProps"
-        ],
-        "widthValues": [
+        "width": [
           "small",
           "medium",
           "large",
@@ -212,93 +271,9 @@
           "wide",
           "content"
         ]
-      },
-      "Toolbar": {
-        "supportedProps": [
-          "behavior",
-          "search",
-          "filters",
-          "actions",
-          "surface",
-          "density",
-          "orientation",
-          "wrap",
-          "variant",
-          "label"
-        ]
-      },
-      "Transfer": {
-        "supportedProps": [
-          "label",
-          "source",
-          "sourceLabel",
-          "sourceHeader",
-          "target",
-          "targetLabel",
-          "targetHeader",
-          "targetSize",
-          "mobilePaneSize",
-          "sourceHeaderLayout",
-          "targetHeaderLayout",
-          "slotProps"
-        ]
-      },
-      "Link": {
-        "supportedProps": [
-          "href",
-          "children",
-          "tone",
-          "underline",
-          "renderAnchor",
-          "slotProps"
-        ]
-      },
-      "List": {
-        "supportedProps": [
-          "items",
-          "variant",
-          "layout",
-          "density",
-          "surface",
-          "dividers",
-          "bordered",
-          "slotProps"
-        ]
-      },
-      "Tree": {
-        "supportedProps": [
-          "showSelectionIndicator"
-        ]
-      },
-      "Columns": {
-        "supportedProps": [
-          "size",
-          "presentation"
-        ]
-      },
-      "Progress": {
-        "supportedProps": [
-          "data-miaixz-progress-group"
-        ]
-      },
-      "Status": {
-        "supportedProps": [
-          "tone",
-          "label",
-          "children",
-          "size",
-          "layout",
-          "presentation",
-          "slotProps"
-        ]
-      },
-      "EditorForm": {
-        "supportedProps": [
-          "presentation"
-        ]
       }
     },
-    "stableSelectors": [
+    "selectors": [
       "avatar",
       "button-group",
       "calendar",
@@ -348,7 +323,7 @@
       "transfer-source",
       "transfer-target"
     ],
-    "runtimeAttributes": [
+    "attributes": [
       "data-motion-replay",
       "data-motion-state"
     ]
@@ -808,8 +783,8 @@
     "theme:check": "node ../../.github/scripts/modules/ui/codegen/generate-theme-css.mjs --check",
     "responsive:generate": "node ../../.github/scripts/modules/ui/codegen/generate-responsive-css.mjs",
     "responsive:check": "node ../../.github/scripts/modules/ui/codegen/generate-responsive-css.mjs --check",
-    "build": "npm run clean && tsc -p tsconfig.build.json && npm run theme:presets:generate && npm run theme:presets:check && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
-    "typecheck": "tsc -p tsconfig.json",
+    "build": "node ../../.github/scripts/release/generate-project-version.mjs --check && npm run clean && tsc -p tsconfig.build.json && npm run theme:presets:generate && npm run theme:presets:check && npm run theme:check && npm run responsive:check && node --input-type=module --eval \"import { cp } from 'node:fs/promises'; await cp('src/styles', 'dist/styles', { recursive: true }); await cp('src/theme', 'dist/theme', { recursive: true, filter: source => !/\\.(?:tsx?|mjs)$/.test(source) });\"",
+    "typecheck": "node ../../.github/scripts/release/generate-project-version.mjs --check && tsc -p tsconfig.json",
     "lint": "eslint src tests *.config.js *.config.ts && npm run lint:css",
     "lint:fix": "eslint src tests *.config.js *.config.ts --fix && npm run lint:css:fix",
     "lint:css": "stylelint \"src/{styles,theme}/**/*.css\"",
@@ -817,8 +792,8 @@
     "audit:css": "node ../../.github/scripts/modules/ui/quality/audit-ui-contracts.mjs && node ../../.github/scripts/modules/ui/quality/audit-responsive-css.mjs",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run",
+    "test:coverage": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run --coverage",
     "test:browser": "playwright test",
     "check": "npm run typecheck && npm run lint && npm run audit:css && npm run test:coverage && npm run format:check"
   },

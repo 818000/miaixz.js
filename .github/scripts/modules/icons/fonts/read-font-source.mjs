@@ -22,12 +22,106 @@
  * Structured Designspace, UFO, plist and GLIF reader; never reads business JSON.
  */
 import { readFile, readdir, realpath } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { measureGlyph } from "./font-geometry.mjs";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../");
 const { SaxesParser } = createRequire(resolve(repositoryRoot, "package.json"))("saxes");
+
+/**
+ * Copyright owner statement shared by XML sources and OpenType name ID 0.
+ */
+export const fontCopyright = "Copyright (c) 2015-2026 miaixz.org and other contributors.";
+
+/**
+ * Apache notice embedded in every font source and OpenType name ID 13.
+ */
+export const fontLicense = `Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.`;
+
+/**
+ * Canonical XML copyright header; XML declarations must precede this comment.
+ */
+export const fontCopyrightHeader = `<!--
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+-->\n`;
+
+/**
+ * Adds the single font notice without changing existing XML contents.
+ * @param {string} text Original XML font source.
+ * @returns {string} XML with its declaration preserved and exactly one notice.
+ */
+export function withFontCopyrightHeader(text) {
+  if (text.includes(fontCopyrightHeader)) {
+    validateFontCopyrightHeader(text);
+    return text;
+  }
+  if (text.includes("Copyright") || text.includes("Licensed under")) {
+    const root = parseXml(text);
+    const prefix = text.slice(0, root.start);
+    if (prefix.includes("Copyright") || prefix.includes("Licensed under"))
+      throw new Error(
+        "Conflicting font copyright header; preserve and review the existing notice.",
+      );
+  }
+  const declaration = text.match(/^<\?xml[^?]*\?>\r?\n?/u)?.[0] ?? "";
+  return (
+    declaration +
+    (declaration && !declaration.endsWith("\n") ? "\n" : "") +
+    fontCopyrightHeader +
+    text.slice(declaration.length)
+  );
+}
+
+/**
+ * Rejects a missing, duplicated, displaced, or conflicting font notice.
+ * @param {string} text Actual font-source XML bytes decoded as UTF-8.
+ * @param {string} label Diagnostic file path.
+ * @returns {void} Throws unless the canonical notice occurs once before the root.
+ */
+export function validateFontCopyrightHeader(text, label = "font source") {
+  const declaration = text.match(/^<\?xml[^?]*\?>\r?\n?/u)?.[0] ?? "";
+  const start = declaration.length;
+  if (
+    !text.slice(start).startsWith(fontCopyrightHeader) ||
+    text.indexOf(fontCopyrightHeader, start + fontCopyrightHeader.length) !== -1
+  )
+    throw new Error(label + ": missing, misplaced or duplicated font copyright header.");
+  const remainder = text.slice(start + fontCopyrightHeader.length);
+  if (
+    (remainder.match(/<!--[\s\S]*?-->/gu) ?? []).some((comment) =>
+      /Copyright|Licensed under/u.test(comment),
+    )
+  )
+    throw new Error(label + ": conflicting font copyright comment.");
+}
 /**
  * Rejects an invalid structured-source invariant.
  * @param {unknown} condition Invariant that must hold.
@@ -236,7 +330,7 @@ export async function secureSourcePath(root, pathname) {
  * @param {string} label Source path used in diagnostics.
  * @returns {object} Glyph name, advance, Unicode values, contours, components, and edit ranges.
  */
-function parseGlif(text, label) {
+export function parseGlif(text, label = "GLIF") {
   const root = parseXml(text, label);
   assert(
     root.name === "glyph" &&
@@ -322,7 +416,11 @@ function parseGlif(text, label) {
         closed: c.closed,
         points: c.points.map((p) => [p.type, p.smooth, p.name]),
       })),
-      ...components.map((c) => ({ index: c.outlineIndex, kind: "component", base: c.base })),
+      ...components.map((c) => ({
+        index: c.outlineIndex,
+        kind: "component",
+        base: c.base,
+      })),
     ].sort((a, b) => a.index - b.index),
   );
   return {
@@ -529,10 +627,15 @@ export async function inspectFontSource({ fontsRoot }) {
     );
     const glyphs = new Map();
     for (const [name, filename] of Object.entries(contents)) {
-      const glyph = parseGlif(
-        await readFile(await secureSourcePath(glyphRoot, filename), "utf8"),
-        node.attributes.filename + "/" + filename,
-      );
+      const sourcePath = relative(root, await secureSourcePath(glyphRoot, filename))
+        .split(sep)
+        .join("/");
+      const bytes = await readFile(resolve(root, sourcePath));
+      const glyph = {
+        ...parseGlif(bytes.toString("utf8"), sourcePath),
+        sourcePath,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+      };
       assert(glyph.glyphName === name, "GLIF internal name differs: " + filename);
       if (name === ".notdef")
         assert(glyph.codepoints.length === 0, ".notdef must have no Unicode.");
@@ -569,6 +672,8 @@ export async function inspectFontSource({ fontsRoot }) {
         center: measured.center,
         nonEmpty: measured.nonEmpty,
         topologySignature: glyph.topologySignature,
+        sourcePath: glyph.sourcePath,
+        sha256: glyph.sha256,
       };
     });
     return {
@@ -578,5 +683,5 @@ export async function inspectFontSource({ fontsRoot }) {
       masters: matrix,
     };
   });
-  return { axes, masters, defaultMaster, glyphOrder, glyphs };
+  return { axes, masters, defaultMaster, glyphOrder, glyphs, rawMasters };
 }

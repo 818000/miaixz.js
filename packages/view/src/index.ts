@@ -153,3 +153,5 @@ export { OfficeView } from "./shell/office/office-view.js";
 export type { OfficeViewProps } from "./shell/office/office-view.types.js";
 export { PdfView } from "./shell/pdf/pdf-view.js";
 export type { PdfViewProps } from "./shell/pdf/pdf-view.types.js";
+
+export { VERSION } from "./version.js";

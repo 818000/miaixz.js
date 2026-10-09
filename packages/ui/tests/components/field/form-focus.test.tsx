@@ -31,7 +31,7 @@ import { Field } from "../../../src/components/field/index.js";
 import { Input } from "../../../src/components/input/index.js";
 import { Picker } from "../../../src/components/picker/index.js";
 import { Select } from "../../../src/components/select/index.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 afterEach(cleanup);
 

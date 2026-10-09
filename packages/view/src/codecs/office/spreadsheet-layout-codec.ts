@@ -216,10 +216,24 @@ export function parseSpreadsheetLayout(
       ...(styleId === undefined ? {} : { styleId: Math.max(0, Math.floor(number(styleId))) }),
     };
   });
-  const maximumCellRow = Math.max(0, ...cellAddresses.map((address) => address.row));
-  const maximumCellColumn = Math.max(0, ...cellAddresses.map((address) => address.column));
-  const maximumMergeRow = Math.max(0, ...mergedCells.map((range) => range.endRow));
-  const maximumMergeColumn = Math.max(0, ...mergedCells.map((range) => range.endColumn));
+  let maximumCellRow = 0;
+  let maximumCellColumn = 0;
+  for (const address of cellAddresses) {
+    maximumCellRow = Math.max(maximumCellRow, address.row);
+    maximumCellColumn = Math.max(maximumCellColumn, address.column);
+  }
+  let maximumMergeRow = 0;
+  let maximumMergeColumn = 0;
+  for (const range of mergedCells) {
+    maximumMergeRow = Math.max(maximumMergeRow, range.endRow);
+    maximumMergeColumn = Math.max(maximumMergeColumn, range.endColumn);
+  }
+  let maximumDeclaredRow = 0;
+  for (const row of rows) maximumDeclaredRow = Math.max(maximumDeclaredRow, row.index);
+  let maximumDeclaredColumn = 0;
+  for (const column of columns) {
+    maximumDeclaredColumn = Math.max(maximumDeclaredColumn, column.end);
+  }
   const maximumRow = Math.min(
     maximumRows - 1,
     Math.max(
@@ -227,7 +241,7 @@ export function parseSpreadsheetLayout(
       options.printArea?.endRow ?? 0,
       maximumCellRow,
       maximumMergeRow,
-      ...rows.map((row) => row.index),
+      maximumDeclaredRow,
     ),
   );
   const maximumColumn = Math.min(
@@ -237,7 +251,7 @@ export function parseSpreadsheetLayout(
       options.printArea?.endColumn ?? 0,
       maximumCellColumn,
       maximumMergeColumn,
-      ...columns.map((column) => column.end),
+      maximumDeclaredColumn,
     ),
   );
   const rowHeights = Array.from({ length: maximumRow + 1 }, () => defaultRowHeight);

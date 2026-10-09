@@ -104,7 +104,7 @@
 
 .miaixz-empty[data-compact="true"] {
   --miaixz-empty-padding-block: var(--miaixz-space-24);
-  --miaixz-empty-icon-container-size: var(--miaixz-icon-size-40);
+  --miaixz-empty-icon-container-size: var(--miaixz-space-40);
 }
 
 @container miaixz-empty (width < 360px) {

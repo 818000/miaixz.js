@@ -22,10 +22,16 @@
  * Provides the Wavefront OBJ codec for safe scene and wireframe models.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { DrawingScene, DrawingShape, SceneDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import {
+  getResourceBudgetGuard,
+  type ResourceBudgetGuard,
+} from "../../runtime/resource-budget-guard.js";
 import { createShapeScene } from "./shape-codec.js";
 
 const decoder = new TextDecoder();
@@ -36,12 +42,22 @@ const decoder = new TextDecoder();
  * @param source - Decoded OBJ source text.
  * @param id - Stable identifier assigned to the preview drawing.
  * @param title - Safe display title for the preview.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
  * @returns Drawing scene containing projected wireframe edges.
  */
-function objDrawing(source: string, id: string, title: string): DrawingScene {
+function objDrawing(
+  source: string,
+  id: string,
+  title: string,
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+): DrawingScene {
   const vertices: Array<readonly [number, number]> = [];
   const shapes: DrawingShape[] = [];
-  for (const line of source.split(/\r?\n/u)) {
+  for (const [lineIndex, line] of source.split(/\r?\n/u).entries()) {
+    if ((lineIndex & 0x3ff) === 0) guard.checkpoint(signal);
+    guard.consumeVectorRecords();
     const fields = line.trim().split(/\s+/u);
     if (fields[0] === "v")
       vertices.push([Number(fields[1] ?? 0) * 100, -Number(fields[2] ?? 0) * 100]);
@@ -50,7 +66,7 @@ function objDrawing(source: string, id: string, title: string): DrawingScene {
       for (let index = 0; index < indexes.length; index += 1) {
         const from = vertices[indexes[index] ?? -1];
         const to = vertices[indexes[(index + 1) % indexes.length] ?? -1];
-        if (from !== undefined && to !== undefined)
+        if (from !== undefined && to !== undefined) {
           shapes.push({
             id: `edge-${shapes.length + 1}`,
             kind: "line",
@@ -59,6 +75,8 @@ function objDrawing(source: string, id: string, title: string): DrawingScene {
             width: to[0] - from[0],
             height: to[1] - from[1],
           });
+          guard.consumeDrawingObjects();
+        }
       }
     }
   }
@@ -71,16 +89,24 @@ function objDrawing(source: string, id: string, title: string): DrawingScene {
  * @param source - Decoded OBJ source text.
  * @param id - Stable document identifier.
  * @param title - Safe display title for the scene.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
  * @returns Scene model with mesh statistics and a wireframe preview.
  */
-function objScene(source: string, id: string, title: string): SceneDocument {
+function objScene(
+  source: string,
+  id: string,
+  title: string,
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+): SceneDocument {
   const lines = source.split(/\r?\n/u).map((line) => line.trim());
   const vertexCount = lines.filter((line) => line.startsWith("v ")).length;
   const triangleCount = lines
     .filter((line) => line.startsWith("f "))
     .reduce((total, line) => Math.max(0, line.split(/\s+/u).length - 3) + total, 0);
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id,
     kind: "scene",
     title,
@@ -93,7 +119,7 @@ function objScene(source: string, id: string, title: string): SceneDocument {
         visible: true,
       },
     ],
-    preview: objDrawing(source, `${id}-preview`, title),
+    preview: objDrawing(source, `${id}-preview`, title, guard, signal),
   };
 }
 
@@ -113,10 +139,15 @@ export const objDriver: ViewerDriver<SceneDocument> = {
       return { status: "rejected", error: new ViewerError("FORMAT_UNSUPPORTED", "parse", true) };
     }
     const bytes = await context.resource.readAll(context.signal);
+    const source = decoder.decode(bytes);
+    const guard = getResourceBudgetGuard(context.budget, context.signal);
+    guard.consumeTextCharacters(source.length);
     const model = objScene(
-      decoder.decode(bytes),
+      source,
       stableDocumentId(context.resource.name, bytes),
       documentTitle(context.resource.name),
+      guard,
+      context.signal,
     );
     return { status: "complete", model, warnings: [] };
   },

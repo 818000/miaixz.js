@@ -2,6 +2,8 @@
  * Verifies navigation color behavior in the UI package.
  */
 
+import { VERSION } from "../../../src/version.js";
+
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -58,10 +60,9 @@ describe("navigation selected theme opacity", () => {
   it("honors inherited theme opacity without overwriting the parent", () => {
     const parent = miaixzBuiltInThemes[0]!;
     const child = defineTheme({
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       name: "navigation-child",
       label: "Navigation child",
-      version: "1.0.0",
       extends: parent.name,
       tokens: { opacity: { navigationSelected: 0.5 } },
       modes: { light: {}, dark: {} },

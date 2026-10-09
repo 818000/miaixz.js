@@ -22,6 +22,8 @@
  * Exercises safe codec fallbacks, error paths, and Office geometry branches.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { ByteReader } from "../../src/codecs/binary/byte-codec.js";
 import { drawioDriver } from "../../src/codecs/diagram/drawio-codec.js";
 import { xmindDriver } from "../../src/codecs/diagram/xmind-codec.js";
@@ -53,7 +55,7 @@ import { defaultResourceBudget } from "../../src/runtime/resource-budget.js";
 import { formatDriver as pdfDriver } from "../../src/formats/pdf/driver.js";
 import type { DriverContext } from "../../src/shared/contracts/driver.js";
 import { assertWorkerProtocolVersion } from "../../src/workers/protocol/worker-protocol.js";
-import { storedZip } from "../support/stored-zip.js";
+import { storedZip } from "./archive/stored-zip.helper.js";
 
 const encoder = new TextEncoder();
 
@@ -213,7 +215,7 @@ describe("primitive codecs", () => {
   });
 
   it("validates the versioned worker boundary", () => {
-    expect(() => assertWorkerProtocolVersion(2)).not.toThrow();
+    expect(() => assertWorkerProtocolVersion(VERSION)).not.toThrow();
     expect(() => assertWorkerProtocolVersion(1)).toThrow("[INVALID_CONFIGURATION]");
   });
 });

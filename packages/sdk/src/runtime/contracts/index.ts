@@ -49,6 +49,7 @@ export type {
   MiaixzBridgeEnvelope,
   MiaixzPostMessageChildOptions,
   MiaixzPostMessageHost,
+  MiaixzPostMessageHostLimits,
   MiaixzPostMessageHostOptions,
 } from "./post-message.js";
 export type { MiaixzModuleRoute } from "./route.js";

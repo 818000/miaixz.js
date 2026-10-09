@@ -22,6 +22,8 @@
  * Combines theme definitions, color modes, density, and override precedence.
  */
 
+import { VERSION } from "../version.js";
+
 import type { MiaixzThemeColorOverrides } from "@miaixz/sdk/appearance";
 import type { MiaixzThemeColors } from "../design/colors.js";
 import { miaixzThemeCompositionDefaults } from "../design/composition.js";
@@ -67,10 +69,9 @@ export function resolveThemeDefinitions(
           ? applyThemeTokenDefaults(definition)
           : mergeTheme(resolveOne(definition.extends), definition);
       const candidate = {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         name: definition.name,
         label: definition.label,
-        version: definition.version,
         tokens: merged.tokens,
         modes: merged.modes,
       } as MiaixzResolvedThemeDefinition;
@@ -87,7 +88,7 @@ export function resolveThemeDefinitions(
 }
 
 /**
- * Completes geometry fields added to schema version one after its initial release.
+ * Completes geometry fields added to the current theme contract after its initial release.
  *
  * @param definition - Validated root theme definition.
  * @returns Theme definition with new layout defaults merged before validation.
@@ -157,10 +158,9 @@ function mergeTheme(
   child: Readonly<MiaixzThemeDefinition>,
 ): Readonly<MiaixzThemeDefinition> {
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     name: child.name,
     label: child.label,
-    version: child.version,
     tokens: mergeObject(parent.tokens, child.tokens),
     modes: {
       light: { colors: mergeObject(parent.modes.light.colors, child.modes.light.colors) },

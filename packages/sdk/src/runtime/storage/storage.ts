@@ -24,6 +24,7 @@
 
 import { MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzResponseParser } from "../../fabric/api/request.js";
+import { VERSION } from "../../version.js";
 
 /**
  * Defines the browser-compatible storage operations required by the SDK.
@@ -63,7 +64,7 @@ export interface MiaixzVersionedValue<T> {
   /**
    * Identifies the schema used to serialize the value.
    */
-  readonly schemaVersion: number;
+  readonly schemaVersion: typeof VERSION;
 
   /**
    * Contains the persisted application value.
@@ -72,7 +73,7 @@ export interface MiaixzVersionedValue<T> {
 }
 
 /**
- * Migrates one persisted schema version to its immediate successor.
+ * Migrates a historical release or legacy numeric envelope toward VERSION.
  *
  * @public
  */
@@ -80,12 +81,12 @@ export interface MiaixzStorageMigration {
   /**
    * Identifies the source schema version.
    */
-  readonly from: number;
+  readonly from: string;
 
   /**
-   * Identifies the immediate target schema version.
+   * Identifies the target release version.
    */
-  readonly to: number;
+  readonly to: string;
 
   /**
    * Converts one untrusted persisted value to the next schema.
@@ -138,10 +139,10 @@ export interface MiaixzVersionedStorageOptions<T> {
   /**
    * Identifies the current target schema version.
    */
-  readonly schemaVersion: number;
+  readonly schemaVersion: typeof VERSION;
 
   /**
-   * Supplies an optional continuous sequence of one-version migrations.
+   * Supplies deterministic migration paths that all terminate at VERSION.
    */
   readonly migrations?: readonly MiaixzStorageMigration[];
 
@@ -176,48 +177,111 @@ function createMigrationChainError(): MiaixzSdkError {
 }
 
 /**
- * Reports whether a number is a non-negative safe schema version.
+ * Reports whether a value is a canonical project release version.
  *
  * @param value - Version candidate to inspect.
- * @returns Whether the value is a supported persisted or migration version.
+ * @returns Whether the value follows VERSION's semantic-version format.
  */
-function isNonNegativeSchemaVersion(value: number): boolean {
-  return Number.isSafeInteger(value) && value >= 0;
+function isReleaseVersion(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$/.test(
+      value,
+    )
+  );
 }
 
 /**
- * Validates a current target schema version.
+ * Compares release versions using semantic-version precedence.
+ *
+ * @param left - Validated release version.
+ * @param right - Validated release version.
+ * @returns Negative, zero, or positive precedence.
+ */
+function compareReleaseVersions(left: string, right: string): number {
+  const [leftCore = "", ...leftSuffix] = left.split("-");
+  const [rightCore = "", ...rightSuffix] = right.split("-");
+  const a = leftCore.split(".");
+  const b = rightCore.split(".");
+  for (let index = 0; index < 3; index++) {
+    const x = BigInt(a[index] ?? "0");
+    const y = BigInt(b[index] ?? "0");
+    if (x !== y) return x < y ? -1 : 1;
+  }
+  if (!leftSuffix.length || !rightSuffix.length) {
+    return leftSuffix.length === rightSuffix.length ? 0 : leftSuffix.length ? -1 : 1;
+  }
+  const ap = leftSuffix.join("-").split(".");
+  const bp = rightSuffix.join("-").split(".");
+  for (let index = 0; index < Math.max(ap.length, bp.length); index++) {
+    const x = ap[index];
+    const y = bp[index];
+    if (x === undefined || y === undefined) return x === y ? 0 : x === undefined ? -1 : 1;
+    if (x === y) continue;
+    const nx = /^\d+$/.test(x);
+    const ny = /^\d+$/.test(y);
+    if (nx && ny) return BigInt(x) < BigInt(y) ? -1 : 1;
+    if (nx !== ny) return nx ? -1 : 1;
+    return x < y ? -1 : 1;
+  }
+  return 0;
+}
+
+/**
+ * Serializes the storage version guard for inert first-paint scripts without DOM access.
+ *
+ * The returned expression uses the same release comparator as persistence reads. Legacy
+ * numeric versions are read-only compatibility values, never current write targets.
+ *
+ * @returns Self-contained JavaScript predicate expression bound to VERSION.
+ * @public
+ */
+export function createMiaixzStorageVersionPredicate(): string {
+  return `((value) => { const isReleaseVersion = ${isReleaseVersion.toString()}; const compareReleaseVersions = ${compareReleaseVersions.toString()}; return value === 1 || value === 2 || (isReleaseVersion(value) && compareReleaseVersions(value, ${JSON.stringify(VERSION)}) <= 0); })`;
+}
+
+/**
+ * Validates the sole current target version.
  *
  * @param schemaVersion - Target version to validate.
- * @throws MiaixzSdkError When the target is not a positive safe integer.
+ * @throws MiaixzSdkError When the target does not match VERSION.
  */
-function validateTargetSchemaVersion(schemaVersion: number): void {
-  if (!Number.isSafeInteger(schemaVersion) || schemaVersion < 1) {
+function validateTargetSchemaVersion(schemaVersion: string): void {
+  if (schemaVersion !== VERSION) {
     throw createMigrationChainError();
   }
 }
 
 /**
- * Validates the complete configured migration sequence in caller order.
+ * Validates non-branching forward migration paths terminating at VERSION.
  *
  * @param migrations - Optional migration chain to validate.
  * @throws MiaixzSdkError When a version is invalid, duplicated, or discontinuous.
  */
 function validateMigrationChain(migrations: readonly MiaixzStorageMigration[] = []): void {
-  let previousTarget: number | undefined;
+  const paths = new Map<string, MiaixzStorageMigration>();
   for (const migration of migrations) {
     if (
       !migration ||
       typeof migration !== "object" ||
-      !isNonNegativeSchemaVersion(migration.from) ||
-      !isNonNegativeSchemaVersion(migration.to) ||
-      migration.to !== migration.from + 1 ||
-      (previousTarget !== undefined && migration.from !== previousTarget) ||
+      (migration.from !== "legacy" && !isReleaseVersion(migration.from)) ||
+      !isReleaseVersion(migration.to) ||
+      (migration.from !== "legacy" && compareReleaseVersions(migration.from, migration.to) >= 0) ||
+      compareReleaseVersions(migration.to, VERSION) > 0 ||
+      paths.has(migration.from) ||
       typeof migration.migrate !== "function"
     ) {
       throw createMigrationChainError();
     }
-    previousTarget = migration.to;
+    paths.set(migration.from, migration);
+  }
+  for (const migration of paths.values()) {
+    let target = migration.to;
+    while (target !== VERSION) {
+      const next = paths.get(target);
+      if (!next) throw createMigrationChainError();
+      target = next.to;
+    }
   }
 }
 
@@ -226,7 +290,7 @@ function validateMigrationChain(migrations: readonly MiaixzStorageMigration[] = 
  *
  * @param scope - Application and optional tenant persistence boundary.
  * @param kind - Fixed persisted data category.
- * @returns Physical storage key using the Miaixz version-one namespace.
+ * @returns Stable physical storage key independent of release changes.
  * @throws MiaixzSdkError When the application, tenant, or kind is invalid.
  * @public
  */
@@ -243,7 +307,7 @@ export function createMiaixzStorageKey(
   ) {
     throw createStorageScopeError();
   }
-  return `miaixz:v1:${scope.tenantId ?? "global"}:${scope.appId}:${kind}`;
+  return `miaixz:${scope.tenantId ?? "global"}:${scope.appId}:${kind}`;
 }
 
 /**
@@ -252,7 +316,7 @@ export function createMiaixzStorageKey(
  * @param value - Parsed JSON candidate to inspect.
  * @returns Whether the value contains exactly schemaVersion and value fields.
  */
-function isVersionedEnvelope(value: unknown): value is MiaixzVersionedValue<unknown> {
+function isVersionedEnvelope(value: unknown): value is { schemaVersion: unknown; value: unknown } {
   if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
   const keys = Object.keys(value);
   return (
@@ -297,35 +361,53 @@ export function readMiaixzVersionedValue<T>(
   validateMigrationChain(options.migrations);
   if (!options.storage) return undefined;
   let serialized: string | null;
+  const legacyKey = key.replace(/^miaixz:/, "miaixz:v1:");
+  let sourceKey = key;
   try {
     serialized = options.storage.getItem(key);
+    if (serialized === null) {
+      sourceKey = legacyKey;
+      serialized = options.storage.getItem(legacyKey);
+    }
   } catch {
     return undefined;
   }
   if (serialized === null) return undefined;
+  let envelope: unknown;
   try {
-    const envelope: unknown = JSON.parse(serialized);
-    if (!isVersionedEnvelope(envelope) || !isNonNegativeSchemaVersion(envelope.schemaVersion)) {
-      safelyRemoveStorageValue(options.storage, key);
+    envelope = JSON.parse(serialized);
+  } catch {
+    safelyRemoveStorageValue(options.storage, sourceKey);
+    return undefined;
+  }
+  try {
+    if (!isVersionedEnvelope(envelope)) {
+      safelyRemoveStorageValue(options.storage, sourceKey);
       return undefined;
     }
-    if (envelope.schemaVersion > options.schemaVersion) {
-      safelyRemoveStorageValue(options.storage, key);
+    const legacy = envelope.schemaVersion === 1 || envelope.schemaVersion === 2;
+    if (!legacy && !isReleaseVersion(envelope.schemaVersion)) {
+      safelyRemoveStorageValue(options.storage, sourceKey);
       return undefined;
     }
-    let currentVersion = envelope.schemaVersion;
+    if (!legacy && compareReleaseVersions(envelope.schemaVersion as string, VERSION) > 0) {
+      return undefined;
+    }
+    let currentVersion = legacy ? "legacy" : (envelope.schemaVersion as string);
     let migratedValue: unknown = envelope.value;
-    while (currentVersion < options.schemaVersion) {
+    while (currentVersion !== VERSION) {
       const migration = options.migrations?.find((candidate) => candidate.from === currentVersion);
       if (!migration) {
-        safelyRemoveStorageValue(options.storage, key);
-        return undefined;
+        /**
+         * Structurally compatible historical releases use the current parser.
+         */
+        break;
       }
       migratedValue = migration.migrate(migratedValue);
       currentVersion = migration.to;
     }
     const parsed = options.parse(migratedValue);
-    if (envelope.schemaVersion < options.schemaVersion) {
+    if (envelope.schemaVersion !== VERSION || sourceKey !== key) {
       writeMiaixzVersionedValue(
         {
           storage: options.storage,
@@ -335,10 +417,23 @@ export function readMiaixzVersionedValue<T>(
         },
         parsed,
       );
+      const expected = JSON.stringify({ schemaVersion: VERSION, value: parsed });
+      if (sourceKey !== key) {
+        try {
+          if (options.storage.getItem(key) === expected)
+            safelyRemoveStorageValue(options.storage, sourceKey);
+        } catch {
+          /**
+           * Failed confirmation preserves the legacy key and the parsed in-memory value.
+           */
+        }
+      }
     }
     return parsed;
   } catch {
-    safelyRemoveStorageValue(options.storage, key);
+    /**
+     * Keep incompatible historical data available for a subsequent explicit migration.
+     */
     return undefined;
   }
 }
@@ -361,11 +456,12 @@ export function writeMiaixzVersionedValue<T>(
   if (!options.storage) return;
   if (value === undefined) {
     safelyRemoveStorageValue(options.storage, key);
+    safelyRemoveStorageValue(options.storage, key.replace(/^miaixz:/, "miaixz:v1:"));
     return;
   }
   try {
     const envelope: MiaixzVersionedValue<T> = {
-      schemaVersion: options.schemaVersion,
+      schemaVersion: VERSION,
       value,
     };
     options.storage.setItem(key, JSON.stringify(envelope));

@@ -59,6 +59,7 @@ export type {
 export type {
   MiaixzApiTelemetryHooks,
   MiaixzErrorEvent,
+  MiaixzRequestBodySummary,
   MiaixzRequestEvent,
   MiaixzResponseEvent,
 } from "./telemetry.types.js";

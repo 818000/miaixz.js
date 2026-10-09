@@ -59,9 +59,17 @@ export interface HostRequestState {
    */
   cancelled: boolean;
   /**
+   * Whether a timeout or normal completion already emitted a response.
+   */
+  responseSent: boolean;
+  /**
    * Whether an in-flight duplicate requests replay.
    */
   replayRequested: boolean;
+  /**
+   * Active Host response deadline.
+   */
+  readonly timer: ReturnType<typeof setTimeout>;
 }
 
 /**
@@ -70,6 +78,25 @@ export interface HostRequestState {
 export class MiaixzPendingRequestRegistry {
   readonly #pending = new Map<string, PendingRequest>();
   readonly #host = new Map<string, HostRequestState>();
+
+  /**
+   * Reports the number of adapter operations which have not settled yet.
+   *
+   * @returns Number of retained Host request slots.
+   */
+  get hostSize(): number {
+    return this.#host.size;
+  }
+
+  /**
+   * Reads one unsettled Host request without releasing its slot.
+   *
+   * @param messageId - Correlated message identifier.
+   * @returns Retained Host state when present.
+   */
+  getHost(messageId: string): HostRequestState | undefined {
+    return this.#host.get(messageId);
+  }
 
   /**
    * Creates a timed Child request.
@@ -167,10 +194,26 @@ export class MiaixzPendingRequestRegistry {
    * Starts tracking one Host request.
    *
    * @param messageId - Correlated message identifier.
+   * @param timeoutMs - Maximum time before sending a timeout response.
+   * @param onTimeout - Called once while the unsettled task retains its slot.
    * @returns New mutable Host state.
    */
-  createHost(messageId: string): HostRequestState {
-    const state: HostRequestState = { cancelled: false, replayRequested: false };
+  createHost(
+    messageId: string,
+    timeoutMs: number,
+    onTimeout: (state: HostRequestState) => void,
+  ): HostRequestState {
+    const state: HostRequestState = {
+      cancelled: false,
+      responseSent: false,
+      replayRequested: false,
+      timer: setTimeout(() => {
+        const current = this.#host.get(messageId);
+        if (current === undefined || current.cancelled || current.responseSent) return;
+        current.responseSent = true;
+        onTimeout(current);
+      }, timeoutMs),
+    };
     this.#host.set(messageId, state);
     return state;
   }
@@ -182,7 +225,10 @@ export class MiaixzPendingRequestRegistry {
    */
   cancelHost(messageId: string): void {
     const state = this.#host.get(messageId);
-    if (state !== undefined) state.cancelled = true;
+    if (state !== undefined) {
+      state.cancelled = true;
+      clearTimeout(state.timer);
+    }
   }
 
   /**
@@ -194,6 +240,7 @@ export class MiaixzPendingRequestRegistry {
   completeHost(messageId: string): HostRequestState | undefined {
     const state = this.#host.get(messageId);
     this.#host.delete(messageId);
+    if (state !== undefined) clearTimeout(state.timer);
     return state;
   }
 
@@ -201,6 +248,7 @@ export class MiaixzPendingRequestRegistry {
    * Clears all Host request state during disposal.
    */
   clearHost(): void {
+    for (const state of this.#host.values()) clearTimeout(state.timer);
     this.#host.clear();
   }
 }

@@ -28,7 +28,11 @@ export {
   miaixzAppearanceSchemaVersion,
 } from "./appearance.js";
 export type { MiaixzAppearanceManagerOptions } from "./appearance.js";
-export { miaixzAppearanceMigrationV1ToV2, migrateMiaixzAppearanceV1 } from "./migration.js";
+export {
+  miaixzAppearanceMigration,
+  miaixzAppearanceMigrationV1ToV2,
+  migrateMiaixzAppearanceV1,
+} from "./migration.js";
 export {
   isMiaixzAppearanceSettings,
   isMiaixzColorMode,

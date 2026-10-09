@@ -38,6 +38,7 @@ if (viewWorkspace === undefined) throw new Error("The View workspace manifest is
 const packageRoot = viewWorkspace.rootPath;
 const sourceRoot = resolve(packageRoot, "src");
 const sharedRoot = resolve(sourceRoot, "shared");
+const generatedVersionModule = resolve(sourceRoot, "version.js");
 const formatsRoot = resolve(sourceRoot, "formats");
 const codecsRoot = resolve(sourceRoot, "codecs");
 const retiredCodecDirectories = new Set(["compression", "document", "drawing", "technical"]);
@@ -127,7 +128,10 @@ for (const path of auditedFiles) {
       }
       const target = resolve(path, "..", specifier);
       const sharedRelative = relative(sharedRoot, target);
-      if (sharedRelative.startsWith("..") || isAbsolute(sharedRelative)) {
+      if (
+        target !== generatedVersionModule &&
+        (sharedRelative.startsWith("..") || isAbsolute(sharedRelative))
+      ) {
         failures.push(
           `${relative(sourceRoot, path)} crosses the shared dependency boundary via ${specifier}`,
         );

@@ -22,6 +22,8 @@
  * Decodes SpreadsheetDrawing shape trees into a format-neutral drawing scene.
  */
 
+import { VERSION } from "../../version.js";
+
 import type {
   DiagramEdge,
   DiagramNode,
@@ -1159,7 +1161,7 @@ export function parseOfficeDrawing(
   }
   const features: DrawingFeatures = { ...accumulator.features };
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: options.id,
     kind: "drawing",
     title: options.title,

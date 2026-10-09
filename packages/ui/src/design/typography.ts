@@ -152,7 +152,7 @@ export const miaixzThemeTypographyFields = [
 export const miaixzThemeFontFamilyFields = ["familySans", "familyMono"] as const;
 
 /**
- * Defines semantic typography defaults added to schema version one.
+ * Defines semantic typography defaults added to the current theme contract.
  *
  * @public
  */

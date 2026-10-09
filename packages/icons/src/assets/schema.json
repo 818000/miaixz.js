@@ -138,38 +138,11 @@
             "compound": {
               "additionalProperties": false,
               "properties": {
-                "aspectRatio": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "centerTolerance": {
                   "exclusiveMinimum": 0,
                   "type": "number"
                 },
-                "height": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "longestEdge": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
-                "width": {
                   "items": {
                     "exclusiveMinimum": 0,
                     "type": "number"
@@ -181,9 +154,6 @@
               },
               "required": [
                 "longestEdge",
-                "width",
-                "height",
-                "aspectRatio",
                 "centerTolerance"
               ],
               "type": "object"
@@ -191,38 +161,11 @@
             "directional": {
               "additionalProperties": false,
               "properties": {
-                "aspectRatio": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "centerTolerance": {
                   "exclusiveMinimum": 0,
                   "type": "number"
                 },
-                "height": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "longestEdge": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
-                "width": {
                   "items": {
                     "exclusiveMinimum": 0,
                     "type": "number"
@@ -234,9 +177,6 @@
               },
               "required": [
                 "longestEdge",
-                "width",
-                "height",
-                "aspectRatio",
                 "centerTolerance"
               ],
               "type": "object"
@@ -244,38 +184,11 @@
             "line-symbol": {
               "additionalProperties": false,
               "properties": {
-                "aspectRatio": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "centerTolerance": {
                   "exclusiveMinimum": 0,
                   "type": "number"
                 },
-                "height": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "longestEdge": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
-                "width": {
                   "items": {
                     "exclusiveMinimum": 0,
                     "type": "number"
@@ -287,9 +200,6 @@
               },
               "required": [
                 "longestEdge",
-                "width",
-                "height",
-                "aspectRatio",
                 "centerTolerance"
               ],
               "type": "object"
@@ -297,38 +207,11 @@
             "regular": {
               "additionalProperties": false,
               "properties": {
-                "aspectRatio": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "centerTolerance": {
                   "exclusiveMinimum": 0,
                   "type": "number"
                 },
-                "height": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "longestEdge": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
-                "width": {
                   "items": {
                     "exclusiveMinimum": 0,
                     "type": "number"
@@ -340,9 +223,6 @@
               },
               "required": [
                 "longestEdge",
-                "width",
-                "height",
-                "aspectRatio",
                 "centerTolerance"
               ],
               "type": "object"
@@ -350,38 +230,11 @@
             "tall": {
               "additionalProperties": false,
               "properties": {
-                "aspectRatio": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "centerTolerance": {
                   "exclusiveMinimum": 0,
                   "type": "number"
                 },
-                "height": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "longestEdge": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
-                "width": {
                   "items": {
                     "exclusiveMinimum": 0,
                     "type": "number"
@@ -393,9 +246,6 @@
               },
               "required": [
                 "longestEdge",
-                "width",
-                "height",
-                "aspectRatio",
                 "centerTolerance"
               ],
               "type": "object"
@@ -403,38 +253,11 @@
             "wide": {
               "additionalProperties": false,
               "properties": {
-                "aspectRatio": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "centerTolerance": {
                   "exclusiveMinimum": 0,
                   "type": "number"
                 },
-                "height": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
                 "longestEdge": {
-                  "items": {
-                    "exclusiveMinimum": 0,
-                    "type": "number"
-                  },
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "type": "array"
-                },
-                "width": {
                   "items": {
                     "exclusiveMinimum": 0,
                     "type": "number"
@@ -446,9 +269,6 @@
               },
               "required": [
                 "longestEdge",
-                "width",
-                "height",
-                "aspectRatio",
                 "centerTolerance"
               ],
               "type": "object"
@@ -579,6 +399,9 @@
             "display"
           ],
           "type": "object"
+        },
+        "visual": {
+          "$ref": "#/$defs/visual"
         }
       },
       "required": [
@@ -587,7 +410,8 @@
         "sizes",
         "grid",
         "opticalClasses",
-        "limits"
+        "limits",
+        "visual"
       ],
       "type": "object"
     },
@@ -683,6 +507,128 @@
       },
       "required": [
         "icons"
+      ],
+      "type": "object"
+    },
+    "visual": {
+      "additionalProperties": false,
+      "properties": {
+        "circleApproximationError": {
+          "const": 0.5
+        },
+        "comparison": {
+          "additionalProperties": false,
+          "properties": {
+            "alphaThreshold": {
+              "const": 128
+            },
+            "areaRelativeError": {
+              "const": 0.05
+            },
+            "boundaryPixels": {
+              "const": 1
+            },
+            "centroidPixels": {
+              "const": 0.5
+            },
+            "compiledOutlineUnits": {
+              "const": 1
+            },
+            "paddingCssPixels": {
+              "const": 2
+            },
+            "subdivisionUnits": {
+              "const": 0.05
+            }
+          },
+          "required": [
+            "alphaThreshold",
+            "boundaryPixels",
+            "areaRelativeError",
+            "centroidPixels",
+            "paddingCssPixels",
+            "compiledOutlineUnits",
+            "subdivisionUnits"
+          ],
+          "type": "object"
+        },
+        "frameCornerRadius": {
+          "additionalProperties": false,
+          "properties": {
+            "standard": {
+              "const": 40
+            }
+          },
+          "required": [
+            "standard"
+          ],
+          "type": "object"
+        },
+        "strokeWidths": {
+          "additionalProperties": false,
+          "properties": {
+            "compact": {
+              "additionalProperties": false,
+              "properties": {
+                "target": {
+                  "const": 82
+                },
+                "tolerance": {
+                  "const": 6
+                }
+              },
+              "required": [
+                "target",
+                "tolerance"
+              ],
+              "type": "object"
+            },
+            "display": {
+              "additionalProperties": false,
+              "properties": {
+                "target": {
+                  "const": 62
+                },
+                "tolerance": {
+                  "const": 4
+                }
+              },
+              "required": [
+                "target",
+                "tolerance"
+              ],
+              "type": "object"
+            },
+            "standard": {
+              "additionalProperties": false,
+              "properties": {
+                "target": {
+                  "const": 70
+                },
+                "tolerance": {
+                  "const": 4
+                }
+              },
+              "required": [
+                "target",
+                "tolerance"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "compact",
+            "standard",
+            "display"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "strokeWidths",
+        "frameCornerRadius",
+        "circleApproximationError",
+        "comparison"
       ],
       "type": "object"
     }

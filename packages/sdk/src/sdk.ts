@@ -575,7 +575,7 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
   const events =
     options.eventBus ??
     createMiaixzEventBus({
-      channelName: options.eventChannel === true ? `miaixz:v1:${options.appId}:events` : false,
+      channelName: options.eventChannel === true ? `miaixz:${options.appId}:events` : false,
     });
   const storage = options.storage ?? getMiaixzBrowserStorage();
   const ready = i18n.initialize(["sdk"]);

@@ -22,10 +22,13 @@
  * Provides the EPUB codec for safe flow-document models.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { FlowDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import { getResourceBudgetGuard } from "../../runtime/resource-budget-guard.js";
 import { ZipArchive } from "../archive/zip-codec.js";
 import {
   elementsByLocalName,
@@ -87,7 +90,12 @@ export const epubDriver: ViewerDriver<FlowDocument> = {
    */
   async open(context) {
     const bytes = await context.resource.readAll(context.signal);
-    const archive = new ZipArchive(bytes, context.budget);
+    const guard = getResourceBudgetGuard(context.budget, context.signal);
+    const archive = new ZipArchive(bytes, {
+      budget: context.budget,
+      guard,
+      signal: context.signal,
+    });
     const containerPath = "META-INF/container.xml";
     if (!archive.entries.some((entry) => entry.path === containerPath)) {
       return { status: "rejected", error: new ViewerError("PARSE_FAILED", "parse") };
@@ -95,6 +103,7 @@ export const epubDriver: ViewerDriver<FlowDocument> = {
     const container = parseXmlDocument(
       await archive.text(containerPath),
       context.budget.maxXmlNodes,
+      context.budget.maxXmlDepth,
     );
     const rootfile = firstElementByLocalName(container, "rootfile");
     const packagePath = rootfile === undefined ? undefined : localAttribute(rootfile, "full-path");
@@ -103,6 +112,7 @@ export const epubDriver: ViewerDriver<FlowDocument> = {
     const packageDocument = parseXmlDocument(
       await archive.text(packagePath),
       context.budget.maxXmlNodes,
+      context.budget.maxXmlDepth,
     );
     const manifest = new Map<string, string>();
     for (const item of elementsByLocalName(packageDocument, "item")) {
@@ -117,15 +127,20 @@ export const epubDriver: ViewerDriver<FlowDocument> = {
       const itemId = localAttribute(itemReference, "idref");
       const part = itemId === undefined ? undefined : manifest.get(itemId);
       if (part === undefined) continue;
-      const document = parseXmlDocument(await archive.text(part), context.budget.maxXmlNodes);
+      const document = parseXmlDocument(
+        await archive.text(part),
+        context.budget.maxXmlNodes,
+        context.budget.maxXmlDepth,
+      );
       sections.push({
         id: `${id}-section-${sections.length + 1}`,
         title: firstElementByLocalName(document, "title")?.textContent?.trim() || part,
         text: normalizedBodyText(document),
       });
+      guard.consumePages();
     }
     const model: FlowDocument = {
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id,
       kind: "flow",
       title: documentTitle(context.resource.name),

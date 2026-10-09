@@ -22,8 +22,9 @@
  * Validates release metadata before package publication.
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { generateProjectVersions } from "./generate-project-version.mjs";
 
 import {
   getWorkspacePeerRange,
@@ -37,6 +38,60 @@ if (process.argv.length !== 2) {
 }
 const repository = loadWorkspaceRepository();
 const version = readRepositoryVersion(repository.root);
+generateProjectVersions(true, repository.root);
+
+/**
+ * Rejects independently maintained project version literals in runtime source and configuration.
+ *
+ * @param directory - Workspace source directory to inspect recursively.
+ */
+function checkSourceVersions(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name);
+    if (entry.isDirectory()) {
+      checkSourceVersions(path);
+      continue;
+    }
+    if (entry.name === "version.ts" || !/\.(?:tsx?|json)$/u.test(entry.name)) continue;
+    const source = readFileSync(path, "utf8");
+    const removedMetadataVersion =
+      path.includes("/packages/ui/src/theme/") ||
+      path.endsWith("/packages/sdk/src/i18n/locale-catalog.ts");
+    if (
+      removedMetadataVersion &&
+      (/\breadonly\s+version\s*:/u.test(source) ||
+        /\bversion\s*:/u.test(source) ||
+        /\b(?:child|definition|locale|record|theme)\.version\b/u.test(source))
+    ) {
+      throw new Error(`${path} must use schemaVersion without a duplicate version field.`);
+    }
+    if (entry.name.endsWith(".json")) {
+      const value = JSON.parse(source);
+      if (Object.keys(value).some((key) => /version/iu.test(key))) {
+        throw new Error(`${path} must not maintain project versions in configuration JSON.`);
+      }
+    } else if (
+      /\b(?:schemaVersion|layoutVersion|protocolVersion)\s*:\s*(?:\d+|["']\d)/u.test(source) ||
+      /\b(?:MIAIXZ_MODULE_PROTOCOL_VERSION|WORKER_PROTOCOL_VERSION|CONTEXT_SCHEMA_VERSION|miaixzAppearanceSchemaVersion)\s*=\s*(?:\d+|["']\d)/u.test(
+        source,
+      ) ||
+      ((path.includes("/theme/") || path.endsWith("/locale-catalog.ts")) &&
+        /\bversion\s*:\s*["']\d/u.test(source))
+    ) {
+      throw new Error(`${path} contains an independent project version; reference VERSION.`);
+    }
+  }
+}
+for (const { rootPath } of repository.workspaces) checkSourceVersions(resolve(rootPath, "src"));
+for (const path of [
+  resolve(repository.root, ".github/scripts/modules/ui/codegen/generate-theme-presets.mjs"),
+  resolve(repository.root, ".github/scripts/modules/ui/codegen/vite-theme-plugin.mjs"),
+]) {
+  const source = readFileSync(path, "utf8");
+  if (/\bversion\s*:/u.test(source) || /\b(?:record|theme)\.version\b/u.test(source)) {
+    throw new Error(`${path} must not generate duplicate theme version metadata.`);
+  }
+}
 const iconSbom = JSON.parse(
   readFileSync(resolve(repository.root, "packages/icons/SBOM.spdx.json"), "utf8"),
 );
@@ -53,10 +108,8 @@ for (const { manifest, relativePath } of manifests) {
       `${relativePath} version '${manifest.version ?? ""}' does not match '${version}'.`,
     );
   }
-  if (manifest.miaixzUiContract !== undefined && manifest.miaixzUiContract?.version !== version) {
-    throw new Error(
-      `${relativePath} miaixzUiContract version '${manifest.miaixzUiContract?.version ?? ""}' does not match '${version}'.`,
-    );
+  if (manifest.miaixz?.version !== undefined || manifest.miaixz?.schemaVersion !== undefined) {
+    throw new Error(`${relativePath} contains duplicate Miaixz contract version metadata.`);
   }
 }
 

@@ -42,7 +42,7 @@ const miaixzThemeIdPattern = /^[a-z][a-z0-9-]{0,63}$/;
 const miaixzThemeColorPattern = /^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$/;
 
 /**
- * Defines the default Appearance Schema v2 snapshot.
+ * Defines the default current Appearance schema snapshot.
  *
  * @public
  */
@@ -86,7 +86,7 @@ export function isMiaixzThemeId(value: unknown): value is string {
 }
 
 /**
- * Parses, normalizes, validates, and deeply freezes Appearance Schema v2 settings.
+ * Parses, normalizes, validates, and deeply freezes current Appearance schema settings.
  *
  * @param value - Untrusted appearance settings to parse.
  * @returns A deeply frozen settings snapshot with uppercase hexadecimal overrides.
@@ -120,7 +120,7 @@ export function parseMiaixzAppearanceSettings(value: unknown): MiaixzAppearanceS
 }
 
 /**
- * Determines whether a value satisfies Appearance Schema v2.
+ * Determines whether a value satisfies current Appearance schema.
  *
  * @param value - Untrusted appearance settings to inspect.
  * @returns Whether strict parsing succeeds.

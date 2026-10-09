@@ -22,6 +22,8 @@
  * Defines supported locale metadata and validates trusted locale extensions.
  */
 
+import { VERSION } from "../version.js";
+
 import { MiaixzSdkError } from "../errors/errors.js";
 
 /**
@@ -47,7 +49,7 @@ export interface MiaixzLocaleDefinition {
   /**
    * Locale definition schema version.
    */
-  readonly schemaVersion: 1;
+  readonly schemaVersion: typeof VERSION;
 
   /**
    * Stable canonical BCP 47 locale identifier.
@@ -63,11 +65,6 @@ export interface MiaixzLocaleDefinition {
    * Compact language label used by constrained controls.
    */
   readonly shortLabel: string;
-
-  /**
-   * Semantic version of the locale metadata and resources.
-   */
-  readonly version: string;
 
   /**
    * Writing direction applied while this locale is active.
@@ -119,11 +116,6 @@ export interface MiaixzLocaleDescriptor {
   readonly shortLabel: string;
 
   /**
-   * Semantic version of the locale metadata and resources.
-   */
-  readonly version: string;
-
-  /**
    * Writing direction applied while this locale is active.
    */
   readonly direction: MiaixzLocaleDirection;
@@ -160,13 +152,12 @@ export function defineLocale(value: MiaixzLocaleDefinition): Readonly<MiaixzLoca
   if (
     typeof value !== "object" ||
     value === null ||
-    value.schemaVersion !== 1 ||
+    Object.hasOwn(value, "version") ||
+    value.schemaVersion !== VERSION ||
     typeof value.label !== "string" ||
     value.label.trim().length === 0 ||
     typeof value.shortLabel !== "string" ||
     value.shortLabel.trim().length === 0 ||
-    typeof value.version !== "string" ||
-    value.version.trim().length === 0 ||
     (value.direction !== undefined && value.direction !== "ltr" && value.direction !== "rtl") ||
     (value.loadMessages !== undefined && typeof value.loadMessages !== "function")
   ) {
@@ -179,11 +170,10 @@ export function defineLocale(value: MiaixzLocaleDefinition): Readonly<MiaixzLoca
   const fallback = value.fallback === undefined ? undefined : canonicalizeLocale(value.fallback);
 
   return Object.freeze({
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id,
     label: value.label.trim(),
     shortLabel: value.shortLabel.trim(),
-    version: value.version.trim(),
     direction: value.direction ?? "ltr",
     aliases,
     keywords,
@@ -199,22 +189,20 @@ export function defineLocale(value: MiaixzLocaleDefinition): Readonly<MiaixzLoca
  */
 export const miaixzBuiltInLocales: readonly Readonly<MiaixzLocaleDefinition>[] = Object.freeze([
   defineLocale({
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "zh-CN",
     label: "简体中文",
     shortLabel: "中",
-    version: "1.0.0",
     direction: "ltr",
     aliases: ["zh", "zh-Hans"],
     keywords: ["中文", "简体", "Chinese", "Simplified Chinese"],
     fallback: "en-US",
   }),
   defineLocale({
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "en-US",
     label: "English",
     shortLabel: "EN",
-    version: "1.0.0",
     direction: "ltr",
     aliases: ["en"],
     keywords: ["English", "英语", "英文"],
@@ -309,7 +297,6 @@ export class MiaixzLocaleCatalog {
           id: locale.id,
           label: locale.label,
           shortLabel: locale.shortLabel,
-          version: locale.version,
           direction: locale.direction ?? "ltr",
           aliases: locale.aliases ?? Object.freeze([]),
           keywords: locale.keywords ?? Object.freeze([]),

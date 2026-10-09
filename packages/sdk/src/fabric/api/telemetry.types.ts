@@ -26,6 +26,23 @@ import type { MiaixzHttpMethod } from "./request.js";
 import type { MiaixzTimestamp } from "./api.types.js";
 
 /**
+ * Describes a request body without retaining or traversing its content.
+ *
+ * @public
+ */
+export interface MiaixzRequestBodySummary {
+  /**
+   * Contains a coarse runtime category such as JSON, string, Blob, or ReadableStream.
+   */
+  readonly type: string;
+
+  /**
+   * Contains the directly observable byte size, or undefined when measuring would serialize data.
+   */
+  readonly bytes: number | undefined;
+}
+
+/**
  * Receives immutable, redacted API lifecycle events without changing request behavior.
  *
  * @public
@@ -84,9 +101,16 @@ export interface MiaixzRequestEvent {
   readonly headers: Readonly<Record<string, string>>;
 
   /**
-   * Contains a frozen redacted JSON value or safe non-JSON body summary.
+   * Contains a fixed metadata-only summary which never includes request-body content.
    */
-  readonly body?: unknown;
+  readonly bodySummary?: Readonly<MiaixzRequestBodySummary>;
+
+  /**
+   * Request bodies are intentionally unavailable to telemetry observers.
+   *
+   * @deprecated Use bodySummary. This property is never emitted.
+   */
+  readonly body?: never;
 
   /**
    * Contains the attempt start time as Unix epoch milliseconds.

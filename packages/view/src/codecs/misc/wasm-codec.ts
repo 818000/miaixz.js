@@ -22,6 +22,8 @@
  * Provides the WebAssembly inspection codec without executing embedded code.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { BinaryDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
@@ -90,7 +92,7 @@ export const wasmDriver: ViewerDriver<BinaryDocument> = {
             { label: "Format", value: extension },
           ];
     const model: BinaryDocument = {
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id: stableDocumentId(context.resource.name, bytes),
       kind: "binary",
       title: documentTitle(context.resource.name),

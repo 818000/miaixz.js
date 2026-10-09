@@ -22,6 +22,8 @@
  * Validates module manifests and semantic-version compatibility.
  */
 
+import { VERSION } from "../../version.js";
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import type { MiaixzEnvironment } from "../config/config.types.js";
 import { compareMiaixzModuleNavigation, type MiaixzModuleNavigationItem } from "./navigation.js";
@@ -37,7 +39,7 @@ import {
  *
  * @public
  */
-export const MIAIXZ_MODULE_PROTOCOL_VERSION = "1.0.0" as const;
+export const MIAIXZ_MODULE_PROTOCOL_VERSION = VERSION;
 
 /**
  * Identifies how a module is loaded and isolated by its host.
@@ -62,7 +64,7 @@ export interface MiaixzModuleManifest {
   /**
    * Protocol version understood by the module.
    */
-  readonly protocolVersion: "1.0.0";
+  readonly protocolVersion: typeof VERSION;
 
   /**
    * Globally stable kebab-case module identifier.

@@ -32,6 +32,7 @@ import type {
 } from "../shared/contracts/source.js";
 import { ViewerError } from "../shared/errors/viewer-error.js";
 import type { ResourceBudget } from "./resource-budget.js";
+import { readBoundedStream } from "./bounded-stream.js";
 
 export type {
   FileResourceProvider,
@@ -200,6 +201,8 @@ class RemoteResource implements RandomAccessResource {
   readonly #declaredSize: number | undefined;
   readonly #declaredEtag: string | undefined;
   #loaded?: MemoryResource;
+  #loading: Promise<MemoryResource> | undefined;
+  #loadController: AbortController | undefined;
   #responseEtag?: string;
   #disposed = false;
 
@@ -276,6 +279,7 @@ class RemoteResource implements RandomAccessResource {
    * Disposes loaded bytes and prevents future network access.
    */
   dispose(): void {
+    this.#loadController?.abort();
     this.#loaded?.dispose();
     this.#disposed = true;
   }
@@ -290,35 +294,113 @@ class RemoteResource implements RandomAccessResource {
     if (this.#disposed) throw new ViewerError("DOCUMENT_DISPOSED", "source");
     signal?.throwIfAborted();
     if (this.#loaded !== undefined) return this.#loaded;
-    let response: Response;
+    if (this.#loading === undefined) {
+      const loading = this.#download();
+      this.#loading = loading;
+      void loading.then(
+        () => {
+          if (this.#loading === loading) this.#loading = undefined;
+        },
+        () => {
+          if (this.#loading === loading) this.#loading = undefined;
+        },
+      );
+    }
+    return this.#awaitSharedLoad(this.#loading, signal);
+  }
+
+  /**
+   * Lets one caller cancel its wait without cancelling a download shared by other callers.
+   *
+   * @param loading - Shared resource download.
+   * @param signal - Optional caller cancellation signal.
+   * @returns Validated shared resource.
+   */
+  async #awaitSharedLoad(
+    loading: Promise<MemoryResource>,
+    signal?: AbortSignal,
+  ): Promise<MemoryResource> {
+    if (signal === undefined) return loading;
+    signal.throwIfAborted();
+    return new Promise<MemoryResource>((resolve, reject) => {
+      const abort = (): void => {
+        signal.removeEventListener("abort", abort);
+        reject(signal.reason ?? new DOMException("Aborted", "AbortError"));
+      };
+      signal.addEventListener("abort", abort, { once: true });
+      void loading.then(
+        (resource) => {
+          signal.removeEventListener("abort", abort);
+          resolve(resource);
+        },
+        (error: unknown) => {
+          signal.removeEventListener("abort", abort);
+          reject(error);
+        },
+      );
+    });
+  }
+
+  /**
+   * Performs the single shared remote download for this resource.
+   *
+   * @returns Validated in-memory resource.
+   */
+  async #download(): Promise<MemoryResource> {
+    const controller = new AbortController();
+    this.#loadController = controller;
     try {
-      response = await fetch(this.#url, {
+      const response = await fetch(this.#url, {
         headers: this.#headers,
         credentials: this.#credentials,
-        ...(signal === undefined ? {} : { signal }),
+        signal: controller.signal,
       });
+      if (!response.ok) throw new ViewerError("NETWORK_FAILED", "source", true);
+      const lengthHeader = response.headers.get("content-length");
+      if (lengthHeader !== null && /^\d+$/u.test(lengthHeader)) {
+        const declaredLength = Number(lengthHeader);
+        if (!Number.isSafeInteger(declaredLength) || declaredLength > this.#budget.maxSourceBytes) {
+          await response.body?.cancel().catch(() => undefined);
+          throw new ViewerError("RESOURCE_LIMIT_EXCEEDED", "source", false, [], {
+            field: "maxSourceBytes",
+            actual: Number.isSafeInteger(declaredLength) ? declaredLength : Number.MAX_SAFE_INTEGER,
+            allowed: this.#budget.maxSourceBytes,
+          });
+        }
+      }
+      const result =
+        response.body === null
+          ? { chunks: [] as readonly Uint8Array[], totalBytes: 0 }
+          : await readBoundedStream(response.body, {
+              field: "maxSourceBytes",
+              maxBytes: this.#budget.maxSourceBytes,
+              maxNoProgressMilliseconds: this.#budget.maxNoProgressMilliseconds,
+              signal: controller.signal,
+              stage: "source",
+            });
+      if (this.#disposed) throw new ViewerError("DOCUMENT_DISPOSED", "source");
+      const responseMime = this.mimeType ?? response.headers.get("content-type") ?? undefined;
+      const blob = new Blob(
+        result.chunks.map((chunk) =>
+          chunk.buffer instanceof ArrayBuffer &&
+          chunk.byteOffset === 0 &&
+          chunk.byteLength === chunk.buffer.byteLength
+            ? chunk.buffer
+            : chunk.slice().buffer,
+        ),
+        responseMime === undefined ? {} : { type: responseMime },
+      );
+      const responseEtag = response.headers.get("etag");
+      if (responseEtag !== null) this.#responseEtag = responseEtag;
+      this.#loaded = new MemoryResource(blob, this.#budget, this.name, responseMime);
+      return this.#loaded;
     } catch (error) {
-      if (signal?.aborted === true) throw error;
+      if (this.#disposed) throw new ViewerError("DOCUMENT_DISPOSED", "source");
+      if (error instanceof ViewerError) throw error;
       throw new ViewerError("NETWORK_FAILED", "source", true);
+    } finally {
+      if (this.#loadController === controller) this.#loadController = undefined;
     }
-    if (!response.ok) throw new ViewerError("NETWORK_FAILED", "source", true);
-    const declaredLength = Number(response.headers.get("content-length"));
-    if (Number.isFinite(declaredLength) && declaredLength > this.#budget.maxSourceBytes) {
-      throw new ViewerError("RESOURCE_LIMIT_EXCEEDED", "source");
-    }
-    const blob = await response.blob();
-    if (blob.size > this.#budget.maxSourceBytes) {
-      throw new ViewerError("RESOURCE_LIMIT_EXCEEDED", "source");
-    }
-    const responseEtag = response.headers.get("etag");
-    if (responseEtag !== null) this.#responseEtag = responseEtag;
-    this.#loaded = new MemoryResource(
-      blob,
-      this.#budget,
-      this.name,
-      this.mimeType ?? response.headers.get("content-type") ?? undefined,
-    );
-    return this.#loaded;
   }
 }
 

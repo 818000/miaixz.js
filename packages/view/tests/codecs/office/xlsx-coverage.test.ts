@@ -26,7 +26,7 @@ import { ZipArchive } from "../../../src/codecs/archive/zip-codec.js";
 import { parseSpreadsheet } from "../../../src/codecs/office/ooxml-codec.js";
 import { spreadsheetParseOutcome } from "../../../src/codecs/office/spreadsheet-feature-codec.js";
 import { defaultResourceBudget } from "../../../src/runtime/resource-budget.js";
-import { storedZip } from "../../support/stored-zip.js";
+import { storedZip } from "../archive/stored-zip.helper.js";
 
 describe("spreadsheet coverage ledger", () => {
   it("names every discovered visible feature family which is not modeled", async () => {

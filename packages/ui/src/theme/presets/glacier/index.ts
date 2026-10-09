@@ -22,6 +22,8 @@
  * Exposes the glacier public module.
  */
 
+import { VERSION } from "../../../version.js";
+
 import { defineTheme } from "../../define.js";
 
 /**
@@ -30,10 +32,9 @@ import { defineTheme } from "../../define.js";
  * @public
  */
 export const glacierTheme = defineTheme({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   name: "glacier",
   label: "Glacier",
-  version: "1.0.0",
   extends: "miaixz",
   tokens: {
     surfaces: {

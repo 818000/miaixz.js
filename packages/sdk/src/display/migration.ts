@@ -23,6 +23,7 @@
  */
 
 import type { MiaixzStorageMigration } from "../runtime/storage/storage.js";
+import { VERSION } from "../version.js";
 import {
   miaixzThemeColorTokens,
   type MiaixzAppearanceSettings,
@@ -45,13 +46,13 @@ const miaixzThemeColorTokenSet = new Set<string>(miaixzThemeColorTokens);
 const miaixzThemeColorPattern = /^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$/;
 
 /**
- * Migrates an Appearance v1 settings value to the complete v2 contract.
+ * Migrates an Appearance v1 settings value to the current release contract.
  *
- * Invalid legacy structures or colors use the frozen default snapshot. An already-valid v2
+ * Invalid legacy structures or colors use the frozen default snapshot. An already-valid current
  * snapshot is normalized without changing its serialized field order or values.
  *
- * @param value - Untrusted v1 or v2 settings value.
- * @returns Deeply frozen Appearance Schema v2 settings.
+ * @param value - Untrusted legacy or current settings value.
+ * @returns Deeply frozen current Appearance schema settings.
  * @public
  */
 export function migrateMiaixzAppearanceV1(value: unknown): MiaixzAppearanceSettings {
@@ -68,15 +69,23 @@ export function migrateMiaixzAppearanceV1(value: unknown): MiaixzAppearanceSetti
 }
 
 /**
- * Defines the built-in continuous storage migration from schema one to schema two.
+ * Defines the built-in continuous storage migration from legacy numeric envelopes to VERSION.
  *
  * @public
  */
-export const miaixzAppearanceMigrationV1ToV2: Readonly<MiaixzStorageMigration> = Object.freeze({
-  from: 1,
-  to: 2,
+export const miaixzAppearanceMigration: Readonly<MiaixzStorageMigration> = Object.freeze({
+  from: "legacy",
+  to: VERSION,
   migrate: migrateMiaixzAppearanceV1,
 });
+
+/**
+ * Preserves the historical API name; its target always follows VERSION.
+ *
+ * @deprecated Use miaixzAppearanceMigration.
+ * @public
+ */
+export const miaixzAppearanceMigrationV1ToV2 = miaixzAppearanceMigration;
 
 /**
  * Describes the private v1 settings shape accepted by the migration boundary.
@@ -147,7 +156,7 @@ function parseLegacyColors(value: unknown): MiaixzThemeColorOverrides | undefine
 }
 
 /**
- * Maps one legacy color branch to its frozen v2 mode branches.
+ * Maps one legacy color branch to its frozen current mode branches.
  *
  * @param colorMode - Legacy color-mode preference.
  * @param colors - Optional normalized legacy colors.

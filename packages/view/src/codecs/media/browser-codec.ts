@@ -22,6 +22,8 @@
  * Provides the browser-native image, audio, and video codec.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { MediaDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import type { FormatDriverId } from "../../shared/contracts/format.js";
@@ -50,7 +52,7 @@ export function createBrowserMediaDriver(
       const prefix = await context.resource.read(0, context.budget.maxProbeBytes, context.signal);
       const sourceUrl = await context.resource.createObjectUrl();
       const model: MediaDocument = {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id: stableDocumentId(context.resource.name, prefix),
         kind: "media",
         mediaKind,

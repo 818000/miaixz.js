@@ -6,13 +6,50 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { Icon, type IconName } from "@miaixz/icons";
+import { renderToStaticMarkup } from "react-dom/server";
 
 import { Rating } from "../../../src/components/rating/index.js";
-import { renderWithLocale } from "../../support/test-utils.js";
+import { renderWithLocale } from "../../test-utils.helper.js";
 
 afterEach(cleanup);
 
+/**
+ * Reads the public Icon character without relying on internal maps or fixed codepoints.
+ * @param name - Public icon name.
+ * @returns Actual character emitted by Icon.
+ */
+function iconCharacter(name: IconName): string {
+  const element = document.createElement("div");
+  element.innerHTML = renderToStaticMarkup(<Icon name={name} />);
+  return element.querySelector(".miaixz-icon-glyph")?.getAttribute("data-miaixz-icon-glyph") ?? "";
+}
+
 describe("Rating", () => {
+  it.each([2.5, 3, null])("uses the public half-star only for the half value %s", (value) => {
+    const { container } = renderWithLocale(
+      <Rating aria-label="Quality" name="quality" precision={0.5} value={value} />,
+    );
+    const stars = container.querySelectorAll(".miaixz-rating-star");
+    expect(stars).toHaveLength(5);
+    expect(container.querySelectorAll('[data-fill="half"]')).toHaveLength(value === 2.5 ? 1 : 0);
+    const whole = iconCharacter("star"),
+      half = iconCharacter("star-half");
+    expect(whole).not.toBe("");
+    expect(half).not.toBe(whole);
+    for (const [index, star] of Array.from(stars).entries()) {
+      expect(
+        star
+          .querySelector(".miaixz-rating-icon .miaixz-icon-glyph")
+          ?.getAttribute("data-miaixz-icon-glyph"),
+      ).toBe(whole);
+      expect(
+        star
+          .querySelector(".miaixz-rating-fill .miaixz-icon-glyph")
+          ?.getAttribute("data-miaixz-icon-glyph"),
+      ).toBe(value === 2.5 && index === 2 ? half : whole);
+    }
+  });
   it("uses native radios and submits the selected value", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();

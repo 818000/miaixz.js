@@ -34,7 +34,7 @@ import { ComboboxPopup } from "../../src/components/combobox/combobox-popup.js";
 import { Dropdown } from "../../src/components/dropdown/dropdown.js";
 import { Picker } from "../../src/components/picker/picker.js";
 import { validatePickerValue } from "../../src/components/picker/picker-model.js";
-import { renderWithLocale } from "../support/test-utils.js";
+import { renderWithLocale } from "../test-utils.helper.js";
 
 afterEach(() => {
   cleanup();

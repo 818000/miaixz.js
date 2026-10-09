@@ -2,6 +2,8 @@
  * Verifies CSS layer package behavior in the UI package.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -36,20 +38,14 @@ interface PackageCodeExport {
  */
 interface PackageManifest {
   /**
-   * Versioned application-facing UI metadata.
+   * Application-facing UI metadata.
    */
-  readonly miaixzUiContract: {
-    readonly components: Readonly<
-      Record<
-        string,
-        { readonly deprecatedProps?: readonly string[]; readonly supportedProps: readonly string[] }
-      >
-    >;
-    readonly deprecatedProps: readonly unknown[];
-    readonly exports?: readonly string[];
-    readonly publicDomComponents: readonly string[];
-    readonly runtimeAttributes: readonly string[];
-    readonly stableSelectors: readonly string[];
+  readonly miaixz: {
+    readonly attributes: readonly string[];
+    readonly components: readonly string[];
+    readonly props: Readonly<Record<string, readonly string[]>>;
+    readonly selectors: readonly string[];
+    readonly values: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>>;
   };
   /**
    * Public package subpaths.
@@ -169,6 +165,32 @@ function expandCss(file: string, chain: readonly string[] = []): string[] {
 }
 
 describe("CSS package ownership contract", () => {
+  it("keeps 40px empty and skeleton containers independent of removed icon-size tokens", () => {
+    const tokens = readFileSync(
+      resolve(packageDirectory, "src/styles/foundation/tokens.css"),
+      "utf8",
+    );
+    const empty = readFileSync(
+      resolve(packageDirectory, "src/styles/components/empty.css"),
+      "utf8",
+    );
+    const skeleton = readFileSync(
+      resolve(packageDirectory, "src/styles/components/skeleton.css"),
+      "utf8",
+    );
+    expect(tokens).toMatch(/--miaixz-space-40:\s*40px/u);
+    expect(empty).toContain("--miaixz-empty-icon-container-size: var(--miaixz-space-40)");
+    expect(skeleton).toContain("--miaixz-skeleton-avatar-size: var(--miaixz-space-40)");
+    expect(skeleton).toMatch(/width:\s*var\(--miaixz-skeleton-avatar-size\)/u);
+    expect(skeleton).toMatch(/height:\s*var\(--miaixz-skeleton-avatar-size\)/u);
+    expect(empty + skeleton).not.toContain("--miaixz-icon-size-40");
+    expect(
+      readFileSync(resolve(packageDirectory, "dist/styles/components/empty.css"), "utf8"),
+    ).toBe(empty);
+    expect(
+      readFileSync(resolve(packageDirectory, "dist/styles/components/skeleton.css"), "utf8"),
+    ).toBe(skeleton);
+  });
   it("keeps the documented public-entry table equal to the export map", () => {
     const readme = readFileSync(resolve(packageDirectory, "README.md"), "utf8");
     const documentedEntries = [...readme.matchAll(/^\| `([^`]+)`\s+\| (?:CSS|JavaScript)\s+\|$/gmu)]
@@ -215,11 +237,15 @@ describe("CSS package ownership contract", () => {
     const entries = rootDomComponentEntries();
     const names = entries.map(([name]) => name).sort((left, right) => left.localeCompare(right));
 
-    expect(packageManifest.miaixzUiContract.publicDomComponents).toEqual(names);
-    expect(packageManifest.miaixzUiContract.deprecatedProps).toEqual([]);
-    expect(packageManifest.miaixzUiContract.exports).toBeUndefined();
-    for (const component of Object.values(packageManifest.miaixzUiContract.components)) {
-      expect(component.deprecatedProps).toBeUndefined();
+    expect(packageManifest.miaixz.components).toEqual(names);
+    for (const component of Object.keys(packageManifest.miaixz.props)) {
+      expect(names).toContain(component);
+    }
+    for (const [component, properties] of Object.entries(packageManifest.miaixz.values)) {
+      expect(names).toContain(component);
+      for (const property of Object.keys(properties)) {
+        expect(packageManifest.miaixz.props[component]).toContain(property);
+      }
     }
 
     for (const [name, subpath] of entries) {
@@ -252,14 +278,14 @@ describe("CSS package ownership contract", () => {
       .map((entry) => readFileSync(resolve(sourceDirectory, entry.toString()), "utf8"))
       .join("\n");
 
-    for (const selector of packageManifest.miaixzUiContract.stableSelectors) {
+    for (const selector of packageManifest.miaixz.selectors) {
       expect(
         styleSource.includes(`.miaixz-${selector}`) ||
           componentSource.includes(`"data-ui": "${selector}"`),
         `${selector} must exist as a class or data-ui hook`,
       ).toBe(true);
     }
-    for (const attribute of packageManifest.miaixzUiContract.runtimeAttributes) {
+    for (const attribute of packageManifest.miaixz.attributes) {
       const datasetProperty = attribute
         .replace(/^data-/u, "")
         .replaceAll(/-([a-z])/gu, (_, character: string) => character.toUpperCase());
@@ -393,15 +419,14 @@ describe("CSS package ownership contract", () => {
     }
   });
 
-  it("fills compact typography fields omitted by schema-one custom themes", () => {
+  it("fills compact typography fields omitted by versioned custom themes", () => {
     const parent = miaixzBuiltInThemes.find(
       (theme) => theme.name === miaixzDefaultAppearance.theme,
     )!;
     const legacy = defineTheme({
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       name: "legacy-package-theme",
       label: "Legacy package theme",
-      version: "1.0.0",
       extends: parent.name,
       tokens: { typography: { bodySize: 15 } },
       modes: { light: {}, dark: {} },

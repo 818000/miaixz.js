@@ -34,7 +34,7 @@ export type MiaixzFormControl =
  * Runs a stable callback after the owning native form completes a reset.
  *
  * @param controlRef - Native control whose live form owner is observed.
- * @param onReset - Callback invoked in a microtask after native reset state commits.
+ * @param onReset - Callback invoked in the next task after an uncanceled native reset commits.
  * @internal
  */
 export function useFormReset(
@@ -48,13 +48,24 @@ export function useFormReset(
   useEffect(() => {
     const form = controlRef.current?.form;
     if (form === null || form === undefined) return undefined;
+    const pending = new Set<number>();
     /**
      * Runs the latest control reset callback after the native form reset completes.
      *
+     * @param event - Cancelable native reset event whose final status is checked.
      * @returns No return value.
      */
-    const handleReset = () => queueMicrotask(() => callbackRef.current());
+    const handleReset = (event: Event) => {
+      const timer = window.setTimeout(() => {
+        pending.delete(timer);
+        if (!event.defaultPrevented) callbackRef.current();
+      }, 0);
+      pending.add(timer);
+    };
     form.addEventListener("reset", handleReset);
-    return () => form.removeEventListener("reset", handleReset);
+    return () => {
+      form.removeEventListener("reset", handleReset);
+      for (const timer of pending) window.clearTimeout(timer);
+    };
   }, [controlRef]);
 }

@@ -63,8 +63,8 @@ function validateDescriptor(directoryName, value) {
       throw new Error(`${directoryName}/format.json has an invalid ${field}`);
     }
   }
-  if (value.schemaVersion !== 1) {
-    throw new Error(`${directoryName}/format.json must use schemaVersion 1`);
+  if (Object.keys(value).some((key) => /version/iu.test(key))) {
+    throw new Error(`${directoryName}/format.json must not define versions; use VERSION`);
   }
   if (value.id !== directoryName) {
     throw new Error(`${directoryName}/format.json id must match its directory name`);
@@ -101,7 +101,12 @@ function validateDescriptor(directoryName, value) {
  * @returns Complete generated TypeScript source.
  */
 function renderRegistry(descriptors) {
-  const descriptorSource = JSON.stringify(descriptors, null, 2)
+  const descriptorSource = JSON.stringify(
+    descriptors.map((descriptor) => ({ schemaVersion: "__VERSION__", ...descriptor })),
+    null,
+    2,
+  )
+    .replaceAll('"schemaVersion": "__VERSION__"', '"schemaVersion": VERSION')
     .replaceAll(/^/gmu, "  ")
     .trimStart();
   const extensions = descriptors.flatMap((descriptor) =>
@@ -150,6 +155,7 @@ function renderRegistry(descriptors) {
 
 import type { ViewerDriver } from "../shared/contracts/driver.js";
 import type { FormatDescriptor, FormatDriverId } from "../shared/contracts/format.js";
+import { VERSION } from "../version.js";
 
 /**
  * Loads one independently installable format driver.

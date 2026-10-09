@@ -22,6 +22,8 @@
  * Defines the closed format-neutral document model contracts.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { ViewerError } from "../errors/viewer-error.js";
 
 /**
@@ -44,7 +46,7 @@ export interface SkippedFeature {
  * Schema version, document identifier, and title shared by preview document variants.
  */
 interface DocumentBase {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: typeof VERSION;
   readonly id: string;
   readonly title: string;
 }
@@ -334,7 +336,7 @@ export interface SpreadsheetDocument extends DocumentBase {
  * Represents the complete internal workbook model produced by the built-in XLSX driver.
  */
 export interface SpreadsheetRenderDocument extends SpreadsheetDocument {
-  readonly layoutVersion: 1;
+  readonly layoutVersion: typeof VERSION;
   readonly activeSheetId: string;
   readonly sheets: readonly SpreadsheetRenderSheet[];
   readonly styles: SpreadsheetStyleTable;
@@ -350,7 +352,7 @@ export interface SpreadsheetRenderDocument extends SpreadsheetDocument {
 export function isSpreadsheetRenderDocument(
   document: SpreadsheetDocument,
 ): document is SpreadsheetRenderDocument {
-  return "layoutVersion" in document && document.layoutVersion === 1;
+  return "layoutVersion" in document && document.layoutVersion === VERSION;
 }
 
 /**

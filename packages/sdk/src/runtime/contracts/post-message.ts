@@ -22,8 +22,27 @@
  * Defines validated cross-origin bridge messages and transport options.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { MiaixzHostAdapter, MiaixzHostBridge } from "./host-context.js";
 import type { MiaixzModuleManifest } from "./module-manifest.js";
+
+/**
+ * Bounds Host-side bridge work from one authorized iframe.
+ *
+ * @public
+ */
+export interface MiaixzPostMessageHostLimits {
+  readonly maxInFlightRequests: number;
+  readonly maxSubscriptions: number;
+  readonly maxPayloadBytes: number;
+  readonly maxPayloadDepth: number;
+  readonly maxPayloadNodes: number;
+  readonly maxCatalogLocales: number;
+  readonly maxCatalogMessagesPerLocale: number;
+  readonly maxCatalogStringLength: number;
+  readonly requestTimeoutMilliseconds: number;
+}
 
 /**
  * Describes one validated cross-origin Bridge message.
@@ -39,7 +58,7 @@ export interface MiaixzBridgeEnvelope {
   /**
    * Identifies the Bridge protocol version.
    */
-  readonly protocolVersion: "1.0.0";
+  readonly protocolVersion: typeof VERSION;
 
   /**
    * Correlates requests, responses, events, and cancellation messages.
@@ -117,6 +136,11 @@ export interface MiaixzPostMessageHostOptions {
    * Overrides the ten-second request and handshake timeout.
    */
   readonly timeoutMs?: number;
+
+  /**
+   * Optionally overrides resource limits without exceeding SDK hard caps.
+   */
+  readonly limits?: Partial<MiaixzPostMessageHostLimits>;
 }
 
 /**

@@ -19,6 +19,11 @@
 */
 
 /**
+ * Defines Appearance modes, densities, and current-release settings contracts.
+ */
+import { VERSION } from "../version.js";
+
+/**
  * Lists the color modes supported by the Miaixz interface.
  *
  * @public
@@ -180,7 +185,7 @@ export interface MiaixzAppearancePayload {
    *
    * @defaultValue 2
    */
-  readonly schemaVersion: 2;
+  readonly schemaVersion: typeof VERSION;
 
   /**
    * Contains the validated appearance settings snapshot.

@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { CSS_GEOMETRY_EXCEPTIONS, geometryException } from "./css-geometry-policy.mjs";
+import { CSS_GEOMETRY_EXCEPTIONS, geometryException } from "./css-geometry-policy.helper.mjs";
 
 describe("CSS geometry policy", () => {
   it("grants only exact declaration-level graphic geometry exceptions", () => {

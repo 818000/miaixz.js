@@ -34,7 +34,7 @@ export interface MiaixzThemeOpacity {
 export const miaixzThemeOpacityFields = ["navigationSelected"] as const;
 
 /**
- * Defaults also applied to existing schema-version-one themes.
+ * Defaults also applied to existing current-schema themes.
  */
 export const miaixzThemeOpacityDefaults = Object.freeze({ navigationSelected: 0.35 });
 

@@ -22,10 +22,13 @@
  * Provides the shared fixed-layout codec for ZIP and XML based page formats.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { PagedDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import { getResourceBudgetGuard } from "../../runtime/resource-budget-guard.js";
 import { ZipArchive } from "../archive/zip-codec.js";
 import {
   elementsByLocalName,
@@ -63,7 +66,12 @@ export function createFixedLayoutDriver(id: "xps" | "ofd"): ViewerDriver<PagedDo
      */
     async open(context) {
       const bytes = await context.resource.readAll(context.signal);
-      const archive = new ZipArchive(bytes, context.budget);
+      const guard = getResourceBudgetGuard(context.budget, context.signal);
+      const archive = new ZipArchive(bytes, {
+        budget: context.budget,
+        guard,
+        signal: context.signal,
+      });
       const paths = archive.entries
         .map((entry) => entry.path)
         .filter((path) =>
@@ -72,10 +80,15 @@ export function createFixedLayoutDriver(id: "xps" | "ofd"): ViewerDriver<PagedDo
         .sort();
       if (paths.length === 0)
         return { status: "rejected", error: new ViewerError("PARSE_FAILED", "parse") };
+      guard.consumePages(paths.length);
       const documentId = stableDocumentId(context.resource.name, bytes);
       const pages = [];
       for (const [index, path] of paths.entries()) {
-        const document = parseXmlDocument(await archive.text(path), context.budget.maxXmlNodes);
+        const document = parseXmlDocument(
+          await archive.text(path),
+          context.budget.maxXmlNodes,
+          context.budget.maxXmlDepth,
+        );
         const root = document.documentElement;
         const text =
           id === "xps"
@@ -95,7 +108,7 @@ export function createFixedLayoutDriver(id: "xps" | "ofd"): ViewerDriver<PagedDo
         status: "complete",
         warnings: [],
         model: {
-          schemaVersion: 1,
+          schemaVersion: VERSION,
           id: documentId,
           kind: "paged",
           title: documentTitle(context.resource.name),

@@ -26,7 +26,7 @@
 [data-miaixz-theme] {
   --miaixz-skeleton-text-height: var(--miaixz-font-size-12);
   --miaixz-skeleton-heading-height: 1.5rem;
-  --miaixz-skeleton-avatar-size: 2.5rem;
+  --miaixz-skeleton-avatar-size: var(--miaixz-space-40);
   --miaixz-skeleton-button-width: 6rem;
   --miaixz-skeleton-last-line-width: 64%;
   --miaixz-skeleton-duration: 1200ms;
@@ -70,8 +70,8 @@
 
 .miaixz-skeleton[data-variant="circular"] {
   flex: none;
-  width: var(--miaixz-icon-size-40);
-  height: var(--miaixz-icon-size-40);
+  width: var(--miaixz-skeleton-avatar-size);
+  height: var(--miaixz-skeleton-avatar-size);
   border-radius: var(--miaixz-radius-round);
 }
 

@@ -19,11 +19,12 @@
 */
 
 /**
- * Loads canonical JSON without reading glyph sources or generated modules.
+ * Loads canonical icon data without generated modules or persistent audit records.
  */
-import { readFile, readdir, realpath } from "node:fs/promises";
+import { readFile, readdir, realpath, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { dirname, resolve, sep } from "node:path";
+import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateDesignGeometry } from "./fonts/font-geometry.mjs";
 
@@ -51,6 +52,20 @@ export const FIRST_CODEPOINT = 0xf0000;
  * Last assignable codepoint before the plane's two noncharacters.
  */
 export const MAX_CODEPOINT = 0xffffd;
+
+/**
+ * Measures the published name-to-codepoint table covered by the existing runtimeBytes budget.
+ * The separately exported metadata catalog is not part of this table's raw-byte budget.
+ * @param {string} distRoot Actual icon package distribution directory.
+ * @returns {Promise<{path:string,bytes:number}>} Exact uncompressed table bytes.
+ */
+export async function measureIconRuntime(distRoot) {
+  const path = "values/icons.js",
+    bytes = (await stat(resolve(distRoot, path))).size;
+  if (bytes <= 0) throw new Error("Published icon runtime table is empty.");
+  return { path, bytes };
+}
+
 const requirePackage = createRequire(resolve(packageRoot, "package.json"));
 const Ajv2020 = requirePackage("ajv/dist/2020").default;
 const classNames = ["regular", "wide", "tall", "directional", "compound", "line-symbol"];
@@ -114,16 +129,29 @@ export function canonicalJson(value, kind) {
       opticalClasses: Object.fromEntries(
         classNames.map((k) => [
           k,
-          keys(value.opticalClasses[k], [
-            "longestEdge",
-            "width",
-            "height",
-            "aspectRatio",
-            "centerTolerance",
-          ]),
+          keys(value.opticalClasses[k], ["longestEdge", "centerTolerance"]),
         ]),
       ),
       limits: keys(value.limits, ["fontBytes", "runtimeBytes"]),
+      visual: {
+        strokeWidths: Object.fromEntries(
+          ["compact", "standard", "display"].map((k) => [
+            k,
+            keys(value.visual.strokeWidths[k], ["target", "tolerance"]),
+          ]),
+        ),
+        frameCornerRadius: keys(value.visual.frameCornerRadius, ["standard"]),
+        circleApproximationError: value.visual.circleApproximationError,
+        comparison: keys(value.visual.comparison, [
+          "alphaThreshold",
+          "boundaryPixels",
+          "areaRelativeError",
+          "centroidPixels",
+          "paddingCssPixels",
+          "compiledOutlineUnits",
+          "subdivisionUnits",
+        ]),
+      },
     };
   else throw new Error("Unknown JSON document kind: " + kind);
   return JSON.stringify(ordered, null, 2) + "\n";
@@ -318,6 +346,113 @@ export function loadIconSource(options = {}) {
  */
 export function readIconRecords(options = {}) {
   return readProjection(options, false);
+}
+
+/**
+ * Checks a JSON value against a closed definition in the canonical source Schema.
+ * @param {unknown} value Candidate data.
+ * @param {string} definition Named Schema definition.
+ * @param {string} [root] Allowed assets root, also used for isolated fixtures.
+ * @returns {Promise<void>} Throws with actual schema diagnostics on failure.
+ */
+export async function validateIconDocument(value, definition, root = assetsRoot) {
+  const { value: schema } = await readDocument(root, "schema.json");
+  requireCondition(
+    Object.hasOwn(schema.$defs, definition),
+    "Unknown source schema definition: " + definition,
+  );
+  const ajv = new Ajv2020({ allErrors: true, strict: true });
+  ajv.addSchema(schema);
+  const validate = ajv.compile({ $ref: schema.$id + "#/$defs/" + definition });
+  requireCondition(
+    validate(value),
+    "Invalid " + definition + ": " + ajv.errorsText(validate.errors),
+  );
+}
+
+/**
+ * Hashes a confined collection using path, zero byte, big-endian byte length, and raw bytes.
+ * @param {Array<{path:string,absolutePath?:string,bytes?:Buffer}>} files Actual files or the specified virtual rule projection.
+ * @param {{root?:string,consumerRoot?:string}} options Two allowed repository roots.
+ * @returns {Promise<string>} Collection SHA-256.
+ */
+export async function hashIconCollection(
+  files,
+  { root = repositoryRoot, consumerRoot = resolve(root, "../miaixz") } = {},
+) {
+  const roots = await Promise.all([realpath(root), realpath(consumerRoot)]),
+    entries = new Map();
+  for (const file of files) {
+    requireCondition(
+      typeof file.path === "string" &&
+        file.path.length > 0 &&
+        !file.path.includes("\\") &&
+        !isAbsolute(file.path),
+      "Invalid collection path.",
+    );
+    if (file.bytes !== undefined) {
+      requireCondition(
+        file.path === "design-rules.json" && Buffer.isBuffer(file.bytes),
+        "Only the rule projection may be virtual.",
+      );
+      requireCondition(
+        !entries.has(file.path) || entries.get(file.path).equals(file.bytes),
+        "Conflicting virtual collection bytes.",
+      );
+      entries.set(file.path, file.bytes);
+      continue;
+    }
+    const absolute = resolve(file.absolutePath ?? resolve(root, file.path));
+    requireCondition(
+      relative(root, absolute).split(sep).join("/") === file.path,
+      "Collection path disagrees with actual file.",
+    );
+    const actual = await realpath(absolute);
+    requireCondition(
+      roots.some((base) => actual.startsWith(base + sep)),
+      "Collection symlink escapes allowed roots: " + file.path,
+    );
+    requireCondition(
+      actual.startsWith(roots[0] + sep)
+        ? !file.path.split("/").includes("..")
+        : file.path.startsWith("../miaixz/") && !file.path.slice(10).split("/").includes(".."),
+      "Collection lexical path escapes allowed roots: " + file.path,
+    );
+    requireCondition(
+      (await stat(absolute)).isFile(),
+      "Collection input is not a file: " + file.path,
+    );
+    const bytes = await readFile(absolute);
+    requireCondition(
+      !entries.has(file.path) || entries.get(file.path).equals(bytes),
+      "Conflicting duplicate collection input.",
+    );
+    entries.set(file.path, bytes);
+  }
+  const hash = createHash("sha256");
+  for (const [path, bytes] of [...entries].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
+    const length = Buffer.alloc(8);
+    length.writeBigUInt64BE(BigInt(bytes.length));
+    hash.update(path, "utf8");
+    hash.update(Buffer.from([0]));
+    hash.update(length);
+    hash.update(bytes);
+  }
+  return hash.digest("hex");
+}
+
+/**
+ * Validates real calendar timestamps rather than accepting impossible dates.
+ * @param {unknown} value Candidate UTC timestamp.
+ * @returns {boolean} Whether the timestamp round-trips to the same real date.
+ */
+export function validIconTime(value) {
+  return (
+    typeof value === "string" &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/u.test(value) &&
+    Number.isFinite(Date.parse(value)) &&
+    new Date(value).toISOString().replace(".000Z", "Z") === value.replace(".000Z", "Z")
+  );
 }
 
 /**

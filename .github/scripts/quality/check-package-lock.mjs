@@ -19,7 +19,7 @@
 */
 
 /**
- * Verifies that the workspace package lock matches package metadata.
+ * Verifies that committed npm locks match workspace and example package metadata.
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -34,13 +34,17 @@ const root = repositoryRoot;
 const { rootManifest } = loadWorkspaceRepository(root);
 const packageManifests = loadRepositoryPackageManifests(root);
 const failures = [];
-const forbiddenLockfiles = new Set([
-  "package-lock.json",
-  "yarn.lock",
-  "bun.lock",
-  "bun.lockb",
-  "npm-shrinkwrap.json",
-]);
+const forbiddenLockfiles = new Set(["yarn.lock", "bun.lock", "bun.lockb", "npm-shrinkwrap.json"]);
+
+const rootLockPath = join(root, "package-lock.json");
+const examplesManifestPath = join(root, "examples", "package.json");
+const examplesLockPath = join(root, "examples", "package-lock.json");
+verifyLock(rootLockPath, rootManifest, "root", rootManifest.workspaces);
+if (!existsSync(examplesManifestPath)) failures.push("missing examples/package.json");
+else {
+  const examplesManifest = JSON.parse(readFileSync(examplesManifestPath, "utf8"));
+  verifyLock(examplesLockPath, examplesManifest, "examples");
+}
 
 for (const file of walk(root)) {
   const path = relative(root, file);
@@ -68,12 +72,16 @@ for (const file of walk(workflowDirectory)) {
   if (!/\.ya?ml$/u.test(file)) continue;
   const path = relative(root, file);
   const contents = readFileSync(file, "utf8");
-  if (/\bnpm\s+ci\b/u.test(contents)) {
-    failures.push(`npm ci requires a forbidden lockfile: ${path}`);
-  }
-  for (const command of contents.matchAll(/\bnpm\s+install\b[^\n]*/gu)) {
-    if (!command[0].includes("--no-package-lock") || !command[0].includes("--legacy-peer-deps")) {
-      failures.push(`npm install must use --no-package-lock and --legacy-peer-deps: ${path}`);
+  if (/\bnpm\s+install\b/u.test(contents)) failures.push(`workflow must use npm ci: ${path}`);
+  for (const command of contents.matchAll(/\bnpm\s+(?:--prefix\s+\S+\s+)?ci\b[^\n]*/gu)) {
+    if (
+      !command[0].includes("--package-lock=true") ||
+      !command[0].includes("--ignore-scripts") ||
+      !command[0].includes("--legacy-peer-deps")
+    ) {
+      failures.push(
+        `npm ci must explicitly enable the lock and use --ignore-scripts and --legacy-peer-deps: ${path}`,
+      );
       break;
     }
   }
@@ -87,7 +95,61 @@ if (failures.length > 0) {
   console.error(failures.map((failure) => `- ${failure}`).join("\n"));
   process.exitCode = 1;
 } else {
-  console.log("The lockfile-free npm-only command policy is valid.");
+  console.log("The committed npm lockfiles and reproducible install policy are valid.");
+}
+
+/**
+ * Verifies one npm v10 lock root against its owning package manifest.
+ *
+ * @param {string} lockPath Absolute package-lock path.
+ * @param {Record<string, unknown>} manifest Owning package manifest.
+ * @param {string} label Human-readable graph name.
+ * @param {readonly string[] | undefined} workspaces Expected root workspace paths.
+ */
+function verifyLock(lockPath, manifest, label, workspaces) {
+  if (!existsSync(lockPath)) {
+    failures.push(`missing ${relative(root, lockPath)}`);
+    return;
+  }
+  let lock;
+  try {
+    lock = JSON.parse(readFileSync(lockPath, "utf8"));
+  } catch {
+    failures.push(`invalid JSON: ${relative(root, lockPath)}`);
+    return;
+  }
+  if (lock.lockfileVersion !== 3) failures.push(`${label} lockfileVersion must be 3`);
+  const entry = lock.packages?.[""];
+  if (entry === undefined || entry.name !== manifest.name || entry.version !== manifest.version) {
+    failures.push(`${label} lock root name/version does not match package.json`);
+    return;
+  }
+  for (const field of [
+    "dependencies",
+    "devDependencies",
+    "optionalDependencies",
+    "peerDependencies",
+  ]) {
+    if (JSON.stringify(entry[field] ?? {}) !== JSON.stringify(manifest[field] ?? {})) {
+      failures.push(`${label} lock root ${field} does not match package.json`);
+    }
+  }
+  if (JSON.stringify(entry.workspaces ?? []) !== JSON.stringify(workspaces ?? [])) {
+    failures.push(`${label} lock workspace list does not match package.json`);
+  }
+  if (workspaces === undefined) return;
+  for (const { manifest: workspaceManifest, rootPath } of packageManifests) {
+    const workspacePath = relative(root, rootPath);
+    if (!workspaces.includes(workspacePath)) continue;
+    const workspaceEntry = lock.packages?.[workspacePath];
+    if (
+      workspaceEntry === undefined ||
+      workspaceEntry.name !== workspaceManifest.name ||
+      workspaceEntry.version !== workspaceManifest.version
+    ) {
+      failures.push(`root lock workspace entry is stale: ${workspacePath}`);
+    }
+  }
 }
 
 /**

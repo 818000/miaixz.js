@@ -23,13 +23,20 @@
  */
 
 import { defineConfig } from "@playwright/test";
+import { mkdtempSync, rmSync } from "node:fs";
+import { devNull, tmpdir } from "node:os";
+import path from "node:path";
 
 const browserChannel = process.env.MIAIXZ_PLAYWRIGHT_CHANNEL ?? "chromium";
+const outputDir = mkdtempSync(path.join(tmpdir(), "miaixz-view-playwright-"));
+process.env.PLAYWRIGHT_LAST_RUN_OUTPUT_FILE = devNull;
+process.once("exit", () => rmSync(outputDir, { recursive: true, force: true }));
 
 export default defineConfig({
-  testDir: "./tests/browser",
-  outputDir: "./test-results/browser",
-  snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}-{platform}{ext}",
+  testDir: "./tests",
+  testMatch: "**/*.visual.spec.ts",
+  outputDir,
+  snapshotPathTemplate: "{testDir}/{testFileDir}/{arg}-{platform}.snapshot{ext}",
   fullyParallel: false,
   forbidOnly: true,
   retries: 0,

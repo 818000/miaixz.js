@@ -22,6 +22,8 @@
  * Validates, sanitizes, and dispatches SDK events across local and browser-context channels.
  */
 
+import { VERSION } from "../../version.js";
+
 import { MiaixzSdkError } from "../../errors/errors.js";
 import { isMiaixzAppearanceSettings } from "../../display/validation.js";
 import { isMiaixzSdkConfig } from "../config/config.js";
@@ -42,7 +44,7 @@ import type {
   MiaixzSdkEventMap,
 } from "./event-types.js";
 
-const miaixzEventChannelPattern = /^miaixz:v1:[a-z][a-z0-9-]{1,63}:events$/;
+const miaixzEventChannelPattern = /^miaixz:[a-z][a-z0-9-]{1,63}:events$/;
 const miaixzUuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const miaixzEventEnvelopeKeys = new Set(["version", "eventId", "sourceId", "type", "payload"]);
@@ -197,13 +199,13 @@ function isMiaixzContextEvent(payload: unknown): payload is MiaixzRuntimeContext
  * Validates the built-in appearance payload and its nested settings.
  *
  * @param payload - Untrusted event payload.
- * @returns Whether the payload uses schema version two and valid appearance settings.
+ * @returns Whether the payload uses VERSION and valid appearance settings.
  */
 function isMiaixzAppearanceEvent(payload: unknown): payload is MiaixzAppearancePayload {
   return (
     isPlainEventObject(payload) &&
     hasExactEventKeys(payload, new Set(["schemaVersion", "value"])) &&
-    payload.schemaVersion === 2 &&
+    payload.schemaVersion === VERSION &&
     isMiaixzAppearanceSettings(payload.value)
   );
 }
@@ -284,13 +286,13 @@ function createMiaixzEventId(): string {
  * Validates an untrusted BroadcastChannel envelope without executing accessors.
  *
  * @param value - Broadcast message data to inspect.
- * @returns Whether the value is a complete version-one event envelope.
+ * @returns Whether the value is a complete current-release event envelope.
  */
 function isMiaixzEventEnvelope(value: unknown): value is MiaixzEventEnvelope {
   return (
     isPlainEventObject(value) &&
     hasExactEventKeys(value, miaixzEventEnvelopeKeys) &&
-    value.version === 1 &&
+    value.version === VERSION &&
     typeof value.eventId === "string" &&
     miaixzUuidPattern.test(value.eventId) &&
     typeof value.sourceId === "string" &&
@@ -469,7 +471,7 @@ export class MiaixzEventBus<Events extends object = MiaixzSdkEventMap> {
     const clonedPayload = cloneMiaixzEventPayload(payload);
     if (!isValidMiaixzEventPayload(validator, clonedPayload)) return;
     this.#channel.postMessage({
-      version: 1,
+      version: VERSION,
       eventId: createMiaixzEventId(),
       sourceId: this.#sourceId,
       type,

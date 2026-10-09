@@ -30,7 +30,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Confirm } from "../../src/components/confirm/confirm.js";
 import { Dialog } from "../../src/components/dialog/dialog.js";
 import { Toaster, useToast } from "../../src/components/toaster/toaster.js";
-import { renderWithLocale } from "../support/test-utils.js";
+import { renderWithLocale } from "../test-utils.helper.js";
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal ??= function () {

@@ -22,6 +22,8 @@
  * Verifies document locale behavior in the UI package.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { createMiaixzI18n, defineLocale } from "@miaixz/sdk/i18n";
 import { act, cleanup, render } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
@@ -40,11 +42,10 @@ afterEach(() => {
 });
 
 const arabic = defineLocale({
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   id: "ar",
   label: "العربية",
   shortLabel: "ع",
-  version: "1.0.0",
   direction: "rtl",
 });
 

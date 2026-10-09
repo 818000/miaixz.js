@@ -843,3 +843,5 @@ export type {
 } from "./theme/index.js";
 export { useMedia } from "./shared/responsive/use-media.js";
 export type { UseMediaOptions } from "./shared/responsive/use-media.js";
+
+export { VERSION } from "./version.js";

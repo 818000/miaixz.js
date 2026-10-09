@@ -22,6 +22,8 @@
  * Verifies source ownership, registries, budgets, errors, and controller lifecycle behavior.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { detectBrowserSupport } from "../../src/runtime/browser-support.js";
 import { DriverRegistry } from "../../src/runtime/driver-registry.js";
 import { DefaultFileResourceProvider, openFileSource } from "../../src/runtime/file-source.js";
@@ -47,7 +49,7 @@ import {
 const encoder = new TextEncoder();
 
 const customDescriptor: FormatDescriptor = {
-  schemaVersion: 1,
+  schemaVersion: VERSION,
   id: "custom",
   label: "Custom text",
   category: "text",
@@ -87,7 +89,7 @@ function customDriver(status: "complete" | "rejected" = "complete"): ViewerDrive
         status: "complete",
         warnings: [],
         model: {
-          schemaVersion: 1,
+          schemaVersion: VERSION,
           id: "custom-document",
           kind: "text",
           title: context.resource.name,
@@ -213,6 +215,119 @@ describe("file resources", () => {
     expect(fetchMock).toHaveBeenCalledOnce();
     resource.dispose();
     await expect(resource.readAll()).rejects.toMatchObject({ code: "DOCUMENT_DISPOSED" });
+  });
+
+  it("deduplicates concurrent remote reads and rejects actual streamed overflow", async () => {
+    let streamController!: ReadableStreamDefaultController<Uint8Array>;
+    const fetchMock = vi.fn(async () =>
+      Promise.resolve(
+        new Response(
+          new ReadableStream<Uint8Array>({
+            /**
+             * Captures the controller so both concurrent readers share one response.
+             *
+             * @param controller - Fixture stream controller.
+             */
+            start(controller) {
+              streamController = controller;
+            },
+          }),
+        ),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const resource = openFileSource("https://example.test/shared.custom", defaultResourceBudget);
+    const first = resource.readAll();
+    const second = resource.readAll();
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    streamController.enqueue(encoder.encode("shared"));
+    streamController.close();
+    const values = await Promise.all([first, second]);
+    expect(values.map((value) => Array.from(value))).toEqual([
+      Array.from(encoder.encode("shared")),
+      Array.from(encoder.encode("shared")),
+    ]);
+
+    let cancellableController!: ReadableStreamDefaultController<Uint8Array>;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve(
+          new Response(
+            new ReadableStream<Uint8Array>({
+              /**
+               * Captures a second shared response for caller-cancellation coverage.
+               *
+               * @param controller - Fixture stream controller.
+               */
+              start(controller) {
+                cancellableController = controller;
+              },
+            }),
+          ),
+        ),
+      ),
+    );
+    const cancellable = openFileSource(
+      "https://example.test/cancellable.custom",
+      defaultResourceBudget,
+    );
+    const survivor = cancellable.readAll();
+    const caller = new AbortController();
+    const cancelled = cancellable.readAll(caller.signal);
+    caller.abort();
+    await expect(cancelled).rejects.toMatchObject({ name: "AbortError" });
+    cancellableController.enqueue(encoder.encode("survives"));
+    cancellableController.close();
+    expect(Array.from(await survivor)).toEqual(Array.from(encoder.encode("survives")));
+
+    const cancel = vi.fn();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve(
+          new Response(
+            new ReadableStream<Uint8Array>({
+              /**
+               * Enqueues a response chunk larger than the configured source limit.
+               *
+               * @param controller - Fixture stream controller.
+               */
+              start(controller) {
+                controller.enqueue(new Uint8Array([1, 2, 3]));
+              },
+              cancel,
+            }),
+          ),
+        ),
+      ),
+    );
+    await expect(
+      openFileSource("https://example.test/overflow.custom", {
+        ...defaultResourceBudget,
+        maxSourceBytes: 2,
+      }).readAll(),
+    ).rejects.toMatchObject({ code: "RESOURCE_LIMIT_EXCEEDED" });
+    expect(cancel).toHaveBeenCalled();
+  });
+
+  it("aborts an in-flight remote fetch when its resource is disposed", async () => {
+    const fetchMock = vi.fn(
+      async (_input: RequestInfo | URL, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener(
+            "abort",
+            () => reject(new DOMException("Aborted", "AbortError")),
+            { once: true },
+          );
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const resource = openFileSource("https://example.test/pending.custom", defaultResourceBudget);
+    const pending = resource.readAll();
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    resource.dispose();
+    await expect(pending).rejects.toMatchObject({ code: "DOCUMENT_DISPOSED" });
   });
 
   it("sanitizes remote network and size failures", async () => {
@@ -343,6 +458,36 @@ describe("registries, errors, and document lifecycle", () => {
     expect(() => opened.dispose()).not.toThrow();
   });
 
+  it("stops awaiting a non-cooperative driver at the total task deadline", async () => {
+    vi.useFakeTimers();
+    try {
+      const registry = new DriverRegistry();
+      registry.registerFormat(customDescriptor, async () => ({
+        id: "custom",
+        /**
+         * Simulates an adapter which never observes its AbortSignal.
+         *
+         * @returns Promise which intentionally never settles.
+         */
+        async open() {
+          return new Promise<never>(() => undefined);
+        },
+      }));
+      const pending = openViewerDocument(
+        { data: new Blob(["pending"]), name: "pending.custom" },
+        { registry, budget: { maxTaskMilliseconds: 10 } },
+      );
+      const result = expect(pending).rejects.toMatchObject({
+        code: "RESOURCE_LIMIT_EXCEEDED",
+        resourceLimit: { field: "maxTaskMilliseconds", allowed: 10 },
+      });
+      await vi.advanceTimersByTimeAsync(10);
+      await result;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("never reports a layout-free spreadsheet model as complete", async () => {
     const registry = new DriverRegistry();
     registry.registerFormat(customDescriptor, async () => ({
@@ -357,7 +502,7 @@ describe("registries, errors, and document lifecycle", () => {
           status: "complete",
           warnings: [],
           model: {
-            schemaVersion: 1,
+            schemaVersion: VERSION,
             id: "legacy-sheet",
             kind: "spreadsheet",
             title: "Legacy sheet",

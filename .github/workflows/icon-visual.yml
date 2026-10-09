@@ -1,0 +1,66 @@
+# Checks generated icon sources, font quality, and browser-rendered quality without storing reports or screenshots.
+name: Icon Visual Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  FONTBAKERY_VERSION: "1.1.0"
+  FONTMAKE_VERSION: "3.12.1"
+  FONTTOOLS_VERSION: "4.66.0"
+  PYTHON_VERSION: "3.13.12"
+  UFO2FT_VERSION: "3.9.0"
+
+jobs:
+  validate:
+    name: Validate Icon Visuals
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: miaixz.js
+    steps:
+      - name: Check Out Source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: miaixz.js
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            examples/package-lock.json
+
+      - name: Set Up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: ""
+
+      - name: Install Hash-Locked Font Tools
+        run: pip install --require-hashes -r .github/scripts/modules/icons/fonts/font-toolchain.lock.txt
+
+      - name: Install JavaScript Dependencies
+        run: npm ci --package-lock=true --ignore-scripts --legacy-peer-deps
+
+      - name: Install Browser Runtimes
+        run: npm exec -- playwright install --with-deps chromium firefox webkit
+
+      - name: Build Icon Package
+        run: npm run build --workspace @miaixz/icons
+
+      - name: Scan All Masters
+        run: npm run icons:refinement:scan
+
+      - name: Check Font Geometry And Browser Visuals
+        run: npm run icons:visual:check

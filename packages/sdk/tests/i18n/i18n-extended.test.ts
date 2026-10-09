@@ -22,6 +22,8 @@
  * Verifies asynchronous locale loading, extensions, and internationalization fallbacks.
  */
 
+import { VERSION } from "../../src/version.js";
+
 import { describe, expect, it, vi } from "vitest";
 
 import { createMiaixzI18n, MiaixzI18n } from "../../src/i18n/i18n-runtime.js";
@@ -61,11 +63,10 @@ describe("locale catalog", () => {
       );
     }
     const valid = defineLocale({
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id: "fr-fr",
       label: " Français ",
       shortLabel: " FR ",
-      version: " 1.0.0 ",
       direction: "ltr",
       aliases: ["fr", "fr"],
       keywords: [" French ", "French", ""],
@@ -75,7 +76,6 @@ describe("locale catalog", () => {
       id: "fr-FR",
       label: "Français",
       shortLabel: "FR",
-      version: "1.0.0",
       aliases: ["fr"],
       keywords: ["French"],
       fallback: "en-US",
@@ -86,7 +86,7 @@ describe("locale catalog", () => {
       { ...valid, schemaVersion: 2 },
       { ...valid, label: " " },
       { ...valid, shortLabel: "" },
-      { ...valid, version: "" },
+      { ...valid, version: VERSION },
       { ...valid, direction: "sideways" },
       { ...valid, aliases: ["fr-FR"] },
       { ...valid, aliases: "fr" },
@@ -101,11 +101,10 @@ describe("locale catalog", () => {
 
   it("resolves exact ids, aliases, base languages, and immutable descriptors", () => {
     const french = defineLocale({
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id: "fr-FR",
       label: "Français",
       shortLabel: "FR",
-      version: "1.0.0",
       aliases: ["fr"],
     });
     const catalog = new MiaixzLocaleCatalog([french]);
@@ -195,11 +194,10 @@ describe("message contracts and loader", () => {
 describe("i18n runtime", () => {
   it("registers precedence layers, aliases, snapshots, and fallback messages", async () => {
     const french = defineLocale({
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id: "fr-FR",
       label: "Français",
       shortLabel: "FR",
-      version: "1.0.0",
       aliases: ["fr"],
       fallback: "en-US",
     });

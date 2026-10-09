@@ -127,6 +127,77 @@ async function digest(path) {
 }
 
 /**
+ * Keeps cubic conversion error within the design's subdivision budget, expressed in EM.
+ *
+ * @param {object} design - Validated icon design data.
+ * @returns {number} Maximum conversion error passed to the locked font compiler.
+ */
+export function fontConversionError(design) {
+  const units = design?.font?.unitsPerEm;
+  const tolerance = design?.visual?.comparison?.subdivisionUnits;
+  const boundary = design?.visual?.comparison?.compiledOutlineUnits;
+  if (
+    !Number.isFinite(units) ||
+    units <= 0 ||
+    !Number.isFinite(tolerance) ||
+    tolerance <= 0 ||
+    !Number.isFinite(boundary) ||
+    boundary <= tolerance
+  )
+    throw new Error("Invalid source-to-font precision budget.");
+  return tolerance / units;
+}
+
+/**
+ * Preserves explicit axis deltas instead of adding the compiler's lossy IUP approximation.
+ * @param {object} design Canonical geometry and conversion precision rules.
+ * @param {string} designspacePath Temporary six-master Designspace input.
+ * @param {string} fontPath Complete variable TrueType output.
+ * @returns {string[]} Deterministic compiler arguments with unchanged curve precision.
+ */
+export function fontCompilerArguments(design, designspacePath, fontPath) {
+  return [
+    "-m",
+    designspacePath,
+    "-o",
+    "variable",
+    "--output-path",
+    fontPath,
+    "--validate-ufo",
+    "--no-optimize-gvar",
+    "--conversion-error",
+    String(fontConversionError(design)),
+  ];
+}
+
+/**
+ * Compresses only deltas that reconstruct exactly; never accepts the default IUP tolerance.
+ * @param {string} fontPath Complete unoptimized variable TrueType candidate.
+ * @param {object} environment Deterministic compiler environment.
+ * @returns {Promise<void>} In-place lossless candidate compression, without source changes.
+ */
+async function compressExactAxisDeltas(fontPath, environment) {
+  const script = [
+    "import sys",
+    "from fontTools.ttLib import TTFont",
+    "from fontTools.varLib.iup import iup_delta",
+    "font=TTFont(sys.argv[1],recalcTimestamp=False)",
+    "glyf=font['glyf']",
+    "vertical=font['vmtx'].metrics if 'vmtx' in font else None",
+    "for name,variations in font['gvar'].variations.items():",
+    " coords,control=glyf._getCoordinatesAndControls(name,font['hmtx'].metrics,vertical)",
+    " for variation in variations:",
+    "  original=list(variation.coordinates)",
+    "  if None in original: raise ValueError('Compiler applied implicit axis optimization')",
+    "  variation.optimize(coords,control.endPts,tolerance=0)",
+    "  if iup_delta(variation.coordinates,coords,control.endPts)!=original:",
+    "   variation.coordinates=original",
+    "font.save(sys.argv[1],reorderTables=False)",
+  ].join("\n");
+  await runFontTool("python3", ["-c", script, fontPath], { env: environment });
+}
+
+/**
  * Copies immutable UFO sources and injects the repository release into the copies.
  *
  * @param {string} outputDirectory - Candidate build directory.
@@ -164,9 +235,10 @@ async function buildCandidate(outputDirectory) {
   const environment = { ...process.env, SOURCE_DATE_EPOCH: "0" };
   await runFontTool(
     "fontmake",
-    ["-m", temporaryDesignspace, "-o", "variable", "--output-path", completeFont, "--validate-ufo"],
+    fontCompilerArguments(source.design, temporaryDesignspace, completeFont),
     { env: environment },
   );
+  await compressExactAxisDeltas(completeFont, environment);
   const outputs = [["miaixz-icons.woff2", unicodeRangeFor(source.icons)]];
   for (const [filename, unicodes] of outputs) {
     await runFontTool(
@@ -180,6 +252,7 @@ async function buildCandidate(outputDirectory) {
         "--no-retain-gids",
         "--notdef-glyph",
         "--notdef-outline",
+        "--name-IDs=*",
         `--output-file=${resolve(outputDirectory, filename)}`,
       ],
       { env: environment },
@@ -235,16 +308,19 @@ async function publishFontOutputs(candidateDirectory, destinationDirectory) {
  */
 export async function verifyDeterministicFontBuild(destinationDirectory) {
   return withFontBuildWorkspace(async ({ first, second }) => {
+    if (readRepositoryVersion(repositoryRoot) !== release)
+      throw new Error(
+        "VERSION changed since loading the font build; restart with the current value.",
+      );
     await validateFontSource();
     const firstHashes = await buildCandidate(first);
-    await validateFontOutputs(
-      first,
-      process.env.MIAIXZ_FONT_REPORT_DIR === undefined
-        ? resolve(first, "fontbakery")
-        : resolve(process.env.MIAIXZ_FONT_REPORT_DIR),
-    );
+    await validateFontOutputs(first);
     const secondHashes = await buildCandidate(second);
     compareFontBuildHashes(firstHashes, secondHashes);
+    if (readRepositoryVersion(repositoryRoot) !== release)
+      throw new Error(
+        "VERSION changed during the font build; refusing to publish mismatched metadata.",
+      );
     if (destinationDirectory !== undefined) {
       await publishFontOutputs(first, destinationDirectory);
     }
@@ -257,11 +333,17 @@ if (
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(resolve(process.argv[1])).href
 ) {
-  if (arguments_.length !== 1 || arguments_[0] !== "--write") {
-    throw new Error("build-icon-font.mjs requires exactly --write.");
+  if (arguments_.length !== 1 || !["--check", "--write"].includes(arguments_[0])) {
+    throw new Error("build-icon-font.mjs requires exactly --check or --write.");
   }
-  const hashes = await verifyDeterministicFontBuild(
-    resolve(repositoryRoot, "packages/icons/dist/assets/fonts"),
+  const destinationDirectory =
+    arguments_[0] === "--write"
+      ? resolve(repositoryRoot, "packages/icons/dist/assets/fonts")
+      : undefined;
+  const hashes = await verifyDeterministicFontBuild(destinationDirectory);
+  console.log(
+    arguments_[0] === "--check"
+      ? `MIAIXZ_FONT_HASHES=${JSON.stringify(hashes)}`
+      : JSON.stringify(hashes, null, 2),
   );
-  console.log(JSON.stringify(hashes, null, 2));
 }

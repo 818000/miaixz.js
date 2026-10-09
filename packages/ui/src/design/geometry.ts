@@ -210,7 +210,7 @@ export const miaixzThemeLayoutGeometryFields = [
 /**
  * Defines defaults for layout fields introduced after the initial theme schema.
  *
- * Existing schema-version-one themes receive these values during resolution.
+ * Existing current-schema themes receive these values during resolution.
  *
  * @public
  */

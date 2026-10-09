@@ -4,9 +4,10 @@
     "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "inlineSources": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "inlineSourceMap": false,
+    "inlineSources": false,
     "noEmit": false
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]

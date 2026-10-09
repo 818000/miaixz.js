@@ -22,10 +22,13 @@
  * Provides the inert EML and MBOX text codec.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { FlowDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import { getResourceBudgetGuard } from "../../runtime/resource-budget-guard.js";
 
 const decoder = new TextDecoder();
 
@@ -67,12 +70,16 @@ export const emailDriver: ViewerDriver<FlowDocument> = {
     }
     const bytes = await context.resource.readAll(context.signal);
     const source = decoder.decode(bytes);
+    const guard = getResourceBudgetGuard(context.budget, context.signal);
+    guard.consumeTextCharacters(source.length);
     const messages =
       context.decision.extension === "mbox"
         ? source.split(/^From .+$/gmu).filter((item) => item.trim() !== "")
         : [source];
+    guard.consumePages(messages.length);
     const id = stableDocumentId(context.resource.name, bytes);
     const sections = messages.map((message, index) => {
+      if ((index & 0xff) === 0) guard.checkpoint(context.signal);
       const parsed = parseHeaders(message.trim());
       return {
         id: `${id}-message-${index + 1}`,
@@ -84,7 +91,7 @@ export const emailDriver: ViewerDriver<FlowDocument> = {
       status: "complete",
       warnings: [],
       model: {
-        schemaVersion: 1,
+        schemaVersion: VERSION,
         id,
         kind: "flow",
         title: documentTitle(context.resource.name),

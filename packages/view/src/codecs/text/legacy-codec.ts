@@ -22,10 +22,13 @@
  * Provides the bounded legacy and plain-text codec.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { TextDocument } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import { getResourceBudgetGuard } from "../../runtime/resource-budget-guard.js";
 
 const decoder = new TextDecoder("utf-8", { fatal: false });
 
@@ -44,11 +47,16 @@ export const textDriver: ViewerDriver<TextDocument> = {
     context.reportProgress({ stage: "parsing", indeterminate: true });
     const bytes = await context.resource.readAll(context.signal);
     const content = decoder.decode(bytes).replace(/^\uFEFF/u, "");
-    if (content.length > context.budget.maxTextCharacters) {
-      return { status: "rejected", error: new ViewerError("RESOURCE_LIMIT_EXCEEDED", "parse") };
+    try {
+      getResourceBudgetGuard(context.budget, context.signal).consumeTextCharacters(content.length);
+    } catch (error) {
+      if (error instanceof ViewerError && error.code === "RESOURCE_LIMIT_EXCEEDED") {
+        return { status: "rejected", error };
+      }
+      throw error;
     }
     const model: TextDocument = {
-      schemaVersion: 1,
+      schemaVersion: VERSION,
       id: stableDocumentId(context.resource.name, bytes),
       kind: "text",
       title: documentTitle(context.resource.name),

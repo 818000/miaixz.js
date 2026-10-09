@@ -22,10 +22,16 @@
  * Provides the Draw.io, Excalidraw, and tldraw drawing codec.
  */
 
+import { VERSION } from "../../version.js";
+
 import type { DiagramEdge, DrawingScene, DrawingShape } from "../../shared/contracts/document.js";
 import type { ViewerDriver } from "../../shared/contracts/driver.js";
 import { documentTitle, stableDocumentId } from "../../shared/document/document-identity.js";
 import { ViewerError } from "../../shared/errors/viewer-error.js";
+import {
+  getResourceBudgetGuard,
+  type ResourceBudgetGuard,
+} from "../../runtime/resource-budget-guard.js";
 import {
   elementsByLocalName,
   firstElementByLocalName,
@@ -56,9 +62,17 @@ function shapeType(value: unknown): DrawingShape["kind"] {
  * @param value - Parsed untrusted drawing JSON value.
  * @param id - Stable document identifier.
  * @param title - Safe display title for the drawing.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
  * @returns Normalized drawing scene and semantic edges.
  */
-function jsonDrawing(value: unknown, id: string, title: string): DrawingScene {
+function jsonDrawing(
+  value: unknown,
+  id: string,
+  title: string,
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+): DrawingScene {
   const root = objectField(value) ?? {};
   const rawElements =
     arrayField(root.elements).length > 0
@@ -69,6 +83,7 @@ function jsonDrawing(value: unknown, id: string, title: string): DrawingScene {
   let width = 1;
   let height = 1;
   for (const [index, raw] of rawElements.entries()) {
+    if ((index & 0xff) === 0) guard.checkpoint(signal);
     const element = objectField(raw);
     if (element === undefined || element.isDeleted === true) continue;
     const properties = objectField(element.props) ?? element;
@@ -92,6 +107,7 @@ function jsonDrawing(value: unknown, id: string, title: string): DrawingScene {
       ...(fill === undefined ? {} : { fill }),
       ...(stroke === undefined ? {} : { stroke }),
     });
+    guard.consumeDrawingObjects();
     if (type === "arrow") {
       const start = objectField(element.startBinding);
       const end = objectField(element.endBinding);
@@ -103,11 +119,12 @@ function jsonDrawing(value: unknown, id: string, title: string): DrawingScene {
         ...(from === undefined ? {} : { from }),
         ...(to === undefined ? {} : { to }),
       });
+      guard.consumeDrawingObjects();
     }
     width = Math.max(width, x + shapeWidth);
     height = Math.max(height, y + shapeHeight);
   }
-  return { schemaVersion: 1, id, kind: "drawing", title, width, height, shapes, edges };
+  return { schemaVersion: VERSION, id, kind: "drawing", title, width, height, shapes, edges };
 }
 
 /**
@@ -117,15 +134,27 @@ function jsonDrawing(value: unknown, id: string, title: string): DrawingScene {
  * @param id - Stable document identifier.
  * @param title - Safe display title for the drawing.
  * @param maxNodes - Maximum number of XML nodes accepted by the parser.
+ * @param maxDepth - Maximum XML element nesting depth.
+ * @param guard - Shared session resource-accounting guard.
+ * @param signal - Session cancellation signal.
  * @returns Normalized drawing scene and semantic edges.
  */
-function drawioDrawing(source: string, id: string, title: string, maxNodes: number): DrawingScene {
-  const document = parseXmlDocument(source, maxNodes);
+function drawioDrawing(
+  source: string,
+  id: string,
+  title: string,
+  maxNodes: number,
+  maxDepth: number,
+  guard: ResourceBudgetGuard,
+  signal: AbortSignal,
+): DrawingScene {
+  const document = parseXmlDocument(source, maxNodes, maxDepth);
   const shapes: DrawingShape[] = [];
   const edges: DiagramEdge[] = [];
   let width = 1;
   let height = 1;
-  for (const cell of elementsByLocalName(document, "mxCell")) {
+  for (const [index, cell] of elementsByLocalName(document, "mxCell").entries()) {
+    if ((index & 0xff) === 0) guard.checkpoint(signal);
     const cellId = localAttribute(cell, "id");
     if (cellId === undefined) continue;
     const geometry = firstElementByLocalName(cell, "mxGeometry");
@@ -146,6 +175,7 @@ function drawioDrawing(source: string, id: string, title: string, maxNodes: numb
         ...(to === undefined ? {} : { to }),
         ...(label === undefined || label === "" ? {} : { label }),
       });
+      guard.consumeDrawingObjects();
     } else if (localAttribute(cell, "vertex") === "1") {
       shapes.push({
         id: cellId,
@@ -156,11 +186,12 @@ function drawioDrawing(source: string, id: string, title: string, maxNodes: numb
         height: shapeHeight,
         ...(label === undefined || label === "" ? {} : { text: label }),
       });
+      guard.consumeDrawingObjects();
       width = Math.max(width, x + shapeWidth);
       height = Math.max(height, y + shapeHeight);
     }
   }
-  return { schemaVersion: 1, id, kind: "drawing", title, width, height, shapes, edges };
+  return { schemaVersion: VERSION, id, kind: "drawing", title, width, height, shapes, edges };
 }
 
 /**
@@ -178,14 +209,28 @@ export const drawioDriver: ViewerDriver<DrawingScene> = {
     const bytes = await context.resource.readAll(context.signal);
     const id = stableDocumentId(context.resource.name, bytes);
     const title = documentTitle(context.resource.name);
+    const guard = getResourceBudgetGuard(context.budget, context.signal);
     try {
+      const source = decoder.decode(bytes);
+      guard.consumeTextCharacters(source.length);
       const model =
         context.decision.extension === "drawio" || context.decision.extension === "dio"
-          ? drawioDrawing(decoder.decode(bytes), id, title, context.budget.maxXmlNodes)
-          : jsonDrawing(JSON.parse(decoder.decode(bytes)), id, title);
+          ? drawioDrawing(
+              source,
+              id,
+              title,
+              context.budget.maxXmlNodes,
+              context.budget.maxXmlDepth,
+              guard,
+              context.signal,
+            )
+          : jsonDrawing(JSON.parse(source), id, title, guard, context.signal);
       return { status: "complete", model, warnings: [] };
-    } catch {
-      return { status: "rejected", error: new ViewerError("PARSE_FAILED", "parse") };
+    } catch (error) {
+      return {
+        status: "rejected",
+        error: error instanceof ViewerError ? error : new ViewerError("PARSE_FAILED", "parse"),
+      };
     }
   },
 };

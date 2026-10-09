@@ -22,6 +22,8 @@
  * Decodes legacy Office VML shapes retained inside OOXML workbooks.
  */
 
+import { VERSION } from "../../version.js";
+
 import type {
   DiagramEdge,
   DiagramNode,
@@ -232,7 +234,7 @@ export function parseVmlElements(
     height = Math.max(height, y + shapeHeight);
   }
   return {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id,
     kind: "drawing",
     title,

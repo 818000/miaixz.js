@@ -51,12 +51,16 @@
       "opsz" var(--miaixz-icon-opsz);
     font-style: normal;
     font-weight: 400;
+    font-optical-sizing: none;
     font-variant: normal;
+    font-synthesis: none;
     line-height: 1;
     color: currentcolor;
     text-align: center;
     text-rendering: geometricprecision;
     transition: font-variation-settings 180ms cubic-bezier(0.2, 0, 0, 1);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     speak: never;
   }
 
@@ -64,7 +68,7 @@
     content: attr(data-miaixz-icon-glyph);
   }
 
-  .miaixz-icon-glyph[data-miaixz-icon-mirror="true"] {
+  .miaixz-icon-glyph[data-miaixz-icon-mirror="true"]:dir(rtl) {
     transform: scaleX(-1);
   }
 

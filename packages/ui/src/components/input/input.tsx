@@ -101,20 +101,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
     defaultValue: hasMiaixzControlValue(defaultValue),
     read: (control) => hasMiaixzControlValue(control.value),
   });
-  const inputType = props.type ?? defaults?.type;
-  const usesNativePicker =
-    inputType === "date" ||
-    inputType === "datetime-local" ||
-    inputType === "month" ||
-    inputType === "time" ||
-    inputType === "week";
-  const presentationFilled = filledState.value || usesNativePicker;
   const ownerState: InputOwnerState = {
     size,
     invalid: effectiveInvalid,
     disabled: effectiveDisabled,
     readOnly: readOnly === true,
-    filled: presentationFilled,
+    filled: filledState.value,
   };
   /**
    * Resolves theme classes for one input slot using the current owner state.
@@ -149,7 +141,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
       ...(effectiveInvalid ? { "data-invalid": true } : {}),
       ...(effectiveDisabled ? { "data-disabled": true } : {}),
       ...(readOnly ? { "data-readonly": true } : {}),
-      ...(presentationFilled ? { "data-filled": true } : {}),
+      ...(filledState.value ? { "data-filled": true } : {}),
     },
     ownedProps: ["data-size", "data-invalid", "data-disabled", "data-readonly", "data-filled"],
   });

@@ -24,6 +24,7 @@
 
 import type { ViewerDriver } from "../shared/contracts/driver.js";
 import type { FormatDescriptor, FormatDriverId } from "../shared/contracts/format.js";
+import { VERSION } from "../version.js";
 
 /**
  * Loads one independently installable format driver.
@@ -35,7 +36,7 @@ export type FormatLoader = () => Promise<ViewerDriver>;
  */
 export const formatDescriptors = [
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "doc",
     label: "Microsoft Word binary document",
     category: "document",
@@ -46,7 +47,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "docx",
     label: "Office Open XML document",
     category: "document",
@@ -62,7 +63,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "drawio",
     label: "Draw.io diagram",
     category: "diagram",
@@ -72,7 +73,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "dxf",
     label: "Drawing Exchange Format",
     category: "cad",
@@ -82,7 +83,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "epub",
     label: "Electronic publication",
     category: "document",
@@ -92,7 +93,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "geojson",
     label: "GeoJSON data",
     category: "geospatial",
@@ -102,7 +103,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "gif",
     label: "Graphics Interchange Format",
     category: "image",
@@ -112,7 +113,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "jpeg",
     label: "JPEG image",
     category: "image",
@@ -122,7 +123,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "mp3",
     label: "MPEG audio layer III",
     category: "audio",
@@ -132,7 +133,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "mp4",
     label: "MPEG-4 media",
     category: "video",
@@ -142,7 +143,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "obj",
     label: "Wavefront OBJ model",
     category: "model-3d",
@@ -152,7 +153,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "odp",
     label: "OpenDocument presentation",
     category: "presentation",
@@ -165,7 +166,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "ods",
     label: "OpenDocument spreadsheet",
     category: "spreadsheet",
@@ -178,7 +179,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "odt",
     label: "OpenDocument text",
     category: "document",
@@ -191,7 +192,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "ofd",
     label: "Open Fixed-layout Document",
     category: "fixed-layout",
@@ -201,7 +202,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "pdf",
     label: "Portable Document Format",
     category: "document",
@@ -211,7 +212,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "png",
     label: "Portable Network Graphics",
     category: "image",
@@ -221,7 +222,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "ppt",
     label: "Microsoft PowerPoint binary presentation",
     category: "presentation",
@@ -232,7 +233,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "pptx",
     label: "Office Open XML presentation",
     category: "presentation",
@@ -252,7 +253,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "rar",
     label: "RAR archive",
     category: "archive",
@@ -262,7 +263,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "svg",
     label: "Scalable Vector Graphics",
     category: "image",
@@ -272,7 +273,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "wasm",
     label: "WebAssembly module",
     category: "binary",
@@ -282,7 +283,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "xls",
     label: "Microsoft Excel binary workbook",
     category: "spreadsheet",
@@ -296,7 +297,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "xlsx",
     label: "Office Open XML spreadsheet",
     category: "spreadsheet",
@@ -312,7 +313,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "xmind",
     label: "XMind workbook",
     category: "diagram",
@@ -322,7 +323,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "xps",
     label: "XML Paper Specification",
     category: "fixed-layout",
@@ -332,7 +333,7 @@ export const formatDescriptors = [
     entry: "./driver.ts",
   },
   {
-    schemaVersion: 1,
+    schemaVersion: VERSION,
     id: "zip",
     label: "ZIP archive",
     category: "archive",
