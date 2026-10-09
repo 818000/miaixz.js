@@ -34,6 +34,13 @@ const sourceRoots = workspaceRepository.workspaces
 const sourceRootByPackageName = new Map(
   workspaceRepository.workspaces.map(({ name, rootPath }) => [name, path.join(rootPath, "src")]),
 );
+const workspaceBySourceRoot = new Map(
+  workspaceRepository.workspaces.map((workspace) => [
+    path.join(workspace.rootPath, "src"),
+    workspace,
+  ]),
+);
+const internalPackageNames = new Set(workspaceRepository.workspaces.map(({ name }) => name));
 const sdkSourceRoot = requireSourceRoot("@miaixz/sdk");
 const uiSourceRoot = requireSourceRoot("@miaixz/ui");
 const viewSourceRoot = requireSourceRoot("@miaixz/view");
@@ -196,19 +203,26 @@ function classifyUi(file) {
  */
 function auditEdge(source, edge) {
   if (edge.target === undefined) {
-    if (
-      source.startsWith(sdkSourceRoot) &&
-      (/^@miaixz\/ui(?:\/|$)/.test(edge.specifier) ||
-        /^@miaixz\/view(?:\/|$)/.test(edge.specifier) ||
-        /^react(?:-dom)?(?:\/|$)/.test(edge.specifier))
-    ) {
+    const sourceWorkspace = [...workspaceBySourceRoot].find(([sourceRoot]) =>
+      source.startsWith(sourceRoot),
+    )?.[1];
+    const importedWorkspaceName = [...internalPackageNames].find(
+      (name) => edge.specifier === name || edge.specifier.startsWith(`${name}/`),
+    );
+    if (sourceWorkspace !== undefined && importedWorkspaceName !== undefined) {
+      const allowed = new Set(
+        ["dependencies", "optionalDependencies", "peerDependencies"].flatMap((field) =>
+          Object.keys(sourceWorkspace.manifest[field] ?? {}),
+        ),
+      );
+      if (!allowed.has(importedWorkspaceName)) {
+        violations.push(
+          `${relative(source)} imports undeclared workspace dependency ${edge.specifier}`,
+        );
+      }
+    }
+    if (source.startsWith(sdkSourceRoot) && /^react(?:-dom)?(?:\/|$)/.test(edge.specifier)) {
       violations.push(`${relative(source)} imports forbidden SDK dependency ${edge.specifier}`);
-    }
-    if (source.startsWith(viewSourceRoot) && /^@miaixz\/sdk(?:\/|$)/.test(edge.specifier)) {
-      violations.push(`${relative(source)} imports forbidden preview dependency ${edge.specifier}`);
-    }
-    if (source.startsWith(uiSourceRoot) && /^@miaixz\/view(?:\/|$)/.test(edge.specifier)) {
-      violations.push(`${relative(source)} imports forbidden UI dependency ${edge.specifier}`);
     }
     return;
   }

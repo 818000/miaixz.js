@@ -146,16 +146,13 @@ describe("separated generated modules", () => {
       },
     ]);
     const output = await generateIcons({ assetsRoot: f.assetsRoot });
-    const configPath = resolve(repositoryRoot, "packages/ui/prettier.config.js");
     const filepath = resolve(process.cwd(), "src/values/icons.ts");
-    const config = await resolveConfig(filepath, { config: configPath });
+    const config = await resolveConfig(filepath);
     expect(output["icons.ts"]).toContain('"alpha": Object.freeze([983040, 0] as const)');
     expect(output["icons.ts"]).toContain('"alpha-beta": Object.freeze([983041, 0] as const)');
     expect(await format(output["icons.ts"], { ...config, filepath })).toBe(output["icons.ts"]);
     const ordinaryPath = resolve(process.cwd(), "src/runtime/font.ts");
-    const ordinaryConfig = await resolveConfig(ordinaryPath, {
-      config: configPath,
-    });
+    const ordinaryConfig = await resolveConfig(ordinaryPath);
     expect(ordinaryConfig?.quoteProps).toBeUndefined();
     expect(
       await format('export const value = { "alpha": 1 };', {

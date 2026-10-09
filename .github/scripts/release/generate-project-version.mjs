@@ -22,7 +22,7 @@
  * Generates browser-safe release constants exclusively from the repository VERSION.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -46,16 +46,22 @@ export function renderProjectVersions(
 ) {
   assertReleaseVersion(version);
   const header = readFileSync(resolve(root, ".github/scripts/miaixz.org"), "utf8").trim();
-  return loadWorkspaceRepository(root).publicWorkspaces.map(({ rootPath }) => [
-    resolve(rootPath, "src/version.ts"),
-    `${header}
+  return loadWorkspaceRepository(root).publicWorkspaces.map(({ name, rootPath }) => {
+    const sourceDirectory = resolve(rootPath, "src");
+    if (!existsSync(sourceDirectory) || !statSync(sourceDirectory).isDirectory()) {
+      throw new Error(`${name} must provide an existing src directory for generated versions.`);
+    }
+    return [
+      resolve(sourceDirectory, "version.ts"),
+      `${header}
 
 /**
  * Generated from root VERSION; do not edit. Identifies the current project release.
  */
 export const VERSION = ${JSON.stringify(version)} as const;
 `,
-  ]);
+    ];
+  });
 }
 
 /**

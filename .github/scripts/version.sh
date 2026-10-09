@@ -40,22 +40,22 @@ node --input-type=module - "$root" "$1" <<'NODE'
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { format, resolveConfig } from "prettier";
 
 const root = process.argv[2];
 const version = process.argv[3];
 const {
   assertReleaseVersion,
   getWorkspacePeerRange,
+  loadRepositoryInventory,
   loadVersionedPackageManifests,
-  loadWorkspaceRepository,
 } = await import(pathToFileURL(join(root, ".github/scripts/miaixz.mjs")));
 assertReleaseVersion(version);
 
 const paths = {
-  iconSbom: join(root, "packages/icons/SBOM.spdx.json"),
   version: join(root, "VERSION"),
 };
-const repository = loadWorkspaceRepository(root);
+const repository = loadRepositoryInventory(root);
 const versionedPackages = loadVersionedPackageManifests(root);
 const packagesByPath = new Map(
   versionedPackages.map((entry) => [entry.manifestPath, entry]),
@@ -64,9 +64,6 @@ const rootPackage = versionedPackages.find(
   ({ relativePath }) => relativePath === "package.json",
 )?.manifest;
 const currentVersion = readFileSync(paths.version, "utf8").trim();
-const iconSbom = existsSync(paths.iconSbom)
-  ? JSON.parse(readFileSync(paths.iconSbom, "utf8"))
-  : undefined;
 
 if (rootPackage?.name !== "miaixz.js") {
   throw new Error("Unexpected root package name; refusing to update versions.");
@@ -97,18 +94,41 @@ for (const workspace of repository.workspaces) {
   }
 }
 
-if (iconSbom !== undefined) {
-  iconSbom.name = `@miaixz/icons-${version}`;
-  iconSbom.documentNamespace = `https://miaixz.org/spdx/icons/${version}`;
-  iconSbom.creationInfo.creators = [`Tool: miaixz-icons-build-${version}`];
-  const iconPackage = iconSbom.packages?.find(({ name }) => name === "@miaixz/icons");
-  if (iconPackage === undefined) throw new Error("Icon SBOM package entry is missing.");
-  iconPackage.versionInfo = version;
+const sbomUpdates = [];
+for (const workspace of repository.publicWorkspaces) {
+  const sbomFiles = (workspace.manifest.files ?? []).filter((file) =>
+    /(?:^|\/)\w[^/]*\.spdx\.json$/u.test(file),
+  );
+  if (sbomFiles.length > 1) {
+    throw new Error(`${workspace.name} declares more than one SPDX SBOM.`);
+  }
+  if (sbomFiles.length === 0) continue;
+  const path = join(workspace.rootPath, sbomFiles[0]);
+  if (!existsSync(path)) throw new Error(`${workspace.name} SBOM is missing: ${sbomFiles[0]}.`);
+  const sbom = JSON.parse(readFileSync(path, "utf8"));
+  const packageEntry = sbom.packages?.find(({ name }) => name === workspace.name);
+  if (packageEntry === undefined) {
+    throw new Error(`${workspace.name} SBOM package entry is missing.`);
+  }
+  const packageSlug = workspace.name.split("/").at(-1);
+  if (!packageSlug || sbom.creationInfo === undefined) {
+    throw new Error(`${workspace.name} SBOM metadata is incomplete.`);
+  }
+  sbom.name = `${workspace.name}-${version}`;
+  sbom.documentNamespace = `https://miaixz.org/spdx/${packageSlug}/${version}`;
+  sbom.creationInfo.creators = [`Tool: miaixz-${packageSlug}-build-${version}`];
+  packageEntry.versionInfo = version;
+  const formatting = (await resolveConfig(path)) ?? {};
+  const contents = await format(JSON.stringify(sbom, null, 2), {
+    ...formatting,
+    filepath: path,
+  });
+  sbomUpdates.push([path, contents]);
 }
 
 const updates = [
   [paths.version, `${version}\n`],
-  ...(iconSbom === undefined ? [] : [[paths.iconSbom, `${JSON.stringify(iconSbom, null, 2)}\n`]]),
+  ...sbomUpdates,
   ...versionedPackages.map(({ manifest, manifestPath }) => [
     manifestPath,
     `${JSON.stringify(manifest, null, 2)}\n`,
@@ -126,7 +146,7 @@ for (const [path] of updates) {
   renameSync(`${path}.tmp`, path);
 }
 
-const verifiedRepository = loadWorkspaceRepository(root);
+const verifiedRepository = loadRepositoryInventory(root);
 const verifiedPackages = loadVersionedPackageManifests(root);
 const expectedPeerRange = getWorkspacePeerRange(version);
 const verifiedWorkspaceNames = new Set(

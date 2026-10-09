@@ -24,22 +24,28 @@
 
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
 const testRoot = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(testRoot, "../../..");
-const exampleRoot = resolve(repositoryRoot, "examples/src/module/icons");
+const inventoryTools = await import(
+  pathToFileURL(resolve(repositoryRoot, ".github/scripts/miaixz.mjs")).href
+);
+const inventory = inventoryTools.loadRepositoryInventory(repositoryRoot);
+const exampleProject = inventory.standaloneProjects.find(
+  ({ name }: { readonly name: string }) => name === "@miaixz/examples",
+);
+if (exampleProject === undefined) throw new Error("The examples project is required.");
+const uiRoot = inventoryTools.requireWorkspace("@miaixz/ui", inventory).rootPath;
+const exampleRoot = resolve(exampleProject.rootPath, "src/module/icons");
 
 describe("icons example module", () => {
   it.each(["avatar", "feedback", "toast", "upload"])(
     "keeps %s on the lightweight name API",
     async (name) => {
-      const source = await readFile(
-        resolve(repositoryRoot, "packages/ui/src/components", name, name + ".tsx"),
-        "utf8",
-      );
+      const source = await readFile(resolve(uiRoot, "src/components", name, name + ".tsx"), "utf8");
       expect(source).toContain('from "@miaixz/icons"');
       expect(source).not.toMatch(
         /ICON_NAMES|@miaixz\/icons\/catalog|IconTier|OpticalClass|IconDirection/u,

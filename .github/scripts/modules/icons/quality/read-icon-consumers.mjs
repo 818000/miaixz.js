@@ -25,7 +25,14 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { dirname, resolve, extname } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parse } from "@babel/parser";
+import { loadWorkspaceRepository, requireWorkspace } from "../../../miaixz.mjs";
 import { repositoryRoot, loadIconSource } from "../source.mjs";
+
+const workspaceRepository = loadWorkspaceRepository(repositoryRoot);
+const uiSourceRoot = resolve(requireWorkspace("@miaixz/ui", workspaceRepository).rootPath, "src");
+const defaultConsumerRoots = workspaceRepository.workspaces
+  .filter(({ name }) => name !== "@miaixz/icons")
+  .map(({ rootPath }) => resolve(rootPath, "src"));
 
 const unknown = Symbol("unresolved expression");
 const nonIcon = Symbol("non-icon content");
@@ -70,12 +77,7 @@ function visit(node, callback) {
  * @returns {Promise<object>} Read-only names, references, generic consumers and unresolved sites.
  */
 export async function readIconConsumers(options = {}) {
-  const roots = (
-    options.roots ?? [
-      resolve(repositoryRoot, "../miaixz/src"),
-      resolve(repositoryRoot, "packages/ui/src"),
-    ]
-  ).map((root) => resolve(root));
+  const roots = (options.roots ?? defaultConsumerRoots).map((root) => resolve(root));
   if (!roots.length) throw new Error("At least one consumer source root is required.");
   const names = new Set(options.names ?? (await loadIconSource()).icons.map((icon) => icon.name));
   const paths = [...new Set((await Promise.all(roots.map(sourceFiles))).flat())].sort();
@@ -276,8 +278,7 @@ export async function readIconConsumers(options = {}) {
       if (root) target = resolve(root, binding.from.slice(2));
     } else if (binding.from === "@miaixz/ui" || binding.from.startsWith("@miaixz/ui/"))
       target = resolve(
-        repositoryRoot,
-        "packages/ui/src",
+        uiSourceRoot,
         binding.from.slice("@miaixz/ui".length).replace(/^\//u, "") || "index.ts",
       );
     if (!target) return;

@@ -25,9 +25,8 @@
 import { existsSync, readdirSync } from "node:fs";
 import { relative, resolve } from "node:path";
 
-import { repositoryRoot } from "../miaixz.mjs";
+import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
 
-const packages = ["icons", "sdk", "ui", "view"];
 const failures = [];
 
 /**
@@ -46,15 +45,15 @@ function collectDirectories(root) {
   return directories;
 }
 
-for (const packageName of packages) {
-  const packageRoot = resolve(repositoryRoot, "packages", packageName);
-  const sourceRoot = resolve(packageRoot, "src");
-  const testRoot = resolve(packageRoot, "tests");
+for (const { rootPath } of loadWorkspaceRepository(repositoryRoot).workspaces) {
+  const sourceRoot = resolve(rootPath, "src");
+  const testRoot = resolve(rootPath, "tests");
+  if (!existsSync(sourceRoot) || !existsSync(testRoot)) continue;
   for (const testDirectory of collectDirectories(testRoot)) {
     const componentPath = relative(testRoot, testDirectory);
     const sourceDirectory = resolve(sourceRoot, componentPath);
     if (!existsSync(sourceDirectory)) {
-      failures.push(`packages/${packageName}/tests/${componentPath}`);
+      failures.push(relative(repositoryRoot, testDirectory).replaceAll("\\", "/"));
     }
   }
 }

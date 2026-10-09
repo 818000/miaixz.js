@@ -23,12 +23,13 @@
  */
 
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { repositoryRoot } from "../miaixz.mjs";
+import { loadRepositoryInventory, repositoryRoot } from "../miaixz.mjs";
 
 const exceptionPath = new URL("audit-exceptions.json", import.meta.url);
 const policy = JSON.parse(readFileSync(exceptionPath, "utf8"));
+const inventory = loadRepositoryInventory(repositoryRoot);
+const graphNames = new Set(inventory.graphs.map(({ name }) => name));
 const failures = [];
 const today = new Date().toISOString().slice(0, 10);
 
@@ -52,49 +53,61 @@ for (const exception of policy.exceptions ?? []) {
     failures.push(`${exception.id ?? "unknown"}: exception packages must be non-empty`);
     continue;
   }
-  for (const packageName of exception.packages) {
-    if (activeExceptions.has(packageName)) {
-      failures.push(`${packageName}: package is covered by more than one exception`);
+  if (
+    !Array.isArray(exception.graphs) ||
+    exception.graphs.length === 0 ||
+    exception.graphs.some((name) => !graphNames.has(name))
+  ) {
+    failures.push(
+      `${exception.id ?? "unknown"}: exception graphs must name existing dependency graphs`,
+    );
+    continue;
+  }
+  for (const graphName of exception.graphs) {
+    for (const packageName of exception.packages) {
+      const key = `${graphName}\0${packageName}`;
+      if (activeExceptions.has(key)) {
+        failures.push(`${graphName}:${packageName}: package is covered by more than one exception`);
+      }
+      activeExceptions.set(key, exception);
     }
-    activeExceptions.set(packageName, exception);
   }
 }
 
-for (const [label, directory] of [
-  ["workspace", repositoryRoot],
-  ["examples", join(repositoryRoot, "examples")],
-]) {
-  const production = runAudit(directory, true);
+for (const graph of inventory.graphs) {
+  const production = runAudit(graph.rootPath, true);
   const productionFindings = Object.keys(production.vulnerabilities ?? {});
   if (productionFindings.length > 0) {
-    failures.push(`${label}: production vulnerabilities: ${productionFindings.join(", ")}`);
+    failures.push(`${graph.name}: production vulnerabilities: ${productionFindings.join(", ")}`);
   }
 
-  const complete = runAudit(directory, false);
+  const complete = runAudit(graph.rootPath, false);
   for (const [packageName, vulnerability] of Object.entries(complete.vulnerabilities ?? {})) {
-    const exception = activeExceptions.get(packageName);
+    const exception = activeExceptions.get(`${graph.name}\0${packageName}`);
     if (exception === undefined) {
       failures.push(
-        `${label}: unapproved ${vulnerability.severity} vulnerability in ${packageName}`,
+        `${graph.name}: unapproved ${vulnerability.severity} vulnerability in ${packageName}`,
       );
       continue;
     }
     if (vulnerability.severity !== exception.severity) {
       failures.push(
-        `${label}: ${packageName} severity changed from ${exception.severity} to ${vulnerability.severity}`,
+        `${graph.name}: ${packageName} severity changed from ${exception.severity} to ${vulnerability.severity}`,
       );
     }
   }
 
-  if (label === "workspace") {
-    for (const exception of policy.exceptions ?? []) {
-      const rootFinding = complete.vulnerabilities?.[exception.rootPackage];
-      const advisoryUrls = (rootFinding?.via ?? [])
-        .filter((item) => typeof item === "object" && item !== null)
-        .map((item) => item.url);
-      if (!advisoryUrls.some((url) => typeof url === "string" && url.includes(exception.id))) {
-        failures.push(`${exception.id}: root advisory is no longer present as documented`);
-      }
+  for (const exception of (policy.exceptions ?? []).filter(({ graphs }) =>
+    graphs?.includes(graph.name),
+  )) {
+    const rootFinding = complete.vulnerabilities?.[exception.rootPackage];
+    const advisoryUrls = (rootFinding?.via ?? [])
+      .filter((item) => typeof item === "object" && item !== null)
+      .map((item) => item.url);
+    if (!advisoryUrls.some((url) => typeof url === "string" && url.includes(exception.id))) {
+      failures.push(
+        `${graph.name}:${exception.id}: root advisory is no longer present as documented`,
+      );
     }
   }
 }

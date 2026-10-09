@@ -37,6 +37,8 @@ const repositoryRoot = resolve(fileURLToPath(new URL("../../../../../", import.m
 const release = readRepositoryVersion(repositoryRoot);
 const expectedPeerRange = getWorkspacePeerRange(release);
 const workspaceRepository = loadWorkspaceRepository(repositoryRoot);
+const uiWorkspace = workspaceRepository.workspaces.find(({ name }) => name === "@miaixz/ui");
+if (uiWorkspace === undefined) throw new Error("Missing required workspace @miaixz/ui.");
 const requiredPackageNames = Object.freeze([
   "@miaixz/sdk",
   "@miaixz/icons",
@@ -137,12 +139,16 @@ if (workspaceRepository.workspaces.some(({ directory }) => directory.startsWith(
 }
 
 for (const path of [
-  "packages/ui/src/icons",
-  "packages/ui/src/components/icon",
-  "packages/ui/src/styles/components/icon.css",
-  "packages/ui/src/styles/foundation/icons.css",
+  "src/icons",
+  "src/components/icon",
+  "src/styles/components/icon.css",
+  "src/styles/foundation/icons.css",
 ]) {
-  if (existsSync(resolve(repositoryRoot, path))) failures.push(`legacy UI path remains: ${path}`);
+  if (existsSync(resolve(uiWorkspace.rootPath, path))) {
+    failures.push(
+      `legacy UI path remains: ${relative(repositoryRoot, resolve(uiWorkspace.rootPath, path))}`,
+    );
+  }
 }
 if (ui.exports["./icons"] !== undefined || ui.exports["./icons/styles.css"] !== undefined) {
   failures.push("@miaixz/ui still exports an icon subpath");

@@ -27,7 +27,6 @@ import { relative, resolve } from "node:path";
 
 import { repositoryRoot } from "../miaixz.mjs";
 
-const targetDirectories = ["modules", "package", "quality", "release"];
 const recognizedSuffixes = [".lock.txt", ".d.mts", ".mjs", ".json", ".txt"];
 const namePattern = /^[a-z0-9]+(?:-[a-z0-9]+){1,2}$/u;
 const failures = [];
@@ -70,8 +69,11 @@ function inspectDirectory(directory) {
   }
 }
 
-for (const directory of targetDirectories) {
-  inspectDirectory(resolve(repositoryRoot, ".github/scripts", directory));
+const scriptsRoot = resolve(repositoryRoot, ".github/scripts");
+for (const entry of readdirSync(scriptsRoot, { withFileTypes: true })) {
+  if (entry.isDirectory() && !entry.name.startsWith(".")) {
+    inspectDirectory(resolve(scriptsRoot, entry.name));
+  }
 }
 
 if (failures.length > 0) {

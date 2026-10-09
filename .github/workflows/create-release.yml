@@ -43,11 +43,9 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.21.0"
+          node-version: "24.x"
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/package-lock.json
+          cache-dependency-path: "**/package-lock.json"
 
       - name: Install Dependencies
         run: npm ci --package-lock=true --ignore-scripts --legacy-peer-deps
@@ -69,7 +67,7 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.21.0"
+          node-version: "24.x"
           package-manager-cache: false
 
       - name: Verify Existing Tag and Metadata
@@ -92,11 +90,11 @@ jobs:
             echo "::error::Checked-out HEAD does not equal the peeled tag commit"
             exit 1
           fi
-          node .github/scripts/release/check-release-metadata.mjs
+          npm run release:verify
           npm run check:clean
 
       - name: Confirm All npm Packages
-        run: node .github/scripts/release/check-published-packages.mjs
+        run: npm run release:published
 
       - name: Create Release
         uses: ./.github/actions/create-release

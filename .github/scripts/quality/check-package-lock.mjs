@@ -23,32 +23,31 @@
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join, relative } from "node:path";
-import {
-  loadRepositoryPackageManifests,
-  loadWorkspaceRepository,
-  repositoryRoot,
-} from "../miaixz.mjs";
+import { basename, join, relative, resolve } from "node:path";
+import { loadRepositoryInventory, repositoryRoot } from "../miaixz.mjs";
 
 const root = repositoryRoot;
-const { rootManifest } = loadWorkspaceRepository(root);
-const packageManifests = loadRepositoryPackageManifests(root);
+const inventory = loadRepositoryInventory(root);
+const { packageManifests, rootManifest } = inventory;
 const failures = [];
 const forbiddenLockfiles = new Set(["yarn.lock", "bun.lock", "bun.lockb", "npm-shrinkwrap.json"]);
 
-const rootLockPath = join(root, "package-lock.json");
-const examplesManifestPath = join(root, "examples", "package.json");
-const examplesLockPath = join(root, "examples", "package-lock.json");
-verifyLock(rootLockPath, rootManifest, "root", rootManifest.workspaces);
-if (!existsSync(examplesManifestPath)) failures.push("missing examples/package.json");
-else {
-  const examplesManifest = JSON.parse(readFileSync(examplesManifestPath, "utf8"));
-  verifyLock(examplesLockPath, examplesManifest, "examples");
+for (const graph of inventory.graphs) {
+  verifyLock(
+    graph.lockPath,
+    graph.manifest,
+    graph.name,
+    graph.kind === "workspace" ? inventory.workspaces : undefined,
+  );
 }
 
+const expectedLocks = new Set(inventory.graphs.map(({ lockPath }) => resolve(lockPath)));
 for (const file of walk(root)) {
   const path = relative(root, file);
-  const name = path.split("/").at(-1);
+  const name = basename(path);
+  if (name === "package-lock.json" && !expectedLocks.has(resolve(file))) {
+    failures.push(`orphan lockfile: ${path}`);
+  }
   if (name !== undefined && forbiddenLockfiles.has(name)) {
     failures.push(`forbidden lockfile: ${path}`);
   }
@@ -104,7 +103,7 @@ if (failures.length > 0) {
  * @param {string} lockPath Absolute package-lock path.
  * @param {Record<string, unknown>} manifest Owning package manifest.
  * @param {string} label Human-readable graph name.
- * @param {readonly string[] | undefined} workspaces Expected root workspace paths.
+ * @param {readonly WorkspacePackage[] | undefined} workspaces Expected root workspaces.
  */
 function verifyLock(lockPath, manifest, label, workspaces) {
   if (!existsSync(lockPath)) {
@@ -134,20 +133,19 @@ function verifyLock(lockPath, manifest, label, workspaces) {
       failures.push(`${label} lock root ${field} does not match package.json`);
     }
   }
-  if (JSON.stringify(entry.workspaces ?? []) !== JSON.stringify(workspaces ?? [])) {
+  const workspaceDirectories = workspaces?.map(({ directory }) => directory);
+  if (JSON.stringify(entry.workspaces ?? []) !== JSON.stringify(workspaceDirectories ?? [])) {
     failures.push(`${label} lock workspace list does not match package.json`);
   }
   if (workspaces === undefined) return;
-  for (const { manifest: workspaceManifest, rootPath } of packageManifests) {
-    const workspacePath = relative(root, rootPath);
-    if (!workspaces.includes(workspacePath)) continue;
-    const workspaceEntry = lock.packages?.[workspacePath];
+  for (const { directory, manifest: workspaceManifest } of workspaces) {
+    const workspaceEntry = lock.packages?.[directory];
     if (
       workspaceEntry === undefined ||
       workspaceEntry.name !== workspaceManifest.name ||
       workspaceEntry.version !== workspaceManifest.version
     ) {
-      failures.push(`root lock workspace entry is stale: ${workspacePath}`);
+      failures.push(`root lock workspace entry is stale: ${directory}`);
     }
   }
 }

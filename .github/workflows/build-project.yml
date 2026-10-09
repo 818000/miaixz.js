@@ -50,11 +50,9 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.21.0"
+          node-version: "24.x"
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/package-lock.json
+          cache-dependency-path: "**/package-lock.json"
 
       - name: Set Up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -63,7 +61,7 @@ jobs:
           cache: ""
 
       - name: Install Hash-Locked Font Tools
-        run: pip install --require-hashes -r .github/scripts/modules/icons/fonts/font-toolchain.lock.txt
+        run: npm run font:toolchain:install
 
       - name: Verify Exact Font Toolchain
         run: |
@@ -91,7 +89,7 @@ jobs:
           if-no-files-found: error
 
       - name: Stage Workspace Build Output
-        run: node .github/scripts/package/stage-workspace-builds.mjs "${{ runner.temp }}/workspace-dist"
+        run: npm run package:stage -- "${{ runner.temp }}/workspace-dist"
 
       - name: Upload Workspace Build
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -111,8 +109,8 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - "20.20.2"
-          - "24.21.0"
+          - "20.x"
+          - "24.x"
     steps:
       - name: Check Out Code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -124,9 +122,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/package-lock.json
+          cache-dependency-path: "**/package-lock.json"
 
       - name: Install Dependencies
         run: npm ci --package-lock=true --ignore-scripts --legacy-peer-deps
@@ -146,8 +142,8 @@ jobs:
       - name: Verify Clean Workspace
         run: npm run check:clean
 
-  examples:
-    name: Example Application
+  projects:
+    name: Standalone Projects
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -159,11 +155,9 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.21.0"
+          node-version: "24.x"
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/package-lock.json
+          cache-dependency-path: "**/package-lock.json"
 
       - name: Download Same-Commit Build
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
@@ -171,18 +165,15 @@ jobs:
           name: dist-${{ env.ARTIFACT_KEY }}
           path: .
 
-      - name: Install Example Dependencies
-        run: npm --prefix examples ci --package-lock=true --ignore-scripts --legacy-peer-deps
+      - name: Install Repository Dependencies
+        run: npm run install:all
 
-      - name: Audit Example Production Dependencies
-        run: npm --prefix examples audit --omit=dev
-
-      - name: Typecheck and Build Example
-        run: npm run check:examples
+      - name: Check Standalone Projects
+        run: npm run check:projects
 
   browser:
     name: Browser Contracts
-    needs: [static, examples]
+    needs: [static, projects]
     runs-on: macos-latest
     steps:
       - name: Check Out Code
@@ -193,11 +184,9 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.21.0"
+          node-version: "24.x"
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/package-lock.json
+          cache-dependency-path: "**/package-lock.json"
 
       - name: Install Dependencies
         run: npm ci --package-lock=true --ignore-scripts --legacy-peer-deps
@@ -212,14 +201,14 @@ jobs:
         run: npm exec -- playwright install chromium firefox webkit
 
       - name: Run Browser Checks
-        run: npm run check:browser && npm run test:browser --workspace @miaixz/icons
+        run: npm run check:browser
 
       - name: Verify Clean Workspace
         run: npm run check:clean
 
   packed:
     name: Packed Consumers
-    needs: [static, examples]
+    needs: [static, projects]
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Code
@@ -230,11 +219,9 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.21.0"
+          node-version: "24.x"
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/package-lock.json
+          cache-dependency-path: "**/package-lock.json"
 
       - name: Install Dependencies
         run: npm ci --package-lock=true --ignore-scripts --legacy-peer-deps

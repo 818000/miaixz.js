@@ -63,8 +63,8 @@
     "test": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run",
     "test:browser": "playwright test",
     "test:coverage": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run --coverage",
-    "format": "prettier src/values src/react src/runtime src/styles src/index.ts src/version.ts tests README.md package.json *.config.ts --write --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
-    "format:check": "prettier src/values src/react src/runtime src/styles src/index.ts src/version.ts tests README.md package.json *.config.ts --check --config ../ui/prettier.config.js --ignore-path ../../.gitignore",
+    "format": "prettier src/values src/react src/runtime src/styles src/index.ts src/version.ts tests README.md package.json *.config.ts --write --ignore-path ../../.gitignore",
+    "format:check": "prettier src/values src/react src/runtime src/styles src/index.ts src/version.ts tests README.md package.json *.config.ts --check --ignore-path ../../.gitignore",
     "check": "npm run source:check && npm run generate:check && npm run font:check && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check",
     "geometry:measure": "node ../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs --mode measure"
   },

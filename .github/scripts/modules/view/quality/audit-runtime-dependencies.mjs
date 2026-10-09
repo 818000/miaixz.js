@@ -98,8 +98,8 @@ for (const section of ["dependencies", "optionalDependencies"]) {
 
 const auditedFiles = [
   ...(await sourceFiles(sourceRoot)),
-  ...["eslint.config.js", "prettier.config.js", "stylelint.config.js", "vitest.config.ts"].map(
-    (filename) => resolve(packageRoot, filename),
+  ...["eslint.config.js", "stylelint.config.js", "vitest.config.ts"].map((filename) =>
+    resolve(packageRoot, filename),
   ),
 ];
 

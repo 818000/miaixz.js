@@ -26,13 +26,19 @@ import { readdir, readFile, mkdtemp, mkdir, writeFile, rm } from "node:fs/promis
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { relative, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(process.cwd(), "../..");
+const repositoryTools = await import(
+  pathToFileURL(resolve(repositoryRoot, ".github/scripts/miaixz.mjs")).href
+);
+const workspaceRepository = repositoryTools.loadWorkspaceRepository(repositoryRoot);
+const iconWorkspace = repositoryTools.requireWorkspace("@miaixz/icons", workspaceRepository);
+const uiWorkspace = repositoryTools.requireWorkspace("@miaixz/ui", workspaceRepository);
 const release = (await readFile(resolve(repositoryRoot, "VERSION"), "utf8")).trim();
 const fontScriptRoot = resolve(repositoryRoot, ".github/scripts/modules/icons/fonts");
-const workspaceDirectory = "packages/icons";
 
 /**
  * Recursively locates repository-owned Python files.
@@ -60,7 +66,7 @@ describe("G0 toolchain activation", () => {
         "utf8",
       );
       const isolated = checker.replace(
-        'import { repositoryRoot } from "./miaixz.mjs";',
+        'import { repositoryRoot } from "../miaixz.mjs";',
         "const repositoryRoot = " + JSON.stringify(directory) + ";",
       );
       expect(isolated).not.toBe(checker);
@@ -132,13 +138,14 @@ describe("G0 toolchain activation", () => {
     const rootManifest = JSON.parse(
       await readFile(resolve(repositoryRoot, "package.json"), "utf8"),
     ) as { readonly workspaces: readonly string[] };
-    expect(rootManifest.workspaces).toContain(workspaceDirectory);
+    expect(rootManifest.workspaces).toContain(iconWorkspace.directory);
     expect(rootManifest.workspaces.filter((entry) => entry.includes("icons"))).toEqual([
-      workspaceDirectory,
+      iconWorkspace.directory,
     ]);
-    const manifest = JSON.parse(
-      await readFile(resolve(repositoryRoot, workspaceDirectory, "package.json"), "utf8"),
-    ) as { readonly name: string; readonly version: string };
+    const manifest = JSON.parse(await readFile(iconWorkspace.manifestPath, "utf8")) as {
+      readonly name: string;
+      readonly version: string;
+    };
     expect(manifest).toMatchObject({ name: "@miaixz/icons", version: release });
   });
 
@@ -159,7 +166,7 @@ describe("G0 toolchain activation", () => {
 
   it("does not persist unit execution results or coverage reports", async () => {
     const configuration = await readFile(
-      resolve(repositoryRoot, "packages/icons/vitest.config.ts"),
+      resolve(iconWorkspace.rootPath, "vitest.config.ts"),
       "utf8",
     );
     expect(configuration).toMatch(/cache:\s*false/u);
@@ -169,10 +176,10 @@ describe("G0 toolchain activation", () => {
 
   it("keeps Playwright output outside the mirrored tests directory", async () => {
     for (const configuration of [
-      "packages/icons/playwright.config.ts",
-      "packages/ui/playwright.config.ts",
+      resolve(iconWorkspace.rootPath, "playwright.config.ts"),
+      resolve(uiWorkspace.rootPath, "playwright.config.ts"),
     ]) {
-      const source = await readFile(resolve(repositoryRoot, configuration), "utf8");
+      const source = await readFile(configuration, "utf8");
       expect(source).toContain("mkdtempSync");
       expect(source).toContain("tmpdir()");
       expect(source).not.toContain("tests/.artifacts");

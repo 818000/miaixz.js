@@ -24,11 +24,18 @@
 
 import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { readRepositoryVersion } from "../../../miaixz.mjs";
+import {
+  loadWorkspaceRepository,
+  readRepositoryVersion,
+  requireWorkspace,
+} from "../../../miaixz.mjs";
 
 const execute = promisify(execFile);
-const packageRoot = process.cwd();
+const repository = loadWorkspaceRepository();
+const packageRoot = requireWorkspace("@miaixz/view", repository).rootPath;
 const { stdout } = await execute("npm", ["pack", "--dry-run", "--json"], {
   cwd: packageRoot,
   maxBuffer: 16 * 1024 * 1024,
@@ -47,10 +54,7 @@ for (const path of requiredFiles) {
 }
 
 const workerClient = await readFile(
-  new URL(
-    "../../../../../packages/view/dist/runtime/spreadsheet-worker-client.js",
-    import.meta.url,
-  ),
+  resolve(packageRoot, "dist/runtime/spreadsheet-worker-client.js"),
   "utf8",
 );
 if (
@@ -59,9 +63,7 @@ if (
   throw new Error("Packed XLSX driver does not use the fixed relative module Worker URL");
 }
 
-const publicApi = await import(
-  new URL("../../../../../packages/view/dist/index.js", import.meta.url).href
-);
+const publicApi = await import(pathToFileURL(resolve(packageRoot, "dist/index.js")).href);
 if (publicApi.WORKER_PROTOCOL_VERSION !== readRepositoryVersion()) {
   throw new Error("Packed viewer worker protocol must match VERSION");
 }

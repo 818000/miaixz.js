@@ -24,18 +24,25 @@
 import { readFile, readdir, realpath, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { isAbsolute, relative, resolve, sep } from "node:path";
+import {
+  loadWorkspaceRepository,
+  repositoryRoot as sharedRepositoryRoot,
+  requireWorkspace,
+} from "../../miaixz.mjs";
 import { validateDesignGeometry } from "./fonts/font-geometry.mjs";
 
 /**
  * Absolute repository root derived from this module's location.
  */
-export const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../");
+export const repositoryRoot = sharedRepositoryRoot;
 /**
  * Absolute path to the icons workspace package.
  */
-export const packageRoot = resolve(repositoryRoot, "packages/icons");
+export const packageRoot = requireWorkspace(
+  "@miaixz/icons",
+  loadWorkspaceRepository(repositoryRoot),
+).rootPath;
 /**
  * Default root of canonical icon JSON and font-source assets.
  */

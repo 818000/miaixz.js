@@ -20,6 +20,6 @@ runs:
         NPM_REGISTRY: ${{ inputs.registry }}
         PACKAGE_DIRECTORY: ${{ inputs.package-directory }}
       run: >-
-        node .github/scripts/release/publish-package-tarballs.mjs
+        npm run release:publish --
         "$PACKAGE_DIRECTORY"
         "$NPM_REGISTRY"

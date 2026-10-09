@@ -30,7 +30,13 @@ import { dirname, resolve, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { readRepositoryVersion } from "../../../miaixz.mjs";
-import { assetsRoot, loadIconSource, measureIconRuntime, repositoryRoot } from "../source.mjs";
+import {
+  assetsRoot,
+  loadIconSource,
+  measureIconRuntime,
+  packageRoot,
+  repositoryRoot,
+} from "../source.mjs";
 
 const release = readRepositoryVersion(repositoryRoot);
 const allowedExecutables = new Set([
@@ -716,7 +722,7 @@ export async function validateRefinedFont() {
       errors,
     });
   }
-  const fontPath = resolve(repositoryRoot, "packages/icons/dist/assets/fonts/miaixz-icons.woff2");
+  const fontPath = resolve(packageRoot, "dist/assets/fonts/miaixz-icons.woff2");
   for (const opticalSize of [12, 16, 20, 24, 32, 40])
     for (const fill of [0, 0.25, 0.5, 0.75, 1]) {
       let compiled = null,
@@ -930,7 +936,7 @@ export async function validateRefinedFont() {
   await check(
     "runtime-budget",
     async () => {
-      const measured = await measureIconRuntime(resolve(repositoryRoot, "packages/icons/dist"));
+      const measured = await measureIconRuntime(resolve(packageRoot, "dist"));
       runtimeBytes = measured.bytes;
       if (runtimeBytes > source.design.limits.runtimeBytes)
         throw new Error("Actual runtime table byte budget exceeded.");

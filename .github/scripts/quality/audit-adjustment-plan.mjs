@@ -33,18 +33,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve, sep } from "node:path";
 import { parse } from "@babel/parser";
-import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
+import { loadRepositoryInventory, requireWorkspace, repositoryRoot } from "../miaixz.mjs";
 
-const repository = loadWorkspaceRepository();
+const repository = loadRepositoryInventory();
 const { rootManifest } = repository;
-const uiWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/ui");
-const sdkWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/sdk");
-const viewWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/view");
-if (uiWorkspace === undefined || sdkWorkspace === undefined || viewWorkspace === undefined) {
-  throw new Error("The SDK, UI, and View workspace manifests are required.");
-}
+const uiWorkspace = requireWorkspace("@miaixz/ui", repository);
+const sdkWorkspace = requireWorkspace("@miaixz/sdk", repository);
+const viewWorkspace = requireWorkspace("@miaixz/view", repository);
 const sdkReadmePath = `${sdkWorkspace.directory}/README.md`;
 const uiReadmePath = `${uiWorkspace.directory}/README.md`;
 const viewReadmePath = `${viewWorkspace.directory}/README.md`;
@@ -61,6 +58,7 @@ if (Object.values(rootScripts).some((script) => /--workspaces\s+--if-present/u.t
   failures.push("root package scripts must not use --workspaces --if-present");
 }
 auditScriptTargets(repositoryRoot, rootScripts, "package.json", failures);
+auditAutomationPortability(repository, failures);
 
 const ast = parse(registrySource, {
   sourceType: "module",
@@ -123,15 +121,8 @@ if (/\bselected\s*:/u.test(uiReadme)) {
 if (!/\bcurrent:\s*"page"/u.test(uiReadme) || !/\btextValue:/u.test(uiReadme)) {
   failures.push("UI README NavigationRail examples must show current and textValue");
 }
-if (
-  !/npm ci --package-lock=true --ignore-scripts --legacy-peer-deps/u.test(
-    readmes.get("README.md") ?? "",
-  ) ||
-  !/npm --prefix examples ci --package-lock=true --ignore-scripts --legacy-peer-deps/u.test(
-    readmes.get("README.md") ?? "",
-  )
-) {
-  failures.push("root README must document both reproducible npm ci commands");
+if (!/npm run install:all/u.test(readmes.get("README.md") ?? "")) {
+  failures.push("root README must document the graph-discovered install:all command");
 }
 if (/npm install[^\n]*\blucide(?:-react)?\b/iu.test(uiReadme)) {
   failures.push("UI README must not require consumers to install Lucide");
@@ -250,7 +241,7 @@ function auditWorkspaceConfiguration(workspace, findings) {
         findings.push(`${directory}/package.json export ${entry} has an invalid target`);
         continue;
       }
-      if (!hasExportSource(directory, rootPath, target)) {
+      if (!hasExportSource(workspace.name, rootPath, target)) {
         findings.push(`${directory}/package.json export ${entry} has no source for ${target}`);
       }
     }
@@ -277,23 +268,23 @@ function auditWorkspaceConfiguration(workspace, findings) {
 /**
  * Reports whether an export target has a corresponding source file.
  *
- * @param {string} directory Workspace directory.
+ * @param {string} packageName Workspace package name.
  * @param {string} workspaceRoot Absolute workspace root.
  * @param {string} target Package export target below dist.
  * @returns {boolean} Whether one matching TypeScript, TSX, declaration, or CSS source exists.
  */
-function hasExportSource(directory, workspaceRoot, target) {
-  if (directory === "packages/view" && target === "./dist/styles.css") {
+function hasExportSource(packageName, workspaceRoot, target) {
+  if (packageName === "@miaixz/view" && target === "./dist/styles.css") {
     return existsSync(resolve(workspaceRoot, "src/shell/styles/view.css"));
   }
-  if (directory === "packages/icons" && target.startsWith("./dist/assets/fonts/")) {
+  if (packageName === "@miaixz/icons" && target.startsWith("./dist/assets/fonts/")) {
     return (
       existsSync(resolve(workspaceRoot, "src/assets/fonts/miaixz-icons.designspace")) &&
       existsSync(resolve(workspaceRoot, "src/assets/icons.json")) &&
       existsSync(resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/build-icon-font.mjs"))
     );
   }
-  if (directory === "packages/icons" && target === "./dist/styles.css") {
+  if (packageName === "@miaixz/icons" && target === "./dist/styles.css") {
     return existsSync(resolve(workspaceRoot, "src/styles/index.css"));
   }
   const relativeTarget = target.slice("./dist/".length);
@@ -301,6 +292,84 @@ function hasExportSource(directory, workspaceRoot, target) {
   if (relativeTarget.endsWith(".css")) return existsSync(sourceTarget);
   const base = sourceTarget.replace(/\.d\.ts$/u, "").replace(/\.js$/u, "");
   return [`.ts`, `.tsx`, `.d.ts`].some((extension) => existsSync(`${base}${extension}`));
+}
+
+/**
+ * Rejects duplicated repository layout knowledge in automation and workflows.
+ *
+ * @param {RepositoryInventory} inventory Repository inventory.
+ * @param {string[]} findings Mutable failure list.
+ * @returns {void}
+ */
+function auditAutomationPortability(inventory, findings) {
+  const automationRoots = [
+    resolve(repositoryRoot, ".github/actions"),
+    resolve(repositoryRoot, ".github/scripts"),
+    resolve(repositoryRoot, ".github/workflows"),
+  ];
+  const physicalDirectories = [
+    ...inventory.workspaces.map(({ directory }) => directory),
+    ...inventory.standaloneProjects.map(({ directory }) => directory),
+  ];
+  const workflowRoots = [
+    resolve(repositoryRoot, ".github/actions"),
+    resolve(repositoryRoot, ".github/workflows"),
+  ];
+
+  for (const file of automationRoots.flatMap(walk).filter(isAuditedAutomationFile)) {
+    const source = readFileSync(file, "utf8");
+    const path = relative(repositoryRoot, file).split(sep).join("/");
+    for (const directory of physicalDirectories) {
+      if (containsPhysicalDirectory(source, directory)) {
+        findings.push(`${path} hard-codes repository package directory ${directory}`);
+      }
+    }
+  }
+
+  for (const file of workflowRoots.flatMap(walk).filter((path) => /\.ya?ml$/u.test(path))) {
+    const source = readFileSync(file, "utf8");
+    const path = relative(repositoryRoot, file).split(sep).join("/");
+    if (/\b(?:bash|node)\s+\.github\/scripts\//u.test(source)) {
+      findings.push(`${path} directly invokes a repository implementation script`);
+    }
+    if (/cache-dependency-path:\s*\|/u.test(source)) {
+      findings.push(`${path} maintains a multiline lockfile cache list`);
+    }
+    for (const match of source.matchAll(/cache-dependency-path:\s*([^\n]+)/gu)) {
+      if (match[1].trim().replaceAll(/["']/gu, "") !== "**/package-lock.json") {
+        findings.push(`${path} must cache **/package-lock.json`);
+      }
+    }
+    if (/^\s+(?:path|working-directory):\s*miaixz\.js\s*$/gmu.test(source)) {
+      findings.push(`${path} hard-codes the checkout directory name`);
+    }
+  }
+}
+
+/**
+ * Detects a repository directory when it is used as a path rather than as ordinary prose.
+ *
+ * @param {string} source Automation source.
+ * @param {string} directory Repository-relative package directory.
+ * @returns {boolean} Whether the source embeds the physical directory.
+ */
+function containsPhysicalDirectory(source, directory) {
+  if (directory.includes("/")) return source.includes(directory);
+  const escaped = directory.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  return (
+    new RegExp(`(?:^|[\\s"'\`=:(])${escaped}(?:/|["'\`)]|$)`, "mu").test(source) ||
+    source.includes(`/${directory}`)
+  );
+}
+
+/**
+ * Identifies automation source types covered by portability checks.
+ *
+ * @param {string} path Absolute file path.
+ * @returns {boolean} Whether the file should be scanned.
+ */
+function isAuditedAutomationFile(path) {
+  return /\.(?:json|mjs|sh|ya?ml)$/u.test(path) && !path.endsWith("font-toolchain.lock.txt");
 }
 
 /**

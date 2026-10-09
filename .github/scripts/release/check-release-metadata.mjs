@@ -44,19 +44,21 @@ generateProjectVersions(true, repository.root);
  * Rejects independently maintained project version literals in runtime source and configuration.
  *
  * @param directory - Workspace source directory to inspect recursively.
+ * @param packageName - Workspace package identity.
  */
-function checkSourceVersions(directory) {
+function checkSourceVersions(directory, packageName) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
     if (entry.isDirectory()) {
-      checkSourceVersions(path);
+      checkSourceVersions(path, packageName);
       continue;
     }
     if (entry.name === "version.ts" || !/\.(?:tsx?|json)$/u.test(entry.name)) continue;
     const source = readFileSync(path, "utf8");
+    const repositoryPath = path.replaceAll("\\", "/");
     const removedMetadataVersion =
-      path.includes("/packages/ui/src/theme/") ||
-      path.endsWith("/packages/sdk/src/i18n/locale-catalog.ts");
+      (packageName === "@miaixz/ui" && repositoryPath.includes("/theme/")) ||
+      (packageName === "@miaixz/sdk" && repositoryPath.endsWith("/i18n/locale-catalog.ts"));
     if (
       removedMetadataVersion &&
       (/\breadonly\s+version\s*:/u.test(source) ||
@@ -82,7 +84,9 @@ function checkSourceVersions(directory) {
     }
   }
 }
-for (const { rootPath } of repository.workspaces) checkSourceVersions(resolve(rootPath, "src"));
+for (const { name, rootPath } of repository.workspaces) {
+  checkSourceVersions(resolve(rootPath, "src"), name);
+}
 for (const path of [
   resolve(repository.root, ".github/scripts/modules/ui/codegen/generate-theme-presets.mjs"),
   resolve(repository.root, ".github/scripts/modules/ui/codegen/vite-theme-plugin.mjs"),
@@ -92,10 +96,6 @@ for (const path of [
     throw new Error(`${path} must not generate duplicate theme version metadata.`);
   }
 }
-const iconSbom = JSON.parse(
-  readFileSync(resolve(repository.root, "packages/icons/SBOM.spdx.json"), "utf8"),
-);
-
 const manifests = loadVersionedPackageManifests(repository.root);
 const versionedManifestPaths = new Set(manifests.map(({ manifestPath }) => manifestPath));
 
@@ -158,12 +158,24 @@ for (const { directory, manifest } of repository.publicWorkspaces) {
   }
 }
 
-if (
-  iconSbom.name !== `@miaixz/icons-${version}` ||
-  iconSbom.documentNamespace !== `https://miaixz.org/spdx/icons/${version}` ||
-  iconSbom.packages?.find(({ name }) => name === "@miaixz/icons")?.versionInfo !== version
-) {
-  throw new Error("packages/icons/SBOM.spdx.json does not match VERSION.");
+for (const workspace of repository.publicWorkspaces) {
+  const sbomFiles = (workspace.manifest.files ?? []).filter((file) =>
+    /(?:^|\/)\w[^/]*\.spdx\.json$/u.test(file),
+  );
+  if (sbomFiles.length > 1) {
+    throw new Error(`${workspace.name} declares more than one SPDX SBOM.`);
+  }
+  if (sbomFiles.length === 0) continue;
+  const sbom = JSON.parse(readFileSync(resolve(workspace.rootPath, sbomFiles[0]), "utf8"));
+  const packageEntry = sbom.packages?.find(({ name }) => name === workspace.name);
+  const packageSlug = workspace.name.split("/").at(-1);
+  if (
+    sbom.name !== `${workspace.name}-${version}` ||
+    sbom.documentNamespace !== `https://miaixz.org/spdx/${packageSlug}/${version}` ||
+    packageEntry?.versionInfo !== version
+  ) {
+    throw new Error(`${workspace.name} SBOM does not match VERSION.`);
+  }
 }
 
 console.log(

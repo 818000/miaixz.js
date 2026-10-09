@@ -34,9 +34,16 @@ const root = resolve(process.cwd(), "../..");
  * @returns Imported module exports.
  */
 const load = (path: string) => import(pathToFileURL(resolve(root, path)).href);
+const repository = await load(".github/scripts/miaixz.mjs");
+const iconRoot = repository.requireWorkspace(
+  "@miaixz/icons",
+  repository.loadWorkspaceRepository(root),
+).rootPath;
 const interpolation = await load(".github/scripts/modules/icons/fonts/interpolate-icon-source.mjs");
 const reader = await load(".github/scripts/modules/icons/fonts/read-font-source.mjs");
-const fixture = await load("packages/icons/tests/assets/fonts/create-fixtures.helper.mjs");
+const fixture = await import(
+  pathToFileURL(resolve(iconRoot, "tests/assets/fonts/create-fixtures.helper.mjs")).href
+);
 const temporary: string[] = [];
 afterEach(async () => {
   for (const path of temporary.splice(0)) await rm(path, { recursive: true, force: true });

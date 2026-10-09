@@ -24,12 +24,20 @@
 
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
 const testRoot = dirname(fileURLToPath(import.meta.url));
-const exampleRoot = resolve(testRoot, "../../../examples/src/module/sdk");
+const repositoryRoot = resolve(testRoot, "../../..");
+const inventoryTools = await import(
+  pathToFileURL(resolve(repositoryRoot, ".github/scripts/miaixz.mjs")).href
+);
+const exampleProject = inventoryTools
+  .loadRepositoryInventory(repositoryRoot)
+  .standaloneProjects.find(({ name }: { readonly name: string }) => name === "@miaixz/examples");
+if (exampleProject === undefined) throw new Error("The examples project is required.");
+const exampleRoot = resolve(exampleProject.rootPath, "src/module/sdk");
 
 describe("SDK example module", () => {
   it("exercises the real context, grants, API, appearance, i18n, and events APIs", async () => {

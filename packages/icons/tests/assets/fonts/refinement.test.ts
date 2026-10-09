@@ -36,9 +36,21 @@ const repositoryRoot = resolve(process.cwd(), "../..");
  * @returns {Promise<object>} Pure tool exports.
  */
 const load = async (path: string) => import(pathToFileURL(resolve(repositoryRoot, path)).href);
-const fixture = await load("packages/icons/tests/assets/fonts/create-fixtures.helper.mjs");
-const visual = await load("packages/icons/tests/assets/fonts/render-catalog.helper.mjs");
-const comparison = await load("packages/icons/tests/assets/fonts/compare-visuals.helper.mjs");
+const repository = await load(".github/scripts/miaixz.mjs");
+const iconRoot = repository.requireWorkspace(
+  "@miaixz/icons",
+  repository.loadWorkspaceRepository(repositoryRoot),
+).rootPath;
+/**
+ * Imports a helper relative to the discovered Icons test root.
+ * @param {string} path Icons test-relative module path.
+ * @returns {Promise<object>} Imported helper exports.
+ */
+const loadIconTest = async (path: string) =>
+  import(pathToFileURL(resolve(iconRoot, "tests", path)).href);
+const fixture = await loadIconTest("assets/fonts/create-fixtures.helper.mjs");
+const visual = await loadIconTest("assets/fonts/render-catalog.helper.mjs");
+const comparison = await loadIconTest("assets/fonts/compare-visuals.helper.mjs");
 const audit = await load(".github/scripts/modules/icons/quality/audit-icon-refinement.mjs");
 const geometryTools = await load(".github/scripts/modules/icons/fonts/font-geometry.mjs");
 const interpolationTools = await load(
@@ -10320,10 +10332,7 @@ describe("refinement contract fixtures", () => {
     const reference = await nativeReferenceFont();
     for (const error of reference.curveErrors)
       expect(error).toBeLessThanOrEqual(designRules.visual.comparison.compiledOutlineUnits);
-    const css = await readFile(
-      resolve(repositoryRoot, "packages/icons/src/styles/index.css"),
-      "utf8",
-    );
+    const css = await readFile(resolve(iconRoot, "src/styles/index.css"), "utf8");
     const sourceTools = await load(".github/scripts/modules/icons/source.mjs");
     const actualSource = await sourceTools.loadIconSource(),
       rules = actualSource.design.visual.comparison;

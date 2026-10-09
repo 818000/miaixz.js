@@ -26,8 +26,8 @@ import { createHash } from "node:crypto";
 import { rmSync } from "node:fs";
 import { copyFile, cp, mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { inspectFontSource } from "./read-font-source.mjs";
 import {
@@ -36,11 +36,15 @@ import {
   validateFontOutputs,
   validateFontSource,
 } from "./validate-icon-font.mjs";
-import { fontsRoot, loadIconSource, unicodeRangeFor } from "../source.mjs";
+import {
+  fontsRoot,
+  loadIconSource,
+  packageRoot,
+  repositoryRoot,
+  unicodeRangeFor,
+} from "../source.mjs";
 import { readRepositoryVersion } from "../../../miaixz.mjs";
 
-const moduleRoot = dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = resolve(moduleRoot, "../../../../../");
 const release = readRepositoryVersion(repositoryRoot);
 const interruptSignals = Object.freeze({
   SIGHUP: 129,
@@ -337,9 +341,7 @@ if (
     throw new Error("build-icon-font.mjs requires exactly --check or --write.");
   }
   const destinationDirectory =
-    arguments_[0] === "--write"
-      ? resolve(repositoryRoot, "packages/icons/dist/assets/fonts")
-      : undefined;
+    arguments_[0] === "--write" ? resolve(packageRoot, "dist/assets/fonts") : undefined;
   const hashes = await verifyDeterministicFontBuild(destinationDirectory);
   console.log(
     arguments_[0] === "--check"

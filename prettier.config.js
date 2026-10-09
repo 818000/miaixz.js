@@ -19,15 +19,42 @@
 */
 
 /**
- * Defines the standalone source formatting contract for `@miaixz/sdk`.
- *
- * @public
+ * Defines the single repository formatting contract and generated-icon overrides.
  */
+
+import { relative, sep } from "node:path";
+
+import {
+  loadWorkspaceRepository,
+  requireWorkspace,
+  repositoryRoot,
+} from "./.github/scripts/miaixz.mjs";
+
+const repository = loadWorkspaceRepository(repositoryRoot);
+const iconDirectory = relative(
+  repositoryRoot,
+  requireWorkspace("@miaixz/icons", repository).rootPath,
+).replaceAll(sep, "/");
+
 const configuration = {
   printWidth: 100,
   semi: true,
   singleQuote: false,
   trailingComma: "all",
+  overrides: [
+    {
+      files: `${iconDirectory}/src/values/icons.ts`,
+      options: {
+        quoteProps: "preserve",
+      },
+    },
+    {
+      files: `${iconDirectory}/src/assets/**/*.json`,
+      options: {
+        parser: "json-stringify",
+      },
+    },
+  ],
 };
 
 export default configuration;
