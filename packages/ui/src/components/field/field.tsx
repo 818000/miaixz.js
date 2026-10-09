@@ -22,7 +22,7 @@
  * Implements the field UI component.
  */
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
@@ -59,12 +59,15 @@ function Field({
       code: "UI_FIELD_CONTROL_ID_INVALID",
     });
   }
-  const errorExists = errorText !== undefined && errorText !== null;
-  if (errorExists && invalid === false) {
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const suppliedErrorExists = errorText !== undefined && errorText !== null;
+  if (suppliedErrorExists && invalid === false) {
     throw new MiaixzUiError({
       code: "UI_FIELD_INVALID_CONFLICT",
     });
   }
+  const resolvedError = errorText ?? (invalid === false ? null : validationError);
+  const errorExists = resolvedError !== undefined && resolvedError !== null;
 
   const id = useStableId(controlId, "miaixz-field");
   const labelId = `${id}-label`;
@@ -95,6 +98,7 @@ function Field({
       required,
       invalid: effectiveInvalid,
       disabled,
+      reportValidation: setValidationError,
       registerControl,
       unregisterControl,
     }),
@@ -107,6 +111,7 @@ function Field({
       labelId,
       registerControl,
       required,
+      setValidationError,
       unregisterControl,
     ],
   );
@@ -171,7 +176,7 @@ function Field({
         <div {...mergedControlProps}>{children}</div>
       </MiaixzFieldContext.Provider>
       {descriptionId && <div {...mergedDescriptionProps}>{helperText}</div>}
-      {errorId && <div {...mergedErrorProps}>{errorText}</div>}
+      {errorId && <div {...mergedErrorProps}>{resolvedError}</div>}
     </div>
   );
 }

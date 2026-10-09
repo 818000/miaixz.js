@@ -30,6 +30,7 @@ import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { useControlValueState } from "../../shared/use-control-value-state.js";
+import { useMiaixzNativeFormValidation } from "../../shared/use-native-form-validation.js";
 import type {
   TextareaOwnerState,
   TextareaProps,
@@ -87,13 +88,15 @@ export const Textarea = withMiaixzThemeComponent(
       ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
       ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
     });
-    const effectiveInvalid =
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const validationInvalid = useMiaixzNativeFormValidation(textareaRef, nativeProps.form);
+    const declaredInvalid =
       fieldProps.invalid ??
       (fieldProps["aria-invalid"] !== undefined &&
         fieldProps["aria-invalid"] !== false &&
         fieldProps["aria-invalid"] !== "false");
+    const effectiveInvalid = declaredInvalid || validationInvalid;
     const effectiveDisabled = fieldProps.disabled ?? false;
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [uncontrolledLength, setUncontrolledLength] = useState(
       () => String(defaultValue ?? "").length,
     );

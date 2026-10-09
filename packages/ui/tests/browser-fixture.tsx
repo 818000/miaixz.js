@@ -613,6 +613,11 @@ function FormLabelFixture() {
       <Button onClick={() => setInvalid((value) => !value)}>切换错误</Button>
       <Button onClick={() => setDisabled((value) => !value)}>切换禁用</Button>
       <Button onClick={() => setReadOnly((value) => !value)}>切换只读</Button>
+      <Grid data-testid="three-column-grid" columns="three">
+        <span>第一列</span>
+        <span>第二列</span>
+        <span>第三列</span>
+      </Grid>
       <form aria-label="字段布局表单" onSubmit={(event) => event.preventDefault()}>
         <Grid columns="two">
           <Field

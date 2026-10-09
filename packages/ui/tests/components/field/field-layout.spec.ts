@@ -148,6 +148,32 @@ test("collection controls retain selection, wrapping and control-anchored popups
   await expectFixedTitle(picker);
 });
 
+test("required controls replace browser bubbles with inline Field feedback", async ({ page }) => {
+  await page.goto("/tests/");
+  const form = page.getByRole("form", { name: "原生提交表单" });
+  const input = form.getByRole("textbox", { name: "必填名称" });
+  await expect(form).toHaveAttribute("novalidate", "");
+
+  await form.getByRole("button", { name: "提交原生表单" }).click();
+
+  await expect(input).toBeFocused();
+  await expect(input).toHaveAttribute("aria-invalid", "true");
+  const feedback = form.getByRole("alert");
+  await expect(feedback).toHaveText("Please fill in this field");
+  await expect(form.getByText("尚未提交", { exact: true })).toBeVisible();
+  const feedbackBelowControl = await form.locator(".miaixz-field").evaluate((element) => {
+    const control = element.querySelector(".miaixz-field-control")!;
+    const error = element.querySelector('[role="alert"]')!;
+    return error.getBoundingClientRect().top >= control.getBoundingClientRect().bottom;
+  });
+  expect(feedbackBelowControl).toBe(true);
+
+  await input.fill("高级工程师");
+  await expect(feedback).toHaveCount(0);
+  await form.getByRole("button", { name: "提交原生表单" }).click();
+  await expect(form.getByText("已提交", { exact: true })).toBeVisible();
+});
+
 test("narrow layouts show complete long titles and scrollable drawers", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 700 });
   const long = page.getByTestId("label-long");

@@ -22,10 +22,14 @@
  * Implements the rating UI component.
  */
 
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useId, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
+import {
+  registerMiaixzFormValidationControl,
+  resolveMiaixzFormOwner,
+} from "../../shared/form-validation-registry.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -80,8 +84,11 @@ export const Rating = withMiaixzThemeComponent(
     }
     const [uncontrolledValue, setUncontrolledValue] = useState<number | null>(defaultValue);
     const [preview, setPreview] = useState<number | null>(null);
+    const [validationInvalid, setValidationInvalid] = useState(false);
     const rootRef = useRef<HTMLDivElement | null>(null);
+    const firstInputRef = useRef<HTMLInputElement | null>(null);
     const inputRefs = useRef(new Map<number, HTMLInputElement>());
+    const validationMessageId = useId();
     const mergedRef = useMergedRef(forwardedRef, rootRef);
     const resolvedValue = value ?? uncontrolledValue;
     const visibleValue = preview ?? resolvedValue ?? 0;
@@ -89,7 +96,14 @@ export const Rating = withMiaixzThemeComponent(
     const labelFor =
       getLabelText ??
       ((next: number, total: number) => t("ui.rating.value", { value: next, max: total }));
-    const ownerState: RatingOwnerState = { max, precision, size, disabled, readOnly };
+    const ownerState: RatingOwnerState = {
+      max,
+      precision,
+      size,
+      disabled,
+      readOnly,
+      invalid: validationInvalid,
+    };
     /**
      * Reports an editable rating change while preventing required ratings from being cleared.
      *
@@ -99,6 +113,7 @@ export const Rating = withMiaixzThemeComponent(
     const commit = (next: number | null) => {
       if (disabled || readOnly || (required && next === null)) return;
       if (value === undefined) setUncontrolledValue(next);
+      setValidationInvalid(false);
       onValueChange?.(next);
     };
     const values = Array.from({ length: max / precision }, (_, index) => (index + 1) * precision);
@@ -118,6 +133,25 @@ export const Rating = withMiaixzThemeComponent(
       form.addEventListener("reset", reset);
       return () => form.removeEventListener("reset", reset);
     }, [defaultValue, value]);
+    useEffect(() => {
+      if (resolvedValue !== null) setValidationInvalid(false);
+    }, [resolvedValue]);
+    useEffect(() => {
+      const input = firstInputRef.current;
+      if (input === null) return undefined;
+      const owner = resolveMiaixzFormOwner(input, undefined);
+      if (owner === null) return undefined;
+      return registerMiaixzFormValidationControl(owner, {
+        element: input,
+        validate: () => {
+          const nextInvalid = !disabled && required && resolvedValue === null;
+          setValidationInvalid(nextInvalid);
+          return !nextInvalid;
+        },
+        reset: () => setValidationInvalid(false),
+        focus: () => input.focus({ preventScroll: true }),
+      });
+    }, [disabled, required, resolvedValue]);
     /**
      * Focuses the native rating input associated with the requested numeric value.
      *
@@ -154,8 +188,9 @@ export const Rating = withMiaixzThemeComponent(
             "aria-readonly": readOnly || undefined,
             "data-ui": "rating",
             "data-size": size,
+            ...(validationInvalid ? { "data-invalid": true } : {}),
           },
-          ownedProps: ["role", "aria-readonly", "data-ui", "data-size"],
+          ownedProps: ["role", "aria-readonly", "data-ui", "data-size", "data-invalid"],
         })}
         onMouseLeave={() => setPreview(null)}
       >
@@ -199,6 +234,7 @@ export const Rating = withMiaixzThemeComponent(
                     ref={(node) => {
                       if (node === null) inputRefs.current.delete(option);
                       else inputRefs.current.set(option, node);
+                      if (option === values[0]) firstInputRef.current = node;
                     }}
                     type="radio"
                     name={name}
@@ -206,6 +242,8 @@ export const Rating = withMiaixzThemeComponent(
                     checked={resolvedValue === option}
                     required={required}
                     disabled={disabled}
+                    aria-invalid={validationInvalid || undefined}
+                    aria-describedby={validationInvalid ? validationMessageId : undefined}
                     aria-label={labelFor(option, max)}
                     onBlur={() => setPreview(null)}
                     onFocus={() => setPreview(option)}
@@ -262,6 +300,11 @@ export const Rating = withMiaixzThemeComponent(
           );
         })}
         {resolvedValue === null && <span className="miaixz-hidden">{t("ui.rating.empty")}</span>}
+        {validationInvalid && (
+          <span className="miaixz-field-error" id={validationMessageId} role="alert">
+            {t("ui.validation.required")}
+          </span>
+        )}
       </div>
     );
   }),

@@ -49,6 +49,10 @@ interface MiaixzFormValidationRegistry {
    */
   readonly controls: Set<MiaixzFormValidationControl>;
   /**
+   * Preserves the form's validation mode before Miaixz controls take ownership.
+   */
+  readonly nativeNoValidate: boolean;
+  /**
    * Validates controls during captured submission.
    */
   readonly onSubmit: (event: SubmitEvent) => void;
@@ -89,6 +93,8 @@ function orderControls(
  */
 function createRegistry(form: HTMLFormElement): MiaixzFormValidationRegistry {
   const controls = new Set<MiaixzFormValidationControl>();
+  const nativeNoValidate = form.noValidate;
+  form.noValidate = true;
   /**
    * Validates form controls in DOM order and focuses the first invalid control.
    *
@@ -102,8 +108,10 @@ function createRegistry(form: HTMLFormElement): MiaixzFormValidationRegistry {
     }
     if (firstInvalid === undefined) return;
     event.preventDefault();
+    event.stopPropagation();
     const invalidControl = firstInvalid;
     (invalidControl.focus ?? (() => invalidControl.element.focus({ preventScroll: true })))();
+    invalidControl.element.scrollIntoView?.({ block: "nearest", inline: "nearest" });
   };
   /**
    * Defers control-state resets until after the native form reset event.
@@ -117,7 +125,7 @@ function createRegistry(form: HTMLFormElement): MiaixzFormValidationRegistry {
   };
   form.addEventListener("submit", onSubmit, true);
   form.addEventListener("reset", onReset, true);
-  return { controls, onSubmit, onReset };
+  return { controls, nativeNoValidate, onSubmit, onReset };
 }
 
 /**
@@ -148,6 +156,7 @@ export function registerMiaixzFormValidationControl(
     if (current.controls.size !== 0) return;
     form.removeEventListener("submit", current.onSubmit, true);
     form.removeEventListener("reset", current.onReset, true);
+    form.noValidate = current.nativeNoValidate;
     registries.delete(form);
   };
 }

@@ -31,7 +31,7 @@ export interface GridProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Selects the column strategy. Fixed column modes collapse to one column on narrow viewports.
    */
-  columns?: "auto" | "one" | "two";
+  columns?: "auto" | "one" | "two" | "three";
   /**
    * Selects the minimum width used by auto-fit columns.
    */

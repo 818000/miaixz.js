@@ -28,6 +28,7 @@ import { classNames } from "../../shared/class-names.js";
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
+import { useMiaixzNativeFormValidation } from "../../shared/use-native-form-validation.js";
 import type { SwitchOwnerState, SwitchProps, SwitchRootAttributes } from "./switch.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
@@ -74,7 +75,8 @@ export const Switch = withMiaixzThemeComponent(
       ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
     });
     const effectiveDisabled = fieldProps.disabled ?? false;
-    const effectiveInvalid = fieldProps.invalid ?? false;
+    const validationInvalid = useMiaixzNativeFormValidation(inputRef, nativeProps.form);
+    const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
     const ownerState: SwitchOwnerState = {
       size,
       checked: checkedState.value,

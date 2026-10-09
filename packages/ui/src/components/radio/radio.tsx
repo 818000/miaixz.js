@@ -28,6 +28,7 @@ import { classNames } from "../../shared/class-names.js";
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
+import { useMiaixzNativeFormValidation } from "../../shared/use-native-form-validation.js";
 import type { RadioOwnerState, RadioProps, RadioRootAttributes } from "./radio.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
@@ -73,7 +74,8 @@ export const Radio = withMiaixzThemeComponent(
       ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
     });
     const effectiveDisabled = fieldProps.disabled ?? false;
-    const effectiveInvalid = fieldProps.invalid ?? false;
+    const validationInvalid = useMiaixzNativeFormValidation(inputRef, nativeProps.form);
+    const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
     const ownerState: RadioOwnerState = {
       checked: checkedState.value,
       disabled: effectiveDisabled,

@@ -38,7 +38,7 @@ import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
 import { MiaixzCollectionController } from "../../shared/collection/controller.js";
-import { useFieldControl } from "../../shared/field-context.js";
+import { useFieldControl, useFieldValidationReporter } from "../../shared/field-context.js";
 import {
   registerMiaixzFormValidationControl,
   resolveMiaixzFormOwner,
@@ -115,6 +115,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
       ? {}
       : { "aria-describedby": props["aria-describedby"] }),
   });
+  const { owned: fieldValidationOwned, report: reportFieldValidation } =
+    useFieldValidationReporter();
   const effectiveDisabled = fieldProps.disabled ?? false;
   const [validationInvalid, setValidationInvalid] = useState(false);
   const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
@@ -170,13 +172,16 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
       close(true);
       valueState.setValue(option.value);
       setValidationInvalid(false);
+      reportFieldValidation(null);
     },
-    [close, readOnly, valueState],
+    [close, readOnly, reportFieldValidation, valueState],
   );
 
   useEffect(() => {
-    if (valueState.value !== "") setValidationInvalid(false);
-  }, [valueState.value]);
+    if (valueState.value === "") return;
+    setValidationInvalid(false);
+    reportFieldValidation(null);
+  }, [reportFieldValidation, valueState.value]);
   useEffect(() => {
     const root = rootRef.current;
     if (root === null) return undefined;
@@ -188,17 +193,29 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         const nextInvalid =
           !effectiveDisabled && fieldProps.required === true && valueState.value === "";
         setValidationInvalid(nextInvalid);
+        reportFieldValidation(nextInvalid ? t("ui.select.required") : null);
         if (nextInvalid) onInvalid?.("required");
         return !nextInvalid;
       },
       reset: () => {
         valueState.resetValue(defaultValue);
         setValidationInvalid(false);
+        reportFieldValidation(null);
         close(false);
       },
       focus: () => triggerRef.current?.focus({ preventScroll: true }),
     });
-  }, [close, defaultValue, effectiveDisabled, fieldProps.required, form, onInvalid, valueState]);
+  }, [
+    close,
+    defaultValue,
+    effectiveDisabled,
+    fieldProps.required,
+    form,
+    onInvalid,
+    reportFieldValidation,
+    t,
+    valueState,
+  ]);
 
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
   const activeOptionId = open && activeId !== null ? `${optionIdPrefix}-${activeId}` : undefined;
@@ -250,7 +267,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 
   const describedBy = joinIds(
     fieldProps["aria-describedby"],
-    validationInvalid ? validationMessageId : undefined,
+    validationInvalid && !fieldValidationOwned ? validationMessageId : undefined,
   );
   const rootProps = mergeMiaixzSlotProps<SelectOwnerState, SelectRootAttributes, HTMLSpanElement>({
     ownerState,
@@ -395,7 +412,9 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
           <Icon name="chevron-down" size="control" />
         </span>
       </button>
-      {validationInvalid && <span {...validationProps}>{t("ui.select.required")}</span>}
+      {validationInvalid && !fieldValidationOwned && (
+        <span {...validationProps}>{t("ui.select.required")}</span>
+      )}
       {open &&
         portalTarget !== null &&
         createPortal(

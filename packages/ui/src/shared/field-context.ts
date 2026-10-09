@@ -96,6 +96,10 @@ export interface MiaixzFieldContextValue {
    */
   readonly disabled: boolean;
   /**
+   * Reports or clears a validation message owned by the registered control.
+   */
+  readonly reportValidation: (message: string | null) => void;
+  /**
    * Registers the Field's one main control.
    */
   readonly registerControl: (token: symbol) => void;
@@ -109,6 +113,28 @@ export interface MiaixzFieldContextValue {
  * Shares Field ownership with its single main control.
  */
 export const MiaixzFieldContext = createContext<MiaixzFieldContextValue | null>(null);
+
+/**
+ * Ignores validation reports when a component is not owned by a Field.
+ */
+function ignoreFieldValidation(): void {}
+
+/**
+ * Exposes the nearest Field's validation reporter to a registered control.
+ *
+ * @returns Field ownership and a stable validation-message reporter.
+ * @internal
+ */
+export function useFieldValidationReporter(): {
+  readonly owned: boolean;
+  readonly report: (message: string | null) => void;
+} {
+  const context = useContext(MiaixzFieldContext);
+  return {
+    owned: context !== null,
+    report: context?.reportValidation ?? ignoreFieldValidation,
+  };
+}
 
 /**
  * Combines space-delimited ARIA identifier lists, preserving first occurrence order.

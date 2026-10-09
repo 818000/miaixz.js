@@ -199,6 +199,16 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.rating.value": "{value} of {max}",
     "ui.rating.empty": "No rating",
     "ui.select.required": "Select an option",
+    "ui.validation.required": "Please fill in this field",
+    "ui.validation.typeMismatch": "Enter a value in the expected format",
+    "ui.validation.patternMismatch": "Match the requested format",
+    "ui.validation.tooShort": "Enter a longer value",
+    "ui.validation.tooLong": "Enter a shorter value",
+    "ui.validation.rangeUnderflow": "Enter a value within the allowed range",
+    "ui.validation.rangeOverflow": "Enter a value within the allowed range",
+    "ui.validation.stepMismatch": "Enter a valid step value",
+    "ui.validation.badInput": "Enter a valid value",
+    "ui.validation.invalid": "Check this field",
     "ui.sections.empty": "No items",
     "ui.appearance.readOnly": "This setting is read-only",
     "ui.confirm.failed": "The operation could not be completed",
@@ -428,6 +438,16 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.rating.value": "{max} 分中的 {value} 分",
     "ui.rating.empty": "未评分",
     "ui.select.required": "请选择一个选项",
+    "ui.validation.required": "请填写此字段",
+    "ui.validation.typeMismatch": "请输入符合要求的格式",
+    "ui.validation.patternMismatch": "输入格式不正确",
+    "ui.validation.tooShort": "输入内容过短",
+    "ui.validation.tooLong": "输入内容过长",
+    "ui.validation.rangeUnderflow": "请输入允许范围内的值",
+    "ui.validation.rangeOverflow": "请输入允许范围内的值",
+    "ui.validation.stepMismatch": "请输入有效的步进值",
+    "ui.validation.badInput": "请输入有效值",
+    "ui.validation.invalid": "请检查此字段",
     "ui.sections.empty": "暂无项目",
     "ui.appearance.readOnly": "此设置为只读",
     "ui.confirm.failed": "操作未能完成",
@@ -618,4 +638,14 @@ export function useMiaixzLocale(): MiaixzLocaleContextValue {
   const value = useContext(MiaixzLocaleContext);
   if (value !== undefined) return value;
   throw new MiaixzUiError({ code: "UI_LOCALE_PROVIDER_MISSING" });
+}
+
+/**
+ * Returns the nearest locale context when a low-level component supports provider-free rendering.
+ *
+ * @returns Active locale context, or undefined outside a provider.
+ * @internal
+ */
+export function useMiaixzOptionalLocale(): MiaixzLocaleContextValue | undefined {
+  return useContext(MiaixzLocaleContext);
 }

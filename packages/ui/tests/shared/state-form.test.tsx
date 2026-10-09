@@ -188,6 +188,8 @@ describe("non-native form validation registry", () => {
     document.body.append(form);
     const firstFocus = vi.fn();
     const secondFocus = vi.fn();
+    const bubbledSubmit = vi.fn();
+    document.body.addEventListener("submit", bubbledSubmit);
     const order: string[] = [];
     const unregisterSecond = registerMiaixzFormValidationControl(form, {
       element: second,
@@ -211,11 +213,15 @@ describe("non-native form validation registry", () => {
     form.dispatchEvent(submit);
     expect(order).toEqual(["first", "second"]);
     expect(submit.defaultPrevented).toBe(true);
+    expect(bubbledSubmit).not.toHaveBeenCalled();
+    expect(form).toHaveAttribute("novalidate");
     expect(firstFocus).toHaveBeenCalledTimes(1);
     expect(secondFocus).not.toHaveBeenCalled();
     expect(resolveMiaixzFormOwner(first, undefined)).toBe(form);
     unregisterFirst();
     unregisterSecond();
+    expect(form).not.toHaveAttribute("novalidate");
+    document.body.removeEventListener("submit", bubbledSubmit);
     form.remove();
   });
 });

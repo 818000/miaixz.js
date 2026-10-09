@@ -29,6 +29,7 @@ import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useChoiceControlState } from "../../shared/use-choice-control-state.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
+import { useMiaixzNativeFormValidation } from "../../shared/use-native-form-validation.js";
 import type {
   CheckboxOwnerState,
   CheckboxProps,
@@ -79,7 +80,8 @@ export const Checkbox = withMiaixzThemeComponent(
       ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
     });
     const effectiveDisabled = fieldProps.disabled ?? false;
-    const effectiveInvalid = fieldProps.invalid ?? false;
+    const validationInvalid = useMiaixzNativeFormValidation(inputRef, nativeProps.form);
+    const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
     const ownerState: CheckboxOwnerState = {
       checked: checkedState.value,
       indeterminate,

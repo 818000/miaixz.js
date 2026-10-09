@@ -282,6 +282,7 @@ function pack({ directory, name }) {
       "dist/assets/fonts/" + iconSource.design.font.outputFile,
       ...[
         "index",
+        "version",
         "runtime/index",
         "runtime/font",
         "react/index",

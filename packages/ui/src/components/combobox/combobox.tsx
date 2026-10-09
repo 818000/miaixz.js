@@ -26,6 +26,7 @@ import {
   forwardRef,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -41,7 +42,15 @@ import { createPortal } from "react-dom";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { MiaixzCollectionController } from "../../shared/collection/controller.js";
-import { MiaixzFieldContext, useFieldControl } from "../../shared/field-context.js";
+import {
+  MiaixzFieldContext,
+  useFieldControl,
+  useFieldValidationReporter,
+} from "../../shared/field-context.js";
+import {
+  registerMiaixzFormValidationControl,
+  resolveMiaixzFormOwner,
+} from "../../shared/form-validation-registry.js";
 import { useMiaixzOptionSurface } from "../../shared/option-surface.js";
 import { useMiaixzDismissibleLayer } from "../../shared/overlay/dismissible-layer.js";
 import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
@@ -115,8 +124,10 @@ function ComboboxImplementation<Value extends string = string>(
     ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
     ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
   });
+  const { report: reportFieldValidation } = useFieldValidationReporter();
+  const [validationInvalid, setValidationInvalid] = useState(false);
   const effectiveDisabled = fieldProps.disabled ?? false;
-  const effectiveInvalid = fieldProps.invalid ?? false;
+  const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
   const valueControlled = "value" in props;
   const initialValue = defaultValue ?? null;
   const valueState = useControlled<MiaixzOption<Value> | null>({
@@ -200,9 +211,11 @@ function ComboboxImplementation<Value extends string = string>(
       if (readOnly || option.disabled === true) return;
       valueState.setValue(option);
       inputState.setValue(option.textValue);
+      setValidationInvalid(false);
+      reportFieldValidation(null);
       close(false);
     },
-    [close, inputState, readOnly, valueState],
+    [close, inputState, readOnly, reportFieldValidation, valueState],
   );
   const updateInput = useCallback(
     (nextInput: string) => {
@@ -210,17 +223,21 @@ function ComboboxImplementation<Value extends string = string>(
       if (valueState.value !== null && nextInput !== valueState.value.textValue) {
         valueState.setValue(null);
       }
+      setValidationInvalid(false);
+      reportFieldValidation(null);
       setOpen(true);
     },
-    [inputState, valueState],
+    [inputState, reportFieldValidation, valueState],
   );
   const clear = useCallback(() => {
     if (readOnly) return;
     valueState.setValue(null);
     inputState.setValue("");
+    setValidationInvalid(false);
+    reportFieldValidation(null);
     setOpen(true);
     inputRef.current?.focus({ preventScroll: true });
-  }, [inputState, readOnly, valueState]);
+  }, [inputState, readOnly, reportFieldValidation, valueState]);
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key === "Escape" && open) {
@@ -258,8 +275,31 @@ function ComboboxImplementation<Value extends string = string>(
   useFormReset(inputRef, () => {
     valueState.resetValue(initialValue);
     inputState.resetValue(initialInputValue);
+    setValidationInvalid(false);
+    reportFieldValidation(null);
     close(false);
   });
+  useEffect(() => {
+    const input = inputRef.current;
+    if (input === null) return undefined;
+    const owner = resolveMiaixzFormOwner(input, form);
+    if (owner === null) return undefined;
+    return registerMiaixzFormValidationControl(owner, {
+      element: input,
+      validate: () => {
+        const nextInvalid =
+          !effectiveDisabled && fieldProps.required === true && valueState.value === null;
+        setValidationInvalid(nextInvalid);
+        reportFieldValidation(nextInvalid ? t("ui.validation.required") : null);
+        return !nextInvalid;
+      },
+      reset: () => {
+        setValidationInvalid(false);
+        reportFieldValidation(null);
+      },
+      focus: () => input.focus({ preventScroll: true }),
+    });
+  }, [effectiveDisabled, fieldProps.required, form, reportFieldValidation, t, valueState.value]);
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
   const activeOptionId =
     open && resolvedActiveValue !== null ? `${optionIdPrefix}-${resolvedActiveValue}` : undefined;

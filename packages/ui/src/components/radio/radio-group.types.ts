@@ -49,13 +49,18 @@ export interface RadioGroupOwnerState {
 }
 
 /**
+ * Attributes accepted by the Radio Group Root slot.
+ */
+export interface RadioGroupRootAttributes
+  extends FieldsetHTMLAttributes<HTMLFieldSetElement>, RefAttributes<HTMLFieldSetElement> {
+  readonly "data-invalid"?: boolean;
+}
+
+/**
  * Per-slot attributes and state-dependent override callbacks for Radio Group.
  */
 export interface RadioGroupSlotProps {
-  readonly root?: MiaixzSlotProps<
-    RadioGroupOwnerState,
-    FieldsetHTMLAttributes<HTMLFieldSetElement> & RefAttributes<HTMLFieldSetElement>
-  >;
+  readonly root?: MiaixzSlotProps<RadioGroupOwnerState, RadioGroupRootAttributes>;
   readonly legend?: MiaixzSlotProps<RadioGroupOwnerState, HTMLAttributes<HTMLLegendElement>>;
   readonly items?: MiaixzSlotProps<RadioGroupOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly item?: MiaixzSlotProps<RadioGroupOwnerState, HTMLAttributes<HTMLLabelElement>>;

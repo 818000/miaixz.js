@@ -22,11 +22,15 @@
  * Renders labeled radio options with controlled or uncontrolled group selection.
  */
 
-import { forwardRef, useRef } from "react";
+import { forwardRef, useEffect, useId, useRef, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { validateMiaixzCollectionItems } from "../../shared/collection/controller.js";
-import { classNames } from "../../shared/class-names.js";
+import {
+  registerMiaixzFormValidationControl,
+  resolveMiaixzFormOwner,
+} from "../../shared/form-validation-registry.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import { useFormReset } from "../../shared/use-form-reset.js";
@@ -50,6 +54,7 @@ export const RadioGroup = withMiaixzThemeComponent(
       required = false,
       invalid = false,
       disabled = false,
+      form,
       value,
       defaultValue,
       onValueChange,
@@ -81,23 +86,52 @@ export const RadioGroup = withMiaixzThemeComponent(
       readOnly: controlled && onValueChange === undefined,
     });
     const firstInputRef = useRef<HTMLInputElement>(null);
-    useFormReset(firstInputRef, () => state.resetValue(initialValue));
+    const [validationInvalid, setValidationInvalid] = useState(false);
+    const validationMessageId = useId();
+    const { t } = useMiaixzLocale();
+    useFormReset(firstInputRef, () => {
+      state.resetValue(initialValue);
+      setValidationInvalid(false);
+    });
+    useEffect(() => {
+      const input = firstInputRef.current;
+      if (input === null) return undefined;
+      const owner = resolveMiaixzFormOwner(input, form);
+      if (owner === null) return undefined;
+      return registerMiaixzFormValidationControl(owner, {
+        element: input,
+        validate: () => {
+          const nextInvalid = !disabled && required && state.value === undefined;
+          setValidationInvalid(nextInvalid);
+          return !nextInvalid;
+        },
+        reset: () => setValidationInvalid(false),
+        focus: () => input.focus({ preventScroll: true }),
+      });
+    }, [disabled, form, required, state.value]);
     const readOnly = controlled && onValueChange === undefined;
     const ownerState: RadioGroupOwnerState = {
       orientation,
       required,
-      invalid,
+      invalid: invalid || validationInvalid,
       disabled,
       readOnly,
     };
     const rootProps = mergeMiaixzSlotProps({
       ownerState,
       defaultProps: { className: "miaixz-radio-group" },
-      componentProps: { ...rootNativeProps, ...(className === undefined ? {} : { className }) },
+      componentProps: {
+        ...rootNativeProps,
+        ...(form === undefined ? {} : { form }),
+        ...(className === undefined ? {} : { className }),
+      },
       slotProps: slotProps?.root,
       forwardedRef: ref,
-      internalProps: { disabled },
-      ownedProps: ["disabled"],
+      internalProps: {
+        disabled,
+        ...(ownerState.invalid ? { "data-invalid": true } : {}),
+      },
+      ownedProps: ["disabled", "data-invalid"],
     });
     const legendProps = mergeMiaixzSlotProps({
       ownerState,
@@ -135,9 +169,12 @@ export const RadioGroup = withMiaixzThemeComponent(
                 checked: state.value === item.value,
                 disabled: itemDisabled,
                 required,
-                ...(invalid ? { "aria-invalid": true } : {}),
+                ...(form === undefined ? {} : { form }),
+                ...(ownerState.invalid ? { "aria-invalid": true } : {}),
+                ...(validationInvalid ? { "aria-describedby": validationMessageId } : {}),
                 onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                   state.setValue(item.value);
+                  setValidationInvalid(false);
                   onValueChange?.(item.value, event);
                 },
               },
@@ -149,7 +186,9 @@ export const RadioGroup = withMiaixzThemeComponent(
                 "checked",
                 "disabled",
                 "required",
+                "form",
                 "aria-invalid",
+                "aria-describedby",
               ],
             });
             const labelProps = mergeMiaixzSlotProps({
@@ -176,6 +215,11 @@ export const RadioGroup = withMiaixzThemeComponent(
             );
           })}
         </div>
+        {validationInvalid && (
+          <span className="miaixz-field-error" id={validationMessageId} role="alert">
+            {t("ui.validation.required")}
+          </span>
+        )}
       </fieldset>
     );
   }),

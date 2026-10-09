@@ -42,6 +42,24 @@ test("responsive metric and table owners adapt without alternate component APIs"
   ).toBe(true);
 });
 
+test("three-column grids collapse to two and then one column", async ({ page }) => {
+  for (const { width, columns } of [
+    { width: 1280, columns: 3 },
+    { width: 800, columns: 2 },
+    { width: 600, columns: 1 },
+  ] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/tests/?formLabels=1");
+    const grid = page.getByTestId("three-column-grid");
+    await expect
+      .poll(() =>
+        grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length),
+      )
+      .toBe(columns);
+    expect(await grid.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  }
+});
+
 test("Masonry keeps 4/2/1 columns, DOM order, dynamic height, RTL, and zoom without overflow", async ({
   page,
 }) => {

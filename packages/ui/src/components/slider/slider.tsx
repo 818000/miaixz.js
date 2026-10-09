@@ -22,10 +22,11 @@
  * Implements the slider UI component.
  */
 
-import { forwardRef, useState, type CSSProperties } from "react";
+import { forwardRef, useRef, useState, type CSSProperties } from "react";
 
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { useMiaixzNativeFormValidation } from "../../shared/use-native-form-validation.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 import type { SliderOwnerState, SliderProps, SliderRootAttributes } from "./slider.types.js";
 
@@ -77,7 +78,9 @@ export const Slider = withMiaixzThemeComponent(
     const [uncontrolledValue, setUncontrolledValue] = useState(initialValue);
     const currentValue = value ?? uncontrolledValue;
     const effectiveDisabled = fieldProps.disabled ?? false;
-    const effectiveInvalid = fieldProps.invalid ?? false;
+    const inputRef = useRef<HTMLInputElement>(null);
+    const validationInvalid = useMiaixzNativeFormValidation(inputRef, nativeProps.form);
+    const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
     const ownerState: SliderOwnerState = {
       disabled: effectiveDisabled,
       invalid: effectiveInvalid,
@@ -95,6 +98,7 @@ export const Slider = withMiaixzThemeComponent(
       defaultProps: { className: "miaixz-slider" },
       componentProps: nativeProps,
       slotProps: slotProps?.root,
+      internalRef: inputRef,
       forwardedRef: ref,
       internalProps: {
         ...(fieldProps.id === undefined ? {} : { id: fieldProps.id }),

@@ -29,6 +29,7 @@ import { hasMiaixzControlValue } from "../../shared/control-state.js";
 import { useFieldControl } from "../../shared/field-context.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlValueState } from "../../shared/use-control-value-state.js";
+import { useMiaixzNativeFormValidation } from "../../shared/use-native-form-validation.js";
 import { getMiaixzThemeSlotClassNames } from "../../theme/registry.js";
 import { useMiaixzThemeComponent } from "../../theme/context.js";
 import type { InputOwnerState, InputProps, InputRootAttributes, InputSlot } from "./input.types.js";
@@ -88,13 +89,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(pro
     ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
     ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
   });
-  const effectiveInvalid =
+  const inputRef = useRef<HTMLInputElement>(null);
+  const validationInvalid = useMiaixzNativeFormValidation(inputRef, props.form);
+  const declaredInvalid =
     fieldProps.invalid ??
     (fieldProps["aria-invalid"] !== undefined &&
       fieldProps["aria-invalid"] !== false &&
       fieldProps["aria-invalid"] !== "false");
+  const effectiveInvalid = declaredInvalid || validationInvalid;
   const effectiveDisabled = fieldProps.disabled ?? false;
-  const inputRef = useRef<HTMLInputElement>(null);
   const filledState = useControlValueState({
     controlRef: inputRef,
     value: value === undefined ? undefined : hasMiaixzControlValue(value),

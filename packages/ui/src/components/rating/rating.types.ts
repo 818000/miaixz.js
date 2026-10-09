@@ -44,6 +44,7 @@ export interface RatingOwnerState {
   readonly size: RatingSize;
   readonly disabled: boolean;
   readonly readOnly: boolean;
+  readonly invalid: boolean;
 }
 
 /**
@@ -53,6 +54,7 @@ export interface RatingRootAttributes
   extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
   readonly "data-ui"?: "rating";
   readonly "data-size"?: RatingSize;
+  readonly "data-invalid"?: boolean;
 }
 
 /**

@@ -26,6 +26,7 @@ import {
   forwardRef,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -41,7 +42,15 @@ import { createPortal } from "react-dom";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { MiaixzCollectionController } from "../../shared/collection/controller.js";
-import { MiaixzFieldContext, useFieldControl } from "../../shared/field-context.js";
+import {
+  MiaixzFieldContext,
+  useFieldControl,
+  useFieldValidationReporter,
+} from "../../shared/field-context.js";
+import {
+  registerMiaixzFormValidationControl,
+  resolveMiaixzFormOwner,
+} from "../../shared/form-validation-registry.js";
 import { useMiaixzOptionSurface } from "../../shared/option-surface.js";
 import { useMiaixzDismissibleLayer } from "../../shared/overlay/dismissible-layer.js";
 import { useMiaixzPortalTarget } from "../../shared/overlay/portal-target.js";
@@ -131,8 +140,10 @@ function PickerImplementation<Value extends string = string>(
     ...(ariaLabelledBy === undefined ? {} : { "aria-labelledby": ariaLabelledBy }),
     ...(ariaDescribedBy === undefined ? {} : { "aria-describedby": ariaDescribedBy }),
   });
+  const { report: reportFieldValidation } = useFieldValidationReporter();
+  const [validationInvalid, setValidationInvalid] = useState(false);
   const effectiveDisabled = fieldProps.disabled ?? false;
-  const effectiveInvalid = fieldProps.invalid ?? false;
+  const effectiveInvalid = (fieldProps.invalid ?? false) || validationInvalid;
   const valueControlled = "value" in props;
   const initialValue = defaultValue ?? emptyPickerValue;
   validatePickerValue(initialValue, selectionLimit);
@@ -229,16 +240,20 @@ function PickerImplementation<Value extends string = string>(
       }
       valueState.setValue([...valueState.value, option]);
       inputState.setValue("");
+      setValidationInvalid(false);
+      reportFieldValidation(null);
       setOpen(true);
     },
-    [inputState, isAtLimit, selectedValues, selectionReadOnly, valueState],
+    [inputState, isAtLimit, reportFieldValidation, selectedValues, selectionReadOnly, valueState],
   );
   const removeOption = useCallback(
     (option: MiaixzOption<Value>) => {
       if (selectionReadOnly) return;
       valueState.setValue(valueState.value.filter((candidate) => candidate.value !== option.value));
+      setValidationInvalid(false);
+      reportFieldValidation(null);
     },
-    [selectionReadOnly, valueState],
+    [reportFieldValidation, selectionReadOnly, valueState],
   );
   const updateInput = useCallback(
     (nextInput: string) => {
@@ -284,8 +299,31 @@ function PickerImplementation<Value extends string = string>(
   useFormReset(inputRef, () => {
     valueState.resetValue(initialValue);
     inputState.resetValue(initialInputValue);
+    setValidationInvalid(false);
+    reportFieldValidation(null);
     close(false);
   });
+  useEffect(() => {
+    const input = inputRef.current;
+    if (input === null) return undefined;
+    const owner = resolveMiaixzFormOwner(input, form);
+    if (owner === null) return undefined;
+    return registerMiaixzFormValidationControl(owner, {
+      element: input,
+      validate: () => {
+        const nextInvalid =
+          !effectiveDisabled && fieldProps.required === true && valueState.value.length === 0;
+        setValidationInvalid(nextInvalid);
+        reportFieldValidation(nextInvalid ? t("ui.validation.required") : null);
+        return !nextInvalid;
+      },
+      reset: () => {
+        setValidationInvalid(false);
+        reportFieldValidation(null);
+      },
+      focus: () => input.focus({ preventScroll: true }),
+    });
+  }, [effectiveDisabled, fieldProps.required, form, reportFieldValidation, t, valueState.value]);
   useMiaixzManualPopover(surfaceRef, open, portalTarget);
   const activeOptionId =
     open && resolvedActiveValue !== null ? `${optionIdPrefix}-${resolvedActiveValue}` : undefined;
