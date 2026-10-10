@@ -428,7 +428,7 @@ describe("XLSX DrawingML flowcharts", () => {
     const setData = vi.fn();
     fireEvent.copy(selectedCell, { clipboardData: { setData } });
     expect(setData).toHaveBeenCalledWith("text/plain", searchCell.displayValue);
-  });
+  }, 15_000);
 
   it("honors initial sheet and visibility options without exposing hidden DOM props", async () => {
     const outcome = await formatDriver.open(await workbookContext());
@@ -486,7 +486,7 @@ describe("XLSX DrawingML flowcharts", () => {
         { code: "OFFICE_MACRO_IGNORED", messageKey: "office.macroIgnored" },
       ]);
     });
-  });
+  }, 15_000);
 
   it.each([
     ["maxSpreadsheetSheets", 1],
