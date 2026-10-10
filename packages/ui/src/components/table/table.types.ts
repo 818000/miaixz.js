@@ -59,15 +59,10 @@ export interface TableContainerProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * Configures a semantic data table.
- *
- * @public
+ * Explicit table row height. Numeric values are interpreted as CSS pixels; strings accept any
+ * valid CSS length or custom-property expression.
  */
-export type TableDensity = "compact" | "standard" | "comfortable";
-/**
- * Table divider treatments permitted by the component contract.
- */
-export type TableDividerStyle = "solid" | "dashed" | "none";
+export type TableRowHeight = number | string;
 /**
  * Named Table parts available for slot and style customization.
  */
@@ -76,42 +71,32 @@ export type TableSlot = "root";
  * Resolved Table state exposed to theme and slot overrides.
  */
 export interface TableOwnerState {
-  readonly density: TableDensity;
-  readonly dividerStyle: TableDividerStyle;
   readonly stickyHeader: boolean;
-  readonly presentation: "default" | "resource-tree";
+  readonly rowHeight: TableRowHeight | undefined;
 }
 /**
  * Attributes accepted by the Table Root slot.
  */
 export type TableRootAttributes = TableHTMLAttributes<HTMLTableElement> &
   RefAttributes<HTMLTableElement> & {
-    readonly "data-density"?: TableDensity;
-    readonly "data-divider-style"?: TableDividerStyle;
     readonly "data-sticky-header"?: boolean;
-    readonly "data-presentation"?: TableOwnerState["presentation"];
   };
 /**
  * Properties accepted by the Table renderer.
  */
 export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   /**
-   * Selects the default, dashed, or compact semantic table presentation.
-   *
-   * @defaultValue `"default"`
-   */
-  density?: TableDensity;
-  /**
-   * Selects row divider rendering independently from density.
-   */
-  dividerStyle?: TableDividerStyle;
-  /**
    * Keeps header rows visible within the table scroll container.
    *
    * @defaultValue `false`
    */
   stickyHeader?: boolean;
-  readonly presentation?: TableOwnerState["presentation"];
+  /**
+   * Overrides the active Theme's table-row height for this table.
+   *
+   * @example `51` or `"clamp(44px, 5vw, 60px)"`
+   */
+  readonly rowHeight?: TableRowHeight;
   readonly slotProps?: { readonly root?: MiaixzSlotProps<TableOwnerState, TableRootAttributes> };
 }
 
@@ -163,6 +148,10 @@ export interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
    * @defaultValue `false`
    */
   selected?: boolean;
+  /**
+   * Overrides the containing table's row height for this row only.
+   */
+  readonly rowHeight?: TableRowHeight;
 }
 
 /**

@@ -411,7 +411,10 @@ export interface MiaixzThemeComponentRegistry {
   readonly Table: MiaixzThemeEntry<TableProps, TableOwnerState>;
   readonly TableHeader: MiaixzThemeEntry<TableHeaderProps, TableHeaderOwnerState>;
   readonly TableBody: MiaixzThemeEntry<TableBodyProps, MiaixzEmptyOwnerState>;
-  readonly TableRow: MiaixzThemeEntry<TableRowProps, { readonly selected: boolean }>;
+  readonly TableRow: MiaixzThemeEntry<
+    TableRowProps,
+    { readonly selected: boolean; readonly rowHeight: TableRowProps["rowHeight"] }
+  >;
   readonly TableHead: MiaixzThemeEntry<
     TableHeadProps,
     { readonly numeric: boolean; readonly actions: boolean }
@@ -432,6 +435,7 @@ export interface MiaixzThemeComponentRegistry {
       readonly state: "loading" | "error" | "empty" | "ready";
       readonly surface: "plain" | "inset";
       readonly density: "compact" | "standard" | "comfortable";
+      readonly rowHeight: TableProps["rowHeight"];
       readonly layout: "auto" | "fixed";
       readonly bodyLayout: "content" | "fill";
       readonly selectionMode: "none" | "single" | "multiple";

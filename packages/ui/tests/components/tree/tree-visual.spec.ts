@@ -21,6 +21,27 @@ interface RowGeometry {
   readonly usableWidth: number;
 }
 
+test("nested dense Tree reduces the gap between hierarchy controls", async ({ page }) => {
+  await page.goto("/tests/?treeFixture=1&treeView=nested&treeIndent=dense&treeDepth=2");
+  const tree = page.getByTestId("tree-contract");
+  await expect(tree).toHaveAttribute("data-indent", "dense");
+  const row = tree
+    .getByRole("treeitem", { name: "Tree level 1", exact: true })
+    .locator(":scope > .miaixz-tree-row");
+  await expect(row).toHaveCSS("gap", "4px");
+  await expect(row).toHaveCSS("height", "35px");
+  await expect(
+    tree
+      .getByRole("treeitem", { name: "Tree level 1", exact: true })
+      .locator(":scope > .miaixz-tree-row > .miaixz-tree-expander"),
+  ).toHaveCSS("width", "24px");
+  await expect(
+    tree
+      .getByRole("treeitem", { name: "Tree level 1", exact: true })
+      .locator(":scope > .miaixz-tree-row > .miaixz-tree-expander"),
+  ).toHaveCSS("height", "24px");
+});
+
 /**
  * Reads the geometry contract for one rendered Tree row.
  * @param item - Treeitem locator whose direct row is measured.

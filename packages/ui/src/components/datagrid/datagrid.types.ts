@@ -23,6 +23,7 @@
  */
 
 import type { HTMLAttributes, ReactNode } from "react";
+import type { TableRowHeight } from "../table/table.types.js";
 
 /**
  * Datagrid sort directions permitted by the component contract.
@@ -85,7 +86,10 @@ export interface MiaixzDatagridBaseProps<Row> {
   readonly pagination?: ReactNode;
   readonly caption: string;
   readonly surface?: "plain" | "inset";
-  readonly density?: "compact" | "standard" | "comfortable";
+  /**
+   * Overrides the active Theme's table-row height for this datagrid.
+   */
+  readonly rowHeight?: TableRowHeight;
   readonly layout?: "auto" | "fixed";
   readonly bodyLayout?: "content" | "fill";
   readonly captionVisibility?: "visible" | "hidden";

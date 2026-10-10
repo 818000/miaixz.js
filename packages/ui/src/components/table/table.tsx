@@ -22,8 +22,9 @@
  * Implements the table UI component.
  */
 
-import { forwardRef } from "react";
+import { forwardRef, type CSSProperties } from "react";
 
+import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type {
@@ -35,9 +36,31 @@ import type {
   TableHeaderProps,
   TableHeadProps,
   TableProps,
+  TableRowHeight,
   TableRowProps,
 } from "./table.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
+
+/**
+ * Resolves the public row-height value to a CSS length.
+ *
+ * @param value - Numeric pixel value or arbitrary CSS length.
+ * @returns A CSS length ready for the table custom property.
+ * @throws MiaixzUiError when a numeric value is non-positive or a string is empty.
+ */
+function resolveTableRowHeight(value: TableRowHeight): string {
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || value <= 0) {
+      throw new MiaixzUiError({ code: "UI_CONTROLLED_VALUE_INVALID" });
+    }
+    return `${value}px`;
+  }
+  const resolved = value.trim();
+  if (resolved.length === 0) {
+    throw new MiaixzUiError({ code: "UI_CONTROLLED_VALUE_INVALID" });
+  }
+  return resolved;
+}
 
 /**
  * Provides responsive overflow and framing for a data table.
@@ -67,24 +90,21 @@ export const TableContainer = withMiaixzThemeComponent(
 );
 
 /**
- * Renders a semantic table with Miaixz density-aware styling.
+ * Renders a semantic table with the single global Miaixz table appearance.
  *
  * @public
  */
 export const Table = withMiaixzThemeComponent(
   "Table",
   forwardRef<HTMLTableElement, TableProps>(function Table(
-    {
-      stickyHeader = false,
-      density = "standard",
-      dividerStyle = "solid",
-      presentation = "default",
-      slotProps,
-      ...props
-    },
+    { stickyHeader = false, rowHeight, slotProps, ...props },
     ref,
   ) {
-    const ownerState = { stickyHeader, density, dividerStyle, presentation };
+    const ownerState = { stickyHeader, rowHeight };
+    const rowHeightStyle =
+      rowHeight === undefined
+        ? undefined
+        : ({ "--miaixz-table-row-height": resolveTableRowHeight(rowHeight) } as CSSProperties);
     return (
       <table
         {...mergeMiaixzSlotProps({
@@ -94,17 +114,10 @@ export const Table = withMiaixzThemeComponent(
           slotProps: slotProps?.root,
           forwardedRef: ref,
           internalProps: {
-            "data-density": density,
-            "data-divider-style": dividerStyle,
-            "data-presentation": presentation,
+            ...(rowHeightStyle === undefined ? {} : { style: rowHeightStyle }),
             ...(stickyHeader ? { "data-sticky-header": true } : {}),
           },
-          ownedProps: [
-            "data-density",
-            "data-divider-style",
-            "data-presentation",
-            "data-sticky-header",
-          ],
+          ownedProps: ["data-sticky-header"],
         })}
       />
     );
@@ -174,15 +187,23 @@ export const TableFooter = withMiaixzThemeComponent(
 export const TableRow = withMiaixzThemeComponent(
   "TableRow",
   forwardRef<HTMLTableRowElement, TableRowProps>(function TableRow(
-    { selected = false, className, ...props },
+    { selected = false, rowHeight, className, style, ...props },
     ref,
   ) {
+    const rowStyle =
+      rowHeight === undefined
+        ? style
+        : ({
+            ...style,
+            "--miaixz-table-row-height": resolveTableRowHeight(rowHeight),
+          } as CSSProperties);
     return (
       <tr
         {...props}
         ref={ref}
         data-selected={selected || undefined}
         className={classNames("miaixz-table-row", className)}
+        style={rowStyle}
       />
     );
   }),

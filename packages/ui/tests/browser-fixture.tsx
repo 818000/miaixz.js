@@ -128,6 +128,7 @@ function TreeContractFixture() {
   const viewParameter = parameters.get("treeView");
   const view = viewParameter === "compact" || viewParameter === "focus" ? viewParameter : "nested";
   const compression = parameters.get("treeCompression") === "dense" ? "dense" : "balanced";
+  const indent = parameters.get("treeIndent") === "dense" ? "dense" : "standard";
   const direction = parameters.get("treeDirection") === "rtl" ? "rtl" : "ltr";
   const state = parameters.get("treeState") ?? "depth";
   const depth = getTreeFixtureDepth();
@@ -190,7 +191,7 @@ function TreeContractFixture() {
       ) : view === "compact" ? (
         <Tree {...sharedProps} view="compact" viewOptions={{ compression }} connectors />
       ) : (
-        <Tree {...sharedProps} view="nested" viewOptions={{ indent: "standard" }} connectors />
+        <Tree {...sharedProps} view="nested" viewOptions={{ indent }} connectors />
       )}
     </main>
   );

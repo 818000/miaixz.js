@@ -178,7 +178,7 @@ function DatagridImplementation<Row>(
     surface = "plain",
     captionVisibility = "visible",
     layout = "auto",
-    density = "standard",
+    rowHeight,
     bodyLayout = "content",
     className,
     ...props
@@ -255,7 +255,6 @@ function DatagridImplementation<Row>(
       aria-busy={loading || undefined}
       data-state={state}
       data-surface={surface}
-      data-density={density}
       data-layout={layout}
       data-body-layout={bodyLayout}
       data-caption-visibility={captionVisibility}
@@ -267,7 +266,10 @@ function DatagridImplementation<Row>(
           aria-label={caption}
           className="miaixz-table-container miaixz-table-container-plain miaixz-datagrid-container"
         >
-          <Table dividerStyle="dashed" stickyHeader={bodyLayout === "fill"}>
+          <Table
+            stickyHeader={bodyLayout === "fill"}
+            {...(rowHeight === undefined ? {} : { rowHeight })}
+          >
             <TableCaption>{caption}</TableCaption>
             <TableHeader>
               <TableRow>

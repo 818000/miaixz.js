@@ -24,11 +24,10 @@ describe("color ownership", () => {
     expect(miaixzTheme.modes.dark.colors["on-brand"]).toBe("#10150D");
   });
 
-  it("keeps neutral light paint free of green tint", () => {
+  it("keeps neutral light paint free of green tint outside selection states", () => {
     for (const token of [
       "surface-hover",
       "surface-active",
-      "surface-selected",
       "text-primary",
       "text-secondary",
       "text-muted",
@@ -37,6 +36,14 @@ describe("color ownership", () => {
     ] as const) {
       const channels = miaixzTheme.modes.light.colors[token]!.slice(1).match(/../g)!;
       expect(new Set(channels).size, token).toBe(1);
+    }
+  });
+
+  it("uses the theme brand tint for selected surfaces in both color modes", () => {
+    for (const mode of ["light", "dark"] as const) {
+      expect(miaixzTheme.modes[mode].colors["surface-selected"]).toBe(
+        miaixzTheme.modes[mode].colors["brand-soft"],
+      );
     }
   });
 

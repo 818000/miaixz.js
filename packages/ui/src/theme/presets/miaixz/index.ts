@@ -51,7 +51,7 @@ export const miaixzTheme = defineBuiltInTheme({
         "surface-chrome": "#FFFFFF",
         "surface-hover": "#F5F5F5",
         "surface-active": "#EBEBEB",
-        "surface-selected": "#F0F0F0",
+        "surface-selected": "#E8F4E1",
         "text-primary": "#1F1F1F",
         "text-secondary": "#565656",
         "text-muted": "#5E5E5E",

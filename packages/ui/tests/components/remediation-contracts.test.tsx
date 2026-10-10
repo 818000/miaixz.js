@@ -117,7 +117,7 @@ describe("remediation public contracts", () => {
 
   it("keeps TableHeader and TableHead as distinct semantic components", () => {
     render(
-      <Table density="compact">
+      <Table>
         <TableCaption>成员</TableCaption>
         <TableHeader>
           <TableRow>
@@ -131,7 +131,7 @@ describe("remediation public contracts", () => {
         </TableBody>
       </Table>,
     );
-    expect(screen.getByRole("table", { name: "成员" })).toHaveAttribute("data-density", "compact");
+    expect(screen.getByRole("table", { name: "成员" })).not.toHaveAttribute("data-density");
     expect(screen.getByRole("columnheader", { name: "姓名" }).tagName).toBe("TH");
   });
 });

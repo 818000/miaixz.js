@@ -11,7 +11,7 @@ The repository is organized as an npm workspace. All public packages use one syn
 | Package                             | npm                                                | Description                                                                                                                         |
 | ----------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | [`@miaixz/sdk`](./packages/sdk)     | [npm](https://www.npmjs.com/package/@miaixz/sdk)   | Browser API client, runtime context, configuration, permissions, events, files, appearance, i18n, types, formatters, and utilities. |
-| [`@miaixz/icons`](./packages/icons) | [npm](https://www.npmjs.com/package/@miaixz/icons) | Miaixz variable font, React Icon, semantic sizes, continuous animation, and accessibility.                                |
+| [`@miaixz/icons`](./packages/icons) | [npm](https://www.npmjs.com/package/@miaixz/icons) | Miaixz variable font, React Icon, semantic sizes, continuous animation, and accessibility.                                          |
 | [`@miaixz/ui`](./packages/ui)       | [npm](https://www.npmjs.com/package/@miaixz/ui)    | React design system with components, design tokens, themes, density modes, styles, and interaction primitives.                      |
 | [`@miaixz/view`](./packages/view)   | [npm](https://www.npmjs.com/package/@miaixz/view)  | Independent React components for image, PDF, Office, and other local file previews.                                                 |
 
@@ -170,11 +170,15 @@ rules and contract tests require separate configuration.
 
 ## Development
 
-Install dependencies without creating a lockfile:
+Install every automatically discovered npm dependency graph without running package lifecycle
+scripts:
 
 ```bash
-npm install --no-package-lock --legacy-peer-deps
+npm run install:all
 ```
+
+When dependency metadata changes, regenerate and review the adjacent `package-lock.json` for every
+automatically discovered npm graph with the repository-pinned npm version.
 
 Run the standard repository checks:
 
@@ -222,6 +226,14 @@ The script synchronizes:
 - every workspace manifest version
 - exact internal development, runtime, and optional dependency versions
 - compatible internal peer dependency ranges and their development dependencies
+- browser-safe SDK, UI, and View `VERSION` exports generated from the root file
+- protocol, Schema, theme, locale, and persistence versions through those exports
+
+Project-owned runtime versions must reference `VERSION`, not a separate numeric or semantic
+version constant. Static configuration JSON does not carry an independent version; generated
+runtime descriptors inject `VERSION`. `npm run version:check` rejects stale generated constants.
+Legacy persisted version identifiers exist only at compatibility-reading boundaries.
+Dependency versions and standardized file-format identifiers remain their actual external values.
 
 All public packages must always have the same exact release version.
 

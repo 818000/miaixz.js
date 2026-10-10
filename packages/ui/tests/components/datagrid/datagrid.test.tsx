@@ -50,16 +50,16 @@ const columns: readonly DatagridColumn<Row>[] = [
 ];
 
 describe("Datagrid", () => {
-  it("renders a semantic table with the final layout and density dimensions", () => {
+  it("renders a semantic table with the global appearance and custom row height", () => {
     renderWithLocale(
       <Datagrid
         bodyLayout="fill"
         caption="数据列表"
         captionVisibility="hidden"
         columns={columns}
-        density="comfortable"
         getRowId={(row) => row.id}
         layout="fixed"
+        rowHeight={51}
         rows={[{ id: "a", name: "Alpha" }]}
         surface="inset"
       />,
@@ -68,7 +68,9 @@ describe("Datagrid", () => {
     const table = screen.getByRole("table", { name: "数据列表" });
     expect(table).toBeVisible();
     expect(table.closest(".miaixz-datagrid")).toHaveAttribute("data-body-layout", "fill");
-    expect(table.closest(".miaixz-datagrid")).toHaveAttribute("data-density", "comfortable");
+    expect(table.closest(".miaixz-datagrid")).not.toHaveAttribute("data-density");
+    expect(table).not.toHaveAttribute("data-density");
+    expect(table).toHaveStyle({ "--miaixz-table-row-height": "51px" });
     expect(screen.getByRole("cell", { name: "Alpha" })).toBeVisible();
     expect(screen.getByRole("columnheader", { name: /名称/u })).toHaveStyle({ width: "80%" });
   });

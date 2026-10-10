@@ -532,21 +532,34 @@ void invalidHeaderDensity;
 
 declare const table: TableProps;
 /**
- * @ts-expect-error Table uses density and dividerStyle, not a variant recipe. */
+ * @ts-expect-error Table has no visual variant recipe. */
 void table.variant;
 /**
- * @ts-expect-error Table uses the final density vocabulary. */
-const invalidTableDensity: NonNullable<TableProps["density"]> = "default";
+ * @ts-expect-error Table appearance is global; density cannot be customized. */
+void table.density;
 /**
- * @ts-expect-error Datagrid uses surface and density, not a variant recipe. */
+ * @ts-expect-error Table appearance is global; dividers cannot be customized. */
+void table.dividerStyle;
+/**
+ * @ts-expect-error Table appearance is global; presentations cannot be customized. */
+void table.presentation;
+
+const customTableRowHeight: NonNullable<TableProps["rowHeight"]> = 51;
+
+const customDatagridRowHeight: NonNullable<DatagridProps<unknown>["rowHeight"]> = "51px";
+/**
+ * @ts-expect-error Datagrid uses surface, not a visual variant recipe. */
 void datagrid.variant;
+/**
+ * @ts-expect-error Datagrid table appearance is global; density cannot be customized. */
+void datagrid.density;
 /**
  * @ts-expect-error Datagrid has no second row-density input. */
 void datagrid.rowSize;
 /**
  * @ts-expect-error Datagrid does not normalize the old default surface. */
 const invalidDatagridSurface: NonNullable<DatagridProps<unknown>["surface"]> = "default";
-void [invalidTableDensity, invalidDatagridSurface];
+void [invalidDatagridSurface, customTableRowHeight, customDatagridRowHeight];
 
 declare const stepsContract: StepsProps;
 /**

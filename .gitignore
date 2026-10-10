@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 npm-shrinkwrap.json
 pnpm-lock.yaml
 yarn.lock
@@ -17,7 +16,7 @@ out/
 
 # Test and analysis output
 coverage/
-**/tests/.artifacts/
+**/.artifacts/
 test-results/
 playwright-report/
 blob-report/
