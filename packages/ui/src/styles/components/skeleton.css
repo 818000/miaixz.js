@@ -1,0 +1,103 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Miaixz skeleton loading component
+ * Skeleton containers should be hidden from assistive technology.
+ */
+
+[data-miaixz-theme] {
+  --miaixz-skeleton-text-height: var(--miaixz-font-size-12);
+  --miaixz-skeleton-heading-height: 1.5rem;
+  --miaixz-skeleton-avatar-size: var(--miaixz-space-40);
+  --miaixz-skeleton-button-width: 6rem;
+  --miaixz-skeleton-last-line-width: 64%;
+  --miaixz-skeleton-duration: 1200ms;
+}
+
+.miaixz-skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+  background: var(--miaixz-color-surface-secondary);
+  border-radius: var(--miaixz-radius-4);
+}
+
+.miaixz-skeleton::after {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 40%;
+  content: "";
+  background: var(--miaixz-color-surface-hover);
+  transform: translateX(-100%);
+  animation: miaixz-skeleton-shimmer var(--miaixz-skeleton-duration) infinite
+    var(--miaixz-easing-standard);
+}
+
+.miaixz-skeleton[data-variant="text"] {
+  width: 100%;
+  height: var(--miaixz-skeleton-text-height);
+}
+
+.miaixz-skeleton[data-variant="text"] + .miaixz-skeleton[data-variant="text"] {
+  margin-block-start: var(--miaixz-space-8);
+}
+
+.miaixz-skeleton[data-variant="text"]:last-child {
+  width: var(--miaixz-skeleton-last-line-width);
+}
+
+.miaixz-skeleton[data-variant="circular"] {
+  flex: none;
+  width: var(--miaixz-skeleton-avatar-size);
+  height: var(--miaixz-skeleton-avatar-size);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-skeleton[data-variant="rectangular"],
+.miaixz-skeleton[data-variant="rounded"] {
+  width: 100%;
+  height: var(--miaixz-density-table-row-height);
+}
+
+.miaixz-skeleton[data-variant="rectangular"] {
+  border-radius: 0;
+}
+
+.miaixz-skeleton[data-variant="rounded"] {
+  border-radius: var(--miaixz-radius-control);
+}
+
+@keyframes miaixz-skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-skeleton::after {
+    opacity: 0;
+    animation: none;
+  }
+}

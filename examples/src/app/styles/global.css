@@ -1,0 +1,61 @@
+/**
+ * Sets the example application's page foundation and shared native-element defaults.
+ */
+:root {
+  font-family:
+    "Avenir Next",
+    "PingFang SC",
+    "Noto Sans CJK SC",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Microsoft YaHei",
+    system-ui,
+    sans-serif;
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  margin: 0;
+  background: #fff;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  color: var(--miaixz-color-text-primary, #1f1f1f);
+  background: var(--miaixz-color-selection, #ebebeb);
+}
+
+:focus-visible {
+  outline: 2px solid var(--miaixz-color-focus, #266b1b);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

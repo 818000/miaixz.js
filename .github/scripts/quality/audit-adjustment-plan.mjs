@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Audits implementation changes against the repository adjustment plan.
+ */
+
 import { execFileSync } from "node:child_process";
 import {
   existsSync,
@@ -29,18 +33,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve, sep } from "node:path";
 import { parse } from "@babel/parser";
-import { loadWorkspaceRepository, repositoryRoot } from "../miaixz.mjs";
+import { loadRepositoryInventory, requireWorkspace, repositoryRoot } from "../miaixz.mjs";
 
-const repository = loadWorkspaceRepository();
+const repository = loadRepositoryInventory();
 const { rootManifest } = repository;
-const uiWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/ui");
-const sdkWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/sdk");
-const viewWorkspace = repository.workspaces.find(({ name }) => name === "@miaixz/view");
-if (uiWorkspace === undefined || sdkWorkspace === undefined || viewWorkspace === undefined) {
-  throw new Error("The SDK, UI, and View workspace manifests are required.");
-}
+const uiWorkspace = requireWorkspace("@miaixz/ui", repository);
+const sdkWorkspace = requireWorkspace("@miaixz/sdk", repository);
+const viewWorkspace = requireWorkspace("@miaixz/view", repository);
 const sdkReadmePath = `${sdkWorkspace.directory}/README.md`;
 const uiReadmePath = `${uiWorkspace.directory}/README.md`;
 const viewReadmePath = `${viewWorkspace.directory}/README.md`;
@@ -57,6 +58,7 @@ if (Object.values(rootScripts).some((script) => /--workspaces\s+--if-present/u.t
   failures.push("root package scripts must not use --workspaces --if-present");
 }
 auditScriptTargets(repositoryRoot, rootScripts, "package.json", failures);
+auditAutomationPortability(repository, failures);
 
 const ast = parse(registrySource, {
   sourceType: "module",
@@ -98,13 +100,14 @@ for (const name of calls.keys())
   if (!registryNames.includes(name)) failures.push(`unregistered Theme consumer: ${name}`);
 
 const protocolSource = readFileSync(
-  resolve(sdkWorkspace.rootPath, "src/contracts/module-manifest.ts"),
+  resolve(sdkWorkspace.rootPath, "src/runtime/contracts/module-manifest.ts"),
   "utf8",
 );
-const protocolVersion = /MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*"([^"]+)"/u.exec(protocolSource)?.[1];
 if (
-  protocolVersion === undefined ||
-  !readmes.get(sdkReadmePath)?.includes(`Host Bridge protocol version is \`${protocolVersion}\``)
+  !/MIAIXZ_MODULE_PROTOCOL_VERSION\s*=\s*VERSION/u.test(protocolSource) ||
+  !readmes
+    .get(sdkReadmePath)
+    ?.includes("Host Bridge protocol version is read from the root `VERSION`")
 ) {
   failures.push("SDK README Host Bridge protocol version is not aligned with its constant");
 }
@@ -118,8 +121,8 @@ if (/\bselected\s*:/u.test(uiReadme)) {
 if (!/\bcurrent:\s*"page"/u.test(uiReadme) || !/\btextValue:/u.test(uiReadme)) {
   failures.push("UI README NavigationRail examples must show current and textValue");
 }
-if (!/npm install --no-package-lock --legacy-peer-deps/u.test(readmes.get("README.md") ?? "")) {
-  failures.push("root README must document the lockfile-free npm install command");
+if (!/npm run install:all/u.test(readmes.get("README.md") ?? "")) {
+  failures.push("root README must document the graph-discovered install:all command");
 }
 if (/npm install[^\n]*\blucide(?:-react)?\b/iu.test(uiReadme)) {
   failures.push("UI README must not require consumers to install Lucide");
@@ -182,14 +185,14 @@ function walk(directory) {
 function auditPublicEntryTable(directory, manifest, readme, findings) {
   const section = /## Public entries\n([\s\S]*?)(?=\n## |$)/u.exec(readme)?.[1] ?? "";
   const documented = new Map(
-    [...section.matchAll(/^\|[ \t]*`([^`]+)`[ \t]*\|[ \t]*(JavaScript|CSS)[ \t]*\|$/gmu)].map(
+    [...section.matchAll(/^\|[ \t]*`([^`]+)`[ \t]*\|[ \t]*(JavaScript|CSS|Asset)[ \t]*\|$/gmu)].map(
       (match) => [match[1], match[2]],
     ),
   );
   const expected = new Map(
     Object.entries(manifest.exports).map(([entry, target]) => [
       entry,
-      typeof target === "string" ? "CSS" : "JavaScript",
+      typeof target === "string" ? (target.endsWith(".css") ? "CSS" : "Asset") : "JavaScript",
     ]),
   );
   if (JSON.stringify([...documented]) !== JSON.stringify([...expected])) {
@@ -238,14 +241,14 @@ function auditWorkspaceConfiguration(workspace, findings) {
         findings.push(`${directory}/package.json export ${entry} has an invalid target`);
         continue;
       }
-      if (!hasExportSource(rootPath, target)) {
+      if (!hasExportSource(workspace.name, rootPath, target)) {
         findings.push(`${directory}/package.json export ${entry} has no source for ${target}`);
       }
     }
   }
 
-  const expectedCssExclusions = Object.entries(exports)
-    .filter(([, target]) => typeof target === "string" && target.endsWith(".css"))
+  const expectedResourceExclusions = Object.entries(exports)
+    .filter(([, target]) => typeof target === "string")
     .map(([entry]) => entry.replace(/^\.\//u, ""))
     .sort();
   const attwPath = resolve(rootPath, ".attw.json");
@@ -253,9 +256,9 @@ function auditWorkspaceConfiguration(workspace, findings) {
     findings.push(`${directory}/.attw.json is missing`);
   } else {
     const attw = JSON.parse(readFileSync(attwPath, "utf8"));
-    const actualCssExclusions = [...(attw.excludeEntrypoints ?? [])].sort();
-    if (JSON.stringify(actualCssExclusions) !== JSON.stringify(expectedCssExclusions)) {
-      findings.push(`${directory}/.attw.json CSS exclusions do not match package exports`);
+    const actualResourceExclusions = [...(attw.excludeEntrypoints ?? [])].sort();
+    if (JSON.stringify(actualResourceExclusions) !== JSON.stringify(expectedResourceExclusions)) {
+      findings.push(`${directory}/.attw.json resource exclusions do not match package exports`);
     }
   }
 
@@ -265,16 +268,108 @@ function auditWorkspaceConfiguration(workspace, findings) {
 /**
  * Reports whether an export target has a corresponding source file.
  *
+ * @param {string} packageName Workspace package name.
  * @param {string} workspaceRoot Absolute workspace root.
  * @param {string} target Package export target below dist.
  * @returns {boolean} Whether one matching TypeScript, TSX, declaration, or CSS source exists.
  */
-function hasExportSource(workspaceRoot, target) {
+function hasExportSource(packageName, workspaceRoot, target) {
+  if (packageName === "@miaixz/view" && target === "./dist/styles.css") {
+    return existsSync(resolve(workspaceRoot, "src/shell/styles/view.css"));
+  }
+  if (packageName === "@miaixz/icons" && target.startsWith("./dist/assets/fonts/")) {
+    return (
+      existsSync(resolve(workspaceRoot, "src/assets/fonts/miaixz-icons.designspace")) &&
+      existsSync(resolve(workspaceRoot, "src/assets/icons.json")) &&
+      existsSync(resolve(repositoryRoot, ".github/scripts/modules/icons/fonts/build-icon-font.mjs"))
+    );
+  }
+  if (packageName === "@miaixz/icons" && target === "./dist/styles.css") {
+    return existsSync(resolve(workspaceRoot, "src/styles/index.css"));
+  }
   const relativeTarget = target.slice("./dist/".length);
   const sourceTarget = resolve(workspaceRoot, "src", relativeTarget);
   if (relativeTarget.endsWith(".css")) return existsSync(sourceTarget);
   const base = sourceTarget.replace(/\.d\.ts$/u, "").replace(/\.js$/u, "");
   return [`.ts`, `.tsx`, `.d.ts`].some((extension) => existsSync(`${base}${extension}`));
+}
+
+/**
+ * Rejects duplicated repository layout knowledge in automation and workflows.
+ *
+ * @param {RepositoryInventory} inventory Repository inventory.
+ * @param {string[]} findings Mutable failure list.
+ * @returns {void}
+ */
+function auditAutomationPortability(inventory, findings) {
+  const automationRoots = [
+    resolve(repositoryRoot, ".github/actions"),
+    resolve(repositoryRoot, ".github/scripts"),
+    resolve(repositoryRoot, ".github/workflows"),
+  ];
+  const physicalDirectories = [
+    ...inventory.workspaces.map(({ directory }) => directory),
+    ...inventory.standaloneProjects.map(({ directory }) => directory),
+  ];
+  const workflowRoots = [
+    resolve(repositoryRoot, ".github/actions"),
+    resolve(repositoryRoot, ".github/workflows"),
+  ];
+
+  for (const file of automationRoots.flatMap(walk).filter(isAuditedAutomationFile)) {
+    const source = readFileSync(file, "utf8");
+    const path = relative(repositoryRoot, file).split(sep).join("/");
+    for (const directory of physicalDirectories) {
+      if (containsPhysicalDirectory(source, directory)) {
+        findings.push(`${path} hard-codes repository package directory ${directory}`);
+      }
+    }
+  }
+
+  for (const file of workflowRoots.flatMap(walk).filter((path) => /\.ya?ml$/u.test(path))) {
+    const source = readFileSync(file, "utf8");
+    const path = relative(repositoryRoot, file).split(sep).join("/");
+    if (/\b(?:bash|node)\s+\.github\/scripts\//u.test(source)) {
+      findings.push(`${path} directly invokes a repository implementation script`);
+    }
+    if (/cache-dependency-path:\s*\|/u.test(source)) {
+      findings.push(`${path} maintains a multiline lockfile cache list`);
+    }
+    for (const match of source.matchAll(/cache-dependency-path:\s*([^\n]+)/gu)) {
+      if (match[1].trim().replaceAll(/["']/gu, "") !== "**/package-lock.json") {
+        findings.push(`${path} must cache **/package-lock.json`);
+      }
+    }
+    if (/^\s+(?:path|working-directory):\s*miaixz\.js\s*$/gmu.test(source)) {
+      findings.push(`${path} hard-codes the checkout directory name`);
+    }
+  }
+}
+
+/**
+ * Detects a repository directory when it is used as a path rather than as ordinary prose.
+ *
+ * @param {string} source Automation source.
+ * @param {string} directory Repository-relative package directory.
+ * @returns {boolean} Whether the source embeds the physical directory.
+ */
+function containsPhysicalDirectory(source, directory) {
+  if (directory.includes("/")) return source.includes(directory);
+  const escaped = directory.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  return (
+    new RegExp(`(?:^|[\\s"'\`=:(])${escaped}(?:/|["'\`)]|$)`, "mu").test(source) ||
+    source.includes(`/${directory}`)
+  );
+}
+
+/**
+ * Identifies automation source types covered by portability checks.
+ *
+ * @param {string} path Absolute file path.
+ * @returns {boolean} Whether the file should be scanned.
+ */
+function isAuditedAutomationFile(path) {
+  return /\.(?:json|mjs|sh|ya?ml)$/u.test(path) && !path.endsWith("font-toolchain.lock.txt");
 }
 
 /**
@@ -317,16 +412,34 @@ function auditReadmeCompileBlocks(sources, findings) {
     return;
   }
   const workspaceCompilerPaths = Object.fromEntries(
-    repository.workspaces.flatMap(({ directory, name }) => [
-      [name, [resolve(repositoryRoot, directory, "src/index.ts")]],
-      [
-        `${name}/*`,
+    repository.workspaces.flatMap(({ directory, manifest, name }) => {
+      const exactEntries = Object.entries(manifest.exports ?? {}).flatMap(([entry, target]) => {
+        if (
+          entry === "." ||
+          target === null ||
+          typeof target !== "object" ||
+          Array.isArray(target) ||
+          typeof target.import !== "string"
+        ) {
+          return [];
+        }
+        const source = target.import.replace(/^\.\/dist\//u, "src/").replace(/\.js$/u, ".ts");
+        return [
+          [`${name}/${entry.replace(/^\.\//u, "")}`, [resolve(repositoryRoot, directory, source)]],
+        ];
+      });
+      return [
+        [name, [resolve(repositoryRoot, directory, "src/index.ts")]],
         [
-          resolve(repositoryRoot, directory, "src/components/*/index.ts"),
-          resolve(repositoryRoot, directory, "src/*/index.ts"),
+          `${name}/*`,
+          [
+            resolve(repositoryRoot, directory, "src/components/*/index.ts"),
+            resolve(repositoryRoot, directory, "src/*/index.ts"),
+          ],
         ],
-      ],
-    ]),
+        ...exactEntries,
+      ];
+    }),
   );
   try {
     let blockIndex = 0;
@@ -340,7 +453,9 @@ function auditReadmeCompileBlocks(sources, findings) {
         writeFileSync(sourcePath, match[2]);
         writeFileSync(join(blockDirectory, "styles.d.ts"), 'declare module "*.css";\n');
         const owningDirectory =
-          readmePath === "README.md" ? defaultCompileWorkspace.directory : readmePath.split("/")[0];
+          readmePath === "README.md"
+            ? defaultCompileWorkspace.directory
+            : readmePath.slice(0, -"/README.md".length);
         writeFileSync(
           configPath,
           `${JSON.stringify(
@@ -382,8 +497,20 @@ function auditReadmeCompileBlocks(sources, findings) {
             cwd: repositoryRoot,
             stdio: "pipe",
           });
-        } catch {
-          findings.push(`${readmePath} compile block ${blockIndex + 1} does not type-check`);
+        } catch (error) {
+          const diagnostics =
+            error !== null && typeof error === "object" && "stdout" in error
+              ? `${String(error.stdout)}\n${"stderr" in error ? String(error.stderr) : ""}`
+                  .trim()
+                  .split("\n")
+                  .slice(0, 6)
+                  .join(" ")
+              : "";
+          findings.push(
+            `${readmePath} compile block ${blockIndex + 1} does not type-check${
+              diagnostics === "" ? "" : `: ${diagnostics}`
+            }`,
+          );
         }
         blockIndex += 1;
       }

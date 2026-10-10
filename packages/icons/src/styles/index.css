@@ -1,0 +1,84 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the Miaixz icon renderer styles.
+ */
+
+@layer miaixz.icons {
+  .miaixz-icon {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: var(--miaixz-icon-size);
+    height: var(--miaixz-icon-size);
+    line-height: 1;
+    vertical-align: -0.125em;
+    color: currentcolor;
+  }
+
+  .miaixz-icon-glyph,
+  .miaixz-icon-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .miaixz-icon-glyph {
+    font-family: var(--miaixz-icon-font-family), sans-serif;
+    font-size: var(--miaixz-icon-size);
+    font-variation-settings:
+      "FILL" var(--miaixz-icon-fill),
+      "opsz" var(--miaixz-icon-opsz);
+    font-style: normal;
+    font-weight: 400;
+    font-optical-sizing: none;
+    font-variant: normal;
+    font-synthesis: none;
+    line-height: 1;
+    color: currentcolor;
+    text-align: center;
+    text-rendering: geometricprecision;
+    transition: font-variation-settings 180ms cubic-bezier(0.2, 0, 0, 1);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    speak: never;
+  }
+
+  .miaixz-icon-glyph::before {
+    content: attr(data-miaixz-icon-glyph);
+  }
+
+  .miaixz-icon-glyph[data-miaixz-icon-mirror="true"]:dir(rtl) {
+    transform: scaleX(-1);
+  }
+
+  .miaixz-icon[data-motion="none"] .miaixz-icon-glyph {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-icon-glyph {
+    transition: none !important;
+  }
+}

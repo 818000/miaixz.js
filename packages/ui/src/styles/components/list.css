@@ -1,0 +1,349 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the list visual styles.
+ */
+
+[data-miaixz-theme] {
+  --miaixz-list-row-padding-block: var(--miaixz-space-8);
+  --miaixz-list-row-padding-inline: var(--miaixz-density-control-padding-inline);
+  --miaixz-list-row-gap: var(--miaixz-density-component-gap);
+}
+
+.miaixz-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.miaixz-list[data-layout="grid"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--miaixz-list-row-gap);
+}
+
+.miaixz-list[data-surface="panel"] {
+  background: var(--miaixz-surface-role-panel-background);
+}
+
+.miaixz-list[data-bordered] {
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-list[data-density="compact"] {
+  --miaixz-list-row-padding-block: var(--miaixz-space-8);
+  --miaixz-list-row-gap: var(--miaixz-space-8);
+}
+
+.miaixz-list[data-density="comfortable"] {
+  --miaixz-list-row-padding-block: var(--miaixz-space-16);
+  --miaixz-list-row-gap: var(--miaixz-space-20);
+}
+
+.miaixz-list[data-dividers] > .miaixz-list-item + .miaixz-list-item {
+  border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-list[data-variant="overview"] {
+  display: block;
+}
+
+.miaixz-list[data-variant="overview"] > .miaixz-list-item {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  border-block-start: 0;
+  border-block-end: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
+}
+
+.miaixz-list[data-variant="overview"] > .miaixz-list-item:last-child {
+  border-block-end: 0;
+}
+
+.miaixz-list[data-variant="overview"][data-dividers] > .miaixz-list-item + .miaixz-list-item {
+  border-block-start: 0;
+}
+
+.miaixz-list[data-variant="overview"] .miaixz-list-item-control {
+  display: contents;
+}
+
+.miaixz-list[data-variant="overview"] .miaixz-list-actions {
+  padding: 0;
+}
+
+.miaixz-list[data-variant="transfer"] {
+  gap: var(--miaixz-space-8);
+}
+
+.miaixz-list[data-variant="transfer"] > .miaixz-list-item {
+  min-width: 0;
+  min-height: var(--miaixz-control-height-large);
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-list[data-variant="transfer"] > .miaixz-list-item[data-selected="true"] {
+  background: var(--miaixz-color-surface-selected);
+  border-color: var(--miaixz-color-brand);
+}
+
+.miaixz-list[data-variant="transfer"] .miaixz-list-item-control {
+  gap: var(--miaixz-space-12);
+  padding: var(--miaixz-space-12);
+}
+
+.miaixz-list[data-variant="transfer"] .miaixz-list-actions {
+  padding-inline-end: var(--miaixz-space-12);
+}
+
+.miaixz-list[data-variant="accent"] > .miaixz-list-item > .miaixz-list-item-control {
+  transition:
+    background-color var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing),
+    box-shadow var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    transform var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-list[data-variant="accent"]
+  > .miaixz-list-item:not(:has([aria-disabled="true"])):where(:hover, :focus-within)
+  > .miaixz-list-item-control {
+  background: color-mix(in srgb, var(--miaixz-list-tone) 8%, var(--miaixz-color-surface));
+  box-shadow: inset 2px 0 0 var(--miaixz-list-tone);
+  transform: translateX(3px);
+}
+
+.miaixz-list-item {
+  --miaixz-list-tone: var(--miaixz-color-data-neutral);
+
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-list-item[data-selected="true"] {
+  color: var(--miaixz-surface-role-selected-foreground);
+  background: var(--miaixz-surface-role-selected-background);
+}
+
+.miaixz-list-item[data-tone="brand"] {
+  --miaixz-list-tone: var(--miaixz-color-brand);
+}
+
+.miaixz-list-item[data-tone="neutral"] {
+  --miaixz-list-tone: var(--miaixz-color-data-neutral);
+}
+
+.miaixz-list-item[data-tone="info"] {
+  --miaixz-list-tone: var(--miaixz-color-info);
+}
+
+.miaixz-list-item[data-tone="success"] {
+  --miaixz-list-tone: var(--miaixz-color-success);
+}
+
+.miaixz-list-item[data-tone="warning"] {
+  --miaixz-list-tone: var(--miaixz-color-warning);
+}
+
+.miaixz-list-item[data-tone="danger"] {
+  --miaixz-list-tone: var(--miaixz-color-danger);
+}
+
+.miaixz-list-item[data-tone="data-1"] {
+  --miaixz-list-tone: var(--miaixz-color-data-1);
+}
+
+.miaixz-list-item[data-tone="data-2"] {
+  --miaixz-list-tone: var(--miaixz-color-data-2);
+}
+
+.miaixz-list-item[data-tone="data-3"] {
+  --miaixz-list-tone: var(--miaixz-color-data-3);
+}
+
+.miaixz-list-item[data-tone="data-4"] {
+  --miaixz-list-tone: var(--miaixz-color-data-4);
+}
+
+.miaixz-list-item[data-tone="data-5"] {
+  --miaixz-list-tone: var(--miaixz-color-data-5);
+}
+
+.miaixz-list-item[data-tone="data-6"] {
+  --miaixz-list-tone: var(--miaixz-color-data-6);
+}
+
+.miaixz-list-item[data-tone="data-7"] {
+  --miaixz-list-tone: var(--miaixz-color-data-7);
+}
+
+.miaixz-list-item[data-tone="data-8"] {
+  --miaixz-list-tone: var(--miaixz-color-data-8);
+}
+
+.miaixz-list-item-control {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--miaixz-list-row-gap);
+  align-items: center;
+  min-width: 0;
+  padding-block: var(--miaixz-list-row-padding-block);
+  padding-inline: var(--miaixz-list-row-padding-inline);
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+}
+
+:is(a, button).miaixz-list-item-control {
+  cursor: pointer;
+}
+
+:is(a, button).miaixz-list-item-control:where(:hover, :focus-visible) {
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-list-item-control:disabled {
+  cursor: not-allowed;
+  opacity: var(--miaixz-opacity-disabled);
+}
+
+.miaixz-list-icon,
+.miaixz-list-meta,
+.miaixz-list-actions {
+  flex: none;
+}
+
+.miaixz-list-icon {
+  width: var(--miaixz-icon-size-navigation);
+  height: var(--miaixz-icon-size-navigation);
+  color: var(--miaixz-list-tone);
+}
+
+.miaixz-list-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.miaixz-list-title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-primary);
+  white-space: nowrap;
+}
+
+.miaixz-list-description {
+  margin: var(--miaixz-space-2) 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-caption-size);
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+  white-space: nowrap;
+}
+
+.miaixz-list-meta {
+  margin-inline-start: auto;
+  font-size: var(--miaixz-text-caption-size);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--miaixz-text-caption-line-height);
+  color: var(--miaixz-color-text-secondary);
+  white-space: nowrap;
+}
+
+.miaixz-list-actions {
+  display: flex;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  padding-inline-end: var(--miaixz-list-row-padding-inline);
+}
+
+.miaixz-list-marker-dot {
+  inline-size: var(--miaixz-space-8);
+  block-size: var(--miaixz-space-8);
+  background: currentcolor;
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-list-marker-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 29px;
+  block-size: 29px;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: 1.5;
+  color: var(--miaixz-list-tone);
+  background: var(--miaixz-color-surface);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-list-marker-step > i {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  font-size: var(--miaixz-text-caption-size);
+  font-style: normal;
+  font-weight: var(--miaixz-font-weight-bold);
+  color: var(--miaixz-list-tone);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-round);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-list[data-variant="accent"] > .miaixz-list-item > .miaixz-list-item-control {
+    transition-duration: 0s;
+  }
+
+  .miaixz-list[data-variant="accent"]
+    > .miaixz-list-item:where(:hover, :focus-within)
+    > .miaixz-list-item-control {
+    transform: none;
+  }
+}
+
+.miaixz-list-counter,
+.miaixz-list-counter-alert {
+  font-variant-numeric: tabular-nums;
+}
+
+.miaixz-list-counter-alert {
+  color: var(--miaixz-color-danger);
+}

@@ -1,0 +1,104 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the toast public type contracts.
+ */
+
+import type { HTMLAttributes, MouseEvent, ReactNode, RefAttributes } from "react";
+import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
+import type { ButtonProps } from "../button/button.types.js";
+import type { IconButtonProps } from "../action/action.types.js";
+
+/**
+ * Toast semantic color tones permitted by the component contract.
+ */
+export type ToastTone = "neutral" | "success" | "warning" | "danger" | "info";
+/**
+ * Toast dismissal reasons permitted by the component contract.
+ */
+export type ToastCloseReason = "dismiss" | "timeout" | "action" | "programmatic";
+/**
+ * Optional labeled action displayed inside a toast.
+ */
+export interface ToastAction {
+  readonly label: string;
+  readonly onAction: (event: MouseEvent<HTMLButtonElement>) => void;
+}
+/**
+ * Named Toast parts available for slot and style customization.
+ */
+export type ToastSlot =
+  "root" | "icon" | "content" | "title" | "message" | "actions" | "action" | "dismiss";
+/**
+ * Resolved Toast state exposed to theme and slot overrides.
+ */
+export interface ToastOwnerState {
+  readonly tone: ToastTone;
+  readonly actionable: boolean;
+  readonly dismissible: boolean;
+}
+/**
+ * Replaceable slot components accepted by Toast.
+ */
+export interface ToastSlots {
+  readonly title?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
+  readonly message?: MiaixzSlotComponent<HTMLAttributes<HTMLDivElement>>;
+}
+/**
+ * Attributes accepted by the Toast Root slot.
+ */
+export type ToastRootAttributes = HTMLAttributes<HTMLDivElement> &
+  RefAttributes<HTMLDivElement> & { readonly "data-tone"?: ToastTone };
+/**
+ * Per-slot attributes and state-dependent override callbacks for Toast.
+ */
+export interface ToastSlotProps {
+  readonly root?: MiaixzSlotProps<ToastOwnerState, ToastRootAttributes>;
+  readonly icon?: MiaixzSlotProps<ToastOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<ToastOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly title?: MiaixzSlotProps<ToastOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly message?: MiaixzSlotProps<ToastOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly actions?: MiaixzSlotProps<ToastOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly action?: MiaixzSlotProps<ToastOwnerState, Omit<ButtonProps, "children">>;
+  readonly dismiss?: MiaixzSlotProps<ToastOwnerState, IconButtonProps>;
+}
+/**
+ * Component-specific Toast properties composed with the permitted native attributes.
+ */
+export interface MiaixzToastOwnProps {
+  readonly id: string;
+  readonly title: ReactNode;
+  readonly message?: ReactNode;
+  readonly action?: ToastAction;
+  readonly tone?: ToastTone;
+  readonly dismissLabel?: string;
+  readonly onClose?: (id: string, reason: ToastCloseReason) => void;
+  readonly slots?: ToastSlots;
+  readonly slotProps?: ToastSlotProps;
+}
+/**
+ * Properties accepted by the Toast renderer.
+ */
+export type ToastProps = MiaixzToastOwnProps &
+  Omit<
+    HTMLAttributes<HTMLDivElement>,
+    keyof MiaixzToastOwnProps | "children" | "role" | "aria-live" | "aria-atomic"
+  >;

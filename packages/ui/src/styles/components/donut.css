@@ -1,0 +1,286 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the donut visual styles.
+ */
+
+[data-miaixz-theme] {
+  --miaixz-donut-size: calc(var(--miaixz-space-32) * 4);
+  --miaixz-donut-stroke-width: var(--miaixz-space-12);
+}
+
+.miaixz-donut {
+  display: flex;
+  gap: var(--miaixz-density-component-gap);
+  align-items: center;
+  min-width: 0;
+}
+
+.miaixz-donut[data-size="small"] {
+  --miaixz-donut-size: 92px;
+  --miaixz-donut-stroke-width: 18.4px;
+}
+
+.miaixz-donut[data-size="medium"] {
+  --miaixz-donut-size: 100px;
+  --miaixz-donut-stroke-width: 20px;
+}
+
+.miaixz-donut[data-variant="distribution"] {
+  --miaixz-donut-stroke-width: 22px;
+}
+
+.miaixz-donut-visual {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--miaixz-donut-size);
+  height: var(--miaixz-donut-size);
+}
+
+.miaixz-donut-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.miaixz-donut-track,
+.miaixz-donut-segment {
+  fill: none;
+  stroke-width: var(--miaixz-donut-stroke-width);
+  vector-effect: non-scaling-stroke;
+}
+
+.miaixz-donut-track {
+  stroke: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-donut-segment {
+  --miaixz-donut-segment: 0 100;
+  --miaixz-donut-offset: 0;
+  --miaixz-donut-tone: var(--miaixz-color-brand);
+
+  stroke: var(--miaixz-donut-tone);
+  stroke-dasharray: var(--miaixz-donut-segment);
+  stroke-dashoffset: var(--miaixz-donut-offset);
+}
+
+.miaixz-donut-center {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  max-width: 62%;
+  text-align: center;
+}
+
+.miaixz-donut-legend {
+  display: grid;
+  flex: 1;
+  gap: var(--miaixz-space-4);
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.miaixz-donut-legend-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  min-width: 0;
+  font-size: var(--miaixz-text-caption-size);
+}
+
+.miaixz-donut-dot {
+  --miaixz-donut-tone: var(--miaixz-color-brand);
+
+  width: var(--miaixz-space-8);
+  height: var(--miaixz-space-8);
+  background: var(--miaixz-donut-tone);
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-donut-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miaixz-donut-value,
+.miaixz-donut-percentage {
+  font-variant-numeric: tabular-nums;
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-donut-description {
+  font-size: var(--miaixz-text-caption-size);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-donut-tone-neutral {
+  --miaixz-donut-tone: var(--miaixz-color-data-neutral);
+}
+
+.miaixz-donut-tone-info {
+  --miaixz-donut-tone: var(--miaixz-color-info);
+}
+
+.miaixz-donut-tone-success {
+  --miaixz-donut-tone: var(--miaixz-color-success);
+}
+
+.miaixz-donut-tone-warning {
+  --miaixz-donut-tone: var(--miaixz-color-warning);
+}
+
+.miaixz-donut-tone-danger {
+  --miaixz-donut-tone: var(--miaixz-color-danger);
+}
+
+.miaixz-donut-tone-data-1 {
+  --miaixz-donut-tone: var(--miaixz-color-data-1);
+}
+
+.miaixz-donut-tone-data-2 {
+  --miaixz-donut-tone: var(--miaixz-color-data-2);
+}
+
+.miaixz-donut-tone-data-3 {
+  --miaixz-donut-tone: var(--miaixz-color-data-3);
+}
+
+.miaixz-donut-tone-data-4 {
+  --miaixz-donut-tone: var(--miaixz-color-data-4);
+}
+
+.miaixz-donut-tone-data-5 {
+  --miaixz-donut-tone: var(--miaixz-color-data-5);
+}
+
+.miaixz-donut-tone-data-6 {
+  --miaixz-donut-tone: var(--miaixz-color-data-6);
+}
+
+.miaixz-donut-tone-data-7 {
+  --miaixz-donut-tone: var(--miaixz-color-data-7);
+}
+
+.miaixz-donut-tone-data-8 {
+  --miaixz-donut-tone: var(--miaixz-color-data-8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-donut[data-motion-state="enter"] .miaixz-donut-segment {
+    animation: miaixz-donut-enter 1.2s var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-donut[data-motion-replay="true"] .miaixz-donut-segment {
+    animation: miaixz-donut-replay 1.04s var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-donut[data-motion-state="enter"] .miaixz-donut-segment:nth-of-type(3) {
+    animation-delay: 88ms;
+  }
+
+  .miaixz-donut[data-motion-state="enter"] .miaixz-donut-segment:nth-of-type(4) {
+    animation-delay: 176ms;
+  }
+
+  .miaixz-donut[data-motion-state="enter"] .miaixz-donut-segment:nth-of-type(5) {
+    animation-delay: 264ms;
+  }
+
+  .miaixz-donut[data-motion-state="enter"] .miaixz-donut-center {
+    animation: miaixz-donut-center-enter 640ms var(--miaixz-motion-enter-easing) 800ms both;
+  }
+
+  .miaixz-donut[data-motion-replay="true"] .miaixz-donut-center {
+    animation: miaixz-donut-center-replay 640ms var(--miaixz-motion-enter-easing) 480ms both;
+  }
+
+  .miaixz-donut[data-animate] .miaixz-donut-segment {
+    animation: miaixz-donut-data-change var(--miaixz-duration-slower)
+      var(--miaixz-motion-enter-easing);
+  }
+}
+
+@keyframes miaixz-donut-enter {
+  from {
+    opacity: 0.28;
+    stroke-dasharray: 0 100;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dasharray: var(--miaixz-donut-segment);
+  }
+}
+
+@keyframes miaixz-donut-replay {
+  from {
+    opacity: 0.32;
+    stroke-dasharray: 0 100;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dasharray: var(--miaixz-donut-segment);
+  }
+}
+
+@keyframes miaixz-donut-center-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes miaixz-donut-center-replay {
+  0% {
+    opacity: 0.48;
+    transform: scale(0.88);
+  }
+
+  72% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes miaixz-donut-data-change {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}

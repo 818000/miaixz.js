@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Enforces repository source headers and strict multiline comment conventions.
+ */
+
 import { existsSync } from "node:fs";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { extname, resolve } from "node:path";
@@ -34,10 +38,13 @@ const requireStrictComments = {
     fixable: "whitespace",
     schema: [],
     messages: {
+      adjacentJsdoc:
+        "Consecutive JSDoc blocks must be merged into one comment while preserving descriptions and directives.",
       finalLineText:
         "Only a validated @ts-expect-error directive may share the JSDoc closing line.",
       invalidTypeScriptDirective:
         "TypeScript directives must use @ts-expect-error in multiline JSDoc and include a reason.",
+      missingModule: "Every source file must begin with a multiline JSDoc module description.",
       nonJsdoc: "Every block comment must use the /** ... */ JSDoc form.",
       singleLine: "Every comment must use a multiline JSDoc block.",
     },
@@ -59,8 +66,50 @@ const requireStrictComments = {
        * @returns {void}
        */
       Program() {
-        for (const comment of sourceCode.getAllComments()) {
+        const moduleBody = sourceCode.text
+          .replace(/^#![^\n]*(?:\n|$)/u, "")
+          .replace(/^\/\*(?:(?!\*\/)[\s\S])*?miaixz\.org(?:(?!\*\/)[\s\S])*?\*\/\s*/u, "");
+        if (!moduleBody.startsWith("/**\n")) {
+          context.report({
+            loc: { line: 1, column: 0 },
+            messageId: "missingModule",
+
+            /**
+             * Inserts a deterministic module description after the repository header.
+             *
+             * @param {object} fixer ESLint source-code fixer.
+             * @returns {object} ESLint fix that inserts the missing module description.
+             */
+            fix(fixer) {
+              const header =
+                /^\/\*(?:(?!\*\/)[\s\S])*?miaixz\.org(?:(?!\*\/)[\s\S])*?\*\/\s*/u.exec(
+                  sourceCode.text,
+                );
+              const insertionOffset = header?.[0].length ?? 0;
+              const filename = context.filename.split(/[\\/]/u).at(-1) ?? "source";
+              const label = filename
+                .replace(/\.[^.]+$/u, "")
+                .replaceAll(/[._-]+/gu, " ")
+                .trim();
+              return fixer.insertTextAfterRange(
+                [0, insertionOffset],
+                `/**\n * Implements the ${label || "source"} module.\n */\n\n`,
+              );
+            },
+          });
+        }
+        const comments = sourceCode.getAllComments();
+        for (const [index, comment] of comments.entries()) {
           const raw = sourceCode.getText(comment);
+          const previous = comments[index - 1];
+          if (
+            raw.startsWith("/**") &&
+            previous !== undefined &&
+            sourceCode.getText(previous).startsWith("/**") &&
+            sourceCode.text.slice(previous.range[1], comment.range[0]).trim() === ""
+          ) {
+            context.report({ loc: comment.loc, messageId: "adjacentJsdoc" });
+          }
           const isRepositoryHeader =
             comment.type === "Block" &&
             raw.startsWith("/*\n") &&

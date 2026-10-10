@@ -1,0 +1,9 @@
+{
+  "id": "zip",
+  "label": "ZIP archive",
+  "category": "archive",
+  "extensions": ["zip"],
+  "mimeTypes": ["application/zip"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

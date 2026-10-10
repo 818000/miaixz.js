@@ -1,0 +1,98 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the steps visual styles.
+ */
+
+.miaixz-steps {
+  display: flex;
+  gap: var(--miaixz-space-16);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.miaixz-steps[data-orientation="vertical"] {
+  flex-direction: column;
+}
+
+.miaixz-steps[data-density="compact"] {
+  gap: var(--miaixz-space-8);
+}
+
+.miaixz-steps[data-density="comfortable"] {
+  gap: var(--miaixz-space-24);
+}
+
+.miaixz-steps-item {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.miaixz-steps[data-surface="cards"] > .miaixz-steps-item {
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-steps-item-content {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--miaixz-space-8);
+  width: 100%;
+  padding: var(--miaixz-space-12);
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-steps-icon {
+  display: grid;
+  grid-row: 1 / span 2;
+  place-items: center;
+  inline-size: var(--miaixz-control-height-small);
+  block-size: var(--miaixz-control-height-small);
+  border: var(--miaixz-border-width-default) solid currentcolor;
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-steps-description {
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-steps-connector {
+  align-self: center;
+  inline-size: var(--miaixz-space-24);
+  border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+.miaixz-steps[data-orientation="vertical"] .miaixz-steps-connector {
+  position: absolute;
+  inset-block: 100% auto;
+  inset-inline-start: calc(var(--miaixz-space-12) + var(--miaixz-control-height-small) / 2);
+  inline-size: 0;
+  block-size: var(--miaixz-space-16);
+  border-block-start: 0;
+  border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}

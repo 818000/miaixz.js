@@ -37,44 +37,50 @@ if [ "$#" -ne 1 ] || [ -z "$1" ]; then
 fi
 
 node --input-type=module - "$root" "$1" <<'NODE'
-import { readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { format, resolveConfig } from "prettier";
 
 const root = process.argv[2];
 const version = process.argv[3];
-const { assertReleaseVersion, getWorkspacePeerRange, loadWorkspaceRepository } = await import(
-  pathToFileURL(join(root, ".github/scripts/miaixz.mjs"))
-);
+const {
+  assertReleaseVersion,
+  getWorkspacePeerRange,
+  loadRepositoryInventory,
+  loadVersionedPackageManifests,
+} = await import(pathToFileURL(join(root, ".github/scripts/miaixz.mjs")));
 assertReleaseVersion(version);
 
 const paths = {
   version: join(root, "VERSION"),
-  rootPackage: join(root, "package.json"),
 };
-const repository = loadWorkspaceRepository(root);
-const rootPackage = repository.rootManifest;
+const repository = loadRepositoryInventory(root);
+const versionedPackages = loadVersionedPackageManifests(root);
+const packagesByPath = new Map(
+  versionedPackages.map((entry) => [entry.manifestPath, entry]),
+);
+const rootPackage = versionedPackages.find(
+  ({ relativePath }) => relativePath === "package.json",
+)?.manifest;
 const currentVersion = readFileSync(paths.version, "utf8").trim();
 
-if (rootPackage.name !== "miaixz.js") {
+if (rootPackage?.name !== "miaixz.js") {
   throw new Error("Unexpected root package name; refusing to update versions.");
 }
 
-rootPackage.version = version;
+for (const { manifest } of versionedPackages) {
+  manifest.version = version;
+}
+
 const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
 const peerRange = getWorkspacePeerRange(version);
-for (const { manifest } of repository.workspaces) {
-  manifest.version = version;
-  if (manifest.miaixzUiContract !== undefined) {
-    if (
-      manifest.miaixzUiContract === null ||
-      typeof manifest.miaixzUiContract !== "object" ||
-      Array.isArray(manifest.miaixzUiContract)
-    ) {
-      throw new Error("miaixzUiContract must be an object when present.");
-    }
-    manifest.miaixzUiContract.version = version;
+for (const workspace of repository.workspaces) {
+  const versionedPackage = packagesByPath.get(workspace.manifestPath);
+  if (versionedPackage === undefined) {
+    throw new Error(`${workspace.directory}/package.json cannot opt out of synchronized versions.`);
   }
+  const { manifest } = versionedPackage;
   for (const dependencyName of Object.keys(manifest.peerDependencies ?? {})) {
     if (!workspaceNames.has(dependencyName)) continue;
     manifest.peerDependencies[dependencyName] = peerRange;
@@ -88,14 +94,50 @@ for (const { manifest } of repository.workspaces) {
   }
 }
 
+const sbomUpdates = [];
+for (const workspace of repository.publicWorkspaces) {
+  const sbomFiles = (workspace.manifest.files ?? []).filter((file) =>
+    /(?:^|\/)\w[^/]*\.spdx\.json$/u.test(file),
+  );
+  if (sbomFiles.length > 1) {
+    throw new Error(`${workspace.name} declares more than one SPDX SBOM.`);
+  }
+  if (sbomFiles.length === 0) continue;
+  const path = join(workspace.rootPath, sbomFiles[0]);
+  if (!existsSync(path)) throw new Error(`${workspace.name} SBOM is missing: ${sbomFiles[0]}.`);
+  const sbom = JSON.parse(readFileSync(path, "utf8"));
+  const packageEntry = sbom.packages?.find(({ name }) => name === workspace.name);
+  if (packageEntry === undefined) {
+    throw new Error(`${workspace.name} SBOM package entry is missing.`);
+  }
+  const packageSlug = workspace.name.split("/").at(-1);
+  if (!packageSlug || sbom.creationInfo === undefined) {
+    throw new Error(`${workspace.name} SBOM metadata is incomplete.`);
+  }
+  sbom.name = `${workspace.name}-${version}`;
+  sbom.documentNamespace = `https://miaixz.org/spdx/${packageSlug}/${version}`;
+  sbom.creationInfo.creators = [`Tool: miaixz-${packageSlug}-build-${version}`];
+  packageEntry.versionInfo = version;
+  const formatting = (await resolveConfig(path)) ?? {};
+  const contents = await format(JSON.stringify(sbom, null, 2), {
+    ...formatting,
+    filepath: path,
+  });
+  sbomUpdates.push([path, contents]);
+}
+
 const updates = [
   [paths.version, `${version}\n`],
-  [paths.rootPackage, `${JSON.stringify(rootPackage, null, 2)}\n`],
-  ...repository.workspaces.map(({ manifest, manifestPath }) => [
+  ...sbomUpdates,
+  ...versionedPackages.map(({ manifest, manifestPath }) => [
     manifestPath,
     `${JSON.stringify(manifest, null, 2)}\n`,
   ]),
 ];
+const { renderProjectVersions } = await import(
+  pathToFileURL(join(root, ".github/scripts/release/generate-project-version.mjs")),
+);
+updates.push(...renderProjectVersions(root, version));
 
 for (const [path, contents] of updates) {
   writeFileSync(`${path}.tmp`, contents);
@@ -104,15 +146,13 @@ for (const [path] of updates) {
   renameSync(`${path}.tmp`, path);
 }
 
-const verifiedRepository = loadWorkspaceRepository(root);
-const verifiedRoot = verifiedRepository.rootManifest;
+const verifiedRepository = loadRepositoryInventory(root);
+const verifiedPackages = loadVersionedPackageManifests(root);
 const expectedPeerRange = getWorkspacePeerRange(version);
 const verifiedWorkspaceNames = new Set(
   verifiedRepository.workspaces.map(({ name }) => name),
 );
 const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest }) => {
-  const contractVersionMatches =
-    manifest.miaixzUiContract === undefined || manifest.miaixzUiContract.version === version;
   const peersMatch = Object.entries(manifest.peerDependencies ?? {}).every(
     ([name, range]) =>
       !verifiedWorkspaceNames.has(name) ||
@@ -127,12 +167,11 @@ const internalVersionsMatch = verifiedRepository.workspaces.every(({ manifest })
       ([name, range]) => !verifiedWorkspaceNames.has(name) || range === version,
     ),
   );
-  return contractVersionMatches && peersMatch && otherDependenciesMatch;
+  return peersMatch && otherDependenciesMatch;
 });
 const versionsMatch =
   readFileSync(paths.version, "utf8").trim() === version &&
-  verifiedRoot.version === version &&
-  verifiedRepository.workspaces.every(({ manifest }) => manifest.version === version) &&
+  verifiedPackages.every(({ manifest }) => manifest.version === version) &&
   internalVersionsMatch;
 
 if (!versionsMatch) {
@@ -141,9 +180,7 @@ if (!versionsMatch) {
 
 console.log(`Version: ${currentVersion || "<empty>"} -> ${version}`);
 console.log(
-  `Updated: VERSION, package.json, ${repository.workspaces
-    .map(({ directory }) => `${directory}/package.json`)
-    .join(", ")}`,
+  `Updated: VERSION, ${versionedPackages.map(({ relativePath }) => relativePath).join(", ")}`,
 );
 console.log(`Internal workspace peer range: ${expectedPeerRange}`);
 NODE

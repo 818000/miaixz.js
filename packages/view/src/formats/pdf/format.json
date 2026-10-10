@@ -1,0 +1,9 @@
+{
+  "id": "pdf",
+  "label": "Portable Document Format",
+  "category": "document",
+  "extensions": ["pdf"],
+  "mimeTypes": ["application/pdf"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

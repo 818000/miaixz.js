@@ -1,0 +1,9 @@
+{
+  "id": "mp3",
+  "label": "MPEG audio layer III",
+  "category": "audio",
+  "extensions": ["mp3"],
+  "mimeTypes": ["audio/mpeg"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

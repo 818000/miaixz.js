@@ -1,0 +1,53 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Implements the divider UI component.
+ */
+
+import { forwardRef } from "react";
+
+import { classNames } from "../../shared/class-names.js";
+import type { DividerProps } from "./divider.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
+
+/**
+ * Renders a semantic separator along the selected axis.
+ *
+ * @public
+ */
+export const Divider = withMiaixzThemeComponent(
+  "Divider",
+  forwardRef<HTMLDivElement, DividerProps>(function Divider(
+    { orientation = "horizontal", className, ...props },
+    ref,
+  ) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        role="separator"
+        aria-orientation={orientation === "vertical" ? "vertical" : undefined}
+        data-orientation={orientation}
+        className={classNames("miaixz-divider", `miaixz-divider-${orientation}`, className)}
+      />
+    );
+  }),
+);

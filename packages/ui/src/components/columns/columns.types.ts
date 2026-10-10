@@ -1,0 +1,129 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the columns public type contracts.
+ */
+
+import type {
+  HTMLAttributes,
+  TableHTMLAttributes,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+import type { MiaixzVisualTone } from "../shared.types.js";
+
+/**
+ * Stable identifier, display label, and values of one column-chart series.
+ */
+export interface ColumnsSeries {
+  readonly id: string;
+  readonly label: string;
+  readonly values: readonly number[];
+}
+/**
+ * Resolved Columns state exposed to theme and slot overrides.
+ */
+export interface ColumnsOwnerState {
+  readonly orientation: "vertical" | "horizontal";
+  readonly layout: "grouped" | "stacked";
+  readonly density: "compact" | "standard" | "comfortable";
+  readonly size: "standard" | "large";
+  readonly presentation:
+    | "default"
+    | "agent-resources"
+    | "member-growth"
+    | "permission-security"
+    | "cost-performance"
+    | "dataset"
+    | "resource";
+  readonly tone: MiaixzVisualTone;
+  readonly state: "empty" | "ready";
+}
+/**
+ * Attributes accepted by the Columns Root slot.
+ */
+export interface ColumnsRootAttributes extends HTMLAttributes<HTMLDivElement> {
+  readonly "data-orientation"?: ColumnsOwnerState["orientation"];
+  readonly "data-layout"?: ColumnsOwnerState["layout"];
+  readonly "data-density"?: ColumnsOwnerState["density"];
+  readonly "data-size"?: ColumnsOwnerState["size"];
+  readonly "data-presentation"?: ColumnsOwnerState["presentation"];
+  readonly "data-tone"?: MiaixzVisualTone;
+  readonly "data-state"?: ColumnsOwnerState["state"];
+}
+/**
+ * Attributes accepted by the Columns Bar slot.
+ */
+export interface ColumnsBarAttributes extends HTMLAttributes<HTMLSpanElement> {
+  readonly "data-series"?: number;
+}
+/**
+ * Per-slot attributes and state-dependent override callbacks for Columns.
+ */
+export interface ColumnsSlotProps {
+  readonly root?: MiaixzSlotProps<ColumnsOwnerState, ColumnsRootAttributes>;
+  readonly legend?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly legendItem?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly plot?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly category?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly bars?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly bar?: MiaixzSlotProps<ColumnsOwnerState, ColumnsBarAttributes>;
+  readonly categoryLabel?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly table?: MiaixzSlotProps<ColumnsOwnerState, TableHTMLAttributes<HTMLTableElement>>;
+  readonly caption?: MiaixzSlotProps<ColumnsOwnerState, HTMLAttributes<HTMLTableCaptionElement>>;
+  readonly tableHeader?: MiaixzSlotProps<ColumnsOwnerState, ThHTMLAttributes<HTMLTableCellElement>>;
+  readonly tableCell?: MiaixzSlotProps<ColumnsOwnerState, TdHTMLAttributes<HTMLTableCellElement>>;
+}
+/**
+ * Requires an external description when the default accessible data table is disabled.
+ */
+type ColumnsAccessibility =
+  | { readonly accessibleTable?: true; readonly "aria-describedby"?: string }
+  | { readonly accessibleTable: false; readonly "aria-describedby": string };
+/**
+ * Component-specific Columns properties composed with the permitted native attributes.
+ */
+interface ColumnsBaseProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "aria-label" | "aria-describedby" | "children" | "color"
+> {
+  readonly labels: readonly string[];
+  readonly series: readonly ColumnsSeries[];
+  readonly maximum?: number;
+  readonly showLegend?: boolean;
+  readonly tone: MiaixzVisualTone;
+  readonly "aria-label": string;
+  readonly orientation?: "vertical" | "horizontal";
+  readonly layout?: "grouped" | "stacked";
+  readonly density?: "compact" | "standard" | "comfortable";
+  readonly size?: "standard" | "large";
+  readonly presentation?: ColumnsOwnerState["presentation"];
+  readonly categoryFormatter?: (label: string, index: number) => string;
+  readonly seriesFormatter?: (series: ColumnsSeries) => string;
+  readonly valueFormatter?: (value: number, series: ColumnsSeries, categoryIndex: number) => string;
+  readonly slotProps?: ColumnsSlotProps;
+}
+/**
+ * Properties accepted by the Columns renderer.
+ */
+export type ColumnsProps = ColumnsBaseProps & ColumnsAccessibility;

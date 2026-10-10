@@ -1,0 +1,349 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the heatmap visual styles.
+ */
+
+[data-miaixz-theme] {
+  --miaixz-heatmap-cell-size: var(--miaixz-density-control-height);
+  --miaixz-heatmap-cell-gap: var(--miaixz-space-4);
+}
+
+.miaixz-heatmap,
+.miaixz-heatmap-legend {
+  --miaixz-heatmap-tone: var(--miaixz-color-brand);
+
+  min-width: 0;
+  max-width: 100%;
+}
+
+.miaixz-heatmap[data-density="compact"] {
+  --miaixz-heatmap-cell-size: 24px;
+  --miaixz-heatmap-cell-gap: var(--miaixz-space-2);
+}
+
+.miaixz-heatmap[data-density="comfortable"] {
+  --miaixz-heatmap-cell-size: 48px;
+  --miaixz-heatmap-cell-gap: var(--miaixz-space-8);
+}
+
+.miaixz-heatmap[data-density="workbench"] {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  contain: paint;
+  overflow: hidden;
+}
+
+.miaixz-heatmap[data-density="workbench"] > .miaixz-heatmap-viewport,
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-table {
+  width: 100%;
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-table {
+  min-width: 390px;
+  table-layout: fixed;
+  border-spacing: 3px 4px;
+}
+
+.miaixz-heatmap[data-density="workbench"] :is(.miaixz-heatmap-corner, .miaixz-heatmap-row-label) {
+  width: 26px;
+}
+
+.miaixz-heatmap[data-density="workbench"]
+  :is(.miaixz-heatmap-column-label, .miaixz-heatmap-row-label) {
+  padding: 0;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: 1.4;
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-column-label {
+  padding-block-end: 3px;
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-cell {
+  min-width: 0;
+  height: 18px;
+  padding: 0;
+  font-size: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.miaixz-heatmap[data-caption-visibility="hidden"] .miaixz-heatmap-caption {
+  display: none;
+}
+
+.miaixz-heatmap-viewport {
+  width: auto;
+  max-width: 100%;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior-inline: contain;
+}
+
+.miaixz-heatmap-viewport:focus-visible {
+  box-shadow: var(--miaixz-control-focus-shadow);
+}
+
+.miaixz-heatmap-table {
+  width: max-content;
+  min-width: 100%;
+  border-spacing: var(--miaixz-heatmap-cell-gap);
+  border-collapse: separate;
+}
+
+.miaixz-heatmap-column-label,
+.miaixz-heatmap-row-label {
+  max-width: calc(var(--miaixz-heatmap-cell-size) * 3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--miaixz-text-caption-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  color: var(--miaixz-color-text-secondary);
+  white-space: nowrap;
+}
+
+.miaixz-heatmap-column-label {
+  min-width: var(--miaixz-heatmap-cell-size);
+  padding: 0;
+  text-align: center;
+}
+
+.miaixz-heatmap-row-label {
+  position: sticky;
+  inset-inline-start: 0;
+  padding: 0;
+  text-align: start;
+  background: var(--miaixz-surface-role-panel-background);
+}
+
+.miaixz-heatmap-cell {
+  min-width: var(--miaixz-heatmap-cell-size);
+  height: var(--miaixz-heatmap-cell-size);
+  padding: 0;
+  font-size: var(--miaixz-text-caption-size);
+  font-variant-numeric: tabular-nums;
+  color: var(--miaixz-color-text-primary);
+  text-align: center;
+  background: var(--miaixz-color-surface-secondary);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+  border-radius: var(--miaixz-radius-control);
+  transition:
+    background-color var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing),
+    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+}
+
+.miaixz-heatmap-cell:hover {
+  border-color: var(--miaixz-heatmap-tone);
+}
+
+.miaixz-heatmap-corner {
+  width: auto;
+}
+
+.miaixz-heatmap-cell[data-level="1"],
+.miaixz-heatmap-legend-cell[data-level="1"] {
+  background: color-mix(in srgb, var(--miaixz-heatmap-tone) 16%, var(--miaixz-color-surface));
+}
+
+.miaixz-heatmap-cell[data-level="2"],
+.miaixz-heatmap-legend-cell[data-level="2"] {
+  background: color-mix(in srgb, var(--miaixz-heatmap-tone) 32%, var(--miaixz-color-surface));
+}
+
+.miaixz-heatmap-cell[data-level="3"],
+.miaixz-heatmap-legend-cell[data-level="3"] {
+  background: color-mix(in srgb, var(--miaixz-heatmap-tone) 48%, var(--miaixz-color-surface));
+}
+
+.miaixz-heatmap-cell[data-level="4"],
+.miaixz-heatmap-legend-cell[data-level="4"] {
+  background: color-mix(in srgb, var(--miaixz-heatmap-tone) 64%, var(--miaixz-color-surface));
+}
+
+.miaixz-heatmap-cell[data-level="5"],
+.miaixz-heatmap-legend-cell[data-level="5"] {
+  background: color-mix(in srgb, var(--miaixz-heatmap-tone) 80%, var(--miaixz-color-surface));
+  border-color: var(--miaixz-heatmap-tone);
+}
+
+.miaixz-heatmap-legend {
+  display: inline-flex;
+  gap: var(--miaixz-space-4);
+  align-items: center;
+  margin-block-start: var(--miaixz-space-8);
+  font-size: var(--miaixz-text-caption-size);
+}
+
+.miaixz-heatmap-legend-scale {
+  display: inline-flex;
+  gap: var(--miaixz-space-2);
+}
+
+.miaixz-heatmap-legend-cell {
+  display: block;
+  width: var(--miaixz-space-8);
+  height: var(--miaixz-space-8);
+  background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-heatmap[data-tone="neutral"],
+.miaixz-heatmap-legend[data-tone="neutral"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-neutral);
+}
+
+.miaixz-heatmap[data-tone="info"],
+.miaixz-heatmap-legend[data-tone="info"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-info);
+}
+
+.miaixz-heatmap[data-tone="success"],
+.miaixz-heatmap-legend[data-tone="success"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-success);
+}
+
+.miaixz-heatmap[data-tone="warning"],
+.miaixz-heatmap-legend[data-tone="warning"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-warning);
+}
+
+.miaixz-heatmap[data-tone="danger"],
+.miaixz-heatmap-legend[data-tone="danger"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-danger);
+}
+
+.miaixz-heatmap[data-tone="data-1"],
+.miaixz-heatmap-legend[data-tone="data-1"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-1);
+}
+
+.miaixz-heatmap[data-tone="data-2"],
+.miaixz-heatmap-legend[data-tone="data-2"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-2);
+}
+
+.miaixz-heatmap[data-tone="data-3"],
+.miaixz-heatmap-legend[data-tone="data-3"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-3);
+}
+
+.miaixz-heatmap[data-tone="data-4"],
+.miaixz-heatmap-legend[data-tone="data-4"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-4);
+}
+
+.miaixz-heatmap[data-tone="data-5"],
+.miaixz-heatmap-legend[data-tone="data-5"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-5);
+}
+
+.miaixz-heatmap[data-tone="data-6"],
+.miaixz-heatmap-legend[data-tone="data-6"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-6);
+}
+
+.miaixz-heatmap[data-tone="data-7"],
+.miaixz-heatmap-legend[data-tone="data-7"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-7);
+}
+
+.miaixz-heatmap[data-tone="data-8"],
+.miaixz-heatmap-legend[data-tone="data-8"] {
+  --miaixz-heatmap-tone: var(--miaixz-color-data-8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-heatmap[data-motion-state="enter"] .miaixz-heatmap-cell {
+    transform-origin: center;
+    animation: miaixz-heatmap-enter 720ms var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-heatmap[data-motion-replay="true"] .miaixz-heatmap-cell {
+    animation: miaixz-heatmap-replay 640ms var(--miaixz-motion-enter-easing) both;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(2) .miaixz-heatmap-cell {
+    animation-delay: 44ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(3) .miaixz-heatmap-cell {
+    animation-delay: 88ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(4) .miaixz-heatmap-cell {
+    animation-delay: 132ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(5) .miaixz-heatmap-cell {
+    animation-delay: 176ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(6) .miaixz-heatmap-cell {
+    animation-delay: 220ms;
+  }
+
+  .miaixz-heatmap[data-motion-state="enter"] tbody tr:nth-child(7) .miaixz-heatmap-cell {
+    animation-delay: 264ms;
+  }
+}
+
+@keyframes miaixz-heatmap-enter {
+  from {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes miaixz-heatmap-replay {
+  0% {
+    opacity: 0.28;
+    transform: scale(0.62);
+  }
+
+  74% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-heatmap-cell {
+    transform: none;
+    transition-duration: 0s;
+    animation: none;
+  }
+}

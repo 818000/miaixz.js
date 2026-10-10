@@ -1,0 +1,100 @@
+{
+  "name": "@miaixz/icons",
+  "version": "0.8.0",
+  "description": "Miaixz variable-font icons, React component, and accessibility primitives.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19",
+    "npm": ">=10"
+  },
+  "license": "Apache-2.0",
+  "author": "The Miaixz Team",
+  "homepage": "https://github.com/818000/miaixz.js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/818000/miaixz.js.git",
+    "directory": "packages/icons"
+  },
+  "bugs": {
+    "url": "https://github.com/818000/miaixz.js/issues"
+  },
+  "keywords": [
+    "miaixz",
+    "icons",
+    "react",
+    "variable-font"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "SBOM.spdx.json"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./catalog": {
+      "types": "./dist/values/metadata.d.ts",
+      "import": "./dist/values/metadata.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./font.woff2": "./dist/assets/fonts/miaixz-icons.woff2"
+  },
+  "scripts": {
+    "clean": "node ../../.github/scripts/modules/icons/hooks/package-assets.mjs --mode clean",
+    "generate": "node ../../.github/scripts/modules/icons/codegen/generate-icons.mjs --write",
+    "generate:check": "node ../../.github/scripts/modules/icons/codegen/generate-icons.mjs --check",
+    "source:check": "node ../../.github/scripts/modules/icons/quality/validate-icon-package.mjs --scope source",
+    "refinement:scan": "node ../../.github/scripts/modules/icons/quality/audit-icon-refinement.mjs --mode scan",
+    "font:build": "node ../../.github/scripts/modules/icons/fonts/build-icon-font.mjs --write",
+    "font:check": "node ../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs --mode validate",
+    "package:check": "node ../../.github/scripts/modules/icons/quality/validate-icon-package.mjs --scope package",
+    "build": "node ../../.github/scripts/release/generate-project-version.mjs --check && npm run clean && npm run source:check && npm run generate:check && npm run font:build && tsc -p tsconfig.build.json && node ../../.github/scripts/modules/icons/hooks/package-assets.mjs --mode finalize && npm run package:check",
+    "typecheck": "node ../../.github/scripts/release/generate-project-version.mjs --check && tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src tests *.config.ts --config ../ui/eslint.config.js --no-error-on-unmatched-pattern && stylelint \"src/**/*.css\" --config ../ui/stylelint.config.js",
+    "test": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run",
+    "test:browser": "playwright test",
+    "test:coverage": "node ../../.github/scripts/release/generate-project-version.mjs --check && vitest run --coverage",
+    "format": "prettier src/values src/react src/runtime src/styles src/index.ts src/version.ts tests README.md package.json *.config.ts --write --ignore-path ../../.gitignore",
+    "format:check": "prettier src/values src/react src/runtime src/styles src/index.ts src/version.ts tests README.md package.json *.config.ts --check --ignore-path ../../.gitignore",
+    "check": "npm run source:check && npm run generate:check && npm run font:check && npm run typecheck && npm run lint && npm run test:coverage && npm run format:check",
+    "geometry:measure": "node ../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs --mode measure"
+  },
+  "peerDependencies": {
+    "react": ">=18.3 <20",
+    "react-dom": ">=18.3 <20"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.62.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "26.4.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@vitest/coverage-v8": "4.1.11",
+    "ajv": "8.20.0",
+    "eslint": "10.9.1",
+    "jsdom": "29.1.1",
+    "pixelmatch": "7.1.0",
+    "pngjs": "7.0.0",
+    "prettier": "3.9.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "stylelint": "17.14.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

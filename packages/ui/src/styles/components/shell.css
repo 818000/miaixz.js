@@ -1,0 +1,518 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the shell visual styles.
+ */
+
+html:has(.miaixz-shell),
+body:has(.miaixz-shell) {
+  margin: 0;
+  overscroll-behavior-y: none;
+}
+
+.miaixz-shell {
+  --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-width);
+  --miaixz-shell-content-sticky-offset: var(--miaixz-layout-header-height);
+
+  display: grid;
+  grid-template:
+    "sidebar header" var(--miaixz-layout-header-height)
+    "sidebar main" minmax(0, 1fr) /
+    var(--miaixz-shell-current-navigation-width) minmax(0, 1fr);
+  min-block-size: var(--miaixz-viewport-block);
+  container-name: miaixz-shell;
+  container-type: inline-size;
+}
+
+.miaixz-shell:has(> .miaixz-shell-brand) {
+  grid-template:
+    "brand header" var(--miaixz-layout-header-height)
+    "sidebar main" minmax(0, 1fr) /
+    var(--miaixz-shell-current-navigation-width) minmax(0, 1fr);
+}
+
+.miaixz-shell-brand {
+  position: relative;
+  z-index: calc(var(--miaixz-z-navigation) + 1);
+  display: flex;
+  grid-area: brand;
+  align-items: center;
+  min-inline-size: 0;
+  color: var(--miaixz-surface-role-sidebar-foreground);
+  background: var(--miaixz-surface-role-sidebar-background);
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell-secondary-navigation,
+.miaixz-shell-context-navigation {
+  display: none;
+  min-inline-size: 0;
+  min-block-size: 0;
+  color: var(--miaixz-surface-role-sidebar-foreground);
+  background: var(--miaixz-surface-role-sidebar-background);
+}
+
+.miaixz-shell[data-layout="dual"] {
+  grid-template:
+    "brand header header" var(--miaixz-layout-header-height)
+    "sidebar secondary main" minmax(0, 1fr) /
+    var(--miaixz-layout-sidebar-compact-width) var(--miaixz-layout-sidebar-width)
+    minmax(0, 1fr);
+}
+
+.miaixz-shell[data-layout="dual"] > .miaixz-shell-secondary-navigation {
+  display: block;
+  grid-area: secondary;
+  overflow: hidden auto;
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell[data-layout="dual"]:not(:has(> .miaixz-shell-secondary-navigation)) {
+  grid-template:
+    "brand header" var(--miaixz-layout-header-height)
+    "sidebar main" minmax(0, 1fr) /
+    var(--miaixz-layout-sidebar-width) minmax(0, 1fr);
+}
+
+.miaixz-shell[data-layout="horizontal"] {
+  grid-template:
+    "brand header" var(--miaixz-layout-header-height)
+    "sidebar sidebar" var(--miaixz-density-item-height)
+    "main main" minmax(0, 1fr) /
+    max-content minmax(0, 1fr);
+}
+
+.miaixz-shell[data-layout="horizontal"] > .miaixz-shell-sidebar {
+  position: static;
+  inline-size: 100%;
+  block-size: var(--miaixz-density-item-height);
+  overflow: hidden;
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+  border-inline-end: 0;
+  transform: none;
+}
+
+.miaixz-shell[data-layout="top-sidebar"] {
+  grid-template:
+    "brand header" var(--miaixz-layout-header-height)
+    "sidebar main" minmax(0, 1fr) /
+    var(--miaixz-shell-current-navigation-width) minmax(0, 1fr);
+}
+
+.miaixz-shell[data-layout="hybrid-vertical"] {
+  grid-template:
+    "brand header" var(--miaixz-layout-header-height)
+    "context context" var(--miaixz-density-item-height)
+    "sidebar main" minmax(0, 1fr) /
+    var(--miaixz-shell-current-navigation-width) minmax(0, 1fr);
+}
+
+.miaixz-shell[data-layout="hybrid-vertical"] > .miaixz-shell-context-navigation,
+.miaixz-shell[data-layout="hybrid-dual"] > .miaixz-shell-context-navigation {
+  display: block;
+  grid-area: context;
+  overflow: hidden;
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell[data-layout="hybrid-dual"] {
+  grid-template:
+    "brand header header" var(--miaixz-layout-header-height)
+    "sidebar context context" var(--miaixz-density-item-height)
+    "sidebar secondary main" minmax(0, 1fr) /
+    var(--miaixz-layout-sidebar-compact-width) var(--miaixz-layout-sidebar-width)
+    minmax(0, 1fr);
+}
+
+.miaixz-shell[data-layout="hybrid-dual"] > .miaixz-shell-secondary-navigation {
+  display: block;
+  grid-area: secondary;
+  overflow: hidden auto;
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell[data-layout="hybrid-dual"]:not(:has(> .miaixz-shell-secondary-navigation)) {
+  grid-template:
+    "brand header" var(--miaixz-layout-header-height)
+    "sidebar context" var(--miaixz-density-item-height)
+    "sidebar main" minmax(0, 1fr) /
+    var(--miaixz-layout-sidebar-width) minmax(0, 1fr);
+}
+
+.miaixz-shell[data-presentation="workspace"] {
+  min-width: 320px;
+  overflow-x: clip;
+  color: var(--miaixz-surface-role-page-foreground);
+}
+
+.miaixz-shell[data-presentation="workspace"][data-header-behavior="fixed"] {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
+
+.miaixz-shell[data-presentation="workspace"] > .miaixz-shell-header {
+  --miaixz-shell-workspace-header-padding: 28px;
+
+  padding-inline: var(--miaixz-shell-workspace-header-padding);
+  backdrop-filter: none;
+}
+
+.miaixz-shell[data-presentation="workspace"] [data-ui="shell-topbar"] {
+  --miaixz-shell-topbar-search-width: 260px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--miaixz-shell-topbar-search-width) max-content;
+  gap: var(--miaixz-space-24);
+  align-items: center;
+  justify-content: end;
+  width: 100%;
+  min-width: 0;
+}
+
+.miaixz-shell[data-presentation="workspace"] [data-ui="shell-topbar-brand"] {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+  margin-inline-start: calc(var(--miaixz-shell-workspace-header-padding) * -1);
+  transform: translateY(0.5px);
+}
+
+.miaixz-shell[data-presentation="workspace"][data-navigation-expanded]
+  [data-ui="shell-topbar-brand"] {
+  visibility: hidden;
+}
+
+.miaixz-shell[data-presentation="workspace"] [data-ui="shell-topbar-search"] {
+  justify-self: end;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--miaixz-shell-topbar-search-width);
+}
+
+.miaixz-shell[data-presentation="workspace"] [data-ui="shell-account"] {
+  flex: none;
+  place-self: center;
+}
+
+.miaixz-shell[data-presentation="workspace"] > .miaixz-shell-main {
+  margin-inline-end: 10px;
+}
+
+.miaixz-shell[data-presentation="workspace"] [data-ui="shell-content"] {
+  min-width: 0;
+  min-height: 100%;
+  outline: 0;
+}
+
+@media (width <= 1280px) {
+  .miaixz-shell[data-presentation="workspace"] [data-ui="shell-topbar"] {
+    gap: var(--miaixz-space-12);
+  }
+}
+
+@media (767px < width <= 1023px) {
+  .miaixz-shell[data-presentation="workspace"] > .miaixz-shell-header {
+    padding-inline-start: calc(
+      var(--miaixz-layout-sidebar-compact-width) + var(--miaixz-shell-workspace-header-padding)
+    );
+  }
+
+  .miaixz-shell[data-presentation="workspace"] [data-ui="shell-topbar"] {
+    gap: var(--miaixz-space-8);
+  }
+}
+
+@media (width <= 767px) {
+  .miaixz-shell[data-presentation="workspace"] > .miaixz-shell-header {
+    padding-inline-start: calc(var(--miaixz-layout-sidebar-compact-width) + var(--miaixz-space-8));
+  }
+
+  .miaixz-shell[data-presentation="workspace"] [data-ui="shell-topbar"] {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: var(--miaixz-space-8);
+    justify-content: stretch;
+  }
+
+  .miaixz-shell[data-presentation="workspace"] [data-ui="shell-topbar-brand"] {
+    display: none;
+  }
+}
+
+.miaixz-shell[data-desktop-navigation="rail"] {
+  --miaixz-shell-current-navigation-width: var(--miaixz-layout-sidebar-compact-width);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar {
+  inline-size: var(--miaixz-layout-sidebar-width);
+  transform: translateX(
+    calc(var(--miaixz-layout-sidebar-compact-width) - var(--miaixz-layout-sidebar-width))
+  );
+  transition: transform var(--miaixz-navigation-reveal-duration)
+    var(--miaixz-navigation-reveal-easing);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"]
+  > .miaixz-shell-sidebar
+  > .miaixz-navigation-rail-frame {
+  transform: translateX(
+    calc(var(--miaixz-layout-sidebar-width) - var(--miaixz-layout-sidebar-compact-width))
+  );
+  transition: transform var(--miaixz-navigation-reveal-duration)
+    var(--miaixz-navigation-reveal-easing);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded] > .miaixz-shell-sidebar {
+  z-index: var(--miaixz-z-overlay);
+  transform: translateX(0);
+}
+
+.miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded]
+  > .miaixz-shell-sidebar
+  > .miaixz-navigation-rail-frame {
+  transform: translateX(0);
+}
+
+.miaixz-shell[data-header-behavior="fixed"] {
+  --miaixz-shell-content-sticky-offset: 0px;
+
+  block-size: var(--miaixz-viewport-block);
+  overflow: clip;
+}
+
+.miaixz-shell[data-header-behavior="fixed"] > .miaixz-shell-main {
+  overflow: hidden auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: none;
+}
+
+.miaixz-shell-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--miaixz-z-navigation);
+  display: flex;
+  grid-area: header;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--miaixz-layout-header-height);
+  padding-inline: var(--miaixz-page-gutter);
+  color: var(--miaixz-surface-role-header-foreground);
+  background: var(--miaixz-surface-role-header-background);
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-header-border);
+}
+
+.miaixz-shell[data-header-behavior="scroll"] > .miaixz-shell-header {
+  position: static;
+}
+
+.miaixz-shell-sidebar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--miaixz-z-navigation);
+  grid-area: sidebar;
+  inline-size: var(--miaixz-shell-current-navigation-width);
+  block-size: var(--miaixz-viewport-block);
+  min-height: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain none;
+  color: var(--miaixz-surface-role-sidebar-foreground);
+  scrollbar-width: thin;
+  background: var(--miaixz-surface-role-sidebar-background);
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+.miaixz-shell-sidebar[data-overflow="contained"] {
+  overflow: hidden;
+  scrollbar-width: auto;
+}
+
+.miaixz-shell-main {
+  grid-area: main;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.miaixz-shell-mobile-navigation {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: var(--miaixz-z-navigation);
+  display: none;
+  color: var(--miaixz-surface-role-sidebar-foreground);
+  background: var(--miaixz-surface-role-sidebar-background);
+  border-block-start: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-sidebar-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar,
+  .miaixz-shell[data-desktop-navigation="rail"]
+    > .miaixz-shell-sidebar
+    > .miaixz-navigation-rail-frame {
+    transition-duration: 0s;
+  }
+}
+
+@media (width < 1024px) {
+  .miaixz-shell[data-layout] {
+    grid-template:
+      "header" var(--miaixz-layout-header-height)
+      "main" minmax(0, 1fr) / minmax(0, 1fr);
+  }
+
+  .miaixz-shell
+    > :is(
+      .miaixz-shell-brand,
+      .miaixz-shell-secondary-navigation,
+      .miaixz-shell-context-navigation
+    ) {
+    display: none;
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"] {
+    --miaixz-shell-current-navigation-width: 0px;
+
+    grid-template:
+      "header" var(--miaixz-layout-header-height)
+      "main" minmax(0, 1fr) / minmax(0, 1fr);
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: var(--miaixz-z-overlay);
+    inline-size: var(--miaixz-layout-sidebar-width);
+    clip-path: inset(
+      0 calc(var(--miaixz-layout-sidebar-width) - var(--miaixz-layout-sidebar-compact-width))
+        calc(100% - var(--miaixz-layout-header-height)) 0
+    );
+    transform: none;
+    transition: clip-path var(--miaixz-navigation-reveal-duration)
+      var(--miaixz-navigation-reveal-easing);
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"]
+    > .miaixz-shell-sidebar
+    > .miaixz-navigation-rail-frame {
+    transform: none;
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"]:not([data-navigation-expanded])
+    > .miaixz-shell-sidebar
+    :is(.miaixz-navigation-rail-body, .miaixz-navigation-rail-utility) {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(calc(var(--miaixz-space-16) * -1));
+    transition:
+      visibility 0s var(--miaixz-navigation-reveal-duration),
+      opacity var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing),
+      transform var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing);
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded] > .miaixz-shell-sidebar {
+    clip-path: inset(0);
+  }
+
+  .miaixz-shell[data-desktop-navigation="rail"][data-navigation-expanded]
+    > .miaixz-shell-sidebar
+    :is(.miaixz-navigation-rail-body, .miaixz-navigation-rail-utility) {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      visibility 0s,
+      opacity var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing),
+      transform var(--miaixz-navigation-reveal-duration) var(--miaixz-navigation-reveal-easing);
+  }
+
+  .miaixz-shell:not([data-desktop-navigation="rail"]) {
+    grid-template:
+      "header" var(--miaixz-layout-header-height)
+      "main" minmax(0, 1fr) / minmax(0, 1fr);
+  }
+
+  .miaixz-shell:not([data-desktop-navigation="rail"]) > .miaixz-shell-sidebar {
+    display: none;
+  }
+
+  .miaixz-shell-header {
+    padding-block-start: var(--miaixz-safe-area-block-start);
+    padding-inline: max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-start))
+      max(var(--miaixz-page-gutter), var(--miaixz-safe-area-inline-end));
+  }
+
+  .miaixz-shell:has(> .miaixz-shell-mobile-navigation) > .miaixz-shell-main {
+    padding-block-end: calc(
+      var(--miaixz-layout-mobile-navigation-height) + var(--miaixz-safe-area-block-end)
+    );
+  }
+
+  .miaixz-shell-mobile-navigation {
+    display: block;
+    inline-size: 100%;
+    block-size: calc(
+      var(--miaixz-layout-mobile-navigation-height) + var(--miaixz-safe-area-block-end)
+    );
+    padding-block-end: var(--miaixz-safe-area-block-end);
+    padding-inline: var(--miaixz-safe-area-inline-start) var(--miaixz-safe-area-inline-end);
+    overflow: hidden;
+  }
+}
+
+@media (width < 1024px) and (prefers-reduced-motion: reduce) {
+  .miaixz-shell[data-desktop-navigation="rail"] > .miaixz-shell-sidebar,
+  .miaixz-shell[data-desktop-navigation="rail"]
+    > .miaixz-shell-sidebar
+    :is(.miaixz-navigation-rail-body, .miaixz-navigation-rail-utility) {
+    transition-duration: 0s;
+  }
+}
+
+@media print {
+  .miaixz-shell {
+    display: block;
+  }
+
+  .miaixz-shell[data-header-behavior="fixed"] {
+    block-size: auto;
+    min-block-size: 0;
+    overflow: visible;
+  }
+
+  .miaixz-shell[data-header-behavior="fixed"] > .miaixz-shell-main {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  .miaixz-shell-header,
+  .miaixz-shell-sidebar,
+  .miaixz-shell-mobile-navigation {
+    display: none !important;
+  }
+}

@@ -18,36 +18,98 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
-import { readFileSync } from "node:fs";
-import { join, relative } from "node:path";
-import { getWorkspacePeerRange, loadWorkspaceRepository } from "../miaixz.mjs";
+/**
+ * Validates release metadata before package publication.
+ */
 
-const requestedVersion = process.argv[2]?.trim();
-const repository = loadWorkspaceRepository();
-const version = readFileSync(join(repository.root, "VERSION"), "utf8").trim();
-if (requestedVersion && requestedVersion !== version) {
-  throw new Error(`Requested version '${requestedVersion}' does not match VERSION '${version}'.`);
+import { readFileSync, readdirSync } from "node:fs";
+import { resolve } from "node:path";
+import { generateProjectVersions } from "./generate-project-version.mjs";
+
+import {
+  getWorkspacePeerRange,
+  loadVersionedPackageManifests,
+  loadWorkspaceRepository,
+  readRepositoryVersion,
+} from "../miaixz.mjs";
+
+if (process.argv.length !== 2) {
+  throw new Error("check-release-metadata.mjs accepts no version argument; it reads VERSION.");
 }
+const repository = loadWorkspaceRepository();
+const version = readRepositoryVersion(repository.root);
+generateProjectVersions(true, repository.root);
 
-const manifests = [
-  ["package.json", repository.rootManifest],
-  ...repository.workspaces.map(({ manifest, manifestPath }) => [
-    relative(repository.root, manifestPath),
-    manifest,
-  ]),
-];
+/**
+ * Rejects independently maintained project version literals in runtime source and configuration.
+ *
+ * @param directory - Workspace source directory to inspect recursively.
+ * @param packageName - Workspace package identity.
+ */
+function checkSourceVersions(directory, packageName) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name);
+    if (entry.isDirectory()) {
+      checkSourceVersions(path, packageName);
+      continue;
+    }
+    if (entry.name === "version.ts" || !/\.(?:tsx?|json)$/u.test(entry.name)) continue;
+    const source = readFileSync(path, "utf8");
+    const repositoryPath = path.replaceAll("\\", "/");
+    const removedMetadataVersion =
+      (packageName === "@miaixz/ui" && repositoryPath.includes("/theme/")) ||
+      (packageName === "@miaixz/sdk" && repositoryPath.endsWith("/i18n/locale-catalog.ts"));
+    if (
+      removedMetadataVersion &&
+      (/\breadonly\s+version\s*:/u.test(source) ||
+        /\bversion\s*:/u.test(source) ||
+        /\b(?:child|definition|locale|record|theme)\.version\b/u.test(source))
+    ) {
+      throw new Error(`${path} must use schemaVersion without a duplicate version field.`);
+    }
+    if (entry.name.endsWith(".json")) {
+      const value = JSON.parse(source);
+      if (Object.keys(value).some((key) => /version/iu.test(key))) {
+        throw new Error(`${path} must not maintain project versions in configuration JSON.`);
+      }
+    } else if (
+      /\b(?:schemaVersion|layoutVersion|protocolVersion)\s*:\s*(?:\d+|["']\d)/u.test(source) ||
+      /\b(?:MIAIXZ_MODULE_PROTOCOL_VERSION|WORKER_PROTOCOL_VERSION|CONTEXT_SCHEMA_VERSION|miaixzAppearanceSchemaVersion)\s*=\s*(?:\d+|["']\d)/u.test(
+        source,
+      ) ||
+      ((path.includes("/theme/") || path.endsWith("/locale-catalog.ts")) &&
+        /\bversion\s*:\s*["']\d/u.test(source))
+    ) {
+      throw new Error(`${path} contains an independent project version; reference VERSION.`);
+    }
+  }
+}
+for (const { name, rootPath } of repository.workspaces) {
+  checkSourceVersions(resolve(rootPath, "src"), name);
+}
+for (const path of [
+  resolve(repository.root, ".github/scripts/modules/ui/codegen/generate-theme-presets.mjs"),
+  resolve(repository.root, ".github/scripts/modules/ui/codegen/vite-theme-plugin.mjs"),
+]) {
+  const source = readFileSync(path, "utf8");
+  if (/\bversion\s*:/u.test(source) || /\b(?:record|theme)\.version\b/u.test(source)) {
+    throw new Error(`${path} must not generate duplicate theme version metadata.`);
+  }
+}
+const manifests = loadVersionedPackageManifests(repository.root);
+const versionedManifestPaths = new Set(manifests.map(({ manifestPath }) => manifestPath));
 
 if (repository.rootManifest.name !== "miaixz.js") {
   throw new Error("The root package must be named 'miaixz.js'.");
 }
-for (const [path, manifest] of manifests) {
+for (const { manifest, relativePath } of manifests) {
   if (manifest.version !== version) {
-    throw new Error(`${path} version '${manifest.version ?? ""}' does not match '${version}'.`);
-  }
-  if (manifest.miaixzUiContract !== undefined && manifest.miaixzUiContract?.version !== version) {
     throw new Error(
-      `${path} miaixzUiContract version '${manifest.miaixzUiContract?.version ?? ""}' does not match '${version}'.`,
+      `${relativePath} version '${manifest.version ?? ""}' does not match '${version}'.`,
     );
+  }
+  if (manifest.miaixz?.version !== undefined || manifest.miaixz?.schemaVersion !== undefined) {
+    throw new Error(`${relativePath} contains duplicate Miaixz contract version metadata.`);
   }
 }
 
@@ -57,7 +119,10 @@ if (repository.rootManifest.private !== true) {
 
 const workspaceNames = new Set(repository.workspaces.map(({ name }) => name));
 const expectedPeerRange = getWorkspacePeerRange(version);
-for (const { directory, manifest } of repository.workspaces) {
+for (const { directory, manifest, manifestPath } of repository.workspaces) {
+  if (!versionedManifestPaths.has(manifestPath)) {
+    throw new Error(`${directory}/package.json cannot opt out of synchronized versions.`);
+  }
   for (const dependencyName of Object.keys(manifest.peerDependencies ?? {})) {
     if (!workspaceNames.has(dependencyName)) continue;
     if (manifest.peerDependencies[dependencyName] !== expectedPeerRange) {
@@ -93,6 +158,26 @@ for (const { directory, manifest } of repository.publicWorkspaces) {
   }
 }
 
+for (const workspace of repository.publicWorkspaces) {
+  const sbomFiles = (workspace.manifest.files ?? []).filter((file) =>
+    /(?:^|\/)\w[^/]*\.spdx\.json$/u.test(file),
+  );
+  if (sbomFiles.length > 1) {
+    throw new Error(`${workspace.name} declares more than one SPDX SBOM.`);
+  }
+  if (sbomFiles.length === 0) continue;
+  const sbom = JSON.parse(readFileSync(resolve(workspace.rootPath, sbomFiles[0]), "utf8"));
+  const packageEntry = sbom.packages?.find(({ name }) => name === workspace.name);
+  const packageSlug = workspace.name.split("/").at(-1);
+  if (
+    sbom.name !== `${workspace.name}-${version}` ||
+    sbom.documentNamespace !== `https://miaixz.org/spdx/${packageSlug}/${version}` ||
+    packageEntry?.versionInfo !== version
+  ) {
+    throw new Error(`${workspace.name} SBOM does not match VERSION.`);
+  }
+}
+
 console.log(
-  `Release metadata is valid for ${version} across ${repository.workspaces.length} workspaces.`,
+  `Release metadata is valid for ${version} across ${manifests.length} manifests and ${repository.workspaces.length} workspaces.`,
 );

@@ -1,0 +1,9 @@
+{
+  "id": "svg",
+  "label": "Scalable Vector Graphics",
+  "category": "image",
+  "extensions": ["svg"],
+  "mimeTypes": ["image/svg+xml"],
+  "implementation": "ready",
+  "entry": "./driver.ts"
+}

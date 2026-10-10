@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+-->
+<glyph name="miaixz.octagon-alert" format="2">
+  <advance width="960"/>
+  <unicode hex="F045A"/>
+  <outline>
+    <contour>
+      <point x="90" y="520" type="line"/>
+      <point x="90" y="120" type="line"/>
+      <point x="280" y="-70" type="line"/>
+      <point x="680" y="-70" type="line"/>
+      <point x="870" y="120" type="line"/>
+      <point x="870" y="520" type="line"/>
+      <point x="680" y="710" type="line"/>
+      <point x="280" y="710" type="line"/>
+    </contour>
+    <contour>
+      <point x="305.681241" y="648" type="line"/>
+      <point x="654.318759" y="648" type="line"/>
+      <point x="808" y="494.318759" type="line"/>
+      <point x="808" y="145.681241" type="line"/>
+      <point x="654.318759" y="-8" type="line"/>
+      <point x="305.681241" y="-8" type="line"/>
+      <point x="152" y="145.681241" type="line"/>
+      <point x="152" y="494.318759" type="line"/>
+    </contour>
+    <contour>
+      <point x="455" y="280" type="line" smooth="yes"/>
+      <point x="455" y="266.192881"/>
+      <point x="466.192881" y="255"/>
+      <point x="480" y="255" type="curve" smooth="yes"/>
+      <point x="493.807119" y="255"/>
+      <point x="505" y="266.192881"/>
+      <point x="505" y="280" type="curve" smooth="yes"/>
+      <point x="505" y="500" type="line" smooth="yes"/>
+      <point x="505" y="513.807119"/>
+      <point x="493.807119" y="525"/>
+      <point x="480" y="525" type="curve" smooth="yes"/>
+      <point x="466.192881" y="525"/>
+      <point x="455" y="513.807119"/>
+      <point x="455" y="500" type="curve" smooth="yes"/>
+    </contour>
+    <contour>
+      <point x="515" y="170" type="curve" smooth="yes"/>
+      <point x="515" y="189.329966"/>
+      <point x="499.329966" y="205"/>
+      <point x="480" y="205" type="curve" smooth="yes"/>
+      <point x="460.670034" y="205"/>
+      <point x="445" y="189.329966"/>
+      <point x="445" y="170" type="curve" smooth="yes"/>
+      <point x="445" y="150.670034"/>
+      <point x="460.670034" y="135"/>
+      <point x="480" y="135" type="curve" smooth="yes"/>
+      <point x="499.329966" y="135"/>
+      <point x="515" y="150.670034"/>
+    </contour>
+  </outline>
+</glyph>

@@ -1,0 +1,355 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Implements the panel UI component.
+ */
+
+import { createElement, forwardRef } from "react";
+
+import { MiaixzUiError } from "../../errors/ui-error.js";
+import { mergeMiaixzSlotProps } from "../../shared/slots.js";
+import { PanelDensityProvider, usePanelDensity } from "./panel-context.js";
+import type {
+  PanelFooterOwnerState,
+  PanelFooterProps,
+  PanelHeaderOwnerState,
+  PanelHeaderProps,
+  PanelOwnerState,
+  PanelProps,
+  PanelRowOwnerState,
+  PanelRowProps,
+} from "./panel.types.js";
+import { withMiaixzThemeComponent } from "../../theme/binding.js";
+
+/**
+ * Renders a non-interactive content surface with one stable structure. @public
+ */
+export const Panel = withMiaixzThemeComponent(
+  "Panel",
+  forwardRef<HTMLElement, PanelProps>(function Panel(
+    {
+      as = "div",
+      title,
+      description,
+      leading,
+      actions,
+      headingLevel,
+      footer,
+      surface = "filled",
+      frame = "outlined",
+      density = "standard",
+      bodyPadding = "default",
+      bodyGap = "default",
+      bodyLayout = "content",
+      minHeight = "default",
+      interaction = "none",
+      presentation = "default",
+      slotProps,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const ariaLabel = props["aria-label"];
+    const ariaLabelledBy = props["aria-labelledby"];
+    if (
+      (as === "section" || as === "aside") &&
+      ((ariaLabel !== undefined) === (ariaLabelledBy !== undefined) ||
+        (ariaLabel !== undefined && ariaLabel.trim() === "") ||
+        (ariaLabelledBy !== undefined && ariaLabelledBy.trim() === ""))
+    ) {
+      throw new MiaixzUiError({
+        code: "UI_PANEL_LABEL_INVALID",
+      });
+    }
+    const ownerState: PanelOwnerState = {
+      as,
+      surface,
+      frame,
+      density,
+      minHeight,
+      interaction,
+      presentation,
+      bodyPadding,
+      bodyGap,
+      bodyLayout,
+    };
+    const headerSlot = resolveSlot(slotProps?.header, ownerState);
+    const headerCopySlot = resolveSlot(slotProps?.headerCopy, ownerState);
+    const headerLeadingSlot = resolveSlot(slotProps?.headerLeading, ownerState);
+    const headerTitleSlot = resolveSlot(slotProps?.headerTitle, ownerState);
+    const headerDescriptionSlot = resolveSlot(slotProps?.headerDescription, ownerState);
+    const actionsSlot = resolveSlot(slotProps?.actions, ownerState);
+    const footerSlot = resolveSlot(slotProps?.footer, ownerState);
+    const hasBody = children !== null && children !== undefined;
+    return createElement(
+      as,
+      mergeMiaixzSlotProps({
+        ownerState,
+        defaultProps: { className: "miaixz-panel" },
+        componentProps: props,
+        slotProps: slotProps?.root,
+        forwardedRef: ref,
+        internalProps: {
+          "data-ui": "panel",
+          "data-surface": surface,
+          "data-frame": frame,
+          "data-density": density,
+          "data-body-padding": bodyPadding,
+          "data-body-gap": bodyGap,
+          "data-body-layout": bodyLayout,
+          "data-min-height": minHeight,
+          "data-interaction": interaction,
+          "data-presentation": presentation,
+          ...(title !== undefined && !hasBody ? { "data-header-only": true } : {}),
+          "aria-label": ariaLabel,
+          "aria-labelledby": ariaLabelledBy,
+        },
+        ownedProps: [
+          "data-surface",
+          "data-frame",
+          "data-density",
+          "data-body-padding",
+          "data-body-gap",
+          "data-body-layout",
+          "data-min-height",
+          "data-interaction",
+          "data-presentation",
+          "aria-label",
+          "aria-labelledby",
+        ],
+      }),
+      <PanelDensityProvider value={density}>
+        {title !== undefined && (
+          <PanelHeader
+            actions={actions}
+            description={description}
+            headingLevel={headingLevel ?? 3}
+            leading={leading}
+            slotProps={{
+              ...(headerSlot === undefined ? {} : { root: headerSlot }),
+              ...(headerCopySlot === undefined ? {} : { copy: headerCopySlot }),
+              ...(headerLeadingSlot === undefined ? {} : { leading: headerLeadingSlot }),
+              ...(headerTitleSlot === undefined ? {} : { title: headerTitleSlot }),
+              ...(headerDescriptionSlot === undefined
+                ? {}
+                : { description: headerDescriptionSlot }),
+              ...(actionsSlot === undefined ? {} : { actions: actionsSlot }),
+            }}
+            title={title}
+          />
+        )}
+        {hasBody && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-panel-body" },
+              slotProps: slotProps?.body,
+            })}
+          >
+            {children}
+          </div>
+        )}
+        {footer !== undefined && (
+          <PanelFooter {...(footerSlot === undefined ? {} : { slotProps: { root: footerSlot } })}>
+            {footer}
+          </PanelFooter>
+        )}
+      </PanelDensityProvider>,
+    );
+  }),
+);
+
+/**
+ * Renders a neutral panel title region. @public
+ */
+export const PanelHeader = withMiaixzThemeComponent(
+  "PanelHeader",
+  forwardRef<HTMLDivElement, PanelHeaderProps>(function PanelHeader(
+    {
+      title,
+      description,
+      leading,
+      actions,
+      headingLevel = 2,
+      density: explicitDensity,
+      divider = false,
+      alignment = "between",
+      slotProps,
+      ...props
+    },
+    ref,
+  ) {
+    const density = usePanelDensity(explicitDensity);
+    const ownerState: PanelHeaderOwnerState = { density, divider, alignment };
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-panel-header" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-density": density,
+            "data-alignment": alignment,
+            ...(divider ? { "data-divider": true } : {}),
+          },
+        })}
+      >
+        <div
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-panel-header-copy" },
+            slotProps: slotProps?.copy,
+          })}
+        >
+          {leading !== undefined && (
+            <div
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-panel-leading" },
+                slotProps: slotProps?.leading,
+              })}
+            >
+              {leading}
+            </div>
+          )}
+          <div>
+            {createElement(
+              `h${headingLevel}`,
+              mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-panel-title" },
+                slotProps: slotProps?.title,
+              }),
+              title,
+            )}
+            {description !== undefined && (
+              <div
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-panel-description" },
+                  slotProps: slotProps?.description,
+                })}
+              >
+                {description}
+              </div>
+            )}
+          </div>
+        </div>
+        {actions !== undefined && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-panel-actions" },
+              slotProps: slotProps?.actions,
+            })}
+          >
+            {actions}
+          </div>
+        )}
+      </div>
+    );
+  }),
+);
+
+/**
+ * Renders a density-aware panel action footer. @public
+ */
+export const PanelFooter = withMiaixzThemeComponent(
+  "PanelFooter",
+  forwardRef<HTMLDivElement, PanelFooterProps>(function PanelFooter(
+    {
+      divider = true,
+      alignment = "end",
+      density: explicitDensity,
+      presentation = "default",
+      slotProps,
+      children,
+      ...props
+    },
+    ref,
+  ) {
+    const density = usePanelDensity(explicitDensity);
+    const ownerState: PanelFooterOwnerState = { density, divider, alignment, presentation };
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-panel-footer" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-density": density,
+            "data-alignment": alignment,
+            "data-presentation": presentation,
+            ...(divider ? { "data-divider": true } : {}),
+          },
+        })}
+      >
+        {children}
+      </div>
+    );
+  }),
+);
+
+/**
+ * Renders a non-interactive density-aware row scoped to Panel. @public
+ */
+export const PanelRow = withMiaixzThemeComponent(
+  "PanelRow",
+  forwardRef<HTMLDivElement, PanelRowProps>(function PanelRow(
+    { distribution = "between", slotProps, ...props },
+    ref,
+  ) {
+    const density = usePanelDensity(undefined);
+    const ownerState: PanelRowOwnerState = { density, distribution };
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-panel-row" },
+          componentProps: props,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: { "data-density": density, "data-distribution": distribution },
+        })}
+      />
+    );
+  }),
+);
+
+/**
+ * Resolves static or owner-state-driven panel slot properties.
+ *
+ * @typeParam Props - Native properties accepted by the slot.
+ * @param slot - Static slot properties or resolver callback.
+ * @param ownerState - Effective panel owner state.
+ * @returns Resolved slot properties when configured.
+ */
+function resolveSlot<Props extends object>(
+  slot: ((state: Readonly<PanelOwnerState>) => Partial<Props>) | Partial<Props> | undefined,
+  ownerState: PanelOwnerState,
+): Partial<Props> | undefined {
+  return typeof slot === "function" ? slot(ownerState) : slot;
+}

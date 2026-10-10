@@ -1,0 +1,12 @@
+{
+  "id": "ods",
+  "label": "OpenDocument spreadsheet",
+  "category": "spreadsheet",
+  "extensions": ["ods", "fods", "ots"],
+  "mimeTypes": [
+    "application/vnd.oasis.opendocument.spreadsheet",
+    "application/vnd.oasis.opendocument.spreadsheet-template"
+  ],
+  "implementation": "recognized",
+  "entry": "./driver.ts"
+}

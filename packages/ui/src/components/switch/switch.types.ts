@@ -1,0 +1,94 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Defines the switch public type contracts.
+ */
+
+import type {
+  HTMLAttributes,
+  InputHTMLAttributes,
+  LabelHTMLAttributes,
+  ReactNode,
+  RefAttributes,
+} from "react";
+
+import type { MiaixzSlotProps } from "../../shared/slots.js";
+
+/**
+ * Switch size tokens permitted by the component contract.
+ */
+export type SwitchSize = "small" | "medium";
+/**
+ * Named Switch parts available for slot and style customization.
+ */
+export type SwitchSlot = "root" | "input" | "track" | "thumb" | "content" | "label" | "description";
+
+/**
+ * Resolved Switch state exposed to theme and slot overrides.
+ */
+export interface SwitchOwnerState {
+  readonly size: SwitchSize;
+  readonly checked: boolean;
+  readonly disabled: boolean;
+  readonly invalid: boolean;
+}
+
+/**
+ * Attributes accepted by the Switch Root slot.
+ */
+export interface SwitchRootAttributes
+  extends LabelHTMLAttributes<HTMLLabelElement>, RefAttributes<HTMLLabelElement> {
+  readonly "data-disabled"?: boolean;
+  readonly "data-filled"?: boolean;
+  readonly "data-invalid"?: boolean;
+  readonly "data-size"?: SwitchSize;
+}
+
+/**
+ * Per-slot attributes and state-dependent override callbacks for Switch.
+ */
+export interface SwitchSlotProps {
+  readonly root?: MiaixzSlotProps<SwitchOwnerState, SwitchRootAttributes>;
+  readonly input?: MiaixzSlotProps<
+    SwitchOwnerState,
+    InputHTMLAttributes<HTMLInputElement> & RefAttributes<HTMLInputElement>
+  >;
+  readonly track?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly thumb?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly content?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly label?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<SwitchOwnerState, HTMLAttributes<HTMLSpanElement>>;
+}
+
+/**
+ * Configures an accessible native boolean switch.
+ */
+export interface SwitchProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "children" | "size" | "style" | "type"
+> {
+  readonly size?: SwitchSize;
+  readonly label?: ReactNode;
+  readonly description?: ReactNode;
+  readonly invalid?: boolean;
+  readonly style?: React.CSSProperties;
+  readonly slotProps?: SwitchSlotProps;
+}

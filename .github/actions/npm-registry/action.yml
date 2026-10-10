@@ -1,10 +1,8 @@
+# Publishes the validated public-workspace tarballs recorded in the shared package manifest.
 name: Publish to npm
 description: "Publishes every public workspace at one shared version"
 
 inputs:
-  version:
-    description: "Exact version shared by all packages."
-    required: true
   registry:
     description: "npm registry URL."
     required: false
@@ -19,11 +17,9 @@ runs:
     - name: Publish All Packages
       shell: bash
       env:
-        RELEASE_VERSION: ${{ inputs.version }}
         NPM_REGISTRY: ${{ inputs.registry }}
         PACKAGE_DIRECTORY: ${{ inputs.package-directory }}
       run: >-
-        node .github/scripts/release/publish-packages.mjs
-        "$RELEASE_VERSION"
+        npm run release:publish --
         "$PACKAGE_DIRECTORY"
         "$NPM_REGISTRY"

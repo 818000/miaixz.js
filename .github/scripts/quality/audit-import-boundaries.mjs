@@ -18,6 +18,10 @@
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 */
 
+/**
+ * Audits source imports against the workspace dependency boundaries.
+ */
+
 import { parse } from "@babel/parser";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -30,6 +34,13 @@ const sourceRoots = workspaceRepository.workspaces
 const sourceRootByPackageName = new Map(
   workspaceRepository.workspaces.map(({ name, rootPath }) => [name, path.join(rootPath, "src")]),
 );
+const workspaceBySourceRoot = new Map(
+  workspaceRepository.workspaces.map((workspace) => [
+    path.join(workspace.rootPath, "src"),
+    workspace,
+  ]),
+);
+const internalPackageNames = new Set(workspaceRepository.workspaces.map(({ name }) => name));
 const sdkSourceRoot = requireSourceRoot("@miaixz/sdk");
 const uiSourceRoot = requireSourceRoot("@miaixz/ui");
 const viewSourceRoot = requireSourceRoot("@miaixz/view");
@@ -37,8 +48,8 @@ const violations = [];
 const componentRanks = new Map(
   Object.entries({
     0: "badge bar brand breadcrumb checkbox cluster columns descriptions divider donut empty entry field grid header hidden icon input link list masonry page panel popover pressable progress radio scroll sections sidebar skeleton slider sparkline split stack status steps switch table tabs textarea timeline toolbar tooltip transfer",
-    1: "button combobox dialog disclosure drawer dropdown dropzone editor heatmap metrics pagination rating segmented select spinner tag tree",
-    2: "action avatar date navigation overlay picker shell",
+    1: "button combobox dialog disclosure drawer dropdown dropzone editor heatmap metrics pagination rating segmented select spinner tag",
+    2: "action avatar date navigation overlay picker shell tree",
     3: "datagrid graph search toast view feedback",
     4: "alert locale notice toaster",
     5: "confirm",
@@ -146,6 +157,7 @@ function relative(file) {
 function classifyUi(file) {
   const source = path.relative(uiSourceRoot, file).replaceAll(path.sep, "/");
   if (
+    source === "version.ts" ||
     source === "components/shared.types.ts" ||
     source === "shared/class-names.ts" ||
     source.startsWith("design/") ||
@@ -191,19 +203,26 @@ function classifyUi(file) {
  */
 function auditEdge(source, edge) {
   if (edge.target === undefined) {
-    if (
-      source.startsWith(sdkSourceRoot) &&
-      (/^@miaixz\/ui(?:\/|$)/.test(edge.specifier) ||
-        /^@miaixz\/view(?:\/|$)/.test(edge.specifier) ||
-        /^react(?:-dom)?(?:\/|$)/.test(edge.specifier))
-    ) {
+    const sourceWorkspace = [...workspaceBySourceRoot].find(([sourceRoot]) =>
+      source.startsWith(sourceRoot),
+    )?.[1];
+    const importedWorkspaceName = [...internalPackageNames].find(
+      (name) => edge.specifier === name || edge.specifier.startsWith(`${name}/`),
+    );
+    if (sourceWorkspace !== undefined && importedWorkspaceName !== undefined) {
+      const allowed = new Set(
+        ["dependencies", "optionalDependencies", "peerDependencies"].flatMap((field) =>
+          Object.keys(sourceWorkspace.manifest[field] ?? {}),
+        ),
+      );
+      if (!allowed.has(importedWorkspaceName)) {
+        violations.push(
+          `${relative(source)} imports undeclared workspace dependency ${edge.specifier}`,
+        );
+      }
+    }
+    if (source.startsWith(sdkSourceRoot) && /^react(?:-dom)?(?:\/|$)/.test(edge.specifier)) {
       violations.push(`${relative(source)} imports forbidden SDK dependency ${edge.specifier}`);
-    }
-    if (source.startsWith(viewSourceRoot) && /^@miaixz\/sdk(?:\/|$)/.test(edge.specifier)) {
-      violations.push(`${relative(source)} imports forbidden preview dependency ${edge.specifier}`);
-    }
-    if (source.startsWith(uiSourceRoot) && /^@miaixz\/view(?:\/|$)/.test(edge.specifier)) {
-      violations.push(`${relative(source)} imports forbidden UI dependency ${edge.specifier}`);
     }
     return;
   }

@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 npm-shrinkwrap.json
 pnpm-lock.yaml
 yarn.lock
@@ -11,12 +10,13 @@ bun.lockb
 dist/
 build/
 out/
+.next/
 *.tsbuildinfo
 *.tgz
 
 # Test and analysis output
 coverage/
-**/tests/.artifacts/
+**/.artifacts/
 test-results/
 playwright-report/
 blob-report/

@@ -1,0 +1,210 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * Miaixz data table component
+ */
+
+[data-miaixz-theme] {
+  --miaixz-table-row-height: var(--miaixz-density-table-row-height);
+  --miaixz-table-cell-padding-inline: var(--miaixz-density-table-cell-padding-inline);
+  --miaixz-table-cell-padding-block: var(--miaixz-density-table-cell-padding-block);
+  --miaixz-table-action-width: var(--miaixz-control-height-small);
+  --miaixz-table-min-inline-size: calc(var(--miaixz-layout-card-min-width) * 2);
+  --miaixz-table-row-hover-background: var(--miaixz-color-surface-hover);
+  --miaixz-table-row-selected-background: var(--miaixz-surface-role-selected-background);
+  --miaixz-table-row-selected-hover-background: var(--miaixz-color-brand-soft-hover);
+  --miaixz-table-row-active-background: var(--miaixz-color-surface-active);
+}
+
+.miaixz-table-container {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  background: var(--miaixz-surface-role-panel-background);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-panel-border);
+  border-radius: var(--miaixz-radius-panel);
+}
+
+.miaixz-table {
+  min-inline-size: var(--miaixz-table-min-inline-size);
+  width: 100%;
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-primary);
+  border-spacing: 0;
+  border-collapse: separate;
+  background: transparent;
+}
+
+/**
+ * Keeps typography uniform across table headers, cells, and nested controls.
+ */
+[data-miaixz-theme] table,
+[data-miaixz-theme] table :where(*) {
+  font-weight: var(--miaixz-font-weight-regular) !important;
+}
+
+[data-miaixz-theme] table :is(th, td) {
+  font-size: var(--miaixz-text-body-size) !important;
+}
+
+.miaixz-table-container[data-minimum-width="compact"] > .miaixz-table {
+  min-inline-size: calc(var(--miaixz-layout-card-min-width) * 2 - var(--miaixz-space-32));
+}
+
+.miaixz-table-container-plain {
+  border: 0;
+  border-radius: 0;
+}
+
+.miaixz-table-caption,
+.miaixz-table > caption {
+  padding: var(--miaixz-table-cell-padding-block) var(--miaixz-table-cell-padding-inline);
+  color: var(--miaixz-color-text-secondary);
+  text-align: start;
+}
+
+.miaixz-table-head,
+.miaixz-table > thead {
+  color: var(--miaixz-color-text-secondary);
+  background: transparent;
+}
+
+.miaixz-table > :is(thead, tbody, tfoot) > tr,
+.miaixz-table-row {
+  height: var(--miaixz-table-row-height);
+}
+
+.miaixz-table-header,
+.miaixz-table-cell,
+.miaixz-table th,
+.miaixz-table td {
+  padding: var(--miaixz-table-cell-padding-block) var(--miaixz-table-cell-padding-inline);
+  vertical-align: middle;
+  text-align: start;
+}
+
+.miaixz-table-header,
+.miaixz-table th {
+  line-height: var(--miaixz-text-table-header-line-height);
+}
+
+[data-miaixz-theme] table > thead > tr > :is(th, td) {
+  border-block-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
+}
+
+[data-miaixz-theme] table > tbody > tr > :is(th, td) {
+  border-block-end: var(--miaixz-border-width-default) dashed var(--miaixz-color-border);
+}
+
+[data-miaixz-theme] table > tbody > tr:last-child > :is(th, td) {
+  border-block-end: 0;
+}
+
+.miaixz-table-numeric {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.miaixz-table-actions {
+  width: var(--miaixz-table-action-width);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.miaixz-table-sort {
+  display: inline-flex;
+  gap: var(--miaixz-space-4);
+  align-items: center;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.miaixz-table-sort[aria-sort="ascending"],
+.miaixz-table-sort[aria-sort="descending"] {
+  color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-table[data-sticky-header] .miaixz-table-head {
+  position: sticky;
+  top: 0;
+  z-index: var(--miaixz-z-sticky);
+}
+
+.miaixz-table-empty,
+.miaixz-table td[data-empty="true"] {
+  display: table-cell;
+  padding: var(--miaixz-space-48) var(--miaixz-table-cell-padding-inline);
+  color: var(--miaixz-color-text-secondary);
+  text-align: center;
+}
+
+@media print {
+  .miaixz-table-container {
+    overflow: visible;
+    border: 0;
+  }
+
+  .miaixz-table {
+    min-width: 0;
+  }
+}
+
+.miaixz-table-row[data-selected="true"] {
+  color: var(--miaixz-surface-role-selected-foreground);
+  background: var(--miaixz-table-row-selected-background);
+}
+
+.miaixz-table-container-transparent {
+  scrollbar-width: auto;
+  background: transparent;
+  border-color: var(--miaixz-color-border);
+}
+
+:is(.miaixz-table) > tbody > tr,
+.miaixz-table-body > .miaixz-table-row {
+  transition-timing-function: var(--miaixz-motion-interaction-easing);
+  transition-duration: var(--miaixz-motion-interaction-duration);
+  transition-property: background-color;
+}
+
+@media (hover: hover) {
+  :is(.miaixz-table) > tbody > tr:hover,
+  .miaixz-table-body > .miaixz-table-row:hover {
+    background: var(--miaixz-table-row-hover-background);
+  }
+
+  :is(.miaixz-table) > tbody > tr[data-selected="true"]:hover,
+  .miaixz-table-body > .miaixz-table-row[data-selected="true"]:hover {
+    background: var(--miaixz-table-row-selected-hover-background);
+  }
+}
+
+:is(.miaixz-table) > tbody > tr:active,
+.miaixz-table-body > .miaixz-table-row:active {
+  background: var(--miaixz-table-row-active-background);
+}
