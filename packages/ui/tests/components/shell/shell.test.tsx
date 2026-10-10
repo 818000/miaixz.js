@@ -75,4 +75,34 @@ describe("Shell", () => {
     expect(container.querySelector(".miaixz-shell-main")).toHaveTextContent("Embedded content");
     expect(screen.queryByRole("main")).not.toBeInTheDocument();
   });
+
+  it("exposes stable regions while switching among the six layout contracts", () => {
+    const { container, rerender } = renderWithLocale(
+      <Shell
+        brand={<span>Brand</span>}
+        contextNavigation={<span>Context</span>}
+        header={<span>Header</span>}
+        layout="dual"
+        primaryNavigation={<nav aria-label="Primary" />}
+        secondaryNavigation={<nav aria-label="Secondary" />}
+      >
+        Content
+      </Shell>,
+    );
+
+    expect(container.querySelector(".miaixz-shell")).toHaveAttribute("data-layout", "dual");
+    expect(container.querySelector(".miaixz-shell-brand")).toHaveTextContent("Brand");
+    expect(screen.getByRole("navigation", { name: "Primary" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Secondary" })).toBeInTheDocument();
+    expect(container.querySelector(".miaixz-shell-context-navigation")).toHaveTextContent(
+      "Context",
+    );
+
+    rerender(
+      <Shell header={<span>Header</span>} layout="horizontal" primaryNavigation={<span>Nav</span>}>
+        Content
+      </Shell>,
+    );
+    expect(container.querySelector(".miaixz-shell")).toHaveAttribute("data-layout", "horizontal");
+  });
 });

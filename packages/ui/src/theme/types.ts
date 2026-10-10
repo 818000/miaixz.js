@@ -26,9 +26,12 @@ import { VERSION } from "../version.js";
 
 import type {
   MiaixzAppearanceManager,
+  MiaixzBaseFontSize,
   MiaixzColorMode,
   MiaixzDensity,
+  MiaixzRadiusScale,
   MiaixzResolvedColorMode,
+  MiaixzShellLayout,
   MiaixzThemeColorOverrides,
   MiaixzThemeOverrides,
 } from "@miaixz/sdk/appearance";
@@ -409,6 +412,30 @@ export interface ThemeContextValue {
    */
   readonly density: MiaixzDensity;
   /**
+   * Persisted shell-layout override, when one has been selected.
+   */
+  readonly shellLayoutPreference?: MiaixzShellLayout;
+  /**
+   * Shell layout currently resolved from the preference or active theme.
+   */
+  readonly shellLayout: MiaixzShellLayout;
+  /**
+   * Persisted semantic-radius override, when one has been selected.
+   */
+  readonly radiusScalePreference?: MiaixzRadiusScale;
+  /**
+   * Semantic-radius multiplier currently applied.
+   */
+  readonly radiusScale: MiaixzRadiusScale;
+  /**
+   * Persisted base font-size override, when one has been selected.
+   */
+  readonly baseFontSizePreference?: MiaixzBaseFontSize;
+  /**
+   * Base interface font size currently applied in pixels.
+   */
+  readonly baseFontSize: number;
+  /**
    * Monotonically increasing successfully applied snapshot revision.
    */
   readonly revision: number;
@@ -436,6 +463,18 @@ export interface ThemeContextValue {
    * Applies and persists a density transaction.
    */
   setDensity(density: MiaixzDensity): Promise<void>;
+  /**
+   * Applies or clears an application-shell layout override.
+   */
+  setShellLayout(layout?: MiaixzShellLayout): Promise<void>;
+  /**
+   * Applies or clears a semantic-radius override.
+   */
+  setRadiusScale(scale?: MiaixzRadiusScale): Promise<void>;
+  /**
+   * Applies or clears a base font-size override.
+   */
+  setBaseFontSize(size?: MiaixzBaseFontSize): Promise<void>;
   /**
    * Applies and persists mode-specific color overrides.
    */

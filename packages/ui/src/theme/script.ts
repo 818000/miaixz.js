@@ -22,7 +22,12 @@
  * Serializes the first-paint theme bootstrap used before React hydration.
  */
 
-import { miaixzDefaultAppearance } from "@miaixz/sdk/appearance";
+import {
+  miaixzBaseFontSizes,
+  miaixzDefaultAppearance,
+  miaixzRadiusScales,
+  miaixzShellLayouts,
+} from "@miaixz/sdk/appearance";
 import { createMiaixzStorageVersionPredicate } from "@miaixz/sdk/storage";
 import type { MiaixzThemeScriptOptions } from "./types.js";
 import { MiaixzThemeError } from "./error.js";
@@ -67,5 +72,5 @@ export function createThemeScript(options: MiaixzThemeScriptOptions): string {
   ) {
     throw new MiaixzThemeError("UI_THEME_FALLBACK_INVALID", { theme: fallback });
   }
-  return `(()=>{try{const k=${serializeInlineScriptValue(options.storageKey)},c=${createMiaixzStorageVersionPredicate()},a=${serializeInlineScriptValue(themes)},f=${serializeInlineScriptValue(fallback)},d={theme:f,colorMode:"system",density:"standard"};let s=d;try{const raw=localStorage.getItem(k)??(/^miaixz:[^:]+:[^:]+:appearance$/.test(k)?localStorage.getItem(k.replace(/^miaixz:/,"miaixz:v1:")):null),e=JSON.parse(raw||"null");if(e&&c(e.schemaVersion)&&e.value&&typeof e.value==="object"&&!Array.isArray(e.value))s={...e.value,theme:e.value.theme||f}}catch{}const t=a.includes(s.theme)?s.theme:f,p=["light","dark","system"].includes(s.colorMode)?s.colorMode:"system",m=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p,n=["compact","standard","comfortable"].includes(s.density)?s.density:"standard",r=document.documentElement;r.setAttribute("data-miaixz-theme",t);r.setAttribute("data-miaixz-color-mode",m);r.setAttribute("data-miaixz-color-preference",p);r.setAttribute("data-miaixz-density",n)}catch{}})();`;
+  return `(()=>{try{const k=${serializeInlineScriptValue(options.storageKey)},c=${createMiaixzStorageVersionPredicate()},a=${serializeInlineScriptValue(themes)},f=${serializeInlineScriptValue(fallback)},L=${serializeInlineScriptValue(miaixzShellLayouts)},R=${serializeInlineScriptValue(miaixzRadiusScales)},F=${serializeInlineScriptValue(miaixzBaseFontSizes)},d={theme:f,colorMode:"system",density:"standard"};let s=d;try{const raw=localStorage.getItem(k)??(/^miaixz:[^:]+:[^:]+:appearance$/.test(k)?localStorage.getItem(k.replace(/^miaixz:/,"miaixz:v1:")):null),e=JSON.parse(raw||"null");if(e&&c(e.schemaVersion)&&e.value&&typeof e.value==="object"&&!Array.isArray(e.value))s={...e.value,theme:e.value.theme||f}}catch{}const t=a.includes(s.theme)?s.theme:f,p=["light","dark","system"].includes(s.colorMode)?s.colorMode:"system",m=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p,n=["compact","standard","comfortable"].includes(s.density)?s.density:"standard",l=L.includes(s.shellLayout)?s.shellLayout:"vertical",q=R.includes(s.radiusScale)?s.radiusScale:1,z=F.includes(s.baseFontSize)?s.baseFontSize:14,r=document.documentElement;r.setAttribute("data-miaixz-theme",t);r.setAttribute("data-miaixz-color-mode",m);r.setAttribute("data-miaixz-color-preference",p);r.setAttribute("data-miaixz-density",n);r.setAttribute("data-miaixz-shell-layout",l);r.setAttribute("data-miaixz-radius-scale",String(q));r.setAttribute("data-miaixz-base-font-size",String(z))}catch{}})();`;
 }

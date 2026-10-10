@@ -25,8 +25,11 @@
 import {
   miaixzDefaultAppearance,
   type MiaixzAppearanceSettings,
+  type MiaixzBaseFontSize,
   type MiaixzColorMode,
   type MiaixzDensity,
+  type MiaixzRadiusScale,
+  type MiaixzShellLayout,
   type MiaixzThemeOverrides,
 } from "@miaixz/sdk/appearance";
 import {
@@ -183,6 +186,11 @@ export function Theme(props: ThemeProps) {
         snapshot.density,
         snapshot.overrides?.[resolvedColorMode],
         instanceId,
+        {
+          ...(snapshot.shellLayout === undefined ? {} : { shellLayout: snapshot.shellLayout }),
+          ...(snapshot.radiusScale === undefined ? {} : { radiusScale: snapshot.radiusScale }),
+          ...(snapshot.baseFontSize === undefined ? {} : { baseFontSize: snapshot.baseFontSize }),
+        },
       ),
     [
       instanceId,
@@ -190,10 +198,13 @@ export function Theme(props: ThemeProps) {
       resolvedTheme,
       snapshot.colorMode,
       snapshot.density,
+      snapshot.shellLayout,
+      snapshot.radiusScale,
+      snapshot.baseFontSize,
       snapshot.overrides,
     ],
   );
-  const applicationKey = `${application.theme}:${application.colorMode}:${application.colorPreference}:${application.density}:${application.cssText}`;
+  const applicationKey = `${application.theme}:${application.colorMode}:${application.colorPreference}:${application.density}:${application.shellLayout}:${application.radiusScale}:${application.baseFontSize}:${application.cssText}`;
 
   useInsertionEffect(() => {
     if (scope !== "global" || typeof document === "undefined") return undefined;
@@ -258,6 +269,11 @@ export function Theme(props: ThemeProps) {
         next.density,
         next.overrides?.[nextMode],
         instanceId,
+        {
+          ...(next.shellLayout === undefined ? {} : { shellLayout: next.shellLayout }),
+          ...(next.radiusScale === undefined ? {} : { radiusScale: next.radiusScale }),
+          ...(next.baseFontSize === undefined ? {} : { baseFontSize: next.baseFontSize }),
+        },
       );
       const style = styleRef.current;
       const target = targetElement();
@@ -272,7 +288,7 @@ export function Theme(props: ThemeProps) {
           cause,
         });
       }
-      appliedKeyRef.current = `${nextApplication.theme}:${nextApplication.colorMode}:${nextApplication.colorPreference}:${nextApplication.density}:${nextApplication.cssText}`;
+      appliedKeyRef.current = `${nextApplication.theme}:${nextApplication.colorMode}:${nextApplication.colorPreference}:${nextApplication.density}:${nextApplication.shellLayout}:${nextApplication.radiusScale}:${nextApplication.baseFontSize}:${nextApplication.cssText}`;
       setRevision((value) => value + 1);
       setRuntime({ status: "ready" });
     },
@@ -338,6 +354,39 @@ export function Theme(props: ThemeProps) {
     [appearance, commit],
   );
 
+  const setShellLayout = useCallback(
+    async (shellLayout?: MiaixzShellLayout): Promise<void> => {
+      const current = appearance.getSnapshot();
+      const next = { ...current };
+      if (shellLayout === undefined) delete next.shellLayout;
+      else next.shellLayout = shellLayout;
+      commit(next, () => appearance.setShellLayout(shellLayout));
+    },
+    [appearance, commit],
+  );
+
+  const setRadiusScale = useCallback(
+    async (radiusScale?: MiaixzRadiusScale): Promise<void> => {
+      const current = appearance.getSnapshot();
+      const next = { ...current };
+      if (radiusScale === undefined) delete next.radiusScale;
+      else next.radiusScale = radiusScale;
+      commit(next, () => appearance.setRadiusScale(radiusScale));
+    },
+    [appearance, commit],
+  );
+
+  const setBaseFontSize = useCallback(
+    async (baseFontSize?: MiaixzBaseFontSize): Promise<void> => {
+      const current = appearance.getSnapshot();
+      const next = { ...current };
+      if (baseFontSize === undefined) delete next.baseFontSize;
+      else next.baseFontSize = baseFontSize;
+      commit(next, () => appearance.setBaseFontSize(baseFontSize));
+    },
+    [appearance, commit],
+  );
+
   const setOverrides = useCallback(
     async (overrides: MiaixzThemeOverrides): Promise<void> => {
       const current = appearance.getSnapshot();
@@ -388,6 +437,18 @@ export function Theme(props: ThemeProps) {
       colorMode: snapshot.colorMode,
       resolvedColorMode,
       density: snapshot.density,
+      ...(snapshot.shellLayout === undefined
+        ? {}
+        : { shellLayoutPreference: snapshot.shellLayout }),
+      shellLayout: application.shellLayout,
+      ...(snapshot.radiusScale === undefined
+        ? {}
+        : { radiusScalePreference: snapshot.radiusScale }),
+      radiusScale: application.radiusScale,
+      ...(snapshot.baseFontSize === undefined
+        ? {}
+        : { baseFontSizePreference: snapshot.baseFontSize }),
+      baseFontSize: application.baseFontSize,
       revision,
       status: runtime.status,
       ...(runtime.error === undefined ? {} : { error: runtime.error }),
@@ -395,6 +456,9 @@ export function Theme(props: ThemeProps) {
       setTheme,
       setColorMode,
       setDensity,
+      setShellLayout,
+      setRadiusScale,
+      setBaseFontSize,
       setOverrides,
       retry,
       reset,
@@ -405,15 +469,24 @@ export function Theme(props: ThemeProps) {
       effectiveTheme,
       reset,
       resolvedColorMode,
+      application.baseFontSize,
+      application.radiusScale,
+      application.shellLayout,
       retry,
       revision,
       runtime,
       setColorMode,
       setDensity,
+      setShellLayout,
+      setRadiusScale,
+      setBaseFontSize,
       setOverrides,
       setTheme,
       snapshot.colorMode,
       snapshot.density,
+      snapshot.shellLayout,
+      snapshot.radiusScale,
+      snapshot.baseFontSize,
     ],
   );
 

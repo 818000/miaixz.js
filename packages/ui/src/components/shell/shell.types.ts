@@ -23,6 +23,7 @@
  */
 
 import type { HTMLAttributes, ReactNode, Ref, RefAttributes } from "react";
+import type { MiaixzShellLayout } from "@miaixz/sdk/appearance";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
 /**
@@ -46,7 +47,16 @@ export type ShellMobileNavigation =
 /**
  * Named Shell parts available for slot and style customization.
  */
-export type ShellSlot = "root" | "header" | "sidebar" | "main" | "mobileNavigation";
+export type ShellSlot =
+  | "root"
+  | "brand"
+  | "header"
+  | "sidebar"
+  | "primaryNavigation"
+  | "secondaryNavigation"
+  | "contextNavigation"
+  | "main"
+  | "mobileNavigation";
 /**
  * Resolved Shell state exposed to theme and slot overrides.
  */
@@ -56,6 +66,7 @@ export interface ShellOwnerState {
   readonly headerBehavior: "fixed" | "scroll";
   readonly sidebarOverflow: ShellSidebarOverflow;
   readonly presentation: "default" | "workspace";
+  readonly layout: MiaixzShellLayout;
 }
 /**
  * Attributes accepted by the Shell Root slot.
@@ -66,6 +77,7 @@ export type ShellRootAttributes = HTMLAttributes<HTMLDivElement> &
     readonly "data-navigation-expanded"?: boolean;
     readonly "data-header-behavior"?: "fixed" | "scroll";
     readonly "data-presentation"?: "default" | "workspace";
+    readonly "data-layout"?: MiaixzShellLayout;
   };
 /**
  * Attributes accepted by the Shell Sidebar slot.
@@ -78,8 +90,12 @@ export type ShellSidebarAttributes = HTMLAttributes<HTMLElement> & {
  */
 export interface ShellSlotProps {
   readonly root?: MiaixzSlotProps<ShellOwnerState, ShellRootAttributes>;
+  readonly brand?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly header?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
   readonly sidebar?: MiaixzSlotProps<ShellOwnerState, ShellSidebarAttributes>;
+  readonly primaryNavigation?: MiaixzSlotProps<ShellOwnerState, ShellSidebarAttributes>;
+  readonly secondaryNavigation?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
+  readonly contextNavigation?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
   readonly main?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLElement>>;
   readonly mobileNavigation?: MiaixzSlotProps<ShellOwnerState, HTMLAttributes<HTMLDivElement>>;
 }
@@ -90,13 +106,26 @@ export interface MiaixzShellOwnProps {
   readonly mainRef?: Ref<HTMLElement>;
   readonly mainComponent?: ShellMainComponent;
   readonly header: ReactNode;
-  readonly sidebar: ReactNode;
+  /**
+   * Supplies the legacy primary-navigation region.
+   *
+   * @deprecated Use primaryNavigation.
+   */
+  readonly sidebar?: ReactNode;
+  readonly brand?: ReactNode;
+  readonly primaryNavigation?: ReactNode;
+  readonly secondaryNavigation?: ReactNode;
+  readonly contextNavigation?: ReactNode;
   readonly children: ReactNode;
   readonly sidebarOverflow?: ShellSidebarOverflow;
   readonly headerBehavior?: "fixed" | "scroll";
   readonly desktopNavigation?: ShellDesktopNavigation;
   readonly mobileNavigation?: ShellMobileNavigation;
   readonly presentation?: "default" | "workspace";
+  /**
+   * Overrides the layout inherited from Theme for this shell instance.
+   */
+  readonly layout?: MiaixzShellLayout;
   readonly slotProps?: ShellSlotProps;
 }
 /**

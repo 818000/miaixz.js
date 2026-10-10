@@ -40,6 +40,7 @@ export const miaixzSharedThemeTokens = {
   composition: {
     entry: "split",
     shell: "rail",
+    shellLayout: "vertical",
     panel: "outlined",
   },
   typography: {

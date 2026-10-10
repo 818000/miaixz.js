@@ -30,11 +30,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const fixture = vi.hoisted(() => ({
   setColorMode: vi.fn(async () => undefined),
   setDensity: vi.fn(async () => undefined),
+  setShellLayout: vi.fn(async () => undefined),
+  setRadiusScale: vi.fn(async () => undefined),
+  setBaseFontSize: vi.fn(async () => undefined),
   setLocale: vi.fn(async () => undefined),
   setTheme: vi.fn(async () => undefined),
   theme: {
     colorMode: "light",
     density: "standard",
+    shellLayout: "vertical",
+    radiusScale: 1,
+    baseFontSize: 16,
     error: null as Error | null,
     resolvedColorMode: "light",
     status: "ready",
@@ -95,19 +101,21 @@ vi.mock("../../src/appearance/use-appearance-position.js", async () => {
 vi.mock("../../src/components/drawer/drawer.js", () => ({
   Drawer: ({
     children,
+    density,
     description,
     onOpenChange,
     open,
     title,
   }: {
     readonly children: ReactNode;
+    readonly density?: string;
     readonly description?: ReactNode;
     readonly onOpenChange: (open: boolean) => void;
     readonly open: boolean;
     readonly title: ReactNode;
   }) =>
     open ? (
-      <div aria-label={String(title)} role="dialog">
+      <div aria-label={String(title)} data-density={density} role="dialog">
         <p>{description}</p>
         {children}
         <button onClick={() => onOpenChange(false)} type="button">
@@ -179,6 +187,9 @@ beforeEach(() => {
     theme: "default",
     setColorMode: fixture.setColorMode,
     setDensity: fixture.setDensity,
+    setShellLayout: fixture.setShellLayout,
+    setRadiusScale: fixture.setRadiusScale,
+    setBaseFontSize: fixture.setBaseFontSize,
     setTheme: fixture.setTheme,
   });
   Object.assign(fixture.locale, {
@@ -226,6 +237,10 @@ describe("Appearance", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "ui.appearance.open" }));
+    expect(screen.getByRole("dialog", { name: "ui.appearance.title" })).toHaveAttribute(
+      "data-density",
+      "standard",
+    );
     /**
      * Finds the appearance radio fixture with the requested value.
      *
@@ -242,6 +257,21 @@ describe("Appearance", () => {
     expect(fixture.setColorMode).toHaveBeenCalledWith("dark");
     expect(fixture.setDensity).toHaveBeenCalledWith("comfortable");
     expect(onHeaderBehaviorChange).toHaveBeenCalledWith("scroll");
+  });
+
+  it("updates layout, corner radius, and base font size choices", () => {
+    render(<Appearance headerBehavior="fixed" scope="authenticated" />);
+    fireEvent.click(screen.getByRole("button", { name: "ui.appearance.open" }));
+    const choice = (value: string) =>
+      screen.getAllByRole("radio").find((input) => input.getAttribute("value") === value)!;
+
+    fireEvent.click(choice("hybrid-dual"));
+    fireEvent.click(choice("0.5"));
+    fireEvent.click(screen.getByRole("button", { name: "ui.appearance.fontSize.increase" }));
+
+    expect(fixture.setShellLayout).toHaveBeenCalledWith("hybrid-dual");
+    expect(fixture.setRadiusScale).toHaveBeenCalledWith(0.5);
+    expect(fixture.setBaseFontSize).toHaveBeenCalledWith(17);
   });
 
   it("exposes loading, read-only, fallback locale, and error states", () => {

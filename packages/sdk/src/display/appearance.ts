@@ -37,8 +37,11 @@ import {
 import type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
+  MiaixzBaseFontSize,
   MiaixzColorMode,
   MiaixzDensity,
+  MiaixzRadiusScale,
+  MiaixzShellLayout,
   MiaixzThemeOverrides,
 } from "./appearance.types.js";
 import { miaixzAppearanceMigration } from "./migration.js";
@@ -204,6 +207,54 @@ export class MiaixzAppearanceManager {
   }
 
   /**
+   * Commits or clears an application-shell layout override.
+   *
+   * @param shellLayout - Layout override, or undefined to inherit the active theme.
+   * @throws MiaixzSdkError When validation or persistence fails.
+   */
+  setShellLayout(shellLayout?: MiaixzShellLayout): void {
+    if (shellLayout === undefined) {
+      const next = { ...this.#appearance };
+      delete next.shellLayout;
+      this.set(next);
+      return;
+    }
+    this.patch({ shellLayout });
+  }
+
+  /**
+   * Commits or clears a semantic-radius scale override.
+   *
+   * @param radiusScale - Radius multiplier, or undefined to inherit the active theme.
+   * @throws MiaixzSdkError When validation or persistence fails.
+   */
+  setRadiusScale(radiusScale?: MiaixzRadiusScale): void {
+    if (radiusScale === undefined) {
+      const next = { ...this.#appearance };
+      delete next.radiusScale;
+      this.set(next);
+      return;
+    }
+    this.patch({ radiusScale });
+  }
+
+  /**
+   * Commits or clears a base interface font-size override.
+   *
+   * @param baseFontSize - Font size in pixels, or undefined to inherit the active theme.
+   * @throws MiaixzSdkError When validation or persistence fails.
+   */
+  setBaseFontSize(baseFontSize?: MiaixzBaseFontSize): void {
+    if (baseFontSize === undefined) {
+      const next = { ...this.#appearance };
+      delete next.baseFontSize;
+      this.set(next);
+      return;
+    }
+    this.patch({ baseFontSize });
+  }
+
+  /**
    * Replaces or removes all mode-specific color overrides.
    *
    * @param overrides - Complete override object, or undefined to remove overrides.
@@ -211,11 +262,9 @@ export class MiaixzAppearanceManager {
    */
   setOverrides(overrides?: MiaixzThemeOverrides): void {
     if (overrides === undefined) {
-      this.set({
-        theme: this.#appearance.theme,
-        colorMode: this.#appearance.colorMode,
-        density: this.#appearance.density,
-      });
+      const next = { ...this.#appearance };
+      delete next.overrides;
+      this.set(next);
       return;
     }
     this.patch({ overrides });

@@ -24,18 +24,32 @@
 
 import { MiaixzSdkError } from "../errors/errors.js";
 import {
+  miaixzBaseFontSizes,
   miaixzColorModes,
   miaixzDensities,
+  miaixzRadiusScales,
+  miaixzShellLayouts,
   miaixzThemeColorTokens,
   type MiaixzAppearanceSettings,
+  type MiaixzBaseFontSize,
   type MiaixzColorMode,
   type MiaixzDensity,
+  type MiaixzRadiusScale,
+  type MiaixzShellLayout,
   type MiaixzThemeColorOverrides,
   type MiaixzThemeColorToken,
   type MiaixzThemeOverrides,
 } from "./appearance.types.js";
 
-const miaixzAppearanceKeys = new Set(["theme", "colorMode", "density", "overrides"]);
+const miaixzAppearanceKeys = new Set([
+  "theme",
+  "colorMode",
+  "density",
+  "shellLayout",
+  "radiusScale",
+  "baseFontSize",
+  "overrides",
+]);
 const miaixzOverrideModeKeys = new Set(["light", "dark"]);
 const miaixzThemeColorTokenSet = new Set<string>(miaixzThemeColorTokens);
 const miaixzThemeIdPattern = /^[a-z][a-z0-9-]{0,63}$/;
@@ -75,6 +89,39 @@ export function isMiaixzDensity(value: unknown): value is MiaixzDensity {
 }
 
 /**
+ * Determines whether a value is a supported application-shell layout.
+ *
+ * @param value - Value to inspect.
+ * @returns Whether the value is a supported shell layout.
+ * @public
+ */
+export function isMiaixzShellLayout(value: unknown): value is MiaixzShellLayout {
+  return typeof value === "string" && miaixzShellLayouts.includes(value as MiaixzShellLayout);
+}
+
+/**
+ * Determines whether a value is a supported semantic-radius multiplier.
+ *
+ * @param value - Value to inspect.
+ * @returns Whether the value is a supported radius scale.
+ * @public
+ */
+export function isMiaixzRadiusScale(value: unknown): value is MiaixzRadiusScale {
+  return typeof value === "number" && miaixzRadiusScales.includes(value as MiaixzRadiusScale);
+}
+
+/**
+ * Determines whether a value is a supported base interface font size.
+ *
+ * @param value - Value to inspect.
+ * @returns Whether the value is a supported base font size.
+ * @public
+ */
+export function isMiaixzBaseFontSize(value: unknown): value is MiaixzBaseFontSize {
+  return typeof value === "number" && miaixzBaseFontSizes.includes(value as MiaixzBaseFontSize);
+}
+
+/**
  * Determines whether a value is a valid theme identifier.
  *
  * @param value - Value to inspect.
@@ -103,7 +150,10 @@ export function parseMiaixzAppearanceSettings(value: unknown): MiaixzAppearanceS
     !Object.hasOwn(record, "density") ||
     !isMiaixzThemeId(record.theme) ||
     !isMiaixzColorMode(record.colorMode) ||
-    !isMiaixzDensity(record.density)
+    !isMiaixzDensity(record.density) ||
+    (Object.hasOwn(record, "shellLayout") && !isMiaixzShellLayout(record.shellLayout)) ||
+    (Object.hasOwn(record, "radiusScale") && !isMiaixzRadiusScale(record.radiusScale)) ||
+    (Object.hasOwn(record, "baseFontSize") && !isMiaixzBaseFontSize(record.baseFontSize))
   ) {
     throw createAppearanceError();
   }
@@ -111,10 +161,22 @@ export function parseMiaixzAppearanceSettings(value: unknown): MiaixzAppearanceS
   const overrides = Object.hasOwn(record, "overrides")
     ? parseThemeOverrides(record.overrides)
     : undefined;
+  const shellLayout = Object.hasOwn(record, "shellLayout")
+    ? (record.shellLayout as MiaixzShellLayout)
+    : undefined;
+  const radiusScale = Object.hasOwn(record, "radiusScale")
+    ? (record.radiusScale as MiaixzRadiusScale)
+    : undefined;
+  const baseFontSize = Object.hasOwn(record, "baseFontSize")
+    ? (record.baseFontSize as MiaixzBaseFontSize)
+    : undefined;
   return Object.freeze({
     theme: record.theme,
     colorMode: record.colorMode,
     density: record.density,
+    ...(shellLayout === undefined ? {} : { shellLayout }),
+    ...(radiusScale === undefined ? {} : { radiusScale }),
+    ...(baseFontSize === undefined ? {} : { baseFontSize }),
     ...(overrides === undefined ? {} : { overrides }),
   });
 }

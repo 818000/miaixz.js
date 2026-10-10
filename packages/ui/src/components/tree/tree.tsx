@@ -89,8 +89,8 @@ function TreeImplementation<Value = unknown, View extends TreeView = TreeView>(
   const focusOptions = effectiveView === "focus" ? viewOptions : undefined;
   const nestedIndent =
     effectiveView === "nested"
-      ? ((viewOptions as { readonly indent?: "standard" | "compact" } | undefined)?.indent ??
-        "standard")
+      ? ((viewOptions as { readonly indent?: "standard" | "compact" | "dense" } | undefined)
+          ?.indent ?? "standard")
       : undefined;
   const compactCompression =
     effectiveView === "compact"

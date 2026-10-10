@@ -38,6 +38,34 @@ export const miaixzColorModes = ["light", "dark", "system"] as const;
 export const miaixzDensities = ["compact", "standard", "comfortable"] as const;
 
 /**
+ * Lists the application-shell layouts supported by Miaixz.
+ *
+ * @public
+ */
+export const miaixzShellLayouts = [
+  "vertical",
+  "dual",
+  "horizontal",
+  "top-sidebar",
+  "hybrid-vertical",
+  "hybrid-dual",
+] as const;
+
+/**
+ * Lists the supported multipliers for semantic theme radii.
+ *
+ * @public
+ */
+export const miaixzRadiusScales = [0, 0.5, 1, 1.5, 2] as const;
+
+/**
+ * Lists the supported base interface font sizes in CSS pixels.
+ *
+ * @public
+ */
+export const miaixzBaseFontSizes = [14, 15, 16, 17, 18] as const;
+
+/**
  * Represents a configured Miaixz color mode.
  *
  * @public
@@ -57,6 +85,27 @@ export type MiaixzResolvedColorMode = Exclude<MiaixzColorMode, "system">;
  * @public
  */
 export type MiaixzDensity = (typeof miaixzDensities)[number];
+
+/**
+ * Represents a supported application-shell layout.
+ *
+ * @public
+ */
+export type MiaixzShellLayout = (typeof miaixzShellLayouts)[number];
+
+/**
+ * Represents a supported semantic-radius multiplier.
+ *
+ * @public
+ */
+export type MiaixzRadiusScale = (typeof miaixzRadiusScales)[number];
+
+/**
+ * Represents a supported base interface font size in CSS pixels.
+ *
+ * @public
+ */
+export type MiaixzBaseFontSize = (typeof miaixzBaseFontSizes)[number];
 
 /**
  * Lists color tokens that may be customized through appearance settings.
@@ -167,6 +216,21 @@ export interface MiaixzAppearanceSettings {
    * Preferred interface density.
    */
   readonly density: MiaixzDensity;
+
+  /**
+   * Optionally overrides the active theme's application-shell layout.
+   */
+  readonly shellLayout?: MiaixzShellLayout;
+
+  /**
+   * Optionally scales the active theme's semantic corner radii.
+   */
+  readonly radiusScale?: MiaixzRadiusScale;
+
+  /**
+   * Optionally scales the active theme's typography from this base size.
+   */
+  readonly baseFontSize?: MiaixzBaseFontSize;
 
   /**
    * Contains optional light and dark user color overrides.

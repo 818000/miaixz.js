@@ -32,16 +32,22 @@ export type {
   MiaixzTimestamp,
 } from "./fabric/api/api.types.js";
 export {
+  miaixzBaseFontSizes,
   miaixzColorModes,
   miaixzDensities,
+  miaixzRadiusScales,
+  miaixzShellLayouts,
   miaixzThemeColorTokens,
 } from "./display/appearance.types.js";
 export type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
+  MiaixzBaseFontSize,
   MiaixzColorMode,
   MiaixzDensity,
+  MiaixzRadiusScale,
   MiaixzResolvedColorMode,
+  MiaixzShellLayout,
   MiaixzThemeColorOverrides,
   MiaixzThemeColors,
   MiaixzThemeColorToken,

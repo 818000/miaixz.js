@@ -82,6 +82,42 @@ for (const density of ["compact", "standard", "comfortable"] as const) {
   });
 }
 
+test("appearance settings remain geometrically stable while density changes", async ({ page }) => {
+  await page.goto(`/tests/?theme=${miaixzTheme.name}&colorMode=light&density=standard`);
+  await page.locator(".miaixz-appearance-trigger").click();
+
+  const root = page.locator("html");
+  const drawer = page.locator(".miaixz-appearance-drawer");
+  const body = drawer.locator(".miaixz-appearance-body");
+  await expect(drawer).toBeVisible();
+  await expect(drawer).toHaveAttribute("data-density", "standard");
+
+  const measure = () =>
+    body.evaluate((element) => {
+      const optionElement = element.querySelector<HTMLElement>(".miaixz-appearance-option")!;
+      const bodyRect = element.getBoundingClientRect();
+      const optionRect = optionElement.getBoundingClientRect();
+      const bodyStyles = getComputedStyle(element);
+      const optionStyles = getComputedStyle(optionElement);
+      return {
+        bodyHeight: bodyRect.height,
+        bodyWidth: bodyRect.width,
+        gap: bodyStyles.gap,
+        optionHeight: optionRect.height,
+        optionPadding: optionStyles.padding,
+        optionWidth: optionRect.width,
+      };
+    });
+
+  const standardGeometry = await measure();
+  for (const density of ["compact", "comfortable", "standard"] as const) {
+    await drawer.locator(`input[type="radio"][value="${density}"]`).check({ force: true });
+    await expect(root).toHaveAttribute("data-miaixz-density", density);
+    await expect(drawer).toHaveAttribute("data-density", "standard");
+    await expect.poll(measure).toEqual(standardGeometry);
+  }
+});
+
 test("theme delegates pointer and keyboard ripple feedback to semantic actions", async ({
   page,
 }) => {
@@ -163,6 +199,21 @@ test("versioned non-color roles parse, resolve and serialize through one contrac
   expect(application.cssText).toContain(
     "--miaixz-density-control-height: var(--miaixz-geometry-standard-control-height);",
   );
+
+  const transformed = serializeThemeApplication(
+    resolved,
+    "light",
+    "light",
+    "standard",
+    undefined,
+    "theme_transformed",
+    { shellLayout: "horizontal", radiusScale: 0.5, baseFontSize: 18 },
+  );
+  expect(transformed.shellLayout).toBe("horizontal");
+  expect(transformed.radiusScale).toBe(0.5);
+  expect(transformed.baseFontSize).toBe(18);
+  expect(transformed.cssText).toContain("--miaixz-text-body-size: 18px;");
+  expect(transformed.cssText).toContain("--miaixz-radius-control: 2px;");
 
   expect(() =>
     parseTheme({

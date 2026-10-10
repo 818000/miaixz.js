@@ -33,6 +33,10 @@ export interface MiaixzThemeComposition {
    */
   readonly shell?: "rail" | "sidebar";
   /**
+   * Application-shell region arrangement.
+   */
+  readonly shellLayout?: import("@miaixz/sdk/appearance").MiaixzShellLayout;
+  /**
    * Panel composition.
    */
   readonly panel?: "outlined" | "separated";
@@ -43,7 +47,7 @@ export interface MiaixzThemeComposition {
  *
  * @public
  */
-export const miaixzThemeCompositionFields = ["entry", "shell", "panel"] as const;
+export const miaixzThemeCompositionFields = ["entry", "shell", "shellLayout", "panel"] as const;
 
 /**
  * Defines the only registered value set for each composition field.
@@ -53,6 +57,14 @@ export const miaixzThemeCompositionFields = ["entry", "shell", "panel"] as const
 export const miaixzThemeCompositionValues = Object.freeze({
   entry: Object.freeze(["split", "centered"] as const),
   shell: Object.freeze(["rail", "sidebar"] as const),
+  shellLayout: Object.freeze([
+    "vertical",
+    "dual",
+    "horizontal",
+    "top-sidebar",
+    "hybrid-vertical",
+    "hybrid-dual",
+  ] as const),
   panel: Object.freeze(["outlined", "separated"] as const),
 });
 
@@ -64,5 +76,6 @@ export const miaixzThemeCompositionValues = Object.freeze({
 export const miaixzThemeCompositionDefaults = Object.freeze({
   entry: "split",
   shell: "rail",
+  shellLayout: "vertical",
   panel: "outlined",
 } as const satisfies Required<MiaixzThemeComposition>);

@@ -102,7 +102,7 @@ export type TreeView = "nested" | "compact" | "focus";
  * Options for the hierarchy-preserving nested view.
  */
 export interface NestedTreeViewOptions {
-  readonly indent?: "standard" | "compact";
+  readonly indent?: "standard" | "compact" | "dense";
 }
 
 /**
@@ -243,6 +243,7 @@ export interface TreeIconAttributes extends HTMLAttributes<HTMLSpanElement> {
  */
 export interface TreeSlotProps {
   readonly item?: MiaixzSlotProps<TreeOwnerState, TreeItemAttributes>;
+  readonly row?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly expander?: MiaixzSlotProps<TreeOwnerState, TreeIconAttributes>;
   readonly leading?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly copy?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;

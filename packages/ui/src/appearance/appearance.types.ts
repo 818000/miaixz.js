@@ -28,6 +28,11 @@ import type {
   LabelHTMLAttributes,
   RefAttributes,
 } from "react";
+import type {
+  MiaixzBaseFontSize,
+  MiaixzRadiusScale,
+  MiaixzShellLayout,
+} from "@miaixz/sdk/appearance";
 
 import type { MiaixzSlotProps } from "../shared/slots.js";
 
@@ -98,7 +103,21 @@ export interface AppearanceSlotProps {
  */
 export interface AppearanceBaseProps {
   readonly draggable?: boolean;
+  /**
+   * Limits the layout, radius, and typography choices exposed by this surface.
+   */
+  readonly capabilities?: AppearanceCapabilities;
   readonly slotProps?: AppearanceSlotProps;
+}
+
+/**
+ * Declares which application-controlled appearance choices are available.
+ * Empty arrays hide the corresponding control group.
+ */
+export interface AppearanceCapabilities {
+  readonly shellLayouts?: readonly MiaixzShellLayout[];
+  readonly radiusScales?: readonly MiaixzRadiusScale[];
+  readonly baseFontSizes?: readonly MiaixzBaseFontSize[];
 }
 
 /**

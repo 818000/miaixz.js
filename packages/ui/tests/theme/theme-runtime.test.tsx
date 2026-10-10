@@ -100,6 +100,15 @@ function ThemeProbe() {
       <button type="button" onClick={() => void theme.setDensity("compact")}>
         compact
       </button>
+      <button type="button" onClick={() => void theme.setShellLayout("hybrid-dual")}>
+        hybrid-dual
+      </button>
+      <button type="button" onClick={() => void theme.setRadiusScale(0.5)}>
+        radius-half
+      </button>
+      <button type="button" onClick={() => void theme.setBaseFontSize(16)}>
+        font-sixteen
+      </button>
       <button type="button" onClick={() => void theme.setOverrides({ dark: { brand: "#010203" } })}>
         override
       </button>
@@ -223,6 +232,18 @@ describe("Theme runtime", () => {
     expect(target).toHaveAttribute("data-miaixz-color-mode", "dark");
     await user.click(screen.getByRole("button", { name: "compact" }));
     expect(target).toHaveAttribute("data-miaixz-density", "compact");
+    await user.click(screen.getByRole("button", { name: "hybrid-dual" }));
+    expect(target).toHaveAttribute("data-miaixz-shell-layout", "hybrid-dual");
+    await user.click(screen.getByRole("button", { name: "radius-half" }));
+    expect(target).toHaveAttribute("data-miaixz-radius-scale", "0.5");
+    expect(container.querySelector("style")?.textContent).toContain(
+      "--miaixz-radius-control: 2px;",
+    );
+    await user.click(screen.getByRole("button", { name: "font-sixteen" }));
+    expect(target).toHaveAttribute("data-miaixz-base-font-size", "16");
+    expect(container.querySelector("style")?.textContent).toContain(
+      "--miaixz-text-body-size: 16px;",
+    );
     await user.click(screen.getByRole("button", { name: "override" }));
     expect(container.querySelector("style")?.textContent).toContain("#010203");
     await user.click(screen.getByRole("button", { name: "remote" }));
@@ -473,7 +494,15 @@ describe("Theme infrastructure", () => {
       colorMode: "dark",
       colorPreference: "system",
       density: "compact",
-      composition: { entry: "split", shell: "rail", panel: "outlined" },
+      shellLayout: "vertical",
+      radiusScale: 1,
+      baseFontSize: 14,
+      composition: {
+        entry: "split",
+        shell: "rail",
+        shellLayout: "vertical",
+        panel: "outlined",
+      },
       cssText: "after",
     };
     const restore = applyTheme(target, style, application);

@@ -25,8 +25,10 @@
 .miaixz-tree {
   --miaixz-tree-indent-nested: var(--miaixz-space-20);
   --miaixz-tree-indent-nested-compact: var(--miaixz-space-12);
+  --miaixz-tree-indent-nested-dense: var(--miaixz-space-8);
   --miaixz-tree-indent-connector: var(--miaixz-space-16);
   --miaixz-tree-indent-connector-compact: var(--miaixz-space-12);
+  --miaixz-tree-indent-connector-dense: var(--miaixz-space-8);
   --miaixz-tree-visual-indent: 0px;
 
   width: 100%;
@@ -75,6 +77,10 @@
 
 .miaixz-tree[data-view="nested"][data-indent="compact"] .miaixz-tree-group {
   padding-inline-start: var(--miaixz-tree-indent-nested-compact);
+}
+
+.miaixz-tree[data-view="nested"][data-indent="dense"] .miaixz-tree-group {
+  padding-inline-start: var(--miaixz-tree-indent-nested-dense);
 }
 
 .miaixz-tree-row {
@@ -269,6 +275,11 @@
 .miaixz-tree[data-view="nested"][data-indent="compact"][data-connectors] .miaixz-tree-group {
   padding-inline-start: var(--miaixz-tree-indent-connector-compact);
   margin-inline-start: var(--miaixz-tree-indent-connector-compact);
+}
+
+.miaixz-tree[data-view="nested"][data-indent="dense"][data-connectors] .miaixz-tree-group {
+  padding-inline-start: var(--miaixz-tree-indent-connector-dense);
+  margin-inline-start: var(--miaixz-tree-indent-connector-dense);
 }
 
 .miaixz-tree[data-view="compact"][data-connectors] .miaixz-tree-group,

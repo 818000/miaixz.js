@@ -774,6 +774,7 @@ export type {
 export { Appearance } from "./appearance/index.js";
 export type {
   AppearanceBaseProps,
+  AppearanceCapabilities,
   AppearanceOwnerState,
   AppearancePosition,
   AppearanceProps,
@@ -823,11 +824,17 @@ export type {
 } from "./i18n/index.js";
 export {
   isMiaixzAppearanceSettings,
+  isMiaixzBaseFontSize,
   isMiaixzColorMode,
   isMiaixzDensity,
+  isMiaixzRadiusScale,
+  isMiaixzShellLayout,
+  miaixzBaseFontSizes,
   miaixzColorModes,
   miaixzDefaultAppearance,
   miaixzDensities,
+  miaixzRadiusScales,
+  miaixzShellLayouts,
   miaixzThemeColorTokens,
   parseMiaixzAppearanceSettings,
   watchMiaixzSystemColorMode,
@@ -835,9 +842,12 @@ export {
 export type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
+  MiaixzBaseFontSize,
   MiaixzColorMode,
   MiaixzDensity,
+  MiaixzRadiusScale,
   MiaixzResolvedColorMode,
+  MiaixzShellLayout,
   MiaixzThemeColorOverrides,
   MiaixzThemeColorToken,
   MiaixzThemeOverrides,

@@ -23,9 +23,12 @@
  */
 
 import type {
+  MiaixzBaseFontSize,
   MiaixzColorMode,
   MiaixzDensity,
+  MiaixzRadiusScale,
   MiaixzResolvedColorMode,
+  MiaixzShellLayout,
   MiaixzThemeColorOverrides,
 } from "@miaixz/sdk/appearance";
 import { miaixzThemeColorTokens } from "../design/colors.js";
@@ -81,6 +84,18 @@ export interface MiaixzSerializedThemeApplication {
    */
   readonly density: MiaixzDensity;
   /**
+   * Resolved application-shell layout.
+   */
+  readonly shellLayout: MiaixzShellLayout;
+  /**
+   * Resolved semantic-radius multiplier.
+   */
+  readonly radiusScale: MiaixzRadiusScale;
+  /**
+   * Resolved base interface font size in pixels.
+   */
+  readonly baseFontSize: number;
+  /**
    * Registered composition variants applied as target attributes.
    */
   readonly composition: Readonly<
@@ -93,6 +108,24 @@ export interface MiaixzSerializedThemeApplication {
 }
 
 /**
+ * Supplies user appearance preferences that transform resolved theme tokens.
+ */
+export interface MiaixzThemeSerializationPreferences {
+  /**
+   * Overrides the theme's shell layout.
+   */
+  readonly shellLayout?: MiaixzShellLayout;
+  /**
+   * Scales semantic radii while leaving circular geometry unchanged.
+   */
+  readonly radiusScale?: MiaixzRadiusScale;
+  /**
+   * Scales numeric typography tokens relative to the theme body size.
+   */
+  readonly baseFontSize?: MiaixzBaseFontSize;
+}
+
+/**
  * Serializes a complete theme, mode, density, and override snapshot in fixed token order.
  *
  * @param theme - Complete resolved theme.
@@ -101,6 +134,7 @@ export interface MiaixzSerializedThemeApplication {
  * @param density - Active density branch.
  * @param overrides - Optional overrides for the concrete mode.
  * @param instanceId - Sanitized runtime instance identifier.
+ * @param preferences - Optional user layout, radius, and typography preferences.
  * @returns Immutable complete application payload.
  */
 export function serializeThemeApplication(
@@ -110,9 +144,16 @@ export function serializeThemeApplication(
   density: MiaixzDensity,
   overrides: MiaixzThemeColorOverrides | undefined,
   instanceId: string,
+  preferences?: Readonly<MiaixzThemeSerializationPreferences>,
 ): Readonly<MiaixzSerializedThemeApplication> {
   if (!/^[a-zA-Z0-9_-]+$/.test(instanceId)) throw new TypeError("Invalid theme instance ID");
-  const declarations = serializeThemeDeclarations(theme, colorMode, overrides);
+  const shellLayout = preferences?.shellLayout ?? theme.tokens.composition.shellLayout;
+  const radiusScale = preferences?.radiusScale ?? 1;
+  const baseFontSize = preferences?.baseFontSize ?? theme.tokens.typography.bodySize;
+  const declarations = serializeThemeDeclarations(theme, colorMode, overrides, {
+    radiusScale,
+    baseFontSize,
+  });
   for (const field of miaixzThemeDensityGeometryFields) {
     declarations.push(
       `--miaixz-density-${toKebab(field)}: var(--miaixz-geometry-${density}-${toKebab(field)});`,
@@ -133,6 +174,9 @@ export function serializeThemeApplication(
     colorMode,
     colorPreference,
     density,
+    shellLayout,
+    radiusScale,
+    baseFontSize,
     composition: theme.tokens.composition,
     cssText,
   });
@@ -184,12 +228,14 @@ export function serializeThemeStyles(
  * @param theme - Fully resolved definition.
  * @param colorMode - Concrete mode.
  * @param overrides - Optional runtime color overrides.
+ * @param transforms - Optional radius and typography transformations.
  * @returns Ordered CSS declarations.
  */
 function serializeThemeDeclarations(
   theme: Readonly<MiaixzResolvedThemeDefinition>,
   colorMode: MiaixzResolvedColorMode,
   overrides?: MiaixzThemeColorOverrides,
+  transforms?: Readonly<{ radiusScale: number; baseFontSize: number }>,
 ): string[] {
   const colors = mergeThemeColors(theme.modes[colorMode].colors, overrides);
   const declarations = [`color-scheme: ${colorMode};`];
@@ -198,15 +244,22 @@ function serializeThemeDeclarations(
   }
   declarations.push(...serializeThemeOpacity(theme.tokens.opacity));
   const familyFields = new Set<string>(miaixzThemeFontFamilyFields);
+  const typographyScale =
+    transforms === undefined ? 1 : transforms.baseFontSize / theme.tokens.typography.bodySize;
   for (const field of miaixzThemeTypographyFields) {
     const prefix = familyFields.has(field) ? "font-" : "text-";
     const value = theme.tokens.typography[field];
+    const serializedValue =
+      typeof value === "number" ? roundTokenValue(value * typographyScale) : value;
     declarations.push(
-      `--miaixz-${prefix}${toKebab(field)}: ${value}${typeof value === "number" ? "px" : ""};`,
+      `--miaixz-${prefix}${toKebab(field)}: ${serializedValue}${typeof value === "number" ? "px" : ""};`,
     );
   }
+  const radiusScale = transforms?.radiusScale ?? 1;
   for (const field of miaixzThemeRadiusFields) {
-    declarations.push(`--miaixz-radius-${toKebab(field)}: ${theme.tokens.radius[field]}px;`);
+    declarations.push(
+      `--miaixz-radius-${toKebab(field)}: ${roundTokenValue(theme.tokens.radius[field] * radiusScale)}px;`,
+    );
   }
   for (const level of miaixzThemeShadowLevels) {
     const value = theme.tokens.shadow[level];
@@ -236,4 +289,14 @@ function serializeThemeDeclarations(
     }
   }
   return declarations;
+}
+
+/**
+ * Keeps transformed design tokens deterministic without accumulating floating-point noise.
+ *
+ * @param value - Computed numeric token.
+ * @returns Value rounded to three fractional digits.
+ */
+function roundTokenValue(value: number): number {
+  return Math.round(value * 1000) / 1000;
 }

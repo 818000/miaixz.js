@@ -143,11 +143,17 @@ export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
         key={id}
       >
         <div
-          className="miaixz-tree-row"
-          onClick={() => {
-            props.controller.actions.focus(id);
-            props.controller.actions.select(id);
-          }}
+          {...mergeMiaixzSlotProps({
+            ownerState,
+            defaultProps: { className: "miaixz-tree-row" },
+            slotProps: props.slotProps?.row,
+            internalProps: {
+              onClick: () => {
+                props.controller.actions.focus(id);
+                props.controller.actions.select(id);
+              },
+            },
+          })}
         >
           <span
             {...mergeMiaixzSlotProps({

@@ -49,10 +49,16 @@ test("appearance parsing validates and normalizes theme overrides", () => {
     theme: "neutral",
     colorMode: "dark",
     density: "comfortable",
+    shellLayout: "hybrid-dual",
+    radiusScale: 1.5,
+    baseFontSize: 16,
     overrides: { dark: { brand: "#abcdef" } },
   });
 
   assert.equal(appearance.overrides?.dark?.brand, "#ABCDEF");
+  assert.equal(appearance.shellLayout, "hybrid-dual");
+  assert.equal(appearance.radiusScale, 1.5);
+  assert.equal(appearance.baseFontSize, 16);
   assert.equal(Object.isFrozen(appearance), true);
   assert.equal(Object.isFrozen(appearance.overrides?.dark), true);
   assert.equal(isMiaixzAppearanceSettings(appearance), true);
@@ -64,6 +70,42 @@ test("appearance parsing validates and normalizes theme overrides", () => {
     }),
     false,
   );
+  assert.equal(
+    isMiaixzAppearanceSettings({
+      theme: "neutral",
+      colorMode: "dark",
+      density: "comfortable",
+      shellLayout: "diagonal",
+    }),
+    false,
+  );
+});
+
+test("appearance manager persists and clears shell, radius, and typography preferences", async () => {
+  const { storage } = createMemoryStorage();
+  const sdk = createMiaixzSdk({ appId: "portal", config: testConfig, storage });
+  await sdk.ready;
+
+  sdk.appearance.setShellLayout("horizontal");
+  sdk.appearance.setRadiusScale(0.5);
+  sdk.appearance.setBaseFontSize(17);
+  sdk.appearance.setOverrides({ light: { brand: "#123456" } });
+  sdk.appearance.setOverrides(undefined);
+
+  assert.deepEqual(sdk.appearance.getSnapshot(), {
+    theme: "miaixz",
+    colorMode: "system",
+    density: "standard",
+    shellLayout: "horizontal",
+    radiusScale: 0.5,
+    baseFontSize: 17,
+  });
+
+  sdk.appearance.setShellLayout(undefined);
+  sdk.appearance.setRadiusScale(undefined);
+  sdk.appearance.setBaseFontSize(undefined);
+  assert.deepEqual(sdk.appearance.getSnapshot(), miaixzDefaultAppearance);
+  sdk.destroy();
 });
 
 test("appearance v1 migration preserves mode, density, and colors", () => {

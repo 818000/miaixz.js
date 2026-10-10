@@ -25,6 +25,7 @@
 export { Appearance } from "./appearance.js";
 export type {
   AppearanceBaseProps,
+  AppearanceCapabilities,
   AppearanceOwnerState,
   AppearancePosition,
   AppearanceProps,
@@ -35,20 +36,29 @@ export type {
 } from "./appearance.types.js";
 export {
   isMiaixzAppearanceSettings,
+  isMiaixzBaseFontSize,
   isMiaixzColorMode,
   isMiaixzDensity,
+  isMiaixzRadiusScale,
+  isMiaixzShellLayout,
+  miaixzBaseFontSizes,
   miaixzColorModes,
   miaixzDefaultAppearance,
   miaixzDensities,
+  miaixzRadiusScales,
+  miaixzShellLayouts,
   miaixzThemeColorTokens,
   parseMiaixzAppearanceSettings,
 } from "@miaixz/sdk/appearance";
 export type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
+  MiaixzBaseFontSize,
   MiaixzColorMode,
   MiaixzDensity,
+  MiaixzRadiusScale,
   MiaixzResolvedColorMode,
+  MiaixzShellLayout,
   MiaixzThemeColorOverrides,
   MiaixzThemeColorToken,
   MiaixzThemeOverrides,

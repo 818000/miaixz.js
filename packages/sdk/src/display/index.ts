@@ -35,19 +35,32 @@ export {
 } from "./migration.js";
 export {
   isMiaixzAppearanceSettings,
+  isMiaixzBaseFontSize,
   isMiaixzColorMode,
   isMiaixzDensity,
+  isMiaixzRadiusScale,
+  isMiaixzShellLayout,
   isMiaixzThemeId,
   miaixzDefaultAppearance,
   parseMiaixzAppearanceSettings,
 } from "./validation.js";
-export { miaixzColorModes, miaixzDensities, miaixzThemeColorTokens } from "./appearance.types.js";
+export {
+  miaixzBaseFontSizes,
+  miaixzColorModes,
+  miaixzDensities,
+  miaixzRadiusScales,
+  miaixzShellLayouts,
+  miaixzThemeColorTokens,
+} from "./appearance.types.js";
 export type {
   MiaixzAppearancePayload,
   MiaixzAppearanceSettings,
+  MiaixzBaseFontSize,
   MiaixzColorMode,
   MiaixzDensity,
+  MiaixzRadiusScale,
   MiaixzResolvedColorMode,
+  MiaixzShellLayout,
   MiaixzThemeColorOverrides,
   MiaixzThemeColors,
   MiaixzThemeColorToken,

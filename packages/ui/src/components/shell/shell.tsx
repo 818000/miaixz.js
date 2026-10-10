@@ -37,11 +37,16 @@ export const Shell = withMiaixzThemeComponent(
     {
       header,
       sidebar,
+      brand,
+      primaryNavigation = sidebar,
+      secondaryNavigation,
+      contextNavigation,
       sidebarOverflow = "auto",
       headerBehavior = "fixed",
       desktopNavigation = { mode: "sidebar" },
       mobileNavigation = { mode: "none" },
       presentation = "default",
+      layout = "vertical",
       mainComponent: MainComponent = "main",
       slotProps,
       mainRef,
@@ -56,6 +61,7 @@ export const Shell = withMiaixzThemeComponent(
       headerBehavior,
       sidebarOverflow,
       presentation,
+      layout,
     };
     const expanded = desktopNavigation.mode === "rail" && desktopNavigation.expanded;
     return (
@@ -71,15 +77,28 @@ export const Shell = withMiaixzThemeComponent(
             ...(expanded ? { "data-navigation-expanded": true } : {}),
             "data-header-behavior": headerBehavior,
             "data-presentation": presentation,
+            "data-layout": layout,
           },
           ownedProps: [
             "data-desktop-navigation",
             "data-navigation-expanded",
             "data-header-behavior",
             "data-presentation",
+            "data-layout",
           ],
         })}
       >
+        {brand === undefined ? null : (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-shell-brand" },
+              slotProps: slotProps?.brand,
+            })}
+          >
+            {brand}
+          </div>
+        )}
         <header
           {...mergeMiaixzSlotProps({
             ownerState,
@@ -89,17 +108,43 @@ export const Shell = withMiaixzThemeComponent(
         >
           {header}
         </header>
-        <aside
-          {...mergeMiaixzSlotProps({
-            ownerState,
-            defaultProps: { className: "miaixz-shell-sidebar" },
-            slotProps: slotProps?.sidebar,
-            internalProps: { "data-overflow": sidebarOverflow },
-            ownedProps: ["data-overflow"],
-          })}
-        >
-          {sidebar}
-        </aside>
+        {primaryNavigation === undefined ? null : (
+          <aside
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: {
+                className: "miaixz-shell-sidebar miaixz-shell-primary-navigation",
+              },
+              slotProps: slotProps?.primaryNavigation ?? slotProps?.sidebar,
+              internalProps: { "data-overflow": sidebarOverflow },
+              ownedProps: ["data-overflow"],
+            })}
+          >
+            {primaryNavigation}
+          </aside>
+        )}
+        {secondaryNavigation === undefined ? null : (
+          <aside
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-shell-secondary-navigation" },
+              slotProps: slotProps?.secondaryNavigation,
+            })}
+          >
+            {secondaryNavigation}
+          </aside>
+        )}
+        {contextNavigation === undefined ? null : (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-shell-context-navigation" },
+              slotProps: slotProps?.contextNavigation,
+            })}
+          >
+            {contextNavigation}
+          </div>
+        )}
         <MainComponent
           {...mergeMiaixzSlotProps({
             ownerState,

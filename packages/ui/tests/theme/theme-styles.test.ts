@@ -156,7 +156,14 @@ describe("application theme first paint", () => {
       key,
       JSON.stringify({
         schemaVersion: VERSION,
-        value: { theme: "customer", colorMode: "dark", density: "compact" },
+        value: {
+          theme: "customer",
+          colorMode: "dark",
+          density: "compact",
+          shellLayout: "hybrid-vertical",
+          radiusScale: 1.5,
+          baseFontSize: 17,
+        },
       }),
     );
     try {
@@ -170,6 +177,9 @@ describe("application theme first paint", () => {
       expect(document.documentElement.dataset.miaixzTheme).toBe("customer");
       expect(document.documentElement.dataset.miaixzColorMode).toBe("dark");
       expect(document.documentElement.dataset.miaixzDensity).toBe("compact");
+      expect(document.documentElement.dataset.miaixzShellLayout).toBe("hybrid-vertical");
+      expect(document.documentElement.dataset.miaixzRadiusScale).toBe("1.5");
+      expect(document.documentElement.dataset.miaixzBaseFontSize).toBe("17");
     } finally {
       localStorage.removeItem(key);
     }

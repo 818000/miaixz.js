@@ -187,7 +187,12 @@ function validateTreePresentation(
   }
   if (view === "nested") {
     const indent = (viewOptions as TreeViewOptionsMap["nested"] | undefined)?.indent;
-    if (indent !== undefined && indent !== "standard" && indent !== "compact") {
+    if (
+      indent !== undefined &&
+      indent !== "standard" &&
+      indent !== "compact" &&
+      indent !== "dense"
+    ) {
       invalidConfig("viewOptions.indent");
     }
   } else if (view === "compact") {

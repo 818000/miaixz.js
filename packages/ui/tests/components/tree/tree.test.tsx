@@ -130,6 +130,36 @@ describe("Tree", () => {
     expect(nested.querySelector(".miaixz-tree-label")).toHaveTextContent(longLabel);
   });
 
+  it("exposes dense nested indentation without flattening hierarchy", () => {
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          label="密集层级目录"
+          nodes={createTreeFixture(8)}
+          view="nested"
+          defaultExpansion="all"
+          defaultSelectedIds={["tree-depth-08"]}
+          slotProps={{
+            row: (ownerState) => ({
+              className: ownerState.selected ? "selected-tree-row" : undefined,
+            }),
+          }}
+          viewOptions={{ indent: "dense" }}
+        />
+      </MiaixzLocaleProvider>,
+    );
+
+    expect(screen.getByRole("tree", { name: "密集层级目录" })).toHaveAttribute(
+      "data-indent",
+      "dense",
+    );
+    const deepestItem = screen.getByRole("treeitem", { name: "Tree level 8" });
+    expect(deepestItem).toHaveAttribute("data-visual-level", "7");
+    expect(deepestItem.querySelector(":scope > .miaixz-tree-row")).toHaveClass("selected-tree-row");
+  });
+
   it("retains controlled multiple selection and disabled nodes", () => {
     const onSelectedIdsChange = vi.fn();
     render(

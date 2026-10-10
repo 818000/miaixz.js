@@ -22,7 +22,16 @@
  * Renders appearance controls and binds them to the SDK appearance manager.
  */
 
-import type { MiaixzColorMode, MiaixzDensity } from "@miaixz/sdk/appearance";
+import {
+  miaixzBaseFontSizes,
+  miaixzRadiusScales,
+  miaixzShellLayouts,
+  type MiaixzBaseFontSize,
+  type MiaixzColorMode,
+  type MiaixzDensity,
+  type MiaixzRadiusScale,
+  type MiaixzShellLayout,
+} from "@miaixz/sdk/appearance";
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 
 import { MiaixzUiError } from "../errors/ui-error.js";
@@ -54,6 +63,7 @@ function Appearance(props: AppearanceProps) {
     positionBlockPx,
     onPositionBlockPxChange,
     draggable = true,
+    capabilities,
     slotProps,
   } = props;
   if (positionBlockPx !== undefined && !Number.isFinite(positionBlockPx)) {
@@ -76,6 +86,9 @@ function Appearance(props: AppearanceProps) {
   const drawerId = `miaixz-appearance-${useId()}`;
   const namePrefix = `miaixz-appearance-choice-${useId()}`;
   const authenticated = scope === "authenticated";
+  const shellLayouts = capabilities?.shellLayouts ?? miaixzShellLayouts;
+  const radiusScales = capabilities?.radiusScales ?? miaixzRadiusScales;
+  const baseFontSizes = capabilities?.baseFontSizes ?? miaixzBaseFontSizes;
   const isLoading = theme.status === "loading" || localeRuntime.loadStatus === "loading";
   const activeLocale =
     localeRuntime.locales.find((descriptor) => descriptor.id === localeRuntime.locale) ??
@@ -141,7 +154,7 @@ function Appearance(props: AppearanceProps) {
    * @returns Decorative preview and its visible label.
    */
   const preview = (
-    kind: "theme" | "mode" | "density" | "header",
+    kind: "theme" | "mode" | "density" | "header" | "layout",
     value: string,
     label: ReactNode,
     style?: CSSProperties,
@@ -261,6 +274,91 @@ function Appearance(props: AppearanceProps) {
     "miaixz-appearance-options-cards",
   );
 
+  const layoutGroup =
+    shellLayouts.length === 0
+      ? null
+      : group(
+          localeRuntime.t("ui.appearance.layout"),
+          shellLayouts.map((layout) => (
+            <Radio
+              key={layout}
+              checked={theme.shellLayout === layout}
+              slotProps={{ root: optionSlotProps }}
+              disabled={isLoading}
+              label={preview("layout", layout, localeRuntime.t(`ui.appearance.${layout}`))}
+              name={`${namePrefix}-layout`}
+              onChange={() => {
+                if (theme.shellLayout !== layout) void theme.setShellLayout(layout);
+              }}
+              value={layout}
+            />
+          )),
+          "miaixz-appearance-options-layouts",
+        );
+
+  const radiusGroup =
+    radiusScales.length === 0
+      ? null
+      : group(
+          localeRuntime.t("ui.appearance.radius"),
+          radiusScales.map((scale) => (
+            <Radio
+              key={scale}
+              checked={theme.radiusScale === scale}
+              slotProps={{ root: optionSlotProps }}
+              disabled={isLoading}
+              label={String(scale)}
+              name={`${namePrefix}-radius`}
+              onChange={() => {
+                if (theme.radiusScale !== scale)
+                  void theme.setRadiusScale(scale as MiaixzRadiusScale);
+              }}
+              value={String(scale)}
+            />
+          )),
+          "miaixz-appearance-options-radius",
+        );
+
+  const currentFontSizeIndex = Math.max(
+    0,
+    baseFontSizes.indexOf(theme.baseFontSize as MiaixzBaseFontSize),
+  );
+  const fontSizeGroup =
+    baseFontSizes.length === 0
+      ? null
+      : group(
+          localeRuntime.t("ui.appearance.fontSize"),
+          <div className="miaixz-appearance-font-stepper">
+            <button
+              aria-label={localeRuntime.t("ui.appearance.fontSize.decrease")}
+              disabled={isLoading || currentFontSizeIndex <= 0}
+              onClick={() => {
+                const size = baseFontSizes[currentFontSizeIndex - 1];
+                if (size !== undefined) void theme.setBaseFontSize(size);
+              }}
+              type="button"
+            >
+              −
+            </button>
+            <output aria-label={localeRuntime.t("ui.appearance.fontSize.current")}>
+              {theme.baseFontSize}
+            </output>
+            <button
+              aria-label={localeRuntime.t("ui.appearance.fontSize.increase")}
+              disabled={isLoading || currentFontSizeIndex >= baseFontSizes.length - 1}
+              onClick={() => {
+                const size = baseFontSizes[currentFontSizeIndex + 1];
+                if (size !== undefined) void theme.setBaseFontSize(size);
+              }}
+              type="button"
+            >
+              +
+            </button>
+            <span aria-hidden="true">px</span>
+          </div>,
+          "miaixz-appearance-options-rows",
+        );
+
   const headerGroup = group(
     localeRuntime.t("ui.appearance.header"),
     <>
@@ -296,6 +394,7 @@ function Appearance(props: AppearanceProps) {
       <Drawer
         className="miaixz-appearance-drawer"
         closeLabel={localeRuntime.t("ui.appearance.close")}
+        density="standard"
         description={
           view === "language"
             ? localeRuntime.t("ui.appearance.language.description")
@@ -342,6 +441,9 @@ function Appearance(props: AppearanceProps) {
         ) : (
           <div aria-busy={isLoading} className="miaixz-appearance-body">
             {authenticated && themeGroup}
+            {authenticated && layoutGroup}
+            {authenticated && radiusGroup}
+            {authenticated && fontSizeGroup}
             {localeGroup}
             {modeGroup}
             {authenticated && densityGroup}

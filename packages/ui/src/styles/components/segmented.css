@@ -51,6 +51,18 @@
   border-radius: var(--miaixz-radius-control);
 }
 
+.miaixz-segmented-item:has(> .miaixz-segmented-icon) {
+  padding-inline: 0;
+}
+
+.miaixz-segmented-item:has(> .miaixz-segmented-icon) > .miaixz-segmented-label {
+  display: none;
+}
+
+.miaixz-segmented-item:has(> .miaixz-segmented-icon)[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 var(--miaixz-border-width-default) var(--miaixz-color-brand);
+}
+
 .miaixz-segmented-item:hover:not(:disabled),
 .miaixz-segmented-item[aria-pressed="true"] {
   color: var(--miaixz-color-brand-strong);
