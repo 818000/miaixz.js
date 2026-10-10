@@ -10497,12 +10497,16 @@ describe("refinement contract fixtures", () => {
                     rules,
                     unitsPerEm: 960,
                   });
-                  const measured = visual.compareReferenceCoverage(crop, crop, regions, rules);
+                  const measured = visual.compareReferenceCoverage(crop, crop, regions, rules),
+                    sampleKey = JSON.stringify({ browserName, dpr, size, layer, index });
                   expect(
                     { empty: measured.sourceEmpty, clipped: measured.clipped },
-                    JSON.stringify({ browserName, dpr, size, layer, index }),
+                    sampleKey,
                   ).toEqual({ empty: false, clipped: false });
-                  expect(visual.referenceRasterFailures(measured, rules)).toEqual([]);
+                  expect(
+                    visual.referenceRasterFailures(measured, rules, sampleKey),
+                    sampleKey,
+                  ).toEqual([]);
                 }
                 sheets.push(sheet);
               }
