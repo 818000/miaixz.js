@@ -220,7 +220,7 @@ import type { ToasterOwnerState, ToasterProps } from "../components/toaster/toas
 import type { ToolbarProps } from "../components/toolbar/toolbar.types.js";
 import type { TransferOwnerState, TransferProps } from "../components/transfer/transfer.types.js";
 import type { TooltipOwnerState, TooltipProps } from "../components/tooltip/tooltip.types.js";
-import type { TreeOwnerState, TreeProps, TreeView } from "../components/tree/tree.types.js";
+import type { TreeOwnerState, TreeProps, TreeViewMode } from "../components/tree/tree.types.js";
 import type { UploadOwnerState, UploadProps } from "../components/upload/upload.types.js";
 import type { ViewOwnerState, ViewProps } from "../components/view/view.types.js";
 import type { AppearanceOwnerState, AppearanceProps } from "../appearance/appearance.types.js";
@@ -442,7 +442,7 @@ export interface MiaixzThemeComponentRegistry {
     }
   >;
   readonly Descriptions: MiaixzThemeEntry<DescriptionsProps, DescriptionsOwnerState>;
-  readonly Tree: MiaixzThemeEntry<TreeProps<unknown, TreeView>, TreeOwnerState>;
+  readonly Tree: MiaixzThemeEntry<TreeProps<unknown, TreeViewMode>, TreeOwnerState>;
   readonly Steps: MiaixzThemeEntry<StepsProps, StepsOwnerState>;
   readonly Timeline: MiaixzThemeEntry<TimelineProps, TimelineOwnerState>;
   readonly EditorLayout: MiaixzThemeEntry<EditorLayoutProps, EditorLayoutOwnerState>;

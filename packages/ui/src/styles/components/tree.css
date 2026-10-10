@@ -95,6 +95,7 @@
 }
 
 .miaixz-tree-row {
+  position: relative;
   display: flex;
   gap: var(--miaixz-tree-row-gap);
   align-items: center;
@@ -106,6 +107,37 @@
   transition-timing-function: var(--miaixz-motion-interaction-easing);
   transition-duration: var(--miaixz-motion-interaction-duration);
   transition-property: color, background-color, border-color;
+}
+
+.miaixz-tree-item[data-pending="true"] > .miaixz-tree-row {
+  cursor: progress;
+}
+
+.miaixz-tree-item[data-dragging="true"] > .miaixz-tree-row {
+  opacity: var(--miaixz-opacity-disabled);
+}
+
+.miaixz-tree-item[data-drop-position="inside"] > .miaixz-tree-row {
+  outline: var(--miaixz-border-width-strong) solid var(--miaixz-color-brand);
+  outline-offset: calc(-1 * var(--miaixz-border-width-strong));
+  background: var(--miaixz-color-surface-hover);
+}
+
+.miaixz-tree-item[data-drop-position="before"] > .miaixz-tree-row::after,
+.miaixz-tree-item[data-drop-position="after"] > .miaixz-tree-row::after {
+  position: absolute;
+  inset-inline: 0;
+  z-index: 2;
+  content: "";
+  border-block-start: var(--miaixz-border-width-strong) solid var(--miaixz-color-brand);
+}
+
+.miaixz-tree-item[data-drop-position="before"] > .miaixz-tree-row::after {
+  inset-block-start: 0;
+}
+
+.miaixz-tree-item[data-drop-position="after"] > .miaixz-tree-row::after {
+  inset-block-end: 0;
 }
 
 .miaixz-tree[data-view="compact"] .miaixz-tree-group,
@@ -243,6 +275,98 @@
   font-size: var(--miaixz-text-body-size);
   font-weight: var(--miaixz-font-weight-regular);
   line-height: var(--miaixz-text-body-line-height);
+}
+
+.miaixz-tree-rename-input,
+.miaixz-tree-create-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: calc(var(--miaixz-tree-row-height) - var(--miaixz-space-8));
+  padding-inline: var(--miaixz-space-8);
+  font: inherit;
+  color: var(--miaixz-color-text-primary);
+  outline: 0;
+  background: var(--miaixz-color-surface);
+  border: var(--miaixz-border-width-default) solid var(--miaixz-color-brand);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-tree-create-row {
+  display: flex;
+  gap: var(--miaixz-space-8);
+  align-items: center;
+  min-height: var(--miaixz-tree-row-height);
+  padding-inline: calc(var(--miaixz-control-min-target-size) + var(--miaixz-space-8))
+    var(--miaixz-space-8);
+  color: var(--miaixz-color-brand);
+}
+
+.miaixz-tree-create-action,
+.miaixz-tree-delete-action,
+.miaixz-tree-drag-handle {
+  position: absolute;
+  inset-block-start: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--miaixz-space-24);
+  height: var(--miaixz-space-24);
+  padding: 0;
+  color: var(--miaixz-color-text-secondary);
+  cursor: pointer;
+  background: var(--miaixz-color-surface);
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+  opacity: 0;
+  transform: translateY(-50%);
+}
+
+.miaixz-tree-delete-action {
+  inset-inline-end: var(--miaixz-space-4);
+  color: var(--miaixz-color-danger);
+}
+
+.miaixz-tree-drag-handle {
+  inset-inline-end: calc(var(--miaixz-space-24) + var(--miaixz-space-4));
+  cursor: grab;
+}
+
+.miaixz-tree-create-action {
+  inset-inline-end: calc(var(--miaixz-space-48) + var(--miaixz-space-4));
+}
+
+.miaixz-tree-row:hover
+  > :is(.miaixz-tree-create-action, .miaixz-tree-delete-action, .miaixz-tree-drag-handle),
+.miaixz-tree-item:focus-within
+  > .miaixz-tree-row
+  > :is(.miaixz-tree-create-action, .miaixz-tree-delete-action, .miaixz-tree-drag-handle),
+:is(
+  .miaixz-tree-create-action,
+  .miaixz-tree-delete-action,
+  .miaixz-tree-drag-handle
+):focus-visible {
+  opacity: 1;
+}
+
+:is(
+  .miaixz-tree-create-action,
+  .miaixz-tree-delete-action,
+  .miaixz-tree-drag-handle
+):focus-visible {
+  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
+  outline-offset: var(--miaixz-control-focus-offset);
+}
+
+:is(.miaixz-tree-create-action, .miaixz-tree-delete-action)[disabled] {
+  cursor: not-allowed;
+  opacity: var(--miaixz-opacity-disabled);
+}
+
+.miaixz-tree-operation-loading {
+  flex: none;
+  color: var(--miaixz-color-brand);
 }
 
 .miaixz-tree-description {
@@ -480,6 +604,12 @@
 }
 
 @media (pointer: coarse) {
+  .miaixz-tree-create-action,
+  .miaixz-tree-delete-action,
+  .miaixz-tree-drag-handle {
+    opacity: 1;
+  }
+
   .miaixz-tree[data-view="nested"][data-indent="dense"] .miaixz-tree-expander {
     width: var(--miaixz-control-min-target-size);
     height: var(--miaixz-control-min-target-size);

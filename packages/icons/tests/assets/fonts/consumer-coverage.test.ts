@@ -82,8 +82,8 @@ describe("read-only icon consumers", () => {
         import { Icon as Glyph, type IconName } from "@miaixz/icons";
         import { IconButton as Action } from "@miaixz/ui";
         import { createElement as create } from "react";
-        import { fallback, pair } from "../../fonts/constants.js";
-        import config from "../../fonts/config.json";
+        import { fallback, pair } from "./constants.js";
+        import config from "./config.json";
         const mapping: Record<string, IconName> = { idle: fallback, loading: "loader", complete: "check-line" };
         const attrs = { ...{ name: "loading" } };
         function name(): IconName { return condition ? "loader" : "check-line"; }
@@ -161,10 +161,10 @@ describe("read-only icon consumers", () => {
   it("detects cross-module cycles without reading sibling repositories", async () => {
     await fixture(
       {
-        "a.ts": 'import { b } from "../../fonts/b.js"; export const a = b;',
-        "b.ts": 'import { a } from "../../fonts/a.js"; export const b = a;',
+        "a.ts": 'import { b } from "./b.js"; export const a = b;',
+        "b.ts": 'import { a } from "./a.js"; export const b = a;',
         "consumer.tsx":
-          'import { Icon } from "@miaixz/icons"; import { a } from "../../fonts/a.js"; const view = <Icon name={a}/>;',
+          'import { Icon } from "@miaixz/icons"; import { a } from "./a.js"; const view = <Icon name={a}/>;',
       },
       async (root) =>
         expect(

@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createTreeCollection } from "../../../src/components/tree/tree-collection.js";
 import { runTreeExpansion } from "../../../src/components/tree/tree-expansion.js";
 import type { TreeNode } from "../../../src/components/tree/tree.types.js";
-import { createTreeFixture } from "../../fixtures/tree-fixtures.js";
+import { createTreeFixture } from "./tree-fixtures.js";
 
 describe("Tree expansion", () => {
   it("expands loaded records in stable breadth-first order", async () => {

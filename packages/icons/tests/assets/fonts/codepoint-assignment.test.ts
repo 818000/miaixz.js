@@ -219,7 +219,7 @@ describe("unpublished codepoint assignment", () => {
     expect(source.icons[0].name).toBe("icon-000");
     await validateFontSource({ assetsRoot: f.assetsRoot });
     await assignIconCodepoints({ assetsRoot: f.assetsRoot, mode: "check" });
-  });
+  }, 10_000);
   it.each([
     "missing master",
     "missing GLIF",

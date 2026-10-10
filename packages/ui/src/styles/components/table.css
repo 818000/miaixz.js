@@ -28,49 +28,10 @@
   --miaixz-table-cell-padding-block: var(--miaixz-density-table-cell-padding-block);
   --miaixz-table-action-width: var(--miaixz-control-height-small);
   --miaixz-table-min-inline-size: calc(var(--miaixz-layout-card-min-width) * 2);
-  --miaixz-table-row-hover-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 3%,
-    var(--miaixz-surface-role-panel-background)
-  );
-  --miaixz-table-row-selected-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 6%,
-    var(--miaixz-surface-role-panel-background)
-  );
-  --miaixz-table-row-selected-hover-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 9%,
-    var(--miaixz-surface-role-panel-background)
-  );
-  --miaixz-table-row-active-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 12%,
-    var(--miaixz-surface-role-panel-background)
-  );
-}
-
-[data-miaixz-theme][data-miaixz-color-mode="dark"] {
-  --miaixz-table-row-hover-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 8%,
-    var(--miaixz-surface-role-panel-background)
-  );
-  --miaixz-table-row-selected-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 12%,
-    var(--miaixz-surface-role-panel-background)
-  );
-  --miaixz-table-row-selected-hover-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 16%,
-    var(--miaixz-surface-role-panel-background)
-  );
-  --miaixz-table-row-active-background: color-mix(
-    in srgb,
-    var(--miaixz-color-brand) 20%,
-    var(--miaixz-surface-role-panel-background)
-  );
+  --miaixz-table-row-hover-background: var(--miaixz-color-surface-hover);
+  --miaixz-table-row-selected-background: var(--miaixz-surface-role-selected-background);
+  --miaixz-table-row-selected-hover-background: var(--miaixz-color-brand-soft-hover);
+  --miaixz-table-row-active-background: var(--miaixz-color-surface-active);
 }
 
 .miaixz-table-container {

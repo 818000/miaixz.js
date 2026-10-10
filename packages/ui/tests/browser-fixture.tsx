@@ -16,7 +16,7 @@ import {
   asyncTreeFixture,
   createTreeFixture,
   type TreeFixtureDepth,
-} from "./fixtures/tree-fixtures.js";
+} from "./components/tree/tree-fixtures.js";
 
 import {
   ActionBar,

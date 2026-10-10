@@ -7,8 +7,8 @@ import { StrictMode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { useTree } from "../../../src/components/tree/use-tree.js";
-import type { TreeNode, TreeView } from "../../../src/components/tree/tree.types.js";
-import { createTreeFixture } from "../../fixtures/tree-fixtures.js";
+import type { TreeNode, TreeViewMode } from "../../../src/components/tree/tree.types.js";
+import { createTreeFixture } from "./tree-fixtures.js";
 
 describe("useTree", () => {
   it("owns uncontrolled selection and expansion while keeping focus independent", async () => {
@@ -93,14 +93,14 @@ describe("useTree", () => {
   it("preserves state across view changes and rejects invalid commands and options", () => {
     const nodes = createTreeFixture(3);
     const { result, rerender } = renderHook(
-      ({ view }: { readonly view: TreeView }) =>
+      ({ view }: { readonly view: TreeViewMode }) =>
         useTree({
           label: "Runtime view",
           nodes,
           view,
           defaultExpandedIds: ["tree-depth-01", "tree-depth-02"],
         }),
-      { initialProps: { view: "nested" as TreeView } },
+      { initialProps: { view: "nested" as TreeViewMode } },
     );
     rerender({ view: "compact" });
     expect(result.current.state.expandedIds.has("tree-depth-02")).toBe(true);

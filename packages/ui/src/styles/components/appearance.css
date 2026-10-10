@@ -85,26 +85,6 @@
   outline-offset: var(--miaixz-control-focus-offset);
 }
 
-/**
- * Keeps the settings surface stable while it changes the surrounding application's density.
- */
-.miaixz-appearance-drawer {
-  --miaixz-density-control-height: var(--miaixz-geometry-standard-control-height);
-  --miaixz-density-control-padding-inline: var(--miaixz-geometry-standard-control-padding-inline);
-  --miaixz-density-control-gap: var(--miaixz-geometry-standard-control-gap);
-  --miaixz-density-panel-padding: var(--miaixz-geometry-standard-panel-padding);
-  --miaixz-density-table-row-height: var(--miaixz-geometry-standard-table-row-height);
-  --miaixz-density-item-height: var(--miaixz-geometry-standard-item-height);
-  --miaixz-density-section-gap: var(--miaixz-geometry-standard-section-gap);
-  --miaixz-density-component-gap: var(--miaixz-geometry-standard-control-gap);
-  --miaixz-density-list-item-height: var(--miaixz-geometry-standard-item-height);
-  --miaixz-density-table-cell-padding-inline: var(
-    --miaixz-geometry-standard-control-padding-inline
-  );
-  --miaixz-density-table-cell-padding-block: var(--miaixz-geometry-standard-control-gap);
-  --miaixz-control-gap: var(--miaixz-geometry-standard-control-gap);
-}
-
 .miaixz-appearance-trigger > .miaixz-icon {
   transform: rotate(0turn);
   transform-origin: center;

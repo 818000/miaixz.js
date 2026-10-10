@@ -33,7 +33,7 @@ import { TreeBreadcrumb } from "./tree-breadcrumb.js";
 import { TreeExpansionControlsView } from "./tree-expansion-controls.js";
 import { TreeRenderer } from "./tree-renderer.js";
 import { useTree } from "./use-tree.js";
-import type { TreeProps, TreeView, TreeViewRootProps } from "./tree.types.js";
+import type { TreeProps, TreeViewMode, TreeViewRootProps } from "./tree.types.js";
 
 /**
  * Renders one business-neutral WAI-ARIA tree in nested, compact, or focus mode.
@@ -41,7 +41,7 @@ import type { TreeProps, TreeView, TreeViewRootProps } from "./tree.types.js";
  * @param forwardedRef - Ref forwarded to the semantic tree root.
  * @returns A themed Tree instance backed by the headless controller.
  */
-function TreeImplementation<Value = unknown, View extends TreeView = TreeView>(
+function TreeImplementation<Value = unknown, View extends TreeViewMode = TreeViewMode>(
   props: TreeProps<Value, View>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -72,6 +72,21 @@ function TreeImplementation<Value = unknown, View extends TreeView = TreeView>(
     dividerStyle = "none",
     density = "standard",
     showSelectionIndicator = true,
+    creatable = true,
+    movable = true,
+    renamable = true,
+    deletable = true,
+    canCreate,
+    canMove,
+    canDrop,
+    canRename,
+    canDelete,
+    onCreateRequest,
+    onMoveRequest,
+    onRenameRequest,
+    onDeleteRequest,
+    operationState = null,
+    onOperationError,
     slotProps,
     className,
     ...rootProps
@@ -85,7 +100,7 @@ function TreeImplementation<Value = unknown, View extends TreeView = TreeView>(
   }, [slotProps?.expander, slotProps?.icon]);
 
   const rootInteraction = controller.getRootProps();
-  const effectiveView = view as TreeView;
+  const effectiveView = view as TreeViewMode;
   const focusOptions = effectiveView === "focus" ? viewOptions : undefined;
   const nestedIndent =
     effectiveView === "nested"
@@ -140,6 +155,26 @@ function TreeImplementation<Value = unknown, View extends TreeView = TreeView>(
         slotProps={slotProps}
         errorLabel={t("ui.tree.loadError")}
         retryLabel={t("ui.action.retry")}
+        createLabel={t("ui.tree.create")}
+        createInputLabel={t("ui.tree.createInput")}
+        moveLabel={t("ui.tree.move")}
+        renameLabel={t("ui.tree.rename")}
+        deleteLabel={t("ui.tree.delete")}
+        creatable={creatable}
+        movable={movable}
+        renamable={renamable}
+        deletable={deletable}
+        canCreate={canCreate}
+        canMove={canMove}
+        canDrop={canDrop}
+        canRename={canRename}
+        canDelete={canDelete}
+        onCreateRequest={onCreateRequest}
+        onMoveRequest={onMoveRequest}
+        onRenameRequest={onRenameRequest}
+        onDeleteRequest={onDeleteRequest}
+        operationState={operationState}
+        onOperationError={onOperationError}
       />
     </div>
   );
@@ -184,7 +219,7 @@ function TreeImplementation<Value = unknown, View extends TreeView = TreeView>(
  */
 export const Tree = withMiaixzThemeComponent(
   "Tree",
-  forwardRef(TreeImplementation) as <Value = unknown, View extends TreeView = TreeView>(
+  forwardRef(TreeImplementation) as <Value = unknown, View extends TreeViewMode = TreeViewMode>(
     props: TreeProps<Value, View> & RefAttributes<HTMLDivElement>,
   ) => ReactElement,
 );

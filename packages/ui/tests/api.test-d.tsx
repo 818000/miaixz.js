@@ -177,7 +177,7 @@ void contrastTheme;
 /**
  * @ts-expect-error MiaixzRelationNode was replaced outright by GraphNode. */
 import type { MiaixzRelationNode } from "../src/index.js";
-import type { TreeView as TreeViewMode } from "../src/index.js";
+import type { TreeViewMode } from "../src/index.js";
 /**
  * @ts-expect-error MiaixzRelationEdge was replaced outright by GraphEdge. */
 import type { MiaixzRelationEdge } from "../src/index.js";

@@ -68,10 +68,16 @@ describe("table row effects", () => {
     const selectedHoverRule = ':is(.miaixz-table) > tbody > tr[data-selected="true"]:hover';
 
     expect(css).toContain(selectedRule);
-    expect(css).toContain("--miaixz-table-row-hover-background: color-mix(");
-    expect(css).toContain("--miaixz-table-row-selected-background: color-mix(");
-    expect(css).toContain("--miaixz-table-row-selected-hover-background: color-mix(");
-    expect(css).toContain("--miaixz-table-row-active-background: color-mix(");
+    expect(css).toContain("--miaixz-table-row-hover-background: var(--miaixz-color-surface-hover)");
+    expect(css).toContain(
+      "--miaixz-table-row-selected-background: var(--miaixz-surface-role-selected-background)",
+    );
+    expect(css).toContain(
+      "--miaixz-table-row-selected-hover-background: var(--miaixz-color-brand-soft-hover)",
+    );
+    expect(css).toContain(
+      "--miaixz-table-row-active-background: var(--miaixz-color-surface-active)",
+    );
     expect(css).toContain(selectedHoverRule);
     expect(css).toContain(".miaixz-table > :is(thead, tbody, tfoot) > tr");
     expect(css).toContain("height: var(--miaixz-table-row-height)");

@@ -234,9 +234,15 @@ for (const viewportWidth of [1440, 390]) {
     await expect(root).toHaveAttribute("data-miaixz-density", "standard");
     await page.getByRole("button", { name: "打开长内容抽屉" }).click();
     const drawer = page.getByRole("dialog", { name: "外层抽屉" });
+    const expectedPadding = (width: number): string => {
+      if (viewportWidth <= 640) return "16px";
+      if (width <= 480) return "24px 20px";
+      if (width <= 600) return "24px";
+      return "24px 32px";
+    };
     await expect(drawer).toBeVisible();
     await expect(drawer).toHaveCSS("font-size", "14px");
-    await expect(drawer.locator(".miaixz-drawer-body")).toHaveCSS("padding", "16px");
+    await expect(drawer.locator(".miaixz-drawer-body")).toHaveCSS("padding", expectedPadding(350));
     const footer = drawer.locator(".miaixz-drawer-footer");
     for (const width of [...DRAWER_WIDTHS, 435.5]) {
       await drawer.getByLabel("抽屉宽度").selectOption(String(width));
@@ -246,7 +252,10 @@ for (const viewportWidth of [1440, 390]) {
       expect(box.y).toBe(0);
       expect(box.height).toBe(900);
       await expect(drawer).toHaveCSS("font-size", "14px");
-      await expect(drawer.locator(".miaixz-drawer-body")).toHaveCSS("padding", "16px");
+      await expect(drawer.locator(".miaixz-drawer-body")).toHaveCSS(
+        "padding",
+        expectedPadding(width),
+      );
       const footerBox = (await footer.boundingBox())!;
       expect(footerBox.y + footerBox.height).toBeCloseTo(900, 0);
     }

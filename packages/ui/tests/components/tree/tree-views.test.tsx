@@ -8,7 +8,7 @@ import { createTreeCollection } from "../../../src/components/tree/tree-collecti
 import { assertTreeViewModel } from "../../../src/components/tree/tree-view-invariants.js";
 import { createTreeViewModel } from "../../../src/components/tree/tree-view-registry.js";
 import { getCompactTreeVisualLevel } from "../../../src/components/tree/views/compact-tree-strategy.js";
-import { createTreeFixture, multiRootTreeFixture } from "../../fixtures/tree-fixtures.js";
+import { createTreeFixture, multiRootTreeFixture } from "./tree-fixtures.js";
 
 describe("Tree view strategies", () => {
   it.each([2, 3, 6, 10] as const)("keeps nested DFS and invariants at depth %i", (depth) => {

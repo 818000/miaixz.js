@@ -21,7 +21,10 @@
 /**
  * Maps the active Density to the seven public geometry aliases.
  */
-[data-miaixz-theme][data-miaixz-density="compact"] {
+:is(
+  [data-miaixz-theme][data-miaixz-density="compact"],
+  [data-miaixz-theme] [data-density="compact"]
+) {
   --miaixz-density-control-height: var(--miaixz-geometry-compact-control-height);
   --miaixz-density-control-padding-inline: var(--miaixz-geometry-compact-control-padding-inline);
   --miaixz-density-control-gap: var(--miaixz-geometry-compact-control-gap);
@@ -31,7 +34,10 @@
   --miaixz-density-section-gap: var(--miaixz-geometry-compact-section-gap);
 }
 
-[data-miaixz-theme][data-miaixz-density="standard"] {
+:is(
+  [data-miaixz-theme][data-miaixz-density="standard"],
+  [data-miaixz-theme] [data-density="standard"]
+) {
   --miaixz-density-control-height: var(--miaixz-geometry-standard-control-height);
   --miaixz-density-control-padding-inline: var(--miaixz-geometry-standard-control-padding-inline);
   --miaixz-density-control-gap: var(--miaixz-geometry-standard-control-gap);
@@ -41,7 +47,10 @@
   --miaixz-density-section-gap: var(--miaixz-geometry-standard-section-gap);
 }
 
-[data-miaixz-theme][data-miaixz-density="comfortable"] {
+:is(
+  [data-miaixz-theme][data-miaixz-density="comfortable"],
+  [data-miaixz-theme] [data-density="comfortable"]
+) {
   --miaixz-density-control-height: var(--miaixz-geometry-comfortable-control-height);
   --miaixz-density-control-padding-inline: var(
     --miaixz-geometry-comfortable-control-padding-inline
@@ -58,4 +67,12 @@
   --miaixz-density-list-item-height: var(--miaixz-density-item-height);
   --miaixz-density-table-cell-padding-inline: var(--miaixz-density-control-padding-inline);
   --miaixz-density-table-cell-padding-block: var(--miaixz-density-control-gap);
+}
+
+[data-miaixz-theme] [data-density] {
+  --miaixz-density-component-gap: var(--miaixz-density-control-gap);
+  --miaixz-density-list-item-height: var(--miaixz-density-item-height);
+  --miaixz-density-table-cell-padding-inline: var(--miaixz-density-control-padding-inline);
+  --miaixz-density-table-cell-padding-block: var(--miaixz-density-control-gap);
+  --miaixz-control-gap: var(--miaixz-density-control-gap);
 }

@@ -22,7 +22,7 @@
  * Defines the tree public type contracts.
  */
 
-import type { HTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
 
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -41,6 +41,67 @@ export interface TreeNode<Value = unknown> {
   readonly hasChildren?: boolean;
   readonly disabled?: boolean;
 }
+
+/**
+ * Drop location requested by the built-in Tree drag interaction.
+ */
+export type TreeDropPosition = "before" | "inside" | "after";
+
+/**
+ * Controlled create request emitted after a child name is committed.
+ */
+export interface TreeCreateRequest<Value = unknown> {
+  readonly parentId: string;
+  readonly parent: Readonly<TreeNode<Value>>;
+  readonly name: string;
+}
+
+/**
+ * Controlled move request emitted by Tree without mutating application data.
+ */
+export interface TreeMoveRequest<Value = unknown> {
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly position: TreeDropPosition;
+  readonly source: Readonly<TreeNode<Value>>;
+  readonly target: Readonly<TreeNode<Value>>;
+}
+
+/**
+ * Controlled rename request emitted after an inline edit is committed.
+ */
+export interface TreeRenameRequest<Value = unknown> {
+  readonly id: string;
+  readonly node: Readonly<TreeNode<Value>>;
+  readonly previousTextValue: string;
+  readonly nextTextValue: string;
+}
+
+/**
+ * Controlled delete request emitted by the built-in delete affordance.
+ */
+export interface TreeDeleteRequest<Value = unknown> {
+  readonly id: string;
+  readonly node: Readonly<TreeNode<Value>>;
+}
+
+/**
+ * Operation currently being completed by an application callback.
+ */
+export interface TreeOperationState {
+  readonly type: "create" | "move" | "rename" | "delete";
+  readonly nodeId: string;
+  readonly targetId?: string;
+}
+
+/**
+ * Context supplied when an asynchronous Tree operation fails.
+ */
+export type TreeOperationContext<Value = unknown> =
+  | { readonly type: "create"; readonly request: TreeCreateRequest<Value> }
+  | { readonly type: "move"; readonly request: TreeMoveRequest<Value> }
+  | { readonly type: "rename"; readonly request: TreeRenameRequest<Value> }
+  | { readonly type: "delete"; readonly request: TreeDeleteRequest<Value> };
 
 /**
  * Mutually exclusive controlled or uncontrolled tree-selection settings.
@@ -96,7 +157,7 @@ export type TreeDefaultExpansion = "collapsed" | "all" | { readonly depth: numbe
 /**
  * Built-in tree presentation strategies.
  */
-export type TreeView = "nested" | "compact" | "focus";
+export type TreeViewMode = "nested" | "compact" | "focus";
 
 /**
  * Options for the hierarchy-preserving nested view.
@@ -156,7 +217,7 @@ export interface TreeNonFocusRootProps {
 /**
  * View selection and the corresponding options and focus-root contract.
  */
-export type TreePresentationProps<View extends TreeView = TreeView> = {
+export type TreePresentationProps<View extends TreeViewMode = TreeViewMode> = {
   readonly view?: View;
   readonly viewOptions?: TreeViewOptionsMap[View];
 } & (View extends "focus" ? TreeViewRootProps : TreeNonFocusRootProps);
@@ -196,7 +257,7 @@ export interface TreeOwnerState {
   readonly dividerStyle: TreeDividerStyle;
   readonly density: TreeDensity;
   readonly selectionMode: "none" | "single" | "multiple";
-  readonly view: TreeView;
+  readonly view: TreeViewMode;
   readonly itemId: string;
   /**
    * @deprecated Use logicalLevel, semanticLevel, or visualLevel.
@@ -214,6 +275,15 @@ export interface TreeOwnerState {
   readonly disabled: boolean;
   readonly loading: boolean;
   readonly error: boolean;
+  readonly creatable: boolean;
+  readonly movable: boolean;
+  readonly renamable: boolean;
+  readonly deletable: boolean;
+  readonly creating: boolean;
+  readonly renaming: boolean;
+  readonly dragging: boolean;
+  readonly pending: boolean;
+  readonly dropPosition?: TreeDropPosition;
 }
 
 /**
@@ -229,6 +299,9 @@ export interface TreeItemAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-semantic-level"?: string;
   readonly "data-state-expanded"?: "true" | "false";
   readonly "data-disclosed"?: "true" | "false";
+  readonly "data-dragging"?: boolean;
+  readonly "data-pending"?: boolean;
+  readonly "data-drop-position"?: TreeDropPosition;
 }
 
 /**
@@ -250,6 +323,11 @@ export interface TreeSlotProps {
   readonly label?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly description?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly trailing?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly dragHandle?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly createAction?: MiaixzSlotProps<TreeOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
+  readonly createInput?: MiaixzSlotProps<TreeOwnerState, InputHTMLAttributes<HTMLInputElement>>;
+  readonly renameInput?: MiaixzSlotProps<TreeOwnerState, InputHTMLAttributes<HTMLInputElement>>;
+  readonly deleteAction?: MiaixzSlotProps<TreeOwnerState, ButtonHTMLAttributes<HTMLButtonElement>>;
   /**
    * @deprecated Use expander. This alias remains available throughout 0.7.x.
    */
@@ -277,6 +355,36 @@ export interface MiaixzTreeBaseProps<Value = unknown> {
   readonly dividerStyle?: TreeDividerStyle;
   readonly density?: TreeDensity;
   readonly showSelectionIndicator?: boolean;
+  /**
+   * Enables child-create requests when an onCreateRequest callback is supplied. @default true
+   */
+  readonly creatable?: boolean;
+  /**
+   * Enables built-in drag requests when an onMoveRequest callback is supplied. @default true
+   */
+  readonly movable?: boolean;
+  /**
+   * Enables double-click/F2 inline rename requests when an onRenameRequest callback is supplied. @default true
+   */
+  readonly renamable?: boolean;
+  /**
+   * Enables delete-button/Delete-key requests when an onDeleteRequest callback is supplied. @default true
+   */
+  readonly deletable?: boolean;
+  readonly canCreate?: (node: Readonly<TreeNode<Value>>) => boolean;
+  readonly canMove?: (node: Readonly<TreeNode<Value>>) => boolean;
+  readonly canDrop?: (request: TreeMoveRequest<Value>) => boolean;
+  readonly canRename?: (node: Readonly<TreeNode<Value>>) => boolean;
+  readonly canDelete?: (node: Readonly<TreeNode<Value>>) => boolean;
+  readonly onCreateRequest?: (request: TreeCreateRequest<Value>) => void | Promise<void>;
+  readonly onMoveRequest?: (request: TreeMoveRequest<Value>) => void | Promise<void>;
+  readonly onRenameRequest?: (request: TreeRenameRequest<Value>) => void | Promise<void>;
+  readonly onDeleteRequest?: (request: TreeDeleteRequest<Value>) => void | Promise<void>;
+  /**
+   * Adds application-managed pending state to the Tree's automatic Promise pending state.
+   */
+  readonly operationState?: TreeOperationState | null;
+  readonly onOperationError?: (error: unknown, context: TreeOperationContext<Value>) => void;
   readonly slotProps?: TreeSlotProps;
 }
 
@@ -285,7 +393,7 @@ export interface MiaixzTreeBaseProps<Value = unknown> {
  */
 export type MiaixzTreeOwnProps<
   Value = unknown,
-  View extends TreeView = TreeView,
+  View extends TreeViewMode = TreeViewMode,
 > = MiaixzTreeBaseProps<Value> &
   TreeSelectionProps &
   TreeExpansionProps &
@@ -294,8 +402,8 @@ export type MiaixzTreeOwnProps<
 /**
  * Configures a business-neutral WAI-ARIA tree. @public
  */
-export type TreeProps<Value = unknown, View extends TreeView = TreeView> = MiaixzTreeOwnProps<
-  Value,
-  View
-> &
+export type TreeProps<
+  Value = unknown,
+  View extends TreeViewMode = TreeViewMode,
+> = MiaixzTreeOwnProps<Value, View> &
   Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzTreeOwnProps<Value, View> | "children">;

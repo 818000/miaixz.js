@@ -23,7 +23,7 @@
  */
 
 import type { TreeCollection, TreeCollectionRecord } from "./tree-collection.js";
-import type { TreeView, TreeViewOptionsMap } from "./tree.types.js";
+import type { TreeViewMode, TreeViewOptionsMap } from "./tree.types.js";
 
 /**
  * One collection record projected into the current semantic and visual view.
@@ -46,7 +46,7 @@ export interface TreeViewRecord<Value = unknown> {
  * Complete projection consumed by renderers and keyboard navigation.
  */
 export interface TreeViewModel<Value = unknown> {
-  readonly name: TreeView;
+  readonly name: TreeViewMode;
   readonly roots: readonly TreeViewRecord<Value>[];
   readonly visibleRecords: readonly TreeViewRecord<Value>[];
   readonly byId: ReadonlyMap<string, TreeViewRecord<Value>>;
@@ -56,7 +56,7 @@ export interface TreeViewModel<Value = unknown> {
 /**
  * Inputs shared by all built-in view strategies.
  */
-export interface TreeViewStrategyInput<Value, View extends TreeView = TreeView> {
+export interface TreeViewStrategyInput<Value, View extends TreeViewMode = TreeViewMode> {
   readonly collection: TreeCollection<Value>;
   readonly expandedIds: ReadonlySet<string>;
   readonly viewRootId: string | null;
@@ -67,6 +67,6 @@ export interface TreeViewStrategyInput<Value, View extends TreeView = TreeView> 
  * Package-private view strategy contract.
  */
 export interface TreeViewStrategy {
-  readonly name: TreeView;
+  readonly name: TreeViewMode;
   createViewModel<Value>(input: TreeViewStrategyInput<Value>): TreeViewModel<Value>;
 }

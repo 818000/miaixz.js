@@ -217,7 +217,7 @@ dialog.miaixz-drawer[data-placement="bottom"]:not([open]) {
 }
 
 @media (width <= 40rem) {
-  .miaixz-drawer {
+  .miaixz-drawer[data-spacing] {
     --miaixz-drawer-padding-inline: var(--miaixz-space-16);
     --miaixz-drawer-header-padding-block: var(--miaixz-space-16);
     --miaixz-drawer-body-padding-block: var(--miaixz-space-16);

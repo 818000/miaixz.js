@@ -50,6 +50,8 @@ describe("Direct Host Bridge", () => {
     await bridge.navigate({ path: "/settings", replace: true, state });
     expect(adapter.navigate).toHaveBeenCalledWith({ path: "/settings", replace: true, state });
     expect(adapter.navigate.mock.calls[0]?.[0].state).not.toBe(state);
+    await bridge.navigate({ path: "/" });
+    expect(adapter.navigate).toHaveBeenLastCalledWith({ path: "/" });
     await expect(bridge.hasPermissions(["module:document:read"])).resolves.toBe(true);
     await bridge.registerMessages("module-one", { "en-US": { "module-one.title": "Title" } });
     await bridge.emit("module-one:event-one", { value: 1 });

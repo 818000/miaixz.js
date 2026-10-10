@@ -6,11 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { createTreeCollection } from "../../../src/components/tree/tree-collection.js";
 import type { TreeNode } from "../../../src/components/tree/tree.types.js";
-import {
-  createTreeFixture,
-  multiRootTreeFixture,
-  wideTreeFixture,
-} from "../../fixtures/tree-fixtures.js";
+import { createTreeFixture, multiRootTreeFixture, wideTreeFixture } from "./tree-fixtures.js";
 
 describe("TreeCollection", () => {
   it("indexes empty, wide, multiple-root, and ten-level trees in source order", () => {

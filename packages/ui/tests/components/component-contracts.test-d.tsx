@@ -83,7 +83,7 @@ import type {
   TableProps,
   ToolbarProps,
   TreeProps,
-  TreeView,
+  TreeViewMode,
   UploadProps,
   ViewProps,
 } from "../../src/index.js";
@@ -344,7 +344,7 @@ declare const tree: TreeProps;
 /**
  * @ts-expect-error Tree renders only its node model. */
 void tree.children;
-declare const runtimeTreeView: TreeView;
+declare const runtimeTreeView: TreeViewMode;
 const treeNodes = [{ id: "root", label: "Root", textValue: "Root" }] as const;
 const validTreeContracts: readonly TreeProps[] = [
   { label: "Default", nodes: treeNodes },

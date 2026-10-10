@@ -18,7 +18,7 @@ import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { Tree, type TreeNode } from "../../../src/components/tree/index.js";
 import { useTreeAsyncLoader } from "../../../src/components/tree/tree-async-loader.js";
 import { MiaixzLocaleProvider, miaixzUiMessages } from "../../../src/i18n/index.js";
-import { createTreeFixture } from "../../fixtures/tree-fixtures.js";
+import { createTreeFixture } from "./tree-fixtures.js";
 
 afterEach(cleanup);
 
@@ -184,6 +184,220 @@ describe("Tree", () => {
     fireEvent.click(locked.firstElementChild!);
     expect(locked).toHaveAttribute("aria-disabled", "true");
     expect(onSelectedIdsChange).not.toHaveBeenCalled();
+  });
+
+  it("enables controlled create, move, rename, and delete requests by default", async () => {
+    const onCreateRequest = vi.fn();
+    const onMoveRequest = vi.fn();
+    const onRenameRequest = vi.fn();
+    const onDeleteRequest = vi.fn();
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          label="可编辑目录"
+          nodes={nodes}
+          onCreateRequest={onCreateRequest}
+          onMoveRequest={onMoveRequest}
+          onRenameRequest={onRenameRequest}
+          onDeleteRequest={onDeleteRequest}
+        />
+      </MiaixzLocaleProvider>,
+    );
+
+    const platform = screen.getByRole("treeitem", { name: "平台" });
+    fireEvent.doubleClick(platform.querySelector(".miaixz-tree-label")!);
+    const rename = screen.getByRole("textbox", { name: "重命名项目" });
+    fireEvent.change(rename, { target: { value: "平台服务" } });
+    fireEvent.keyDown(rename, { key: "Enter" });
+    await waitFor(() =>
+      expect(onRenameRequest).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "platform", nextTextValue: "平台服务" }),
+      ),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "新建子项于 平台" }));
+    const create = screen.getByRole("textbox", { name: "新子项名称" });
+    fireEvent.change(create, { target: { value: "监控" } });
+    fireEvent.keyDown(create, { key: "Enter" });
+    await waitFor(() =>
+      expect(onCreateRequest).toHaveBeenCalledWith(
+        expect.objectContaining({ parentId: "platform", name: "监控" }),
+      ),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "删除 审计" }));
+    await waitFor(() =>
+      expect(onDeleteRequest).toHaveBeenCalledWith(expect.objectContaining({ id: "audit" })),
+    );
+
+    const dataTransfer = {
+      dropEffect: "none",
+      effectAllowed: "none",
+      setData: vi.fn(),
+    };
+    fireEvent.dragStart(screen.getByRole("button", { name: "移动 审计" }), { dataTransfer });
+    const platformRow = platform.querySelector(":scope > .miaixz-tree-row")!;
+    fireEvent.dragOver(platformRow, { clientY: 0, dataTransfer });
+    fireEvent.drop(platformRow, { clientY: 0, dataTransfer });
+    await waitFor(() =>
+      expect(onMoveRequest).toHaveBeenCalledWith(
+        expect.objectContaining({ sourceId: "audit", targetId: "platform", position: "inside" }),
+      ),
+    );
+  });
+
+  it("supports disabling every built-in mutation affordance", () => {
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          label="只读目录"
+          nodes={nodes}
+          creatable={false}
+          movable={false}
+          renamable={false}
+          deletable={false}
+          onCreateRequest={() => undefined}
+          onMoveRequest={() => undefined}
+          onRenameRequest={() => undefined}
+          onDeleteRequest={() => undefined}
+        />
+      </MiaixzLocaleProvider>,
+    );
+    expect(screen.queryByRole("button", { name: /新建子项于/u })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /移动/u })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /删除/u })).not.toBeInTheDocument();
+    fireEvent.doubleClick(screen.getByText("平台"));
+    expect(screen.queryByRole("textbox", { name: "重命名项目" })).not.toBeInTheDocument();
+  });
+
+  it("locks an asynchronous operation and reports callback failures", async () => {
+    let rejectDelete: ((reason?: unknown) => void) | undefined;
+    const onOperationError = vi.fn();
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          label="异步目录操作"
+          nodes={nodes}
+          onDeleteRequest={() =>
+            new Promise<void>((_resolve, reject) => {
+              rejectDelete = reject;
+            })
+          }
+          onOperationError={onOperationError}
+        />
+      </MiaixzLocaleProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "删除 审计" }));
+    expect(screen.getByRole("treeitem", { name: "审计" })).toHaveAttribute("aria-busy", "true");
+    await act(async () => rejectDelete?.(new Error("network")));
+    await waitFor(() => expect(onOperationError).toHaveBeenCalledTimes(1));
+    expect(screen.getByRole("treeitem", { name: "审计" })).not.toHaveAttribute("aria-busy", "true");
+  });
+
+  it("supports keyboard mutation controls and cancels unchanged edits", async () => {
+    const onCreateRequest = vi.fn();
+    const onRenameRequest = vi.fn();
+    const onDeleteRequest = vi.fn();
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          label="键盘编辑目录"
+          nodes={nodes}
+          onCreateRequest={onCreateRequest}
+          onRenameRequest={onRenameRequest}
+          onDeleteRequest={onDeleteRequest}
+        />
+      </MiaixzLocaleProvider>,
+    );
+
+    const audit = screen.getByRole("treeitem", { name: "审计" });
+    fireEvent.keyDown(audit, { key: "F2" });
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "重命名项目" }), { key: "Enter" });
+    expect(onRenameRequest).not.toHaveBeenCalled();
+    expect(screen.queryByRole("textbox", { name: "重命名项目" })).not.toBeInTheDocument();
+
+    fireEvent.keyDown(audit, { key: "F2" });
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "重命名项目" }), { key: "Escape" });
+    expect(screen.queryByRole("textbox", { name: "重命名项目" })).not.toBeInTheDocument();
+
+    fireEvent.keyDown(audit, { key: "Delete" });
+    await waitFor(() =>
+      expect(onDeleteRequest).toHaveBeenCalledWith(expect.objectContaining({ id: "audit" })),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "新建子项于 平台" }));
+    const create = screen.getByRole("textbox", { name: "新子项名称" });
+    fireEvent.change(create, { target: { value: "   " } });
+    fireEvent.keyDown(create, { key: "Enter" });
+    expect(onCreateRequest).not.toHaveBeenCalled();
+    fireEvent.keyDown(create, { key: "Escape" });
+    expect(screen.queryByRole("textbox", { name: "新子项名称" })).not.toBeInTheDocument();
+  });
+
+  it("resolves before and after drop positions and rejects a self drop", async () => {
+    const onMoveRequest = vi.fn();
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree label="可移动目录" nodes={nodes} onMoveRequest={onMoveRequest} />
+      </MiaixzLocaleProvider>,
+    );
+
+    const audit = screen.getByRole("treeitem", { name: "审计" });
+    const platform = screen.getByRole("treeitem", { name: "平台" });
+    const platformRow = platform.querySelector(":scope > .miaixz-tree-row")!;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      top: 0,
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    const dataTransfer = {
+      dropEffect: "none",
+      effectAllowed: "none",
+      setData: vi.fn(),
+    };
+    const dispatchDrag = (target: Element, type: string, clientY: number) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperties(event, {
+        clientY: { value: clientY },
+        dataTransfer: { value: dataTransfer },
+      });
+      fireEvent(target, event);
+    };
+    const dragHandle = screen.getByRole("button", { name: "移动 审计" });
+    fireEvent.dragStart(dragHandle, { dataTransfer });
+    dispatchDrag(platformRow, "dragover", 1);
+    expect(platform).toHaveAttribute("data-drop-position", "before");
+    fireEvent.dragLeave(platformRow, { relatedTarget: document.body });
+    expect(platform).not.toHaveAttribute("data-drop-position");
+
+    dispatchDrag(platformRow, "dragover", 99);
+    expect(platform).toHaveAttribute("data-drop-position", "after");
+    dispatchDrag(platformRow, "drop", 99);
+    await waitFor(() =>
+      expect(onMoveRequest).toHaveBeenCalledWith(
+        expect.objectContaining({ sourceId: "audit", targetId: "platform", position: "after" }),
+      ),
+    );
+
+    fireEvent.dragStart(dragHandle, { dataTransfer });
+    dispatchDrag(audit.querySelector(":scope > .miaixz-tree-row")!, "dragover", 50);
+    expect(audit).not.toHaveAttribute("data-drop-position");
   });
 
   it("renders leading, description, trailing, and capped compact depth", () => {
