@@ -53,7 +53,8 @@ test("DatePicker closes with Escape and restores its calendar trigger focus", as
   await page.goto("/tests/");
   const form = page.getByRole("form", { name: "原生提交表单" });
   const trigger = form.getByRole("button", { name: "Open calendar" });
-  await trigger.click();
+  await trigger.focus();
+  await page.keyboard.press("Enter");
   await expect(page.getByRole("dialog").filter({ has: page.getByRole("grid") })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("grid")).toBeHidden();
