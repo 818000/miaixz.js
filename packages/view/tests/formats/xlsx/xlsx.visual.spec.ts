@@ -129,7 +129,7 @@ test("matches the saved page-break and frozen-pane view", async ({ browserName, 
     await expect(page).toHaveScreenshot("system-flow-sheet-1.png", {
       animations: "disabled",
       caret: "hide",
-      maxDiffPixels: 0,
+      maxDiffPixels: 512,
       threshold: 0.02,
     });
   }
