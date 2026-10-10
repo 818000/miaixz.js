@@ -50,14 +50,15 @@ import {
 const browserTypes = { chromium, firefox, webkit };
 
 /**
- * Keeps native coverage captures scalar on hosts where Chromium enables LCD subpixel text.
+ * Keeps native coverage captures scalar and outline-derived on hosts where Chromium enables
+ * LCD subpixel text or platform font hinting.
  * Firefox and WebKit do not accept Chromium command-line switches.
  * @param {string} browserName - Actual Playwright browser name.
  * @returns {{headless:true,args?:string[]}} Exact browser launch options for coverage capture.
  */
 export function coverageLaunchOptions(browserName) {
   return browserName === "chromium"
-    ? { headless: true, args: ["--disable-lcd-text"] }
+    ? { headless: true, args: ["--disable-lcd-text", "--font-render-hinting=none"] }
     : { headless: true };
 }
 
