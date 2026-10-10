@@ -998,6 +998,10 @@ fb.setupOS2(sTypoAscender=800, sTypoDescender=-160, sTypoLineGap=0, usWinAscent=
 fb.setupPost(); fb.setupMaxp()
 fb.setupFvar([('FILL',0,0,1,'Fill'), ('opsz',12,24,40,'Optical Size')], [])
 from fontTools.ttLib import newTable
+from fontTools.ttLib.tables._g_a_s_p import GASP_DOGRAY, GASP_SYMMETRIC_SMOOTHING
+gasp = newTable('gasp')
+gasp.gaspRange = {65535: GASP_DOGRAY | GASP_SYMMETRIC_SMOOTHING}
+fb.font['gasp'] = gasp
 fb.font['gvar'] = newTable('gvar')
 fb.font['gvar'].variations = {name: [] for name in names}
 buffer = io.BytesIO(); fb.save(buffer)
