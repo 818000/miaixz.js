@@ -78,15 +78,6 @@ jobs:
 
       - name: Build and Validate Workspaces
         run: npm run build
-        env:
-          MIAIXZ_FONT_REPORT_DIR: ${{ runner.temp }}/fontbakery
-
-      - name: Upload FontBakery Reports
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: fontbakery-${{ env.ARTIFACT_KEY }}
-          path: ${{ runner.temp }}/fontbakery/*.json
-          if-no-files-found: error
 
       - name: Stage Workspace Build Output
         run: npm run package:stage -- "${{ runner.temp }}/workspace-dist"
