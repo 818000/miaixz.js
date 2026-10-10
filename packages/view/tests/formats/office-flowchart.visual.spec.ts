@@ -56,7 +56,9 @@ for (const format of ["pptx", "docx"] as const) {
       await expect(page).toHaveScreenshot(`${format}-flowchart.png`, {
         animations: "disabled",
         caret: "hide",
-        // macOS runner GPU/font rasterization can shift a handful of antialiasing pixels.
+        /**
+         * macOS runner GPU/font rasterization can shift a handful of antialiasing pixels.
+         */
         maxDiffPixels: 16,
         threshold: 0.02,
       });

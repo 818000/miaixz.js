@@ -84,7 +84,9 @@ test("matches the saved page-break and frozen-pane view", async ({ browserName, 
     await expect(page).toHaveScreenshot("system-flow.png", {
       animations: "disabled",
       caret: "hide",
-      // Keep rasterization variance below 0.04% of the fixed 1440×900 viewport.
+      /**
+       * Keeps rasterization variance below 0.04% of the fixed 1440×900 viewport.
+       */
       maxDiffPixels: 512,
       threshold: 0.02,
     });
