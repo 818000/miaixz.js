@@ -89,6 +89,7 @@ export type DrawerRootAttributes = DialogHTMLAttributes<HTMLDialogElement> &
   RefAttributes<HTMLDialogElement> & {
     readonly "data-placement"?: DrawerPlacement;
     readonly "data-width"?: Exclude<DrawerWidth, number>;
+    readonly "data-spacing"?: "compact" | "standard" | "large" | "workspace" | "content" | "wide";
     readonly "data-density"?: DrawerDensity;
     readonly "data-floating"?: boolean;
     readonly "data-positioned"?: boolean;

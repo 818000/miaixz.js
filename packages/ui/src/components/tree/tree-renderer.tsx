@@ -19,33 +19,23 @@
 */
 
 /**
- * Renders indexed tree nodes with hierarchy semantics and asynchronous child states.
+ * Implements the tree renderer module.
  */
 
-import type { KeyboardEvent, MouseEvent, RefObject } from "react";
+import type { MouseEvent } from "react";
+
+import { Icon } from "@miaixz/icons";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "@miaixz/icons";
-import {
-  isTreeNodeExpandable,
-  resolveTreeChildren,
-  type TreeIndex,
-  type TreeRecord,
-} from "./tree-controller.js";
-import type { TreeNode, TreeOwnerState, TreeSlotProps } from "./tree.types.js";
+import type { TreeViewRecord } from "./tree-view.types.js";
+import type { TreeController } from "./use-tree.js";
+import type { TreeOwnerState, TreeSlotProps } from "./tree.types.js";
 
 /**
- * Properties accepted by the Tree Renderer renderer.
+ * Properties accepted by the Tree view-model renderer.
  */
 export interface TreeRendererProps<Value> {
-  readonly nodes: readonly TreeNode<Value>[];
-  readonly index: TreeIndex<Value>;
-  readonly childCache: ReadonlyMap<string, readonly TreeNode<Value>[]>;
-  readonly expandedIds: ReadonlySet<string>;
-  readonly selectedIds: ReadonlySet<string>;
-  readonly loadingIds: ReadonlySet<string>;
-  readonly errorIds: ReadonlySet<string>;
-  readonly focusedId: string | null;
+  readonly controller: TreeController<Value>;
   readonly selectionMode: "none" | "single" | "multiple";
   readonly showSelectionIndicator: boolean;
   readonly surface: TreeOwnerState["surface"];
@@ -53,203 +43,237 @@ export interface TreeRendererProps<Value> {
   readonly dividerStyle: TreeOwnerState["dividerStyle"];
   readonly density: TreeOwnerState["density"];
   readonly slotProps: TreeSlotProps | undefined;
-  readonly itemRefs: RefObject<Map<string, HTMLDivElement>>;
   readonly errorLabel: string;
   readonly retryLabel: string;
-  readonly onFocus: (id: string) => void;
-  readonly onSelect: (node: Readonly<TreeNode<Value>>) => void;
-  readonly onToggle: (node: Readonly<TreeNode<Value>>) => void;
-  readonly onRetry: (node: Readonly<TreeNode<Value>>) => void;
-  readonly onKeyDown: (event: KeyboardEvent<HTMLDivElement>, record: TreeRecord<Value>) => void;
 }
 
 /**
- * Recursively renders indexed tree nodes with their effective interaction state.
- *
- * @typeParam Value - Application value stored by each tree node.
- * @param props - Indexed tree state, slots, labels, references, and event callbacks.
- * @returns Nested accessible tree item elements.
+ * Renders nested semantic groups from one flat, indexed view model.
+ * @param props - View model, slot configuration, styling state, and controller interactions.
+ * @returns The semantic treeitem and group hierarchy for the current view model.
  */
 export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
-  /**
-   * Renders sibling tree items recursively with owned ARIA state and child-loading feedback.
-   *
-   * @param nodes - Nodes belonging to the current hierarchy group.
-   * @returns Tree-item elements and expanded child groups.
-   */
-  const renderNodes = (nodes: readonly TreeNode<Value>[]) =>
-    nodes.map((node) => {
-      const record = props.index.byId.get(node.id)!;
-      const children = resolveTreeChildren(node, props.childCache);
-      const expandable = isTreeNodeExpandable(node, props.childCache);
-      const expanded = expandable && props.expandedIds.has(node.id);
-      const selected = props.selectedIds.has(node.id);
-      const loading = props.loadingIds.has(node.id);
-      const error = props.errorIds.has(node.id);
-      const state = loading
-        ? "loading"
-        : error
-          ? "error"
-          : !expandable
-            ? "leaf"
-            : expanded
-              ? "expanded"
-              : "collapsed";
-      const ownerState: TreeOwnerState = {
-        surface: props.surface,
-        connectors: props.connectors,
-        dividerStyle: props.dividerStyle,
-        density: props.density,
-        selectionMode: props.selectionMode,
-        itemId: node.id,
-        level: record.level,
-        expanded,
-        selected,
-        disabled: node.disabled === true,
-        loading,
-        error,
-      };
-      return (
+  const renderRecord = (viewRecord: TreeViewRecord<Value>) => {
+    const node = viewRecord.record.node;
+    const id = viewRecord.record.id;
+    const selected = props.controller.state.selectedIds.has(id);
+    const loading = props.controller.state.loadingIds.has(id);
+    const error = props.controller.state.errorIds.has(id);
+    const expandable = viewRecord.record.expandable;
+    const state = loading
+      ? "loading"
+      : error
+        ? "error"
+        : !expandable
+          ? "leaf"
+          : viewRecord.disclosed
+            ? "expanded"
+            : "collapsed";
+    const ownerState: TreeOwnerState = {
+      surface: props.surface,
+      connectors: props.connectors,
+      dividerStyle: props.dividerStyle,
+      density: props.density,
+      selectionMode: props.selectionMode,
+      view: props.controller.view.name,
+      itemId: id,
+      level: viewRecord.record.logicalLevel,
+      logicalLevel: viewRecord.record.logicalLevel,
+      semanticLevel: viewRecord.semanticLevel,
+      visualLevel: viewRecord.visualLevel,
+      stateExpanded: viewRecord.stateExpanded,
+      expanded: viewRecord.stateExpanded,
+      disclosed: viewRecord.disclosed,
+      boundary: viewRecord.boundary,
+      viewRoot: viewRecord.viewRoot,
+      selected,
+      disabled: node.disabled === true,
+      loading,
+      error,
+    };
+    const itemInteraction = props.controller.getItemProps(id);
+    const { ref: itemRef, ...itemInteractionProps } = itemInteraction;
+    const expanderInteraction = props.controller.getExpanderProps(id);
+    const descriptionId = itemInteraction["aria-describedby"];
+    const children = viewRecord.visibleChildIds
+      .map((childId) => props.controller.view.byId.get(childId))
+      .filter((child): child is TreeViewRecord<Value> => child !== undefined);
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-tree-item" },
+          slotProps: props.slotProps?.item,
+          internalRef: itemRef,
+          internalProps: {
+            ...itemInteractionProps,
+            "data-state": state,
+            ...(node.disabled === true ? { "data-disabled": true } : {}),
+            ...(viewRecord.boundary ? { "data-boundary": true } : {}),
+            ...(viewRecord.viewRoot ? { "data-view-root": true } : {}),
+            "data-visual-level": viewRecord.visualLevel,
+            "data-logical-level": String(viewRecord.record.logicalLevel),
+            "data-semantic-level": String(viewRecord.semanticLevel),
+            "data-state-expanded": String(viewRecord.stateExpanded) as "true" | "false",
+            "data-disclosed": String(viewRecord.disclosed) as "true" | "false",
+          },
+          ownedProps: [
+            "role",
+            "aria-label",
+            "aria-describedby",
+            "tabIndex",
+            "aria-level",
+            "aria-posinset",
+            "aria-setsize",
+            "aria-expanded",
+            "aria-selected",
+            "aria-disabled",
+            "aria-busy",
+            "data-state",
+            "data-disabled",
+            "data-boundary",
+            "data-view-root",
+            "data-visual-level",
+            "data-logical-level",
+            "data-semantic-level",
+            "data-state-expanded",
+            "data-disclosed",
+          ],
+        })}
+        key={id}
+      >
         <div
-          {...mergeMiaixzSlotProps({
-            ownerState,
-            defaultProps: { className: "miaixz-tree-item" },
-            slotProps: props.slotProps?.item,
-            internalRef: (element: HTMLDivElement | null) => {
-              if (element === null) props.itemRefs.current.delete(node.id);
-              else props.itemRefs.current.set(node.id, element);
-            },
-            internalProps: {
-              role: "treeitem",
-              "aria-label": node.textValue,
-              tabIndex: node.id === props.focusedId ? 0 : -1,
-              "aria-level": record.level,
-              "aria-posinset": record.position,
-              "aria-setsize": record.setSize,
-              "aria-expanded": expandable ? expanded : undefined,
-              "aria-selected": props.selectionMode === "none" ? undefined : selected,
-              "aria-disabled": node.disabled || undefined,
-              "aria-busy": loading || undefined,
-              "data-state": state,
-              ...(node.disabled === true ? { "data-disabled": true } : {}),
-              onFocus: () => props.onFocus(node.id),
-              onKeyDown: (event) => props.onKeyDown(event, record),
-            },
-            ownedProps: [
-              "role",
-              "aria-label",
-              "tabIndex",
-              "aria-level",
-              "aria-posinset",
-              "aria-setsize",
-              "aria-expanded",
-              "aria-selected",
-              "aria-disabled",
-              "aria-busy",
-              "data-state",
-              "data-disabled",
-            ],
-          })}
-          key={node.id}
+          className="miaixz-tree-row"
+          onClick={() => {
+            props.controller.actions.focus(id);
+            props.controller.actions.select(id);
+          }}
         >
-          <div
-            className="miaixz-tree-row"
-            onClick={() => {
-              props.onFocus(node.id);
-              props.onSelect(node);
-            }}
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-tree-expander" },
+              slotProps: props.slotProps?.expander ?? props.slotProps?.icon,
+              internalProps: {
+                ...expanderInteraction,
+                "data-state": expandable
+                  ? viewRecord.disclosed
+                    ? "expanded"
+                    : "collapsed"
+                  : "leaf",
+              },
+              ownedProps: ["aria-hidden"],
+            })}
+          >
+            {loading ? (
+              <span
+                {...mergeMiaixzSlotProps({
+                  ownerState,
+                  defaultProps: { className: "miaixz-tree-loading-indicator" },
+                  slotProps: props.slotProps?.loadingIndicator,
+                })}
+              >
+                <Icon name="loading" size="control" className="miaixz-icon-spin" />
+              </span>
+            ) : expandable ? (
+              <Icon name={viewRecord.disclosed ? "chevron-down" : "chevron-right"} size="control" />
+            ) : null}
+          </span>
+          {node.leading === undefined ? null : (
+            <span
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-tree-leading" },
+                slotProps: props.slotProps?.leading,
+              })}
+            >
+              {node.leading}
+            </span>
+          )}
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-tree-copy" },
+              slotProps: props.slotProps?.copy,
+            })}
           >
             <span
               {...mergeMiaixzSlotProps({
                 ownerState,
-                defaultProps: { className: "miaixz-tree-expander" },
-                slotProps: props.slotProps?.icon,
-                internalProps: {
-                  "aria-hidden": true,
-                  "data-state": expandable ? (expanded ? "expanded" : "collapsed") : "leaf",
-                  onClick: (event: MouseEvent<HTMLSpanElement>) => {
-                    event.stopPropagation();
-                    props.onFocus(node.id);
-                    if (expandable) props.onToggle(node);
-                  },
-                },
-                ownedProps: ["aria-hidden"],
+                defaultProps: { className: "miaixz-tree-label" },
+                slotProps: props.slotProps?.label,
               })}
             >
-              {loading ? (
-                <span
-                  {...mergeMiaixzSlotProps({
-                    ownerState,
-                    defaultProps: { className: "miaixz-tree-loading-indicator" },
-                    slotProps: props.slotProps?.loadingIndicator,
-                  })}
-                >
-                  <Icon name="loading" size="control" className="miaixz-icon-spin" />
-                </span>
-              ) : expandable ? (
-                <Icon name={expanded ? "chevron-down" : "chevron-right"} size="control" />
-              ) : null}
+              {node.label}
             </span>
-            <span className="miaixz-tree-copy">
+            {node.description === undefined ? null : (
               <span
                 {...mergeMiaixzSlotProps({
                   ownerState,
-                  defaultProps: { className: "miaixz-tree-label" },
-                  slotProps: props.slotProps?.label,
+                  defaultProps: { className: "miaixz-tree-description" },
+                  slotProps: props.slotProps?.description,
+                  internalProps: { id: descriptionId },
+                  ownedProps: ["id"],
                 })}
               >
-                {node.label}
+                {node.description}
               </span>
-              {node.description !== undefined && (
-                <span className="miaixz-tree-description">{node.description}</span>
-              )}
+            )}
+          </span>
+          {node.trailing === undefined ? null : (
+            <span
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-tree-trailing" },
+                slotProps: props.slotProps?.trailing,
+              })}
+            >
+              {node.trailing}
             </span>
-            {node.trailing !== undefined && (
-              <span className="miaixz-tree-trailing">{node.trailing}</span>
-            )}
-            {selected && props.selectionMode !== "none" && props.showSelectionIndicator && (
-              <Icon name="confirm" size="control" className="miaixz-tree-selection" />
-            )}
-          </div>
-          {error && (
-            <div
-              {...mergeMiaixzSlotProps({
-                ownerState,
-                defaultProps: { className: "miaixz-tree-error" },
-                slotProps: props.slotProps?.error,
-                internalProps: { role: "alert" },
-                ownedProps: ["role"],
-              })}
-            >
-              <span>{props.errorLabel}</span>
-              <button
-                type="button"
-                className="miaixz-tree-retry"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  props.onRetry(node);
-                }}
-              >
-                <Icon name="rotate-ccw" size="indicator" />
-                {props.retryLabel}
-              </button>
-            </div>
           )}
-          {expanded && children !== undefined && children.length > 0 && (
-            <div
-              {...mergeMiaixzSlotProps({
-                ownerState,
-                defaultProps: { className: "miaixz-tree-group" },
-                slotProps: props.slotProps?.childrenGroup,
-                internalProps: { role: "group" },
-                ownedProps: ["role"],
-              })}
-            >
-              {renderNodes(children)}
-            </div>
-          )}
+          {selected && props.selectionMode !== "none" && props.showSelectionIndicator ? (
+            <Icon name="confirm" size="control" className="miaixz-tree-selection" />
+          ) : null}
         </div>
-      );
-    });
-  return <>{renderNodes(props.nodes)}</>;
+        {error ? (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-tree-error" },
+              slotProps: props.slotProps?.error,
+              internalProps: { role: "alert" },
+              ownedProps: ["role"],
+            })}
+          >
+            <span>{props.errorLabel}</span>
+            <button
+              type="button"
+              className="miaixz-tree-retry"
+              onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                void props.controller.actions.retry(id).catch(() => undefined);
+              }}
+            >
+              <Icon name="rotate-ccw" size="indicator" />
+              {props.retryLabel}
+            </button>
+          </div>
+        ) : null}
+        {viewRecord.disclosed && children.length > 0 ? (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-tree-group" },
+              slotProps: props.slotProps?.childrenGroup,
+              internalProps: { role: "group" },
+              ownedProps: ["role"],
+            })}
+          >
+            {children.map(renderRecord)}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+  return <>{props.controller.view.roots.map(renderRecord)}</>;
 }

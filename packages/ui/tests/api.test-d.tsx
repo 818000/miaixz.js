@@ -21,6 +21,28 @@
 /**
  * @ts-expect-error Removed root compatibility export. */
 import { ConfirmDialog } from "../src/index.js";
+import {
+  Tree as RootTree,
+  createTreeCollection as createRootTreeCollection,
+  useTree as useRootTree,
+  type TreeController as RootTreeController,
+  type TreeProps as RootTreeProps,
+} from "../src/index.js";
+import {
+  Tree as ComponentsTree,
+  createTreeCollection as createComponentsTreeCollection,
+  useTree as useComponentsTree,
+} from "../src/components/index.js";
+import {
+  Tree as SubpathTree,
+  createTreeCollection as createSubpathTreeCollection,
+  useTree as useSubpathTree,
+  type TreeController as SubpathTreeController,
+  type TreeProps as SubpathTreeProps,
+} from "../src/components/tree/index.js";
+/**
+ * @ts-expect-error Internal Tree view strategies are not public API. */
+import type { TreeViewStrategy } from "../src/components/tree/index.js";
 /**
  * @ts-expect-error Removed root compatibility export. */
 import { InlineMessage } from "../src/index.js";
@@ -45,9 +67,6 @@ import { PageLayout } from "../src/index.js";
 /**
  * @ts-expect-error Removed root compatibility export. */
 import { FileUpload } from "../src/index.js";
-/**
- * @ts-expect-error Removed root compatibility export. */
-import { TreeView } from "../src/index.js";
 /**
  * @ts-expect-error Removed root compatibility export. */
 import { StatusIndicator } from "../src/index.js";
@@ -158,6 +177,7 @@ void contrastTheme;
 /**
  * @ts-expect-error MiaixzRelationNode was replaced outright by GraphNode. */
 import type { MiaixzRelationNode } from "../src/index.js";
+import type { TreeView as TreeViewMode } from "../src/index.js";
 /**
  * @ts-expect-error MiaixzRelationEdge was replaced outright by GraphEdge. */
 import type { MiaixzRelationEdge } from "../src/index.js";
@@ -349,7 +369,6 @@ void [
   DataTable,
   PageLayout,
   FileUpload,
-  TreeView,
   StatusIndicator,
   EmptyState,
   VisuallyHidden,
@@ -382,6 +401,27 @@ void [
   miaixzLightThemeColors,
   miaixzDarkThemeColors,
 ];
+
+const treeViewMode: TreeViewMode = "compact";
+const treeApiValues = [
+  RootTree,
+  ComponentsTree,
+  SubpathTree,
+  createRootTreeCollection,
+  createComponentsTreeCollection,
+  createSubpathTreeCollection,
+  useRootTree,
+  useComponentsTree,
+  useSubpathTree,
+];
+type TreeApiTypes =
+  | RootTreeController<unknown>
+  | RootTreeProps
+  | SubpathTreeController<unknown>
+  | SubpathTreeProps
+  | TreeViewStrategy;
+declare const treeApiTypes: TreeApiTypes;
+void [treeViewMode, treeApiValues, treeApiTypes];
 
 /**
  * Compile-time assertion that removed relation-map names are absent from the public API.

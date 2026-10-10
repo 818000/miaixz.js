@@ -23,15 +23,45 @@
  */
 
 export { Tree } from "./tree.js";
+export { createTreeCollection } from "./tree-collection.js";
+export { useTree } from "./use-tree.js";
 export type {
+  TreeCollection,
+  TreeCollectionRecord,
+  TreeExpansionScope,
+} from "./tree-collection.js";
+export type { TreeExpandAllOptions, TreeExpansionResult } from "./tree-expansion.js";
+export type {
+  TreeController,
+  TreeControllerActions,
+  TreeControllerState,
+  TreeExpanderInteractionProps,
+  TreeItemInteractionProps,
+  TreeLoadChildren,
+  TreeRootInteractionProps,
+  UseTreeOptions,
+} from "./use-tree.js";
+export type {
+  CompactTreeViewOptions,
+  FocusTreeViewOptions,
   MiaixzTreeOwnProps,
+  NestedTreeViewOptions,
+  TreeDefaultExpansion,
   TreeDensity,
   TreeDividerStyle,
+  TreeExpansionControls,
   TreeExpansionProps,
+  TreeIconAttributes,
+  TreeItemAttributes,
   TreeNode,
+  TreeNonFocusRootProps,
   TreeOwnerState,
+  TreePresentationProps,
   TreeProps,
   TreeSelectionProps,
   TreeSlotProps,
   TreeSurface,
+  TreeView,
+  TreeViewOptionsMap,
+  TreeViewRootProps,
 } from "./tree.types.js";

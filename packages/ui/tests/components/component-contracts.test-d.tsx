@@ -83,6 +83,7 @@ import type {
   TableProps,
   ToolbarProps,
   TreeProps,
+  TreeView,
   UploadProps,
   ViewProps,
 } from "../../src/index.js";
@@ -343,6 +344,58 @@ declare const tree: TreeProps;
 /**
  * @ts-expect-error Tree renders only its node model. */
 void tree.children;
+declare const runtimeTreeView: TreeView;
+const treeNodes = [{ id: "root", label: "Root", textValue: "Root" }] as const;
+const validTreeContracts: readonly TreeProps[] = [
+  { label: "Default", nodes: treeNodes },
+  { label: "Runtime", nodes: treeNodes, view: runtimeTreeView },
+  { label: "Legacy icon", nodes: treeNodes, slotProps: { icon: { title: "Legacy" } } },
+];
+const compactTreeContract: TreeProps<unknown, "compact"> = {
+  label: "Compact",
+  nodes: treeNodes,
+  view: "compact",
+  viewOptions: { compression: "dense" },
+};
+const focusTreeContract: TreeProps<unknown, "focus"> = {
+  label: "Focus",
+  nodes: treeNodes,
+  view: "focus",
+  defaultViewRootId: null,
+  viewOptions: { navigation: "both", windowDepth: 3 },
+};
+/**
+ * @ts-expect-error Controlled and default expansion values are mutually exclusive. */
+const invalidControlledTree: TreeProps = {
+  expandedIds: [],
+  defaultExpandedIds: [],
+  label: "Invalid",
+  nodes: treeNodes,
+};
+const invalidCompactOptions: TreeProps<unknown, "compact"> = {
+  label: "Invalid compact",
+  nodes: treeNodes,
+  view: "compact",
+  /**
+   * @ts-expect-error Compact view accepts only compact options. */
+  viewOptions: { windowDepth: 3 },
+};
+const invalidNestedRoot: TreeProps<unknown, "nested"> = {
+  label: "Invalid nested",
+  nodes: treeNodes,
+  view: "nested",
+  /**
+   * @ts-expect-error Non-focus literal views cannot own a focus root. */
+  viewRootId: null,
+};
+void [
+  validTreeContracts,
+  compactTreeContract,
+  focusTreeContract,
+  invalidControlledTree,
+  invalidCompactOptions,
+  invalidNestedRoot,
+];
 declare const steps: StepsProps;
 /**
  * @ts-expect-error Steps renders only its item model. */

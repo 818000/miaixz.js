@@ -34,6 +34,7 @@ export interface TreeNode<Value = unknown> {
   readonly label: ReactNode;
   readonly textValue: string;
   readonly description?: ReactNode;
+  readonly leading?: ReactNode;
   readonly trailing?: ReactNode;
   readonly value?: Value;
   readonly children?: readonly TreeNode<Value>[];
@@ -71,12 +72,106 @@ export type TreeExpansionProps =
   | {
       readonly expandedIds: readonly string[];
       readonly defaultExpandedIds?: never;
+      readonly defaultExpansion?: never;
       readonly onExpandedIdsChange?: (ids: readonly string[]) => void;
     }
   | {
       readonly expandedIds?: never;
-      readonly defaultExpandedIds?: readonly string[];
+      readonly defaultExpandedIds: readonly string[];
+      readonly defaultExpansion?: never;
       readonly onExpandedIdsChange?: (ids: readonly string[]) => void;
+    }
+  | {
+      readonly expandedIds?: never;
+      readonly defaultExpandedIds?: never;
+      readonly defaultExpansion?: TreeDefaultExpansion;
+      readonly onExpandedIdsChange?: (ids: readonly string[]) => void;
+    };
+
+/**
+ * Initial expansion policy used only by an uncontrolled Tree.
+ */
+export type TreeDefaultExpansion = "collapsed" | "all" | { readonly depth: number };
+
+/**
+ * Built-in tree presentation strategies.
+ */
+export type TreeView = "nested" | "compact" | "focus";
+
+/**
+ * Options for the hierarchy-preserving nested view.
+ */
+export interface NestedTreeViewOptions {
+  readonly indent?: "standard" | "compact";
+}
+
+/**
+ * Options for the capped-indentation compact view.
+ */
+export interface CompactTreeViewOptions {
+  readonly compression?: "balanced" | "dense";
+}
+
+/**
+ * Options for the depth-windowed focus view.
+ */
+export interface FocusTreeViewOptions {
+  readonly windowDepth?: number;
+  readonly navigation?: "breadcrumb" | "back" | "both";
+}
+
+/**
+ * Maps each built-in tree view to its exact options.
+ */
+export interface TreeViewOptionsMap {
+  readonly nested: NestedTreeViewOptions;
+  readonly compact: CompactTreeViewOptions;
+  readonly focus: FocusTreeViewOptions;
+}
+
+/**
+ * Controlled or uncontrolled focus-root state.
+ */
+export type TreeViewRootProps =
+  | {
+      readonly viewRootId: string | null;
+      readonly defaultViewRootId?: never;
+      readonly onViewRootIdChange?: (id: string | null) => void;
+    }
+  | {
+      readonly viewRootId?: never;
+      readonly defaultViewRootId?: string | null;
+      readonly onViewRootIdChange?: (id: string | null) => void;
+    };
+
+/**
+ * Excludes focus-root state from non-focus literal view configurations.
+ */
+export interface TreeNonFocusRootProps {
+  readonly viewRootId?: never;
+  readonly defaultViewRootId?: never;
+  readonly onViewRootIdChange?: never;
+}
+
+/**
+ * View selection and the corresponding options and focus-root contract.
+ */
+export type TreePresentationProps<View extends TreeView = TreeView> = {
+  readonly view?: View;
+  readonly viewOptions?: TreeViewOptionsMap[View];
+} & (View extends "focus" ? TreeViewRootProps : TreeNonFocusRootProps);
+
+/**
+ * Optional controls rendered outside the tree keyboard sequence.
+ */
+export type TreeExpansionControls =
+  | boolean
+  | {
+      readonly expandAll?: boolean;
+      readonly collapseAll?: boolean;
+      readonly depthOptions?: readonly number[];
+      readonly scope?: "tree" | "view";
+      readonly label?: string;
     };
 
 /**
@@ -101,9 +196,20 @@ export interface TreeOwnerState {
   readonly dividerStyle: TreeDividerStyle;
   readonly density: TreeDensity;
   readonly selectionMode: "none" | "single" | "multiple";
+  readonly view: TreeView;
   readonly itemId: string;
+  /**
+   * @deprecated Use logicalLevel, semanticLevel, or visualLevel.
+   */
   readonly level: number;
+  readonly logicalLevel: number;
+  readonly semanticLevel: number;
+  readonly visualLevel: number;
+  readonly stateExpanded: boolean;
   readonly expanded: boolean;
+  readonly disclosed: boolean;
+  readonly boundary: boolean;
+  readonly viewRoot: boolean;
   readonly selected: boolean;
   readonly disabled: boolean;
   readonly loading: boolean;
@@ -116,6 +222,13 @@ export interface TreeOwnerState {
 export interface TreeItemAttributes extends HTMLAttributes<HTMLDivElement> {
   readonly "data-state"?: "leaf" | "collapsed" | "expanded" | "loading" | "error";
   readonly "data-disabled"?: boolean;
+  readonly "data-boundary"?: boolean;
+  readonly "data-view-root"?: boolean;
+  readonly "data-visual-level"?: number;
+  readonly "data-logical-level"?: string;
+  readonly "data-semantic-level"?: string;
+  readonly "data-state-expanded"?: "true" | "false";
+  readonly "data-disclosed"?: "true" | "false";
 }
 
 /**
@@ -130,7 +243,15 @@ export interface TreeIconAttributes extends HTMLAttributes<HTMLSpanElement> {
  */
 export interface TreeSlotProps {
   readonly item?: MiaixzSlotProps<TreeOwnerState, TreeItemAttributes>;
+  readonly expander?: MiaixzSlotProps<TreeOwnerState, TreeIconAttributes>;
+  readonly leading?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly copy?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
   readonly label?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly trailing?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  /**
+   * @deprecated Use expander. This alias remains available throughout 0.7.x.
+   */
   readonly icon?: MiaixzSlotProps<TreeOwnerState, TreeIconAttributes>;
   readonly childrenGroup?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly loadingIndicator?: MiaixzSlotProps<TreeOwnerState, HTMLAttributes<HTMLSpanElement>>;
@@ -147,6 +268,9 @@ export interface MiaixzTreeBaseProps<Value = unknown> {
     node: Readonly<TreeNode<Value>>,
     signal: AbortSignal,
   ) => Promise<readonly TreeNode<Value>[]>;
+  readonly asyncCacheKey?: string | number;
+  readonly maxVisibleNodes?: number;
+  readonly expansionControls?: TreeExpansionControls;
   readonly surface?: TreeSurface;
   readonly connectors?: boolean;
   readonly dividerStyle?: TreeDividerStyle;
@@ -158,12 +282,19 @@ export interface MiaixzTreeBaseProps<Value = unknown> {
 /**
  * Component-specific Tree properties composed with the permitted native attributes.
  */
-export type MiaixzTreeOwnProps<Value = unknown> = MiaixzTreeBaseProps<Value> &
+export type MiaixzTreeOwnProps<
+  Value = unknown,
+  View extends TreeView = TreeView,
+> = MiaixzTreeBaseProps<Value> &
   TreeSelectionProps &
-  TreeExpansionProps;
+  TreeExpansionProps &
+  TreePresentationProps<View>;
 
 /**
  * Configures a business-neutral WAI-ARIA tree. @public
  */
-export type TreeProps<Value = unknown> = MiaixzTreeOwnProps<Value> &
-  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzTreeOwnProps<Value> | "children">;
+export type TreeProps<Value = unknown, View extends TreeView = TreeView> = MiaixzTreeOwnProps<
+  Value,
+  View
+> &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof MiaixzTreeOwnProps<Value, View> | "children">;

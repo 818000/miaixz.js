@@ -18,6 +18,7 @@ import { createMiaixzI18n } from "@miaixz/sdk/i18n";
 import { Tree, type TreeNode } from "../../../src/components/tree/index.js";
 import { useTreeAsyncLoader } from "../../../src/components/tree/tree-async-loader.js";
 import { MiaixzLocaleProvider, miaixzUiMessages } from "../../../src/i18n/index.js";
+import { createTreeFixture } from "../../fixtures/tree-fixtures.js";
 
 afterEach(cleanup);
 
@@ -35,6 +36,28 @@ const nodes: readonly TreeNode[] = [
 ];
 
 describe("Tree", () => {
+  it("keeps root refs, classes, and native data attributes on role=tree", () => {
+    const ref = { current: null as HTMLDivElement | null };
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          ref={ref}
+          label="根契约"
+          nodes={nodes}
+          className="business-tree"
+          data-business="catalog"
+        />
+      </MiaixzLocaleProvider>,
+    );
+    const tree = screen.getByRole("tree", { name: "根契约" });
+    expect(ref.current).toBe(tree);
+    expect(tree).toHaveClass("miaixz-tree", "business-tree");
+    expect(tree).toHaveAttribute("data-business", "catalog");
+    expect(tree).toHaveAttribute("data-view", "nested");
+  });
+
   it("keeps expansion, selection and keyboard navigation semantics", () => {
     const onExpandedIdsChange = vi.fn();
     const onSelectedIdsChange = vi.fn();
@@ -131,6 +154,77 @@ describe("Tree", () => {
     fireEvent.click(locked.firstElementChild!);
     expect(locked).toHaveAttribute("aria-disabled", "true");
     expect(onSelectedIdsChange).not.toHaveBeenCalled();
+  });
+
+  it("renders leading, description, trailing, and capped compact depth", () => {
+    const deep = createTreeFixture(10).map((root) => ({ ...root, leading: "Folder" }));
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          label="压缩目录"
+          nodes={deep}
+          view="compact"
+          defaultExpansion="all"
+          viewOptions={{ compression: "balanced" }}
+        />
+      </MiaixzLocaleProvider>,
+    );
+    const levelTen = screen.getByRole("treeitem", { name: "Tree level 10" });
+    expect(levelTen).toHaveAttribute("aria-level", "10");
+    expect(levelTen).toHaveAttribute("data-visual-level", "5");
+    expect(levelTen).toHaveAttribute("data-logical-level", "10");
+    expect(levelTen).toHaveAttribute("data-semantic-level", "10");
+    expect(levelTen).toHaveAttribute("data-state-expanded", "false");
+    expect(levelTen).toHaveAttribute("data-disclosed", "false");
+    const levelTwo = screen.getByRole("treeitem", { name: "Tree level 2" });
+    const description = levelTwo.querySelector(".miaixz-tree-description");
+    expect(description).toHaveAttribute("id");
+    expect(levelTwo).toHaveAttribute("aria-describedby", description?.id);
+    expect(screen.getByText("Folder")).toHaveClass("miaixz-tree-leading");
+  });
+
+  it("enters a focus boundary with ArrowRight and exposes private path navigation", () => {
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree
+          label="聚焦目录"
+          nodes={createTreeFixture(6)}
+          view="focus"
+          defaultExpansion="all"
+          viewOptions={{ windowDepth: 3, navigation: "both" }}
+        />
+      </MiaixzLocaleProvider>,
+    );
+    const boundary = screen.getByRole("treeitem", { name: "Tree level 3" });
+    expect(boundary).toHaveAttribute("data-boundary", "true");
+    boundary.focus();
+    fireEvent.keyDown(boundary, { key: "ArrowRight" });
+    expect(screen.getByRole("treeitem", { name: "Tree level 3" })).toHaveAttribute(
+      "aria-level",
+      "1",
+    );
+    expect(screen.getByRole("navigation", { name: "当前树路径" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "返回上一级" })).toBeInTheDocument();
+  });
+
+  it("renders expansion controls outside the tree and announces one aggregate result", async () => {
+    render(
+      <MiaixzLocaleProvider
+        i18n={createMiaixzI18n({ locale: "zh-CN", messages: miaixzUiMessages })}
+      >
+        <Tree label="控制目录" nodes={createTreeFixture(3)} expansionControls />
+      </MiaixzLocaleProvider>,
+    );
+    const group = screen.getByRole("group", { name: "树形结构展开控制" });
+    const tree = screen.getByRole("tree", { name: "控制目录" });
+    expect(tree.contains(group)).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "展开全部" }));
+    await waitFor(() => expect(screen.getAllByRole("treeitem")).toHaveLength(3));
+    expect(screen.getByRole("status")).toHaveTextContent("展开完成");
   });
 });
 

@@ -196,7 +196,30 @@ const invalidOwnerState: NonNullable<ThemeComponents["Button"]> = {
   ],
 };
 
+const treeTheme: NonNullable<ThemeComponents["Tree"]> = {
+  defaultProps: { view: "compact", viewOptions: { compression: "balanced" } },
+  variants: [
+    {
+      props: { view: "focus", boundary: true, stateExpanded: true, visualLevel: 2 },
+      slotClassNames: { item: "tree-boundary", description: "tree-description" },
+    },
+  ],
+};
+
+const invalidTreeTheme: NonNullable<ThemeComponents["Tree"]> = {
+  variants: [
+    {
+      /**
+       * @ts-expect-error Tree theme variants use the expanded owner-state contract. */
+      props: { compression: "dense" },
+      slotClassNames: { item: "invalid" },
+    },
+  ],
+};
+
 void buttonTheme;
+void treeTheme;
+void invalidTreeTheme;
 void invalidComponent;
 void invalidSlot;
 void invalidOwnerState;

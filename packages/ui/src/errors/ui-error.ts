@@ -92,6 +92,7 @@ export const miaixzUiErrorMessageKeys = Object.freeze({
   UI_TOASTER_MAX_VISIBLE_INVALID: "ui.error.toaster.maxVisibleInvalid",
   UI_TREE_VISIBLE_LIMIT: "ui.error.tree.visibleLimit",
   UI_TREE_TEXT_VALUE_INVALID: "ui.error.tree.textValueInvalid",
+  UI_TREE_CONFIG_INVALID: "ui.error.tree.configInvalid",
   UI_STEPS_DUPLICATE_ID: "ui.error.steps.duplicateId",
   UI_TIMELINE_DUPLICATE_ID: "ui.error.timeline.duplicateId",
   UI_GRAPH_DUPLICATE_NODE_ID: "ui.error.graph.duplicateNodeId",
@@ -144,6 +145,7 @@ export type MiaixzUiErrorCode = keyof typeof miaixzUiErrorMessageKeys;
  */
 export const miaixzUiWarningMessageKeys = Object.freeze({
   UI_CONTROLLED_MODE_CHANGED: "ui.warning.controlled.modeChanged",
+  UI_TREE_ICON_SLOT_DEPRECATED: "ui.warning.tree.iconSlotDeprecated",
 } as const);
 
 /**

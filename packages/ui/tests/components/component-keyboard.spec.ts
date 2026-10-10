@@ -83,3 +83,38 @@ test("Segmented, Tag, Disclosure, Rating, and Slider expose their keyboard contr
   await page.keyboard.press("ArrowRight");
   await expect(slider).toHaveValue("51");
 });
+
+test("Tree compact and focus views preserve one roving path and explicit focus navigation", async ({
+  page,
+}) => {
+  await page.goto(
+    "/tests/?treeFixture=1&treeView=compact&treeDepth=10&treeWidth=320&treeCompression=balanced",
+  );
+  const compactTree = page.getByTestId("tree-contract");
+  await expect(compactTree.locator('[role="treeitem"][tabindex="0"]')).toHaveCount(1);
+  const compactRoot = compactTree.getByRole("treeitem", { name: "Tree level 1", exact: true });
+  await compactRoot.focus();
+  await page.keyboard.press("End");
+  await expect(compactTree.getByRole("treeitem", { name: "Disabled item" })).toBeFocused();
+  await page.keyboard.press("Home");
+  await expect(compactRoot).toBeFocused();
+  await page.keyboard.press("*");
+  await expect(compactRoot).toHaveAttribute("aria-expanded", "true");
+
+  await page.goto("/tests/?treeFixture=1&treeView=focus&treeDepth=10&treeWidth=480");
+  const focusTree = page.getByTestId("tree-contract");
+  const boundary = focusTree.getByRole("treeitem", { name: "Tree level 3", exact: true });
+  await boundary.focus();
+  await expect(boundary).toHaveAttribute("data-boundary", "true");
+  await page.keyboard.press("ArrowRight");
+  const focusedRoot = focusTree.getByRole("treeitem", { name: "Tree level 3", exact: true });
+  await expect(focusedRoot).toHaveAttribute("aria-level", "1");
+  await expect(page.getByRole("button", { name: "Back one level" })).toBeVisible();
+  await focusedRoot.focus();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.getByRole("button", { name: "Back one level" })).toBeVisible();
+  await page.getByRole("button", { name: "Back one level" }).click();
+  await expect(
+    focusTree.getByRole("treeitem", { name: "Tree level 2", exact: true }),
+  ).toHaveAttribute("aria-level", "1");
+});

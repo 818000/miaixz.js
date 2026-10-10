@@ -59,3 +59,24 @@ for (const name of [
     expect(result.violations).toEqual([]);
   });
 }
+
+test("Tree view semantics remain independent from compact visual depth", async ({ page }) => {
+  await page.goto(
+    "/tests/?treeFixture=1&treeView=compact&treeDepth=10&treeWidth=320&treeCompression=balanced",
+  );
+  const tree = page.getByTestId("tree-contract");
+  const levelSix = tree.getByRole("treeitem", { name: "Tree level 6", exact: true });
+  const levelTen = tree.getByRole("treeitem", { name: "Tree level 10", exact: true });
+  await expect(levelSix).toHaveAttribute("aria-level", "6");
+  await expect(levelSix).toHaveAttribute("data-visual-level", "5");
+  await expect(levelTen).toHaveAttribute("aria-level", "10");
+  await expect(levelTen).toHaveAttribute("data-visual-level", "5");
+  await expect(levelSix).toHaveAttribute("aria-describedby", /-description$/);
+  await expect(tree.locator('[role="treeitem"][tabindex="0"]')).toHaveCount(1);
+  await expect(page.getByRole("group", { name: "Tree expansion controls" })).toBeVisible();
+  const result = await new AxeBuilder({ page })
+    .include('[data-testid="tree-contract-container"]')
+    .withTags(wcagTags)
+    .analyze();
+  expect(result.violations).toEqual([]);
+});

@@ -85,18 +85,18 @@
   outline-offset: var(--miaixz-control-focus-offset);
 }
 
-.miaixz-appearance-trigger > svg {
+.miaixz-appearance-trigger > .miaixz-icon {
   transform: rotate(0turn);
   transform-origin: center;
   transition: transform var(--miaixz-appearance-motion-duration) var(--miaixz-motion-exit-easing);
 }
 
-.miaixz-appearance-floating:hover .miaixz-appearance-trigger > svg,
-.miaixz-appearance-floating:focus-within .miaixz-appearance-trigger > svg,
-.miaixz-appearance-floating[data-dragging="true"] .miaixz-appearance-trigger > svg,
+.miaixz-appearance-floating:hover .miaixz-appearance-trigger > .miaixz-icon,
+.miaixz-appearance-floating:focus-within .miaixz-appearance-trigger > .miaixz-icon,
+.miaixz-appearance-floating[data-dragging="true"] .miaixz-appearance-trigger > .miaixz-icon,
 .miaixz-appearance-floating:has(.miaixz-appearance-trigger[aria-expanded="true"])
   .miaixz-appearance-trigger
-  > svg {
+  > .miaixz-icon {
   transform: rotate(1turn);
   transition-timing-function: var(--miaixz-motion-enter-easing);
 }
@@ -451,7 +451,7 @@
 @media (prefers-reduced-motion: reduce) {
   .miaixz-appearance-floating,
   .miaixz-appearance-trigger,
-  .miaixz-appearance-trigger > svg,
+  .miaixz-appearance-trigger > .miaixz-icon,
   .miaixz-appearance-option {
     transition-duration: var(--miaixz-duration-instant);
   }

@@ -63,12 +63,17 @@ describe("Drawer widths", () => {
       rerender(fixture(width));
       const drawer = screen.getByRole("dialog", { name: "Width" });
       expect(drawer.style.getPropertyValue("--miaixz-drawer-width")).toBe(`${width}px`);
+      expect(drawer).toHaveAttribute(
+        "data-spacing",
+        width <= 480 ? "compact" : width <= 600 ? "standard" : width <= 800 ? "large" : "workspace",
+      );
       expect(drawer).not.toHaveClass("miaixz-drawer-positioned");
       expect(drawer.style.inlineSize).toBe("");
       expect(drawer).not.toHaveAttribute("data-positioned");
     }
     rerender(fixture("large"));
     expect(screen.getByRole("dialog")).toHaveAttribute("data-width", "large");
+    expect(screen.getByRole("dialog")).toHaveAttribute("data-spacing", "standard");
     expect(screen.getByRole("dialog").style.getPropertyValue("--miaixz-drawer-width")).toBe("");
     expect(screen.getByRole("dialog").style.getPropertyValue("--miaixz-drawer-width")).toBe("");
   });
@@ -127,6 +132,7 @@ describe("Drawer widths", () => {
     expect(dialog).toHaveAttribute("data-density", "compact");
     expect(dialog).toHaveAttribute("data-floating", "true");
     expect(dialog).toHaveAttribute("data-placement", "left");
+    expect(dialog).toHaveAttribute("data-spacing", "wide");
     expect(dialog).toHaveAttribute("data-width", "wide");
     expect(dialog.querySelector("h3")).toHaveClass("custom-title");
     expect(dialog.querySelector("aside")).toHaveTextContent("Details");

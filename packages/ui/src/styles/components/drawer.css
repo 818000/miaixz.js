@@ -34,7 +34,10 @@
 }
 
 dialog.miaixz-drawer {
-  --miaixz-drawer-padding: var(--miaixz-density-panel-padding);
+  --miaixz-drawer-padding-inline: var(--miaixz-space-24);
+  --miaixz-drawer-header-padding-block: var(--miaixz-space-20);
+  --miaixz-drawer-body-padding-block: var(--miaixz-space-24);
+  --miaixz-drawer-footer-padding-block: var(--miaixz-space-20);
 
   position: fixed;
   inset: 0 0 0 auto;
@@ -118,12 +121,28 @@ dialog.miaixz-drawer[open]::backdrop {
   --miaixz-drawer-width: calc(100vi - 24px);
 }
 
+.miaixz-drawer[data-spacing="compact"] {
+  --miaixz-drawer-padding-inline: var(--miaixz-space-20);
+}
+
+.miaixz-drawer:is([data-spacing="standard"], [data-spacing="content"]) {
+  --miaixz-drawer-padding-inline: var(--miaixz-space-24);
+}
+
+.miaixz-drawer:is([data-spacing="large"], [data-spacing="workspace"], [data-spacing="wide"]) {
+  --miaixz-drawer-padding-inline: var(--miaixz-space-32);
+}
+
 .miaixz-drawer[data-density="compact"] {
-  --miaixz-drawer-padding: var(--miaixz-space-12);
+  --miaixz-drawer-header-padding-block: var(--miaixz-space-16);
+  --miaixz-drawer-body-padding-block: var(--miaixz-space-16);
+  --miaixz-drawer-footer-padding-block: var(--miaixz-space-16);
 }
 
 .miaixz-drawer[data-density="comfortable"] {
-  --miaixz-drawer-padding: var(--miaixz-space-20);
+  --miaixz-drawer-header-padding-block: var(--miaixz-space-24);
+  --miaixz-drawer-body-padding-block: var(--miaixz-space-32);
+  --miaixz-drawer-footer-padding-block: var(--miaixz-space-24);
 }
 
 dialog.miaixz-drawer[data-placement="left"] {
@@ -181,14 +200,28 @@ dialog.miaixz-drawer[data-placement="bottom"]:not([open]) {
 .miaixz-drawer-body,
 .miaixz-drawer-footer {
   min-width: 0;
-  padding-block: var(--miaixz-drawer-padding);
-  padding-inline: calc(var(--miaixz-drawer-padding) + var(--miaixz-safe-area-inline-start))
-    calc(var(--miaixz-drawer-padding) + var(--miaixz-safe-area-inline-end));
+  padding-inline: calc(var(--miaixz-drawer-padding-inline) + var(--miaixz-safe-area-inline-start))
+    calc(var(--miaixz-drawer-padding-inline) + var(--miaixz-safe-area-inline-end));
 }
 
 @media (width <= 48rem) {
   .miaixz-drawer[data-width="wide"] {
     --miaixz-drawer-width: 100vi;
+  }
+}
+
+@media (width <= 64rem) {
+  .miaixz-drawer:is([data-spacing="large"], [data-spacing="workspace"], [data-spacing="wide"]) {
+    --miaixz-drawer-padding-inline: var(--miaixz-space-24);
+  }
+}
+
+@media (width <= 40rem) {
+  .miaixz-drawer {
+    --miaixz-drawer-padding-inline: var(--miaixz-space-16);
+    --miaixz-drawer-header-padding-block: var(--miaixz-space-16);
+    --miaixz-drawer-body-padding-block: var(--miaixz-space-16);
+    --miaixz-drawer-footer-padding-block: var(--miaixz-space-16);
   }
 }
 
@@ -198,7 +231,8 @@ dialog.miaixz-drawer[data-placement="bottom"]:not([open]) {
   gap: var(--miaixz-space-16);
   align-items: flex-start;
   justify-content: space-between;
-  padding-top: calc(var(--miaixz-drawer-padding) + var(--miaixz-safe-area-top));
+  padding-block: var(--miaixz-drawer-header-padding-block);
+  padding-top: calc(var(--miaixz-drawer-header-padding-block) + var(--miaixz-safe-area-top));
   border-bottom: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 
@@ -245,6 +279,7 @@ dialog.miaixz-drawer[data-placement="bottom"]:not([open]) {
 .miaixz-drawer-body {
   flex: 1;
   min-height: 0;
+  padding-block: var(--miaixz-drawer-body-padding-block);
   overflow: auto;
   overscroll-behavior: contain;
 }
@@ -255,7 +290,8 @@ dialog.miaixz-drawer[data-placement="bottom"]:not([open]) {
   gap: var(--miaixz-control-gap);
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: calc(var(--miaixz-drawer-padding) + var(--miaixz-safe-area-bottom));
+  padding-block: var(--miaixz-drawer-footer-padding-block);
+  padding-bottom: calc(var(--miaixz-drawer-footer-padding-block) + var(--miaixz-safe-area-bottom));
   border-top: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
 }
 

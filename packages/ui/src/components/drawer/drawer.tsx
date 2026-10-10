@@ -46,8 +46,14 @@ import type {
   DrawerOwnerState,
   DrawerProps,
   DrawerRootAttributes,
+  DrawerWidth,
 } from "./drawer.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
+
+/**
+ * Component-owned responsive spacing tiers inferred from the sole width input.
+ */
+type DrawerSpacing = "compact" | "standard" | "large" | "workspace" | "content" | "wide";
 
 /**
  * Resolved drawer bounds used by the positioning renderer.
@@ -78,6 +84,36 @@ function validateDrawerDimension(
   if (value === undefined || (Number.isFinite(value) && (positive ? value > 0 : value >= 0)))
     return;
   throw new MiaixzUiError({ code, details: { value } });
+}
+
+/**
+ * Classifies legacy and custom widths into the semantic spacing tier owned by Drawer.
+ *
+ * @param width - Resolved side-drawer width contract.
+ * @returns Semantic tier used for responsive spacing.
+ */
+function resolveDrawerSpacing(width: DrawerWidth | undefined): DrawerSpacing {
+  if (typeof width === "number") {
+    if (width <= 480) return "compact";
+    if (width <= 600) return "standard";
+    if (width <= 800) return "large";
+    return "workspace";
+  }
+  switch (width) {
+    case "small":
+    case "medium":
+      return "compact";
+    case "large":
+      return "standard";
+    case "xlarge":
+      return "workspace";
+    case "content":
+      return "content";
+    case "wide":
+      return "wide";
+    default:
+      return "standard";
+  }
 }
 
 /**
@@ -148,6 +184,7 @@ export const Drawer = withMiaixzThemeComponent(
       slots,
       slotProps,
     } = props;
+    const spacing = placement === "bottom" ? "standard" : resolveDrawerSpacing(width);
     const blockInset = typeof inset === "number" ? inset : (inset?.block ?? 0);
     const inlineInset = typeof inset === "number" ? inset : (inset?.inline ?? 0);
     validateDrawerDimension(
@@ -293,6 +330,7 @@ export const Drawer = withMiaixzThemeComponent(
         ...(description === undefined ? {} : { "aria-describedby": descriptionId }),
         "data-placement": placement,
         ...(typeof width === "string" ? { "data-width": width } : {}),
+        "data-spacing": spacing,
         "data-density": density,
         ...(floating ? { "data-floating": true } : {}),
         ...(positioned ? { "data-positioned": true } : {}),
@@ -318,6 +356,7 @@ export const Drawer = withMiaixzThemeComponent(
         "aria-describedby",
         "data-placement",
         "data-width",
+        "data-spacing",
         "data-density",
         "data-floating",
         "data-positioned",

@@ -23,6 +23,11 @@
  */
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import {
+  createTreeCollection,
+  resolveTreeCollectionChildren,
+  type TreeCollection,
+} from "./tree-collection.js";
 import type { TreeNode } from "./tree.types.js";
 
 /**
@@ -42,6 +47,7 @@ export interface TreeRecord<Value> {
 export interface TreeIndex<Value> {
   readonly byId: ReadonlyMap<string, TreeRecord<Value>>;
   readonly roots: readonly TreeNode<Value>[];
+  readonly collection: TreeCollection<Value>;
 }
 
 /**
@@ -56,7 +62,7 @@ export function resolveTreeChildren<Value>(
   node: Readonly<TreeNode<Value>>,
   childCache: ReadonlyMap<string, readonly TreeNode<Value>[]>,
 ): readonly TreeNode<Value>[] | undefined {
-  return node.children ?? childCache.get(node.id);
+  return resolveTreeCollectionChildren(node, childCache);
 }
 
 /**
@@ -88,42 +94,18 @@ export function buildTreeIndex<Value>(
   nodes: readonly TreeNode<Value>[],
   childCache: ReadonlyMap<string, readonly TreeNode<Value>[]>,
 ): TreeIndex<Value> {
+  const collection = createTreeCollection(nodes, childCache);
   const byId = new Map<string, TreeRecord<Value>>();
-  /**
-   * Indexes sibling nodes recursively while validating identifiers and search text.
-   *
-   * @param siblings - Nodes sharing the same parent.
-   * @param parentId - Parent node identifier, or null for tree roots.
-   * @param level - One-based ARIA hierarchy level.
-   * @returns No return value; inserts hierarchy records into the shared index.
-   */
-  const visit = (siblings: readonly TreeNode<Value>[], parentId: string | null, level: number) => {
-    siblings.forEach((node, index) => {
-      if (node.textValue.trim().length === 0) {
-        throw new MiaixzUiError({
-          code: "UI_TREE_TEXT_VALUE_INVALID",
-          details: { id: node.id },
-        });
-      }
-      if (byId.has(node.id)) {
-        throw new MiaixzUiError({
-          code: "UI_TREE_DUPLICATE_ID",
-          details: { id: node.id },
-        });
-      }
-      byId.set(node.id, {
-        node,
-        parentId,
-        level,
-        position: index + 1,
-        setSize: siblings.length,
-      });
-      const children = resolveTreeChildren(node, childCache);
-      if (children !== undefined) visit(children, node.id, level + 1);
+  for (const record of collection.byId.values()) {
+    byId.set(record.id, {
+      node: record.node,
+      parentId: record.parentId,
+      level: record.logicalLevel,
+      position: record.position,
+      setSize: record.setSize,
     });
-  };
-  visit(nodes, null, 1);
-  return { byId, roots: nodes };
+  }
+  return { byId, roots: nodes, collection };
 }
 
 /**
@@ -133,6 +115,7 @@ export function buildTreeIndex<Value>(
  * @param index - Validated tree hierarchy index.
  * @param childCache - Asynchronously loaded children keyed by parent identifier.
  * @param expandedIds - Identifiers of expanded nodes.
+ * @param maxVisibleNodes - Maximum number of records the compatibility view may expose.
  * @returns Visible tree records in depth-first display order.
  * @throws MiaixzUiError when the visible tree exceeds the safety limit.
  */
@@ -140,6 +123,7 @@ export function getVisibleTreeRecords<Value>(
   index: TreeIndex<Value>,
   childCache: ReadonlyMap<string, readonly TreeNode<Value>[]>,
   expandedIds: ReadonlySet<string>,
+  maxVisibleNodes = 5000,
 ): readonly TreeRecord<Value>[] {
   const visible: TreeRecord<Value>[] = [];
   /**
@@ -154,15 +138,21 @@ export function getVisibleTreeRecords<Value>(
       if (record === undefined) continue;
       visible.push(record);
       if (!expandedIds.has(node.id)) continue;
-      const children = resolveTreeChildren(node, childCache);
-      if (children !== undefined) append(children);
+      const children = index.collection.getChildren(node.id).map((child) => child.node);
+      if (children.length > 0) append(children);
     }
   };
   append(index.roots);
-  if (visible.length > 1000) {
+  if (!Number.isInteger(maxVisibleNodes) || maxVisibleNodes < 1) {
+    throw new MiaixzUiError({
+      code: "UI_TREE_CONFIG_INVALID",
+      details: { option: "maxVisibleNodes" },
+    });
+  }
+  if (visible.length > maxVisibleNodes) {
     throw new MiaixzUiError({
       code: "UI_TREE_VISIBLE_LIMIT",
-      details: { visibleCount: visible.length, limit: 1000 },
+      details: { visibleCount: visible.length, limit: maxVisibleNodes },
     });
   }
   return visible;

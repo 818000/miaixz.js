@@ -19,63 +19,54 @@
 */
 
 /**
- * Implements the tree UI component.
+ * Implements the tree module.
  */
 
-import {
-  forwardRef,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactElement,
-  type RefAttributes,
-} from "react";
+import { forwardRef, useEffect, type ReactElement, type RefAttributes } from "react";
 
-import { MiaixzUiError } from "../../errors/ui-error.js";
+import { reportMiaixzUiWarning } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
-import { useControlled } from "../../shared/use-controlled.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { useTreeAsyncLoader } from "./tree-async-loader.js";
-import {
-  buildTreeIndex,
-  getVisibleTreeRecords,
-  isTreeNodeExpandable,
-  normalizeTreeIds,
-  resolveTreeChildren,
-  resolveTreeFocusedId,
-  type TreeRecord,
-} from "./tree-controller.js";
-import { findTreeTypeaheadMatch, resolveTreeNavigation } from "./tree-keyboard.js";
-import { TreeRenderer } from "./tree-renderer.js";
-import type { TreeNode, TreeProps } from "./tree.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
+import { TreeBreadcrumb } from "./tree-breadcrumb.js";
+import { TreeExpansionControlsView } from "./tree-expansion-controls.js";
+import { TreeRenderer } from "./tree-renderer.js";
+import { useTree } from "./use-tree.js";
+import type { TreeProps, TreeView, TreeViewRootProps } from "./tree.types.js";
 
 /**
- * Implements the generic, ref-forwarding tree state and interaction controller.
- *
- * @typeParam Value - Application value stored by each tree node.
- * @param props - Tree data, controlled state, behavior, and slots.
- * @param forwardedRef - Forwarded tree root reference.
- * @returns Accessible interactive tree.
+ * Renders one business-neutral WAI-ARIA tree in nested, compact, or focus mode.
+ * @param props - Public Tree data, behavior, view, slot, and presentation properties.
+ * @param forwardedRef - Ref forwarded to the semantic tree root.
+ * @returns A themed Tree instance backed by the headless controller.
  */
-function TreeImplementation<Value = unknown>(
-  props: TreeProps<Value>,
+function TreeImplementation<Value = unknown, View extends TreeView = TreeView>(
+  props: TreeProps<Value, View>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const controller = useTree(props);
+  const componentProps = props as TreeProps<Value> & Partial<TreeViewRootProps>;
   const {
-    nodes,
-    label,
-    loadChildren,
+    nodes: _nodes,
+    label: _label,
+    loadChildren: _loadChildren,
+    asyncCacheKey: _asyncCacheKey,
+    maxVisibleNodes: _maxVisibleNodes,
     selectionMode = "single",
-    selectedIds,
-    defaultSelectedIds,
-    onSelectedIdsChange,
-    expandedIds,
-    defaultExpandedIds,
-    onExpandedIdsChange,
+    selectedIds: _selectedIds,
+    defaultSelectedIds: _defaultSelectedIds,
+    onSelectedIdsChange: _onSelectedIdsChange,
+    expandedIds: _expandedIds,
+    defaultExpandedIds: _defaultExpandedIds,
+    defaultExpansion: _defaultExpansion,
+    onExpandedIdsChange: _onExpandedIdsChange,
+    view = "nested",
+    viewOptions,
+    viewRootId: _viewRootId,
+    defaultViewRootId: _defaultViewRootId,
+    onViewRootIdChange: _onViewRootIdChange,
+    expansionControls,
     surface = "framed",
     connectors = false,
     dividerStyle = "none",
@@ -84,158 +75,62 @@ function TreeImplementation<Value = unknown>(
     slotProps,
     className,
     ...rootProps
-  } = props;
+  } = componentProps;
   const { t } = useMiaixzLocale();
-  const selection = useControlled<readonly string[]>({
-    value: selectedIds,
-    defaultValue: normalizeTreeIds(defaultSelectedIds ?? []),
-    hasDefaultValue: selectedIds !== undefined && defaultSelectedIds !== undefined,
-    ...(onSelectedIdsChange === undefined ? {} : { onValueChange: onSelectedIdsChange }),
-    readOnly: selectedIds !== undefined && onSelectedIdsChange === undefined,
-  });
-  const expansion = useControlled<readonly string[]>({
-    value: expandedIds,
-    defaultValue: normalizeTreeIds(defaultExpandedIds ?? []),
-    hasDefaultValue: expandedIds !== undefined && defaultExpandedIds !== undefined,
-    ...(onExpandedIdsChange === undefined ? {} : { onValueChange: onExpandedIdsChange }),
-    readOnly: expandedIds !== undefined && onExpandedIdsChange === undefined,
-  });
-  const selectedValues = useMemo(
-    () => (selectionMode === "none" ? [] : normalizeTreeIds(selection.value)),
-    [selection.value, selectionMode],
-  );
-  const expandedValues = useMemo(() => normalizeTreeIds(expansion.value), [expansion.value]);
-  if (selectionMode === "single" && selectedValues.length > 1) {
-    throw new MiaixzUiError({
-      code: "UI_CONTROLLED_VALUE_INVALID",
-    });
-  }
-  const loader = useTreeAsyncLoader(loadChildren);
-  const index = useMemo(() => buildTreeIndex(nodes, loader.childCache), [loader.childCache, nodes]);
-  const expandedSet = useMemo(() => new Set(expandedValues), [expandedValues]);
-  const selectedSet = useMemo(() => new Set(selectedValues), [selectedValues]);
-  const visible = useMemo(
-    () => getVisibleTreeRecords(index, loader.childCache, expandedSet),
-    [expandedSet, index, loader.childCache],
-  );
-  const [focusedId, setFocusedId] = useState<string | null>(null);
-  const resolvedFocusedId = resolveTreeFocusedId(focusedId, selectedValues, visible, index);
-  const itemRefs = useRef(new Map<string, HTMLDivElement>());
   const rootRef = useMergedRef(forwardedRef, null);
-  const typeaheadRef = useRef("");
-  const typeaheadTimerRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (slotProps?.icon !== undefined && slotProps.expander === undefined) {
+      reportMiaixzUiWarning("UI_TREE_ICON_SLOT_DEPRECATED");
+    }
+  }, [slotProps?.expander, slotProps?.icon]);
 
-  const focusNode = useCallback((id: string) => {
-    setFocusedId(id);
-    itemRefs.current.get(id)?.focus({ preventScroll: true });
-  }, []);
-  const setExpanded = useCallback(
-    (id: string, expanded: boolean) => {
-      if (expansion.readOnly) return;
-      const next = expanded
-        ? expandedValues.includes(id)
-          ? expandedValues
-          : [...expandedValues, id]
-        : expandedValues.filter((candidate) => candidate !== id);
-      expansion.setValue(next);
-    },
-    [expandedValues, expansion],
-  );
-  const toggle = useCallback(
-    (node: Readonly<TreeNode<Value>>) => {
-      if (node.disabled === true || expansion.readOnly) return;
-      if (expandedSet.has(node.id)) {
-        setExpanded(node.id, false);
-        return;
-      }
-      const children = resolveTreeChildren(node, loader.childCache);
-      if (children !== undefined) {
-        if (children.length > 0) setExpanded(node.id, true);
-        return;
-      }
-      if (node.hasChildren === true) {
-        void loader
-          .load(node)
-          ?.then((loaded) => {
-            if (loaded.length > 0) setExpanded(node.id, true);
-          })
-          .catch(() => undefined);
-      }
-    },
-    [expandedSet, expansion.readOnly, loader, setExpanded],
-  );
-  const select = useCallback(
-    (node: Readonly<TreeNode<Value>>) => {
-      if (selectionMode === "none" || node.disabled === true || selection.readOnly) return;
-      const next =
-        selectionMode === "single"
-          ? [node.id]
-          : selectedValues.includes(node.id)
-            ? selectedValues.filter((id) => id !== node.id)
-            : [...selectedValues, node.id];
-      selection.setValue(next);
-    },
-    [selectedValues, selection, selectionMode],
-  );
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>, record: TreeRecord<Value>) => {
-      event.stopPropagation();
-      if (
-        event.key.length === 1 &&
-        event.key !== " " &&
-        !event.altKey &&
-        !event.ctrlKey &&
-        !event.metaKey
-      ) {
-        typeaheadRef.current += event.key.toLocaleLowerCase();
-        if (typeaheadTimerRef.current !== undefined) window.clearTimeout(typeaheadTimerRef.current);
-        typeaheadTimerRef.current = window.setTimeout(() => {
-          typeaheadRef.current = "";
-          typeaheadTimerRef.current = undefined;
-        }, 500);
-        const match = findTreeTypeaheadMatch(visible, record.node.id, typeaheadRef.current);
-        if (match !== undefined) focusNode(match.node.id);
-        return;
-      }
-      const action = resolveTreeNavigation(
-        event.key,
-        record,
-        visible,
-        expandedSet,
-        isTreeNodeExpandable(record.node, loader.childCache),
-      );
-      if (action.kind === "none") return;
-      event.preventDefault();
-      if (action.kind === "focus") focusNode(action.id);
-      else if (action.kind === "expand") toggle(record.node);
-      else if (action.kind === "collapse") setExpanded(record.node.id, false);
-      else select(record.node);
-    },
-    [expandedSet, focusNode, loader.childCache, select, setExpanded, toggle, visible],
-  );
+  const rootInteraction = controller.getRootProps();
+  const effectiveView = view as TreeView;
+  const focusOptions = effectiveView === "focus" ? viewOptions : undefined;
+  const nestedIndent =
+    effectiveView === "nested"
+      ? ((viewOptions as { readonly indent?: "standard" | "compact" } | undefined)?.indent ??
+        "standard")
+      : undefined;
+  const compactCompression =
+    effectiveView === "compact"
+      ? ((viewOptions as { readonly compression?: "balanced" | "dense" } | undefined)
+          ?.compression ?? "balanced")
+      : undefined;
+  const navigation =
+    (focusOptions as { readonly navigation?: "breadcrumb" | "back" | "both" } | undefined)
+      ?.navigation ?? "both";
+  const lastResult = controller.state.lastExpansionResult;
+  const announcement =
+    lastResult === null
+      ? ""
+      : lastResult.status === "read-only"
+        ? t("ui.tree.expansionReadOnly")
+        : lastResult.status === "aborted"
+          ? t("ui.tree.expansionAborted")
+          : lastResult.status === "partial"
+            ? t("ui.tree.expansionPartial", {
+                expanded: lastResult.expandedIds.length,
+                failed: lastResult.failedIds.length,
+              })
+            : t("ui.tree.expansionComplete", { expanded: lastResult.expandedIds.length });
 
-  return (
+  const tree = (
     <div
       {...rootProps}
+      {...rootInteraction}
       ref={rootRef}
-      role="tree"
-      aria-label={label}
-      aria-multiselectable={selectionMode === "multiple" || undefined}
       className={classNames("miaixz-tree", className)}
       data-surface={surface}
       data-connectors={connectors || undefined}
       data-divider-style={dividerStyle}
       data-density={density}
+      data-view={effectiveView}
+      data-indent={nestedIndent}
+      data-compression={compactCompression}
     >
       <TreeRenderer
-        nodes={nodes}
-        index={index}
-        childCache={loader.childCache}
-        expandedIds={expandedSet}
-        selectedIds={selectedSet}
-        loadingIds={loader.loadingIds}
-        errorIds={loader.errorIds}
-        focusedId={resolvedFocusedId}
+        controller={controller}
         selectionMode={selectionMode}
         showSelectionIndicator={showSelectionIndicator}
         surface={surface}
@@ -243,17 +138,43 @@ function TreeImplementation<Value = unknown>(
         dividerStyle={dividerStyle}
         density={density}
         slotProps={slotProps}
-        itemRefs={itemRefs}
         errorLabel={t("ui.tree.loadError")}
         retryLabel={t("ui.action.retry")}
-        onFocus={setFocusedId}
-        onSelect={select}
-        onToggle={toggle}
-        onRetry={(node) => {
-          void loader.load(node)?.catch(() => undefined);
-        }}
-        onKeyDown={handleKeyDown}
       />
+    </div>
+  );
+  const hasShell = expansionControls !== undefined && expansionControls !== false;
+  const hasFocusNavigation = effectiveView === "focus";
+  if (!hasShell && !hasFocusNavigation) return tree;
+  return (
+    <div className="miaixz-tree-shell" data-view={effectiveView}>
+      {expansionControls === undefined || expansionControls === false ? null : (
+        <TreeExpansionControlsView
+          controller={controller}
+          config={expansionControls}
+          view={effectiveView}
+          labels={{
+            defaultLabel: t("ui.tree.expansionControls"),
+            expandAll: t("ui.tree.expandAll"),
+            collapseAll: t("ui.tree.collapseAll"),
+            expandToDepth: t("ui.tree.expandToDepth", { depth: "" }).trim(),
+            depth: (depth) => t("ui.tree.expandToDepth", { depth }),
+          }}
+        />
+      )}
+      {hasFocusNavigation ? (
+        <TreeBreadcrumb
+          controller={controller}
+          navigation={navigation}
+          currentPathLabel={t("ui.tree.currentPath")}
+          rootLabel={t("ui.tree.root")}
+          backLabel={t("ui.tree.back")}
+        />
+      ) : null}
+      {tree}
+      <div className="miaixz-tree-live-region" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
     </div>
   );
 }
@@ -263,7 +184,7 @@ function TreeImplementation<Value = unknown>(
  */
 export const Tree = withMiaixzThemeComponent(
   "Tree",
-  forwardRef(TreeImplementation) as <Value = unknown>(
-    props: TreeProps<Value> & RefAttributes<HTMLDivElement>,
+  forwardRef(TreeImplementation) as <Value = unknown, View extends TreeView = TreeView>(
+    props: TreeProps<Value, View> & RefAttributes<HTMLDivElement>,
   ) => ReactElement,
 );

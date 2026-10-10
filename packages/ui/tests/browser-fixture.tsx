@@ -13,6 +13,12 @@ import { createRoot } from "react-dom/client";
 import { useState } from "react";
 
 import {
+  asyncTreeFixture,
+  createTreeFixture,
+  type TreeFixtureDepth,
+} from "./fixtures/tree-fixtures.js";
+
+import {
   ActionBar,
   ActionText,
   Alert,
@@ -104,6 +110,91 @@ const legacyTheme = defineTheme({
   tokens: { typography: { bodySize: 15 } },
   modes: { light: {}, dark: {} },
 });
+
+/**
+ * Returns the fixed depth requested by the Tree browser fixture.
+ * @returns A supported shared-fixture depth.
+ */
+function getTreeFixtureDepth(): TreeFixtureDepth {
+  const value = Number(parameters.get("treeDepth") ?? "10");
+  return value === 2 || value === 3 || value === 6 || value === 10 ? value : 10;
+}
+
+/**
+ * Renders one isolated deep Tree for keyboard, accessibility, and geometry contracts.
+ * @returns A deterministic Tree view selected through URL parameters.
+ */
+function TreeContractFixture() {
+  const viewParameter = parameters.get("treeView");
+  const view = viewParameter === "compact" || viewParameter === "focus" ? viewParameter : "nested";
+  const compression = parameters.get("treeCompression") === "dense" ? "dense" : "balanced";
+  const direction = parameters.get("treeDirection") === "rtl" ? "rtl" : "ltr";
+  const state = parameters.get("treeState") ?? "depth";
+  const depth = getTreeFixtureDepth();
+  const width = Number(parameters.get("treeWidth") ?? "480");
+  const loadedIds = Array.from(
+    { length: depth - 1 },
+    (_, index) => `tree-depth-${String(index + 1).padStart(2, "0")}`,
+  );
+  const nodes =
+    state === "depth"
+      ? [
+          ...createTreeFixture(depth),
+          {
+            id: "tree-disabled",
+            label: "禁用节点",
+            textValue: "Disabled item",
+            trailing: "0 / 1",
+            disabled: true,
+            value: "disabled",
+          },
+        ]
+      : asyncTreeFixture;
+  const loadChildren =
+    state === "depth"
+      ? undefined
+      : async () => {
+          if (state === "error") throw new Error("Tree fixture loading failed");
+          if (state === "loading") await new Promise<void>(() => undefined);
+          return [
+            {
+              id: "tree-async-child",
+              label: "异步子节点",
+              textValue: "Async child",
+              value: "async-child",
+            },
+          ];
+        };
+  const sharedProps = {
+    "data-testid": "tree-contract",
+    defaultExpandedIds: state === "depth" ? loadedIds : [],
+    defaultSelectedIds: state === "depth" && depth >= 6 ? ["tree-depth-06"] : [],
+    density,
+    dir: direction,
+    expansionControls: {
+      depthOptions: [2, 3, 6],
+      scope: "view" as const,
+    },
+    label: "深层资源目录",
+    maxVisibleNodes: parameters.get("treeLimit") === "small" ? 3 : 5000,
+    nodes,
+    ...(loadChildren === undefined ? {} : { loadChildren }),
+  };
+  return (
+    <main
+      data-testid="tree-contract-container"
+      style={{ inlineSize: `${width}px`, maxInlineSize: "100%" }}
+    >
+      {view === "focus" ? (
+        <Tree {...sharedProps} view="focus" viewOptions={{ navigation: "both", windowDepth: 3 }} />
+      ) : view === "compact" ? (
+        <Tree {...sharedProps} view="compact" viewOptions={{ compression }} connectors />
+      ) : (
+        <Tree {...sharedProps} view="nested" viewOptions={{ indent: "standard" }} connectors />
+      )}
+    </main>
+  );
+}
 
 /**
  * Creates the final command-action shape used by browser fixtures.
@@ -459,16 +550,19 @@ export function AccessibilityFixture({ name }: { readonly name: AccessibilityFix
       return (
         <Tree
           data-testid={testId}
-          defaultExpandedIds={["platform"]}
-          label="资源目录"
-          nodes={[
-            {
-              children: [{ id: "service", label: "服务", textValue: "服务" }],
-              id: "platform",
-              label: "平台",
-              textValue: "平台",
-            },
+          defaultExpandedIds={[
+            "tree-depth-01",
+            "tree-depth-02",
+            "tree-depth-03",
+            "tree-depth-04",
+            "tree-depth-05",
           ]}
+          defaultSelectedIds={["tree-depth-06"]}
+          expansionControls={{ depthOptions: [2, 3, 6] }}
+          label="资源目录"
+          nodes={createTreeFixture(6)}
+          view="compact"
+          viewOptions={{ compression: "balanced" }}
         />
       );
     case "datagrid":
@@ -725,6 +819,20 @@ export function BrowserFixture() {
       <MiaixzLocaleProvider i18n={i18n}>
         <Theme appearance={appearance} fallback={miaixzDefaultAppearance.theme}>
           <FormLabelFixture />
+        </Theme>
+      </MiaixzLocaleProvider>
+    );
+  }
+
+  if (parameters.get("treeFixture") === "1") {
+    return (
+      <MiaixzLocaleProvider i18n={i18n}>
+        <Theme
+          appearance={appearance}
+          fallback={miaixzDefaultAppearance.theme}
+          themes={[legacyTheme]}
+        >
+          <TreeContractFixture />
         </Theme>
       </MiaixzLocaleProvider>
     );

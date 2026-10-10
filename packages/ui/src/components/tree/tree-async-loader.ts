@@ -36,6 +36,7 @@ export interface TreeAsyncLoader<Value> {
   readonly load: (
     node: Readonly<TreeNode<Value>>,
   ) => Promise<readonly TreeNode<Value>[]> | undefined;
+  readonly abortAll: () => void;
 }
 
 /**
@@ -43,6 +44,8 @@ export interface TreeAsyncLoader<Value> {
  *
  * @typeParam Value - Application value stored by each tree node.
  * @param loadChildren - Optional asynchronous child loader.
+ * @param asyncCacheKey - Generation key that invalidates cached children when it changes.
+ * @param validateCandidate - Validates the complete candidate cache before it is committed.
  * @returns Child cache, pending and error identifiers, and the stable load function.
  */
 export function useTreeAsyncLoader<Value>(
@@ -52,12 +55,17 @@ export function useTreeAsyncLoader<Value>(
         signal: AbortSignal,
       ) => Promise<readonly TreeNode<Value>[]>)
     | undefined,
+  asyncCacheKey?: string | number,
+  validateCandidate?: (cache: ReadonlyMap<string, readonly TreeNode<Value>[]>) => void,
 ): TreeAsyncLoader<Value> {
   const [childCache, setChildCache] = useState<ReadonlyMap<string, readonly TreeNode<Value>[]>>(
     () => new Map(),
   );
   const [loadingIds, setLoadingIds] = useState<ReadonlySet<string>>(() => new Set());
   const [errorIds, setErrorIds] = useState<ReadonlySet<string>>(() => new Set());
+  const childCacheRef = useRef<ReadonlyMap<string, readonly TreeNode<Value>[]>>(new Map());
+  const generationRef = useRef(0);
+  const cacheKeyRef = useRef(asyncCacheKey);
   const pendingRef = useRef(
     new Map<
       string,
@@ -65,13 +73,29 @@ export function useTreeAsyncLoader<Value>(
     >(),
   );
 
+  const abortAll = useCallback(() => {
+    generationRef.current += 1;
+    for (const pending of pendingRef.current.values()) pending.controller.abort();
+    pendingRef.current.clear();
+  }, []);
+
   useEffect(
     () => () => {
-      for (const pending of pendingRef.current.values()) pending.controller.abort();
-      pendingRef.current.clear();
+      abortAll();
     },
-    [],
+    [abortAll],
   );
+
+  useEffect(() => {
+    if (Object.is(cacheKeyRef.current, asyncCacheKey)) return;
+    cacheKeyRef.current = asyncCacheKey;
+    abortAll();
+    const empty = new Map<string, readonly TreeNode<Value>[]>();
+    childCacheRef.current = empty;
+    setChildCache(empty);
+    setLoadingIds(new Set());
+    setErrorIds(new Set());
+  }, [abortAll, asyncCacheKey]);
 
   const load = useCallback(
     (node: Readonly<TreeNode<Value>>) => {
@@ -79,6 +103,7 @@ export function useTreeAsyncLoader<Value>(
       const pending = pendingRef.current.get(node.id);
       if (pending !== undefined) return pending.promise;
       const controller = new AbortController();
+      const generation = generationRef.current;
       setLoadingIds((current) => new Set(current).add(node.id));
       setErrorIds((current) => {
         const next = new Set(current);
@@ -87,12 +112,15 @@ export function useTreeAsyncLoader<Value>(
       });
       const promise = loadChildren(node, controller.signal)
         .then((children) => {
-          if (controller.signal.aborted) return children;
-          setChildCache((current) => new Map(current).set(node.id, children));
+          if (controller.signal.aborted || generation !== generationRef.current) return children;
+          const candidate = new Map(childCacheRef.current).set(node.id, children);
+          validateCandidate?.(candidate);
+          childCacheRef.current = candidate;
+          setChildCache(candidate);
           return children;
         })
         .catch((error: unknown) => {
-          if (controller.signal.aborted) return [];
+          if (controller.signal.aborted || generation !== generationRef.current) return [];
           setErrorIds((current) => new Set(current).add(node.id));
           throw error;
         })
@@ -100,7 +128,7 @@ export function useTreeAsyncLoader<Value>(
           if (pendingRef.current.get(node.id)?.promise === promise) {
             pendingRef.current.delete(node.id);
           }
-          if (!controller.signal.aborted) {
+          if (!controller.signal.aborted && generation === generationRef.current) {
             setLoadingIds((current) => {
               const next = new Set(current);
               next.delete(node.id);
@@ -111,7 +139,7 @@ export function useTreeAsyncLoader<Value>(
       pendingRef.current.set(node.id, { controller, promise });
       return promise;
     },
-    [loadChildren],
+    [loadChildren, validateCandidate],
   );
-  return { childCache, loadingIds, errorIds, load };
+  return { childCache, loadingIds, errorIds, load, abortAll };
 }

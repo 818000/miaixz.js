@@ -161,7 +161,7 @@ vi.mock("../../src/components/action/action-text.js", () => ({
   ),
 }));
 vi.mock("@miaixz/icons", () => ({
-  Icon: ({ name }: { readonly name: string }) => <i data-icon={name} />,
+  Icon: ({ name }: { readonly name: string }) => <span className="miaixz-icon" data-icon={name} />,
 }));
 
 import { Appearance } from "../../src/appearance/appearance.js";
@@ -189,6 +189,13 @@ beforeEach(() => {
 });
 
 describe("Appearance", () => {
+  it("renders the palette icon through the stable icon host used by motion styles", () => {
+    render(<Appearance scope="public" />);
+    const trigger = screen.getByRole("button", { name: "ui.appearance.open" });
+    expect(trigger.querySelector(":scope > .miaixz-icon[data-icon='palette']")).not.toBeNull();
+    expect(trigger.querySelector(":scope > svg")).toBeNull();
+  });
+
   it("rejects a non-finite controlled position", () => {
     expect(() => render(<Appearance positionBlockPx={Number.NaN} scope="public" />)).toThrow(
       expect.objectContaining({ code: "UI_APPEARANCE_POSITION_INVALID" }),
