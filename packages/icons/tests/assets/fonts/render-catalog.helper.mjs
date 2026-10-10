@@ -48,6 +48,19 @@ import {
 } from "../../../../../.github/scripts/modules/icons/fonts/validate-icon-font.mjs";
 
 const browserTypes = { chromium, firefox, webkit };
+
+/**
+ * Keeps native coverage captures scalar on hosts where Chromium enables LCD subpixel text.
+ * Firefox and WebKit do not accept Chromium command-line switches.
+ * @param {string} browserName - Actual Playwright browser name.
+ * @returns {{headless:true,args?:string[]}} Exact browser launch options for coverage capture.
+ */
+export function coverageLaunchOptions(browserName) {
+  return browserName === "chromium"
+    ? { headless: true, args: ["--disable-lcd-text"] }
+    : { headless: true };
+}
+
 /**
  * Hashes the exact supplied source or in-memory coverage bytes.
  * @param bytes - Actual unmodified file or raster bytes.
@@ -745,7 +758,7 @@ export async function renderCatalog({ fontDir, geometry = null }) {
   for (const browserName of matrix.browsers) {
     let browser;
     try {
-      browser = await browserTypes[browserName].launch({ headless: true });
+      browser = await browserTypes[browserName].launch(coverageLaunchOptions(browserName));
       tools.push({ name: browserName, version: browser.version() });
       for (const dpr of matrix.dprs) {
         const browserContext = await browser.newContext({

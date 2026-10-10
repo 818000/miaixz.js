@@ -10399,7 +10399,7 @@ describe("refinement contract fixtures", () => {
       firefox,
       webkit,
     })) {
-      const browser = await browserType.launch({ headless: true });
+      const browser = await browserType.launch(visual.coverageLaunchOptions(browserName));
       try {
         for (const dpr of [1, 2]) {
           const context = await browser.newContext({ deviceScaleFactor: dpr });
