@@ -5892,8 +5892,8 @@ describe("fixed independent visual quality", () => {
       points: [
         [160, 160],
         [800, 160],
-        [800, 800],
-        [160, 800],
+        [800, 760],
+        [160, 760],
       ].map(([x, y]) => ({ x: x!, y: y!, type: "line" })),
     };
     const reference = visual.referencePixelRegions({

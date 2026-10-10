@@ -460,7 +460,8 @@ export function rasterFailures(metrics, rules, sampleKey = null) {
 /**
  * Classifies pixel centres from independent source curves, never from either screenshot.
  * Labels zero/one are exterior/interior cores; two is the fixed one-device-pixel edge band.
- * The flattening and verified compiled-outline errors bound the distance to the original curve.
+ * The half-pixel sampling radius plus flattening and verified compiled-outline errors bound the
+ * distance to the original curve.
  * @param input - Independent contours, actual size/DPR/origin, mirror flag and design rules.
  * @returns Immutable-by-contract reference dimensions and pixel-region labels.
  */
@@ -497,7 +498,8 @@ export function referencePixelRegions({ contours, size, dpr, mirror = false, rul
       data[y * extent + x] = winding === 0 ? 0 : 1;
     }
   }
-  const band = rules.boundaryPixels + (rules.subdivisionUnits + rules.compiledOutlineUnits) * scale;
+  const band =
+    rules.boundaryPixels + 0.5 + (rules.subdivisionUnits + rules.compiledOutlineUnits) * scale;
   for (const [a, b] of edges) {
     const dx = b[0] - a[0],
       dy = b[1] - a[1],
