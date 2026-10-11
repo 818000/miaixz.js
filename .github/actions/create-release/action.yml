@@ -10,6 +10,9 @@ inputs:
     description: "Mark the GitHub Release as a pre-release."
     required: false
     default: "false"
+  body_path:
+    description: "Path to the generated release notes markdown file."
+    required: true
 runs:
   using: composite
   steps:
@@ -37,4 +40,5 @@ runs:
         tag_name: ${{ inputs.tag }}
         name: ${{ steps.release.outputs.version }}
         prerelease: ${{ inputs.prerelease }}
-        generate_release_notes: true
+        body_path: ${{ inputs.body_path }}
+        generate_release_notes: false

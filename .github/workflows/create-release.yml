@@ -96,10 +96,133 @@ jobs:
       - name: Confirm All npm Packages
         run: npm run release:published
 
+      - name: Resolve Release Notes
+        id: notes
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          git fetch --force --tags
+
+          release_version="$(tr -d '\r\n' < VERSION)"
+          target_ref="$RELEASE_TAG"
+          previous_tag="$(
+            git tag --sort=-creatordate --merged "$target_ref" \
+              | grep -v "^${RELEASE_TAG}$" \
+              | head -n 1 || true
+          )"
+
+          if [ -n "$previous_tag" ]; then
+            commit_range="${previous_tag}..${target_ref}"
+            range_title="Changes since ${previous_tag}"
+          else
+            commit_range="$target_ref"
+            range_title="Initial release changes"
+          fi
+
+          body_path="$RUNNER_TEMP/release-notes-${release_version}.md"
+          commits_path="$RUNNER_TEMP/release-commits-${release_version}.txt"
+          git log --no-merges --pretty=format:'%s (%h)' "$commit_range" > "$commits_path"
+
+          export BODY_PATH="$body_path"
+          export COMMITS_PATH="$commits_path"
+          export RANGE_TITLE="$range_title"
+          export RELEASE_VERSION="$release_version"
+
+          ruby <<'RUBY'
+          section_titles = [
+            '💥 Breaking Changes',
+            '🐣 New Features',
+            '🐛 Bug Fixes',
+            '🔄 Refactoring',
+            '📚 Documentation',
+            '🧰 Build and Release'
+          ]
+
+          sections = section_titles.to_h { |title| [title, []] }
+          other = []
+          bookmark_seen = false
+
+          def normalize_commit(commit)
+            commit.sub(/\s+`{3,}(?=\s+\([0-9a-f]+\)\z)/i, '')
+          end
+
+          def classify(commit)
+            subject = commit.sub(/\A:\w+:\s+/, '')
+
+            return '💥 Breaking Changes' if commit.match?(/:boom:/i) ||
+              subject.match?(/\A\w+(\(.+\))?!:/)
+            return '🐛 Bug Fixes' if commit.match?(/:bug:/i) ||
+              subject.match?(/\Afix(\(.+\))?(:|\b)|\b(bugfix|bug)\b|修复|修正|问题/i)
+            return '📚 Documentation' if commit.match?(/:memo:|:speech_balloon:/i) ||
+              subject.match?(/\Adocs?(\(.+\))?(:|\b)|\b(readme|docs?|document|documentation)\b|文档|说明|注释/i)
+            return '🔄 Refactoring' if commit.match?(/:refactor:|:recycle:/i) ||
+              subject.match?(/\Arefactor(\(.+\))?(:|\b)|\b(refactor|cleanup|standardize|simplify|remove|reorganize)\b|重构|清理|优化|精简|移除/i)
+            return '🧰 Build and Release' if commit.match?(/:green_heart:|:hammer:|:construction_worker:/i) ||
+              subject.match?(/\A(build|ci)(\(.+\))?(:|\b)|\b(release|workflow|version|tag|dependency|dependencies|configuration)\b|构建|发布|工作流|版本/i)
+            return '🐣 New Features' if commit.match?(/:feat:|:sparkles:/i) ||
+              subject.match?(/\A(feat|feature)(\(.+\))?(:|\b)|\A(add(ed)?|enhance(d)?|support(s|ed)?)\b|新增|新特性|添加|增强|支持/i)
+
+            nil
+          end
+
+          File.readlines(ENV.fetch('COMMITS_PATH'), chomp: true).reject(&:empty?).each do |raw_commit|
+            commit = normalize_commit(raw_commit)
+            if commit.match?(/\A:bookmark:\s+#{Regexp.escape(ENV.fetch('RELEASE_TAG'))}\s+\(/i)
+              next if bookmark_seen
+
+              bookmark_seen = true
+            end
+
+            category = classify(commit)
+            if category
+              sections[category] << commit
+            else
+              other << commit
+            end
+          end
+
+          File.open(ENV.fetch('BODY_PATH'), 'w') do |file|
+            file.puts '---'
+            file.puts "🚀 Miaixz.js #{ENV.fetch('RELEASE_VERSION')} Release Notes"
+            file.puts
+            file.puts '---'
+            file.puts
+            file.puts ENV.fetch('RANGE_TITLE')
+            file.puts
+            file.puts "- Version: #{ENV.fetch('RELEASE_VERSION')}"
+            file.puts "- Tag: #{ENV.fetch('RELEASE_TAG')}"
+            file.puts
+
+            sections.each do |title, commits|
+              next if commits.empty?
+
+              file.puts '---'
+              file.puts title
+              file.puts
+              commits.each { |commit| file.puts "- #{commit}" }
+              file.puts
+            end
+
+            unless other.empty?
+              file.puts '---'
+              file.puts '📝 Other Changes'
+              file.puts
+              other.each { |commit| file.puts "- #{commit}" }
+              file.puts
+            end
+          end
+          RUBY
+
+          echo "body_path=$body_path" >> "$GITHUB_OUTPUT"
+          echo "Release notes: $body_path"
+
       - name: Create Release
         uses: ./.github/actions/create-release
         with:
           tag: ${{ inputs.tag }}
           prerelease: ${{ inputs.prerelease }}
+          body_path: ${{ steps.notes.outputs.body_path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
