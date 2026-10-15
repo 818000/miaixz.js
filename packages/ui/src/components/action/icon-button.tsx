@@ -50,7 +50,7 @@ export const IconButton = withMiaixzThemeComponent(
       icon,
       tone = "neutral",
       size = "medium",
-      appearance = "control",
+      appearance: appearanceProp,
       loading = false,
       tooltip = true,
       pressed,
@@ -59,6 +59,9 @@ export const IconButton = withMiaixzThemeComponent(
       slotProps,
       ...nativeProps
     } = props;
+    const appearance =
+      appearanceProp ??
+      (icon === "more-horizontal" || icon === "more-vertical" ? "glyph" : "control");
     const disabled = disabledProp === true || loading;
     const ownerState: IconButtonOwnerState = {
       tone,

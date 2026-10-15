@@ -160,6 +160,7 @@ export const RailOverflow = forwardRef<HTMLButtonElement, RailOverflowProps>(fun
         items={entries}
         label={label}
         placement="top-start"
+        presentation="action-menu"
         ref={ref}
         surface="plain"
         trigger={

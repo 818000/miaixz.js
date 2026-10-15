@@ -299,6 +299,7 @@ export type {
   DropdownCheckboxEntry,
   DropdownDividerEntry,
   DropdownEntry,
+  DropdownGroupEntry,
   DropdownLabelEntry,
   DropdownLinkEntry,
   DropdownPresentation,

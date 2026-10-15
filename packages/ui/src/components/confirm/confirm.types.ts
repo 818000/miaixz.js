@@ -30,15 +30,24 @@ import type { ButtonProps } from "../button/button.types.js";
 /**
  * Confirm semantic color tones permitted by the component contract.
  */
-export type ConfirmTone = "normal" | "danger";
+export type ConfirmTone = "normal" | "info" | "success" | "warning" | "danger";
 /**
  * Confirm dismissal reasons permitted by the component contract.
  */
-export type ConfirmCloseReason = "cancel" | "confirm" | "escape" | "backdrop";
+export type ConfirmCloseReason = "cancel" | "confirm" | "escape" | "backdrop" | "closeButton";
 /**
  * Named Confirm parts available for slot and style customization.
  */
-export type ConfirmSlot = "root" | "confirmationInput" | "error" | "cancelButton" | "confirmButton";
+export type ConfirmSlot =
+  | "root"
+  | "icon"
+  | "subject"
+  | "description"
+  | "detail"
+  | "confirmationInput"
+  | "error"
+  | "cancelButton"
+  | "confirmButton";
 
 /**
  * Resolved Confirm state exposed to theme and slot overrides.
@@ -56,6 +65,10 @@ export interface ConfirmOwnerState {
  */
 export interface ConfirmSlotProps {
   readonly root?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly icon?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly subject?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLSpanElement>>;
+  readonly description?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
+  readonly detail?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly confirmationInput?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly error?: MiaixzSlotProps<ConfirmOwnerState, HTMLAttributes<HTMLDivElement>>;
   readonly cancelButton?: MiaixzSlotProps<ConfirmOwnerState, Omit<ButtonProps, "children">>;
@@ -69,15 +82,24 @@ export interface ConfirmProps {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean, reason: ConfirmCloseReason) => void;
   readonly title: ReactNode;
-  readonly description: ReactNode;
-  readonly confirmLabel: string;
-  readonly cancelLabel: string;
+  readonly subject?: ReactNode;
+  readonly description?: ReactNode;
+  readonly detail?: ReactNode;
+  readonly children?: ReactNode;
+  readonly icon?: ReactNode;
+  readonly confirmLabel: ReactNode;
+  readonly cancelLabel: ReactNode;
   readonly tone?: ConfirmTone;
   readonly confirmationText?: string;
+  readonly confirmationLabel?: ReactNode;
+  readonly confirmationHelperText?: ReactNode;
   readonly pending?: boolean;
   readonly error?: ReactNode;
   readonly errorFormatter?: (error: unknown) => ReactNode;
   readonly onError?: (error: unknown) => void;
   readonly onConfirm: () => void | Promise<void>;
+  readonly showClose?: boolean;
+  readonly closeOnEscape?: boolean;
+  readonly closeOnBackdrop?: boolean;
   readonly slotProps?: ConfirmSlotProps;
 }

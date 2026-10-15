@@ -25,10 +25,10 @@
 import { useId } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
-import { Button } from "../button/button.js";
 import { Dropdown } from "../dropdown/dropdown.js";
 import { type DropdownEntry } from "../dropdown/dropdown.types.js";
 import { Icon } from "@miaixz/icons";
+import { IconButton } from "./icon-button.js";
 import type { ActionDescriptor, MoreActionsProps } from "./action.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
@@ -108,17 +108,17 @@ export function MoreActionsView(properties: MoreActionsViewProps) {
       items={items}
       label={label}
       placement="bottom-end"
+      presentation="action-menu"
       surface="plain"
       trigger={
-        <Button
-          className="miaixz-action-text"
+        <IconButton
+          appearance="glyph"
+          icon="more-horizontal"
+          label={label}
           size="small"
-          startIcon={<Icon name="more-horizontal" size="control" />}
           tone="neutral"
-          variant="plain"
-        >
-          {label}
-        </Button>
+          tooltip={false}
+        />
       }
     />
   );

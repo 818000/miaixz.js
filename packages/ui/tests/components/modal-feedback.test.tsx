@@ -91,8 +91,10 @@ describe("modal feedback components", () => {
         cancelLabel="取消"
         confirmLabel="删除"
         description="不可恢复"
+        detail="删除后相关绑定将立即失效。"
         errorFormatter={(error) => (error === failure ? "网络失败" : "未知错误")}
         open
+        subject="生产资源"
         title="删除资源"
         tone="danger"
         onConfirm={onConfirm}
@@ -101,6 +103,10 @@ describe("modal feedback components", () => {
       />,
     );
 
+    const dialog = screen.getByRole("alertdialog", { name: "删除资源" });
+    expect(dialog).toHaveClass("miaixz-confirm-dialog", "miaixz-confirm-danger");
+    expect(screen.getByText("生产资源")).toHaveClass("miaixz-confirm-subject");
+    expect(screen.getByText("删除后相关绑定将立即失效。")).toHaveClass("miaixz-confirm-detail");
     const confirm = screen.getByRole("button", { name: "删除" });
     expect(confirm).toBeDisabled();
     await user.type(screen.getByRole("textbox", { name: "确认文本" }), "DELETE");

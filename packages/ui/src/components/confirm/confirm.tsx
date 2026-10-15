@@ -23,16 +23,31 @@
  */
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Icon, type IconName } from "@miaixz/icons";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Button } from "../button/button.js";
 import { Dialog } from "../dialog/dialog.js";
 import { type DialogCloseReason } from "../dialog/dialog.types.js";
+import { Field } from "../field/field.js";
 import { Input } from "../input/input.js";
 import { Notice } from "../notice/notice.js";
-import type { ConfirmCloseReason, ConfirmOwnerState, ConfirmProps } from "./confirm.types.js";
+import type {
+  ConfirmCloseReason,
+  ConfirmOwnerState,
+  ConfirmProps,
+  ConfirmTone,
+} from "./confirm.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
+
+const toneIcons: Readonly<Record<ConfirmTone, IconName>> = Object.freeze({
+  normal: "info",
+  info: "info",
+  success: "confirm",
+  warning: "warning",
+  danger: "circle-alert",
+});
 
 /**
  * Renders a confirmation state machine with visible asynchronous failure handling.
@@ -44,16 +59,25 @@ function Confirm({
   open,
   onOpenChange,
   title,
+  subject,
   description,
+  detail,
+  children,
+  icon,
   confirmLabel,
   cancelLabel,
   tone = "normal",
   confirmationText,
+  confirmationLabel,
+  confirmationHelperText,
   pending = false,
   error,
   errorFormatter,
   onError,
   onConfirm,
+  showClose = false,
+  closeOnEscape = true,
+  closeOnBackdrop = false,
   slotProps,
 }: ConfirmProps) {
   const { t } = useMiaixzLocale();
@@ -74,6 +98,33 @@ function Confirm({
     confirmationRequired,
     confirmationMatches,
   };
+  const displayedError = error ?? internalError;
+  const resolvedIcon = icon === undefined ? <Icon name={toneIcons[tone]} size="control" /> : icon;
+  const dialogDescription =
+    subject !== undefined || description !== undefined ? (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState,
+          defaultProps: { className: "miaixz-confirm-description" },
+          slotProps: slotProps?.description,
+        })}
+      >
+        {subject !== undefined && (
+          <span
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-confirm-subject" },
+              slotProps: slotProps?.subject,
+            })}
+          >
+            {subject}
+          </span>
+        )}
+        {description !== undefined && (
+          <div className="miaixz-confirm-description-text">{description}</div>
+        )}
+      </div>
+    ) : undefined;
 
   useEffect(() => {
     const opened = open && !previousOpenRef.current;
@@ -103,7 +154,9 @@ function Confirm({
    * @returns No return value; other dialog reasons are ignored.
    */
   const handleDialogClose = (_nextOpen: boolean, reason: DialogCloseReason): void => {
-    if (reason === "escape" || reason === "backdrop") requestClose(reason);
+    if (reason === "escape" && closeOnEscape) requestClose(reason);
+    if (reason === "backdrop" && closeOnBackdrop) requestClose(reason);
+    if (reason === "closeButton") requestClose(reason);
   };
 
   /**
@@ -128,21 +181,78 @@ function Confirm({
     }
   };
 
-  const displayedError = error ?? internalError;
   return (
     <Dialog
+      closeOnBackdrop={closeOnBackdrop}
       open={open}
       onOpenChange={handleDialogClose}
-      title={title}
-      description={description}
+      title={
+        <span className="miaixz-confirm-heading">
+          {resolvedIcon !== null && (
+            <span
+              {...mergeMiaixzSlotProps({
+                ownerState,
+                defaultProps: { className: "miaixz-confirm-icon" },
+                slotProps: slotProps?.icon,
+              })}
+            >
+              {resolvedIcon}
+            </span>
+          )}
+          <span className="miaixz-confirm-title-text">{title}</span>
+        </span>
+      }
+      description={dialogDescription}
+      footer={
+        <>
+          <Button
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-confirm-cancel" },
+              slotProps: slotProps?.cancelButton,
+              internalRef: cancelButtonRef,
+              internalProps: {
+                disabled: isPending,
+                onClick: () => requestClose("cancel"),
+                tone: "neutral",
+                variant: "outlined",
+              },
+              ownedProps: ["disabled", "tone", "variant"],
+            })}
+          >
+            {cancelLabel}
+          </Button>
+          <Button
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-confirm-confirm" },
+              slotProps: slotProps?.confirmButton,
+              internalProps: {
+                disabled: !canConfirm || isPending,
+                loading: isPending,
+                onClick: () => void handleConfirm(),
+                tone: tone === "danger" ? "danger" : "brand",
+                variant: "solid",
+              },
+              ownedProps: ["disabled", "loading", "tone", "variant"],
+            })}
+          >
+            {confirmLabel}
+          </Button>
+        </>
+      }
       size="small"
-      showClose={false}
+      showClose={showClose}
       initialFocusRef={cancelButtonRef}
       slotProps={{
         root: {
           "aria-busy": isPending || undefined,
+          className: `miaixz-confirm-dialog miaixz-confirm-${tone} ${
+            resolvedIcon === null ? "miaixz-confirm-without-icon" : "miaixz-confirm-with-icon"
+          }`,
           role: tone === "danger" ? "alertdialog" : "dialog",
         },
+        closeButton: { disabled: isPending },
       }}
     >
       <div
@@ -152,6 +262,18 @@ function Confirm({
           slotProps: slotProps?.root,
         })}
       >
+        {children}
+        {detail !== undefined && (
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-confirm-detail" },
+              slotProps: slotProps?.detail,
+            })}
+          >
+            {detail}
+          </div>
+        )}
         {confirmationRequired && (
           <div
             {...mergeMiaixzSlotProps({
@@ -160,16 +282,22 @@ function Confirm({
               slotProps: slotProps?.confirmationInput,
             })}
           >
-            <Input
-              ref={confirmationInputRef}
-              aria-label={t("ui.confirm.confirmationInputLabel")}
-              autoComplete="off"
+            <Field
               disabled={isPending}
-              spellCheck={false}
-              onChange={(event) =>
-                setConfirmationMatches(event.currentTarget.value === confirmationText)
-              }
-            />
+              helperText={confirmationHelperText}
+              label={confirmationLabel ?? t("ui.confirm.confirmationInputLabel")}
+              required
+            >
+              <Input
+                ref={confirmationInputRef}
+                autoComplete="off"
+                disabled={isPending}
+                spellCheck={false}
+                onChange={(event) =>
+                  setConfirmationMatches(event.currentTarget.value === confirmationText)
+                }
+              />
+            </Field>
           </div>
         )}
         {displayedError !== undefined && (
@@ -183,38 +311,6 @@ function Confirm({
             <Notice tone="danger">{displayedError}</Notice>
           </div>
         )}
-        <Button
-          {...mergeMiaixzSlotProps({
-            ownerState,
-            defaultProps: { className: "miaixz-confirm-cancel" },
-            slotProps: slotProps?.cancelButton,
-            internalRef: cancelButtonRef,
-            internalProps: {
-              disabled: isPending,
-              onClick: () => requestClose("cancel"),
-            },
-            ownedProps: ["disabled"],
-          })}
-        >
-          {cancelLabel}
-        </Button>
-        <Button
-          {...mergeMiaixzSlotProps({
-            ownerState,
-            defaultProps: { className: "miaixz-confirm-confirm" },
-            slotProps: slotProps?.confirmButton,
-            internalProps: {
-              disabled: !canConfirm || isPending,
-              loading: isPending,
-              onClick: () => void handleConfirm(),
-              tone: tone === "danger" ? "danger" : "brand",
-              variant: "solid",
-            },
-            ownedProps: ["disabled", "loading", "tone", "variant"],
-          })}
-        >
-          {confirmLabel}
-        </Button>
       </div>
     </Dialog>
   );

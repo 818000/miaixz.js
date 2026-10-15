@@ -377,6 +377,50 @@ describe("Combobox and Picker", () => {
 });
 
 describe("Dropdown", () => {
+  it("exposes the compact action menu presentation to the trigger and popup", async () => {
+    const user = userEvent.setup();
+    renderWithLocale(
+      <Dropdown
+        label="Directory actions"
+        presentation="action-menu"
+        placement="right-start"
+        surface="plain"
+        density="compact"
+        trigger={<button type="button">Open directory actions</button>}
+        items={[
+          {
+            id: "business-actions",
+            kind: "group",
+            label: "Business actions",
+            items: [
+              {
+                id: "rename",
+                kind: "action",
+                label: "Rename",
+                textValue: "Rename",
+                onAction: () => undefined,
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open directory actions" });
+    expect(trigger).toHaveAttribute("data-dropdown-presentation", "action-menu");
+    await user.click(trigger);
+    expect(await screen.findByRole("menu", { name: "Directory actions" })).toHaveAttribute(
+      "data-presentation",
+      "action-menu",
+    );
+    expect(screen.getByRole("menu", { name: "Directory actions" })).toHaveAttribute(
+      "data-placement",
+      "right-start",
+    );
+    expect(screen.getByRole("group", { name: "Business actions" })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "Rename" })).toHaveFocus());
+  });
+
   it("runs the complete action, checkbox, radio, link, submenu, and keyboard contract", async () => {
     const user = userEvent.setup();
     const onAction = vi.fn();

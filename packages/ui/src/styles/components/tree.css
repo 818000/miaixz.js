@@ -388,7 +388,8 @@
 
 .miaixz-tree-trailing {
   flex: none;
-  font-size: var(--miaixz-text-caption-size);
+  font-size: var(--miaixz-text-body-size);
+  line-height: var(--miaixz-text-body-line-height);
   color: var(--miaixz-color-text-muted);
 }
 
