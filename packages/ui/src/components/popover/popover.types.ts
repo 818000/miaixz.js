@@ -58,7 +58,7 @@ export type PopoverOpenState =
  */
 export type PopoverTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> &
   RefAttributes<HTMLButtonElement> & {
-    readonly "data-dropdown-presentation"?: "default" | "account" | "action-menu";
+    readonly "data-dropdown-presentation"?: "default" | "user-menu" | "account" | "action-menu";
   };
 /**
  * Named Popover parts available for slot and style customization.

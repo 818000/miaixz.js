@@ -92,6 +92,15 @@
   border-radius: 0;
 }
 
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-row-label {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-cell > span[aria-hidden="true"] {
+  display: none;
+}
+
 .miaixz-heatmap[data-caption-visibility="hidden"] .miaixz-heatmap-caption {
   display: none;
 }

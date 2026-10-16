@@ -108,3 +108,55 @@ describe("Datagrid", () => {
     expect(onSelectedRowIdsChange).toHaveBeenCalledWith(["a"]);
   });
 });
+
+/**
+ * Verifies current location stays separate from controlled checkbox selection.
+ */
+it("reports controlled current rows without selecting them", () => {
+  const onCurrentRowChange = vi.fn();
+  const onSelectedRowIdsChange = vi.fn();
+  const rows = [
+    { id: "a", name: "Alpha" },
+    { id: "b", name: "Beta" },
+  ];
+  renderWithLocale(
+    <Datagrid
+      caption="Located records"
+      columns={columns}
+      getRowId={(row) => row.id}
+      rows={rows}
+      currentRowId="a"
+      onCurrentRowChange={onCurrentRowChange}
+      selectionMode="multiple"
+      selectedRowIds={["a"]}
+      onSelectedRowIdsChange={onSelectedRowIdsChange}
+    />,
+  );
+  fireEvent.click(screen.getByRole("cell", { name: "Beta" }));
+  expect(onCurrentRowChange).toHaveBeenCalledWith("b");
+  expect(onSelectedRowIdsChange).not.toHaveBeenCalled();
+  expect(screen.getByRole("cell", { name: "Alpha" }).closest("tr")).toHaveAttribute(
+    "data-current-row",
+    "true",
+  );
+  cleanup();
+  renderWithLocale(
+    <Datagrid
+      caption="Located records"
+      columns={columns}
+      getRowId={(row) => row.id}
+      rows={rows}
+      currentRowId="b"
+      selectionMode="multiple"
+      selectedRowIds={["a"]}
+    />,
+  );
+  expect(screen.getByRole("cell", { name: "Beta" }).closest("tr")).toHaveAttribute(
+    "data-current-row",
+    "true",
+  );
+  expect(screen.getByRole("cell", { name: "Alpha" }).closest("tr")).toHaveAttribute(
+    "data-selected",
+    "true",
+  );
+});

@@ -72,7 +72,7 @@
 
 .miaixz-pagination-item:where(:hover:not(:disabled, [aria-disabled="true"])) {
   color: var(--miaixz-color-text-primary);
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-pagination-item[aria-current="page"] {
@@ -147,4 +147,8 @@
     min-width: var(--miaixz-control-min-target-size);
     min-height: var(--miaixz-control-min-target-size);
   }
+}
+
+.miaixz-pagination-item:active:not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-surface-role-selected-background);
 }

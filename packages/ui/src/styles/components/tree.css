@@ -120,7 +120,7 @@
 .miaixz-tree-item[data-drop-position="inside"] > .miaixz-tree-row {
   outline: var(--miaixz-border-width-strong) solid var(--miaixz-color-brand);
   outline-offset: calc(-1 * var(--miaixz-border-width-strong));
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-tree-item[data-drop-position="before"] > .miaixz-tree-row::after,
@@ -214,8 +214,8 @@
   --miaixz-tree-visual-indent: var(--miaixz-space-32);
 }
 
-.miaixz-tree-row:hover {
-  background: var(--miaixz-color-surface-hover);
+.miaixz-tree-item:not([data-disabled="true"]) > .miaixz-tree-row:hover {
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-tree-item[aria-selected="true"] > .miaixz-tree-row {
@@ -619,4 +619,10 @@
   .miaixz-tree-row {
     min-height: max(var(--miaixz-density-list-item-height), var(--miaixz-control-min-target-size));
   }
+}
+
+.miaixz-tree-item:is(:focus, :focus-visible):not([data-disabled="true"]) > .miaixz-tree-row,
+.miaixz-tree-item:not([data-disabled="true"]) > .miaixz-tree-row:focus-within,
+.miaixz-tree-item:not([data-disabled="true"]) > .miaixz-tree-row:active {
+  background: var(--miaixz-surface-role-selected-background);
 }

@@ -74,10 +74,10 @@
   text-align: center;
 }
 
-.miaixz-calendar-day:hover:not([aria-disabled="true"]),
+.miaixz-calendar-day:is(:hover, :active, :focus-visible):not([aria-disabled="true"]),
 .miaixz-calendar-day[aria-selected="true"] {
   color: var(--miaixz-color-brand-strong);
-  background: var(--miaixz-color-brand-soft);
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-calendar-day:focus-visible,

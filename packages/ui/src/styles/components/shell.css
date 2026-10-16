@@ -214,7 +214,8 @@ body:has(.miaixz-shell) {
   max-width: var(--miaixz-shell-topbar-search-width);
 }
 
-.miaixz-shell[data-presentation="workspace"] [data-ui="shell-account"] {
+.miaixz-shell[data-presentation="workspace"]
+  :is([data-ui="shell-user-menu"], [data-ui="shell-account"]) {
   flex: none;
   place-self: center;
 }

@@ -192,7 +192,7 @@
 
 .miaixz-combobox-option[data-state="active"],
 .miaixz-picker-option[data-state="active"] {
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-surface-role-selected-background);
   border-bottom-color: var(--miaixz-color-border);
   box-shadow: none;
 }
@@ -279,4 +279,32 @@
 .miaixz-combobox-control[data-disabled="true"],
 .miaixz-picker-control[data-disabled="true"] {
   background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-combobox-option[aria-selected="true"],
+.miaixz-picker-option[aria-selected="true"],
+.miaixz-combobox-option:is(
+    :hover,
+    :active,
+    :focus-visible,
+    [aria-selected="true"],
+    [data-state="active"]
+  ):not([data-disabled="true"], [aria-disabled="true"], :disabled),
+.miaixz-picker-option:is(
+    :hover,
+    :active,
+    :focus-visible,
+    [aria-selected="true"],
+    [data-state="active"]
+  ):not([data-disabled="true"], [aria-disabled="true"], :disabled) {
+  background: var(--miaixz-surface-role-selected-background);
+}
+
+/**
+ * Picker prevents adding an existing value; its selected surface stays fully visible.
+ */
+.miaixz-picker-option[aria-selected="true"] {
+  color: var(--miaixz-surface-role-selected-foreground);
+  cursor: default;
+  opacity: 1;
 }

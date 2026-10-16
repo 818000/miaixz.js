@@ -220,6 +220,9 @@ export type DropdownProps = DropdownOpenState &
     readonly label?: string;
     readonly surface?: "framed" | "plain";
     readonly density?: "compact" | "standard" | "comfortable";
-    readonly presentation?: "default" | "account" | "action-menu";
+    /**
+     * Selects the visual treatment. `account` is a compatibility alias for `user-menu`.
+     */
+    readonly presentation?: "default" | "user-menu" | "account" | "action-menu";
     readonly closing?: boolean;
   };

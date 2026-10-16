@@ -43,3 +43,32 @@
   cursor: not-allowed;
   opacity: var(--miaixz-opacity-disabled);
 }
+
+[data-miaixz-interaction="item"][data-miaixz-item-surface="card"] {
+  background: var(--miaixz-color-surface);
+}
+
+/**
+ * Item surfaces use the same background for pointer, keyboard, and selection states.
+ */
+[data-miaixz-interaction="item"]:is(
+    :active,
+    :focus-visible,
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [data-selected="true"],
+    [data-active="true"],
+    :focus-within
+  ):not(:disabled, [aria-disabled="true"], [data-disabled="true"]) {
+  background: var(--miaixz-surface-role-selected-background);
+}
+
+@media (hover: hover) {
+  [data-miaixz-interaction="item"]:hover:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-disabled="true"]
+    ) {
+    background: var(--miaixz-surface-role-selected-background);
+  }
+}

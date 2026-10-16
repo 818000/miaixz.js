@@ -86,6 +86,14 @@ export type TableRootAttributes = TableHTMLAttributes<HTMLTableElement> &
  */
 export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   /**
+   * Keeps the clicked or keyboard-focused row visually located. Disable for controlled current rows.
+   */
+  readonly trackCurrentRow?: boolean;
+  /**
+   * Reports visual location independently of checkbox selection.
+   */
+  readonly onCurrentRowChange?: (row: HTMLTableRowElement) => void;
+  /**
    * Keeps header rows visible within the table scroll container.
    *
    * @defaultValue `false`
@@ -142,6 +150,14 @@ export interface TableFooterProps extends HTMLAttributes<HTMLTableSectionElement
  * @public
  */
 export interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
+  /**
+   * Controls current-row highlighting independently of business selection.
+   */
+  readonly current?: boolean;
+  /**
+   * Stable record identity, also used by Datagrid current-row notifications.
+   */
+  readonly rowId?: string;
   /**
    * Applies the selected-row treatment.
    *

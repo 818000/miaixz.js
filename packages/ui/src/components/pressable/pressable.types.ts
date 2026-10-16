@@ -29,4 +29,13 @@ import type { ButtonHTMLAttributes } from "react";
  *
  * @public
  */
-export interface PressableProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface PressableProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /**
+   * Selects item highlighting; pressed/selected buttons infer this treatment automatically.
+   */
+  readonly interaction?: "plain" | "item";
+  /**
+   * Supplies a card surface without overriding the shared item interaction background.
+   */
+  readonly surface?: "plain" | "card";
+}

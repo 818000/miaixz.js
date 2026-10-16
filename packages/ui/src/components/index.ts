@@ -751,6 +751,8 @@ export type {
   TableRowProps,
   TableSlot,
 } from "./table/index.js";
+export { TabTrigger } from "./tabs/index.js";
+export type { TabTriggerProps } from "./tabs/index.js";
 export { Tabs } from "./tabs/index.js";
 export type {
   MiaixzTabsOwnProps,

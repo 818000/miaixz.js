@@ -377,6 +377,26 @@ describe("Combobox and Picker", () => {
 });
 
 describe("Dropdown", () => {
+  it("exposes the user menu presentation to the trigger and popup", async () => {
+    const user = userEvent.setup();
+    renderWithLocale(
+      <Dropdown
+        label="User menu"
+        presentation="user-menu"
+        trigger={<button type="button">Open user menu</button>}
+        items={[]}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open user menu" });
+    expect(trigger).toHaveAttribute("data-dropdown-presentation", "user-menu");
+    await user.click(trigger);
+    expect(await screen.findByRole("menu", { name: "User menu" })).toHaveAttribute(
+      "data-presentation",
+      "user-menu",
+    );
+  });
+
   it("exposes the compact action menu presentation to the trigger and popup", async () => {
     const user = userEvent.setup();
     renderWithLocale(

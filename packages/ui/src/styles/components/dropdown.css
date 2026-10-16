@@ -25,10 +25,7 @@
 [data-miaixz-theme] {
   --miaixz-dropdown-menu-inline-size: 220px;
   --miaixz-dropdown-action-menu-inline-size: 200px;
-  --miaixz-dropdown-item-hover-background: var(
-    --miaixz-table-row-hover-background,
-    var(--miaixz-color-surface-hover)
-  );
+  --miaixz-dropdown-item-hover-background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-popover-content.miaixz-dropdown-content {
@@ -67,7 +64,7 @@
 }
 
 .miaixz-dropdown-item:focus-visible:not([aria-disabled="true"]) {
-  background: var(--miaixz-color-surface-selected);
+  background: var(--miaixz-surface-role-selected-background);
   box-shadow: none;
 }
 
@@ -198,8 +195,7 @@
 
 .miaixz-popover-content.miaixz-dropdown-content[data-presentation="action-menu"][data-placement="right-start"]::before {
   inset-block-start: calc(
-    var(--miaixz-floating-anchor-y, var(--miaixz-space-16)) -
-      var(--miaixz-action-menu-anchor-size) / 2
+    var(--miaixz-floating-anchor-y) - var(--miaixz-action-menu-anchor-size) / 2
   );
   inset-inline-start: calc(var(--miaixz-action-menu-anchor-size) / -2 - 1px);
   border-block-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
@@ -208,8 +204,7 @@
 
 .miaixz-popover-content.miaixz-dropdown-content[data-presentation="action-menu"][data-placement="left-start"]::before {
   inset-block-start: calc(
-    var(--miaixz-floating-anchor-y, var(--miaixz-space-16)) -
-      var(--miaixz-action-menu-anchor-size) / 2
+    var(--miaixz-floating-anchor-y) - var(--miaixz-action-menu-anchor-size) / 2
   );
   inset-inline-end: calc(var(--miaixz-action-menu-anchor-size) / -2 - 1px);
   border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
@@ -219,8 +214,7 @@
 .miaixz-popover-content.miaixz-dropdown-content[data-presentation="action-menu"][data-placement^="bottom"]::before {
   inset-block-start: calc(var(--miaixz-action-menu-anchor-size) / -2 - 1px);
   inset-inline-start: calc(
-    var(--miaixz-floating-anchor-x, var(--miaixz-space-16)) -
-      var(--miaixz-action-menu-anchor-size) / 2
+    var(--miaixz-floating-anchor-x) - var(--miaixz-action-menu-anchor-size) / 2
   );
   border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-inline-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
@@ -229,8 +223,7 @@
 .miaixz-popover-content.miaixz-dropdown-content[data-presentation="action-menu"][data-placement^="top"]::before {
   inset-block-end: calc(var(--miaixz-action-menu-anchor-size) / -2 - 1px);
   inset-inline-start: calc(
-    var(--miaixz-floating-anchor-x, var(--miaixz-space-16)) -
-      var(--miaixz-action-menu-anchor-size) / 2
+    var(--miaixz-floating-anchor-x) - var(--miaixz-action-menu-anchor-size) / 2
   );
   border-block-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
   border-inline-end: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
@@ -262,7 +255,7 @@
   .miaixz-dropdown-item-danger:hover:not(:disabled, [aria-disabled="true"]),
 .miaixz-dropdown-content[data-presentation="action-menu"]
   .miaixz-dropdown-item-danger:focus-visible:not([aria-disabled="true"]) {
-  background: var(--miaixz-color-danger-soft);
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-dropdown-content[data-presentation="action-menu"] .miaixz-dropdown-divider {
@@ -281,7 +274,7 @@ button.miaixz-icon-button[data-appearance="glyph"][data-dropdown-presentation="a
   color: var(--miaixz-color-text-primary);
 }
 
-@keyframes miaixz-dropdown-account-enter {
+@keyframes miaixz-dropdown-user-menu-enter {
   from {
     opacity: 0;
     transform: translateY(8px) scale(0.98);
@@ -293,7 +286,7 @@ button.miaixz-icon-button[data-appearance="glyph"][data-dropdown-presentation="a
   }
 }
 
-@keyframes miaixz-dropdown-account-exit {
+@keyframes miaixz-dropdown-user-menu-exit {
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -305,7 +298,7 @@ button.miaixz-icon-button[data-appearance="glyph"][data-dropdown-presentation="a
   }
 }
 
-@keyframes miaixz-dropdown-account-item-enter {
+@keyframes miaixz-dropdown-user-menu-item-enter {
   from {
     opacity: 0;
     transform: translateY(4px);
@@ -317,7 +310,7 @@ button.miaixz-icon-button[data-appearance="glyph"][data-dropdown-presentation="a
   }
 }
 
-.miaixz-dropdown-content[data-presentation="account"] {
+.miaixz-dropdown-content:is([data-presentation="user-menu"], [data-presentation="account"]) {
   inline-size: min(310px, calc(100vw - var(--miaixz-space-24)));
   min-inline-size: 0;
   max-block-size: calc(100dvh - 90px);
@@ -325,23 +318,31 @@ button.miaixz-icon-button[data-appearance="glyph"][data-dropdown-presentation="a
   transform-origin: bottom left;
 }
 
-.miaixz-dropdown-content[data-presentation="account"][data-closing] {
+.miaixz-dropdown-content:is(
+    [data-presentation="user-menu"],
+    [data-presentation="account"]
+  )[data-closing] {
   pointer-events: none;
 }
 
-[data-dropdown-presentation="account"] {
+:is([data-dropdown-presentation="user-menu"], [data-dropdown-presentation="account"]) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--miaixz-radius-round);
 }
 
-[data-dropdown-presentation="account"] .miaixz-avatar {
+:is([data-dropdown-presentation="user-menu"], [data-dropdown-presentation="account"])
+  .miaixz-avatar {
   width: 33px;
   height: 33px;
 }
 
-[data-dropdown-presentation="account"]:is(:hover, :focus-visible, [aria-expanded="true"])
+:is([data-dropdown-presentation="user-menu"], [data-dropdown-presentation="account"]):is(
+    :hover,
+    :focus-visible,
+    [aria-expanded="true"]
+  )
   .miaixz-avatar {
   color: var(--miaixz-color-brand-strong);
   background: var(--miaixz-color-brand-soft);
@@ -380,34 +381,45 @@ button.miaixz-icon-button[data-appearance="glyph"][data-dropdown-presentation="a
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-dropdown-presentation="account"] .miaixz-avatar {
+  :is([data-dropdown-presentation="user-menu"], [data-dropdown-presentation="account"])
+    .miaixz-avatar {
     transition-timing-function: var(--miaixz-motion-interaction-easing);
     transition-duration: var(--miaixz-motion-interaction-duration);
     transition-property: color, background-color, border-color;
   }
 
-  .miaixz-dropdown-content[data-presentation="account"] {
-    animation: miaixz-dropdown-account-enter 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  .miaixz-dropdown-content:is([data-presentation="user-menu"], [data-presentation="account"]) {
+    animation: miaixz-dropdown-user-menu-enter 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
     will-change: transform, opacity;
   }
 
-  .miaixz-dropdown-content[data-presentation="account"][data-closing] {
-    animation: miaixz-dropdown-account-exit 110ms cubic-bezier(0.4, 0, 1, 1) both;
+  .miaixz-dropdown-content:is(
+      [data-presentation="user-menu"],
+      [data-presentation="account"]
+    )[data-closing] {
+    animation: miaixz-dropdown-user-menu-exit 110ms cubic-bezier(0.4, 0, 1, 1) both;
   }
 
-  .miaixz-dropdown-content[data-presentation="account"]:not([data-closing])
+  .miaixz-dropdown-content:is([data-presentation="user-menu"], [data-presentation="account"]):not(
+      [data-closing]
+    )
     > :is(.miaixz-dropdown-label, .miaixz-dropdown-identity, .miaixz-dropdown-item) {
     opacity: 0;
-    animation: miaixz-dropdown-account-item-enter 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: miaixz-dropdown-user-menu-item-enter 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .miaixz-dropdown-content[data-presentation="account"] .miaixz-dropdown-item-icon {
+  .miaixz-dropdown-content:is([data-presentation="user-menu"], [data-presentation="account"])
+    .miaixz-dropdown-item-icon {
     transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .miaixz-dropdown-content[data-presentation="account"]
+  .miaixz-dropdown-content:is([data-presentation="user-menu"], [data-presentation="account"])
     .miaixz-dropdown-item:hover
     .miaixz-dropdown-item-icon {
     transform: translateX(2px);
   }
+}
+
+.miaixz-dropdown-item:is(:active, [aria-checked="true"]):not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-surface-role-selected-background);
 }

@@ -50,12 +50,12 @@
     border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
 }
 
-.miaixz-locale-option:hover:not(.miaixz-choice-disabled) {
-  background: var(--miaixz-color-surface-hover);
+.miaixz-locale-option:is(:hover, :active, :focus-within):not(.miaixz-choice-disabled) {
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-locale-option[data-filled="true"] {
-  background: var(--miaixz-color-surface-selected);
+  background: var(--miaixz-surface-role-selected-background);
   border-color: var(--miaixz-color-brand);
 }
 

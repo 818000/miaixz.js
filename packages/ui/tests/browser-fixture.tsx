@@ -86,6 +86,9 @@ import "../src/theme/theme.css";
 
 const parameters = new URLSearchParams(window.location.search);
 const theme = parameters.get("theme") ?? miaixzDefaultAppearance.theme;
+const supplementalTheme = parameters.has("extraTheme")
+  ? defineTheme(JSON.parse(parameters.get("extraTheme") ?? "{}"))
+  : null;
 const colorMode = parameters.get("colorMode") === "dark" ? "dark" : "light";
 const densityParameter = parameters.get("density");
 const density =
@@ -818,7 +821,11 @@ export function BrowserFixture() {
   if (parameters.get("formLabels") === "1") {
     return (
       <MiaixzLocaleProvider i18n={i18n}>
-        <Theme appearance={appearance} fallback={miaixzDefaultAppearance.theme}>
+        <Theme
+          appearance={appearance}
+          fallback={miaixzDefaultAppearance.theme}
+          themes={supplementalTheme ? [supplementalTheme] : []}
+        >
           <FormLabelFixture />
         </Theme>
       </MiaixzLocaleProvider>

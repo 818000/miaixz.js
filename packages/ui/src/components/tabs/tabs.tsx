@@ -29,6 +29,7 @@ import { classNames } from "../../shared/class-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import type { TabsOwnerState, TabsProps } from "./tabs.types.js";
+import { TabTrigger } from "./tab-trigger.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
@@ -169,7 +170,7 @@ export const Tabs = withMiaixzThemeComponent(
             value: item.value,
           };
           return (
-            <button
+            <TabTrigger
               {...mergeMiaixzSlotProps({
                 ownerState,
                 defaultProps: { className: "miaixz-tab" },
@@ -219,7 +220,7 @@ export const Tabs = withMiaixzThemeComponent(
                   {item.count}
                 </span>
               )}
-            </button>
+            </TabTrigger>
           );
         })}
       </div>

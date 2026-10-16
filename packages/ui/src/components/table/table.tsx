@@ -22,7 +22,7 @@
  * Implements the table UI component.
  */
 
-import { forwardRef, type CSSProperties } from "react";
+import { forwardRef, useRef, type CSSProperties } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
@@ -39,6 +39,7 @@ import type {
   TableRowHeight,
   TableRowProps,
 } from "./table.types.js";
+import { useTableRowLocation } from "./use-table-row-location.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
@@ -97,9 +98,18 @@ export const TableContainer = withMiaixzThemeComponent(
 export const Table = withMiaixzThemeComponent(
   "Table",
   forwardRef<HTMLTableElement, TableProps>(function Table(
-    { stickyHeader = false, rowHeight, slotProps, ...props },
+    {
+      stickyHeader = false,
+      rowHeight,
+      slotProps,
+      trackCurrentRow = true,
+      onCurrentRowChange,
+      ...props
+    },
     ref,
   ) {
+    const tableRef = useRef<HTMLTableElement>(null);
+    useTableRowLocation(tableRef, trackCurrentRow, onCurrentRowChange);
     const ownerState = { stickyHeader, rowHeight };
     const rowHeightStyle =
       rowHeight === undefined
@@ -113,6 +123,7 @@ export const Table = withMiaixzThemeComponent(
           componentProps: props,
           slotProps: slotProps?.root,
           forwardedRef: ref,
+          internalRef: tableRef,
           internalProps: {
             ...(rowHeightStyle === undefined ? {} : { style: rowHeightStyle }),
             ...(stickyHeader ? { "data-sticky-header": true } : {}),
@@ -187,7 +198,7 @@ export const TableFooter = withMiaixzThemeComponent(
 export const TableRow = withMiaixzThemeComponent(
   "TableRow",
   forwardRef<HTMLTableRowElement, TableRowProps>(function TableRow(
-    { selected = false, rowHeight, className, style, ...props },
+    { selected = false, current, rowId, rowHeight, className, style, ...props },
     ref,
   ) {
     const rowStyle =
@@ -202,6 +213,9 @@ export const TableRow = withMiaixzThemeComponent(
         {...props}
         ref={ref}
         data-selected={selected || undefined}
+        data-current-row={current || undefined}
+        data-current-controlled={current === undefined ? undefined : true}
+        data-row-id={rowId}
         className={classNames("miaixz-table-row", className)}
         style={rowStyle}
       />

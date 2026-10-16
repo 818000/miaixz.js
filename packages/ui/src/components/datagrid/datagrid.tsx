@@ -167,6 +167,8 @@ function DatagridImplementation<Row>(
     sort,
     onSortChange,
     selectedRowIds,
+    currentRowId,
+    onCurrentRowChange,
     onSelectedRowIdsChange,
     selectionMode = "none",
     selectionWidthPercent,
@@ -267,6 +269,15 @@ function DatagridImplementation<Row>(
           className="miaixz-table-container miaixz-table-container-plain miaixz-datagrid-container"
         >
           <Table
+            trackCurrentRow={currentRowId === undefined}
+            {...(onCurrentRowChange
+              ? {
+                  onCurrentRowChange: (row) => {
+                    const id = row.dataset.rowId;
+                    if (id) onCurrentRowChange(id);
+                  },
+                }
+              : {})}
             stickyHeader={bodyLayout === "fill"}
             {...(rowHeight === undefined ? {} : { rowHeight })}
           >
@@ -348,7 +359,22 @@ function DatagridImplementation<Row>(
                 resolvedRows.map((row) => {
                   const selected = hasSelection && selectedIds.has(row.id);
                   return (
-                    <TableRow key={row.id} selected={selected}>
+                    <TableRow
+                      key={row.id}
+                      selected={selected}
+                      rowId={row.id}
+                      {...(currentRowId === undefined ? {} : { current: row.id === currentRowId })}
+                      {...(currentRowId === undefined || !onCurrentRowChange
+                        ? {}
+                        : {
+                            onClickCapture: () => {
+                              if (row.id !== currentRowId) onCurrentRowChange(row.id);
+                            },
+                            onFocusCapture: () => {
+                              if (row.id !== currentRowId) onCurrentRowChange(row.id);
+                            },
+                          })}
+                    >
                       {hasSelection && (
                         <TableCell className="miaixz-datagrid-selection-cell">
                           {selectionMode === "multiple" ? (

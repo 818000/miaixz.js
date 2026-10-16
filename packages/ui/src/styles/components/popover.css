@@ -49,6 +49,9 @@
 }
 
 .miaixz-popover-content {
+  --miaixz-floating-anchor-x: var(--miaixz-space-16);
+  --miaixz-floating-anchor-y: var(--miaixz-space-16);
+
   position: fixed;
   inset: auto;
   z-index: var(--miaixz-z-overlay);

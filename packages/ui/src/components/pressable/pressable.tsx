@@ -36,7 +36,7 @@ import { withMiaixzThemeComponent } from "../../theme/binding.js";
 export const Pressable = withMiaixzThemeComponent(
   "Pressable",
   forwardRef<HTMLButtonElement, PressableProps>(function Pressable(
-    { className, disabled, type = "button", ...props },
+    { className, disabled, interaction, surface = "plain", type = "button", ...props },
     ref,
   ) {
     return (
@@ -44,6 +44,13 @@ export const Pressable = withMiaixzThemeComponent(
         {...props}
         ref={ref}
         className={classNames("miaixz-pressable", className)}
+        data-miaixz-interaction={
+          interaction ??
+          (props["aria-pressed"] !== undefined || props["aria-selected"] !== undefined
+            ? "item"
+            : "plain")
+        }
+        data-miaixz-item-surface={surface}
         disabled={disabled}
         type={type}
       />

@@ -75,6 +75,14 @@ export type DatagridSelectionProps =
  * Component-specific Datagrid properties composed with the permitted native attributes.
  */
 export interface MiaixzDatagridBaseProps<Row> {
+  /**
+   * Controls the visually located row independently of selectedRowIds.
+   */
+  readonly currentRowId?: string | null;
+  /**
+   * Reports the newly located stable row identity.
+   */
+  readonly onCurrentRowChange?: (id: string) => void;
   readonly rows: readonly Row[];
   readonly columns: readonly DatagridColumn<Row>[];
   readonly getRowId: (row: Readonly<Row>) => string;

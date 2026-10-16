@@ -184,7 +184,7 @@
 }
 
 .miaixz-select-option[data-state="active"] {
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-surface-role-selected-background);
   border-bottom-color: var(--miaixz-color-border);
 }
 
@@ -210,4 +210,14 @@
 
 .miaixz-select[data-disabled="true"] {
   background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-select-option:is(
+    :hover,
+    :active,
+    :focus-visible,
+    [aria-selected="true"],
+    [data-state="active"]
+  ):not([data-disabled="true"], [aria-disabled="true"], :disabled) {
+  background: var(--miaixz-surface-role-selected-background);
 }
