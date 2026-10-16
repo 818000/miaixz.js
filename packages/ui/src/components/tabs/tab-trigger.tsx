@@ -30,21 +30,25 @@ import { classNames } from "../../shared/class-names.js";
  * Attributes shared by in-page tabs, filters and route-backed tab links.
  * @public
  */
-export type TabTriggerProps =
+export type TabTriggerProps = {
+  readonly refreshMode?: import("../../shared/anchor.js").LinkRefreshMode | undefined;
+} & (
   | (ButtonHTMLAttributes<HTMLButtonElement> & { readonly href?: never })
-  | (AnchorHTMLAttributes<HTMLAnchorElement> & { readonly href: string });
+  | (AnchorHTMLAttributes<HTMLAnchorElement> & { readonly href: string })
+);
 
 /**
  * Renders the common tab surface while preserving button and navigation-link semantics.
  * @public
  */
 export const TabTrigger = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabTriggerProps>(
-  function TabTrigger(props, ref) {
+  function TabTrigger({ refreshMode, ...props }, ref) {
     const className = classNames("miaixz-tab", props.className);
     if (props.href !== undefined) {
       return (
         <Anchor
           {...props}
+          refreshMode={refreshMode}
           data-miaixz-tab-trigger="true"
           className={className}
           ref={ref as Ref<HTMLAnchorElement>}

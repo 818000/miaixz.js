@@ -53,6 +53,10 @@ import {
   Metric,
   Metrics,
   MiaixzLocaleProvider,
+  MiaixzLinkProvider,
+  Navigation,
+  View,
+  type LinkRefreshMode,
   Panel,
   Picker,
   RowActions,
@@ -980,6 +984,7 @@ export function BrowserFixture() {
   const accessibilityFixture = parameters.get("a11y") as AccessibilityFixtureName | null;
 
   if (
+    parameters.has("navigationRefresh") ||
     parameters.get("controlStates") === "1" ||
     parameters.get("formLabels") === "1" ||
     parameters.get("editorResponsive") === "1"
@@ -991,7 +996,9 @@ export function BrowserFixture() {
           fallback={miaixzDefaultAppearance.theme}
           themes={supplementalTheme ? [supplementalTheme] : []}
         >
-          {parameters.get("editorResponsive") === "1" ? (
+          {parameters.has("navigationRefresh") ? (
+            <NavigationRefreshFixture />
+          ) : parameters.get("editorResponsive") === "1" ? (
             <ResponsiveEditorFixture />
           ) : parameters.get("controlStates") === "1" ? (
             <ControlStateFixture />
@@ -1288,6 +1295,82 @@ export function BrowserFixture() {
         )}
       </Theme>
     </MiaixzLocaleProvider>
+  );
+}
+
+/**
+ * Demonstrates persistent content navigation and native full-document refreshes.
+ * @returns Router-neutral navigation example.
+ */
+function NavigationRefreshFixture() {
+  const mode: LinkRefreshMode = parameters.get("navigationRefresh") === "page" ? "page" : "content";
+  const override = parameters.get("navigationOverride") as LinkRefreshMode | null;
+  const [section, setSection] = useState(
+    parameters.get("section") ?? (window.location.hash.slice(1) || "first"),
+  );
+  const href = new URL(window.location.href);
+  if (parameters.get("navigationTarget") === "fragment") href.hash = "second";
+  else href.searchParams.set("section", "second");
+  return (
+    <MiaixzLinkProvider
+      refreshMode={mode}
+      renderAnchor={(props, ref) => (
+        <a
+          {...props}
+          ref={ref}
+          onClick={(event) => {
+            props.onClick?.(event);
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey ||
+              event.currentTarget.target === "_blank"
+            )
+              return;
+            event.preventDefault();
+            window.history.pushState(null, "", props.href);
+            setSection("second");
+          }}
+        />
+      )}
+    >
+      <View aria-label="Frame" preserveFrame title={null}>
+        <View
+          key={parameters.has("localTabs") ? "local" : section}
+          inheritFrame
+          aria-label="Module"
+          title="Module"
+          description="Persistent frame"
+        >
+          {parameters.has("localTabs") ? (
+            <Tabs
+              label="Local tabs"
+              value={section}
+              onValueChange={setSection}
+              refreshMode={override ?? mode}
+              persistenceKey="local-navigation-example"
+              items={[
+                { value: "first", label: "First", content: <p>Destination first</p> },
+                { value: "second", label: "Second", content: <p>Destination second</p> },
+              ]}
+            />
+          ) : (
+            <>
+              <Navigation
+                label="Refresh navigation"
+                orientation="horizontal"
+                {...(override ? { refreshMode: override } : {})}
+                items={[{ id: "second", href: href.href, label: "Second", textValue: "Second" }]}
+              />
+              <p>Destination {section}</p>
+            </>
+          )}
+        </View>
+      </View>
+    </MiaixzLinkProvider>
   );
 }
 

@@ -161,7 +161,7 @@ export {
   stepIsoTime,
 } from "./components/index.js";
 export { MiaixzLinkProvider } from "./shared/anchor.js";
-export type { MiaixzLinkProviderProps } from "./shared/anchor.js";
+export type { MiaixzLinkProviderProps, LinkRefreshMode } from "./shared/anchor.js";
 export type {
   ActionBarOwnerState,
   ActionBarProps,

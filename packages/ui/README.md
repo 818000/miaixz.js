@@ -593,3 +593,21 @@ Use `themePresets` for selector metadata, `loadThemePreset(name, context)` for o
 `loadThemePresets()` with `createThemeStyles` when a server needs first-paint CSS for every optional
 preset. `createThemeScript` automatically accepts every generated preset unless an explicit
 `themes` allowlist is supplied. Adding a theme requires no catalog, loader, or audit-rule edit.
+
+### Persistent route views
+
+Use `View preserveFrame` in a shared router layout and `View inheritFrame` in its route pages. Supply `currentHref` on the persistent frame to update the active route even while catalogs or content are loading. The header, navigation and action region keep their DOM identity while the authorized route replaces its content. Destination actions and local state continue to update the retained frame. An inherited view also works standalone.
+
+`MiaixzLinkProvider refreshMode="content"` keeps the configured router adapter. Set `refreshMode="page"` to use native anchors and reload the browser document. `Navigation refreshMode` overrides the provider for one navigation region. The default is `content`. Modified clicks, download links and explicit targets retain native anchor behavior. Custom router click handlers must respect `data-miaixz-refresh-mode="page"` and leave those clicks to the browser.
+
+```tsx
+<MiaixzLinkProvider renderAnchor={renderRouterLink} refreshMode="content">
+  <View aria-label="Module" preserveFrame title={null}>
+    <AuthorizedRoute />
+  </View>
+</MiaixzLinkProvider>
+```
+
+The authorized route renders its ordinary `View` with `inheritFrame`. The application owns routing, catalog loading, authorization and the lifetime of the shared layout; the UI package does not bypass route guards.
+
+For in-page module tabs, `Tabs refreshMode="page"` reloads the current address after an accepted selection and restores that selection once from session storage. Controlled tabs restore through `onValueChange`; read-only tabs remain unchanged. Use a unique `persistenceKey` when a page contains multiple collections with identical values. The default `content` mode keeps existing in-page behavior.

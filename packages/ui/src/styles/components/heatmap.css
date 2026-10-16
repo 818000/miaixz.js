@@ -47,13 +47,11 @@
 
 .miaixz-heatmap[data-density="workbench"] {
   display: flex;
-  flex: 1;
+  flex: 1 0 auto;
   align-items: center;
   min-width: 0;
   max-width: 100%;
-  min-height: 0;
-  contain: paint;
-  overflow: hidden;
+  min-height: min-content;
 }
 
 .miaixz-heatmap[data-density="workbench"] > .miaixz-heatmap-viewport,

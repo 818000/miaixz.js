@@ -24,6 +24,7 @@
 
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -122,6 +123,96 @@ describe("view foundations", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Second" }));
     expect(onValueChange).toHaveBeenCalledWith("second");
     expect(screen.getByRole("tabpanel", { name: "First" })).toHaveClass("view-tab-panel");
+  });
+
+  it("preserves the frame across destination unmounts and updates current actions", () => {
+    const firstAction = vi.fn();
+    const secondAction = vi.fn();
+    const items = [
+      { id: "first", label: "First", href: "/first", textValue: "First" },
+      { id: "second", label: "Second", href: "/second", textValue: "Second" },
+    ];
+    const renderDestination = (key: string, action: () => void) => (
+      <View
+        aria-label="Host"
+        preserveFrame
+        currentHref={key === "First" ? "/first" : "/second"}
+        title={null}
+      >
+        <View
+          key={key}
+          inheritFrame
+          aria-label="Module"
+          mode="navigation"
+          navigationLabel="Sections"
+          items={items}
+          title={key}
+          actions={<button onClick={action}>Create</button>}
+        >
+          <p>{key} content</p>
+        </View>
+      </View>
+    );
+    const view = render(renderDestination("First", firstAction));
+    const heading = screen.getByRole("heading", { name: "First" });
+    const navigation = screen.getByRole("navigation", { name: "Sections" });
+    const frame = screen.getByRole("region", { name: "Module" });
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    view.rerender(
+      <View aria-label="Host" preserveFrame currentHref="/second" title={null}>
+        <p>Loading</p>
+      </View>,
+    );
+    expect(heading).toBeInTheDocument();
+    expect(navigation).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Second" })).toHaveAttribute("aria-current", "page");
+    view.rerender(renderDestination("Second", secondAction));
+    expect(screen.getByRole("heading", { name: "Second" })).toBe(heading);
+    expect(screen.getByRole("navigation", { name: "Sections" })).toBe(navigation);
+    expect(screen.getByRole("region", { name: "Module" })).toBe(frame);
+    expect(screen.queryByText("First content")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    expect(firstAction).toHaveBeenCalledTimes(1);
+    expect(secondAction).toHaveBeenCalledTimes(1);
+    expect(frame.querySelector(".miaixz-view")).toBeNull();
+  });
+
+  it("updates inherited frame actions after local content state changes", () => {
+    /**
+     * Supplies a destination action tied to its current state.
+     * @returns Inherited view.
+     */
+    function Destination() {
+      const [count, setCount] = useState(0);
+      return (
+        <View
+          inheritFrame
+          aria-label="Module"
+          title="Module"
+          actions={<button onClick={() => setCount(count + 1)}>Count {count}</button>}
+        >
+          Content {count}
+        </View>
+      );
+    }
+    render(
+      <View aria-label="Host" preserveFrame title={null}>
+        <Destination />
+      </View>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Count 0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Count 1" }));
+    expect(screen.getByText("Content 2")).toBeVisible();
+  });
+
+  it("keeps inherited views usable without a persistent parent", () => {
+    render(
+      <View inheritFrame aria-label="Standalone" title="Standalone">
+        Content
+      </View>,
+    );
+    expect(screen.getByRole("heading", { name: "Standalone" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "Standalone" })).not.toHaveAttribute("inheritFrame");
   });
 
   it("keeps Editor summary data and content in distinct layout owners", () => {

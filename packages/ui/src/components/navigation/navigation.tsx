@@ -26,6 +26,7 @@ import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { TabTrigger } from "../tabs/tab-trigger.js";
+import type { LinkRefreshMode } from "../../shared/anchor.js";
 import { Anchor } from "../../shared/anchor.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Icon } from "@miaixz/icons";
@@ -46,6 +47,7 @@ export const Navigation = withMiaixzThemeComponent(
   forwardRef<HTMLElement, NavigationProps>(function Navigation(
     {
       items,
+      refreshMode,
       orientation = "vertical",
       density = "standard",
       surface = "plain",
@@ -90,6 +92,7 @@ export const Navigation = withMiaixzThemeComponent(
           <NavigationEntryView
             density={density}
             entry={item}
+            refreshMode={refreshMode}
             key={item.id}
             orientation={orientation}
             slotProps={slotProps}
@@ -110,6 +113,7 @@ export const Navigation = withMiaixzThemeComponent(
  */
 function NavigationEntryView({
   entry,
+  refreshMode,
   orientation,
   density,
   surface,
@@ -117,6 +121,7 @@ function NavigationEntryView({
   slotProps,
 }: {
   readonly entry: NavigationEntry;
+  readonly refreshMode: LinkRefreshMode | undefined;
   readonly orientation: NavigationOwnerState["orientation"];
   readonly density: NavigationOwnerState["density"];
   readonly surface: NavigationOwnerState["surface"];
@@ -147,6 +152,7 @@ function NavigationEntryView({
         ownedProps: ["data-ui", "href", "aria-current"],
       })}
       href={entry.href}
+      refreshMode={refreshMode}
     >
       {entry.icon !== undefined && (
         <IconRenderer

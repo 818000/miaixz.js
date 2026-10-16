@@ -28,14 +28,96 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Tabs } from "../../../src/components/tabs/index.js";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.sessionStorage.clear();
+});
 
 const items = [
   { value: "details", label: "详情", content: <p>详情内容</p> },
   { value: "source", label: "源码", content: <p>源码内容</p> },
 ] as const;
 
+/**
+ * Queues an explicit collection selection as a browser reload would.
+ * @param value Pending selection.
+ */
+function queueReloadSelection(value: string) {
+  window.sessionStorage.setItem(
+    `miaixz.tabs.reload:${window.location.pathname}${window.location.search}:reload-test`,
+    value,
+  );
+}
+
 describe("Tabs", () => {
+  it("restores the selected tab after a configured document refresh", () => {
+    queueReloadSelection("source");
+    render(
+      <Tabs
+        items={items}
+        label="Reload collection"
+        refreshMode="page"
+        persistenceKey="reload-test"
+      />,
+    );
+    expect(screen.getByRole("tab", { name: "源码" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel", { name: "源码" })).toBeVisible();
+    expect(window.sessionStorage.length).toBe(0);
+  });
+
+  it("ignores obsolete or disabled restored selections", () => {
+    queueReloadSelection("missing");
+    const view = render(
+      <Tabs
+        items={items}
+        label="Reload collection"
+        refreshMode="page"
+        persistenceKey="reload-test"
+      />,
+    );
+    expect(screen.getByRole("tab", { name: "详情" })).toHaveAttribute("aria-selected", "true");
+    view.unmount();
+    queueReloadSelection("source");
+    render(
+      <Tabs
+        items={items.map((item) => ({ ...item, disabled: item.value === "source" }))}
+        label="Reload collection"
+        refreshMode="page"
+        persistenceKey="reload-test"
+      />,
+    );
+    expect(screen.getByRole("tab", { name: "详情" })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("preserves the controlled value when the owner rejects a document navigation", () => {
+    const onValueChange = vi.fn();
+    render(
+      <Tabs
+        items={items}
+        label="Controlled collection"
+        refreshMode="page"
+        value="details"
+        onValueChange={onValueChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "源码" }));
+    expect(onValueChange).toHaveBeenCalledWith("source");
+    expect(screen.getByRole("tab", { name: "详情" })).toHaveAttribute("aria-selected", "true");
+    expect(window.sessionStorage.length).toBe(0);
+  });
+
+  it("remains usable when selection storage is unavailable", () => {
+    const storage = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("Storage blocked");
+    });
+    try {
+      render(<Tabs items={items} label="Restricted collection" refreshMode="page" />);
+      expect(screen.getByRole("tab", { name: "详情" })).toHaveAttribute("aria-selected", "true");
+    } finally {
+      storage.mockRestore();
+    }
+  });
+
   it("renders one data-driven tablist and changes the uncontrolled value with the keyboard", () => {
     render(<Tabs defaultValue="details" items={items} label="内容" activationMode="automatic" />);
     const details = screen.getByRole("tab", { name: "详情" });
