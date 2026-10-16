@@ -91,6 +91,17 @@ const MiaixzAnchorRendererContext = createContext<
 >(undefined);
 
 /**
+ * Reads the application-wide refresh policy with an optional component override.
+ * @param override Component-specific refresh policy.
+ * @returns Effective content or document refresh policy.
+ * @internal
+ */
+export function useMiaixzLinkRefreshMode(override?: LinkRefreshMode): LinkRefreshMode {
+  const provider = useContext(MiaixzAnchorRendererContext);
+  return override ?? provider?.refreshMode ?? "content";
+}
+
+/**
  * Supplies one router adapter to every Miaixz navigation component.
  *
  * @param root0 - Provider properties.

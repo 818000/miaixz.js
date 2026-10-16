@@ -26,6 +26,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { MiaixzLinkProvider } from "../../../src/shared/anchor.js";
 import { Tabs } from "../../../src/components/tabs/index.js";
 
 afterEach(() => {
@@ -63,6 +64,35 @@ describe("Tabs", () => {
     expect(screen.getByRole("tab", { name: "源码" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel", { name: "源码" })).toBeVisible();
     expect(window.sessionStorage.length).toBe(0);
+  });
+
+  it("inherits the global document policy and accepts a local content override", () => {
+    queueReloadSelection("source");
+    const view = render(
+      <MiaixzLinkProvider
+        refreshMode="page"
+        renderAnchor={(props, ref) => <a {...props} ref={ref} />}
+      >
+        <Tabs items={items} label="Global reload collection" persistenceKey="reload-test" />
+      </MiaixzLinkProvider>,
+    );
+    expect(screen.getByRole("tab", { name: "源码" })).toHaveAttribute("aria-selected", "true");
+    view.unmount();
+    queueReloadSelection("source");
+    render(
+      <MiaixzLinkProvider
+        refreshMode="page"
+        renderAnchor={(props, ref) => <a {...props} ref={ref} />}
+      >
+        <Tabs
+          items={items}
+          label="Local content collection"
+          persistenceKey="reload-test"
+          refreshMode="content"
+        />
+      </MiaixzLinkProvider>,
+    );
+    expect(screen.getByRole("tab", { name: "详情" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("ignores obsolete or disabled restored selections", () => {

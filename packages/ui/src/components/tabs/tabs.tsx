@@ -24,6 +24,7 @@
 
 import { forwardRef, useId, useRef, useState, type KeyboardEvent } from "react";
 
+import { useMiaixzLinkRefreshMode } from "../../shared/anchor.js";
 import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
@@ -42,7 +43,7 @@ export const Tabs = withMiaixzThemeComponent(
     const {
       items,
       label,
-      refreshMode = "content",
+      refreshMode: refreshModeOverride,
       persistenceKey,
       value: controlledValue,
       defaultValue,
@@ -58,6 +59,7 @@ export const Tabs = withMiaixzThemeComponent(
       slotProps,
       ...nativeProps
     } = props;
+    const refreshMode = useMiaixzLinkRefreshMode(refreshModeOverride);
     validateTabs(items);
     const firstEnabled = items.find((item) => !item.disabled)?.value;
     const hasControlledValue = controlledValue !== undefined;

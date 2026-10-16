@@ -1350,7 +1350,7 @@ function NavigationRefreshFixture() {
               label="Local tabs"
               value={section}
               onValueChange={setSection}
-              refreshMode={override ?? mode}
+              {...(override ? { refreshMode: override } : {})}
               persistenceKey="local-navigation-example"
               items={[
                 { value: "first", label: "First", content: <p>Destination first</p> },
