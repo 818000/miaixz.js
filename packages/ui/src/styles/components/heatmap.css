@@ -163,11 +163,16 @@
   transition:
     background-color var(--miaixz-motion-interaction-duration)
       var(--miaixz-motion-interaction-easing),
-    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
+    border-color var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing),
+    scale var(--miaixz-motion-interaction-duration) var(--miaixz-motion-interaction-easing);
 }
 
 .miaixz-heatmap-cell:hover {
   border-color: var(--miaixz-heatmap-tone);
+}
+
+.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-cell:hover {
+  box-shadow: inset 0 0 0 1px var(--miaixz-heatmap-tone);
 }
 
 .miaixz-heatmap-corner {
@@ -286,6 +291,10 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .miaixz-heatmap-cell:hover {
+    scale: 1.1;
+  }
+
   .miaixz-heatmap[data-motion-state="enter"] .miaixz-heatmap-cell {
     transform-origin: center;
     animation: miaixz-heatmap-enter 720ms var(--miaixz-motion-enter-easing) both;

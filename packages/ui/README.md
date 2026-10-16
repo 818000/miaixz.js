@@ -192,6 +192,7 @@ This table is checked directly against the package export map.
 | `./spinner`                  | JavaScript |
 | `./confirm`                  | JavaScript |
 | `./notice`                   | JavaScript |
+| `./file`                     | JavaScript |
 | `./field`                    | JavaScript |
 | `./search`                   | JavaScript |
 | `./overlay`                  | JavaScript |
@@ -273,6 +274,7 @@ This table is checked directly against the package export map.
 | `./spinner/styles.css`       | CSS        |
 | `./confirm/styles.css`       | CSS        |
 | `./notice/styles.css`        | CSS        |
+| `./file/styles.css`          | CSS        |
 | `./field/styles.css`         | CSS        |
 | `./search/styles.css`        | CSS        |
 | `./overlay/styles.css`       | CSS        |

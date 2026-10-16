@@ -888,3 +888,6 @@ export {
   useVisualizationGroupMotion,
   type VisualizationGroupMotionOptions,
 } from "../shared/use-visualization-motion.js";
+
+export { File } from "./file/index.js";
+export type { FileProps, FileTone } from "./file/index.js";

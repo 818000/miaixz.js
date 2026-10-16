@@ -1,0 +1,71 @@
+/*
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ ~                                                                           ~
+ ~ Copyright (c) 2015-2026 miaixz.org and other contributors.                ~
+ ~                                                                           ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");           ~
+ ~ you may not use this file except in compliance with the License.          ~
+ ~ You may obtain a copy of the License at                                   ~
+ ~                                                                           ~
+ ~      https://www.apache.org/licenses/LICENSE-2.0                          ~
+ ~                                                                           ~
+ ~ Unless required by applicable law or agreed to in writing, software       ~
+ ~ distributed under the License is distributed on an "AS IS" BASIS,         ~
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  ~
+ ~ See the License for the specific language governing permissions and       ~
+ ~ limitations under the License.                                            ~
+ ~                                                                           ~
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+*/
+
+/**
+ * File categories use semantic theme colors in both light and dark modes.
+ */
+.miaixz-file {
+  --miaixz-file-color: var(--miaixz-color-text-muted);
+  --miaixz-file-background: var(--miaixz-color-surface-secondary);
+
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  color: var(--miaixz-file-color);
+}
+
+.miaixz-file:is([data-file-tone="pdf"], [data-file-tone="drawing"]) {
+  --miaixz-file-color: var(--miaixz-color-danger);
+  --miaixz-file-background: var(--miaixz-color-danger-soft);
+}
+
+.miaixz-file:is([data-file-tone="word"], [data-file-tone="video"]) {
+  --miaixz-file-color: var(--miaixz-color-info);
+  --miaixz-file-background: var(--miaixz-color-info-soft);
+}
+
+.miaixz-file[data-file-tone="spreadsheet"] {
+  --miaixz-file-color: var(--miaixz-color-success);
+  --miaixz-file-background: var(--miaixz-color-success-soft);
+}
+
+.miaixz-file:is([data-file-tone="presentation"], [data-file-tone="archive"]) {
+  --miaixz-file-color: var(--miaixz-color-warning);
+  --miaixz-file-background: var(--miaixz-color-warning-soft);
+}
+
+.miaixz-file[data-file-tone="image"] {
+  --miaixz-file-color: var(--miaixz-color-data-4);
+}
+
+.miaixz-file[data-file-tone="audio"] {
+  --miaixz-file-color: var(--miaixz-color-data-5);
+}
+
+.miaixz-file[data-file-tone="code"] {
+  --miaixz-file-color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-file[data-presentation="badge"] {
+  inline-size: var(--miaixz-space-40);
+  block-size: var(--miaixz-space-40);
+  background: var(--miaixz-file-background);
+  border-radius: var(--miaixz-radius-round);
+}

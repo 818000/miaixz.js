@@ -61,6 +61,7 @@ export {
   Empty,
   Entry,
   Field,
+  File,
   FormActions,
   getDropzoneFileSignature,
   getPaginationEntries,
@@ -891,3 +892,5 @@ export { useMedia } from "./shared/responsive/use-media.js";
 export type { UseMediaOptions } from "./shared/responsive/use-media.js";
 
 export { VERSION } from "./version.js";
+
+export type { FileProps, FileTone } from "./components/file/index.js";

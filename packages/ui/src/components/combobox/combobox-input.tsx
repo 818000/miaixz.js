@@ -135,7 +135,7 @@ export function ComboboxInput(props: ComboboxInputProps) {
   });
   const clearProps = mergeMiaixzSlotProps({
     ownerState: state,
-    defaultProps: { className: `miaixz-${props.component}-clear` },
+    defaultProps: { className: `miaixz-${props.component}-clear miaixz-field-action` },
     slotProps: props.slotProps?.clear,
     internalProps: {
       type: "button",
@@ -147,14 +147,14 @@ export function ComboboxInput(props: ComboboxInputProps) {
   });
   const toggleProps = mergeMiaixzSlotProps({
     ownerState: state,
-    defaultProps: { className: `miaixz-${props.component}-toggle` },
+    defaultProps: { className: `miaixz-${props.component}-toggle miaixz-field-action` },
     slotProps: props.slotProps?.toggle,
     internalProps: {
       type: "button",
       "aria-label": props.toggleLabel,
       "aria-controls": props.listboxId,
       "aria-expanded": state.open,
-      disabled: state.disabled,
+      disabled: state.disabled || state.readOnly,
       tabIndex: -1,
       onClick: props.onToggle,
     },

@@ -101,3 +101,37 @@
     color: Mark;
   }
 }
+
+/**
+ * Auxiliary field actions share a neutral base without native browser button chrome.
+ * The owning field retains the sole focus frame.
+ */
+.miaixz-field-action {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--miaixz-space-24);
+  min-block-size: var(--miaixz-space-24);
+  padding: 0;
+  font: inherit;
+  color: var(--miaixz-color-text-secondary);
+  appearance: none;
+  cursor: pointer;
+  outline: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-field-action:is(:hover, :focus-visible):not(:disabled) {
+  color: var(--miaixz-color-brand);
+  outline: 0;
+  background: transparent;
+}
+
+.miaixz-field-action:disabled {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+  background: transparent;
+}

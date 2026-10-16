@@ -28,6 +28,9 @@
 }
 
 .miaixz-action-text {
+  --miaixz-action-icon-size: var(--miaixz-space-12);
+  --miaixz-action-icon-optical-size: 12;
+
   gap: var(--miaixz-space-2);
   min-width: max-content;
   min-height: var(--miaixz-density-control-height);
@@ -76,7 +79,11 @@
   transform: none;
 }
 
-.miaixz-button.miaixz-action-text.miaixz-action-text[data-variant="plain"]:hover:not(:disabled) {
+.miaixz-button.miaixz-action-text.miaixz-action-text[data-variant="plain"]:is(
+    :hover,
+    :focus-visible,
+    :active
+  ):not(:disabled) {
   color: var(--miaixz-color-brand);
   background: transparent;
   border-color: transparent;

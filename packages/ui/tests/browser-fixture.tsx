@@ -25,6 +25,7 @@ import {
   Appearance,
   Avatar,
   Button,
+  Cluster,
   Combobox,
   Datagrid,
   DatePicker,
@@ -41,6 +42,7 @@ import {
   EditorSection,
   EditorSummary,
   Field,
+  File,
   FormActions,
   Graph,
   Grid,
@@ -693,6 +695,110 @@ export function AccessibilityFixture({ name }: { readonly name: AccessibilityFix
 }
 
 /**
+ * Shows the same public controls in ordinary, readonly, disabled and invalid modes.
+ * Pointer and keyboard states are exercised through the native editors.
+ * @returns Interactive control state reference.
+ */
+function ControlStateFixture() {
+  const [mode, setMode] = useState("normal");
+  const [log, setLog] = useState("");
+  const disabled = mode === "disabled";
+  const readOnly = mode === "readonly";
+  const options = [
+    { value: "alpha", label: "Alpha", textValue: "Alpha" },
+    { value: "beta", label: "Beta", textValue: "Beta" },
+  ];
+  const rows = [
+    ["Input", <Input defaultValue="Miaixz" readOnly={readOnly} />],
+    ["Textarea", <Textarea defaultValue="Shared field surface" rows={2} readOnly={readOnly} />],
+    ["NumberInput", <NumberInput defaultValue={20} readOnly={readOnly} />],
+    [
+      "Select",
+      <Select
+        defaultValue="alpha"
+        readOnly={readOnly}
+        items={options.map((option) => ({
+          ...option,
+          kind: "option",
+          id: `option-${encodeURIComponent(option.value)}`,
+        }))}
+      />,
+    ],
+    [
+      "Combobox",
+      <Combobox
+        label="Combobox"
+        options={options}
+        defaultValue={options[0]!}
+        readOnly={readOnly}
+      />,
+    ],
+    [
+      "Picker",
+      <Picker label="Picker" options={options} defaultValue={[options[0]!]} readOnly={readOnly} />,
+    ],
+    [
+      "DatePicker",
+      <DatePicker defaultValue="2026-10-16" referenceDate="2026-10-16" readOnly={readOnly} />,
+    ],
+    ["TimePicker", <TimePicker defaultValue="09:30" readOnly={readOnly} />],
+  ] as const;
+  return (
+    <main style={{ padding: 32 }}>
+      <h1>Shared control states</h1>
+      <Cluster>
+        <Button onClick={() => setMode("normal")}>普通</Button>
+        <Button onClick={() => setMode("readonly")}>只读</Button>
+        <Button onClick={() => setMode("disabled")}>禁用</Button>
+        <Button onClick={() => setMode("invalid")}>错误</Button>
+        <ActionText
+          action={{
+            id: "state.action",
+            kind: "command",
+            label: "文字操作",
+            icon: "pencil",
+            disabled,
+            onAction: () => setLog("action"),
+          }}
+        />
+      </Cluster>
+      <Grid columns="two">
+        {rows.map(([label, control]) => (
+          <Field
+            key={label}
+            label={label}
+            disabled={disabled}
+            errorText={mode === "invalid" ? `${label} error` : undefined}
+            data-testid={`state-${label}`}
+          >
+            {control}
+          </Field>
+        ))}
+      </Grid>
+      <output>{log}</output>
+      <Cluster>
+        {(
+          [
+            "pdf",
+            "word",
+            "spreadsheet",
+            "presentation",
+            "drawing",
+            "video",
+            "archive",
+            "image",
+            "audio",
+            "code",
+          ] as const
+        ).map((tone) => (
+          <File key={tone} icon="file" label={tone} tone={tone} presentation="badge" />
+        ))}
+      </Cluster>
+    </main>
+  );
+}
+
+/**
  * Renders fixed-title fields and a scrollable editing drawer.
  *
  * @returns Form controls in deterministic interaction states.
@@ -797,6 +903,61 @@ function FormLabelFixture() {
 }
 
 /**
+ * Exercises editor and vertical tab containment at independently sized surfaces.
+ * @returns A fixed identity editor used by browser layout regressions.
+ */
+function ResponsiveEditorFixture() {
+  const width = Number(parameters.get("editorWidth") ?? "960");
+  return (
+    <main style={{ maxWidth: "100%", width }}>
+      <EditorLayout
+        summary={<EditorSummary avatar="KL" title="Editor summary" items={[]} />}
+        divided
+      >
+        <Tabs
+          variant="navigation"
+          headerVariant={parameters.has("editorActions") ? "toolbar" : "default"}
+          actions={
+            parameters.has("editorActions") ? (
+              <Cluster>
+                <Button>Export editor</Button>
+              </Cluster>
+            ) : undefined
+          }
+          label="Editor navigation"
+          orientation="vertical"
+          items={[
+            {
+              value: "identity",
+              label: "Identity",
+              content: (
+                <EditorSection title="Identity fields" layout="two-column">
+                  <Field label="Identity name">
+                    <Input defaultValue="Kimi Liu" />
+                  </Field>
+                  <Field label="Identity account">
+                    <Input defaultValue="kimi" readOnly />
+                  </Field>
+                </EditorSection>
+              ),
+            },
+            {
+              value: "security",
+              label: "Security",
+              content: (
+                <Field label="Security status" disabled>
+                  <Input value="Enabled" />
+                </Field>
+              ),
+            },
+          ]}
+        />
+      </EditorLayout>
+    </main>
+  );
+}
+
+/**
  * Renders public controls and deterministic browser contract fixtures.
  *
  * @returns Theme and locale providers with the selected fixture.
@@ -818,7 +979,11 @@ export function BrowserFixture() {
   ));
   const accessibilityFixture = parameters.get("a11y") as AccessibilityFixtureName | null;
 
-  if (parameters.get("formLabels") === "1") {
+  if (
+    parameters.get("controlStates") === "1" ||
+    parameters.get("formLabels") === "1" ||
+    parameters.get("editorResponsive") === "1"
+  ) {
     return (
       <MiaixzLocaleProvider i18n={i18n}>
         <Theme
@@ -826,7 +991,13 @@ export function BrowserFixture() {
           fallback={miaixzDefaultAppearance.theme}
           themes={supplementalTheme ? [supplementalTheme] : []}
         >
-          <FormLabelFixture />
+          {parameters.get("editorResponsive") === "1" ? (
+            <ResponsiveEditorFixture />
+          ) : parameters.get("controlStates") === "1" ? (
+            <ControlStateFixture />
+          ) : (
+            <FormLabelFixture />
+          )}
         </Theme>
       </MiaixzLocaleProvider>
     );

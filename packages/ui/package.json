@@ -64,6 +64,7 @@
       "Empty",
       "Entry",
       "Field",
+      "File",
       "FormActions",
       "Graph",
       "Grid",
@@ -264,6 +265,33 @@
         "slotProps"
       ],
       "EditorForm": [
+        "presentation"
+      ],
+      "Upload": [
+        "accept",
+        "maxSizeBytes",
+        "disabled",
+        "label",
+        "dropLabel",
+        "browseLabel",
+        "upload",
+        "onComplete",
+        "multiple",
+        "maxFiles",
+        "files",
+        "defaultFiles",
+        "onFilesChange",
+        "removePolicy",
+        "getRemoveConfirmation",
+        "slotProps",
+        "onError",
+        "concurrency",
+        "retryPolicy"
+      ],
+      "File": [
+        "icon",
+        "label",
+        "tone",
         "presentation"
       ]
     },
@@ -780,7 +808,12 @@
     "./hidden/styles.css": "./dist/styles/components/hidden.css",
     "./theme.css": "./dist/theme/theme.css",
     "./core.css": "./dist/styles/core.css",
-    "./reset.css": "./dist/styles/reset.css"
+    "./reset.css": "./dist/styles/reset.css",
+    "./file": {
+      "types": "./dist/components/file/index.d.ts",
+      "import": "./dist/components/file/index.js"
+    },
+    "./file/styles.css": "./dist/styles/components/file.css"
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",

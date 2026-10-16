@@ -22,10 +22,11 @@
  * Normalizes time input and exposes accessible time-selection controls.
  */
 
-import { forwardRef, useEffect, useMemo, useState } from "react";
+import { forwardRef, useContext, useEffect, useMemo, useState } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { MiaixzFieldContext } from "../../shared/field-context.js";
 import { useMedia } from "../../shared/responsive/use-media.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -67,9 +68,9 @@ export const TimePicker = withMiaixzThemeComponent(
       max,
       step = 900,
       name,
-      required = false,
+      required: requiredProp,
       clearable = true,
-      disabled = false,
+      disabled: disabledProp,
       readOnly = false,
       slotProps,
       ...labelProps
@@ -86,6 +87,9 @@ export const TimePicker = withMiaixzThemeComponent(
     if (minSeconds === null || maxSeconds === null || minSeconds > maxSeconds) {
       throw new MiaixzUiError({ code: "UI_TIME_PICKER_RANGE_INVALID" });
     }
+    const fieldContext = useContext(MiaixzFieldContext);
+    const required = requiredProp ?? fieldContext?.required ?? false;
+    const disabled = disabledProp ?? fieldContext?.disabled ?? false;
     const [uncontrolledValue, setUncontrolledValue] = useState<IsoTime | null>(defaultValue);
     const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
     const resolvedValue = value ?? uncontrolledValue;
@@ -95,6 +99,11 @@ export const TimePicker = withMiaixzThemeComponent(
     const coarsePointer = useMedia("(pointer: coarse)");
     const { t } = useMiaixzLocale();
     useEffect(() => setRawValue(resolvedValue ?? ""), [resolvedValue]);
+    const effectiveInvalid = fieldContext?.invalid ?? invalid;
+    const reportFieldValidation = fieldContext?.reportValidation;
+    useEffect(() => {
+      reportFieldValidation?.(invalid ? t("ui.time.invalid") : null);
+    }, [reportFieldValidation, invalid, t]);
     /**
      * Updates uncontrolled popup visibility and reports the requested visibility in both modes.
      *
@@ -102,6 +111,7 @@ export const TimePicker = withMiaixzThemeComponent(
      * @returns No return value.
      */
     const setOpen = (next: boolean) => {
+      if (next && (disabled || readOnly)) return;
       if (open === undefined) setUncontrolledOpen(next);
       onOpenChange?.(next);
     };
@@ -112,6 +122,7 @@ export const TimePicker = withMiaixzThemeComponent(
      * @returns No return value.
      */
     const commit = (next: IsoTime | null) => {
+      if (disabled || readOnly) return;
       if (value === undefined) setUncontrolledValue(next);
       setRawValue(next ?? "");
       setInvalid(false);
@@ -138,6 +149,7 @@ export const TimePicker = withMiaixzThemeComponent(
      * @returns No return value.
      */
     const commitRaw = () => {
+      if (disabled || readOnly) return;
       if (rawValue === "" && !required) {
         commit(null);
         return;
@@ -161,7 +173,12 @@ export const TimePicker = withMiaixzThemeComponent(
       }
       return values;
     }, [includeSeconds, maxSeconds, minSeconds, step]);
-    const ownerState: TimePickerOwnerState = { open: resolvedOpen, invalid, disabled, readOnly };
+    const ownerState: TimePickerOwnerState = {
+      open: resolvedOpen,
+      invalid: effectiveInvalid,
+      disabled,
+      readOnly,
+    };
     const inputSlot =
       typeof slotProps?.input === "function" ? slotProps.input(ownerState) : slotProps?.input;
     const optionsView = (
@@ -190,7 +207,7 @@ export const TimePicker = withMiaixzThemeComponent(
       <button
         {...mergeMiaixzSlotProps({
           ownerState,
-          defaultProps: { className: "miaixz-time-picker-trigger" },
+          defaultProps: { className: "miaixz-time-picker-trigger miaixz-field-action" },
           slotProps: slotProps?.trigger,
         })}
         type="button"
@@ -207,7 +224,7 @@ export const TimePicker = withMiaixzThemeComponent(
           <button
             {...mergeMiaixzSlotProps({
               ownerState,
-              defaultProps: { className: "miaixz-time-picker-clear" },
+              defaultProps: { className: "miaixz-time-picker-clear miaixz-field-action" },
               slotProps: slotProps?.clear,
             })}
             type="button"
@@ -249,7 +266,7 @@ export const TimePicker = withMiaixzThemeComponent(
           required={required}
           disabled={disabled}
           readOnly={readOnly}
-          invalid={invalid}
+          invalid={effectiveInvalid}
           endAdornment={adornment}
           {...(inputSlot === undefined ? {} : { slotProps: { input: inputSlot } })}
           onChange={(event) => {
@@ -277,7 +294,9 @@ export const TimePicker = withMiaixzThemeComponent(
             }
           }}
         />
-        {name !== undefined && <input type="hidden" name={name} value={resolvedValue ?? ""} />}
+        {name !== undefined && (
+          <input type="hidden" name={name} value={resolvedValue ?? ""} disabled={disabled} />
+        )}
         {coarsePointer && (
           <Dialog
             open={resolvedOpen}

@@ -412,7 +412,9 @@
   color: var(--miaixz-color-brand);
 }
 
-.miaixz-navigation-rail-frame[data-variant="brand"] .miaixz-navigation-item[aria-current="page"] {
+.miaixz-navigation-rail-frame[data-variant="brand"]
+  .miaixz-navigation[data-orientation="vertical"]
+  .miaixz-navigation-item[aria-current="page"] {
   font-weight: var(--miaixz-font-weight-medium);
   color: var(--miaixz-color-text-primary);
   background: var(--miaixz-surface-role-selected-background);

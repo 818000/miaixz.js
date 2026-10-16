@@ -70,3 +70,14 @@
   transition-duration: var(--miaixz-motion-state-duration);
   transition-property: transform, opacity;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-motion-scale {
+    transition: scale var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing);
+  }
+
+  .miaixz-motion-scale:hover {
+    scale: 1.1;
+  }
+}

@@ -81,12 +81,18 @@ describe("brand foreground semantics", () => {
       "color: var(--miaixz-color-brand-strong);",
     );
     const navigation = rule(
-      "navigation",
-      '.miaixz-navigation[data-orientation="horizontal"] > .miaixz-navigation-item[aria-current] {',
+      "tabs",
+      '.miaixz-tab:is([aria-selected="true"], [aria-current], [aria-pressed="true"]) {',
     );
     expect(navigation).toContain("color: var(--miaixz-color-brand);");
     expect(navigation).toContain("0 var(--miaixz-color-brand);");
     expect(rule("button", '.miaixz-button[data-variant="solid"][data-tone="brand"] {')).toContain(
+      "color: var(--miaixz-color-text-inverse);",
+    );
+    expect(rule("button", '.miaixz-button[data-variant="solid"][data-tone="brand"] {')).toContain(
+      "background: var(--miaixz-color-brand);",
+    );
+    expect(rule("appearance", ".miaixz-appearance-trigger {")).toContain(
       "color: var(--miaixz-color-text-inverse);",
     );
   });

@@ -23,10 +23,14 @@
  */
 
 .miaixz-editor-layout {
-  display: grid;
   min-width: 0;
   container-name: miaixz-editor;
   container-type: inline-size;
+}
+
+.miaixz-editor-layout-grid {
+  display: grid;
+  min-width: 0;
 }
 
 .miaixz-editor-form[data-presentation="drawer"] {
@@ -36,7 +40,7 @@
   color: var(--miaixz-color-text-primary);
 }
 
-.miaixz-editor-layout[data-layout="split"] {
+.miaixz-editor-layout[data-layout="split"] > .miaixz-editor-layout-grid {
   grid-template-columns: 272px minmax(0, 1fr);
 }
 
@@ -325,7 +329,7 @@
 }
 
 @container miaixz-editor (width < 768px) {
-  .miaixz-editor-layout[data-layout="split"] {
+  .miaixz-editor-layout[data-layout="split"] > .miaixz-editor-layout-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 

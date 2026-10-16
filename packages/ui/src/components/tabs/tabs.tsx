@@ -225,31 +225,8 @@ export const Tabs = withMiaixzThemeComponent(
         })}
       </div>
     );
-    return (
-      <div
-        {...mergeMiaixzSlotProps({
-          ownerState: rootOwnerState,
-          defaultProps: {
-            className: classNames(
-              "miaixz-tabs",
-              variant === "navigation" && "miaixz-tabs-navigation",
-              variant === "editor" && "miaixz-tabs-editor",
-              panelPadding === "none" && "miaixz-tabs-panel-padding-none",
-              headerVariant === "toolbar" && "miaixz-tabs-header-toolbar",
-            ),
-          },
-          componentProps: nativeProps,
-          slotProps: slotProps?.root,
-          forwardedRef: ref,
-          internalProps: {
-            "data-ui": "tabs",
-            "data-orientation": orientation,
-            "data-variant": variant,
-            "data-panel-padding": panelPadding,
-          },
-          ownedProps: ["data-orientation", "data-variant", "data-panel-padding"],
-        })}
-      >
+    const content = (
+      <>
         {actions !== undefined ? (
           <div
             {...mergeMiaixzSlotProps({
@@ -307,6 +284,34 @@ export const Tabs = withMiaixzThemeComponent(
             </div>
           );
         })}
+      </>
+    );
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState: rootOwnerState,
+          defaultProps: {
+            className: classNames(
+              "miaixz-tabs",
+              variant === "navigation" && "miaixz-tabs-navigation",
+              variant === "editor" && "miaixz-tabs-editor",
+              panelPadding === "none" && "miaixz-tabs-panel-padding-none",
+              headerVariant === "toolbar" && "miaixz-tabs-header-toolbar",
+            ),
+          },
+          componentProps: nativeProps,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-ui": "tabs",
+            "data-orientation": orientation,
+            "data-variant": variant,
+            "data-panel-padding": panelPadding,
+          },
+          ownedProps: ["data-orientation", "data-variant", "data-panel-padding"],
+        })}
+      >
+        {orientation === "vertical" ? <div className="miaixz-tabs-layout">{content}</div> : content}
       </div>
     );
   }),
