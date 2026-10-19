@@ -50,7 +50,8 @@
 .miaixz-picker-control {
   justify-content: flex-start;
   width: 100%;
-  padding-inline-end: var(--miaixz-space-4);
+  block-size: var(--miaixz-control-block-size);
+  padding-inline-end: var(--miaixz-control-padding-inline);
   cursor: text;
 }
 
@@ -72,7 +73,8 @@
 .miaixz-picker-input {
   flex: 1 1 72px;
   min-inline-size: var(--miaixz-density-control-height);
-  height: calc(var(--miaixz-density-control-height) - 2 * var(--miaixz-control-border-width));
+  min-block-size: 0;
+  height: calc(var(--miaixz-control-block-size) - 2 * var(--miaixz-control-border-width));
   padding: 0;
   font: inherit;
   line-height: inherit;
@@ -95,18 +97,7 @@
 
 .miaixz-combobox-toggle,
 .miaixz-picker-toggle {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--miaixz-control-min-target-size);
-  height: var(--miaixz-control-min-target-size);
-  padding: 0;
   color: var(--miaixz-color-text-secondary);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: var(--miaixz-radius-control);
 }
 
 .miaixz-combobox-toggle:disabled,

@@ -50,6 +50,38 @@ const columns: readonly DatagridColumn<Row>[] = [
 ];
 
 describe("Datagrid", () => {
+  it("preserves cell actions, full-text hints, and row selection with ellipsis enabled", () => {
+    const onAction = vi.fn();
+    const onSelection = vi.fn();
+    renderWithLocale(
+      <Datagrid
+        caption="Truncated content"
+        rows={[{ id: "one", name: "A long member name" }]}
+        getRowId={(row) => row.id}
+        columns={[
+          {
+            id: "name",
+            header: "Name",
+            overflow: "ellipsis",
+            cell: (row) => (
+              <button title={row.name} onClick={onAction}>
+                {row.name}
+              </button>
+            ),
+          },
+        ]}
+        selectionMode="multiple"
+        selectedRowIds={[]}
+        onSelectedRowIdsChange={onSelection}
+      />,
+    );
+    fireEvent.click(screen.getByTitle("A long member name"));
+    expect(onAction).toHaveBeenCalledOnce();
+    expect(onSelection).not.toHaveBeenCalled();
+    fireEvent.click(screen.getAllByRole("checkbox")[1]!);
+    expect(onSelection).toHaveBeenCalledWith(["one"]);
+  });
+
   it("supports fixed and calculated column widths without replacing percentage columns", () => {
     renderWithLocale(
       <Datagrid

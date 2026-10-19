@@ -47,6 +47,13 @@
   border-radius: 0;
 }
 
+.miaixz-datagrid-cell-ellipsis {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .miaixz-datagrid .miaixz-datagrid-container {
   border: 0;
 }

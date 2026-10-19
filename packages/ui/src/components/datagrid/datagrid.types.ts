@@ -47,6 +47,10 @@ export interface DatagridColumn<Row> {
   readonly align?: "start" | "center" | "end";
   readonly widthPercent?: number;
   /**
+   * Preserves wrapping by default or truncates cell content to one line.
+   */
+  readonly overflow?: "wrap" | "ellipsis";
+  /**
    * Native CSS column width, including fixed lengths and calculations; exclusive with widthPercent.
    */
   readonly width?: CSSProperties["width"];

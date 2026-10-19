@@ -7,6 +7,7 @@ import {
   Dialog,
   Donut,
   Drawer,
+  Exception,
   Input,
   NumberInput,
   Pagination,
@@ -88,6 +89,18 @@ export function UiWorkbench() {
             </div>
           </div>
         </div>
+      </GuideSection>
+
+      <GuideSection
+        title="异常展示"
+        description="Exception 使用本地 SVG，衣服随主题切换，文案、背景和操作均可替换。"
+      >
+        <Exception
+          status="404"
+          headingLevel={3}
+          background="subtle"
+          actions={<Button onClick={() => setDialogOpen(true)}>查看恢复操作</Button>}
+        />
       </GuideSection>
 
       <GuideSection

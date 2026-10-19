@@ -109,6 +109,10 @@ import type {
   EditorSummaryProps,
 } from "../components/editor/editor.types.js";
 import type { EmptyOwnerState, EmptyProps } from "../components/empty/empty.types.js";
+import type {
+  ExceptionOwnerState,
+  ExceptionProps,
+} from "../components/exception/exception.types.js";
 import type { EntryOwnerState, EntryProps } from "../components/entry/entry.types.js";
 import type { FieldOwnerState, FieldProps } from "../components/field/field.types.js";
 import type { GridProps } from "../components/grid/grid.types.js";
@@ -382,6 +386,7 @@ export interface MiaixzThemeComponentRegistry {
   readonly Progress: MiaixzThemeEntry<ProgressProps, ProgressOwnerState>;
   readonly Skeleton: MiaixzThemeEntry<SkeletonProps, SkeletonOwnerState>;
   readonly Empty: MiaixzThemeEntry<EmptyProps, EmptyOwnerState>;
+  readonly Exception: MiaixzThemeEntry<ExceptionProps, ExceptionOwnerState>;
   readonly Bar: MiaixzThemeEntry<
     BarProps,
     { readonly active: boolean; readonly decorative: boolean }

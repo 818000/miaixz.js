@@ -100,7 +100,7 @@ describe("UI dynamic example", () => {
       "MiaixzLocaleProvider",
       "Theme",
     ].sort();
-    expect(catalogNames).toHaveLength(120);
+    expect(catalogNames).toHaveLength(121);
     expect([...new Set(catalogNames)].sort()).toEqual(expectedNames);
   });
 });

@@ -29,6 +29,7 @@
   align-items: center;
   justify-content: flex-start;
   width: 100%;
+  block-size: var(--miaixz-control-block-size);
   padding-block: 0;
   overflow: hidden;
   cursor: text;
@@ -37,6 +38,7 @@
 .miaixz-input-element {
   width: 100%;
   min-width: 0;
+  min-block-size: 0;
   height: 100%;
   padding: 0;
   font: inherit;
@@ -81,6 +83,7 @@
 }
 
 .miaixz-input-adornment .miaixz-action-text {
+  padding-inline: 0;
   text-decoration: none;
 }
 
@@ -101,10 +104,36 @@
   background: var(--miaixz-color-surface-secondary);
 }
 
+.miaixz-number-input {
+  container-name: miaixz-number-input;
+  container-type: inline-size;
+}
+
+.miaixz-number-input .miaixz-input-element {
+  min-inline-size: min(4ch, 100%);
+}
+
+.miaixz-number-input .miaixz-input-end-adornment {
+  flex: 0 1 auto;
+  align-self: stretch;
+  min-inline-size: calc(
+    2 * var(--miaixz-space-24) + var(--miaixz-control-border-width) -
+      var(--miaixz-control-padding-inline)
+  );
+}
+
+.miaixz-number-input-suffix {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .miaixz-number-input-controls {
   display: inline-flex;
+  flex: none;
   align-self: stretch;
-  margin-inline-end: calc(-1 * var(--miaixz-density-control-padding-inline));
+  margin-inline-end: calc(-1 * var(--miaixz-control-padding-inline));
   border-inline-start: var(--miaixz-control-border-width) solid var(--miaixz-color-border);
 }
 
@@ -112,7 +141,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: var(--miaixz-density-control-height);
+  inline-size: var(--miaixz-space-24);
   padding: 0;
   color: var(--miaixz-color-text-secondary);
   cursor: pointer;
@@ -138,5 +167,34 @@
 @media (pointer: coarse) {
   .miaixz-input-adornment :is(.miaixz-button, .miaixz-action-text, .miaixz-icon-button) {
     min-block-size: var(--miaixz-control-min-target-size);
+  }
+}
+
+/**
+ * Field-owned frames keep trailing commands at the same visible inset as indicators.
+ * Text actions retain their full label without adding button padding inside the field.
+ */
+.miaixz-input-end-adornment > .miaixz-icon-button:not([data-appearance="favorite"]):last-child,
+.miaixz-input-end-adornment
+  > [data-miaixz-tooltip-disabled-trigger]
+  > .miaixz-icon-button:not([data-appearance="favorite"]) {
+  margin-inline-end: calc((var(--miaixz-icon-size-control) - var(--miaixz-control-block-size)) / 2);
+}
+
+.miaixz-input-start-adornment > .miaixz-icon-button:not([data-appearance="favorite"]):first-child,
+.miaixz-input-start-adornment
+  > [data-miaixz-tooltip-disabled-trigger]
+  > .miaixz-icon-button:not([data-appearance="favorite"]) {
+  margin-inline-start: calc(
+    (var(--miaixz-icon-size-control) - var(--miaixz-control-block-size)) / 2
+  );
+}
+
+/**
+ * Preserve editing in narrow table cells; ArrowUp/ArrowDown remain available on the spinbutton.
+ */
+@container miaixz-number-input (width < 96px) {
+  .miaixz-number-input > .miaixz-input-end-adornment {
+    display: none;
   }
 }

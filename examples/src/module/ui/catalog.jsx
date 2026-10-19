@@ -40,6 +40,7 @@ export const UI_COMPONENT_NAMES = Object.freeze([
   "EditorSummary",
   "Empty",
   "Entry",
+  "Exception",
   "Field",
   "File",
   "FormActions",

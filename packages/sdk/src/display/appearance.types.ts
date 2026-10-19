@@ -56,14 +56,14 @@ export const miaixzShellLayouts = [
  *
  * @public
  */
-export const miaixzRadiusScales = [0, 0.5, 1, 1.5, 2] as const;
+export const miaixzRadiusScales = [0, 0.5, 0.75, 1, 1.5, 2] as const;
 
 /**
  * Lists the supported base interface font sizes in CSS pixels.
  *
  * @public
  */
-export const miaixzBaseFontSizes = [14, 15, 16, 17, 18] as const;
+export const miaixzBaseFontSizes = [12, 13, 14, 15, 16, 17, 18] as const;
 
 /**
  * Represents a configured Miaixz color mode.

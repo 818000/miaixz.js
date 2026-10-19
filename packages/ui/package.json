@@ -63,6 +63,7 @@
       "EditorSummary",
       "Empty",
       "Entry",
+      "Exception",
       "Field",
       "File",
       "FormActions",
@@ -293,6 +294,17 @@
         "label",
         "tone",
         "presentation"
+      ],
+      "Exception": [
+        "status",
+        "title",
+        "description",
+        "illustration",
+        "actions",
+        "background",
+        "headingLevel",
+        "showCode",
+        "slotProps"
       ]
     },
     "values": {
@@ -304,6 +316,19 @@
           "xlarge",
           "wide",
           "content"
+        ]
+      },
+      "Exception": {
+        "status": [
+          "404",
+          "403",
+          "500",
+          "unavailable"
+        ],
+        "background": [
+          "none",
+          "surface",
+          "subtle"
         ]
       }
     },
@@ -318,6 +343,14 @@
       "disclosure",
       "donut",
       "donut-segment",
+      "exception",
+      "exception-actions",
+      "exception-background",
+      "exception-code",
+      "exception-content",
+      "exception-description",
+      "exception-illustration",
+      "exception-title",
       "heatmap",
       "heatmap-cell",
       "heatmap-column-label",
@@ -813,7 +846,12 @@
       "types": "./dist/components/file/index.d.ts",
       "import": "./dist/components/file/index.js"
     },
-    "./file/styles.css": "./dist/styles/components/file.css"
+    "./file/styles.css": "./dist/styles/components/file.css",
+    "./exception": {
+      "types": "./dist/components/exception/index.d.ts",
+      "import": "./dist/components/exception/index.js"
+    },
+    "./exception/styles.css": "./dist/styles/components/exception.css"
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",

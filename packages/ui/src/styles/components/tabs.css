@@ -80,8 +80,9 @@
 }
 
 .miaixz-tabs-header > .miaixz-tabs-list {
-  flex: 1;
+  flex: 1 1 max-content;
   align-self: stretch;
+  max-inline-size: 100%;
   border-bottom: 0;
 }
 
@@ -98,6 +99,7 @@
 }
 
 .miaixz-tabs-actions {
+  max-inline-size: 100%;
   min-width: 0;
 }
 
@@ -175,6 +177,7 @@
 .miaixz-tabs-header-toolbar > .miaixz-tabs-header,
 .miaixz-tabs-header-toolbar > .miaixz-tabs-layout > .miaixz-tabs-header {
   min-height: 60px;
+  padding-block: var(--miaixz-space-8);
   padding-inline: var(--miaixz-space-16);
 }
 
@@ -189,7 +192,7 @@
   > .miaixz-tabs-header
   > .miaixz-tabs-actions
   > .miaixz-cluster {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .miaixz-tabs[data-orientation="vertical"] > .miaixz-tabs-layout {

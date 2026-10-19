@@ -23,10 +23,18 @@
  */
 
 .miaixz-picker-control {
-  flex-wrap: wrap;
-  height: auto;
-  min-height: var(--miaixz-density-control-height);
+  block-size: auto;
+  min-height: var(--miaixz-control-block-size);
   padding-block: var(--miaixz-space-4);
+}
+
+.miaixz-picker-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: var(--miaixz-control-gap);
+  align-items: center;
+  min-inline-size: 0;
 }
 
 .miaixz-picker-tags {
@@ -50,4 +58,18 @@
   color: var(--miaixz-color-text-secondary);
   background: var(--miaixz-color-surface-secondary);
   border-radius: var(--miaixz-radius-round);
+}
+
+/**
+ * Selected chips share the single-line field frame and grow only when they wrap.
+ */
+.miaixz-picker-tags > .miaixz-tag {
+  --miaixz-tag-block-size: var(--miaixz-space-24);
+}
+
+.miaixz-picker-input {
+  height: calc(
+    var(--miaixz-control-block-size) - 2 * var(--miaixz-control-border-width) - 2 *
+      var(--miaixz-space-4)
+  );
 }

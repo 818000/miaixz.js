@@ -104,6 +104,7 @@ type ExpectedComponentName =
   | "Progress"
   | "Skeleton"
   | "Empty"
+  | "Exception"
   | "Bar"
   | "Brand"
   | "Scroll"

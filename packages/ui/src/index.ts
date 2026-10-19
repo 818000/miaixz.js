@@ -60,6 +60,7 @@ export {
   EditorSummary,
   Empty,
   Entry,
+  Exception,
   Field,
   File,
   FormActions,
@@ -72,6 +73,7 @@ export {
   HeatmapLegend,
   Hidden,
   IconButton,
+  CONTROL_FRAMES,
   Input,
   NumberInput,
   Link,
@@ -894,3 +896,14 @@ export type { UseMediaOptions } from "./shared/responsive/use-media.js";
 export { VERSION } from "./version.js";
 
 export type { FileProps, FileTone } from "./components/file/index.js";
+
+export type {
+  ExceptionBackground,
+  ExceptionOwnProps,
+  ExceptionOwnerState,
+  ExceptionProps,
+  ExceptionRootAttributes,
+  ExceptionSlot,
+  ExceptionSlotProps,
+  ExceptionStatus,
+} from "./components/exception/index.js";

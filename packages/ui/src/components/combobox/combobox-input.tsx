@@ -69,7 +69,9 @@ export function ComboboxInput(props: ComboboxInputProps) {
   const state = props.ownerState;
   const controlProps = mergeMiaixzSlotProps({
     ownerState: state,
-    defaultProps: { className: `miaixz-control miaixz-${props.component}-control` },
+    defaultProps: {
+      className: `miaixz-control miaixz-control-medium miaixz-${props.component}-control`,
+    },
     slotProps: props.slotProps?.control,
     internalRef: props.controlRef,
     internalProps: {
@@ -162,8 +164,17 @@ export function ComboboxInput(props: ComboboxInputProps) {
   });
   return (
     <div {...controlProps}>
-      {props.beforeInput}
-      <input {...inputProps} />
+      {props.component === "picker" ? (
+        <div className="miaixz-picker-content">
+          {props.beforeInput}
+          <input {...inputProps} />
+        </div>
+      ) : (
+        <>
+          {props.beforeInput}
+          <input {...inputProps} />
+        </>
+      )}
       {props.afterInput}
       {props.clearable && !state.disabled && (
         <button {...clearProps}>

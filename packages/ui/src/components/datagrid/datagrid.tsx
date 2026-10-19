@@ -415,7 +415,13 @@ function DatagridImplementation<Row>(
                           key={column.id}
                           className={`miaixz-datagrid-align-${column.align ?? "start"}`}
                         >
-                          {column.cell(row.value)}
+                          {column.overflow === "ellipsis" ? (
+                            <div className="miaixz-datagrid-cell-ellipsis">
+                              {column.cell(row.value)}
+                            </div>
+                          ) : (
+                            column.cell(row.value)
+                          )}
                         </TableCell>
                       ))}
                     </TableRow>

@@ -286,6 +286,8 @@ This table is checked directly against the package export map.
 | `./status/styles.css`        | CSS        |
 | `./steps/styles.css`         | CSS        |
 | `./empty/styles.css`         | CSS        |
+| `./exception`                | JavaScript |
+| `./exception/styles.css`     | CSS        |
 | `./entry/styles.css`         | CSS        |
 | `./hidden/styles.css`        | CSS        |
 | `./theme.css`                | CSS        |
@@ -529,7 +531,7 @@ The public component collection includes:
 - Foundations and forms: Button, ButtonGroup, Input, NumberInput, Search, Textarea, Select, Combobox, Picker, Field, Checkbox, Radio, Rating, Slider, Switch, Calendar, DatePicker, TimePicker, Dropzone, and Upload.
 - Navigation and layout: Navigation, Breadcrumb, Tabs, Segmented, Toolbar, Shell, Page, View, Header, Grid, Masonry, Cluster, Split, Stack, Sidebar, Scroll, and Entry.
 - Data display: Panel, List, Table, Datagrid, Tree, Badge, Tag, Pagination, Avatar, AvatarGroup, Divider, and Status.
-- Feedback and overlays: Alert, Notice, Progress, Spinner, Overlay, Tooltip, Popover, Dropdown, Dialog, Confirm, Drawer, Disclosure, Toast, Skeleton, Empty, and Hidden.
+- Feedback and overlays: Alert, Notice, Progress, Spinner, Overlay, Tooltip, Popover, Dropdown, Dialog, Confirm, Drawer, Disclosure, Toast, Skeleton, Empty, Exception, and Hidden.
 
 Interactive components preserve native semantics, keyboard behavior, and visible focus. Icon-only buttons must provide an accessible name.
 
@@ -611,3 +613,93 @@ Use `View preserveFrame` in a shared router layout and `View inheritFrame` in it
 The authorized route renders its ordinary `View` with `inheritFrame`. The application owns routing, catalog loading, authorization and the lifetime of the shared layout; the UI package does not bypass route guards.
 
 For in-page module tabs, `Tabs refreshMode="page"` reloads the current address after an accepted selection and restores that selection once from session storage. Controlled tabs restore through `onValueChange`; read-only tabs remain unchanged. Use a unique `persistenceKey` when a page contains multiple collections with identical values. Tabs inherit the link provider policy and accept a component-specific override. The default `content` mode keeps existing in-page behavior.
+
+Tabs headers reserve the natural width of their labels before wrapping actions onto another row.
+Toolbar actions can wrap within the available content width; overflowing tab labels remain
+horizontally scrollable. `List` leading graphics reserve their actual size, including avatars and
+larger entity badges, while retaining the shared row gap and vertical alignment.
+
+Use `Cluster wrap={false}` to keep related inline content, such as an avatar and member identity,
+on the same row. `DatagridColumn.overflow="ellipsis"` opts a column into single-line truncation;
+wrapping remains the default. Supply a native `title` on cell content when the full value should
+be available on hover, and use explicit column widths when narrow viewports require table scrolling.
+
+Embedded views can call `useMiaixzLocale().loadNamespace(namespace, locale)` before opening to load
+their own messages through the existing SDK runtime. This does not create a second translator or
+require mutually dependent route catalogs. `EditorPicker` bounds long selection lists and allows
+wheel scrolling to continue into the parent form at the list boundary.
+
+`Search` clear actions use the shared field-action styling with a centered 12px indicator and a
+24px desktop click target (expanded for coarse pointers). They remain independent of general
+`IconButton` dimensions and retain their tooltip, accessible label, clear callbacks, input-focus
+restoration and native `slotProps.clear` contract, matching the lightweight actions in selectors
+and date/time inputs.
+
+All field surfaces resolve their text and icon insets through
+`--miaixz-control-padding-inline`, including explicit small/medium/large sizes. Search clear,
+Combobox/Picker disclosure and DatePicker/TimePicker actions align their visible trailing icon
+edge to that inset, matching Select. Their centered click targets do not add extra visual padding;
+coarse-pointer targets expand without moving the icon edge. Logical spacing preserves the same
+contract in RTL layouts. Plain text inputs and textarea content/counts use the same inset.
+
+Single-line Input, Search, Select and Combobox frames share the resolved
+`--miaixz-control-block-size` (40px at the standard medium size). Their inner native controls cannot
+expand the frame. Picker uses that same minimum with 24px embedded chips and expands only when
+selected values wrap; standalone tags retain density-based sizing. Trailing IconButton commands
+and text actions in Input adornments follow the same visible inset as field indicators. These
+rules belong to the public components and apply equally inside Drawer and EditorLayout.
+
+Use the exported `CONTROL_FRAMES.medium` class through Theme slot classes when an application
+requires every single-line field to use 40px height and 16px inline padding even if a caller
+supplies another `size`. Configure Input/Select `root` and Combobox/Picker `control` once at the
+application Theme boundary. `small` and `large` recipes are also available; touch minimums and
+Picker wrapping remain owned by the library. This replaces application CSS height overrides.
+
+NumberInput uses compact 24px-wide step buttons and reserves four characters for the numeric
+editor. Text suffixes shrink with ellipsis and expose the complete unit on hover, preventing
+narrow table or drawer cells from hiding the editable value. Step buttons stretch with the field
+frame; their value-change and validation behavior is unchanged.
+
+At very narrow widths, NumberInput hides its auxiliary suffix/step strip so the numeric editor
+remains usable; ArrowUp/ArrowDown keep their ordinary step behavior, and text units remain in the
+native input tooltip. Select reduces only the gap between value and indicator when necessary,
+keeping the indicator at the standard trailing inset without horizontal overflow.
+
+Header Search retains its caption typography and shortcut treatment while sharing the ordinary
+field frame, inline padding and 16px leading-icon reservation. Prefix text such as currency units
+belongs inside the same content inset; it does not count as additional outer padding.
+
+### Exception
+
+`Exception` presents 404, 403, 500 and temporary service unavailability. It is a pure presentation component: no tenant identity, Logo, request, routing, automatic retry or error boundary is created. Wrap it in the existing `Entry` for a full-page layout.
+
+```tsx
+import { Button, Entry, Exception } from "@miaixz/ui";
+
+<Entry layout="centered" contentComponent="main">
+  <Exception
+    status="500"
+    title="This page could not be loaded"
+    description="Reload the page to try again."
+    background="none"
+    actions={<Button onClick={retry}>Reload</Button>}
+  />
+</Entry>;
+```
+
+The component and styles are also available from `@miaixz/ui/exception` and `@miaixz/ui/exception/styles.css`. The aggregate UI stylesheet already includes the component style.
+
+| Property               | Contract                                                                                                                                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `status`               | Required: `"404"`, `"403"`, `"500"` or `"unavailable"`                                                                                                 |
+| `title`, `description` | Optional React content; defaults come from the existing UI locale catalog. A provider-free failure uses English. Pass `false` to hide the description. |
+| `illustration`         | Optional decorative content; omit for a bundled local SVG, pass `false` or `null` to hide it.                                                          |
+| `actions`              | Caller-owned buttons or links; no destination or recovery behavior is inferred.                                                                        |
+| `background`           | `"none"` (default), `"surface"` or `"subtle"`; follows the active theme.                                                                               |
+| `headingLevel`         | `1` (default) through `6`, allowing embedded failure content without adding a second page heading.                                                     |
+| `showCode`             | Defaults to `true`; the unavailable preset never invents an HTTP status code.                                                                          |
+| `slotProps`            | `root`, `background`, `content`, `illustration`, `code`, `title`, `description`, `actions`                                                             |
+
+Use `slotProps.background` to supply a custom decorative background through `children`, `className` or native styles. This slot is hidden from assistive technology and ignores pointer events. Full-viewport background remains the responsibility of the outer `Entry`; the exception surface can also be embedded in a smaller region. `Theme.components.Exception` supports the same public defaults, owner-state variants and slot classes as other UI components.
+
+The four original inline SVG office stories reuse neutral figures and ordinary work actions. Clothing reads `--miaixz-color-brand`, accent fills read `--miaixz-color-brand-soft`, and outlines/paper follow neutral theme colors. No raster recoloring, fixed green clothing, remote images or Logo resolution is needed. The illustrations have no visible text, flags, badges, political slogans or geographical boundaries. Custom illustrations and background content are supplied explicitly by the caller and should follow the same neutral-content review.

@@ -34,7 +34,7 @@ import { withMiaixzThemeComponent } from "../../theme/binding.js";
 export const Cluster = withMiaixzThemeComponent(
   "Cluster",
   forwardRef<HTMLDivElement, ClusterProps>(function Cluster(
-    { justify = "start", gap = "default", className, ...props },
+    { justify = "start", gap = "default", wrap = true, className, ...props },
     ref,
   ) {
     return (
@@ -42,6 +42,7 @@ export const Cluster = withMiaixzThemeComponent(
         {...props}
         ref={ref}
         data-justify={justify}
+        data-wrap={wrap}
         className={classNames("miaixz-cluster", `miaixz-cluster-gap-${gap}`, className)}
       />
     );

@@ -22,6 +22,7 @@
  * Exposes the input public module.
  */
 
+export { CONTROL_FRAMES } from "./control-frame.js";
 export { Input } from "./input.js";
 export { NumberInput } from "./number-input.js";
 export type {

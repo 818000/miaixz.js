@@ -243,8 +243,11 @@
 }
 
 .miaixz-list-icon {
-  width: var(--miaixz-icon-size-navigation);
-  height: var(--miaixz-icon-size-navigation);
+  display: grid;
+  place-items: center;
+  inline-size: max-content;
+  min-inline-size: var(--miaixz-icon-size-navigation);
+  min-block-size: var(--miaixz-icon-size-navigation);
   color: var(--miaixz-list-tone);
 }
 

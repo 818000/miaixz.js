@@ -107,12 +107,72 @@ describe("shared icon actions", () => {
         <Search value="redis" onValueChange={clear} clearLabel="清除搜索" />
       </MiaixzLocaleProvider>,
     );
-    for (const name of ["关闭提示", "清除搜索"]) {
-      const button = screen.getByRole("button", { name });
-      expect(button).toHaveClass("miaixz-icon-button");
-      fireEvent.click(button);
-    }
+    const dismissButton = screen.getByRole("button", { name: "关闭提示" });
+    expect(dismissButton).toHaveClass("miaixz-icon-button");
+    fireEvent.click(dismissButton);
+    const clearButton = screen.getByRole("button", { name: "清除搜索" });
+    expect(clearButton).toHaveClass("miaixz-field-action");
+    expect(clearButton).not.toHaveClass("miaixz-icon-button");
+    expect(clearButton).toHaveAttribute("aria-describedby");
+    fireEvent.click(clearButton);
     expect(dismiss).toHaveBeenCalledOnce();
     expect(clear).toHaveBeenCalledExactlyOnceWith("", "clear");
+  });
+
+  it("clears an uncontrolled search and restores input focus without submitting its form", () => {
+    const change = vi.fn();
+    const clear = vi.fn();
+    const submit = vi.fn((event) => event.preventDefault());
+    render(
+      <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
+        <form onSubmit={submit}>
+          <Search
+            defaultValue="redis"
+            aria-label="搜索服务"
+            clearLabel="清除搜索"
+            onValueChange={change}
+            onClear={clear}
+            slotProps={{
+              clear: (state) => ({
+                title: "清空当前查询",
+                className: state.filled ? "filled-clear" : "",
+              }),
+            }}
+          />
+        </form>
+      </MiaixzLocaleProvider>,
+    );
+    const input = screen.getByRole("searchbox", { name: "搜索服务" });
+    const button = screen.getByRole("button", { name: "清除搜索" });
+    expect(button).toHaveAttribute("title", "清空当前查询");
+    expect(button).toHaveClass("filled-clear");
+    expect(button).toHaveAttribute("type", "button");
+    fireEvent.click(button);
+    expect(change).toHaveBeenCalledExactlyOnceWith("", "clear");
+    expect(clear).toHaveBeenCalledOnce();
+    expect(input).toHaveValue("");
+    expect(input).toHaveFocus();
+    expect(submit).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "清除搜索" })).not.toBeInTheDocument();
+  });
+
+  it("preserves the clear slot's ability to cancel the action", () => {
+    const change = vi.fn();
+    const clear = vi.fn();
+    render(
+      <MiaixzLocaleProvider i18n={createMiaixzI18n()}>
+        <Search
+          defaultValue="redis"
+          clearLabel="清除搜索"
+          onValueChange={change}
+          onClear={clear}
+          slotProps={{ clear: { onClick: (event) => event.preventDefault() } }}
+        />
+      </MiaixzLocaleProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "清除搜索" }));
+    expect(screen.getByRole("searchbox")).toHaveValue("redis");
+    expect(change).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
   });
 });

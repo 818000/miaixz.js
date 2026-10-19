@@ -27,6 +27,7 @@ import {
   Button,
   Cluster,
   Combobox,
+  CONTROL_FRAMES,
   Datagrid,
   DatePicker,
   Descriptions,
@@ -62,6 +63,7 @@ import {
   RowActions,
   Rating,
   Segmented,
+  Search,
   Select,
   Slider,
   Sparkline,
@@ -700,6 +702,148 @@ export function AccessibilityFixture({ name }: { readonly name: AccessibilityFix
 }
 
 /**
+ * Compares text insets and visible trailing icon edges across shared field surfaces.
+ * @returns A stable browser geometry fixture with explicit sizes and RTL support.
+ */
+function FieldGeometryFixture() {
+  const [drawerOpen, setDrawerOpen] = useState(true);
+  const options = [{ value: "alpha", label: "Alpha", textValue: "Alpha" }];
+  const items = [{ kind: "option" as const, id: "alpha", ...options[0]! }];
+  const fields = (
+    <main style={{ padding: 24 }} dir={parameters.get("direction") === "rtl" ? "rtl" : "ltr"}>
+      <h1>Field inset geometry</h1>
+      <Grid columns="two">
+        {(["small", "medium", "large"] as const).flatMap((size) => [
+          <Field
+            key={`input-${size}`}
+            label={`Input ${size}`}
+            data-testid={`geometry-input-${size}`}
+          >
+            <Input size={size} defaultValue="Alpha" />
+          </Field>,
+          <Field
+            key={`select-${size}`}
+            label={`Select ${size}`}
+            data-testid={`geometry-select-${size}`}
+          >
+            <Select size={size} items={items} defaultValue="alpha" />
+          </Field>,
+          <Field
+            key={`search-${size}`}
+            label={`Search ${size}`}
+            data-testid={`geometry-search-${size}`}
+          >
+            <Search size={size} defaultValue="Alpha" />
+          </Field>,
+        ])}
+        <Field label="Header search" data-testid="geometry-header-search">
+          <Search variant="header" defaultValue="Alpha" />
+        </Field>
+        <Field label="Combobox" data-testid="geometry-combobox">
+          <Combobox label={null} options={options} defaultValue={options[0]!} />
+        </Field>
+        <Field label="Picker" data-testid="geometry-picker">
+          <Picker label={null} options={options} defaultValue={[options[0]!]} />
+        </Field>
+        <Field label="DatePicker" data-testid="geometry-date">
+          <DatePicker defaultValue="2026-10-19" referenceDate="2026-10-19" />
+        </Field>
+        <Field label="TimePicker" data-testid="geometry-time">
+          <TimePicker defaultValue="09:30" />
+        </Field>
+        <Field label="Textarea" data-testid="geometry-textarea">
+          <Textarea defaultValue="Alpha" rows={2} />
+        </Field>
+        <Field label="NumberInput" data-testid="geometry-number">
+          <NumberInput defaultValue={20} />
+        </Field>
+        <Field
+          label="Number with unit"
+          data-testid="geometry-number-unit"
+          style={{ maxWidth: 158 }}
+        >
+          <NumberInput defaultValue={2600} endAdornment="万 Token/月" />
+        </Field>
+        <Field label="Narrow number" data-testid="geometry-narrow-number" style={{ maxWidth: 64 }}>
+          <NumberInput defaultValue={40} />
+        </Field>
+        <Field label="Narrow select" data-testid="geometry-narrow-select" style={{ maxWidth: 52 }}>
+          <Select items={items} defaultValue="alpha" />
+        </Field>
+        <Field label="Icon command" data-testid="geometry-icon-command">
+          <Input defaultValue="Alpha" endAdornment={<IconButton icon="send" label="Send" />} />
+        </Field>
+        <Field label="Glyph command" data-testid="geometry-glyph-command">
+          <Input
+            defaultValue="Alpha"
+            endAdornment={<IconButton appearance="glyph" icon="more-horizontal" label="More" />}
+          />
+        </Field>
+        <Field label="Disabled command" data-testid="geometry-disabled-command">
+          <Input
+            defaultValue="Alpha"
+            endAdornment={<IconButton icon="send" label="Disabled send" disabled />}
+          />
+        </Field>
+        <Field label="Leading command" data-testid="geometry-leading-command">
+          <Input
+            defaultValue="Alpha"
+            startAdornment={<IconButton icon="search" label="Search" />}
+          />
+        </Field>
+        <Field label="Password" data-testid="geometry-password">
+          <Input
+            type="password"
+            defaultValue="Alpha"
+            endAdornment={
+              <ActionText
+                action={{
+                  kind: "command",
+                  id: "toggle-password",
+                  label: "Show password",
+                  icon: "eye",
+                  onAction: () => undefined,
+                }}
+              />
+            }
+          />
+        </Field>
+        <Field label="Empty picker" data-testid="geometry-empty-picker">
+          <Picker label={null} options={options} />
+        </Field>
+        <Field label="Wrapped picker" data-testid="geometry-wrapped-picker">
+          <Picker
+            label={null}
+            options={Array.from({ length: 8 }, (_, i) => ({
+              value: `option-${i}`,
+              label: `Selected option ${i}`,
+              textValue: `Selected option ${i}`,
+            }))}
+            defaultValue={Array.from({ length: 8 }, (_, i) => ({
+              value: `option-${i}`,
+              label: `Selected option ${i}`,
+              textValue: `Selected option ${i}`,
+            }))}
+          />
+        </Field>
+      </Grid>
+    </main>
+  );
+  return parameters.get("fieldDrawer") === "1" ? (
+    <Drawer
+      open={drawerOpen}
+      onOpenChange={setDrawerOpen}
+      title="Field geometry drawer"
+      width={1000}
+    >
+      {fields}
+    </Drawer>
+  ) : (
+    fields
+  );
+}
+
+/**
  * Shows the same public controls in ordinary, readonly, disabled and invalid modes.
  * Pointer and keyboard states are exercised through the native editors.
  * @returns Interactive control state reference.
@@ -987,6 +1131,7 @@ export function BrowserFixture() {
   if (
     parameters.has("navigationRefresh") ||
     parameters.get("controlStates") === "1" ||
+    parameters.get("fieldGeometry") === "1" ||
     parameters.get("formLabels") === "1" ||
     parameters.get("editorResponsive") === "1" ||
     parameters.get("loadingIndicators") === "1"
@@ -997,6 +1142,16 @@ export function BrowserFixture() {
           appearance={appearance}
           fallback={miaixzDefaultAppearance.theme}
           themes={supplementalTheme ? [supplementalTheme] : []}
+          {...(parameters.get("uniformFields") === "1"
+            ? {
+                components: {
+                  Input: { slotClassNames: { root: CONTROL_FRAMES.medium } },
+                  Select: { slotClassNames: { root: CONTROL_FRAMES.medium } },
+                  Combobox: { slotClassNames: { control: CONTROL_FRAMES.medium } },
+                  Picker: { slotClassNames: { control: CONTROL_FRAMES.medium } },
+                },
+              }
+            : {})}
         >
           {parameters.get("loadingIndicators") === "1" ? (
             <main aria-label="加载状态展示">
@@ -1027,6 +1182,8 @@ export function BrowserFixture() {
             <NavigationRefreshFixture />
           ) : parameters.get("editorResponsive") === "1" ? (
             <ResponsiveEditorFixture />
+          ) : parameters.get("fieldGeometry") === "1" ? (
+            <FieldGeometryFixture />
           ) : parameters.get("controlStates") === "1" ? (
             <ControlStateFixture />
           ) : (

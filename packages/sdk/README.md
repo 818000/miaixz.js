@@ -264,6 +264,10 @@ record by `appId` and optional tenant ID. For `appId="portal"` without a tenant,
 `miaixz:global:portal:appearance`. New envelopes use `schemaVersion: VERSION`. The reader migrates
 legacy numeric envelopes and their former storage keys without losing successfully parsed preferences.
 
+Supported radius scales are `0`, `0.5`, `0.75`, `1`, `1.5`, and `2` (default `1`). Base font sizes
+range from `12` to `18` pixels in one-pixel steps (default `14`). Both preferences use the same
+validated persistence and restore flow.
+
 The composed SDK defaults to `appearanceScope: "tenant"` for tenant-specific preferences. Set
 `appearanceScope: "global"` when theme, color mode, and density are application-wide user interface
 preferences that must remain stable while `context.tenantId` changes.

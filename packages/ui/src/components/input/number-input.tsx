@@ -189,6 +189,7 @@ export const NumberInput = withMiaixzThemeComponent(
         className={["miaixz-number-input", className].filter(Boolean).join(" ")}
         data-ui="number-input"
         type="text"
+        title={props.title ?? (typeof endAdornment === "string" ? endAdornment : undefined)}
         inputMode="decimal"
         role="spinbutton"
         aria-valuemin={min}
@@ -199,7 +200,13 @@ export const NumberInput = withMiaixzThemeComponent(
         readOnly={readOnly}
         endAdornment={
           <>
-            {endAdornment}
+            {typeof endAdornment === "string" || typeof endAdornment === "number" ? (
+              <span className="miaixz-number-input-suffix" title={String(endAdornment)}>
+                {endAdornment}
+              </span>
+            ) : (
+              endAdornment
+            )}
             {controls}
           </>
         }
