@@ -242,24 +242,6 @@
   color: var(--miaixz-color-danger);
 }
 
-.miaixz-combobox-message .miaixz-icon-spin,
-.miaixz-picker-message .miaixz-icon-spin {
-  animation: miaixz-combobox-spin var(--miaixz-duration-slow) linear infinite;
-}
-
-@keyframes miaixz-combobox-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-combobox-message .miaixz-icon-spin,
-  .miaixz-picker-message .miaixz-icon-spin {
-    animation: none;
-  }
-}
-
 @media (forced-colors: active) {
   .miaixz-combobox-label,
   .miaixz-picker-label,

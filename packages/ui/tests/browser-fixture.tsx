@@ -65,6 +65,7 @@ import {
   Select,
   Slider,
   Sparkline,
+  Spinner,
   Status,
   Steps,
   Switch,
@@ -987,7 +988,8 @@ export function BrowserFixture() {
     parameters.has("navigationRefresh") ||
     parameters.get("controlStates") === "1" ||
     parameters.get("formLabels") === "1" ||
-    parameters.get("editorResponsive") === "1"
+    parameters.get("editorResponsive") === "1" ||
+    parameters.get("loadingIndicators") === "1"
   ) {
     return (
       <MiaixzLocaleProvider i18n={i18n}>
@@ -996,7 +998,32 @@ export function BrowserFixture() {
           fallback={miaixzDefaultAppearance.theme}
           themes={supplementalTheme ? [supplementalTheme] : []}
         >
-          {parameters.has("navigationRefresh") ? (
+          {parameters.get("loadingIndicators") === "1" ? (
+            <main aria-label="加载状态展示">
+              <Panel title="加载状态" description="统一图形、尺寸与动画节奏">
+                <Cluster>
+                  <Spinner size="small" label="正在加载小尺寸" />
+                  <Spinner label="正在加载" />
+                  <Spinner size="large" label="正在加载大尺寸" />
+                  <Button loading loadingLabel="正在保存" variant="solid" tone="brand">
+                    保存
+                  </Button>
+                  <Button loading loadingLabel="正在查询" variant="outlined">
+                    查询
+                  </Button>
+                  <IconButton icon="refresh-cw" label="刷新" loading />
+                </Cluster>
+              </Panel>
+              <Datagrid
+                caption="配置加载状态"
+                columns={[{ id: "name", header: "配置名称", cell: () => null }]}
+                rows={[]}
+                getRowId={(row: { id: string }) => row.id}
+                loading
+                loadingLabel="正在读取配置"
+              />
+            </main>
+          ) : parameters.has("navigationRefresh") ? (
             <NavigationRefreshFixture />
           ) : parameters.get("editorResponsive") === "1" ? (
             <ResponsiveEditorFixture />

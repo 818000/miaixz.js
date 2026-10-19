@@ -495,10 +495,6 @@
   outline-offset: var(--miaixz-control-focus-offset);
 }
 
-.miaixz-tree-item[data-state="loading"] > .miaixz-tree-row .miaixz-icon-spin {
-  animation: miaixz-tree-spin var(--miaixz-duration-slow) linear infinite;
-}
-
 .miaixz-tree-shell {
   display: grid;
   gap: var(--miaixz-space-8);
@@ -590,18 +586,6 @@
   white-space: nowrap;
   border: 0;
   clip-path: inset(50%);
-}
-
-@keyframes miaixz-tree-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-tree-item[data-state="loading"] > .miaixz-tree-row .miaixz-icon-spin {
-    animation: none;
-  }
 }
 
 @media (pointer: coarse) {

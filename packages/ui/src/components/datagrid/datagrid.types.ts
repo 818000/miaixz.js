@@ -22,7 +22,7 @@
  * Defines the datagrid public type contracts.
  */
 
-import type { HTMLAttributes, ReactNode } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import type { TableRowHeight } from "../table/table.types.js";
 
 /**
@@ -46,6 +46,10 @@ export interface DatagridColumn<Row> {
   readonly sortable?: boolean;
   readonly align?: "start" | "center" | "end";
   readonly widthPercent?: number;
+  /**
+   * Native CSS column width, including fixed lengths and calculations; exclusive with widthPercent.
+   */
+  readonly width?: CSSProperties["width"];
 }
 
 /**

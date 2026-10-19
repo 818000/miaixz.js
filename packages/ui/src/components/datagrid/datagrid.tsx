@@ -90,6 +90,15 @@ function validateColumns<Row>(columns: readonly DatagridColumn<Row>[]): void {
       });
     }
     validatePercent(column.widthPercent);
+    if (
+      column.width !== undefined &&
+      (column.widthPercent !== undefined ||
+        (typeof column.width === "number" &&
+          (!Number.isFinite(column.width) || column.width <= 0)) ||
+        (typeof column.width === "string" && column.width.trim() === ""))
+    ) {
+      throw new MiaixzUiError({ code: "UI_CONTROLLED_VALUE_INVALID" });
+    }
     ids.add(column.id);
   }
 }
@@ -311,9 +320,11 @@ function DatagridImplementation<Row>(
                       key={column.id}
                       aria-sort={direction}
                       style={
-                        column.widthPercent === undefined
-                          ? undefined
-                          : { width: `${column.widthPercent}%` }
+                        column.width !== undefined
+                          ? { width: column.width }
+                          : column.widthPercent === undefined
+                            ? undefined
+                            : { width: `${column.widthPercent}%` }
                       }
                       className={`miaixz-datagrid-align-${column.align ?? "start"}`}
                     >

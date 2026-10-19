@@ -50,6 +50,62 @@ const columns: readonly DatagridColumn<Row>[] = [
 ];
 
 describe("Datagrid", () => {
+  it("supports fixed and calculated column widths without replacing percentage columns", () => {
+    renderWithLocale(
+      <Datagrid
+        caption="Widths"
+        layout="fixed"
+        rows={[{ id: "one", name: "One" }]}
+        getRowId={(row) => row.id}
+        columns={[
+          { id: "name", header: "Name", cell: (row) => row.name, width: "calc(100% - 240px)" },
+          { id: "action", header: "Action", cell: () => "View", width: 240 },
+        ]}
+      />,
+    );
+    expect(screen.getByRole("columnheader", { name: "Name" })).toHaveStyle({
+      width: "calc(100% - 240px)",
+    });
+    expect(screen.getByRole("columnheader", { name: "Action" })).toHaveStyle({ width: "240px" });
+  });
+
+  it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY, "", " "])(
+    "rejects invalid fixed column width %s",
+    (width) => {
+      expect(() =>
+        renderWithLocale(
+          <Datagrid
+            caption="Invalid"
+            rows={[]}
+            getRowId={(row: Row) => row.id}
+            columns={[{ id: "name", header: "Name", cell: (row: Row) => row.name, width }]}
+          />,
+        ),
+      ).toThrow();
+    },
+  );
+
+  it("rejects two competing width definitions on the same column", () => {
+    expect(() =>
+      renderWithLocale(
+        <Datagrid
+          caption="Invalid"
+          rows={[]}
+          getRowId={(row: Row) => row.id}
+          columns={[
+            {
+              id: "name",
+              header: "Name",
+              cell: (row: Row) => row.name,
+              width: 240,
+              widthPercent: 20,
+            },
+          ]}
+        />,
+      ),
+    ).toThrow();
+  });
+
   it("renders a semantic table with the global appearance and custom row height", () => {
     renderWithLocale(
       <Datagrid

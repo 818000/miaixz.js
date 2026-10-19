@@ -287,17 +287,5 @@ button.miaixz-button.miaixz-icon-button[data-appearance="glyph"][data-variant="p
 }
 
 .miaixz-button-spinner {
-  animation: miaixz-button-spin var(--miaixz-motion-overlay-duration) linear infinite;
-}
-
-@keyframes miaixz-button-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-button-spinner {
-    animation: none;
-  }
+  color: inherit;
 }

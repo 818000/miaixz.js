@@ -25,7 +25,7 @@
 import type { ReactNode, RefObject, UIEvent } from "react";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
-import { Icon } from "@miaixz/icons";
+import { Spinner } from "../spinner/spinner.js";
 import type { MiaixzComboboxLoadState } from "./combobox-controller.js";
 import type { ComboboxOwnerState, ComboboxSlotProps } from "./combobox.types.js";
 
@@ -90,7 +90,7 @@ export function ComboboxPopup(props: ComboboxPopupProps) {
   if (props.state === "loading") {
     content = (
       <div {...messageProps} role="status">
-        <Icon name="loading" size="control" className="miaixz-icon-spin" />
+        <Spinner label="" aria-hidden="true" size="small" />
         {props.loadingMessage}
       </div>
     );

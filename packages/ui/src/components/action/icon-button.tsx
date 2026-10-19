@@ -28,6 +28,7 @@ import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { classNames } from "../../shared/class-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Icon } from "@miaixz/icons";
+import { Spinner } from "../spinner/spinner.js";
 import { Tooltip } from "../tooltip/tooltip.js";
 import type {
   IconButtonOwnerState,
@@ -135,7 +136,7 @@ export const IconButton = withMiaixzThemeComponent(
         {loading && (
           <>
             <span {...indicatorProps}>
-              <Icon className="miaixz-button-spinner" name="loading" size="control" />
+              <Spinner className="miaixz-button-spinner" label="" aria-hidden="true" size="small" />
             </span>
             <span className="miaixz-hidden">{t("ui.loading")}</span>
           </>
