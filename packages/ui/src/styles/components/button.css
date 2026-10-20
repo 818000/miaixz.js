@@ -41,12 +41,18 @@
   border-color: var(--miaixz-color-text-primary);
 }
 
-.miaixz-button[data-variant="solid"][data-tone="neutral"]:hover:not(:disabled) {
+.miaixz-button[data-variant="solid"][data-tone="neutral"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-text-secondary);
   border-color: var(--miaixz-color-text-secondary);
 }
 
-.miaixz-button[data-variant="solid"][data-tone="neutral"]:active:not(:disabled) {
+.miaixz-button[data-variant="solid"][data-tone="neutral"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-text-muted);
   border-color: var(--miaixz-color-text-muted);
 }
@@ -57,12 +63,18 @@
   border-color: var(--miaixz-color-brand);
 }
 
-.miaixz-button[data-variant="solid"][data-tone="brand"]:hover:not(:disabled) {
+.miaixz-button[data-variant="solid"][data-tone="brand"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-brand-hover);
   border-color: var(--miaixz-color-brand-hover);
 }
 
-.miaixz-button[data-variant="solid"][data-tone="brand"]:active:not(:disabled) {
+.miaixz-button[data-variant="solid"][data-tone="brand"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-brand-active);
   border-color: var(--miaixz-color-brand-active);
 }
@@ -73,8 +85,14 @@
   border-color: var(--miaixz-color-danger);
 }
 
-.miaixz-button[data-variant="solid"][data-tone="danger"]:hover:not(:disabled),
-.miaixz-button[data-variant="solid"][data-tone="danger"]:active:not(:disabled) {
+.miaixz-button[data-variant="solid"][data-tone="danger"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ),
+.miaixz-button[data-variant="solid"][data-tone="danger"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-danger);
   border-color: var(--miaixz-color-danger);
   opacity: var(--miaixz-opacity-muted);
@@ -86,14 +104,15 @@
   border-color: var(--miaixz-color-border);
 }
 
-.miaixz-button[data-variant="outlined"][data-tone="neutral"]:hover:not(:disabled) {
-  background: var(--miaixz-color-brand-soft);
-  border-color: var(--miaixz-color-border-strong);
-}
-
-.miaixz-button[data-variant="outlined"][data-tone="neutral"]:active:not(:disabled) {
-  background: var(--miaixz-color-surface-active);
-  border-color: var(--miaixz-color-border-strong);
+.miaixz-button[data-variant="outlined"][data-tone="neutral"]:is(
+    :hover,
+    :active,
+    :focus-visible,
+    [aria-pressed="true"],
+    [aria-expanded="true"]
+  ):not(:disabled, [aria-disabled="true"]) {
+  background: var(--miaixz-surface-role-selected-background);
+  border-color: var(--miaixz-surface-role-selected-border);
 }
 
 .miaixz-button[data-variant="outlined"][data-tone="brand"] {
@@ -102,11 +121,17 @@
   border-color: var(--miaixz-color-brand);
 }
 
-.miaixz-button[data-variant="outlined"][data-tone="brand"]:hover:not(:disabled) {
+.miaixz-button[data-variant="outlined"][data-tone="brand"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-brand-soft);
 }
 
-.miaixz-button[data-variant="outlined"][data-tone="brand"]:active:not(:disabled) {
+.miaixz-button[data-variant="outlined"][data-tone="brand"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-brand-soft-hover);
 }
 
@@ -116,8 +141,14 @@
   border-color: var(--miaixz-color-danger);
 }
 
-.miaixz-button[data-variant="outlined"][data-tone="danger"]:hover:not(:disabled),
-.miaixz-button[data-variant="outlined"][data-tone="danger"]:active:not(:disabled) {
+.miaixz-button[data-variant="outlined"][data-tone="danger"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ),
+.miaixz-button[data-variant="outlined"][data-tone="danger"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-danger-soft);
 }
 
@@ -127,11 +158,17 @@
   border-color: transparent;
 }
 
-.miaixz-button[data-variant="plain"][data-tone="neutral"]:hover:not(:disabled) {
+.miaixz-button[data-variant="plain"][data-tone="neutral"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-surface-hover);
 }
 
-.miaixz-button[data-variant="plain"][data-tone="neutral"]:active:not(:disabled) {
+.miaixz-button[data-variant="plain"][data-tone="neutral"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-surface-active);
 }
 
@@ -141,11 +178,17 @@
   border-color: transparent;
 }
 
-.miaixz-button[data-variant="plain"][data-tone="brand"]:hover:not(:disabled) {
+.miaixz-button[data-variant="plain"][data-tone="brand"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-brand-soft);
 }
 
-.miaixz-button[data-variant="plain"][data-tone="brand"]:active:not(:disabled) {
+.miaixz-button[data-variant="plain"][data-tone="brand"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-brand-soft-hover);
 }
 
@@ -155,8 +198,14 @@
   border-color: transparent;
 }
 
-.miaixz-button[data-variant="plain"][data-tone="danger"]:hover:not(:disabled),
-.miaixz-button[data-variant="plain"][data-tone="danger"]:active:not(:disabled) {
+.miaixz-button[data-variant="plain"][data-tone="danger"]:hover:not(
+    :disabled,
+    [aria-disabled="true"]
+  ),
+.miaixz-button[data-variant="plain"][data-tone="danger"]:active:not(
+    :disabled,
+    [aria-disabled="true"]
+  ) {
   background: var(--miaixz-color-danger-soft);
 }
 
@@ -171,7 +220,8 @@ button.miaixz-icon-button[data-appearance="glyph"][data-variant="plain"] {
 }
 
 button.miaixz-icon-button[data-appearance="glyph"][data-variant="plain"]:is(:hover, :active):not(
-    :disabled
+    :disabled,
+    [aria-disabled="true"]
   ) {
   color: var(--miaixz-color-brand-strong);
   background: transparent;
@@ -203,7 +253,7 @@ button.miaixz-button.miaixz-icon-button[data-appearance="glyph"][data-variant="p
   transform: none;
 }
 
-.miaixz-button.miaixz-button:disabled {
+.miaixz-button.miaixz-button:is(:disabled, [aria-disabled="true"]) {
   color: var(--miaixz-color-text-disabled);
   cursor: default;
   background: var(--miaixz-color-surface-secondary);
@@ -285,18 +335,9 @@ button.miaixz-button.miaixz-icon-button[data-appearance="glyph"][data-variant="p
   transform: translate(-50%, -50%);
 }
 
-.miaixz-button-spinner {
-  animation: miaixz-button-spin var(--miaixz-motion-overlay-duration) linear infinite;
-}
-
-@keyframes miaixz-button-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-button-spinner {
-    animation: none;
-  }
+/**
+ * Button loading indicators inherit the control state, regardless of stylesheet order.
+ */
+.miaixz-button .miaixz-button-spinner {
+  color: inherit;
 }

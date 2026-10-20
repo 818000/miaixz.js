@@ -58,7 +58,7 @@ export type PopoverOpenState =
  */
 export type PopoverTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> &
   RefAttributes<HTMLButtonElement> & {
-    readonly "data-dropdown-presentation"?: "default" | "account";
+    readonly "data-dropdown-presentation"?: "default" | "user-menu" | "account" | "action-menu";
   };
 /**
  * Named Popover parts available for slot and style customization.
@@ -69,7 +69,8 @@ export type PopoverSlot = "trigger" | "content";
  */
 export interface PopoverOwnerState {
   readonly open: boolean;
-  readonly placement: "bottom-start" | "bottom-end" | "top-start" | "top-end";
+  readonly placement:
+    "bottom-start" | "bottom-end" | "top-start" | "top-end" | "right-start" | "left-start";
   readonly popupRole?: PopoverPopupRole;
 }
 /**
@@ -85,7 +86,8 @@ export interface PopoverSlotProps {
 export type PopoverProps = PopoverOpenState & {
   readonly trigger: ReactElement<PopoverTriggerProps>;
   readonly children: ReactNode;
-  readonly placement?: "bottom-start" | "bottom-end" | "top-start" | "top-end";
+  readonly placement?:
+    "bottom-start" | "bottom-end" | "top-start" | "top-end" | "right-start" | "left-start";
   readonly offset?: number;
   readonly popupRole?: PopoverPopupRole;
   readonly slotProps?: PopoverSlotProps;

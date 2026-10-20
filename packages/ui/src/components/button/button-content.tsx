@@ -25,7 +25,7 @@
 import type { ReactElement, ReactNode } from "react";
 
 import type { ButtonOwnerState, ButtonSlotProps } from "./button.types.js";
-import { Icon } from "@miaixz/icons";
+import { Spinner } from "../spinner/spinner.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 
 /**
@@ -124,7 +124,7 @@ export function MiaixzButtonContent(properties: MiaixzButtonContentProps) {
       {ownerState.loading && (
         <>
           <span {...indicatorProps}>
-            <Icon className="miaixz-button-spinner" name="loading" size="control" />
+            <Spinner className="miaixz-button-spinner" label="" aria-hidden="true" size="small" />
           </span>
           <span className="miaixz-hidden" role="status" aria-live="polite">
             {loadingLabel}

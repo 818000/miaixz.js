@@ -34,6 +34,10 @@
   gap: var(--miaixz-space-8);
 }
 
+.miaixz-cluster[data-wrap="false"] {
+  flex-wrap: nowrap;
+}
+
 .miaixz-cluster-gap-tight {
   gap: var(--miaixz-space-4);
 }

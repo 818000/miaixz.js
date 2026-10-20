@@ -60,7 +60,9 @@ export {
   EditorSummary,
   Empty,
   Entry,
+  Exception,
   Field,
+  File,
   FormActions,
   getDropzoneFileSignature,
   getPaginationEntries,
@@ -71,6 +73,7 @@ export {
   HeatmapLegend,
   Hidden,
   IconButton,
+  CONTROL_FRAMES,
   Input,
   NumberInput,
   Link,
@@ -128,6 +131,7 @@ export {
   TableRow,
   Tag,
   Tabs,
+  TabTrigger,
   Textarea,
   TimePicker,
   Timeline,
@@ -159,7 +163,7 @@ export {
   stepIsoTime,
 } from "./components/index.js";
 export { MiaixzLinkProvider } from "./shared/anchor.js";
-export type { MiaixzLinkProviderProps } from "./shared/anchor.js";
+export type { MiaixzLinkProviderProps, LinkRefreshMode } from "./shared/anchor.js";
 export type {
   ActionBarOwnerState,
   ActionBarProps,
@@ -299,6 +303,7 @@ export type {
   DropdownCheckboxEntry,
   DropdownDividerEntry,
   DropdownEntry,
+  DropdownGroupEntry,
   DropdownLabelEntry,
   DropdownLinkEntry,
   DropdownPresentation,
@@ -662,6 +667,7 @@ export type {
   TabsOrientation,
   TabsOwnerState,
   TabsProps,
+  TabTriggerProps,
   TabsRootAttributes,
   TabsSlot,
   TabsSlotProps,
@@ -888,3 +894,16 @@ export { useMedia } from "./shared/responsive/use-media.js";
 export type { UseMediaOptions } from "./shared/responsive/use-media.js";
 
 export { VERSION } from "./version.js";
+
+export type { FileProps, FileTone } from "./components/file/index.js";
+
+export type {
+  ExceptionBackground,
+  ExceptionOwnProps,
+  ExceptionOwnerState,
+  ExceptionProps,
+  ExceptionRootAttributes,
+  ExceptionSlot,
+  ExceptionSlotProps,
+  ExceptionStatus,
+} from "./components/exception/index.js";

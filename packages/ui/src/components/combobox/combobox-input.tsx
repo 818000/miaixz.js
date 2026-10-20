@@ -69,7 +69,9 @@ export function ComboboxInput(props: ComboboxInputProps) {
   const state = props.ownerState;
   const controlProps = mergeMiaixzSlotProps({
     ownerState: state,
-    defaultProps: { className: `miaixz-control miaixz-${props.component}-control` },
+    defaultProps: {
+      className: `miaixz-control miaixz-control-medium miaixz-${props.component}-control`,
+    },
     slotProps: props.slotProps?.control,
     internalRef: props.controlRef,
     internalProps: {
@@ -135,7 +137,7 @@ export function ComboboxInput(props: ComboboxInputProps) {
   });
   const clearProps = mergeMiaixzSlotProps({
     ownerState: state,
-    defaultProps: { className: `miaixz-${props.component}-clear` },
+    defaultProps: { className: `miaixz-${props.component}-clear miaixz-field-action` },
     slotProps: props.slotProps?.clear,
     internalProps: {
       type: "button",
@@ -147,14 +149,14 @@ export function ComboboxInput(props: ComboboxInputProps) {
   });
   const toggleProps = mergeMiaixzSlotProps({
     ownerState: state,
-    defaultProps: { className: `miaixz-${props.component}-toggle` },
+    defaultProps: { className: `miaixz-${props.component}-toggle miaixz-field-action` },
     slotProps: props.slotProps?.toggle,
     internalProps: {
       type: "button",
       "aria-label": props.toggleLabel,
       "aria-controls": props.listboxId,
       "aria-expanded": state.open,
-      disabled: state.disabled,
+      disabled: state.disabled || state.readOnly,
       tabIndex: -1,
       onClick: props.onToggle,
     },
@@ -162,8 +164,17 @@ export function ComboboxInput(props: ComboboxInputProps) {
   });
   return (
     <div {...controlProps}>
-      {props.beforeInput}
-      <input {...inputProps} />
+      {props.component === "picker" ? (
+        <div className="miaixz-picker-content">
+          {props.beforeInput}
+          <input {...inputProps} />
+        </div>
+      ) : (
+        <>
+          {props.beforeInput}
+          <input {...inputProps} />
+        </>
+      )}
       {props.afterInput}
       {props.clearable && !state.disabled && (
         <button {...clearProps}>

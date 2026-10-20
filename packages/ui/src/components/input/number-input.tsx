@@ -22,8 +22,9 @@
  * Coordinates numeric input editing, stepping, validation, and change details.
  */
 
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useContext, useEffect, useRef, useState } from "react";
 
+import { MiaixzFieldContext } from "../../shared/field-context.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -57,7 +58,7 @@ export const NumberInput = withMiaixzThemeComponent(
       max,
       step = 1,
       precision = 0,
-      disabled = false,
+      disabled: disabledProp,
       readOnly = false,
       endAdornment,
       slotProps,
@@ -70,6 +71,8 @@ export const NumberInput = withMiaixzThemeComponent(
     },
     forwardedRef,
   ) {
+    const fieldContext = useContext(MiaixzFieldContext);
+    const disabled = disabledProp ?? fieldContext?.disabled ?? false;
     validateNumberInputOptions(min, max, step, precision);
     const controlled = value !== undefined;
     const initial = value ?? defaultValue;
@@ -186,6 +189,7 @@ export const NumberInput = withMiaixzThemeComponent(
         className={["miaixz-number-input", className].filter(Boolean).join(" ")}
         data-ui="number-input"
         type="text"
+        title={props.title ?? (typeof endAdornment === "string" ? endAdornment : undefined)}
         inputMode="decimal"
         role="spinbutton"
         aria-valuemin={min}
@@ -196,7 +200,13 @@ export const NumberInput = withMiaixzThemeComponent(
         readOnly={readOnly}
         endAdornment={
           <>
-            {endAdornment}
+            {typeof endAdornment === "string" || typeof endAdornment === "number" ? (
+              <span className="miaixz-number-input-suffix" title={String(endAdornment)}>
+                {endAdornment}
+              </span>
+            ) : (
+              endAdornment
+            )}
             {controls}
           </>
         }

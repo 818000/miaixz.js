@@ -22,6 +22,8 @@
  * Exposes the tabs public module.
  */
 
+export { TabTrigger } from "./tab-trigger.js";
+export type { TabTriggerProps } from "./tab-trigger.js";
 export { Tabs } from "./tabs.js";
 export type {
   MiaixzTabsOwnProps,

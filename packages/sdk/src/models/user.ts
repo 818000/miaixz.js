@@ -41,7 +41,7 @@ export interface MiaixzUserSummary {
   displayName: string;
 
   /**
-   * Optional account name used for sign-in or lookup.
+   * Optional username used for sign-in or lookup.
    */
   username?: string;
 
@@ -52,7 +52,7 @@ export interface MiaixzUserSummary {
 }
 
 /**
- * Describes a user and their account preferences.
+ * Describes a user and their preferences.
  *
  * @public
  */
@@ -73,7 +73,7 @@ export interface MiaixzUser extends MiaixzUserSummary {
   timezone?: string;
 
   /**
-   * Indicates whether the user account is active.
+   * Indicates whether the user is active.
    */
   active: boolean;
 }

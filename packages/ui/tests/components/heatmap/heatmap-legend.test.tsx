@@ -39,4 +39,12 @@ describe("HeatmapLegend", () => {
       );
     }
   });
+
+  it("keeps workbench labels readable without exposing numeric levels", () => {
+    const css = readFileSync("src/styles/components/heatmap.css", "utf8");
+    expect(css).toContain('.miaixz-heatmap[data-density="workbench"] .miaixz-heatmap-row-label');
+    expect(css).toContain('> span[aria-hidden="true"]');
+    expect(css).toContain("text-overflow: clip");
+    expect(css).toContain("display: none");
+  });
 });

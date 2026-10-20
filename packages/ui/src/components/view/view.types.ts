@@ -74,6 +74,18 @@ export interface ViewSlotProps {
  * Component-specific View properties composed with the permitted native attributes.
  */
 interface ViewBaseProps {
+  /**
+   * Keeps the frame mounted while descendant route views supply its current header and navigation.
+   */
+  readonly preserveFrame?: boolean;
+  /**
+   * Controls the active route while destination content or catalogs are still loading.
+   */
+  readonly currentHref?: string;
+  /**
+   * Supplies frame properties to the nearest persistent View and renders only its content there.
+   */
+  readonly inheritFrame?: boolean;
   readonly "aria-label": string;
   readonly title: ReactNode;
   readonly description?: ReactNode;

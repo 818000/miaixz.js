@@ -1,6 +1,6 @@
 {
   "name": "@miaixz/ui",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Miaixz design tokens, themes, styles, and UI components.",
   "type": "module",
   "engines": {
@@ -63,7 +63,9 @@
       "EditorSummary",
       "Empty",
       "Entry",
+      "Exception",
       "Field",
+      "File",
       "FormActions",
       "Graph",
       "Grid",
@@ -128,6 +130,7 @@
       "TableHeader",
       "TableRow",
       "Tabs",
+      "TabTrigger",
       "Tag",
       "Textarea",
       "Timeline",
@@ -264,6 +267,44 @@
       ],
       "EditorForm": [
         "presentation"
+      ],
+      "Upload": [
+        "accept",
+        "maxSizeBytes",
+        "disabled",
+        "label",
+        "dropLabel",
+        "browseLabel",
+        "upload",
+        "onComplete",
+        "multiple",
+        "maxFiles",
+        "files",
+        "defaultFiles",
+        "onFilesChange",
+        "removePolicy",
+        "getRemoveConfirmation",
+        "slotProps",
+        "onError",
+        "concurrency",
+        "retryPolicy"
+      ],
+      "File": [
+        "icon",
+        "label",
+        "tone",
+        "presentation"
+      ],
+      "Exception": [
+        "status",
+        "title",
+        "description",
+        "illustration",
+        "actions",
+        "background",
+        "headingLevel",
+        "showCode",
+        "slotProps"
       ]
     },
     "values": {
@@ -275,6 +316,19 @@
           "xlarge",
           "wide",
           "content"
+        ]
+      },
+      "Exception": {
+        "status": [
+          "404",
+          "403",
+          "500",
+          "unavailable"
+        ],
+        "background": [
+          "none",
+          "surface",
+          "subtle"
         ]
       }
     },
@@ -289,6 +343,14 @@
       "disclosure",
       "donut",
       "donut-segment",
+      "exception",
+      "exception-actions",
+      "exception-background",
+      "exception-code",
+      "exception-content",
+      "exception-description",
+      "exception-illustration",
+      "exception-title",
       "heatmap",
       "heatmap-cell",
       "heatmap-column-label",
@@ -329,6 +391,7 @@
       "transfer-target"
     ],
     "attributes": [
+      "data-miaixz-tab-trigger",
       "data-motion-replay",
       "data-motion-state"
     ]
@@ -778,7 +841,17 @@
     "./hidden/styles.css": "./dist/styles/components/hidden.css",
     "./theme.css": "./dist/theme/theme.css",
     "./core.css": "./dist/styles/core.css",
-    "./reset.css": "./dist/styles/reset.css"
+    "./reset.css": "./dist/styles/reset.css",
+    "./file": {
+      "types": "./dist/components/file/index.d.ts",
+      "import": "./dist/components/file/index.js"
+    },
+    "./file/styles.css": "./dist/styles/components/file.css",
+    "./exception": {
+      "types": "./dist/components/exception/index.d.ts",
+      "import": "./dist/components/exception/index.js"
+    },
+    "./exception/styles.css": "./dist/styles/components/exception.css"
   },
   "scripts": {
     "clean": "node --input-type=module --eval \"import { rm } from 'node:fs/promises'; await rm('dist', { recursive: true, force: true });\"",
@@ -803,8 +876,8 @@
     "check": "npm run typecheck && npm run lint && npm run audit:css && npm run test:coverage && npm run format:check"
   },
   "peerDependencies": {
-    "@miaixz/icons": ">=0.8.0 <0.9.0",
-    "@miaixz/sdk": ">=0.8.0 <0.9.0",
+    "@miaixz/icons": ">=0.8.1 <0.9.0",
+    "@miaixz/sdk": ">=0.8.1 <0.9.0",
     "react": ">=18.3 <20",
     "react-dom": ">=18.3 <20"
   },
@@ -815,8 +888,8 @@
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@eslint/js": "10.0.1",
-    "@miaixz/icons": "0.8.0",
-    "@miaixz/sdk": "0.8.0",
+    "@miaixz/icons": "0.8.1",
+    "@miaixz/sdk": "0.8.1",
     "@playwright/test": "1.62.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "^7.0.1",

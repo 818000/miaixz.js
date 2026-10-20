@@ -24,11 +24,14 @@
 
 import { forwardRef, useId, useRef, useState, type KeyboardEvent } from "react";
 
+import { useMiaixzLinkRefreshMode } from "../../shared/anchor.js";
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { classNames } from "../../shared/class-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import type { TabsOwnerState, TabsProps } from "./tabs.types.js";
+import { TabTrigger } from "./tab-trigger.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
@@ -40,6 +43,8 @@ export const Tabs = withMiaixzThemeComponent(
     const {
       items,
       label,
+      refreshMode: refreshModeOverride,
+      persistenceKey,
       value: controlledValue,
       defaultValue,
       onValueChange,
@@ -54,6 +59,7 @@ export const Tabs = withMiaixzThemeComponent(
       slotProps,
       ...nativeProps
     } = props;
+    const refreshMode = useMiaixzLinkRefreshMode(refreshModeOverride);
     validateTabs(items);
     const firstEnabled = items.find((item) => !item.disabled)?.value;
     const hasControlledValue = controlledValue !== undefined;
@@ -76,6 +82,8 @@ export const Tabs = withMiaixzThemeComponent(
     }
     const effectiveValue =
       selectedItem !== undefined && !selectedItem.disabled ? selectedItem.value : firstEnabled;
+    const [pendingRefresh, setPendingRefresh] = useState<string>();
+    const restored = useRef(false);
     const [focusedValue, setFocusedValue] = useState<string | undefined>(effectiveValue);
     const effectiveFocusedValue = items.some(
       (item) => item.value === focusedValue && !item.disabled,
@@ -100,7 +108,49 @@ export const Tabs = withMiaixzThemeComponent(
     const select = (value: string) => {
       if (state.readOnly || value === effectiveValue) return;
       state.setValue(value);
+      if (refreshMode === "page") setPendingRefresh(value);
     };
+    useMiaixzLayoutEffect(() => {
+      if (restored.current) return;
+      restored.current = true;
+      if (refreshMode !== "page" || state.readOnly) return;
+      try {
+        const key = createTabsReloadKey(
+          persistenceKey ?? nativeProps.id,
+          items.map((item) => item.value),
+        );
+        const saved = window.sessionStorage.getItem(key);
+        window.sessionStorage.removeItem(key);
+        if (saved !== null && items.some((item) => item.value === saved && !item.disabled)) {
+          state.setValue(saved);
+          setFocusedValue(saved);
+        }
+      } catch {
+        /**
+         * Storage restrictions do not prevent ordinary tab selection.
+         */
+      }
+    });
+    useMiaixzLayoutEffect(() => {
+      if (pendingRefresh === undefined) return;
+      if (effectiveValue === pendingRefresh) {
+        try {
+          window.sessionStorage.setItem(
+            createTabsReloadKey(
+              persistenceKey ?? nativeProps.id,
+              items.map((item) => item.value),
+            ),
+            pendingRefresh,
+          );
+        } catch {
+          /**
+           * Native document refresh remains available when storage is restricted.
+           */
+        }
+        window.location.reload();
+      }
+      setPendingRefresh(undefined);
+    }, [pendingRefresh, effectiveValue, persistenceKey, nativeProps.id, items]);
     /**
      * Moves focus among enabled tabs using orientation and text direction, respecting the activation mode.
      *
@@ -169,7 +219,7 @@ export const Tabs = withMiaixzThemeComponent(
             value: item.value,
           };
           return (
-            <button
+            <TabTrigger
               {...mergeMiaixzSlotProps({
                 ownerState,
                 defaultProps: { className: "miaixz-tab" },
@@ -219,36 +269,13 @@ export const Tabs = withMiaixzThemeComponent(
                   {item.count}
                 </span>
               )}
-            </button>
+            </TabTrigger>
           );
         })}
       </div>
     );
-    return (
-      <div
-        {...mergeMiaixzSlotProps({
-          ownerState: rootOwnerState,
-          defaultProps: {
-            className: classNames(
-              "miaixz-tabs",
-              variant === "navigation" && "miaixz-tabs-navigation",
-              variant === "editor" && "miaixz-tabs-editor",
-              panelPadding === "none" && "miaixz-tabs-panel-padding-none",
-              headerVariant === "toolbar" && "miaixz-tabs-header-toolbar",
-            ),
-          },
-          componentProps: nativeProps,
-          slotProps: slotProps?.root,
-          forwardedRef: ref,
-          internalProps: {
-            "data-ui": "tabs",
-            "data-orientation": orientation,
-            "data-variant": variant,
-            "data-panel-padding": panelPadding,
-          },
-          ownedProps: ["data-orientation", "data-variant", "data-panel-padding"],
-        })}
-      >
+    const content = (
+      <>
         {actions !== undefined ? (
           <div
             {...mergeMiaixzSlotProps({
@@ -306,6 +333,34 @@ export const Tabs = withMiaixzThemeComponent(
             </div>
           );
         })}
+      </>
+    );
+    return (
+      <div
+        {...mergeMiaixzSlotProps({
+          ownerState: rootOwnerState,
+          defaultProps: {
+            className: classNames(
+              "miaixz-tabs",
+              variant === "navigation" && "miaixz-tabs-navigation",
+              variant === "editor" && "miaixz-tabs-editor",
+              panelPadding === "none" && "miaixz-tabs-panel-padding-none",
+              headerVariant === "toolbar" && "miaixz-tabs-header-toolbar",
+            ),
+          },
+          componentProps: nativeProps,
+          slotProps: slotProps?.root,
+          forwardedRef: ref,
+          internalProps: {
+            "data-ui": "tabs",
+            "data-orientation": orientation,
+            "data-variant": variant,
+            "data-panel-padding": panelPadding,
+          },
+          ownedProps: ["data-orientation", "data-variant", "data-panel-padding"],
+        })}
+      >
+        {orientation === "vertical" ? <div className="miaixz-tabs-layout">{content}</div> : content}
       </div>
     );
   }),
@@ -329,4 +384,14 @@ function validateTabs(items: TabsProps["items"]): void {
     }
     values.add(item.value);
   }
+}
+
+/**
+ * Resolves a route-scoped, one-use selection key for browser document reloads.
+ * @param key Optional explicit collection identity.
+ * @param values Stable tab values used when no explicit identity is supplied.
+ * @returns Session storage key.
+ */
+function createTabsReloadKey(key: string | undefined, values: readonly string[]): string {
+  return `miaixz.tabs.reload:${window.location.pathname}${window.location.search}:${key ?? JSON.stringify(values)}`;
 }

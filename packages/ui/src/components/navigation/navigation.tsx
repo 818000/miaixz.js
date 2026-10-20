@@ -25,6 +25,8 @@
 import { forwardRef } from "react";
 
 import { MiaixzUiError } from "../../errors/ui-error.js";
+import { TabTrigger } from "../tabs/tab-trigger.js";
+import type { LinkRefreshMode } from "../../shared/anchor.js";
 import { Anchor } from "../../shared/anchor.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Icon } from "@miaixz/icons";
@@ -45,6 +47,7 @@ export const Navigation = withMiaixzThemeComponent(
   forwardRef<HTMLElement, NavigationProps>(function Navigation(
     {
       items,
+      refreshMode,
       orientation = "vertical",
       density = "standard",
       surface = "plain",
@@ -67,7 +70,12 @@ export const Navigation = withMiaixzThemeComponent(
       <nav
         {...mergeMiaixzSlotProps({
           ownerState,
-          defaultProps: { className: "miaixz-navigation" },
+          defaultProps: {
+            className:
+              orientation === "horizontal"
+                ? "miaixz-navigation miaixz-tabs-list"
+                : "miaixz-navigation",
+          },
           componentProps: props,
           slotProps: slotProps?.root,
           forwardedRef: ref,
@@ -84,6 +92,7 @@ export const Navigation = withMiaixzThemeComponent(
           <NavigationEntryView
             density={density}
             entry={item}
+            refreshMode={refreshMode}
             key={item.id}
             orientation={orientation}
             slotProps={slotProps}
@@ -104,6 +113,7 @@ export const Navigation = withMiaixzThemeComponent(
  */
 function NavigationEntryView({
   entry,
+  refreshMode,
   orientation,
   density,
   surface,
@@ -111,6 +121,7 @@ function NavigationEntryView({
   slotProps,
 }: {
   readonly entry: NavigationEntry;
+  readonly refreshMode: LinkRefreshMode | undefined;
   readonly orientation: NavigationOwnerState["orientation"];
   readonly density: NavigationOwnerState["density"];
   readonly surface: NavigationOwnerState["surface"];
@@ -125,8 +136,9 @@ function NavigationEntryView({
     itemId: entry.id,
   };
   const IconRenderer = slots?.icon ?? Icon;
+  const Entry = orientation === "horizontal" ? TabTrigger : Anchor;
   return (
-    <Anchor
+    <Entry
       {...mergeMiaixzSlotProps({
         ownerState,
         defaultProps: { className: "miaixz-navigation-item" },
@@ -140,6 +152,7 @@ function NavigationEntryView({
         ownedProps: ["data-ui", "href", "aria-current"],
       })}
       href={entry.href}
+      refreshMode={refreshMode}
     >
       {entry.icon !== undefined && (
         <IconRenderer
@@ -176,7 +189,7 @@ function NavigationEntryView({
           {entry.meta}
         </span>
       )}
-    </Anchor>
+    </Entry>
   );
 }
 

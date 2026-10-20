@@ -64,19 +64,21 @@ describe("table row effects", () => {
 
   it("defines theme-aware row states without density-specific height overrides", () => {
     const css = readFileSync("src/styles/components/table.css", "utf8");
-    const selectedRule = '.miaixz-table-row[data-selected="true"]';
-    const selectedHoverRule = ':is(.miaixz-table) > tbody > tr[data-selected="true"]:hover';
+    const selectedRule = '[data-selected="true"]';
+    const selectedHoverRule = "> tr:hover:not(";
 
     expect(css).toContain(selectedRule);
-    expect(css).toContain("--miaixz-table-row-hover-background: var(--miaixz-color-surface-hover)");
+    expect(css).toContain(
+      "--miaixz-table-row-hover-background: var(--miaixz-surface-role-selected-background)",
+    );
     expect(css).toContain(
       "--miaixz-table-row-selected-background: var(--miaixz-surface-role-selected-background)",
     );
     expect(css).toContain(
-      "--miaixz-table-row-selected-hover-background: var(--miaixz-color-brand-soft-hover)",
+      "--miaixz-table-row-selected-hover-background: var(--miaixz-surface-role-selected-background)",
     );
     expect(css).toContain(
-      "--miaixz-table-row-active-background: var(--miaixz-color-surface-active)",
+      "--miaixz-table-row-active-background: var(--miaixz-surface-role-selected-background)",
     );
     expect(css).toContain(selectedHoverRule);
     expect(css).toContain(".miaixz-table > :is(thead, tbody, tfoot) > tr");

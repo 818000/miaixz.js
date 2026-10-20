@@ -63,10 +63,10 @@
   box-shadow: inset 0 0 0 var(--miaixz-border-width-default) var(--miaixz-color-brand);
 }
 
-.miaixz-segmented-item:hover:not(:disabled),
+.miaixz-segmented-item:is(:hover, :active, :focus-visible):not(:disabled),
 .miaixz-segmented-item[aria-pressed="true"] {
   color: var(--miaixz-color-brand-strong);
-  background: var(--miaixz-color-brand-soft);
+  background: var(--miaixz-surface-role-selected-background);
 }
 
 .miaixz-segmented-item:focus-visible {

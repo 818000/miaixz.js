@@ -23,15 +23,41 @@
  */
 
 .miaixz-spinner {
+  position: relative;
   display: inline-flex;
+  flex: none;
   align-items: center;
   justify-content: center;
   vertical-align: middle;
   color: var(--miaixz-color-brand);
 }
 
+/**
+ * Preserve the public icon slot's dimensions while drawing one shared loading ring.
+ */
 .miaixz-spinner > .miaixz-icon {
-  animation: miaixz-spinner-rotate var(--miaixz-motion-overlay-duration) linear infinite;
+  visibility: hidden;
+}
+
+.miaixz-spinner::before,
+.miaixz-spinner::after {
+  position: absolute;
+  inset: var(--miaixz-space-2);
+  box-sizing: border-box;
+  pointer-events: none;
+  content: "";
+  border: var(--miaixz-border-width-strong) solid currentcolor;
+  border-radius: var(--miaixz-radius-round);
+}
+
+.miaixz-spinner::before {
+  opacity: 0.16;
+}
+
+.miaixz-spinner::after {
+  border-block-end-color: transparent;
+  border-inline-end-color: transparent;
+  animation: miaixz-spinner-rotate var(--miaixz-motion-loading-duration) linear infinite;
 }
 
 @keyframes miaixz-spinner-rotate {
@@ -41,7 +67,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .miaixz-spinner > .miaixz-icon {
+  .miaixz-spinner::after {
     animation: none;
   }
 }

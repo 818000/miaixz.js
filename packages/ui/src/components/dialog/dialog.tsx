@@ -259,10 +259,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         <dialog
           {...rootProps}
           onCancel={(event) => {
+            if (event.target !== event.currentTarget) return;
             rootProps.onCancel?.(event);
             event.stopPropagation();
           }}
           onClose={(event) => {
+            if (event.target !== event.currentTarget) return;
             rootProps.onClose?.(event);
             event.stopPropagation();
           }}

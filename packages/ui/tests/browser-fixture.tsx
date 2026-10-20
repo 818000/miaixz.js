@@ -25,7 +25,9 @@ import {
   Appearance,
   Avatar,
   Button,
+  Cluster,
   Combobox,
+  CONTROL_FRAMES,
   Datagrid,
   DatePicker,
   Descriptions,
@@ -41,6 +43,7 @@ import {
   EditorSection,
   EditorSummary,
   Field,
+  File,
   FormActions,
   Graph,
   Grid,
@@ -51,14 +54,20 @@ import {
   Metric,
   Metrics,
   MiaixzLocaleProvider,
+  MiaixzLinkProvider,
+  Navigation,
+  View,
+  type LinkRefreshMode,
   Panel,
   Picker,
   RowActions,
   Rating,
   Segmented,
+  Search,
   Select,
   Slider,
   Sparkline,
+  Spinner,
   Status,
   Steps,
   Switch,
@@ -86,6 +95,9 @@ import "../src/theme/theme.css";
 
 const parameters = new URLSearchParams(window.location.search);
 const theme = parameters.get("theme") ?? miaixzDefaultAppearance.theme;
+const supplementalTheme = parameters.has("extraTheme")
+  ? defineTheme(JSON.parse(parameters.get("extraTheme") ?? "{}"))
+  : null;
 const colorMode = parameters.get("colorMode") === "dark" ? "dark" : "light";
 const densityParameter = parameters.get("density");
 const density =
@@ -690,6 +702,252 @@ export function AccessibilityFixture({ name }: { readonly name: AccessibilityFix
 }
 
 /**
+ * Compares text insets and visible trailing icon edges across shared field surfaces.
+ * @returns A stable browser geometry fixture with explicit sizes and RTL support.
+ */
+function FieldGeometryFixture() {
+  const [drawerOpen, setDrawerOpen] = useState(true);
+  const options = [{ value: "alpha", label: "Alpha", textValue: "Alpha" }];
+  const items = [{ kind: "option" as const, id: "alpha", ...options[0]! }];
+  const fields = (
+    <main style={{ padding: 24 }} dir={parameters.get("direction") === "rtl" ? "rtl" : "ltr"}>
+      <h1>Field inset geometry</h1>
+      <Grid columns="two">
+        {(["small", "medium", "large"] as const).flatMap((size) => [
+          <Field
+            key={`input-${size}`}
+            label={`Input ${size}`}
+            data-testid={`geometry-input-${size}`}
+          >
+            <Input size={size} defaultValue="Alpha" />
+          </Field>,
+          <Field
+            key={`select-${size}`}
+            label={`Select ${size}`}
+            data-testid={`geometry-select-${size}`}
+          >
+            <Select size={size} items={items} defaultValue="alpha" />
+          </Field>,
+          <Field
+            key={`search-${size}`}
+            label={`Search ${size}`}
+            data-testid={`geometry-search-${size}`}
+          >
+            <Search size={size} defaultValue="Alpha" />
+          </Field>,
+        ])}
+        <Field label="Header search" data-testid="geometry-header-search">
+          <Search variant="header" defaultValue="Alpha" />
+        </Field>
+        <Field label="Combobox" data-testid="geometry-combobox">
+          <Combobox label={null} options={options} defaultValue={options[0]!} />
+        </Field>
+        <Field label="Picker" data-testid="geometry-picker">
+          <Picker label={null} options={options} defaultValue={[options[0]!]} />
+        </Field>
+        <Field label="DatePicker" data-testid="geometry-date">
+          <DatePicker defaultValue="2026-10-19" referenceDate="2026-10-19" />
+        </Field>
+        <Field label="TimePicker" data-testid="geometry-time">
+          <TimePicker defaultValue="09:30" />
+        </Field>
+        <Field label="Textarea" data-testid="geometry-textarea">
+          <Textarea defaultValue="Alpha" rows={2} />
+        </Field>
+        <Field label="NumberInput" data-testid="geometry-number">
+          <NumberInput defaultValue={20} />
+        </Field>
+        <Field
+          label="Number with unit"
+          data-testid="geometry-number-unit"
+          style={{ maxWidth: 158 }}
+        >
+          <NumberInput defaultValue={2600} endAdornment="万 Token/月" />
+        </Field>
+        <Field label="Narrow number" data-testid="geometry-narrow-number" style={{ maxWidth: 64 }}>
+          <NumberInput defaultValue={40} />
+        </Field>
+        <Field label="Narrow select" data-testid="geometry-narrow-select" style={{ maxWidth: 52 }}>
+          <Select items={items} defaultValue="alpha" />
+        </Field>
+        <Field label="Icon command" data-testid="geometry-icon-command">
+          <Input defaultValue="Alpha" endAdornment={<IconButton icon="send" label="Send" />} />
+        </Field>
+        <Field label="Glyph command" data-testid="geometry-glyph-command">
+          <Input
+            defaultValue="Alpha"
+            endAdornment={<IconButton appearance="glyph" icon="more-horizontal" label="More" />}
+          />
+        </Field>
+        <Field label="Disabled command" data-testid="geometry-disabled-command">
+          <Input
+            defaultValue="Alpha"
+            endAdornment={<IconButton icon="send" label="Disabled send" disabled />}
+          />
+        </Field>
+        <Field label="Leading command" data-testid="geometry-leading-command">
+          <Input
+            defaultValue="Alpha"
+            startAdornment={<IconButton icon="search" label="Search" />}
+          />
+        </Field>
+        <Field label="Password" data-testid="geometry-password">
+          <Input
+            type="password"
+            defaultValue="Alpha"
+            endAdornment={
+              <ActionText
+                action={{
+                  kind: "command",
+                  id: "toggle-password",
+                  label: "Show password",
+                  icon: "eye",
+                  onAction: () => undefined,
+                }}
+              />
+            }
+          />
+        </Field>
+        <Field label="Empty picker" data-testid="geometry-empty-picker">
+          <Picker label={null} options={options} />
+        </Field>
+        <Field label="Wrapped picker" data-testid="geometry-wrapped-picker">
+          <Picker
+            label={null}
+            options={Array.from({ length: 8 }, (_, i) => ({
+              value: `option-${i}`,
+              label: `Selected option ${i}`,
+              textValue: `Selected option ${i}`,
+            }))}
+            defaultValue={Array.from({ length: 8 }, (_, i) => ({
+              value: `option-${i}`,
+              label: `Selected option ${i}`,
+              textValue: `Selected option ${i}`,
+            }))}
+          />
+        </Field>
+      </Grid>
+    </main>
+  );
+  return parameters.get("fieldDrawer") === "1" ? (
+    <Drawer
+      open={drawerOpen}
+      onOpenChange={setDrawerOpen}
+      title="Field geometry drawer"
+      width={1000}
+    >
+      {fields}
+    </Drawer>
+  ) : (
+    fields
+  );
+}
+
+/**
+ * Shows the same public controls in ordinary, readonly, disabled and invalid modes.
+ * Pointer and keyboard states are exercised through the native editors.
+ * @returns Interactive control state reference.
+ */
+function ControlStateFixture() {
+  const [mode, setMode] = useState("normal");
+  const [log, setLog] = useState("");
+  const disabled = mode === "disabled";
+  const readOnly = mode === "readonly";
+  const options = [
+    { value: "alpha", label: "Alpha", textValue: "Alpha" },
+    { value: "beta", label: "Beta", textValue: "Beta" },
+  ];
+  const rows = [
+    ["Input", <Input defaultValue="Miaixz" readOnly={readOnly} />],
+    ["Textarea", <Textarea defaultValue="Shared field surface" rows={2} readOnly={readOnly} />],
+    ["NumberInput", <NumberInput defaultValue={20} readOnly={readOnly} />],
+    [
+      "Select",
+      <Select
+        defaultValue="alpha"
+        readOnly={readOnly}
+        items={options.map((option) => ({
+          ...option,
+          kind: "option",
+          id: `option-${encodeURIComponent(option.value)}`,
+        }))}
+      />,
+    ],
+    [
+      "Combobox",
+      <Combobox
+        label="Combobox"
+        options={options}
+        defaultValue={options[0]!}
+        readOnly={readOnly}
+      />,
+    ],
+    [
+      "Picker",
+      <Picker label="Picker" options={options} defaultValue={[options[0]!]} readOnly={readOnly} />,
+    ],
+    [
+      "DatePicker",
+      <DatePicker defaultValue="2026-10-16" referenceDate="2026-10-16" readOnly={readOnly} />,
+    ],
+    ["TimePicker", <TimePicker defaultValue="09:30" readOnly={readOnly} />],
+  ] as const;
+  return (
+    <main style={{ padding: 32 }}>
+      <h1>Shared control states</h1>
+      <Cluster>
+        <Button onClick={() => setMode("normal")}>普通</Button>
+        <Button onClick={() => setMode("readonly")}>只读</Button>
+        <Button onClick={() => setMode("disabled")}>禁用</Button>
+        <Button onClick={() => setMode("invalid")}>错误</Button>
+        <ActionText
+          action={{
+            id: "state.action",
+            kind: "command",
+            label: "文字操作",
+            icon: "pencil",
+            disabled,
+            onAction: () => setLog("action"),
+          }}
+        />
+      </Cluster>
+      <Grid columns="two">
+        {rows.map(([label, control]) => (
+          <Field
+            key={label}
+            label={label}
+            disabled={disabled}
+            errorText={mode === "invalid" ? `${label} error` : undefined}
+            data-testid={`state-${label}`}
+          >
+            {control}
+          </Field>
+        ))}
+      </Grid>
+      <output>{log}</output>
+      <Cluster>
+        {(
+          [
+            "pdf",
+            "word",
+            "spreadsheet",
+            "presentation",
+            "drawing",
+            "video",
+            "archive",
+            "image",
+            "audio",
+            "code",
+          ] as const
+        ).map((tone) => (
+          <File key={tone} icon="file" label={tone} tone={tone} presentation="badge" />
+        ))}
+      </Cluster>
+    </main>
+  );
+}
+
+/**
  * Renders fixed-title fields and a scrollable editing drawer.
  *
  * @returns Form controls in deterministic interaction states.
@@ -794,6 +1052,61 @@ function FormLabelFixture() {
 }
 
 /**
+ * Exercises editor and vertical tab containment at independently sized surfaces.
+ * @returns A fixed identity editor used by browser layout regressions.
+ */
+function ResponsiveEditorFixture() {
+  const width = Number(parameters.get("editorWidth") ?? "960");
+  return (
+    <main style={{ maxWidth: "100%", width }}>
+      <EditorLayout
+        summary={<EditorSummary avatar="KL" title="Editor summary" items={[]} />}
+        divided
+      >
+        <Tabs
+          variant="navigation"
+          headerVariant={parameters.has("editorActions") ? "toolbar" : "default"}
+          actions={
+            parameters.has("editorActions") ? (
+              <Cluster>
+                <Button>Export editor</Button>
+              </Cluster>
+            ) : undefined
+          }
+          label="Editor navigation"
+          orientation="vertical"
+          items={[
+            {
+              value: "identity",
+              label: "Identity",
+              content: (
+                <EditorSection title="Identity fields" layout="two-column">
+                  <Field label="Identity name">
+                    <Input defaultValue="Kimi Liu" />
+                  </Field>
+                  <Field label="Identity account">
+                    <Input defaultValue="kimi" readOnly />
+                  </Field>
+                </EditorSection>
+              ),
+            },
+            {
+              value: "security",
+              label: "Security",
+              content: (
+                <Field label="Security status" disabled>
+                  <Input value="Enabled" />
+                </Field>
+              ),
+            },
+          ]}
+        />
+      </EditorLayout>
+    </main>
+  );
+}
+
+/**
  * Renders public controls and deterministic browser contract fixtures.
  *
  * @returns Theme and locale providers with the selected fixture.
@@ -815,11 +1128,67 @@ export function BrowserFixture() {
   ));
   const accessibilityFixture = parameters.get("a11y") as AccessibilityFixtureName | null;
 
-  if (parameters.get("formLabels") === "1") {
+  if (
+    parameters.has("navigationRefresh") ||
+    parameters.get("controlStates") === "1" ||
+    parameters.get("fieldGeometry") === "1" ||
+    parameters.get("formLabels") === "1" ||
+    parameters.get("editorResponsive") === "1" ||
+    parameters.get("loadingIndicators") === "1"
+  ) {
     return (
       <MiaixzLocaleProvider i18n={i18n}>
-        <Theme appearance={appearance} fallback={miaixzDefaultAppearance.theme}>
-          <FormLabelFixture />
+        <Theme
+          appearance={appearance}
+          fallback={miaixzDefaultAppearance.theme}
+          themes={supplementalTheme ? [supplementalTheme] : []}
+          {...(parameters.get("uniformFields") === "1"
+            ? {
+                components: {
+                  Input: { slotClassNames: { root: CONTROL_FRAMES.medium } },
+                  Select: { slotClassNames: { root: CONTROL_FRAMES.medium } },
+                  Combobox: { slotClassNames: { control: CONTROL_FRAMES.medium } },
+                  Picker: { slotClassNames: { control: CONTROL_FRAMES.medium } },
+                },
+              }
+            : {})}
+        >
+          {parameters.get("loadingIndicators") === "1" ? (
+            <main aria-label="加载状态展示">
+              <Panel title="加载状态" description="统一图形、尺寸与动画节奏">
+                <Cluster>
+                  <Spinner size="small" label="正在加载小尺寸" />
+                  <Spinner label="正在加载" />
+                  <Spinner size="large" label="正在加载大尺寸" />
+                  <Button loading loadingLabel="正在保存" variant="solid" tone="brand">
+                    保存
+                  </Button>
+                  <Button loading loadingLabel="正在查询" variant="outlined">
+                    查询
+                  </Button>
+                  <IconButton icon="refresh-cw" label="刷新" loading />
+                </Cluster>
+              </Panel>
+              <Datagrid
+                caption="配置加载状态"
+                columns={[{ id: "name", header: "配置名称", cell: () => null }]}
+                rows={[]}
+                getRowId={(row: { id: string }) => row.id}
+                loading
+                loadingLabel="正在读取配置"
+              />
+            </main>
+          ) : parameters.has("navigationRefresh") ? (
+            <NavigationRefreshFixture />
+          ) : parameters.get("editorResponsive") === "1" ? (
+            <ResponsiveEditorFixture />
+          ) : parameters.get("fieldGeometry") === "1" ? (
+            <FieldGeometryFixture />
+          ) : parameters.get("controlStates") === "1" ? (
+            <ControlStateFixture />
+          ) : (
+            <FormLabelFixture />
+          )}
         </Theme>
       </MiaixzLocaleProvider>
     );
@@ -1110,6 +1479,82 @@ export function BrowserFixture() {
         )}
       </Theme>
     </MiaixzLocaleProvider>
+  );
+}
+
+/**
+ * Demonstrates persistent content navigation and native full-document refreshes.
+ * @returns Router-neutral navigation example.
+ */
+function NavigationRefreshFixture() {
+  const mode: LinkRefreshMode = parameters.get("navigationRefresh") === "page" ? "page" : "content";
+  const override = parameters.get("navigationOverride") as LinkRefreshMode | null;
+  const [section, setSection] = useState(
+    parameters.get("section") ?? (window.location.hash.slice(1) || "first"),
+  );
+  const href = new URL(window.location.href);
+  if (parameters.get("navigationTarget") === "fragment") href.hash = "second";
+  else href.searchParams.set("section", "second");
+  return (
+    <MiaixzLinkProvider
+      refreshMode={mode}
+      renderAnchor={(props, ref) => (
+        <a
+          {...props}
+          ref={ref}
+          onClick={(event) => {
+            props.onClick?.(event);
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey ||
+              event.currentTarget.target === "_blank"
+            )
+              return;
+            event.preventDefault();
+            window.history.pushState(null, "", props.href);
+            setSection("second");
+          }}
+        />
+      )}
+    >
+      <View aria-label="Frame" preserveFrame title={null}>
+        <View
+          key={parameters.has("localTabs") ? "local" : section}
+          inheritFrame
+          aria-label="Module"
+          title="Module"
+          description="Persistent frame"
+        >
+          {parameters.has("localTabs") ? (
+            <Tabs
+              label="Local tabs"
+              value={section}
+              onValueChange={setSection}
+              {...(override ? { refreshMode: override } : {})}
+              persistenceKey="local-navigation-example"
+              items={[
+                { value: "first", label: "First", content: <p>Destination first</p> },
+                { value: "second", label: "Second", content: <p>Destination second</p> },
+              ]}
+            />
+          ) : (
+            <>
+              <Navigation
+                label="Refresh navigation"
+                orientation="horizontal"
+                {...(override ? { refreshMode: override } : {})}
+                items={[{ id: "second", href: href.href, label: "Second", textValue: "Second" }]}
+              />
+              <p>Destination {section}</p>
+            </>
+          )}
+        </View>
+      </View>
+    </MiaixzLinkProvider>
   );
 }
 

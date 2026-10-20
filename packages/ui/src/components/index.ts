@@ -279,6 +279,7 @@ export type {
   DropdownCheckboxEntry,
   DropdownDividerEntry,
   DropdownEntry,
+  DropdownGroupEntry,
   DropdownLabelEntry,
   DropdownLinkEntry,
   DropdownPresentation,
@@ -399,7 +400,7 @@ export type {
   NoticeSlot,
   NoticeSlotProps,
 } from "./notice/index.js";
-export { Input, NumberInput } from "./input/index.js";
+export { CONTROL_FRAMES, Input, NumberInput } from "./input/index.js";
 export type {
   InputOwnerState,
   InputProps,
@@ -750,6 +751,8 @@ export type {
   TableRowProps,
   TableSlot,
 } from "./table/index.js";
+export { TabTrigger } from "./tabs/index.js";
+export type { TabTriggerProps } from "./tabs/index.js";
 export { Tabs } from "./tabs/index.js";
 export type {
   MiaixzTabsOwnProps,
@@ -885,3 +888,18 @@ export {
   useVisualizationGroupMotion,
   type VisualizationGroupMotionOptions,
 } from "../shared/use-visualization-motion.js";
+
+export { File } from "./file/index.js";
+export type { FileProps, FileTone } from "./file/index.js";
+
+export { Exception } from "./exception/index.js";
+export type {
+  ExceptionBackground,
+  ExceptionOwnProps,
+  ExceptionOwnerState,
+  ExceptionProps,
+  ExceptionRootAttributes,
+  ExceptionSlot,
+  ExceptionSlotProps,
+  ExceptionStatus,
+} from "./exception/index.js";

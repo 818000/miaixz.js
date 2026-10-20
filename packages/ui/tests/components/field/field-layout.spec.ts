@@ -63,6 +63,49 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/tests/?formLabels=1");
 });
 
+test("filled, readonly and invalid fields retain a single focus treatment", async ({ page }) => {
+  const input = page.getByRole("textbox", { name: "名称", exact: true });
+  const frame = page.getByTestId("label-text").locator(".miaixz-input");
+  const brand = await frame.evaluate((element) => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--miaixz-color-brand)";
+    element.append(probe);
+    const color = getComputedStyle(probe).color;
+    probe.remove();
+    return color;
+  });
+  await input.fill("Miaixz");
+  await expect(frame).toHaveCSS("border-top-color", brand);
+  await expect(frame).toHaveCSS("outline-width", "0px");
+  await expect(input).toHaveCSS("outline-width", "0px");
+  await page.getByRole("button", { name: "切换只读", exact: true }).click();
+  await input.focus();
+  await expect(frame).toHaveCSS("border-top-color", brand);
+  await expect(frame).toHaveCSS("outline-width", "0px");
+  await expect(frame).toHaveCSS("box-shadow", "none");
+  await input.press("X");
+  await expect(input).toHaveValue("Miaixz");
+  await page.getByRole("button", { name: "切换错误", exact: true }).click();
+  const danger = await frame.evaluate((element) => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--miaixz-color-danger)";
+    element.append(probe);
+    const color = getComputedStyle(probe).color;
+    probe.remove();
+    return color;
+  });
+  await input.hover();
+  await input.focus();
+  await expect(frame).toHaveCSS("border-top-color", danger);
+  const textarea = page.getByRole("textbox", { name: "说明", exact: true });
+  await textarea.focus();
+  await expect(textarea).toHaveCSS("outline-width", "0px");
+  await expect(page.getByTestId("label-textarea").locator(".miaixz-textarea-frame")).toHaveCSS(
+    "outline-width",
+    "0px",
+  );
+});
+
 test("all field controls keep one title above the frame", async ({ page }) => {
   const fields = page.getByRole("form", { name: "字段布局表单" }).locator(".miaixz-field");
   for (const field of await fields.all()) await expectFixedTitle(field);

@@ -50,13 +50,14 @@
 .miaixz-picker-control {
   justify-content: flex-start;
   width: 100%;
-  padding-inline-end: var(--miaixz-space-4);
+  block-size: var(--miaixz-control-block-size);
+  padding-inline-end: var(--miaixz-control-padding-inline);
   cursor: text;
 }
 
 .miaixz-combobox-control[data-state="open"],
 .miaixz-picker-control[data-state="open"] {
-  border-color: var(--miaixz-color-border-strong);
+  border-color: var(--miaixz-surface-role-selected-border);
   border-end-start-radius: 0;
   border-end-end-radius: 0;
   box-shadow: none;
@@ -72,7 +73,8 @@
 .miaixz-picker-input {
   flex: 1 1 72px;
   min-inline-size: var(--miaixz-density-control-height);
-  height: calc(var(--miaixz-density-control-height) - 2 * var(--miaixz-control-border-width));
+  min-block-size: 0;
+  height: calc(var(--miaixz-control-block-size) - 2 * var(--miaixz-control-border-width));
   padding: 0;
   font: inherit;
   line-height: inherit;
@@ -95,18 +97,7 @@
 
 .miaixz-combobox-toggle,
 .miaixz-picker-toggle {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--miaixz-control-min-target-size);
-  height: var(--miaixz-control-min-target-size);
-  padding: 0;
   color: var(--miaixz-color-text-secondary);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: var(--miaixz-radius-control);
 }
 
 .miaixz-combobox-toggle:disabled,
@@ -192,7 +183,7 @@
 
 .miaixz-combobox-option[data-state="active"],
 .miaixz-picker-option[data-state="active"] {
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-surface-role-selected-background);
   border-bottom-color: var(--miaixz-color-border);
   box-shadow: none;
 }
@@ -242,24 +233,6 @@
   color: var(--miaixz-color-danger);
 }
 
-.miaixz-combobox-message .miaixz-icon-spin,
-.miaixz-picker-message .miaixz-icon-spin {
-  animation: miaixz-combobox-spin var(--miaixz-duration-slow) linear infinite;
-}
-
-@keyframes miaixz-combobox-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-combobox-message .miaixz-icon-spin,
-  .miaixz-picker-message .miaixz-icon-spin {
-    animation: none;
-  }
-}
-
 @media (forced-colors: active) {
   .miaixz-combobox-label,
   .miaixz-picker-label,
@@ -279,4 +252,32 @@
 .miaixz-combobox-control[data-disabled="true"],
 .miaixz-picker-control[data-disabled="true"] {
   background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-combobox-option[aria-selected="true"],
+.miaixz-picker-option[aria-selected="true"],
+.miaixz-combobox-option:is(
+    :hover,
+    :active,
+    :focus-visible,
+    [aria-selected="true"],
+    [data-state="active"]
+  ):not([data-disabled="true"], [aria-disabled="true"], :disabled),
+.miaixz-picker-option:is(
+    :hover,
+    :active,
+    :focus-visible,
+    [aria-selected="true"],
+    [data-state="active"]
+  ):not([data-disabled="true"], [aria-disabled="true"], :disabled) {
+  background: var(--miaixz-surface-role-selected-background);
+}
+
+/**
+ * Picker prevents adding an existing value; its selected surface stays fully visible.
+ */
+.miaixz-picker-option[aria-selected="true"] {
+  color: var(--miaixz-surface-role-selected-foreground);
+  cursor: default;
+  opacity: 1;
 }

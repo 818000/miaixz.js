@@ -29,9 +29,9 @@ import { classNames } from "../../shared/class-names.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { useControlled } from "../../shared/use-controlled.js";
 import { useMergedRef } from "../../shared/use-merged-ref.js";
-import { IconButton } from "../action/icon-button.js";
 import { Icon } from "@miaixz/icons";
 import { Input } from "../input/input.js";
+import { Tooltip } from "../tooltip/tooltip.js";
 import type { SearchChangeReason, SearchOwnerState, SearchProps } from "./search.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
@@ -104,26 +104,31 @@ export const Search = withMiaixzThemeComponent(
       defaultProps: { className: "miaixz-search-shortcut" },
       slotProps: slotProps?.shortcut,
     });
-    const clearRootProps =
-      typeof slotProps?.clear === "function" ? slotProps.clear(ownerState) : slotProps?.clear;
+    const clearProps = mergeMiaixzSlotProps({
+      ownerState,
+      defaultProps: { className: "miaixz-search-clear miaixz-field-action" },
+      slotProps: slotProps?.clear,
+      internalProps: {
+        type: "button",
+        "aria-label": resolvedClearLabel,
+        onClick: () => {
+          requestValueChange("", "clear");
+          onClear?.();
+          inputRef.current?.focus();
+        },
+      },
+      ownedProps: ["type", "aria-label"],
+    });
     const rootSlotProps =
       typeof slotProps?.root === "function" ? slotProps.root(ownerState) : slotProps?.root;
     const inputSlotProps =
       typeof slotProps?.input === "function" ? slotProps.input(ownerState) : slotProps?.input;
     const clearAction = canClear ? (
-      <span className="miaixz-search-clear">
-        <IconButton
-          icon="close"
-          label={resolvedClearLabel}
-          size="small"
-          {...(clearRootProps === undefined ? {} : { slotProps: { root: clearRootProps } })}
-          onClick={() => {
-            requestValueChange("", "clear");
-            onClear?.();
-            inputRef.current?.focus();
-          }}
-        />
-      </span>
+      <Tooltip content={resolvedClearLabel}>
+        <button {...clearProps}>
+          <Icon name="close" size="indicator" />
+        </button>
+      </Tooltip>
     ) : undefined;
     const endAdornment =
       clearAction !== undefined || shortcut !== undefined ? (

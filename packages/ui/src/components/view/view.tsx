@@ -22,8 +22,9 @@
  * Implements the view UI component.
  */
 
-import { forwardRef, type ReactNode } from "react";
+import { createContext, forwardRef, useContext, useState, type ReactNode } from "react";
 
+import { useMiaixzLayoutEffect } from "../../shared/use-client-layout-effect.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { Header } from "../header/header.js";
 import { Navigation } from "../navigation/navigation.js";
@@ -36,7 +37,7 @@ import { withMiaixzThemeComponent } from "../../theme/binding.js";
 /**
  * Renders one explicit content, route-navigation, or tabs view composition. @public
  */
-export const View = withMiaixzThemeComponent(
+const ViewBase = withMiaixzThemeComponent(
   "View",
   forwardRef<HTMLElement, ViewProps>(function View(
     {
@@ -173,3 +174,64 @@ function resolveSlot<Props extends object>(
 ): Partial<Props> | undefined {
   return typeof slot === "function" ? slot(ownerState) : slot;
 }
+
+const ViewFrameContext = createContext<((props: ViewProps) => void) | null>(null);
+
+/**
+ * Retains the frame DOM while authorized route content replaces its own view.
+ */
+const PersistentView = forwardRef<HTMLElement, ViewProps>(function PersistentView(
+  { currentHref, ...props },
+  ref,
+) {
+  const [frame, setFrame] = useState(props);
+  const contentFrame = (
+    frame.mode === "navigation" && currentHref
+      ? {
+          ...frame,
+          items: frame.items.map((item) => ({
+            ...item,
+            current: item.href === currentHref ? "page" : undefined,
+          })),
+        }
+      : frame
+  ) as ViewProps & { readonly mode?: "content" | "navigation" };
+  return (
+    <ViewFrameContext.Provider value={setFrame}>
+      <ViewBase {...contentFrame} ref={ref}>
+        {props.children}
+      </ViewBase>
+    </ViewFrameContext.Provider>
+  );
+});
+
+/**
+ * Publishes a route's frame without remounting the persistent header or navigation.
+ */
+const InheritedView = forwardRef<HTMLElement, ViewProps>(function InheritedView(props, ref) {
+  const register = useContext(ViewFrameContext);
+  useMiaixzLayoutEffect(() => {
+    if (register) register(props);
+  });
+  if (!register) return <ViewBase {...props} ref={ref} />;
+  return <ViewFrameContext.Provider value={null}>{props.children}</ViewFrameContext.Provider>;
+});
+
+/**
+ * Composes a standalone view, a persistent frame, or its destination content. @public
+ */
+export const View = forwardRef<HTMLElement, ViewProps>(function View(
+  { preserveFrame = false, inheritFrame = false, currentHref, ...props },
+  ref,
+) {
+  if (preserveFrame && props.mode !== "tabs")
+    return (
+      <PersistentView
+        {...props}
+        {...(currentHref === undefined ? {} : { currentHref })}
+        ref={ref}
+      />
+    );
+  if (inheritFrame && props.mode !== "tabs") return <InheritedView {...props} ref={ref} />;
+  return <ViewBase {...props} ref={ref} />;
+});

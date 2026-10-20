@@ -101,3 +101,112 @@
     color: Mark;
   }
 }
+
+/**
+ * Auxiliary field actions share a neutral base without native browser button chrome.
+ * The owning field retains the sole focus frame.
+ */
+.miaixz-field-action {
+  --miaixz-field-action-size: var(--miaixz-space-24);
+  --miaixz-field-action-icon-size: var(--miaixz-icon-size-control);
+
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  inline-size: var(--miaixz-field-action-size);
+  min-inline-size: var(--miaixz-field-action-size);
+  block-size: var(--miaixz-field-action-size);
+  min-block-size: var(--miaixz-field-action-size);
+  padding: 0;
+  font: inherit;
+  color: var(--miaixz-color-text-secondary);
+  appearance: none;
+  cursor: pointer;
+  outline: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-field-action:is(:hover, :focus-visible):not(:disabled) {
+  color: var(--miaixz-color-brand);
+  outline: 0;
+  background: transparent;
+}
+
+.miaixz-field-action:disabled {
+  color: var(--miaixz-color-text-disabled);
+  cursor: not-allowed;
+  background: transparent;
+}
+
+/**
+ * End actions align the visible icon edge with the control's text inset.
+ * Keep the centered click target without adding its invisible half-width to the inset.
+ */
+.miaixz-search-clear,
+.miaixz-combobox-clear,
+.miaixz-picker-clear,
+.miaixz-date-picker-clear,
+.miaixz-time-picker-clear {
+  --miaixz-field-action-icon-size: var(--miaixz-icon-size-indicator);
+}
+
+.miaixz-input-end-adornment > .miaixz-field-action:last-child,
+.miaixz-search-end > .miaixz-field-action:last-child,
+.miaixz-combobox-control > .miaixz-field-action:last-child,
+.miaixz-picker-control > .miaixz-field-action:last-child {
+  margin-inline-end: calc(
+    (var(--miaixz-field-action-icon-size) - var(--miaixz-field-action-size)) / 2
+  );
+}
+
+@media (pointer: coarse) {
+  .miaixz-field-action {
+    --miaixz-field-action-size: min(
+      var(--miaixz-control-min-target-size),
+      calc(2 * var(--miaixz-control-padding-inline) + var(--miaixz-field-action-icon-size))
+    );
+
+    block-size: var(--miaixz-control-min-target-size);
+    min-block-size: var(--miaixz-control-min-target-size);
+  }
+}
+
+/**
+ * A public Theme recipe normalizes explicit field sizes without per-page geometry overrides.
+ */
+.miaixz-control.miaixz-field-size-small {
+  --miaixz-control-block-size: var(--miaixz-control-height-small);
+  --miaixz-control-padding-inline: var(--miaixz-control-padding-inline-small);
+}
+
+.miaixz-control.miaixz-field-size-medium {
+  --miaixz-control-block-size: var(--miaixz-control-height-medium);
+  --miaixz-control-padding-inline: var(--miaixz-control-padding-inline-medium);
+}
+
+.miaixz-control.miaixz-field-size-large {
+  --miaixz-control-block-size: var(--miaixz-control-height-large);
+  --miaixz-control-padding-inline: var(--miaixz-control-padding-inline-large);
+}
+
+.miaixz-control:is(.miaixz-field-size-small, .miaixz-field-size-medium, .miaixz-field-size-large) {
+  min-block-size: var(--miaixz-control-block-size);
+}
+
+.miaixz-control:is(
+    .miaixz-field-size-small,
+    .miaixz-field-size-medium,
+    .miaixz-field-size-large
+  ):not(.miaixz-picker-control) {
+  block-size: var(--miaixz-control-block-size);
+}
+
+@media (pointer: coarse) {
+  .miaixz-control:is(.miaixz-field-size-small, .miaixz-field-size-medium) {
+    --miaixz-control-block-size: var(--miaixz-control-min-target-size);
+  }
+}

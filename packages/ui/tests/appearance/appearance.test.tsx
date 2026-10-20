@@ -182,6 +182,7 @@ beforeEach(() => {
     colorMode: "light",
     density: "standard",
     error: null,
+    baseFontSize: 16,
     resolvedColorMode: "light",
     status: "ready",
     theme: "default",
@@ -267,11 +268,33 @@ describe("Appearance", () => {
 
     fireEvent.click(choice("hybrid-dual"));
     fireEvent.click(choice("0.5"));
+    fireEvent.click(choice("0.75"));
     fireEvent.click(screen.getByRole("button", { name: "ui.appearance.fontSize.increase" }));
 
     expect(fixture.setShellLayout).toHaveBeenCalledWith("hybrid-dual");
     expect(fixture.setRadiusScale).toHaveBeenCalledWith(0.5);
+    expect(fixture.setRadiusScale).toHaveBeenCalledWith(0.75);
     expect(fixture.setBaseFontSize).toHaveBeenCalledWith(17);
+  });
+
+  it("steps down from 14px to 12px and stops at the supported minimum", () => {
+    fixture.theme.baseFontSize = 14;
+    const { rerender } = render(<Appearance scope="authenticated" />);
+    fireEvent.click(screen.getByRole("button", { name: "ui.appearance.open" }));
+    const decrease = () => screen.getByRole("button", { name: "ui.appearance.fontSize.decrease" });
+    fireEvent.click(decrease());
+    expect(fixture.setBaseFontSize).toHaveBeenLastCalledWith(13);
+
+    fixture.theme.baseFontSize = 13;
+    rerender(<Appearance scope="authenticated" />);
+    fireEvent.click(decrease());
+    expect(fixture.setBaseFontSize).toHaveBeenLastCalledWith(12);
+
+    fixture.theme.baseFontSize = 12;
+    rerender(<Appearance scope="authenticated" />);
+    expect(decrease()).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "ui.appearance.fontSize.increase" }));
+    expect(fixture.setBaseFontSize).toHaveBeenLastCalledWith(13);
   });
 
   it("exposes loading, read-only, fallback locale, and error states", () => {

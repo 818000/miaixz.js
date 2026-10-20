@@ -19,61 +19,158 @@
 */
 
 /**
- * Miaixz confirmation dialog component
+ * Defines the compact, semantic confirmation-dialog treatment.
  */
 
-.miaixz-confirm-content {
-  --miaixz-form-collapse-width: 640px;
+[data-miaixz-theme] {
+  --miaixz-confirm-width: calc(var(--miaixz-layout-dialog-width) * 0.82);
+}
 
-  display: grid;
-  grid-template-areas:
-    "input input input"
-    "error error error"
-    ". cancel confirm";
-  grid-template-columns: minmax(0, 1fr) auto auto;
+.miaixz-confirm-dialog {
+  --miaixz-confirm-accent: var(--miaixz-color-brand);
+  --miaixz-confirm-accent-soft: var(--miaixz-color-brand-soft);
+  --miaixz-dialog-width: var(--miaixz-confirm-width);
+}
+
+.miaixz-confirm-dialog.miaixz-confirm-info {
+  --miaixz-confirm-accent: var(--miaixz-color-info);
+  --miaixz-confirm-accent-soft: var(--miaixz-color-info-soft);
+}
+
+.miaixz-confirm-dialog.miaixz-confirm-success {
+  --miaixz-confirm-accent: var(--miaixz-color-success);
+  --miaixz-confirm-accent-soft: var(--miaixz-color-success-soft);
+}
+
+.miaixz-confirm-dialog.miaixz-confirm-warning {
+  --miaixz-confirm-accent: var(--miaixz-color-warning);
+  --miaixz-confirm-accent-soft: var(--miaixz-color-warning-soft);
+}
+
+.miaixz-confirm-dialog.miaixz-confirm-danger {
+  --miaixz-confirm-accent: var(--miaixz-color-danger);
+  --miaixz-confirm-accent-soft: var(--miaixz-color-danger-soft);
+}
+
+.miaixz-confirm-dialog .miaixz-dialog-paper {
+  inline-size: 100%;
+}
+
+.miaixz-confirm-dialog .miaixz-dialog-header {
   gap: var(--miaixz-space-12);
-  align-items: center;
-  container-name: miaixz-form;
-  container-type: inline-size;
+  padding: var(--miaixz-space-24) var(--miaixz-space-24) var(--miaixz-space-16);
+  border-block-end: 0;
 }
 
-.miaixz-confirm-input {
-  grid-area: input;
+.miaixz-confirm-dialog .miaixz-dialog-heading {
+  inline-size: 100%;
 }
 
-.miaixz-confirm-input > .miaixz-input {
-  width: 100%;
+.miaixz-confirm-dialog .miaixz-dialog-title {
+  font-size: var(--miaixz-text-section-title-size);
+  font-weight: var(--miaixz-font-weight-medium);
+  line-height: var(--miaixz-text-section-title-line-height);
 }
 
-.miaixz-confirm-error {
-  grid-area: error;
+.miaixz-confirm-heading {
+  display: flex;
+  gap: var(--miaixz-space-12);
+  align-items: flex-start;
+  min-inline-size: 0;
 }
 
-.miaixz-confirm-cancel {
-  grid-area: cancel;
+.miaixz-confirm-title-text {
+  min-inline-size: 0;
+  padding-block: var(--miaixz-space-8);
+  overflow-wrap: anywhere;
 }
 
-.miaixz-confirm-confirm {
-  grid-area: confirm;
+.miaixz-confirm-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--miaixz-space-40);
+  block-size: var(--miaixz-space-40);
+  color: var(--miaixz-confirm-accent);
+  background: var(--miaixz-confirm-accent-soft);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-confirm-dialog .miaixz-dialog-description {
+  margin-block-start: var(--miaixz-space-4);
+}
+
+.miaixz-confirm-dialog.miaixz-confirm-with-icon .miaixz-dialog-description {
+  margin-inline-start: calc(var(--miaixz-space-40) + var(--miaixz-space-12));
+}
+
+.miaixz-confirm-description {
+  display: grid;
+  gap: var(--miaixz-space-4);
+  font-size: var(--miaixz-text-body-size);
+  font-weight: var(--miaixz-font-weight-regular);
+  line-height: var(--miaixz-text-body-line-height);
+  color: var(--miaixz-color-text-secondary);
+}
+
+.miaixz-confirm-subject {
+  font-weight: var(--miaixz-font-weight-medium);
+  color: var(--miaixz-color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.miaixz-confirm-description-text {
+  overflow-wrap: anywhere;
+}
+
+.miaixz-confirm-dialog .miaixz-dialog-body {
+  padding: 0 var(--miaixz-space-24) var(--miaixz-space-20);
+}
+
+.miaixz-confirm-dialog .miaixz-dialog-body:has(> .miaixz-confirm-content:empty) {
+  display: none;
+}
+
+.miaixz-confirm-content {
+  display: grid;
+  gap: var(--miaixz-space-16);
+  min-inline-size: 0;
+}
+
+.miaixz-confirm-detail {
+  padding: var(--miaixz-space-12) var(--miaixz-space-16);
+  color: var(--miaixz-color-text-secondary);
+  overflow-wrap: anywhere;
+  background: var(--miaixz-color-surface-secondary);
+  border-inline-start: var(--miaixz-border-width-strong) solid var(--miaixz-confirm-accent);
+  border-radius: var(--miaixz-radius-control);
+}
+
+.miaixz-confirm-input > .miaixz-field,
+.miaixz-confirm-input .miaixz-input {
+  inline-size: 100%;
+}
+
+.miaixz-confirm-error > .miaixz-notice {
+  display: flex;
+}
+
+.miaixz-confirm-dialog .miaixz-dialog-footer {
+  gap: var(--miaixz-space-8);
+  padding: 0 var(--miaixz-space-24) var(--miaixz-space-24);
+  border-block-start: 0;
 }
 
 .miaixz-confirm-cancel,
 .miaixz-confirm-confirm {
-  width: 100%;
+  min-inline-size: calc(var(--miaixz-density-control-height) * 2.5);
 }
 
-@container miaixz-form (width < 640px) {
-  .miaixz-confirm-content {
-    grid-template-areas:
-      "input"
-      "error"
-      "confirm"
-      "cancel";
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .miaixz-confirm-cancel,
-  .miaixz-confirm-confirm {
-    width: 100%;
+@media (forced-colors: active) {
+  .miaixz-confirm-icon,
+  .miaixz-confirm-detail {
+    color: CanvasText;
+    background: Canvas;
+    border: var(--miaixz-border-width-default) solid CanvasText;
   }
 }

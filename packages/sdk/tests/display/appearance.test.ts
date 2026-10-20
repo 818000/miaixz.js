@@ -87,8 +87,8 @@ test("appearance manager persists and clears shell, radius, and typography prefe
   await sdk.ready;
 
   sdk.appearance.setShellLayout("horizontal");
-  sdk.appearance.setRadiusScale(0.5);
-  sdk.appearance.setBaseFontSize(17);
+  sdk.appearance.setRadiusScale(0.75);
+  sdk.appearance.setBaseFontSize(12);
   sdk.appearance.setOverrides({ light: { brand: "#123456" } });
   sdk.appearance.setOverrides(undefined);
 
@@ -97,9 +97,15 @@ test("appearance manager persists and clears shell, radius, and typography prefe
     colorMode: "system",
     density: "standard",
     shellLayout: "horizontal",
-    radiusScale: 0.5,
-    baseFontSize: 17,
+    radiusScale: 0.75,
+    baseFontSize: 12,
   });
+
+  const restored = createMiaixzSdk({ appId: "portal", config: testConfig, storage });
+  await restored.ready;
+  assert.equal(restored.appearance.getSnapshot().radiusScale, 0.75);
+  assert.equal(restored.appearance.getSnapshot().baseFontSize, 12);
+  restored.destroy();
 
   sdk.appearance.setShellLayout(undefined);
   sdk.appearance.setRadiusScale(undefined);

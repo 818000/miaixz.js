@@ -96,6 +96,10 @@ export interface MiaixzLocaleContextValue extends MiaixzI18nSnapshot {
    * Loads and activates a registered locale or alias.
    */
   readonly setLocale: (locale: string) => Promise<void>;
+  /**
+   * Loads resources for an embedded view through the same SDK runtime.
+   */
+  readonly loadNamespace: (namespace: string, locale?: string) => Promise<void>;
 }
 
 /**
@@ -105,6 +109,15 @@ export interface MiaixzLocaleContextValue extends MiaixzI18nSnapshot {
  */
 export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
   "en-US": Object.freeze({
+    "ui.exception.404.title": "Page not found",
+    "ui.exception.404.description": "The page may have moved, or the address may be incorrect.",
+    "ui.exception.403.title": "Access denied",
+    "ui.exception.403.description":
+      "You do not have permission to view this content. Contact your administrator if you need access.",
+    "ui.exception.500.title": "This page could not be loaded",
+    "ui.exception.500.description": "Reload the page, or return to a working page to continue.",
+    "ui.exception.unavailable.title": "Service temporarily unavailable",
+    "ui.exception.unavailable.description": "Try again in a moment.",
     "ui.loading": "Loading",
     "ui.search": "Search",
     "ui.search.clear": "Clear search",
@@ -221,6 +234,8 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.numberInput.increment": "Increase value",
     "ui.numberInput.decrement": "Decrease value",
     "ui.date.calendar": "Calendar",
+    "ui.date.invalid": "Enter a valid date within the allowed range.",
+    "ui.time.invalid": "Enter a valid time within the allowed range.",
     "ui.date.open": "Open calendar",
     "ui.date.clear": "Clear date",
     "ui.date.previousMonth": "Previous month",
@@ -378,6 +393,14 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.theme.persistFailed": "The theme preference could not be persisted",
   }),
   "zh-CN": Object.freeze({
+    "ui.exception.404.title": "找不到这个页面",
+    "ui.exception.404.description": "页面可能已移动，或地址有误。",
+    "ui.exception.403.title": "暂无访问权限",
+    "ui.exception.403.description": "你没有访问此内容的权限，如需访问请联系管理员。",
+    "ui.exception.500.title": "页面暂时无法加载",
+    "ui.exception.500.description": "请重新加载页面，或返回可用页面继续操作。",
+    "ui.exception.unavailable.title": "服务暂时不可用",
+    "ui.exception.unavailable.description": "请稍后重试。",
     "ui.loading": "加载中",
     "ui.search": "搜索",
     "ui.search.clear": "清除搜索内容",
@@ -493,6 +516,8 @@ export const miaixzUiMessages: MiaixzMessageCatalog = Object.freeze({
     "ui.numberInput.increment": "增加数值",
     "ui.numberInput.decrement": "减少数值",
     "ui.date.calendar": "日历",
+    "ui.date.invalid": "请输入允许范围内的有效日期。",
+    "ui.time.invalid": "请输入允许范围内的有效时间。",
     "ui.date.open": "打开日历",
     "ui.date.clear": "清除日期",
     "ui.date.previousMonth": "上个月",
@@ -688,6 +713,7 @@ export function MiaixzLocaleProvider(props: MiaixzLocaleProviderProps) {
       t: i18n.t,
       locales: i18n.locales,
       setLocale: (locale) => i18n.changeLocale(locale),
+      loadNamespace: (namespace, locale) => i18n.loadNamespace(namespace, locale ?? i18n.locale),
     }),
     [i18n, snapshot],
   );

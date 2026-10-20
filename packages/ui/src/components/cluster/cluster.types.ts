@@ -29,6 +29,10 @@ import type { HTMLAttributes } from "react";
  */
 export interface ClusterProps extends HTMLAttributes<HTMLDivElement> {
   /**
+   * Keeps related inline content together when wrapping is disabled.
+   */
+  wrap?: boolean;
+  /**
    * Aligns items along the inline axis.
    */
   justify?: "start" | "between" | "end";

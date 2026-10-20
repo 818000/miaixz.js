@@ -22,9 +22,10 @@
  * Connects date input, popup calendar selection, and form-value state.
  */
 
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useContext, useEffect, useState } from "react";
 
 import { useMiaixzLocale } from "../../i18n/i18n.js";
+import { MiaixzFieldContext } from "../../shared/field-context.js";
 import { useMedia } from "../../shared/responsive/use-media.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
@@ -56,15 +57,18 @@ export const DatePicker = withMiaixzThemeComponent(
       isDateDisabled,
       firstDayOfWeek = 1,
       name,
-      required = false,
+      required: requiredProp,
       clearable = true,
-      disabled = false,
+      disabled: disabledProp,
       readOnly = false,
       slotProps,
       ...labelProps
     },
     forwardedRef,
   ) {
+    const fieldContext = useContext(MiaixzFieldContext);
+    const required = requiredProp ?? fieldContext?.required ?? false;
+    const disabled = disabledProp ?? fieldContext?.disabled ?? false;
     const [uncontrolledValue, setUncontrolledValue] = useState<IsoDate | null>(defaultValue);
     const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
     const resolvedValue = value ?? uncontrolledValue;
@@ -74,6 +78,11 @@ export const DatePicker = withMiaixzThemeComponent(
     const coarsePointer = useMedia("(pointer: coarse)");
     const { t } = useMiaixzLocale();
     useEffect(() => setRawValue(resolvedValue ?? ""), [resolvedValue]);
+    const effectiveInvalid = fieldContext?.invalid ?? invalid;
+    const reportFieldValidation = fieldContext?.reportValidation;
+    useEffect(() => {
+      reportFieldValidation?.(invalid ? t("ui.date.invalid") : null);
+    }, [reportFieldValidation, invalid, t]);
     /**
      * Updates uncontrolled popup visibility and reports the requested visibility in both modes.
      *
@@ -81,6 +90,7 @@ export const DatePicker = withMiaixzThemeComponent(
      * @returns No return value.
      */
     const setOpen = (next: boolean) => {
+      if (next && (disabled || readOnly)) return;
       if (open === undefined) setUncontrolledOpen(next);
       onOpenChange?.(next);
     };
@@ -91,6 +101,7 @@ export const DatePicker = withMiaixzThemeComponent(
      * @returns No return value.
      */
     const commit = (next: IsoDate | null) => {
+      if (disabled || readOnly) return;
       if (value === undefined) setUncontrolledValue(next);
       setRawValue(next ?? "");
       setInvalid(false);
@@ -102,6 +113,7 @@ export const DatePicker = withMiaixzThemeComponent(
      * @returns No return value.
      */
     const commitRaw = () => {
+      if (disabled || readOnly) return;
       if (rawValue === "" && !required) {
         commit(null);
         return;
@@ -117,7 +129,12 @@ export const DatePicker = withMiaixzThemeComponent(
       }
       commit(rawValue);
     };
-    const ownerState: DatePickerOwnerState = { open: resolvedOpen, invalid, disabled, readOnly };
+    const ownerState: DatePickerOwnerState = {
+      open: resolvedOpen,
+      invalid: effectiveInvalid,
+      disabled,
+      readOnly,
+    };
     const inputSlot =
       typeof slotProps?.input === "function" ? slotProps.input(ownerState) : slotProps?.input;
     const calendar = (
@@ -152,7 +169,7 @@ export const DatePicker = withMiaixzThemeComponent(
       <button
         {...mergeMiaixzSlotProps({
           ownerState,
-          defaultProps: { className: "miaixz-date-picker-trigger" },
+          defaultProps: { className: "miaixz-date-picker-trigger miaixz-field-action" },
           slotProps: slotProps?.trigger,
         })}
         type="button"
@@ -169,7 +186,7 @@ export const DatePicker = withMiaixzThemeComponent(
           <button
             {...mergeMiaixzSlotProps({
               ownerState,
-              defaultProps: { className: "miaixz-date-picker-clear" },
+              defaultProps: { className: "miaixz-date-picker-clear miaixz-field-action" },
               slotProps: slotProps?.clear,
             })}
             type="button"
@@ -211,7 +228,7 @@ export const DatePicker = withMiaixzThemeComponent(
           required={required}
           disabled={disabled}
           readOnly={readOnly}
-          invalid={invalid}
+          invalid={effectiveInvalid}
           endAdornment={adornment}
           {...(inputSlot === undefined ? {} : { slotProps: { input: inputSlot } })}
           onChange={(event) => {
@@ -228,7 +245,7 @@ export const DatePicker = withMiaixzThemeComponent(
             }
           }}
         />
-        <input type="hidden" name={name} value={resolvedValue ?? ""} />
+        <input type="hidden" name={name} value={resolvedValue ?? ""} disabled={disabled} />
         {coarsePointer && (
           <Dialog
             open={resolvedOpen}

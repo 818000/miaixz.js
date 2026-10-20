@@ -90,6 +90,15 @@ function validateColumns<Row>(columns: readonly DatagridColumn<Row>[]): void {
       });
     }
     validatePercent(column.widthPercent);
+    if (
+      column.width !== undefined &&
+      (column.widthPercent !== undefined ||
+        (typeof column.width === "number" &&
+          (!Number.isFinite(column.width) || column.width <= 0)) ||
+        (typeof column.width === "string" && column.width.trim() === ""))
+    ) {
+      throw new MiaixzUiError({ code: "UI_CONTROLLED_VALUE_INVALID" });
+    }
     ids.add(column.id);
   }
 }
@@ -167,6 +176,8 @@ function DatagridImplementation<Row>(
     sort,
     onSortChange,
     selectedRowIds,
+    currentRowId,
+    onCurrentRowChange,
     onSelectedRowIdsChange,
     selectionMode = "none",
     selectionWidthPercent,
@@ -267,6 +278,15 @@ function DatagridImplementation<Row>(
           className="miaixz-table-container miaixz-table-container-plain miaixz-datagrid-container"
         >
           <Table
+            trackCurrentRow={currentRowId === undefined}
+            {...(onCurrentRowChange
+              ? {
+                  onCurrentRowChange: (row) => {
+                    const id = row.dataset.rowId;
+                    if (id) onCurrentRowChange(id);
+                  },
+                }
+              : {})}
             stickyHeader={bodyLayout === "fill"}
             {...(rowHeight === undefined ? {} : { rowHeight })}
           >
@@ -300,9 +320,11 @@ function DatagridImplementation<Row>(
                       key={column.id}
                       aria-sort={direction}
                       style={
-                        column.widthPercent === undefined
-                          ? undefined
-                          : { width: `${column.widthPercent}%` }
+                        column.width !== undefined
+                          ? { width: column.width }
+                          : column.widthPercent === undefined
+                            ? undefined
+                            : { width: `${column.widthPercent}%` }
                       }
                       className={`miaixz-datagrid-align-${column.align ?? "start"}`}
                     >
@@ -348,7 +370,22 @@ function DatagridImplementation<Row>(
                 resolvedRows.map((row) => {
                   const selected = hasSelection && selectedIds.has(row.id);
                   return (
-                    <TableRow key={row.id} selected={selected}>
+                    <TableRow
+                      key={row.id}
+                      selected={selected}
+                      rowId={row.id}
+                      {...(currentRowId === undefined ? {} : { current: row.id === currentRowId })}
+                      {...(currentRowId === undefined || !onCurrentRowChange
+                        ? {}
+                        : {
+                            onClickCapture: () => {
+                              if (row.id !== currentRowId) onCurrentRowChange(row.id);
+                            },
+                            onFocusCapture: () => {
+                              if (row.id !== currentRowId) onCurrentRowChange(row.id);
+                            },
+                          })}
+                    >
                       {hasSelection && (
                         <TableCell className="miaixz-datagrid-selection-cell">
                           {selectionMode === "multiple" ? (
@@ -378,7 +415,13 @@ function DatagridImplementation<Row>(
                           key={column.id}
                           className={`miaixz-datagrid-align-${column.align ?? "start"}`}
                         >
-                          {column.cell(row.value)}
+                          {column.overflow === "ellipsis" ? (
+                            <div className="miaixz-datagrid-cell-ellipsis">
+                              {column.cell(row.value)}
+                            </div>
+                          ) : (
+                            column.cell(row.value)
+                          )}
                         </TableCell>
                       ))}
                     </TableRow>

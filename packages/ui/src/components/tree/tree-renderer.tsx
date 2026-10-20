@@ -25,6 +25,7 @@
 import { useState, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
 
 import { Icon } from "@miaixz/icons";
+import { Spinner } from "../spinner/spinner.js";
 
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { TreeViewRecord } from "./tree-view.types.js";
@@ -414,7 +415,7 @@ export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
                   slotProps: props.slotProps?.loadingIndicator,
                 })}
               >
-                <Icon name="loading" size="control" className="miaixz-icon-spin" />
+                <Spinner label="" aria-hidden="true" size="small" />
               </span>
             ) : expandable ? (
               <Icon name={viewRecord.disclosed ? "chevron-down" : "chevron-right"} size="control" />
@@ -517,10 +518,11 @@ export function TreeRenderer<Value>(props: TreeRendererProps<Value>) {
             <Icon name="confirm" size="control" className="miaixz-tree-selection" />
           ) : null}
           {pending ? (
-            <Icon
-              name="loading"
-              size="indicator"
-              className="miaixz-tree-operation-loading miaixz-icon-spin"
+            <Spinner
+              label=""
+              aria-hidden="true"
+              size="small"
+              className="miaixz-tree-operation-loading"
             />
           ) : null}
           {itemCreatable ? (

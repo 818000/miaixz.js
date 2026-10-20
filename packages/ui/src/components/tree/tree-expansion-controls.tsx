@@ -122,6 +122,8 @@ export function TreeExpansionControlsView<Value>(props: TreeExpansionControlsPro
         <Dropdown
           label={props.labels.expandToDepth}
           items={depthItems}
+          presentation="action-menu"
+          surface="plain"
           trigger={
             <Button size="small" disabled={disabled}>
               {props.labels.expandToDepth}

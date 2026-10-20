@@ -146,6 +146,14 @@ describe("IconButton", () => {
     expect(action).not.toHaveAttribute("data-miaixz-ripple");
     expect(action.querySelector(".miaixz-action-label")).toBeNull();
   });
+
+  it("renders overflow icons as glyphs by default", () => {
+    renderAction(<IconButton label="更多" icon="more-horizontal" onClick={() => undefined} />);
+
+    const action = screen.getByRole("button", { name: "更多" });
+    expect(action).toHaveAttribute("data-appearance", "glyph");
+    expect(action).not.toHaveAttribute("data-miaixz-ripple");
+  });
 });
 
 describe("MoreActions", () => {
@@ -165,10 +173,13 @@ describe("MoreActions", () => {
     );
 
     const trigger = screen.getByRole("button", { name: "更多" });
-    expect(trigger).toHaveTextContent("更多");
+    expect(trigger).toHaveClass("miaixz-icon-button");
+    expect(trigger).toHaveAttribute("data-appearance", "glyph");
+    expect(trigger).not.toHaveTextContent("更多");
     expect(trigger.querySelector(".miaixz-icon")).not.toBeNull();
     fireEvent.click(trigger);
     const menu = screen.getByRole("menu", { name: "更多" });
+    expect(menu).toHaveAttribute("data-presentation", "action-menu");
     expect(
       within(menu)
         .getAllByRole("menuitem")
@@ -261,7 +272,9 @@ describe("RowActions", () => {
     expect(edit.querySelector(".miaixz-icon")).not.toBeNull();
     expect(view.querySelector(".miaixz-icon")).not.toBeNull();
     expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "更多" }));
+    const overflow = screen.getByRole("button", { name: "更多" });
+    expect(overflow).toHaveAttribute("data-size", "medium");
+    fireEvent.click(overflow);
     expect(screen.getByRole("menuitem", { name: "删除" })).toBeVisible();
   });
 
@@ -287,7 +300,8 @@ describe("RowActions", () => {
     expect(screen.queryByRole("button", { name: "编辑" })).toBeNull();
     expect(screen.queryByRole("button", { name: "更多" })).toBeNull();
     const trigger = screen.getByRole("button", { name: "操作" });
-    expect(trigger).toHaveTextContent("操作");
+    expect(trigger).toHaveAttribute("data-appearance", "glyph");
+    expect(trigger).not.toHaveTextContent("操作");
     fireEvent.click(trigger);
     const menu = screen.getByRole("menu", { name: "操作" });
     expect(

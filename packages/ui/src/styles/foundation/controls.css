@@ -51,15 +51,19 @@
 }
 
 .miaixz-control {
+  --miaixz-control-block-size: var(--miaixz-density-control-height);
+  --miaixz-control-padding-inline: var(--miaixz-density-control-padding-inline);
+
+  box-sizing: border-box;
   display: inline-flex;
   gap: var(--miaixz-control-gap);
   align-items: center;
   justify-content: center;
   width: auto;
   min-width: 0;
-  min-height: var(--miaixz-density-control-height);
+  min-height: var(--miaixz-control-block-size);
   padding-block: 0;
-  padding-inline: var(--miaixz-density-control-padding-inline);
+  padding-inline: var(--miaixz-control-padding-inline);
   font-family: var(--miaixz-font-family-sans);
   font-size: var(--miaixz-text-body-size);
   font-weight: var(--miaixz-font-weight-regular);
@@ -79,23 +83,23 @@
   border-color: var(--miaixz-color-border);
 }
 
-.miaixz-control:hover:not(:disabled, [aria-disabled="true"], [data-disabled="true"]) {
-  border-color: var(--miaixz-color-border-strong);
+.miaixz-control:hover:where(:not(:disabled, [aria-disabled="true"], [data-disabled="true"])) {
+  border-color: var(--miaixz-surface-role-selected-border);
 }
 
-.miaixz-control:where(:focus-visible, :focus-within) {
+.miaixz-control:is(:focus-visible, :focus-within) {
   outline: 0;
-  border-color: var(--miaixz-color-border-strong);
+  border-color: var(--miaixz-surface-role-selected-border);
   box-shadow: var(--miaixz-control-focus-shadow);
 }
 
-.miaixz-control:where([readonly], [data-readonly="true"]) {
+.miaixz-control:is([readonly], [data-readonly="true"]) {
   color: var(--miaixz-color-text-secondary);
   border-color: var(--miaixz-color-border);
   box-shadow: none;
 }
 
-.miaixz-control:where([aria-invalid="true"], [data-invalid="true"]) {
+.miaixz-control:is([aria-invalid="true"], [data-invalid="true"]) {
   border-color: var(--miaixz-color-danger);
   box-shadow: var(--miaixz-control-invalid-shadow);
 }
@@ -179,6 +183,7 @@
 [data-miaixz-theme]
   :where(
     .miaixz-input-element,
+    .miaixz-textarea,
     .miaixz-select-trigger,
     .miaixz-combobox-input,
     .miaixz-combobox-toggle,
@@ -190,9 +195,8 @@
 }
 
 /**
-
- * Readonly fields have no editable bottom line, but remain keyboard discoverable.
-
+ * Readonly fields use their existing border for focus, without an extra outer ring.
+ * Their values remain selectable and keyboard focus stays visible.
  */
 [data-miaixz-theme]
   :where(
@@ -204,23 +208,30 @@
   ):where([readonly], [data-readonly="true"]):not(
     :where([aria-invalid="true"], [data-invalid="true"])
   ):focus-within {
-  outline: var(--miaixz-control-focus-width) solid var(--miaixz-color-focus);
-  outline-offset: var(--miaixz-space-2);
+  outline: 0;
+  border-color: var(--miaixz-surface-role-selected-border);
+  box-shadow: none;
 }
 
 .miaixz-control-small {
-  min-height: var(--miaixz-control-height-small);
-  padding-inline: var(--miaixz-control-padding-inline-small);
+  --miaixz-control-block-size: var(--miaixz-control-height-small);
+  --miaixz-control-padding-inline: var(--miaixz-control-padding-inline-small);
+
+  min-height: var(--miaixz-control-block-size);
 }
 
 .miaixz-control-medium {
-  min-height: var(--miaixz-control-height-medium);
-  padding-inline: var(--miaixz-control-padding-inline-medium);
+  --miaixz-control-block-size: var(--miaixz-control-height-medium);
+  --miaixz-control-padding-inline: var(--miaixz-control-padding-inline-medium);
+
+  min-height: var(--miaixz-control-block-size);
 }
 
 .miaixz-control-large {
-  min-height: var(--miaixz-control-height-large);
-  padding-inline: var(--miaixz-control-padding-inline-large);
+  --miaixz-control-block-size: var(--miaixz-control-height-large);
+  --miaixz-control-padding-inline: var(--miaixz-control-padding-inline-large);
+
+  min-height: var(--miaixz-control-block-size);
 }
 
 .miaixz-control-block {
@@ -231,7 +242,9 @@
   .miaixz-control,
   .miaixz-control-small,
   .miaixz-control-medium {
-    min-height: var(--miaixz-control-min-target-size);
+    --miaixz-control-block-size: var(--miaixz-control-min-target-size);
+
+    min-height: var(--miaixz-control-block-size);
   }
 }
 

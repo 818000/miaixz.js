@@ -151,6 +151,16 @@ export interface DropdownDividerEntry {
 }
 
 /**
+ * Visually and semantically groups related dropdown commands.
+ */
+export interface DropdownGroupEntry {
+  readonly kind: "group";
+  readonly id: string;
+  readonly label?: string;
+  readonly items: readonly DropdownSubmenuItem[];
+}
+
+/**
  * Entry shapes accepted inside a dropdown submenu.
  */
 export type DropdownSubmenuItem =
@@ -177,7 +187,7 @@ export interface DropdownSubmenuEntry extends DropdownPresentation {
 /**
  * Discriminated union of all supported dropdown item kinds.
  */
-export type DropdownEntry = DropdownSubmenuItem | DropdownSubmenuEntry;
+export type DropdownEntry = DropdownSubmenuItem | DropdownSubmenuEntry | DropdownGroupEntry;
 
 /**
  * Dropdown change notification reasons permitted by the component contract.
@@ -210,6 +220,9 @@ export type DropdownProps = DropdownOpenState &
     readonly label?: string;
     readonly surface?: "framed" | "plain";
     readonly density?: "compact" | "standard" | "comfortable";
-    readonly presentation?: "default" | "account";
+    /**
+     * Selects the visual treatment. `account` is a compatibility alias for `user-menu`.
+     */
+    readonly presentation?: "default" | "user-menu" | "account" | "action-menu";
     readonly closing?: boolean;
   };

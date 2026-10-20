@@ -31,7 +31,7 @@
 }
 
 .miaixz-textarea-count {
-  padding: 0 var(--miaixz-density-control-padding-inline) var(--miaixz-space-4);
+  padding: 0 var(--miaixz-control-padding-inline) var(--miaixz-space-4);
   font-size: var(--miaixz-text-caption-size);
   line-height: var(--miaixz-text-caption-line-height);
   color: var(--miaixz-color-text-muted);
@@ -42,7 +42,7 @@
   display: block;
   width: 100%;
   min-height: var(--miaixz-control-textarea-min-height);
-  padding: var(--miaixz-control-padding-block-textarea) var(--miaixz-density-control-padding-inline);
+  padding: var(--miaixz-control-padding-block-textarea) var(--miaixz-control-padding-inline);
   font: inherit;
   line-height: inherit;
   color: inherit;

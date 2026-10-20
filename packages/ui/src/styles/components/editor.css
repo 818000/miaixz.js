@@ -23,10 +23,14 @@
  */
 
 .miaixz-editor-layout {
-  display: grid;
   min-width: 0;
   container-name: miaixz-editor;
   container-type: inline-size;
+}
+
+.miaixz-editor-layout-grid {
+  display: grid;
+  min-width: 0;
 }
 
 .miaixz-editor-form[data-presentation="drawer"] {
@@ -36,7 +40,7 @@
   color: var(--miaixz-color-text-primary);
 }
 
-.miaixz-editor-layout[data-layout="split"] {
+.miaixz-editor-layout[data-layout="split"] > .miaixz-editor-layout-grid {
   grid-template-columns: 272px minmax(0, 1fr);
 }
 
@@ -301,6 +305,10 @@
   overflow: auto;
 }
 
+.miaixz-editor-picker .miaixz-editor-picker-scroll {
+  overscroll-behavior: auto;
+}
+
 .miaixz-editor-status {
   padding-block-start: var(--miaixz-space-12);
   border-block-start: var(--miaixz-border-width-default) solid var(--miaixz-color-border);
@@ -325,7 +333,7 @@
 }
 
 @container miaixz-editor (width < 768px) {
-  .miaixz-editor-layout[data-layout="split"] {
+  .miaixz-editor-layout[data-layout="split"] > .miaixz-editor-layout-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 

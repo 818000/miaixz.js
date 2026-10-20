@@ -797,7 +797,13 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     },
   };
 
-  return authMode === "bearer"
-    ? { ...common, authMode: "bearer", session: session as MiaixzSessionManager }
-    : { ...common, authMode: "cookie" };
+  /**
+   * Preserves the live grants accessor; spreading common would capture only its initial snapshot.
+   */
+  return Object.assign(
+    common,
+    authMode === "bearer"
+      ? { authMode: "bearer" as const, session: session as MiaixzSessionManager }
+      : { authMode: "cookie" as const },
+  );
 }

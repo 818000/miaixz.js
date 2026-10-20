@@ -26,11 +26,13 @@ import {
   createContext,
   forwardRef,
   useContext,
+  useMemo,
   useRef,
   type AnchorHTMLAttributes,
   type ReactElement,
   type ReactNode,
   type Ref,
+  type MouseEvent,
 } from "react";
 
 import { MiaixzUiError } from "../errors/ui-error.js";
@@ -61,7 +63,13 @@ export type AnchorRenderer = (
  *
  * @public
  */
+export type LinkRefreshMode = "content" | "page";
+
+/**
+ * Configures the application-wide link renderer and document refresh policy. @public
+ */
 export interface MiaixzLinkProviderProps {
+  readonly refreshMode?: LinkRefreshMode;
   readonly renderAnchor: AnchorRenderer;
   readonly children: ReactNode;
 }
@@ -70,10 +78,28 @@ export interface MiaixzLinkProviderProps {
  * Properties accepted by the Anchor renderer.
  */
 interface AnchorProps extends AnchorRenderProps {
+  readonly refreshMode?: LinkRefreshMode | undefined;
   readonly renderAnchor?: AnchorRenderer | undefined;
 }
 
-const MiaixzAnchorRendererContext = createContext<AnchorRenderer | undefined>(undefined);
+const MiaixzAnchorRendererContext = createContext<
+  | {
+      readonly renderAnchor: AnchorRenderer;
+      readonly refreshMode: LinkRefreshMode;
+    }
+  | undefined
+>(undefined);
+
+/**
+ * Reads the application-wide refresh policy with an optional component override.
+ * @param override Component-specific refresh policy.
+ * @returns Effective content or document refresh policy.
+ * @internal
+ */
+export function useMiaixzLinkRefreshMode(override?: LinkRefreshMode): LinkRefreshMode {
+  const provider = useContext(MiaixzAnchorRendererContext);
+  return override ?? provider?.refreshMode ?? "content";
+}
 
 /**
  * Supplies one router adapter to every Miaixz navigation component.
@@ -84,10 +110,12 @@ const MiaixzAnchorRendererContext = createContext<AnchorRenderer | undefined>(un
  */
 export function MiaixzLinkProvider({
   renderAnchor,
+  refreshMode = "content",
   children,
 }: MiaixzLinkProviderProps): ReactElement {
+  const value = useMemo(() => ({ renderAnchor, refreshMode }), [renderAnchor, refreshMode]);
   return (
-    <MiaixzAnchorRendererContext.Provider value={renderAnchor}>
+    <MiaixzAnchorRendererContext.Provider value={value}>
       {children}
     </MiaixzAnchorRendererContext.Provider>
   );
@@ -99,18 +127,25 @@ export function MiaixzLinkProvider({
  * @internal
  */
 export const Anchor = forwardRef<HTMLAnchorElement, AnchorProps>(function Anchor(
-  { renderAnchor, ...props },
+  { renderAnchor, refreshMode, ...props },
   forwardedRef,
 ) {
   const providerRenderer = useContext(MiaixzAnchorRendererContext);
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const mergedRef = useMergedRef(anchorRef, forwardedRef);
-  const renderer = renderAnchor ?? providerRenderer ?? renderNativeAnchor;
+  const effectiveMode = refreshMode ?? providerRenderer?.refreshMode ?? "content";
+  const renderer =
+    effectiveMode === "page"
+      ? renderPageAnchor
+      : (renderAnchor ?? providerRenderer?.renderAnchor ?? renderNativeAnchor);
   useMiaixzLayoutEffect(() => {
     if (anchorRef.current instanceof HTMLAnchorElement) return;
     throw new MiaixzUiError({ code: "UI_ANCHOR_RENDERER_INVALID" });
   });
-  return renderer(props, mergedRef);
+  return renderer(
+    { ...props, "data-miaixz-refresh-mode": effectiveMode } as AnchorRenderProps,
+    mergedRef,
+  );
 });
 
 /**
@@ -122,4 +157,40 @@ export const Anchor = forwardRef<HTMLAnchorElement, AnchorProps>(function Anchor
  */
 function renderNativeAnchor(props: AnchorRenderProps, ref: Ref<HTMLAnchorElement>): ReactElement {
   return <a {...props} ref={ref} />;
+}
+
+/**
+ * Forces a document reload for same-document fragment targets while retaining native link behavior.
+ * @param props Native anchor properties.
+ * @param ref Forwarded native anchor reference.
+ * @returns Document navigation anchor.
+ */
+function renderPageAnchor(props: AnchorRenderProps, ref: Ref<HTMLAnchorElement>): ReactElement {
+  const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    props.onClick?.(event);
+    const anchor = event.currentTarget;
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      anchor.hasAttribute("download") ||
+      (anchor.target !== "" && anchor.target !== "_self")
+    )
+      return;
+    const destination = new URL(props.href, window.location.href);
+    const current = new URL(window.location.href);
+    if (
+      destination.origin === current.origin &&
+      destination.pathname === current.pathname &&
+      destination.search === current.search
+    ) {
+      event.preventDefault();
+      window.history.pushState(null, "", destination.href);
+      window.location.reload();
+    }
+  };
+  return <a {...props} onClick={onClick} ref={ref} />;
 }

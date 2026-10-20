@@ -29,6 +29,7 @@ import type {
   ReactNode,
   RefAttributes,
 } from "react";
+import type { LinkRefreshMode } from "../../shared/anchor.js";
 import type { IconName, IconProps } from "@miaixz/icons";
 import type { MiaixzSlotComponent, MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -112,6 +113,10 @@ export interface NavigationSlotProps {
  * Component-specific Navigation properties composed with the permitted native attributes.
  */
 export interface MiaixzNavigationOwnProps {
+  /**
+   * Overrides the link provider's content or browser document refresh policy.
+   */
+  readonly refreshMode?: LinkRefreshMode;
   readonly items: readonly NavigationEntry[];
   readonly orientation?: NavigationOrientation;
   readonly density?: NavigationDensity;

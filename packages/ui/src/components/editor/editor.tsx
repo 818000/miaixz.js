@@ -120,23 +120,25 @@ export const EditorLayout = withMiaixzThemeComponent(
         data-layout={layout}
         data-divided={divided || undefined}
       >
-        <div
-          {...mergeMiaixzSlotProps({
-            ownerState,
-            defaultProps: { className: "miaixz-editor-layout-summary" },
-            slotProps: slotProps?.summary,
-          })}
-        >
-          {summary}
-        </div>
-        <div
-          {...mergeMiaixzSlotProps({
-            ownerState,
-            defaultProps: { className: "miaixz-editor-layout-content" },
-            slotProps: slotProps?.content,
-          })}
-        >
-          {children}
+        <div className="miaixz-editor-layout-grid">
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-editor-layout-summary" },
+              slotProps: slotProps?.summary,
+            })}
+          >
+            {summary}
+          </div>
+          <div
+            {...mergeMiaixzSlotProps({
+              ownerState,
+              defaultProps: { className: "miaixz-editor-layout-content" },
+              slotProps: slotProps?.content,
+            })}
+          >
+            {children}
+          </div>
         </div>
       </div>
     );

@@ -53,6 +53,7 @@
   --miaixz-motion-interaction-duration: var(--miaixz-duration-fast);
   --miaixz-motion-state-duration: var(--miaixz-duration-normal);
   --miaixz-motion-state-easing: var(--miaixz-easing-standard);
+  --miaixz-motion-loading-duration: 900ms;
   --miaixz-motion-overlay-duration: var(--miaixz-duration-slow);
   --miaixz-motion-interaction-easing: var(--miaixz-easing-standard);
   --miaixz-motion-enter-easing: var(--miaixz-easing-enter);
@@ -69,4 +70,15 @@
   transition-timing-function: var(--miaixz-motion-interaction-easing);
   transition-duration: var(--miaixz-motion-state-duration);
   transition-property: transform, opacity;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .miaixz-motion-scale {
+    transition: scale var(--miaixz-motion-interaction-duration)
+      var(--miaixz-motion-interaction-easing);
+  }
+
+  .miaixz-motion-scale:hover {
+    scale: 1.1;
+  }
 }

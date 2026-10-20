@@ -22,6 +22,8 @@
  * Defines the tabs public type contracts.
  */
 
+import type { LinkRefreshMode } from "../../shared/anchor.js";
+
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode, RefAttributes } from "react";
 import type { MiaixzSlotProps } from "../../shared/slots.js";
 
@@ -105,6 +107,14 @@ export interface TabsSlotProps {
  * Component-specific Tabs properties composed with the permitted native attributes.
  */
 export interface MiaixzTabsOwnProps {
+  /**
+   * Selects in-place updates or a browser reload that restores the selected tab.
+   */
+  readonly refreshMode?: LinkRefreshMode;
+  /**
+   * Distinguishes reload restoration for multiple tab collections on the same route.
+   */
+  readonly persistenceKey?: string;
   readonly items: readonly TabsEntry[];
   readonly label: string;
   readonly orientation?: TabsOrientation;

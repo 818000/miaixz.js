@@ -29,7 +29,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Combobox } from "../../../src/components/combobox/index.js";
 import { Field } from "../../../src/components/field/index.js";
-import { Input } from "../../../src/components/input/index.js";
+import { Input, NumberInput } from "../../../src/components/input/index.js";
+import { DatePicker, TimePicker } from "../../../src/components/date/index.js";
 import { Picker } from "../../../src/components/picker/index.js";
 import { RadioGroup } from "../../../src/components/radio/index.js";
 import { Rating } from "../../../src/components/rating/index.js";
@@ -224,5 +225,65 @@ describe("field and collection controls", () => {
     renderWithLocale(<Picker label="成员" options={options} value={[options[0]!]} />);
     expect(screen.getByRole("combobox", { name: "成员" })).toBeVisible();
     expect(screen.getByText("Alpha")).toBeVisible();
+  });
+});
+
+describe("composite Field ownership", () => {
+  it.each([
+    ["number", <NumberInput defaultValue={20} />, "spinbutton"],
+    ["date", <DatePicker defaultValue="2026-10-16" referenceDate="2026-10-16" />, "textbox"],
+    ["time", <TimePicker defaultValue="09:30" />, "textbox"],
+  ] as const)(
+    "inherits required, disabled and error state for %s without conflicting registrations",
+    (_name, control, role) => {
+      renderWithLocale(
+        <Field label="Owned field" required disabled errorText="Invalid value">
+          {control}
+        </Field>,
+      );
+      const input = screen.getByRole(role, { name: "Owned field" });
+      expect(input).toBeDisabled();
+      expect(input).toBeRequired();
+      expect(input).toHaveAttribute("aria-invalid", "true");
+      expect(screen.getByRole("alert")).toHaveTextContent("Invalid value");
+    },
+  );
+
+  it.each([
+    [
+      "date",
+      <DatePicker defaultValue="2026-10-16" referenceDate="2026-10-16" />,
+      "请输入允许范围内的有效日期。",
+    ],
+    ["time", <TimePicker defaultValue="09:30" />, "请输入允许范围内的有效时间。"],
+  ] as const)(
+    "reports and clears invalid %s input through its owning Field",
+    async (_name, control, message) => {
+      renderWithLocale(<Field label="Owned field">{control}</Field>);
+      const input = screen.getByRole("textbox", { name: "Owned field" });
+      const value = (input as HTMLInputElement).value;
+      fireEvent.change(input, { target: { value: "invalid" } });
+      fireEvent.blur(input);
+      expect(await screen.findByRole("alert")).toHaveTextContent(message);
+      expect(input).toHaveAttribute("aria-invalid", "true");
+      fireEvent.change(input, { target: { value } });
+      fireEvent.blur(input);
+      expect(screen.queryByRole("alert")).toBeNull();
+      expect(input).not.toHaveAttribute("aria-invalid");
+    },
+  );
+
+  it("keeps readonly time unchanged when stepping with the keyboard", () => {
+    const onValueChange = vi.fn();
+    renderWithLocale(
+      <Field label="Owned field">
+        <TimePicker readOnly defaultValue="09:30" onValueChange={onValueChange} />
+      </Field>,
+    );
+    const input = screen.getByRole("textbox", { name: "Owned field" });
+    fireEvent.keyDown(input, { key: "ArrowUp" });
+    fireEvent.blur(input);
+    expect(input).toHaveValue("09:30");
+    expect(onValueChange).not.toHaveBeenCalled();
   });
 });

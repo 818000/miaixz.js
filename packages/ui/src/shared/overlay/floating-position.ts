@@ -29,7 +29,16 @@ import { useMiaixzLayoutEffect } from "../use-client-layout-effect.js";
  * Defines every fixed placement used by package-owned Popover and Tooltip surfaces.
  */
 export type MiaixzFloatingPlacement =
-  "bottom-start" | "bottom-end" | "top-start" | "top-end" | "top" | "right" | "bottom" | "left";
+  | "bottom-start"
+  | "bottom-end"
+  | "top-start"
+  | "top-end"
+  | "right-start"
+  | "left-start"
+  | "top"
+  | "right"
+  | "bottom"
+  | "left";
 
 /**
  * Describes one resolved viewport-relative floating position.
@@ -88,9 +97,11 @@ export function useMiaixzFloatingPosition(
      * @returns No return value.
      */
     const update = () => {
+      const triggerRect = trigger.getBoundingClientRect();
+      const contentRect = content.getBoundingClientRect();
       const position = calculateMiaixzFloatingPosition(
-        trigger.getBoundingClientRect(),
-        content.getBoundingClientRect(),
+        triggerRect,
+        contentRect,
         placement,
         viewport.innerWidth,
         viewport.innerHeight,
@@ -99,6 +110,22 @@ export function useMiaixzFloatingPosition(
       );
       content.style.left = `${position.x}px`;
       content.style.top = `${position.y}px`;
+      content.style.setProperty(
+        "--miaixz-floating-anchor-x",
+        `${clampMiaixzFloatingCoordinate(
+          triggerRect.left + triggerRect.width / 2 - position.x,
+          12,
+          contentRect.width - 12,
+        )}px`,
+      );
+      content.style.setProperty(
+        "--miaixz-floating-anchor-y",
+        `${clampMiaixzFloatingCoordinate(
+          triggerRect.top + triggerRect.height / 2 - position.y,
+          12,
+          contentRect.height - 12,
+        )}px`,
+      );
       content.dataset.placement = position.placement;
       content.dataset.miaixzPositioned = "true";
     };
@@ -115,6 +142,8 @@ export function useMiaixzFloatingPosition(
       ownerDocument.removeEventListener("scroll", update, true);
       viewport.removeEventListener("resize", update);
       resizeObserver?.disconnect();
+      content.style.removeProperty("--miaixz-floating-anchor-x");
+      content.style.removeProperty("--miaixz-floating-anchor-y");
       delete content.dataset.miaixzPositioned;
     };
   }, [contentRef, open, placement, portalTarget, triggerRef, offset]);
@@ -155,9 +184,17 @@ export function calculateMiaixzFloatingPosition(
   if (placement === "top" || placement === "bottom") {
     x = trigger.left + (trigger.width - content.width) / 2;
     y = placement === "top" ? trigger.top - content.height - offset : trigger.bottom + offset;
-  } else if (placement === "left" || placement === "right") {
-    x = placement === "left" ? trigger.left - content.width - offset : trigger.right + offset;
-    y = trigger.top + (trigger.height - content.height) / 2;
+  } else if (
+    placement === "left" ||
+    placement === "right" ||
+    placement.startsWith("left-") ||
+    placement.startsWith("right-")
+  ) {
+    const alignLeft = placement === "left" || placement.startsWith("left-");
+    x = alignLeft ? trigger.left - content.width - offset : trigger.right + offset;
+    y = placement.endsWith("-start")
+      ? trigger.top
+      : trigger.top + (trigger.height - content.height) / 2;
   } else {
     const alignStart = placement.endsWith("-start");
     const alignLeft = rightToLeft ? !alignStart : alignStart;
@@ -218,13 +255,20 @@ function resolveMiaixzFloatingPlacement(
       : (placement.replace("top-", "bottom-") as MiaixzFloatingPlacement);
   }
   if (
-    placement === "right" &&
+    (placement === "right" || placement.startsWith("right-")) &&
     trigger.right + offset + content.width > viewportWidth - miaixzFloatingGap
   ) {
-    return "left";
+    return placement === "right"
+      ? "left"
+      : (placement.replace("right-", "left-") as MiaixzFloatingPlacement);
   }
-  if (placement === "left" && trigger.left - offset - content.width < miaixzFloatingGap) {
-    return "right";
+  if (
+    (placement === "left" || placement.startsWith("left-")) &&
+    trigger.left - offset - content.width < miaixzFloatingGap
+  ) {
+    return placement === "left"
+      ? "right"
+      : (placement.replace("left-", "right-") as MiaixzFloatingPlacement);
   }
   return placement;
 }

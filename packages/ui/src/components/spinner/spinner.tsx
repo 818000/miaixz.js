@@ -77,7 +77,7 @@ export const Spinner = withMiaixzThemeComponent(
     return (
       <span {...rootProps}>
         <Icon {...indicatorProps} />
-        <Hidden {...labelProps} />
+        {label ? <Hidden {...labelProps} /> : null}
       </span>
     );
   }),

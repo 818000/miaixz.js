@@ -205,6 +205,15 @@ function DropdownEntryView({ entry }: { readonly entry: DropdownEntry }) {
     );
   }
   if (entry.kind === "divider") return <hr id={entry.id} className="miaixz-dropdown-divider" />;
+  if (entry.kind === "group") {
+    return (
+      <div id={entry.id} role="group" aria-label={entry.label} className="miaixz-dropdown-group">
+        {entry.items.map((item) => (
+          <DropdownEntryView key={item.id} entry={item} />
+        ))}
+      </div>
+    );
+  }
   if (entry.kind === "radioGroup") {
     return (
       <div
@@ -499,7 +508,10 @@ function validateDropdownEntries(entries: readonly DropdownEntry[]): void {
       id: entry.id,
       textValue: "textValue" in entry ? entry.textValue : "",
       disabled:
-        entry.kind === "label" || entry.kind === "divider" || entry.kind === "radioGroup"
+        entry.kind === "label" ||
+        entry.kind === "divider" ||
+        entry.kind === "group" ||
+        entry.kind === "radioGroup"
           ? true
           : entry.kind === "identity"
             ? true
@@ -507,6 +519,7 @@ function validateDropdownEntries(entries: readonly DropdownEntry[]): void {
     })),
   );
   for (const entry of entries) {
+    if (entry.kind === "group") validateDropdownSubmenuItems(entry.items);
     if (entry.kind === "submenu") validateDropdownSubmenuItems(entry.items);
     if (entry.kind === "radioGroup") {
       validateMiaixzCollectionItems(

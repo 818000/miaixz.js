@@ -116,7 +116,6 @@
 
 .miaixz-upload-item[data-state="uploading"] .miaixz-upload-status-icon {
   color: var(--miaixz-color-focus);
-  animation: miaixz-upload-spin var(--miaixz-duration-slower) linear infinite;
 }
 
 .miaixz-upload-item[data-state="success"] .miaixz-upload-status-icon,
@@ -154,18 +153,6 @@
   flex-wrap: wrap;
   gap: var(--miaixz-space-4);
   justify-content: flex-end;
-}
-
-@keyframes miaixz-upload-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .miaixz-upload-item[data-state="uploading"] .miaixz-upload-status-icon {
-    animation: none;
-  }
 }
 
 @media (width <= 639px) {

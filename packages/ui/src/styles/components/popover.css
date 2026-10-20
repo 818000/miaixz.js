@@ -49,6 +49,9 @@
 }
 
 .miaixz-popover-content {
+  --miaixz-floating-anchor-x: var(--miaixz-space-16);
+  --miaixz-floating-anchor-y: var(--miaixz-space-16);
+
   position: fixed;
   inset: auto;
   z-index: var(--miaixz-z-overlay);
@@ -57,10 +60,59 @@
   max-block-size: var(--miaixz-responsive-overlay-block-size);
   padding: var(--miaixz-space-12);
   margin: 0;
-  overflow: auto;
+  overflow: visible;
   color: var(--miaixz-surface-role-overlay-foreground);
   background: var(--miaixz-surface-role-overlay-background);
   border: var(--miaixz-border-width-default) solid var(--miaixz-surface-role-overlay-border);
   border-radius: var(--miaixz-radius-panel);
   box-shadow: var(--miaixz-shadow-overlay);
+}
+
+.miaixz-popover-content::before {
+  position: absolute;
+  inset: auto;
+  z-index: 1;
+  inline-size: 10px;
+  block-size: 10px;
+  pointer-events: none;
+  content: "";
+  background: var(--miaixz-surface-role-overlay-background);
+  border: 0;
+  transform: rotate(45deg);
+}
+
+.miaixz-popover-content[data-placement="right-start"]::before {
+  inset-block-start: calc(var(--miaixz-floating-anchor-y) - 5px);
+  inset-inline-start: -6px;
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
+  border-inline-start: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
+}
+
+.miaixz-popover-content[data-placement="left-start"]::before {
+  inset-block-start: calc(var(--miaixz-floating-anchor-y) - 5px);
+  inset-inline-end: -6px;
+  border-block-start: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
+}
+
+.miaixz-popover-content[data-placement^="bottom"]::before {
+  inset-block-start: -6px;
+  inset-inline-start: calc(var(--miaixz-floating-anchor-x) - 5px);
+  border-block-start: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
+  border-inline-start: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
+}
+
+.miaixz-popover-content[data-placement^="top"]::before {
+  inset-block-end: -6px;
+  inset-inline-start: calc(var(--miaixz-floating-anchor-x) - 5px);
+  border-block-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
+  border-inline-end: var(--miaixz-border-width-default) solid
+    var(--miaixz-surface-role-overlay-border);
 }

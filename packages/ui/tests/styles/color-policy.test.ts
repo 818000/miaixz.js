@@ -133,9 +133,7 @@ describe("color ownership", () => {
       "var(--miaixz-color-danger)",
     );
     expect(
-      css.match(
-        /\.miaixz-control:where\(\[readonly\], \[data-readonly="true"\]\) \{([^}]+)\}/u,
-      )![1],
+      css.match(/\.miaixz-control:is\(\[readonly\], \[data-readonly="true"\]\) \{([^}]+)\}/u)![1],
     ).toContain("box-shadow: none;");
     expect(css.match(/\.miaixz-control\[data-disabled="true"\] \{([^}]+)\}/u)![1]).toContain(
       "box-shadow: none;",

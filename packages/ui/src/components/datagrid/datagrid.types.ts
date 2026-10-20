@@ -22,7 +22,7 @@
  * Defines the datagrid public type contracts.
  */
 
-import type { HTMLAttributes, ReactNode } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import type { TableRowHeight } from "../table/table.types.js";
 
 /**
@@ -46,6 +46,14 @@ export interface DatagridColumn<Row> {
   readonly sortable?: boolean;
   readonly align?: "start" | "center" | "end";
   readonly widthPercent?: number;
+  /**
+   * Preserves wrapping by default or truncates cell content to one line.
+   */
+  readonly overflow?: "wrap" | "ellipsis";
+  /**
+   * Native CSS column width, including fixed lengths and calculations; exclusive with widthPercent.
+   */
+  readonly width?: CSSProperties["width"];
 }
 
 /**
@@ -75,6 +83,14 @@ export type DatagridSelectionProps =
  * Component-specific Datagrid properties composed with the permitted native attributes.
  */
 export interface MiaixzDatagridBaseProps<Row> {
+  /**
+   * Controls the visually located row independently of selectedRowIds.
+   */
+  readonly currentRowId?: string | null;
+  /**
+   * Reports the newly located stable row identity.
+   */
+  readonly onCurrentRowChange?: (id: string) => void;
   readonly rows: readonly Row[];
   readonly columns: readonly DatagridColumn<Row>[];
   readonly getRowId: (row: Readonly<Row>) => string;

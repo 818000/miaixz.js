@@ -371,10 +371,12 @@ export const Drawer = withMiaixzThemeComponent(
           {...rootProps}
           style={{ ...rootProps.style, ...geometry }}
           onCancel={(event) => {
+            if (event.target !== event.currentTarget) return;
             rootProps.onCancel?.(event);
             event.stopPropagation();
           }}
           onClose={(event) => {
+            if (event.target !== event.currentTarget) return;
             rootProps.onClose?.(event);
             event.stopPropagation();
           }}

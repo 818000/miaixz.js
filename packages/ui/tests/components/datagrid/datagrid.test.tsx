@@ -50,6 +50,94 @@ const columns: readonly DatagridColumn<Row>[] = [
 ];
 
 describe("Datagrid", () => {
+  it("preserves cell actions, full-text hints, and row selection with ellipsis enabled", () => {
+    const onAction = vi.fn();
+    const onSelection = vi.fn();
+    renderWithLocale(
+      <Datagrid
+        caption="Truncated content"
+        rows={[{ id: "one", name: "A long member name" }]}
+        getRowId={(row) => row.id}
+        columns={[
+          {
+            id: "name",
+            header: "Name",
+            overflow: "ellipsis",
+            cell: (row) => (
+              <button title={row.name} onClick={onAction}>
+                {row.name}
+              </button>
+            ),
+          },
+        ]}
+        selectionMode="multiple"
+        selectedRowIds={[]}
+        onSelectedRowIdsChange={onSelection}
+      />,
+    );
+    fireEvent.click(screen.getByTitle("A long member name"));
+    expect(onAction).toHaveBeenCalledOnce();
+    expect(onSelection).not.toHaveBeenCalled();
+    fireEvent.click(screen.getAllByRole("checkbox")[1]!);
+    expect(onSelection).toHaveBeenCalledWith(["one"]);
+  });
+
+  it("supports fixed and calculated column widths without replacing percentage columns", () => {
+    renderWithLocale(
+      <Datagrid
+        caption="Widths"
+        layout="fixed"
+        rows={[{ id: "one", name: "One" }]}
+        getRowId={(row) => row.id}
+        columns={[
+          { id: "name", header: "Name", cell: (row) => row.name, width: "calc(100% - 240px)" },
+          { id: "action", header: "Action", cell: () => "View", width: 240 },
+        ]}
+      />,
+    );
+    expect(screen.getByRole("columnheader", { name: "Name" })).toHaveStyle({
+      width: "calc(100% - 240px)",
+    });
+    expect(screen.getByRole("columnheader", { name: "Action" })).toHaveStyle({ width: "240px" });
+  });
+
+  it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY, "", " "])(
+    "rejects invalid fixed column width %s",
+    (width) => {
+      expect(() =>
+        renderWithLocale(
+          <Datagrid
+            caption="Invalid"
+            rows={[]}
+            getRowId={(row: Row) => row.id}
+            columns={[{ id: "name", header: "Name", cell: (row: Row) => row.name, width }]}
+          />,
+        ),
+      ).toThrow();
+    },
+  );
+
+  it("rejects two competing width definitions on the same column", () => {
+    expect(() =>
+      renderWithLocale(
+        <Datagrid
+          caption="Invalid"
+          rows={[]}
+          getRowId={(row: Row) => row.id}
+          columns={[
+            {
+              id: "name",
+              header: "Name",
+              cell: (row: Row) => row.name,
+              width: 240,
+              widthPercent: 20,
+            },
+          ]}
+        />,
+      ),
+    ).toThrow();
+  });
+
   it("renders a semantic table with the global appearance and custom row height", () => {
     renderWithLocale(
       <Datagrid
@@ -107,4 +195,56 @@ describe("Datagrid", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "选择行" }));
     expect(onSelectedRowIdsChange).toHaveBeenCalledWith(["a"]);
   });
+});
+
+/**
+ * Verifies current location stays separate from controlled checkbox selection.
+ */
+it("reports controlled current rows without selecting them", () => {
+  const onCurrentRowChange = vi.fn();
+  const onSelectedRowIdsChange = vi.fn();
+  const rows = [
+    { id: "a", name: "Alpha" },
+    { id: "b", name: "Beta" },
+  ];
+  renderWithLocale(
+    <Datagrid
+      caption="Located records"
+      columns={columns}
+      getRowId={(row) => row.id}
+      rows={rows}
+      currentRowId="a"
+      onCurrentRowChange={onCurrentRowChange}
+      selectionMode="multiple"
+      selectedRowIds={["a"]}
+      onSelectedRowIdsChange={onSelectedRowIdsChange}
+    />,
+  );
+  fireEvent.click(screen.getByRole("cell", { name: "Beta" }));
+  expect(onCurrentRowChange).toHaveBeenCalledWith("b");
+  expect(onSelectedRowIdsChange).not.toHaveBeenCalled();
+  expect(screen.getByRole("cell", { name: "Alpha" }).closest("tr")).toHaveAttribute(
+    "data-current-row",
+    "true",
+  );
+  cleanup();
+  renderWithLocale(
+    <Datagrid
+      caption="Located records"
+      columns={columns}
+      getRowId={(row) => row.id}
+      rows={rows}
+      currentRowId="b"
+      selectionMode="multiple"
+      selectedRowIds={["a"]}
+    />,
+  );
+  expect(screen.getByRole("cell", { name: "Beta" }).closest("tr")).toHaveAttribute(
+    "data-current-row",
+    "true",
+  );
+  expect(screen.getByRole("cell", { name: "Alpha" }).closest("tr")).toHaveAttribute(
+    "data-selected",
+    "true",
+  );
 });

@@ -27,6 +27,7 @@ import { forwardRef, useMemo, useState, type ReactElement } from "react";
 import { MiaixzUiError } from "../../errors/ui-error.js";
 import { useMiaixzLocale } from "../../i18n/i18n.js";
 import { Icon, type IconName } from "@miaixz/icons";
+import { Spinner } from "../spinner/spinner.js";
 import { mergeMiaixzSlotProps } from "../../shared/slots.js";
 import type { UploadFileRecord } from "../../shared/upload/types.js";
 import { useUploadQueue } from "../../shared/upload/use-upload-queue.js";
@@ -222,12 +223,21 @@ export const Upload = withMiaixzThemeComponent(
           <ul {...listProps}>
             {queue.files.map((record) => (
               <li {...itemProps} key={record.id} data-state={record.status}>
-                <Icon
-                  aria-hidden="true"
-                  className="miaixz-upload-status-icon"
-                  name={getStatusIcon(record.status)}
-                  size="control"
-                />
+                {record.status === "uploading" ? (
+                  <Spinner
+                    label=""
+                    aria-hidden="true"
+                    size="small"
+                    className="miaixz-upload-status-icon"
+                  />
+                ) : (
+                  <Icon
+                    aria-hidden="true"
+                    className="miaixz-upload-status-icon"
+                    name={getStatusIcon(record.status)}
+                    size="control"
+                  />
+                )}
                 <div className="miaixz-upload-details">
                   <span className="miaixz-upload-name">{record.name}</span>
                   <span {...statusProps}>{t(getStatusKey(record.status))}</span>

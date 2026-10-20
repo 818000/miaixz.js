@@ -2,6 +2,7 @@
  * Verifies tree behavior in the UI package.
  */
 
+import { readFileSync } from "node:fs";
 import "@testing-library/jest-dom/vitest";
 import {
   act,
@@ -36,6 +37,20 @@ const nodes: readonly TreeNode[] = [
 ];
 
 describe("Tree", () => {
+  it("keeps primary labels and trailing values on the shared body typography", () => {
+    const css = readFileSync("src/styles/components/tree.css", "utf8");
+
+    expect(css).toMatch(
+      /\.miaixz-tree-label\s*\{[^}]*font-size:\s*var\(--miaixz-text-body-size\)/su,
+    );
+    expect(css).toMatch(
+      /\.miaixz-tree-trailing\s*\{[^}]*font-size:\s*var\(--miaixz-text-body-size\)/su,
+    );
+    expect(css).toMatch(
+      /\.miaixz-tree-trailing\s*\{[^}]*line-height:\s*var\(--miaixz-text-body-line-height\)/su,
+    );
+  });
+
   it("keeps root refs, classes, and native data attributes on role=tree", () => {
     const ref = { current: null as HTMLDivElement | null };
     render(

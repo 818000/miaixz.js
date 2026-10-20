@@ -30,6 +30,7 @@
   display: inline-flex;
   align-items: stretch;
   width: 100%;
+  block-size: var(--miaixz-control-block-size);
   padding: 0;
 }
 
@@ -45,7 +46,7 @@
 
 .miaixz-select[data-state="open"] {
   outline: 0;
-  border-color: var(--miaixz-color-border-strong);
+  border-color: var(--miaixz-surface-role-selected-border);
   border-end-start-radius: 0;
   border-end-end-radius: 0;
   box-shadow: none;
@@ -70,13 +71,13 @@
 
 .miaixz-select-trigger {
   display: flex;
-  gap: var(--miaixz-space-8);
+  gap: min(var(--miaixz-space-8), max(0px, calc(100% - var(--miaixz-icon-size-control))));
   align-items: center;
   justify-content: space-between;
   width: 100%;
   min-width: 0;
   min-height: 100%;
-  padding: 0 var(--miaixz-density-control-padding-inline);
+  padding: 0 var(--miaixz-control-padding-inline);
   font: inherit;
   line-height: inherit;
   color: inherit;
@@ -100,7 +101,10 @@
 }
 
 .miaixz-select-indicator {
+  display: inline-flex;
   flex: none;
+  align-items: center;
+  justify-content: center;
   color: var(--miaixz-color-text-secondary);
   transition: transform var(--miaixz-motion-interaction-duration)
     var(--miaixz-motion-interaction-easing);
@@ -184,7 +188,7 @@
 }
 
 .miaixz-select-option[data-state="active"] {
-  background: var(--miaixz-color-surface-hover);
+  background: var(--miaixz-surface-role-selected-background);
   border-bottom-color: var(--miaixz-color-border);
 }
 
@@ -210,4 +214,14 @@
 
 .miaixz-select[data-disabled="true"] {
   background: var(--miaixz-color-surface-secondary);
+}
+
+.miaixz-select-option:is(
+    :hover,
+    :active,
+    :focus-visible,
+    [aria-selected="true"],
+    [data-state="active"]
+  ):not([data-disabled="true"], [aria-disabled="true"], :disabled) {
+  background: var(--miaixz-surface-role-selected-background);
 }
