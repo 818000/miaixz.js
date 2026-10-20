@@ -797,7 +797,9 @@ export function createMiaixzSdk(options: MiaixzSdkOptions): MiaixzSdk {
     },
   };
 
-  // Preserve the live grants accessor; spreading common would capture only its initial snapshot.
+  /**
+   * Preserves the live grants accessor; spreading common would capture only its initial snapshot.
+   */
   return Object.assign(
     common,
     authMode === "bearer"
