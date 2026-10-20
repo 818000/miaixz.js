@@ -703,3 +703,38 @@ The component and styles are also available from `@miaixz/ui/exception` and `@mi
 Use `slotProps.background` to supply a custom decorative background through `children`, `className` or native styles. This slot is hidden from assistive technology and ignores pointer events. Full-viewport background remains the responsibility of the outer `Entry`; the exception surface can also be embedded in a smaller region. `Theme.components.Exception` supports the same public defaults, owner-state variants and slot classes as other UI components.
 
 The four original inline SVG office stories reuse neutral figures and ordinary work actions. Clothing reads `--miaixz-color-brand`, accent fills read `--miaixz-color-brand-soft`, and outlines/paper follow neutral theme colors. No raster recoloring, fixed green clothing, remote images or Logo resolution is needed. The illustrations have no visible text, flags, badges, political slogans or geographical boundaries. Custom illustrations and background content are supplied explicitly by the caller and should follow the same neutral-content review.
+
+### Configured Picker surfaces
+
+Existing `Picker` calls without `selectionMode` retain their searchable multiple-selection
+contract, option-array values, asynchronous option loading and chip rendering.
+Explicit `selectionMode="single"` uses `MiaixzOption | null`; explicit `"multiple"` uses
+`readonly MiaixzOption[]`. Both accept static `options` or `renderContent` for custom content.
+`renderContent` receives the staged value, `onValueChange`, `disabled` and `readOnly`.
+Custom content owns its search, paging, asynchronous requests and keyboard semantics;
+`loading`, `errorMessage` and `onRetry` provide shared status feedback.
+
+`presentation` accepts `popover` (default), `drawer`, `dialog`, or `inline`. These reuse
+existing public containers; they do not change Select, Combobox or date/time contracts.
+`commitMode="immediate"` is the default. With `"confirm"`, only confirmation updates the
+public value and native form value; cancellation or dismissal discards the staged selection.
+`clearable` exposes clearing only for optional fields. Controlled values without a change
+callback remain read-only. Custom content unmounts when closed and mounts after the open
+surface has an opportunity to paint. Keep expensive work inside that content, not in the
+caller before opening the Picker. The default option renderer uses native radios or checkboxes.
+
+```tsx
+<Picker
+  selectionMode="single"
+  presentation="drawer"
+  commitMode="confirm"
+  drawerWidth={800}
+  label="Choose resource"
+  value={selected}
+  onValueChange={setSelected}
+  renderValue={(option) => option?.label ?? "Choose resource"}
+  renderContent={(state) => (
+    <ResourceCatalog selected={state.value} onSelect={state.onValueChange} />
+  )}
+/>
+```

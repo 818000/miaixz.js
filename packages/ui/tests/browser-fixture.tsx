@@ -848,6 +848,48 @@ function FieldGeometryFixture() {
  * Pointer and keyboard states are exercised through the native editors.
  * @returns Interactive control state reference.
  */
+function PickerEnhancementFixture() {
+  const [value, setValue] = useState<
+    import("../src/components/combobox/combobox.types.js").MiaixzOption | null
+  >(null);
+  const presentation = parameters.get("pickerSurface") as
+    "popover" | "drawer" | "dialog" | "inline";
+  const size = (parameters.get("pickerSize") ?? "medium") as "small" | "medium" | "large";
+  return (
+    <main>
+      <Input aria-label="Reference input" size={size} />
+      <Picker
+        size={size}
+        selectionMode="single"
+        presentation={presentation}
+        commitMode="confirm"
+        label="Choose resource"
+        name="resource"
+        value={value}
+        onValueChange={setValue}
+        confirmLabel="Confirm"
+        cancelLabel="Cancel"
+        renderContent={(state) => (
+          <div data-testid="picker-custom-content">
+            <Button
+              onClick={() =>
+                state.onValueChange({ value: "alpha", label: "Alpha", textValue: "Alpha" })
+              }
+            >
+              Pick Alpha
+            </Button>
+          </div>
+        )}
+      />
+      <output data-testid="committed-value">{value?.value ?? "empty"}</output>
+    </main>
+  );
+}
+
+/**
+ * Renders the existing control-state fixture.
+ * @returns The control reference.
+ */
 function ControlStateFixture() {
   const [mode, setMode] = useState("normal");
   const [log, setLog] = useState("");
@@ -1185,7 +1227,11 @@ export function BrowserFixture() {
           ) : parameters.get("fieldGeometry") === "1" ? (
             <FieldGeometryFixture />
           ) : parameters.get("controlStates") === "1" ? (
-            <ControlStateFixture />
+            parameters.has("pickerSurface") ? (
+              <PickerEnhancementFixture />
+            ) : (
+              <ControlStateFixture />
+            )
           ) : (
             <FormLabelFixture />
           )}
