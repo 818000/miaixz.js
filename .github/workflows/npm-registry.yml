@@ -27,7 +27,7 @@ concurrency:
 jobs:
   quality:
     name: Validate Tagged Source
-    if: ${{ github.repository == '818000/miaixz.js' }}
+    if: ${{ github.repository == 'miaixzo/miaixz.js' }}
     uses: ./.github/workflows/build-project.yml
     with:
       target-ref: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
