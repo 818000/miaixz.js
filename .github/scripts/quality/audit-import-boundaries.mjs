@@ -47,8 +47,8 @@ const viewSourceRoot = requireSourceRoot("@miaixz/view");
 const violations = [];
 const componentRanks = new Map(
   Object.entries({
-    0: "badge bar brand breadcrumb checkbox cluster columns descriptions divider donut empty entry field grid header hidden icon input link list masonry page panel popover pressable progress radio scroll sections sidebar skeleton slider sparkline split stack status steps switch table tabs textarea timeline toolbar tooltip transfer",
-    1: "button combobox dialog disclosure drawer dropdown dropzone editor heatmap metrics pagination rating segmented select spinner tag",
+    0: "badge bar brand breadcrumb checkbox cluster columns descriptions divider donut empty entry exception field file grid header icon input link list masonry page panel popover pressable progress radio scroll sections sidebar skeleton slider sparkline spinner split stack status steps switch table tabs textarea timeline toolbar tooltip transfer",
+    1: "button combobox dialog disclosure drawer dropdown dropzone editor heatmap metrics pagination rating segmented select tag",
     2: "action avatar date navigation overlay picker shell tree",
     3: "datagrid graph search toast view feedback",
     4: "alert locale notice toaster",
@@ -168,6 +168,7 @@ function classifyUi(file) {
   }
   if (
     source.startsWith("accessibility/") ||
+    source.startsWith("components/hidden/") ||
     source.startsWith("i18n/") ||
     source.startsWith("theme/") ||
     source.startsWith("shared/")
