@@ -87,7 +87,7 @@
 .miaixz-table-head,
 .miaixz-table > thead {
   color: var(--miaixz-color-text-secondary);
-  background: transparent;
+  background: var(--miaixz-surface-role-panel-background);
 }
 
 .miaixz-table > :is(thead, tbody, tfoot) > tr,
@@ -147,6 +147,10 @@
 .miaixz-table-sort[aria-sort="ascending"],
 .miaixz-table-sort[aria-sort="descending"] {
   color: var(--miaixz-color-text-primary);
+}
+
+.miaixz-table > thead > tr > :is(th, td) {
+  background: var(--miaixz-surface-role-panel-background);
 }
 
 .miaixz-table[data-sticky-header] .miaixz-table-head {

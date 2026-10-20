@@ -1467,7 +1467,7 @@ export function BrowserFixture() {
             </EditorLayout>
 
             <TableContainer id="tables">
-              <Table>
+              <Table stickyHeader={parameters.has("stickyTable")}>
                 <TableCaption>固定成员数据</TableCaption>
                 <TableHeader>
                   <TableRow>
