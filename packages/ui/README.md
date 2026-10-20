@@ -192,7 +192,6 @@ This table is checked directly against the package export map.
 | `./spinner`                  | JavaScript |
 | `./confirm`                  | JavaScript |
 | `./notice`                   | JavaScript |
-| `./file`                     | JavaScript |
 | `./field`                    | JavaScript |
 | `./search`                   | JavaScript |
 | `./overlay`                  | JavaScript |
@@ -274,7 +273,6 @@ This table is checked directly against the package export map.
 | `./spinner/styles.css`       | CSS        |
 | `./confirm/styles.css`       | CSS        |
 | `./notice/styles.css`        | CSS        |
-| `./file/styles.css`          | CSS        |
 | `./field/styles.css`         | CSS        |
 | `./search/styles.css`        | CSS        |
 | `./overlay/styles.css`       | CSS        |
@@ -286,13 +284,15 @@ This table is checked directly against the package export map.
 | `./status/styles.css`        | CSS        |
 | `./steps/styles.css`         | CSS        |
 | `./empty/styles.css`         | CSS        |
-| `./exception`                | JavaScript |
-| `./exception/styles.css`     | CSS        |
 | `./entry/styles.css`         | CSS        |
 | `./hidden/styles.css`        | CSS        |
 | `./theme.css`                | CSS        |
 | `./core.css`                 | CSS        |
 | `./reset.css`                | CSS        |
+| `./file`                     | JavaScript |
+| `./file/styles.css`          | CSS        |
+| `./exception`                | JavaScript |
+| `./exception/styles.css`     | CSS        |
 
 The package manifest publishes its machine-readable UI contract under `miaixz`, covering public components, audited
 properties and values, stable selectors, and runtime attributes. Removed APIs are not published as package metadata.
