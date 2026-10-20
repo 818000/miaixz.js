@@ -56,6 +56,7 @@ import {
   MiaixzLocaleProvider,
   MiaixzLinkProvider,
   Navigation,
+  NavigationRail,
   View,
   type LinkRefreshMode,
   Panel,
@@ -1171,6 +1172,7 @@ export function BrowserFixture() {
   const accessibilityFixture = parameters.get("a11y") as AccessibilityFixtureName | null;
 
   if (
+    parameters.has("railGradient") ||
     parameters.has("navigationRefresh") ||
     parameters.get("controlStates") === "1" ||
     parameters.get("fieldGeometry") === "1" ||
@@ -1220,6 +1222,40 @@ export function BrowserFixture() {
                 loadingLabel="正在读取配置"
               />
             </main>
+          ) : parameters.has("railGradient") ? (
+            <NavigationRail
+              brand="Brand"
+              toggle={<button type="button">Toggle</button>}
+              variant="brand"
+              expanded={parameters.get("expanded") === "1"}
+              dir={parameters.get("direction") === "rtl" ? "rtl" : "ltr"}
+              style={{ height: 600 }}
+              groups={[
+                {
+                  id: "main",
+                  label: "Main",
+                  items: [
+                    {
+                      id: "selected",
+                      label: "Selected menu",
+                      textValue: "Selected menu",
+                      href: "#selected",
+                      current: "page",
+                      icon: "blocks",
+                      overflow: "never",
+                    },
+                    {
+                      id: "ordinary",
+                      label: "Ordinary menu",
+                      textValue: "Ordinary menu",
+                      href: "#ordinary",
+                      icon: "settings",
+                      overflow: "never",
+                    },
+                  ],
+                },
+              ]}
+            />
           ) : parameters.has("navigationRefresh") ? (
             <NavigationRefreshFixture />
           ) : parameters.get("editorResponsive") === "1" ? (
@@ -1480,6 +1516,13 @@ export function BrowserFixture() {
                     <TableCell>Kimi</TableCell>
                     <TableCell>启用</TableCell>
                   </TableRow>
+                  {parameters.has("stickyTable") &&
+                    Array.from({ length: 30 }, (_, index) => (
+                      <TableRow key={index}>
+                        <TableCell>Member {index + 1}</TableCell>
+                        <TableCell>启用</TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>

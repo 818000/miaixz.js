@@ -140,7 +140,7 @@
 
 .miaixz-tab:is([aria-selected="true"], [aria-current], [aria-pressed="true"]) {
   font-weight: var(--miaixz-font-weight-medium);
-  color: var(--miaixz-color-brand-strong);
+  color: var(--miaixz-color-brand);
   box-shadow: inset 0 calc(var(--miaixz-tabs-indicator-size) * -1) 0 var(--miaixz-color-brand);
 }
 
