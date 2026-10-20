@@ -29,7 +29,7 @@ import { Dropdown } from "../dropdown/dropdown.js";
 import { type DropdownEntry } from "../dropdown/dropdown.types.js";
 import { Icon } from "@miaixz/icons";
 import { IconButton } from "./icon-button.js";
-import type { ActionDescriptor, MoreActionsProps } from "./action.types.js";
+import type { ActionDescriptor, IconButtonProps, MoreActionsProps } from "./action.types.js";
 import { withMiaixzThemeComponent } from "../../theme/binding.js";
 
 /**
@@ -40,6 +40,10 @@ interface MoreActionsViewProps extends MoreActionsProps {
    * Overrides the overflow trigger's accessible name.
    */
   readonly label?: string;
+  /**
+   * Matches the overflow trigger to the controls that surround it.
+   */
+  readonly triggerSize?: IconButtonProps["size"];
 }
 
 /**
@@ -89,7 +93,7 @@ function createMenuEntry(action: ActionDescriptor): DropdownEntry {
  * @internal
  */
 export function MoreActionsView(properties: MoreActionsViewProps) {
-  const { actions, label: labelOverride } = properties;
+  const { actions, label: labelOverride, triggerSize = "small" } = properties;
   const { t } = useMiaixzLocale();
   const dividerId = useId();
   if (actions.length === 0) return null;
@@ -115,7 +119,7 @@ export function MoreActionsView(properties: MoreActionsViewProps) {
           appearance="glyph"
           icon="more-horizontal"
           label={label}
-          size="small"
+          size={triggerSize}
           tone="neutral"
           tooltip={false}
         />

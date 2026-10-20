@@ -272,7 +272,9 @@ describe("RowActions", () => {
     expect(edit.querySelector(".miaixz-icon")).not.toBeNull();
     expect(view.querySelector(".miaixz-icon")).not.toBeNull();
     expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "更多" }));
+    const overflow = screen.getByRole("button", { name: "更多" });
+    expect(overflow).toHaveAttribute("data-size", "medium");
+    fireEvent.click(overflow);
     expect(screen.getByRole("menuitem", { name: "删除" })).toBeVisible();
   });
 

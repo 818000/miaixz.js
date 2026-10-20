@@ -67,6 +67,7 @@ function RowActions(properties: RowActionsProps) {
       ))}
       <MoreActionsView
         actions={overflow}
+        triggerSize="medium"
         {...(overflowLabel === undefined
           ? compact
             ? { label: t("ui.action.actions") }
