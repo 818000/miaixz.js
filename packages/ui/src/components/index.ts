@@ -747,6 +747,7 @@ export type {
   TableCaptionProps,
   TableCellProps,
   TableContainerProps,
+  TableGutter,
   TableRowHeight,
   TableFooterProps,
   TableHeaderProps,

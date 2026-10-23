@@ -274,7 +274,7 @@ function ActionShowcase() {
         description="危险操作固定收进更多菜单"
         title="03 表格行"
       >
-        <TableContainer>
+        <TableContainer gutter="flush">
           <Table>
             <TableCaption>操作密度基线</TableCaption>
             <TableHeader>

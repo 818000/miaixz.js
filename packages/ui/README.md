@@ -623,6 +623,8 @@ Use `Cluster wrap={false}` to keep related inline content, such as an avatar and
 on the same row. `DatagridColumn.overflow="ellipsis"` opts a column into single-line truncation;
 wrapping remains the default. Supply a native `title` on cell content when the full value should
 be available on hover, and use explicit column widths when narrow viewports require table scrolling.
+`TableContainer` and `Datagrid` use `gutter="inset"` by default for readable list spacing. Use
+`gutter="flush"` for dense trees, matrices, and other tables that must reach their container edges.
 
 Embedded views can call `useMiaixzLocale().loadNamespace(namespace, locale)` before opening to load
 their own messages through the existing SDK runtime. This does not create a second translator or
